@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -88,10 +88,18 @@ const restaurantItems = [
     url: createPageUrl("DeliveryManagement"),
     icon: Truck,
   },
+];
+
+const marketplaceItems = [
   {
     title: "Join Marketplace",
-    url: createPageUrl("RestaurantOnboarding"),
+    url: createPageUrl("MarketplaceOnboarding"),
     icon: Store,
+  },
+  {
+    title: "Join as Driver",
+    url: createPageUrl("DriverSignup"),
+    icon: UserPlus,
   },
 ];
 
@@ -132,8 +140,8 @@ export default function Layout({ children, currentPageName }) {
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-slate-900 text-lg">WorkFlow Pro</h2>
-                <p className="text-xs text-slate-500">Complete Work Manager</p>
+                <h2 className="font-bold text-slate-900 text-lg">FoodHub</h2>
+                <p className="text-xs text-slate-500">Marketplace Platform</p>
               </div>
             </div>
           </SidebarHeader>
@@ -191,7 +199,7 @@ export default function Layout({ children, currentPageName }) {
 
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
-                🍴 Restaurant Admin
+                🏪 Business Admin
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -201,6 +209,31 @@ export default function Layout({ children, currentPageName }) {
                         asChild 
                         className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
                           location.pathname === item.url ? 'bg-orange-50 text-orange-700 shadow-sm' : ''
+                        }`}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                🚀 Join Marketplace
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {marketplaceItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-pink-50 hover:text-pink-700 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'bg-pink-50 text-pink-700 shadow-sm' : ''
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
@@ -293,7 +326,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">WorkFlow Pro</h1>
+              <h1 className="text-xl font-bold text-slate-900">FoodHub</h1>
             </div>
           </header>
 

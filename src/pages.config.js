@@ -16,6 +16,7 @@ import DeliveryPartnerDashboard from './pages/DeliveryPartnerDashboard';
 import RestaurantOnboarding from './pages/RestaurantOnboarding';
 import PlatformFinance from './pages/PlatformFinance';
 import DriverSignup from './pages/DriverSignup';
+import MarketplaceOnboarding from './pages/MarketplaceOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +39,7 @@ export const PAGES = {
     "RestaurantOnboarding": RestaurantOnboarding,
     "PlatformFinance": PlatformFinance,
     "DriverSignup": DriverSignup,
+    "MarketplaceOnboarding": MarketplaceOnboarding,
 }
 
 export const pagesConfig = {
