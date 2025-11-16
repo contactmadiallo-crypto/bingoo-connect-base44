@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -87,6 +87,11 @@ const restaurantItems = [
     title: "Delivery Mgmt",
     url: createPageUrl("DeliveryManagement"),
     icon: Truck,
+  },
+  {
+    title: "Join Marketplace",
+    url: createPageUrl("RestaurantOnboarding"),
+    icon: Store,
   },
 ];
 
