@@ -10,6 +10,7 @@ import RestaurantMenu from './pages/RestaurantMenu';
 import KitchenView from './pages/KitchenView';
 import RestaurantAdmin from './pages/RestaurantAdmin';
 import OrderTracking from './pages/OrderTracking';
+import DeliveryManagement from './pages/DeliveryManagement';
 import Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "KitchenView": KitchenView,
     "RestaurantAdmin": RestaurantAdmin,
     "OrderTracking": OrderTracking,
+    "DeliveryManagement": DeliveryManagement,
 }
 
 export const pagesConfig = {

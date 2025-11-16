@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 
@@ -18,6 +18,8 @@ export default function RestaurantAdmin() {
   const [inventoryDialog, setInventoryDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [generatingTables, setGeneratingTables] = useState(false);
+  const [tableCount, setTableCount] = useState(20);
   const [menuForm, setMenuForm] = useState({
     name: "", description: "", price: "", category: "main_course", image_url: "", 
     preparation_time: "", available: true
@@ -43,6 +45,12 @@ export default function RestaurantAdmin() {
   const { data: orders } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: tables } = useQuery({
+    queryKey: ['tables'],
+    queryFn: () => base44.entities.Table.list(),
     initialData: [],
   });
 
@@ -99,6 +107,37 @@ export default function RestaurantAdmin() {
     setUploadingImage(false);
   };
 
+  const generateTables = async () => {
+    setGeneratingTables(true);
+    const baseUrl = window.location.origin;
+    const tablesToCreate = [];
+    
+    for (let i = 1; i <= tableCount; i++) {
+      const tableNumber = `T${i.toString().padStart(2, '0')}`;
+      const menuUrl = `${baseUrl}/RestaurantMenu?table=${tableNumber}`;
+      const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
+      
+      tablesToCreate.push({
+        table_number: tableNumber,
+        capacity: 4,
+        status: "available",
+        qr_code_url: qrCodeUrl,
+        location: `Section ${Math.ceil(i / 5)}`
+      });
+    }
+    
+    await base44.entities.Table.bulkCreate(tablesToCreate);
+    queryClient.invalidateQueries({ queryKey: ['tables'] });
+    setGeneratingTables(false);
+  };
+
+  const downloadQRCode = (table) => {
+    const link = document.createElement('a');
+    link.href = table.qr_code_url;
+    link.download = `${table.table_number}-QR.png`;
+    link.click();
+  };
+
   const handleMenuSubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -149,9 +188,10 @@ export default function RestaurantAdmin() {
         </div>
 
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="menu">Menu Items</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            <TabsTrigger value="tables">Tables & QR</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
           </TabsList>
 
@@ -230,6 +270,64 @@ export default function RestaurantAdmin() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="tables">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Table QR Codes</CardTitle>
+                <div className="flex gap-2 items-center">
+                  <Input 
+                    type="number" 
+                    value={tableCount} 
+                    onChange={(e) => setTableCount(parseInt(e.target.value) || 0)}
+                    className="w-20"
+                    min="1"
+                    max="100"
+                  />
+                  <Button onClick={generateTables} disabled={generatingTables || tables.length > 0}>
+                    {generatingTables ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <QrCode className="w-4 h-4 mr-2" />
+                        Generate Tables
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {tables.length === 0 ? (
+                  <div className="text-center py-12">
+                    <QrCode className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-600 mb-4">No tables generated yet</p>
+                    <p className="text-sm text-slate-500">Set the number of tables and click Generate</p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {tables.map((table) => (
+                      <Card key={table.id} className="text-center">
+                        <CardContent className="pt-6">
+                          <h3 className="font-bold text-lg mb-2">{table.table_number}</h3>
+                          <div className="bg-white p-2 rounded-lg mb-3">
+                            <img src={table.qr_code_url} alt={`QR for ${table.table_number}`} className="w-full" />
+                          </div>
+                          <p className="text-sm text-slate-600 mb-3">{table.location}</p>
+                          <Button size="sm" onClick={() => downloadQRCode(table)} className="w-full">
+                            <Download className="w-3 h-3 mr-2" />
+                            Download
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
