@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 
@@ -17,6 +17,7 @@ export default function RestaurantAdmin() {
   const [menuDialog, setMenuDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [menuForm, setMenuForm] = useState({
     name: "", description: "", price: "", category: "main_course", image_url: "", 
     preparation_time: "", available: true
@@ -88,6 +89,16 @@ export default function RestaurantAdmin() {
     setInventoryForm({ item_name: "", quantity: "", unit: "pieces", min_quantity: "", category: "other" });
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setMenuForm({ ...menuForm, image_url: file_url });
+    setUploadingImage(false);
+  };
+
   const handleMenuSubmit = (e) => {
     e.preventDefault();
     const data = {
@@ -157,6 +168,11 @@ export default function RestaurantAdmin() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {menuItems.map((item) => (
                     <Card key={item.id}>
+                      {item.image_url && (
+                        <div className="h-40 overflow-hidden">
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                        </div>
+                      )}
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start mb-2">
                           <h3 className="font-semibold">{item.name}</h3>
@@ -244,11 +260,31 @@ export default function RestaurantAdmin() {
         </Tabs>
 
         <Dialog open={menuDialog} onOpenChange={setMenuDialog}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingItem ? "Edit" : "Add"} Menu Item</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleMenuSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Image</Label>
+                <div className="space-y-2">
+                  {menuForm.image_url && (
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                      <img src={menuForm.image_url} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="flex-1"
+                    />
+                    {uploadingImage && <Loader2 className="w-5 h-5 animate-spin" />}
+                  </div>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label>Name *</Label>
                 <Input value={menuForm.name} onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} required />
@@ -276,9 +312,13 @@ export default function RestaurantAdmin() {
                   </Select>
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label>Preparation Time (minutes)</Label>
+                <Input type="number" value={menuForm.preparation_time} onChange={(e) => setMenuForm({...menuForm, preparation_time: e.target.value})} />
+              </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setMenuDialog(false)}>Cancel</Button>
-                <Button type="submit">{editingItem ? "Update" : "Add"}</Button>
+                <Button type="submit" disabled={uploadingImage}>{editingItem ? "Update" : "Add"}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
