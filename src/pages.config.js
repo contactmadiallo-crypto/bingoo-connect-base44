@@ -6,6 +6,10 @@ import Calendar from './pages/Calendar';
 import Reports from './pages/Reports';
 import Files from './pages/Files';
 import Team from './pages/Team';
+import RestaurantMenu from './pages/RestaurantMenu';
+import KitchenView from './pages/KitchenView';
+import RestaurantAdmin from './pages/RestaurantAdmin';
+import OrderTracking from './pages/OrderTracking';
 import Layout from './Layout.jsx';
 
 
@@ -18,6 +22,10 @@ export const PAGES = {
     "Reports": Reports,
     "Files": Files,
     "Team": Team,
+    "RestaurantMenu": RestaurantMenu,
+    "KitchenView": KitchenView,
+    "RestaurantAdmin": RestaurantAdmin,
+    "OrderTracking": OrderTracking,
 }
 
 export const pagesConfig = {
