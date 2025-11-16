@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, Search } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -54,6 +54,29 @@ const navigationItems = [
   },
 ];
 
+const restaurantItems = [
+  {
+    title: "Menu",
+    url: createPageUrl("RestaurantMenu"),
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "Kitchen",
+    url: createPageUrl("KitchenView"),
+    icon: ChefHat,
+  },
+  {
+    title: "Admin",
+    url: createPageUrl("RestaurantAdmin"),
+    icon: Settings,
+  },
+  {
+    title: "Track Order",
+    url: createPageUrl("OrderTracking"),
+    icon: Search,
+  },
+];
+
 const quickActions = [
   {
     title: "Add Work",
@@ -94,6 +117,31 @@ export default function Layout({ children, currentPageName }) {
                         asChild 
                         className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-1 ${
                           location.pathname === item.url ? 'bg-blue-50 text-blue-700 shadow-sm' : ''
+                        }`}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                Restaurant
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {restaurantItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'bg-orange-50 text-orange-700 shadow-sm' : ''
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
