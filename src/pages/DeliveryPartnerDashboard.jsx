@@ -8,16 +8,23 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, MapPin, Phone, Clock, CheckCircle, AlertCircle, DollarSign, TrendingUp, Star, Bell } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Truck, MapPin, Phone, Clock, CheckCircle, AlertCircle, DollarSign, TrendingUp, Star, Bell, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function DeliveryPartnerDashboard() {
   const [verifyDialog, setVerifyDialog] = useState(false);
+  const [settingsDialog, setSettingsDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [driverInfo, setDriverInfo] = useState({ name: "", phone: "" });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationOrder, setNotificationOrder] = useState(null);
+  const [locationPreferences, setLocationPreferences] = useState({
+    location_sharing_enabled: true,
+    share_location_only_when_active: true,
+    auto_disable_location_after_delivery: true
+  });
 
   const queryClient = useQueryClient();
 
@@ -50,6 +57,14 @@ export default function DeliveryPartnerDashboard() {
     }),
   });
 
+  const updatePartnerMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.DeliveryPartner.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['partners'] });
+      setSettingsDialog(false);
+    },
+  });
+
   const currentPartner = partners[0];
   const myDeliveries = orders.filter(o => o.delivery_partner_id === currentPartner?.id);
   const completedDeliveries = myDeliveries.filter(o => o.status === 'delivered');
@@ -65,12 +80,19 @@ export default function DeliveryPartnerDashboard() {
     if (newOrders.length > 0 && !showNotification) {
       setNotificationOrder(newOrders[0]);
       setShowNotification(true);
-      
-      // Play notification sound
-      const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBzKJ0fPTgjMGHWm98OScTgwOUrDn77BgGAU7k9n0yoAyBydz0fPaizsIGGS57OihUBELTKXh8bllHAU2jdXzzn0vBSZ6y/H...');
-      audio.play().catch(() => {});
     }
   }, [assignedOrders]);
+
+  // Load current partner preferences
+  useEffect(() => {
+    if (currentPartner) {
+      setLocationPreferences({
+        location_sharing_enabled: currentPartner.location_sharing_enabled !== false,
+        share_location_only_when_active: currentPartner.share_location_only_when_active !== false,
+        auto_disable_location_after_delivery: currentPartner.auto_disable_location_after_delivery !== false
+      });
+    }
+  }, [currentPartner]);
 
   const earnings = {
     today: completedDeliveries.filter(o => {
@@ -92,6 +114,16 @@ export default function DeliveryPartnerDashboard() {
       ? (completedDeliveries.reduce((sum, o) => sum + (o.customer_rating || 0), 0) / 
          completedDeliveries.filter(o => o.customer_rating).length).toFixed(1)
       : 'N/A'
+  };
+
+  const canShareLocation = () => {
+    if (!currentPartner) return false;
+    if (!locationPreferences.location_sharing_enabled) return false;
+    if (locationPreferences.share_location_only_when_active) {
+      const hasActiveDelivery = myDeliveries.some(o => o.status === 'out_for_delivery');
+      return hasActiveDelivery;
+    }
+    return true;
   };
 
   const handleAcceptOrder = (order) => {
@@ -124,7 +156,7 @@ export default function DeliveryPartnerDashboard() {
     
     const startTime = new Date();
     
-    if (navigator.geolocation) {
+    if (navigator.geolocation && canShareLocation()) {
       navigator.geolocation.getCurrentPosition((position) => {
         const location = {
           lat: position.coords.latitude,
@@ -143,19 +175,36 @@ export default function DeliveryPartnerDashboard() {
           }
         });
         
+        // Update location every 10 seconds only if sharing is allowed
         const locationInterval = setInterval(() => {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            updateLocationMutation.mutate({
-              id: selectedOrder.id,
-              location: {
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude
-              }
+          if (canShareLocation()) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+              updateLocationMutation.mutate({
+                id: selectedOrder.id,
+                location: {
+                  lat: pos.coords.latitude,
+                  lng: pos.coords.longitude
+                }
+              });
             });
-          });
+          } else {
+            clearInterval(locationInterval);
+          }
         }, 10000);
         
         window.deliveryLocationInterval = locationInterval;
+      });
+    } else {
+      // Start delivery without location if sharing is disabled
+      updateOrderMutation.mutate({
+        id: selectedOrder.id,
+        data: {
+          ...selectedOrder,
+          driver_name: driverInfo.name,
+          driver_phone: driverInfo.phone,
+          status: 'out_for_delivery',
+          pickup_time: startTime.toISOString()
+        }
       });
     }
     
@@ -169,6 +218,7 @@ export default function DeliveryPartnerDashboard() {
 
   const verifyDelivery = () => {
     if (verificationCode === selectedOrder.delivery_code) {
+      // Stop GPS tracking
       if (window.deliveryLocationInterval) {
         clearInterval(window.deliveryLocationInterval);
       }
@@ -183,20 +233,57 @@ export default function DeliveryPartnerDashboard() {
           ...selectedOrder,
           status: 'delivered',
           delivery_verified: true,
-          actual_delivery_time: deliveryTime
+          actual_delivery_time: deliveryTime,
+          driver_location: null // Clear location after delivery
         }
       });
+
+      // Auto-disable location sharing after delivery if preference is enabled
+      if (currentPartner && locationPreferences.auto_disable_location_after_delivery) {
+        const hasOtherActiveDeliveries = myDeliveries.some(
+          o => o.id !== selectedOrder.id && o.status === 'out_for_delivery'
+        );
+        if (!hasOtherActiveDeliveries) {
+          // No other active deliveries, location sharing will be disabled automatically
+        }
+      }
     } else {
       alert("Invalid verification code!");
+    }
+  };
+
+  const openSettings = () => {
+    if (currentPartner) {
+      setLocationPreferences({
+        location_sharing_enabled: currentPartner.location_sharing_enabled !== false,
+        share_location_only_when_active: currentPartner.share_location_only_when_active !== false,
+        auto_disable_location_after_delivery: currentPartner.auto_disable_location_after_delivery !== false
+      });
+      setSettingsDialog(true);
+    }
+  };
+
+  const saveSettings = () => {
+    if (currentPartner) {
+      updatePartnerMutation.mutate({
+        id: currentPartner.id,
+        data: locationPreferences
+      });
     }
   };
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">🚚 Delivery Partner Dashboard</h1>
-          <p className="text-slate-600">Track earnings, deliveries, and manage orders</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">🚚 Delivery Partner Dashboard</h1>
+            <p className="text-slate-600">Track earnings, deliveries, and manage orders</p>
+          </div>
+          <Button variant="outline" onClick={openSettings}>
+            <Settings className="w-4 h-4 mr-2" />
+            Preferences
+          </Button>
         </div>
 
         <Tabs defaultValue="active" className="w-full">
@@ -250,6 +337,16 @@ export default function DeliveryPartnerDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {!locationPreferences.location_sharing_enabled && (
+              <Card className="mb-6 border-amber-300 bg-amber-50">
+                <CardContent className="pt-6">
+                  <p className="text-sm text-amber-800">
+                    ⚠️ Location sharing is disabled. Customers won't see real-time tracking. Enable it in Preferences.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="grid md:grid-cols-2 gap-6">
               {assignedOrders.map((order) => (
@@ -494,14 +591,18 @@ export default function DeliveryPartnerDashboard() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {selectedOrder?.status === 'ready' ? 'Assign Driver & Enable GPS' : 'Verify Delivery'}
+                {selectedOrder?.status === 'ready' ? 'Assign Driver & Start Delivery' : 'Verify Delivery'}
               </DialogTitle>
             </DialogHeader>
             {selectedOrder?.status === 'ready' ? (
               <div className="space-y-4">
                 <div className="bg-blue-50 p-3 rounded-lg mb-4">
                   <p className="text-sm text-slate-700">
-                    📍 GPS tracking will start automatically. Customer will see your real-time location on the map.
+                    {canShareLocation() ? (
+                      <>📍 GPS tracking will start automatically. Customer will see your real-time location on the map.</>
+                    ) : (
+                      <>⚠️ Location sharing is disabled. Customer won't see real-time tracking. You can enable it in Preferences.</>
+                    )}
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -537,8 +638,64 @@ export default function DeliveryPartnerDashboard() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setVerifyDialog(false)}>Cancel</Button>
               <Button onClick={selectedOrder?.status === 'ready' ? handleOutForDelivery : verifyDelivery}>
-                {selectedOrder?.status === 'ready' ? 'Start Delivery & GPS' : 'Verify & Complete'}
+                {selectedOrder?.status === 'ready' ? 'Start Delivery' : 'Verify & Complete'}
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={settingsDialog} onOpenChange={setSettingsDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Location Sharing Preferences</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="font-semibold">Enable Location Sharing</Label>
+                  <p className="text-xs text-slate-600">Allow customers to track your location in real-time</p>
+                </div>
+                <Switch
+                  checked={locationPreferences.location_sharing_enabled}
+                  onCheckedChange={(checked) => setLocationPreferences({...locationPreferences, location_sharing_enabled: checked})}
+                />
+              </div>
+
+              {locationPreferences.location_sharing_enabled && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="font-semibold">Share Only During Active Deliveries</Label>
+                      <p className="text-xs text-slate-600">Location sharing starts when delivery begins</p>
+                    </div>
+                    <Switch
+                      checked={locationPreferences.share_location_only_when_active}
+                      onCheckedChange={(checked) => setLocationPreferences({...locationPreferences, share_location_only_when_active: checked})}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label className="font-semibold">Auto-Disable After Delivery</Label>
+                      <p className="text-xs text-slate-600">Stop sharing location when delivery is complete</p>
+                    </div>
+                    <Switch
+                      checked={locationPreferences.auto_disable_location_after_delivery}
+                      onCheckedChange={(checked) => setLocationPreferences({...locationPreferences, auto_disable_location_after_delivery: checked})}
+                    />
+                  </div>
+                </>
+              )}
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-xs text-slate-700">
+                  💡 <strong>Privacy Tip:</strong> Enable "Share Only During Active Deliveries" to protect your privacy when you're not working.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setSettingsDialog(false)}>Cancel</Button>
+              <Button onClick={saveSettings}>Save Preferences</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
