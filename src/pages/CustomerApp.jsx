@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, Search, MapPin, CreditCard, LogOut, User as UserIcon } from "lucide-react";
+import { ShoppingCart, Plus, Minus, Search, MapPin, CreditCard, LogOut, User as UserIcon, Truck, Store, UtensilsCrossed } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +21,7 @@ export default function CustomerApp() {
   const [search, setSearch] = useState("");
   const [checkoutDialog, setCheckoutDialog] = useState(false);
   const [profileDialog, setProfileDialog] = useState(false);
-  const [orderType, setOrderType] = useState("delivery");
+  const [orderType, setOrderType] = useState("delivery"); // Default to delivery
   const [customerInfo, setCustomerInfo] = useState({
     name: "", phone: "", address: "", instructions: ""
   });
@@ -150,6 +151,13 @@ export default function CustomerApp() {
       alert("Please select a payment method");
       return;
     }
+    
+    // Validate delivery address for delivery orders
+    if (orderType === 'delivery' && !customerInfo.address) {
+      alert("Please select a delivery address for delivery orders.");
+      return;
+    }
+
     createOrderMutation.mutate({
       customer_name: customerInfo.name,
       customer_phone: customerInfo.phone,
@@ -204,6 +212,46 @@ export default function CustomerApp() {
           </TabsList>
 
           <TabsContent value="menu">
+            <Card className="mb-6 bg-gradient-to-r from-orange-100 to-amber-100 border-orange-200">
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-4 text-center">Choose Your Order Type</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <Button
+                    variant={orderType === "dine_in" ? "default" : "outline"}
+                    onClick={() => setOrderType("dine_in")}
+                    className="h-24 flex flex-col gap-2"
+                  >
+                    <UtensilsCrossed className="w-8 h-8" />
+                    <span className="font-semibold">Dine In</span>
+                  </Button>
+                  <Button
+                    variant={orderType === "takeout" ? "default" : "outline"}
+                    onClick={() => setOrderType("takeout")}
+                    className="h-24 flex flex-col gap-2"
+                  >
+                    <Store className="w-8 h-8" />
+                    <span className="font-semibold">Take Out</span>
+                  </Button>
+                  <Button
+                    variant={orderType === "delivery" ? "default" : "outline"}
+                    onClick={() => setOrderType("delivery")}
+                    className="h-24 flex flex-col gap-2"
+                  >
+                    <Truck className="w-8 h-8" />
+                    <span className="font-semibold">Delivery</span>
+                  </Button>
+                </div>
+                {orderType && (
+                  <div className="mt-4 text-center">
+                    <Badge className="text-sm px-4 py-2">
+                      Current: {orderType === "dine_in" ? "Dine In" : orderType === "takeout" ? "Take Out" : "Delivery"}
+                      {orderType === "delivery" && " (+ $5.00 fee)"}
+                    </Badge>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <div className="mb-6">
               <Input
                 placeholder="Search menu..."
@@ -360,23 +408,20 @@ export default function CustomerApp() {
             <DialogTitle>Checkout</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label>Order Type</Label>
-              <Select value={orderType} onValueChange={setOrderType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="delivery">Delivery</SelectItem>
-                  <SelectItem value="takeout">Takeout</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-slate-600 mb-1">Order Type:</p>
+              <p className="text-lg font-bold text-orange-600">
+                {orderType === "dine_in" ? "Dine In" : orderType === "takeout" ? "Take Out" : "Delivery"}
+              </p>
             </div>
 
             {orderType === 'delivery' && (
               <div className="space-y-2">
                 <Label>Delivery Address</Label>
-                <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
+                <Select 
+                  value={customerInfo.address} 
+                  onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select address" />
                   </SelectTrigger>
@@ -449,7 +494,7 @@ export default function CustomerApp() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCheckoutDialog(false)}>Cancel</Button>
-            <Button onClick={submitOrder} disabled={!paymentMethod}>
+            <Button onClick={submitOrder} disabled={!paymentMethod || (orderType === 'delivery' && !customerInfo.address)}>
               Place Order
             </Button>
           </DialogFooter>
