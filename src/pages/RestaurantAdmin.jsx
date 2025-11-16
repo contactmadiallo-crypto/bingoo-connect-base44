@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,16 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
 
 function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
+  const [bulkUploadDialog, setBulkUploadDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingBulk, setUploadingBulk] = useState(false);
   const [generatingTables, setGeneratingTables] = useState(false);
   const [tableCount, setTableCount] = useState(20);
   const [menuForm, setMenuForm] = useState({
@@ -107,6 +108,54 @@ function RestaurantAdminContent() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setMenuForm({ ...menuForm, image_url: file_url });
     setUploadingImage(false);
+  };
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingBulk(true);
+    
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            dishes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  description: { type: "string" },
+                  price: { type: "number" },
+                  category: { type: "string" },
+                  preparation_time: { type: "number" },
+                  image_url: { type: "string" }
+                },
+                required: ["name", "price"]
+              }
+            }
+          }
+        }
+      });
+
+      if (result.status === "success" && result.output?.dishes) {
+        await base44.entities.MenuItem.bulkCreate(result.output.dishes);
+        queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+        setBulkUploadDialog(false);
+        alert(`Successfully imported ${result.output.dishes.length} dishes!`);
+      } else {
+        alert("Failed to extract dishes from file: " + (result.details || "Unknown error"));
+      }
+    } catch (error) {
+      alert("Error uploading dishes: " + error.message);
+    } finally {
+      setUploadingBulk(false);
+    }
   };
 
   const generateTables = async () => {
@@ -201,10 +250,16 @@ function RestaurantAdminContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Menu Management</CardTitle>
-                <Button onClick={() => { resetMenuForm(); setMenuDialog(true); }}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setBulkUploadDialog(true)}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Bulk Upload
+                  </Button>
+                  <Button onClick={() => { resetMenuForm(); setMenuDialog(true); }}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Item
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -358,6 +413,42 @@ function RestaurantAdminContent() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <Dialog open={bulkUploadDialog} onOpenChange={setBulkUploadDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Bulk Upload Dishes</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">📋 Supported Formats:</h4>
+                <ul className="text-sm text-slate-600 space-y-1">
+                  <li>• CSV files with columns: name, description, price, category, preparation_time, image_url</li>
+                  <li>• Excel files (.xlsx)</li>
+                  <li>• PDF with structured data</li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <Label>Upload File</Label>
+                <Input
+                  type="file"
+                  accept=".csv,.xlsx,.xls,.pdf"
+                  onChange={handleBulkUpload}
+                  disabled={uploadingBulk}
+                />
+                {uploadingBulk && (
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing file...
+                  </div>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setBulkUploadDialog(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={menuDialog} onOpenChange={setMenuDialog}>
           <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
