@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,19 +19,37 @@ const statusColors = {
 };
 
 export default function KitchenView() {
+  const [user, setUser] = useState(null);
+  const [restaurant, setRestaurant] = useState(null);
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    const currentUser = await base44.auth.me();
+    setUser(currentUser);
+    
+    // Find restaurant owned by this user
+    const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
+    if (restaurants.length > 0) {
+      setRestaurant(restaurants[0]);
+    }
+  };
+
   const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders'],
-    queryFn: () => base44.entities.Order.list('-created_date'),
+    queryKey: ['orders', restaurant?.id],
+    queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }),
     initialData: [],
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    refetchInterval: 5000,
+    enabled: !!restaurant,
   });
 
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', restaurant?.id] });
     },
   });
 
@@ -67,12 +85,22 @@ export default function KitchenView() {
   const preparingOrders = activeOrders.filter(o => ['confirmed', 'preparing'].includes(o.status));
   const readyOrders = activeOrders.filter(o => ['ready', 'out_for_delivery'].includes(o.status));
 
+  if (!user || !restaurant) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-lg text-slate-600">Loading kitchen...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">🍳 Kitchen Dashboard</h1>
-          <p className="text-slate-600">Manage incoming orders in real-time</p>
+          <p className="text-slate-600">Manage incoming orders for {restaurant.name}</p>
         </div>
 
         {/* Stats */}
