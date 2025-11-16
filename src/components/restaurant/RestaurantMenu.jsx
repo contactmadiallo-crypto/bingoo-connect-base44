@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search } from "lucide-react";
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslation } from "../../utils/translations";
 
 const categoryLabels = {
   appetizers: { label: "Appetizers", emoji: "🥗" },
@@ -26,7 +27,7 @@ const categoryLabels = {
   dinner: { label: "Dinner", emoji: "🍛" }
 };
 
-export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile, onShowOrders }) {
+export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile, onShowOrders, language = "en" }) {
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
   const [checkoutDialog, setCheckoutDialog] = useState(false);
@@ -37,6 +38,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   });
   const [paymentMethod, setPaymentMethod] = useState("");
 
+  const { t } = useTranslation(language);
   const queryClient = useQueryClient();
 
   const { data: menuItems } = useQuery({
@@ -154,7 +156,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             </div>
             <Button onClick={handleCheckout} className="bg-orange-600 hover:bg-orange-700">
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Cart ({cart.length})
+              {t('cart')} ({cart.length})
             </Button>
           </div>
         </div>
@@ -163,7 +165,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       <div className="max-w-6xl mx-auto px-4 py-6">
         <Card className="mb-6 bg-gradient-to-r from-orange-100 to-amber-100 border-orange-200">
           <CardContent className="pt-6">
-            <h3 className="font-semibold text-lg mb-4 text-center">Choose Your Order Type</h3>
+            <h3 className="font-semibold text-lg mb-4 text-center">{t('choose_order_type')}</h3>
             <div className="grid grid-cols-3 gap-4">
               <Button
                 variant={orderType === "dine_in" ? "default" : "outline"}
@@ -171,7 +173,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 className="h-24 flex flex-col gap-2"
               >
                 <UtensilsCrossed className="w-8 h-8" />
-                <span className="font-semibold">Dine In</span>
+                <span className="font-semibold">{t('dine_in')}</span>
               </Button>
               <Button
                 variant={orderType === "takeout" ? "default" : "outline"}
@@ -179,7 +181,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 className="h-24 flex flex-col gap-2"
               >
                 <Store className="w-8 h-8" />
-                <span className="font-semibold">Take Out</span>
+                <span className="font-semibold">{t('take_out')}</span>
               </Button>
               <Button
                 variant={orderType === "delivery" ? "default" : "outline"}
@@ -187,13 +189,13 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 className="h-24 flex flex-col gap-2"
               >
                 <Truck className="w-8 h-8" />
-                <span className="font-semibold">Delivery</span>
+                <span className="font-semibold">{t('delivery')}</span>
               </Button>
             </div>
             {orderType && (
               <div className="mt-4 text-center">
                 <Badge className="text-sm px-4 py-2">
-                  {orderType === "dine_in" ? "Dine In" : orderType === "takeout" ? "Take Out" : `Delivery (+$${restaurant.delivery_fee})`}
+                  {orderType === "dine_in" ? t('dine_in') : orderType === "takeout" ? t('take_out') : `${t('delivery')} (+$${restaurant.delivery_fee})`}
                 </Badge>
               </div>
             )}
@@ -204,7 +206,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
           <div className="relative">
             <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
             <Input
-              placeholder="Search menu..."
+              placeholder={t('search_menu')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10"
@@ -217,7 +219,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             <div className="flex items-center gap-3 mb-4">
               <span className="text-3xl">{categoryLabels[category]?.emoji || '🍽️'}</span>
               <h2 className="text-2xl font-bold text-slate-900">
-                {categoryLabels[category]?.label || category}
+                {t(category) || categoryLabels[category]?.label || category}
               </h2>
               <div className="flex-1 h-px bg-slate-200"></div>
             </div>
@@ -234,7 +236,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                     <h3 className="font-bold text-lg mb-2">{item.name}</h3>
                     <p className="text-sm text-slate-600 mb-3 line-clamp-2">{item.description}</p>
                     {item.preparation_time && (
-                      <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} min</p>
+                      <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} {t('min')}</p>
                     )}
                     <div className="flex justify-between items-center">
                       <span className="text-2xl font-bold text-orange-600">${item.price}</span>
@@ -253,22 +255,22 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       <Dialog open={checkoutDialog} onOpenChange={setCheckoutDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Checkout</DialogTitle>
+            <DialogTitle>{t('checkout')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-orange-50 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-slate-600 mb-1">Order Type:</p>
+              <p className="text-sm font-semibold text-slate-600 mb-1">{t('order_type')}:</p>
               <p className="text-lg font-bold text-orange-600">
-                {orderType === "dine_in" ? "Dine In" : orderType === "takeout" ? "Take Out" : "Delivery"}
+                {orderType === "dine_in" ? t('dine_in') : orderType === "takeout" ? t('take_out') : t('delivery')}
               </p>
             </div>
 
             {orderType === 'delivery' && (
               <div className="space-y-2">
-                <Label>Delivery Address</Label>
+                <Label>{t('delivery_address')}</Label>
                 <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select address" />
+                    <SelectValue placeholder={t('delivery_address')} />
                   </SelectTrigger>
                   <SelectContent>
                     {user?.addresses?.map((addr, idx) => (
@@ -280,10 +282,10 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             )}
 
             <div className="space-y-2">
-              <Label>Payment Method</Label>
+              <Label>{t('payment_method')}</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select payment method" />
+                  <SelectValue placeholder={t('payment_method')} />
                 </SelectTrigger>
                 <SelectContent>
                   {user?.payment_methods?.map((pm, idx) => (
@@ -296,12 +298,12 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             </div>
 
             <div className="space-y-2">
-              <Label>Special Instructions</Label>
+              <Label>{t('special_instructions')}</Label>
               <Textarea value={customerInfo.instructions} onChange={(e) => setCustomerInfo({...customerInfo, instructions: e.target.value})} />
             </div>
 
             <div className="border-t pt-4">
-              <h3 className="font-semibold mb-3">Order Summary</h3>
+              <h3 className="font-semibold mb-3">{t('order_summary')}</h3>
               {cart.map(item => (
                 <div key={item.id} className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-3">
@@ -321,25 +323,25 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               ))}
               <div className="border-t pt-3 mt-3 space-y-2">
                 <div className="flex justify-between">
-                  <span>Subtotal</span>
+                  <span>{t('subtotal')}</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 {orderType === 'delivery' && (
                   <div className="flex justify-between">
-                    <span>Delivery Fee</span>
+                    <span>{t('delivery_fee')}</span>
                     <span>${deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
+                  <span>{t('total')}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCheckoutDialog(false)}>Cancel</Button>
-            <Button onClick={submitOrder} disabled={!paymentMethod}>Place Order</Button>
+            <Button variant="outline" onClick={() => setCheckoutDialog(false)}>{t('cancel')}</Button>
+            <Button onClick={submitOrder} disabled={!paymentMethod}>{t('place_order')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

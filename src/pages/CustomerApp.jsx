@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Star, Clock, Bike, User as UserIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
 import CustomerOrders from "../components/restaurant/CustomerOrders";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useTranslation } from "../utils/translations";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
@@ -45,10 +45,22 @@ export default function CustomerApp() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showOrders, setShowOrders] = useState(false);
+  const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
+
+  const { t } = useTranslation(language);
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("language", language);
+    if (language === "ar") {
+      document.dir = "rtl";
+    } else {
+      document.dir = "ltr";
+    }
+  }, [language]);
 
   const checkAuth = async () => {
     try {
@@ -78,15 +90,15 @@ export default function CustomerApp() {
   });
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">{t('loading')}</div>;
   }
 
   if (showProfile) {
-    return <CustomerProfile user={user} onBack={() => setShowProfile(false)} onUserUpdate={checkAuth} />;
+    return <CustomerProfile user={user} onBack={() => setShowProfile(false)} onUserUpdate={checkAuth} language={language} />;
   }
 
   if (showOrders) {
-    return <CustomerOrders user={user} onBack={() => setShowOrders(false)} />;
+    return <CustomerOrders user={user} onBack={() => setShowOrders(false)} language={language} />;
   }
 
   if (selectedRestaurant) {
@@ -96,6 +108,7 @@ export default function CustomerApp() {
       onBack={() => setSelectedRestaurant(null)} 
       onShowProfile={() => setShowProfile(true)}
       onShowOrders={() => setShowOrders(true)}
+      language={language}
     />;
   }
 
@@ -106,15 +119,16 @@ export default function CustomerApp() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-orange-600">🍽️ FoodHub</h1>
-              <p className="text-xs md:text-sm text-slate-600">Discover restaurants near you</p>
+              <p className="text-xs md:text-sm text-slate-600">{t('discover_restaurants')}</p>
             </div>
             <div className="flex gap-2">
+              <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
               <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs md:text-sm">
-                Orders
+                {t('orders')}
               </Button>
               <Button variant="outline" onClick={() => setShowProfile(true)} size="sm" className="text-xs md:text-sm">
                 <UserIcon className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">Profile</span>
+                <span className="hidden md:inline">{t('profile')}</span>
               </Button>
             </div>
           </div>
@@ -123,7 +137,7 @@ export default function CustomerApp() {
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search restaurants..."
+                placeholder={t('search_restaurants')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10 h-12 text-base"
@@ -137,7 +151,7 @@ export default function CustomerApp() {
                 <SelectContent>
                   {cities.map(city => (
                     <SelectItem key={city} value={city}>
-                      {city === "all" ? "All Cities" : city}
+                      {city === "all" ? t('all_cities') : city}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -178,7 +192,7 @@ export default function CustomerApp() {
         {filteredRestaurants.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
-              <p className="text-slate-600">No restaurants found</p>
+              <p className="text-slate-600">{t('no_restaurants')}</p>
             </CardContent>
           </Card>
         ) : (
@@ -214,7 +228,7 @@ export default function CustomerApp() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
-                      <span>{restaurant.avg_delivery_time} min</span>
+                      <span>{restaurant.avg_delivery_time} {t('min')}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Bike className="w-4 h-4" />
