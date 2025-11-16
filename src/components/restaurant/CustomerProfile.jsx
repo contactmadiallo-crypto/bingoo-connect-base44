@@ -9,9 +9,16 @@ import { ArrowLeft, CreditCard, MapPin, LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export default function CustomerProfile({ user, onBack, onUserUpdate }) {
-  const [newPayment, setNewPayment] = useState({ type: "credit_card", last_four: "" });
+  const [newPayment, setNewPayment] = useState({ 
+    type: "credit_card", 
+    card_number: "", 
+    card_holder_name: "", 
+    expiration_date: "", 
+    cvv: "" 
+  });
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
 
   const queryClient = useQueryClient();
@@ -25,12 +32,16 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
   });
 
   const handleAddPayment = () => {
-    if (!newPayment.last_four) return;
+    if (!newPayment.card_number || !newPayment.card_holder_name || !newPayment.expiration_date || !newPayment.cvv) {
+      alert("Please fill all card details");
+      return;
+    }
     const payments = user.payment_methods || [];
+    const last_four = newPayment.card_number.slice(-4);
     updateUserMutation.mutate({
-      payment_methods: [...payments, { ...newPayment, is_default: payments.length === 0 }]
+      payment_methods: [...payments, { ...newPayment, last_four, is_default: payments.length === 0 }]
     });
-    setNewPayment({ type: "credit_card", last_four: "" });
+    setNewPayment({ type: "credit_card", card_number: "", card_holder_name: "", expiration_date: "", cvv: "" });
   };
 
   const handleAddAddress = () => {
@@ -69,39 +80,84 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
             <div className="space-y-3">
               {user?.payment_methods?.map((pm, idx) => (
                 <Card key={idx}>
-                  <CardContent className="pt-4 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="w-5 h-5" />
-                      <div>
-                        <p className="font-semibold">{pm.type.replace('_', ' ')}</p>
-                        <p className="text-sm text-slate-600">**** {pm.last_four}</p>
+                  <CardContent className="pt-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-5 h-5" />
+                        <div>
+                          <p className="font-semibold">{pm.type.replace('_', ' ')}</p>
+                          <p className="text-sm text-slate-600">**** **** **** {pm.last_four}</p>
+                        </div>
                       </div>
+                      {pm.is_default && <Badge>Default</Badge>}
                     </div>
-                    {pm.is_default && <Badge>Default</Badge>}
+                    <div className="text-xs text-slate-500 space-y-1">
+                      <p>Card Holder: {pm.card_holder_name}</p>
+                      <p>Expires: {pm.expiration_date}</p>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
             <Card>
-              <CardContent className="pt-4 space-y-3">
+              <CardContent className="pt-4 space-y-4">
                 <h3 className="font-semibold">Add Payment Method</h3>
-                <Select value={newPayment.type} onValueChange={(value) => setNewPayment({...newPayment, type: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="credit_card">Credit Card</SelectItem>
-                    <SelectItem value="debit_card">Debit Card</SelectItem>
-                    <SelectItem value="paypal">PayPal</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input 
-                  placeholder="Last 4 digits" 
-                  value={newPayment.last_four}
-                  onChange={(e) => setNewPayment({...newPayment, last_four: e.target.value})}
-                  maxLength={4}
-                />
+                
+                <div className="space-y-2">
+                  <Label>Card Type</Label>
+                  <Select value={newPayment.type} onValueChange={(value) => setNewPayment({...newPayment, type: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="credit_card">Credit Card</SelectItem>
+                      <SelectItem value="debit_card">Debit Card</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Card Number</Label>
+                  <Input 
+                    placeholder="1234 5678 9012 3456" 
+                    value={newPayment.card_number}
+                    onChange={(e) => setNewPayment({...newPayment, card_number: e.target.value.replace(/\s/g, '')})}
+                    maxLength={16}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Card Holder Name</Label>
+                  <Input 
+                    placeholder="John Doe" 
+                    value={newPayment.card_holder_name}
+                    onChange={(e) => setNewPayment({...newPayment, card_holder_name: e.target.value})}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Expiration Date</Label>
+                    <Input 
+                      placeholder="MM/YY" 
+                      value={newPayment.expiration_date}
+                      onChange={(e) => setNewPayment({...newPayment, expiration_date: e.target.value})}
+                      maxLength={5}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>CVV</Label>
+                    <Input 
+                      placeholder="123" 
+                      value={newPayment.cvv}
+                      onChange={(e) => setNewPayment({...newPayment, cvv: e.target.value})}
+                      maxLength={3}
+                      type="password"
+                    />
+                  </div>
+                </div>
+
                 <Button onClick={handleAddPayment} className="w-full">Add Payment Method</Button>
               </CardContent>
             </Card>
