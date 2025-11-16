@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -12,8 +13,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
+import AdminAuthGuard from "../components/AdminAuthGuard";
 
-export default function RestaurantAdmin() {
+function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -461,5 +463,13 @@ export default function RestaurantAdmin() {
         </Dialog>
       </div>
     </div>
+  );
+}
+
+export default function RestaurantAdmin() {
+  return (
+    <AdminAuthGuard>
+      <RestaurantAdminContent />
+    </AdminAuthGuard>
   );
 }
