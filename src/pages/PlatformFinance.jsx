@@ -92,7 +92,7 @@ export default function PlatformFinance() {
           />
           <StatsCard 
             title="Delivery Fees" 
-            value={`$${deliveryFees.toFixed(2))`} 
+            value={`$${deliveryFees.toFixed(2)}`} 
             icon={Wallet} 
             gradient="bg-gradient-to-br from-purple-500 to-purple-600" 
           />
