@@ -15,7 +15,8 @@ import CustomerApp from './pages/CustomerApp';
 import DeliveryPartnerDashboard from './pages/DeliveryPartnerDashboard';
 import RestaurantOnboarding from './pages/RestaurantOnboarding';
 import PlatformFinance from './pages/PlatformFinance';
-import Layout from './Layout.jsx';
+import DriverSignup from './pages/DriverSignup';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -36,10 +37,11 @@ export const PAGES = {
     "DeliveryPartnerDashboard": DeliveryPartnerDashboard,
     "RestaurantOnboarding": RestaurantOnboarding,
     "PlatformFinance": PlatformFinance,
+    "DriverSignup": DriverSignup,
 }
 
 export const pagesConfig = {
     mainPage: "Dashboard",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };

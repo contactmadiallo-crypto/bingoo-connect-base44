@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Package, Truck, CheckCircle, MapPin, Phone, Clock, Key } from "lucide-react";
 import { motion } from "framer-motion";
+import DeliveryMap from "../components/DeliveryMap";
 
 const statuses = [
   { key: 'pending', label: 'Order Placed', icon: Package },
@@ -61,6 +62,11 @@ export default function OrderTracking() {
 
         {order ? (
           <div className="space-y-6">
+            {/* Show map if delivery order and driver assigned */}
+            {order.order_type === 'delivery' && order.status === 'out_for_delivery' && (
+              <DeliveryMap order={order} />
+            )}
+
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -141,6 +147,11 @@ export default function OrderTracking() {
                         <p className="text-xs text-slate-600 mb-1">Driver Assigned:</p>
                         <p className="font-semibold">{order.driver_name}</p>
                         <p className="text-sm text-slate-600">{order.driver_phone}</p>
+                        {order.vehicle_type && (
+                          <Badge variant="outline" className="mt-2">
+                            {order.vehicle_type}
+                          </Badge>
+                        )}
                       </div>
                     )}
 
