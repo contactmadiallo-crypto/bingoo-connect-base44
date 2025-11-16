@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search } from "lucide-react";
+import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search, Star, MessageSquare } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ScrollToTop from "../ScrollToTop";
+import DishReviews from "./DishReviews";
 import { useTranslation } from "../translations";
 
 const categoryLabels = {
@@ -33,6 +34,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const [search, setSearch] = useState("");
   const [checkoutDialog, setCheckoutDialog] = useState(false);
   const [orderType, setOrderType] = useState("delivery");
+  const [selectedDish, setSelectedDish] = useState(null);
   const [customerInfo, setCustomerInfo] = useState({
     address: user.addresses?.[0]?.address || "",
     instructions: ""
@@ -45,6 +47,12 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const { data: menuItems } = useQuery({
     queryKey: ['menu', restaurant.id],
     queryFn: () => base44.entities.MenuItem.filter({ restaurant_id: restaurant.id, available: true }),
+    initialData: [],
+  });
+
+  const { data: allReviews } = useQuery({
+    queryKey: ['allReviews', restaurant.id],
+    queryFn: () => base44.entities.Review.filter({ restaurant_id: restaurant.id }),
     initialData: [],
   });
 
@@ -73,6 +81,13 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       onShowOrders();
     },
   });
+
+  const getItemRating = (itemId) => {
+    const itemReviews = allReviews.filter(r => r.menu_item_id === itemId);
+    if (itemReviews.length === 0) return { avg: 0, count: 0 };
+    const avg = itemReviews.reduce((sum, r) => sum + r.rating, 0) / itemReviews.length;
+    return { avg: avg.toFixed(1), count: itemReviews.length };
+  };
 
   const filteredItems = menuItems.filter(item => {
     const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -226,34 +241,67 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {items.map((item) => (
-                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  {item.image_url && (
-                    <div className="h-48 overflow-hidden">
-                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                  <CardContent className="pt-4">
-                    <h3 className="font-bold text-lg mb-2">{item.name}</h3>
-                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">{item.description}</p>
-                    {item.preparation_time && (
-                      <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} {t('min')}</p>
+              {items.map((item) => {
+                const rating = getItemRating(item.id);
+                return (
+                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    {item.image_url && (
+                      <div className="h-48 overflow-hidden">
+                        <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
                     )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-orange-600">${item.price}</span>
-                      <Button onClick={() => addToCart(item)} size="sm">
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    <CardContent className="pt-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-lg">{item.name}</h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedDish(item)}
+                          className="h-8 px-2"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      {rating.count > 0 && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                            <span className="text-sm font-semibold">{rating.avg}</span>
+                          </div>
+                          <span className="text-xs text-slate-500">({rating.count} reviews)</span>
+                        </div>
+                      )}
+                      
+                      <p className="text-sm text-slate-600 mb-3 line-clamp-2">{item.description}</p>
+                      {item.preparation_time && (
+                        <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} {t('min')}</p>
+                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-2xl font-bold text-orange-600">${item.price}</span>
+                        <Button onClick={() => addToCart(item)} size="sm">
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
 
       <ScrollToTop />
+
+      {selectedDish && (
+        <DishReviews
+          menuItem={selectedDish}
+          restaurant={restaurant}
+          user={user}
+          onClose={() => setSelectedDish(null)}
+        />
+      )}
 
       <Dialog open={checkoutDialog} onOpenChange={setCheckoutDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
