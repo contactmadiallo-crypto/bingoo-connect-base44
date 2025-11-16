@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, MapPin, LogOut } from "lucide-react";
+import { ArrowLeft, CreditCard, MapPin, LogOut, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
 export default function CustomerProfile({ user, onBack, onUserUpdate }) {
+  const [personalInfo, setPersonalInfo] = useState({
+    full_name: user?.full_name || "",
+    phone: user?.phone || "",
+    email: user?.email || ""
+  });
   const [newPayment, setNewPayment] = useState({ 
     type: "credit_card", 
     card_number: "", 
@@ -30,6 +35,15 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },
   });
+
+  const handleUpdatePersonalInfo = () => {
+    if (!personalInfo.full_name || !personalInfo.phone) {
+      alert("Please fill in your name and phone number");
+      return;
+    }
+    updateUserMutation.mutate(personalInfo);
+    alert("Personal information updated!");
+  };
 
   const handleAddPayment = () => {
     if (!newPayment.card_number || !newPayment.card_holder_name || !newPayment.expiration_date || !newPayment.cvv) {
@@ -70,11 +84,56 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <Tabs defaultValue="payment">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="payment">Payment Methods</TabsTrigger>
+        <Tabs defaultValue="personal">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="personal">Personal Info</TabsTrigger>
+            <TabsTrigger value="payment">Payment</TabsTrigger>
             <TabsTrigger value="addresses">Addresses</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="personal" className="space-y-4">
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <User className="w-6 h-6 text-orange-600" />
+                  <h3 className="font-semibold text-lg">Personal Information</h3>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Full Name</Label>
+                  <Input 
+                    placeholder="Your full name" 
+                    value={personalInfo.full_name}
+                    onChange={(e) => setPersonalInfo({...personalInfo, full_name: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Phone Number</Label>
+                  <Input 
+                    placeholder="Your phone number" 
+                    value={personalInfo.phone}
+                    onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input 
+                    placeholder="Your email" 
+                    value={personalInfo.email}
+                    disabled
+                    className="bg-slate-100"
+                  />
+                  <p className="text-xs text-slate-500">Email cannot be changed</p>
+                </div>
+
+                <Button onClick={handleUpdatePersonalInfo} className="w-full bg-orange-600 hover:bg-orange-700">
+                  Update Personal Information
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="payment" className="space-y-4">
             <div className="space-y-3">
