@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ScrollToTop from "../ScrollToTop";
 import { useTranslation } from "../translations";
 
 const categoryLabels = {
@@ -251,6 +252,8 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
           </div>
         ))}
       </div>
+
+      <ScrollToTop />
 
       <Dialog open={checkoutDialog} onOpenChange={setCheckoutDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

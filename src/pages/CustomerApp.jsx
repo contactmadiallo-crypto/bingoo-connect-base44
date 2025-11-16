@@ -11,6 +11,7 @@ import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
 import CustomerOrders from "../components/restaurant/CustomerOrders";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import ScrollToTop from "../components/ScrollToTop";
 import { useTranslation } from "../components/translations";
 
 const cuisineCategories = [
@@ -252,6 +253,8 @@ export default function CustomerApp() {
           </div>
         )}
       </div>
+
+      <ScrollToTop />
 
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {
