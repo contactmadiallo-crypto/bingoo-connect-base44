@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ScrollToTop from "../ScrollToTop";
 import DishReviews from "./DishReviews";
+import LoyaltyCard from "./LoyaltyCard";
+import LoyaltyRewards from "./LoyaltyRewards";
 import { useTranslation } from "../translations";
 
 const categoryLabels = {
@@ -36,6 +37,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const [checkoutDialog, setCheckoutDialog] = useState(false);
   const [orderType, setOrderType] = useState("delivery");
   const [selectedDish, setSelectedDish] = useState(null);
+  const [appliedReward, setAppliedReward] = useState(null);
   const [customerInfo, setCustomerInfo] = useState({
     address: user.addresses?.[0]?.address || "",
     instructions: ""
@@ -57,10 +59,61 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     initialData: [],
   });
 
+  const { data: customerLoyalty } = useQuery({
+    queryKey: ['customer-loyalty', user?.email, restaurant.id],
+    queryFn: async () => {
+      const loyalties = await base44.entities.CustomerLoyalty.filter({ 
+        customer_email: user.email,
+        restaurant_id: restaurant.id 
+      });
+      return loyalties[0] || null;
+    },
+    enabled: !!user?.email && !!restaurant?.loyalty_enabled,
+  });
+
+  const createOrUpdateLoyaltyMutation = useMutation({
+    mutationFn: async ({ points, spent, orders }) => {
+      if (customerLoyalty) {
+        const newPoints = customerLoyalty.points + points;
+        const newSpent = customerLoyalty.total_spent + spent;
+        const newOrders = customerLoyalty.total_orders + orders;
+        
+        // Calculate new tier
+        const tiers = restaurant.loyalty_tiers;
+        let newTier = "bronze";
+        if (tiers) {
+          if (newPoints >= tiers.platinum?.min_points) newTier = "platinum";
+          else if (newPoints >= tiers.gold?.min_points) newTier = "gold";
+          else if (newPoints >= tiers.silver?.min_points) newTier = "silver";
+        }
+        
+        return base44.entities.CustomerLoyalty.update(customerLoyalty.id, {
+          points: newPoints,
+          total_spent: newSpent,
+          total_orders: newOrders,
+          tier: newTier
+        });
+      } else {
+        return base44.entities.CustomerLoyalty.create({
+          customer_email: user.email,
+          restaurant_id: restaurant.id,
+          restaurant_name: restaurant.name,
+          points,
+          total_spent: spent,
+          total_orders: orders,
+          tier: "bronze"
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customer-loyalty'] });
+    }
+  });
+
   const createOrderMutation = useMutation({
     mutationFn: async (data) => {
       const orderNumber = `ORD-${Date.now()}`;
-      const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString(); // Modified line
+      const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();
       const platformCommission = (data.total_amount * restaurant.commission_rate) / 100;
       
       return base44.entities.Order.create({
@@ -74,11 +127,22 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         created_by: user.email
       });
     },
-    onSuccess: () => {
+    onSuccess: async (order) => {
+      // Award loyalty points
+      if (restaurant.loyalty_enabled) {
+        const pointsEarned = Math.floor(order.total_amount * (restaurant.loyalty_points_per_dollar || 10));
+        await createOrUpdateLoyaltyMutation.mutateAsync({
+          points: pointsEarned,
+          spent: order.total_amount,
+          orders: 1
+        });
+      }
+      
       setCart([]);
       setCheckoutDialog(false);
+      setAppliedReward(null);
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      alert("Order placed successfully!");
+      alert("Order placed successfully! You earned loyalty points!");
       onShowOrders();
     },
   });
@@ -123,7 +187,27 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = orderType === 'delivery' ? restaurant.delivery_fee : 0;
-  const total = subtotal + deliveryFee;
+  
+  // Calculate loyalty discount
+  let loyaltyDiscount = 0;
+  if (customerLoyalty && restaurant.loyalty_enabled) {
+    const tierConfig = restaurant.loyalty_tiers?.[customerLoyalty.tier];
+    if (tierConfig?.discount) {
+      loyaltyDiscount = (subtotal * tierConfig.discount) / 100;
+    }
+  }
+  
+  // Apply reward discount if any
+  let rewardDiscount = 0;
+  if (appliedReward) {
+    if (appliedReward.discount_type === "percentage") {
+      rewardDiscount = (subtotal * appliedReward.discount_value) / 100;
+    } else if (appliedReward.discount_type === "fixed_amount") {
+      rewardDiscount = appliedReward.discount_value;
+    }
+  }
+  
+  const total = subtotal + deliveryFee - loyaltyDiscount - rewardDiscount;
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
@@ -153,7 +237,9 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         price: item.price
       })),
       total_amount: total,
+      subtotal: subtotal,
       delivery_fee: deliveryFee,
+      discount: loyaltyDiscount + rewardDiscount,
       estimated_time: restaurant.avg_delivery_time,
       payment_status: 'paid'
     });
@@ -193,6 +279,17 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        {restaurant.loyalty_enabled && (
+          <>
+            <LoyaltyCard loyalty={customerLoyalty} restaurant={restaurant} />
+            <LoyaltyRewards 
+              restaurant={restaurant} 
+              loyalty={customerLoyalty} 
+              onRewardApplied={setAppliedReward}
+            />
+          </>
+        )}
+
         <Card className="mb-6 bg-gradient-to-r from-orange-100 to-amber-100 border-orange-200">
           <CardContent className="pt-6">
             <h3 className="font-semibold text-lg mb-4 text-center">{t('choose_order_type')}</h3>
@@ -397,10 +494,29 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                     <span>${deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
+                {loyaltyDiscount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>🎁 Loyalty Discount ({customerLoyalty.tier})</span>
+                    <span>-${loyaltyDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {rewardDiscount > 0 && (
+                  <div className="flex justify-between text-purple-600">
+                    <span>🎟️ Reward Applied</span>
+                    <span>-${rewardDiscount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-lg">
                   <span>{t('total')}</span>
                   <span className="text-orange-600">${total.toFixed(2)}</span>
                 </div>
+                {restaurant.loyalty_enabled && (
+                  <div className="bg-green-50 p-3 rounded-lg mt-2">
+                    <p className="text-sm text-green-800">
+                      🎉 You'll earn <strong>{Math.floor(total * (restaurant.loyalty_points_per_dollar || 10))} points</strong> with this order!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

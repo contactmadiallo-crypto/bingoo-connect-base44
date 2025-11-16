@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, MapPin, LogOut, User } from "lucide-react";
+import { ArrowLeft, CreditCard, MapPin, LogOut, User, Award } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import LoyaltyCard from "./LoyaltyCard";
 
 export default function CustomerProfile({ user, onBack, onUserUpdate }) {
   const [personalInfo, setPersonalInfo] = useState({
@@ -27,6 +28,18 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
 
   const queryClient = useQueryClient();
+
+  const { data: loyalties = [] } = useQuery({
+    queryKey: ['customer-loyalty', user?.email],
+    queryFn: () => base44.entities.CustomerLoyalty.filter({ customer_email: user.email }),
+    enabled: !!user?.email,
+  });
+
+  const { data: restaurants = [] } = useQuery({
+    queryKey: ['restaurants-with-loyalty'],
+    queryFn: () => base44.entities.Restaurant.filter({ loyalty_enabled: true }),
+    enabled: !!user?.email,
+  });
 
   const updateUserMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
@@ -85,8 +98,9 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <Tabs defaultValue="personal">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="personal">Personal Info</TabsTrigger>
+            <TabsTrigger value="loyalty">Loyalty</TabsTrigger>
             <TabsTrigger value="payment">Payment</TabsTrigger>
             <TabsTrigger value="addresses">Addresses</TabsTrigger>
           </TabsList>
@@ -133,6 +147,23 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="loyalty" className="space-y-4">
+            {loyalties.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Award className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-600 mb-2">No loyalty memberships yet</p>
+                  <p className="text-sm text-slate-500">Order from restaurants with loyalty programs to start earning rewards!</p>
+                </CardContent>
+              </Card>
+            ) : (
+              loyalties.map((loyalty) => {
+                const restaurant = restaurants.find(r => r.id === loyalty.restaurant_id);
+                return <LoyaltyCard key={loyalty.id} loyalty={loyalty} restaurant={restaurant} />;
+              })
+            )}
           </TabsContent>
 
           <TabsContent value="payment" className="space-y-4">
