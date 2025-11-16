@@ -13,6 +13,29 @@ import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
 import CustomerOrders from "../components/restaurant/CustomerOrders";
 
+const cuisineCategories = [
+  { value: "all", label: "All", emoji: "🍽️" },
+  { value: "african", label: "African", emoji: "🌍" },
+  { value: "italian", label: "Italian", emoji: "🍕" },
+  { value: "chinese", label: "Chinese", emoji: "🥢" },
+  { value: "indian", label: "Indian", emoji: "🍛" },
+  { value: "french", label: "French", emoji: "🥐" },
+  { value: "japanese", label: "Japanese", emoji: "🍣" },
+  { value: "mexican", label: "Mexican", emoji: "🌮" },
+  { value: "thai", label: "Thai", emoji: "🍜" },
+  { value: "mediterranean", label: "Mediterranean", emoji: "🫒" },
+  { value: "american", label: "American", emoji: "🍔" },
+  { value: "lebanese", label: "Lebanese", emoji: "🥙" },
+  { value: "moroccan", label: "Moroccan", emoji: "🍲" },
+  { value: "pizza", label: "Pizza", emoji: "🍕" },
+  { value: "burgers", label: "Burgers", emoji: "🍔" },
+  { value: "seafood", label: "Seafood", emoji: "🦞" },
+  { value: "fast_food", label: "Fast Food", emoji: "🍟" },
+  { value: "vegetarian", label: "Vegetarian", emoji: "🥗" },
+  { value: "desserts", label: "Desserts", emoji: "🍰" },
+  { value: "mixed", label: "Mixed", emoji: "🌐" }
+];
+
 export default function CustomerApp() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +69,6 @@ export default function CustomerApp() {
   });
 
   const cities = ["all", ...new Set(restaurants.map(r => r.city).filter(Boolean))];
-  const cuisines = ["all", "african", "fast_food", "chinese", "italian", "indian", "mediterranean", "american", "mixed"];
 
   const filteredRestaurants = restaurants.filter(r => {
     const matchCity = selectedCity === "all" || r.city === selectedCity;
@@ -97,7 +119,7 @@ export default function CustomerApp() {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex flex-col md:flex-row gap-3 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
               <Input
@@ -119,18 +141,21 @@ export default function CustomerApp() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="Cuisine" />
-              </SelectTrigger>
-              <SelectContent>
-                {cuisines.map(cuisine => (
-                  <SelectItem key={cuisine} value={cuisine}>
-                    {cuisine === "all" ? "All Cuisines" : cuisine.replace('_', ' ')}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+            {cuisineCategories.map(cuisine => (
+              <Button
+                key={cuisine.value}
+                variant={selectedCuisine === cuisine.value ? "default" : "outline"}
+                onClick={() => setSelectedCuisine(cuisine.value)}
+                className="whitespace-nowrap flex-shrink-0"
+                size="sm"
+              >
+                <span className="mr-1.5">{cuisine.emoji}</span>
+                {cuisine.label}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
@@ -154,7 +179,9 @@ export default function CustomerApp() {
                   {restaurant.cover_image_url ? (
                     <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-6xl">🍽️</div>
+                    <div className="flex items-center justify-center h-full text-6xl">
+                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
+                    </div>
                   )}
                   {restaurant.logo_url && (
                     <div className="absolute bottom-4 left-4 w-16 h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
@@ -182,7 +209,10 @@ export default function CustomerApp() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline">{restaurant.cuisine_type.replace('_', ' ')}</Badge>
+                    <Badge variant="outline">
+                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
+                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label || restaurant.cuisine_type}
+                    </Badge>
                     <div className="flex items-center gap-1 text-xs text-slate-500">
                       <MapPin className="w-3 h-3" />
                       <span>{restaurant.city}</span>
@@ -194,6 +224,16 @@ export default function CustomerApp() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
