@@ -101,55 +101,69 @@ export default function CustomerApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-orange-600">🍽️ FoodHub</h1>
-              <p className="text-sm text-slate-600">Discover restaurants near you</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-orange-600">🍽️ FoodHub</h1>
+              <p className="text-xs md:text-sm text-slate-600">Discover restaurants near you</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setShowOrders(true)}>
-                My Orders
+              <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs md:text-sm">
+                Orders
               </Button>
-              <Button variant="outline" onClick={() => setShowProfile(true)}>
-                <UserIcon className="w-4 h-4 mr-2" />
-                Profile
+              <Button variant="outline" onClick={() => setShowProfile(true)} size="sm" className="text-xs md:text-sm">
+                <UserIcon className="w-4 h-4 md:mr-2" />
+                <span className="hidden md:inline">Profile</span>
               </Button>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3 mb-4">
-            <div className="flex-1 relative">
+          <div className="flex flex-col gap-3 mb-4">
+            <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
               <Input
                 placeholder="Search restaurants..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
+                className="pl-10 h-12 text-base"
               />
             </div>
-            <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="w-full md:w-40">
-                <SelectValue placeholder="City" />
-              </SelectTrigger>
-              <SelectContent>
-                {cities.map(city => (
-                  <SelectItem key={city} value={city}>
-                    {city === "all" ? "All Cities" : city}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger className="flex-1 h-12">
+                  <SelectValue placeholder="City" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map(city => (
+                    <SelectItem key={city} value={city}>
+                      {city === "all" ? "All Cities" : city}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
+                <SelectTrigger className="flex-1 h-12">
+                  <SelectValue placeholder="Cuisine" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cuisineCategories.map(cuisine => (
+                    <SelectItem key={cuisine.value} value={cuisine.value}>
+                      {cuisine.emoji} {cuisine.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
-            {cuisineCategories.map(cuisine => (
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+            {cuisineCategories.slice(0, 8).map(cuisine => (
               <Button
                 key={cuisine.value}
                 variant={selectedCuisine === cuisine.value ? "default" : "outline"}
                 onClick={() => setSelectedCuisine(cuisine.value)}
-                className="whitespace-nowrap flex-shrink-0"
+                className="whitespace-nowrap flex-shrink-0 h-10"
                 size="sm"
               >
                 <span className="mr-1.5">{cuisine.emoji}</span>
@@ -168,32 +182,32 @@ export default function CustomerApp() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredRestaurants.map((restaurant) => (
               <Card 
                 key={restaurant.id} 
-                className="overflow-hidden hover:shadow-xl transition-all cursor-pointer"
+                className="overflow-hidden hover:shadow-xl transition-all cursor-pointer active:scale-95"
                 onClick={() => setSelectedRestaurant(restaurant)}
               >
-                <div className="h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative">
+                <div className="h-40 md:h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative">
                   {restaurant.cover_image_url ? (
                     <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-6xl">
+                    <div className="flex items-center justify-center h-full text-5xl md:text-6xl">
                       {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
                     </div>
                   )}
                   {restaurant.logo_url && (
-                    <div className="absolute bottom-4 left-4 w-16 h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
+                    <div className="absolute bottom-3 left-3 w-14 h-14 md:w-16 md:h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
                       <img src={restaurant.logo_url} alt="" className="w-full h-full object-cover" />
                     </div>
                   )}
                 </div>
-                <CardContent className="pt-6">
-                  <h3 className="font-bold text-xl mb-2">{restaurant.name}</h3>
+                <CardContent className="pt-4 md:pt-6 p-4">
+                  <h3 className="font-bold text-lg md:text-xl mb-2">{restaurant.name}</h3>
                   <p className="text-sm text-slate-600 mb-3 line-clamp-2">{restaurant.description}</p>
                   
-                  <div className="flex items-center gap-4 text-sm text-slate-600 mb-3">
+                  <div className="flex items-center gap-3 md:gap-4 text-sm text-slate-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                       <span>{restaurant.rating || 'New'}</span>
@@ -209,7 +223,7 @@ export default function CustomerApp() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="text-xs">
                       {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
                       {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label || restaurant.cuisine_type}
                     </Badge>
