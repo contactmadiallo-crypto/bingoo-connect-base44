@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
@@ -27,8 +27,8 @@ function RestaurantAdminContent() {
   const [tableCount, setTableCount] = useState(20);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [menuForm, setMenuForm] = useState({
-    name: "", description: "", price: "", category: "main_course", image_url: "", 
-    preparation_time: "", available: true
+    name: "", description: "", price: "", category: "main_course", image_url: "",
+    preparation_time: "", available: true, ingredients: [] // Added ingredients for AI context
   });
   const [inventoryForm, setInventoryForm] = useState({
     item_name: "", quantity: "", unit: "pieces", min_quantity: "", category: "other"
@@ -42,6 +42,7 @@ function RestaurantAdminContent() {
   });
   const [newZone, setNewZone] = useState("");
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
+  const [generatingAI, setGeneratingAI] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -127,7 +128,7 @@ function RestaurantAdminContent() {
   });
 
   const resetMenuForm = () => {
-    setMenuForm({ name: "", description: "", price: "", category: "main_course", image_url: "", preparation_time: "", available: true });
+    setMenuForm({ name: "", description: "", price: "", category: "main_course", image_url: "", preparation_time: "", available: true, ingredients: [] });
     setEditingItem(null);
   };
 
@@ -145,15 +146,109 @@ function RestaurantAdminContent() {
     setUploadingImage(false);
   };
 
+  const generateDescription = async () => {
+    if (!menuForm.name) {
+      alert("Please enter a dish name first");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const prompt = `Generate a compelling, mouth-watering menu description for a dish called "${menuForm.name}".
+      ${menuForm.ingredients && menuForm.ingredients.length > 0 ? `Ingredients: ${menuForm.ingredients.join(', ')}.` : ''}
+      The description should be 2-3 sentences, appetizing, and highlight what makes this dish special.
+      Write in an elegant, professional style suitable for a restaurant menu.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+      setMenuForm({ ...menuForm, description: response });
+    } catch (error) {
+      console.error("Error generating description:", error);
+      alert("Failed to generate description. Please try again.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const suggestPrice = async () => {
+    if (!menuForm.name || !menuForm.category) {
+      alert("Please enter dish name and category first");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const prompt = `Based on market trends and typical restaurant pricing in 2024, suggest an optimal price in USD for a ${menuForm.category} dish called "${menuForm.name}".
+      ${menuForm.ingredients && menuForm.ingredients.length > 0 ? `Ingredients include: ${menuForm.ingredients.join(', ')}.` : ''}
+      Consider:
+      - Average market prices for similar dishes
+      - Ingredient costs
+      - Restaurant positioning (mid-range casual dining)
+      - Competitive pricing
+
+      Return ONLY a single number (the price in dollars), nothing else.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+      const price = parseFloat(response.trim());
+      if (!isNaN(price)) {
+        setMenuForm({ ...menuForm, price: price.toFixed(2) }); // Format to 2 decimal places
+      } else {
+        alert("AI could not suggest a valid price.");
+      }
+    } catch (error) {
+      console.error("Error suggesting price:", error);
+      alert("Failed to suggest price. Please try again.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const autoCategorizeDish = async () => {
+    if (!menuForm.name) {
+      alert("Please enter a dish name first");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const prompt = `Categorize this menu item: "${menuForm.name}"
+      ${menuForm.description ? `Description: ${menuForm.description}` : ''}
+      ${menuForm.ingredients && menuForm.ingredients.length > 0 ? `Ingredients: ${menuForm.ingredients.join(', ')}` : ''}
+
+      Choose the BEST category from these options:
+      - appetizers
+      - main_course
+      - desserts
+      - beverages
+      - sides
+
+      Return ONLY the category name, nothing else.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+      const category = response.trim().toLowerCase();
+      const validCategories = ['appetizers', 'main_course', 'desserts', 'beverages', 'sides'];
+
+      if (validCategories.includes(category)) {
+        setMenuForm({ ...menuForm, category });
+      } else {
+        alert(`AI could not auto-categorize into a valid category. Suggested: ${category}`);
+      }
+    } catch (error) {
+      console.error("Error auto-categorizing dish:", error);
+      alert("Failed to auto-categorize dish. Please try again.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
   const handleBulkUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingBulk(true);
-    
+
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      
+
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
@@ -203,12 +298,12 @@ function RestaurantAdminContent() {
     setGeneratingTables(true);
     const baseUrl = window.location.origin;
     const tablesToCreate = [];
-    
+
     for (let i = 1; i <= tableCount; i++) {
       const tableNumber = `T${i.toString().padStart(2, '0')}`;
       const menuUrl = `${baseUrl}/RestaurantMenu?table=${tableNumber}&restaurant_id=${myRestaurant?.id}`; // Added restaurant_id
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
-      
+
       tablesToCreate.push({
         table_number: tableNumber,
         capacity: 4,
@@ -218,7 +313,7 @@ function RestaurantAdminContent() {
         restaurant_id: myRestaurant?.id // Assign to current restaurant
       });
     }
-    
+
     await base44.entities.Table.bulkCreate(tablesToCreate);
     queryClient.invalidateQueries({ queryKey: ['tables'] });
     setGeneratingTables(false);
@@ -328,7 +423,7 @@ function RestaurantAdminContent() {
   };
 
   const filteredOrders = myOrders.filter(o => new Date(o.created_date) >= getDateRange());
-  
+
   const analytics = {
     revenue: {
       total: filteredOrders.reduce((sum, o) => sum + o.total_amount, 0),
@@ -347,10 +442,10 @@ function RestaurantAdminContent() {
 
         const firstHalfRevenue = firstHalf.reduce((sum, o) => sum + o.total_amount, 0);
         const secondHalfRevenue = secondHalf.reduce((sum, o) => sum + o.total_amount, 0);
-        
+
         if (firstHalfRevenue === 0 && secondHalfRevenue === 0) return 0;
         if (firstHalfRevenue === 0) return 100; // Infinite growth from zero
-        
+
         return (((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100).toFixed(1);
       })()
     },
@@ -381,7 +476,7 @@ function RestaurantAdminContent() {
       acc[o.order_type] = (acc[o.order_type] || 0) + 1;
       return acc;
     }, {}),
-    avgOrderValue: filteredOrders.length > 0 
+    avgOrderValue: filteredOrders.length > 0
       ? (filteredOrders.reduce((sum, o) => sum + o.total_amount, 0) / filteredOrders.length).toFixed(2)
       : 0
   };
@@ -555,9 +650,9 @@ function RestaurantAdminContent() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Table QR Codes</CardTitle>
                 <div className="flex gap-2 items-center">
-                  <Input 
-                    type="number" 
-                    value={tableCount} 
+                  <Input
+                    type="number"
+                    value={tableCount}
                     onChange={(e) => setTableCount(parseInt(e.target.value) || 0)}
                     className="w-20"
                     min="1"
@@ -735,7 +830,7 @@ function RestaurantAdminContent() {
                                 <div key={date} className="flex items-center gap-3">
                                 <span className="text-xs text-slate-600 w-24">{date}</span>
                                 <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
-                                    <div 
+                                    <div
                                     className="bg-gradient-to-r from-orange-400 to-red-400 h-full rounded-full flex items-center justify-end pr-2"
                                     style={{ width: `${(revenue / Math.max(...Object.values(analytics.revenue.byDay))) * 100}%` }}
                                     >
@@ -763,7 +858,7 @@ function RestaurantAdminContent() {
                                     {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
                                 </span>
                                 <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
-                                    <div 
+                                    <div
                                     className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full flex items-center justify-end pr-2"
                                     style={{ width: `${(count / Math.max(...analytics.peakHours.map(h => h.count))) * 100}%` }}
                                     >
@@ -904,21 +999,67 @@ function RestaurantAdminContent() {
                   </div>
                 </div>
               </div>
+
               <div className="space-y-2">
                 <Label>Name *</Label>
                 <Input value={menuForm.name} onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} required />
               </div>
+
               <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea value={menuForm.description} onChange={(e) => setMenuForm({...menuForm, description: e.target.value})} />
+                <div className="flex items-center justify-between">
+                  <Label>Description</Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={generateDescription}
+                    disabled={generatingAI || !menuForm.name}
+                    className="h-7"
+                  >
+                    {generatingAI ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                    AI Generate
+                  </Button>
+                </div>
+                <Textarea
+                  value={menuForm.description}
+                  onChange={(e) => setMenuForm({...menuForm, description: e.target.value})}
+                  placeholder="AI can generate a compelling description for you..."
+                />
               </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Price *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Price *</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={suggestPrice}
+                      disabled={generatingAI || !menuForm.name}
+                      className="h-6 text-xs"
+                    >
+                      {generatingAI ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Zap className="w-3 h-3 mr-1" />}
+                      Suggest
+                    </Button>
+                  </div>
                   <Input type="number" step="0.01" value={menuForm.price} onChange={(e) => setMenuForm({...menuForm, price: e.target.value})} required />
                 </div>
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <div className="flex items-center justify-between">
+                    <Label>Category</Label>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={autoCategorizeDish}
+                      disabled={generatingAI || !menuForm.name}
+                      className="h-6 text-xs"
+                    >
+                      {generatingAI ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Sparkles className="w-3 h-3 mr-1" />}
+                      Auto
+                    </Button>
+                  </div>
                   <Select value={menuForm.category} onValueChange={(value) => setMenuForm({...menuForm, category: value})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -931,13 +1072,21 @@ function RestaurantAdminContent() {
                   </Select>
                 </div>
               </div>
+
+              <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                <p className="text-xs text-blue-900 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  <span><strong>AI Assistant:</strong> Use AI to generate descriptions, suggest optimal pricing based on market trends, and automatically categorize your dishes.</span>
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <Label>Preparation Time (minutes)</Label>
                 <Input type="number" value={menuForm.preparation_time} onChange={(e) => setMenuForm({...menuForm, preparation_time: e.target.value})} />
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setMenuDialog(false)}>Cancel</Button>
-                <Button type="submit" disabled={uploadingImage}>{editingItem ? "Update" : "Add"}</Button>
+                <Button type="submit" disabled={uploadingImage || generatingAI}>{editingItem ? "Update" : "Add"}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -1008,8 +1157,8 @@ function RestaurantAdminContent() {
             <form onSubmit={handleSettingsSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Opening Hours</Label>
-                <Input 
-                  value={settingsForm.open_hours} 
+                <Input
+                  value={settingsForm.open_hours}
                   onChange={(e) => setSettingsForm({...settingsForm, open_hours: e.target.value})}
                   placeholder="e.g., 9:00 AM - 10:00 PM"
                 />
@@ -1017,27 +1166,27 @@ function RestaurantAdminContent() {
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Delivery Fee ($)</Label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     step="0.1"
-                    value={settingsForm.delivery_fee} 
+                    value={settingsForm.delivery_fee}
                     onChange={(e) => setSettingsForm({...settingsForm, delivery_fee: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Min Order ($)</Label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     step="0.1"
-                    value={settingsForm.min_order} 
+                    value={settingsForm.min_order}
                     onChange={(e) => setSettingsForm({...settingsForm, min_order: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Delivery Time (min)</Label>
-                  <Input 
+                  <Input
                     type="number"
-                    value={settingsForm.avg_delivery_time} 
+                    value={settingsForm.avg_delivery_time}
                     onChange={(e) => setSettingsForm({...settingsForm, avg_delivery_time: e.target.value})}
                   />
                 </div>
@@ -1045,8 +1194,8 @@ function RestaurantAdminContent() {
               <div className="space-y-2">
                 <Label>Delivery Zones</Label>
                 <div className="flex gap-2 mb-2">
-                  <Input 
-                    value={newZone} 
+                  <Input
+                    value={newZone}
                     onChange={(e) => setNewZone(e.target.value)}
                     placeholder="Add zone (e.g., Dakar, Pikine)"
                   />
