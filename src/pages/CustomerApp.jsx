@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
@@ -201,10 +201,12 @@ export default function CustomerApp() {
             {filteredRestaurants.map((restaurant) => (
               <Card 
                 key={restaurant.id} 
-                className="overflow-hidden hover:shadow-xl transition-all cursor-pointer active:scale-95"
-                onClick={() => setSelectedRestaurant(restaurant)}
+                className="overflow-hidden hover:shadow-xl transition-all"
               >
-                <div className="h-40 md:h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative">
+                <div 
+                  className="h-40 md:h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative cursor-pointer"
+                  onClick={() => setSelectedRestaurant(restaurant)}
+                >
                   {restaurant.cover_image_url ? (
                     <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
                   ) : (
@@ -237,7 +239,7 @@ export default function CustomerApp() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap mb-3">
                     <Badge variant="outline" className="text-xs">
                       {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
                       {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label || restaurant.cuisine_type}
@@ -247,6 +249,22 @@ export default function CustomerApp() {
                       <span>{restaurant.city}</span>
                     </div>
                   </div>
+
+                  {restaurant.phone && (
+                    <a 
+                      href={`tel:${restaurant.phone}`}
+                      className="block w-full"
+                    >
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        size="sm"
+                      >
+                        <Phone className="w-4 h-4 mr-2" />
+                        Call to Order
+                      </Button>
+                    </a>
+                  )}
                 </CardContent>
               </Card>
             ))}

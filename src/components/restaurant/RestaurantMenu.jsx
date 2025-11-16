@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search, Star, MessageSquare } from "lucide-react";
+import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search, Star, MessageSquare, Phone } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -170,10 +170,23 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               <h1 className="text-2xl font-bold text-orange-600">{restaurant.name}</h1>
               <p className="text-sm text-slate-600">{restaurant.description}</p>
             </div>
-            <Button onClick={handleCheckout} className="bg-orange-600 hover:bg-orange-700">
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              {t('cart')} ({cart.length})
-            </Button>
+            <div className="flex gap-2">
+              {restaurant.phone && (
+                <a href={`tel:${restaurant.phone}`}>
+                  <Button variant="outline" size="sm" className="hidden md:flex">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call
+                  </Button>
+                  <Button variant="outline" size="icon" className="md:hidden">
+                    <Phone className="w-4 h-4" />
+                  </Button>
+                </a>
+              )}
+              <Button onClick={handleCheckout} className="bg-orange-600 hover:bg-orange-700">
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                {t('cart')} ({cart.length})
+              </Button>
+            </div>
           </div>
         </div>
       </div>
