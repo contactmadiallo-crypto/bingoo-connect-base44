@@ -1,85 +1,121 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Key } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare } from "lucide-react";
+import { useTranslation } from "../translations";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
-export default function CustomerOrders({ user, onBack }) {
+export default function CustomerOrders({ user, onBack, language = "en" }) {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [ratingDialog, setRatingDialog] = useState(false);
+  const [tipAmount, setTipAmount] = useState("");
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+  
+  const { t } = useTranslation(language);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
   const { data: orders } = useQuery({
-    queryKey: ['user-orders', user.email],
-    queryFn: async () => {
-      const allOrders = await base44.entities.Order.list('-created_date');
-      return allOrders.filter(o => o.created_by === user.email);
-    },
+    queryKey: ['my-orders', user?.email],
+    queryFn: () => base44.entities.Order.filter({ created_by: user.email }, '-created_date'),
     initialData: [],
-    refetchInterval: 3000
+    enabled: !!user,
   });
 
+  const updateOrderMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      setRatingDialog(false);
+      setSelectedOrder(null);
+      setRating(0);
+      setFeedback("");
+      setTipAmount("");
+    },
+  });
+
+  const handleRateDriver = (order) => {
+    setSelectedOrder(order);
+    setRating(order.customer_rating || 0);
+    setFeedback(order.customer_feedback || "");
+    setTipAmount(order.tip_amount?.toString() || "");
+    setRatingDialog(true);
+  };
+
+  const submitRating = () => {
+    if (rating === 0) {
+      alert("Please select a rating");
+      return;
+    }
+
+    updateOrderMutation.mutate({
+      id: selectedOrder.id,
+      data: {
+        customer_rating: rating,
+        customer_feedback: feedback,
+        tip_amount: tipAmount ? parseFloat(tipAmount) : 0
+      }
+    });
+  };
+
+  const trackOrder = (order) => {
+    navigate(createPageUrl(`OrderTracking?order=${order.order_number}`));
+  };
+
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-700",
+    confirmed: "bg-blue-100 text-blue-700",
+    preparing: "bg-purple-100 text-purple-700",
+    ready: "bg-indigo-100 text-indigo-700",
+    out_for_delivery: "bg-orange-100 text-orange-700",
+    delivered: "bg-green-100 text-green-700",
+    cancelled: "bg-red-100 text-red-700"
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={onBack}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-orange-600">My Orders</h1>
-              <p className="text-sm text-slate-600">Track your orders in real-time</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <Button variant="ghost" onClick={onBack} className="mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('back')}
+          </Button>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">📦 {t('orders')}</h1>
+          <p className="text-slate-600">{t('view_track_orders')}</p>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="space-y-4">
-          {orders.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <p className="text-slate-600">No orders yet</p>
-              </CardContent>
-            </Card>
-          ) : (
-            orders.map(order => (
-              <Card key={order.id}>
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="font-bold text-lg">{order.order_number}</h3>
-                      <p className="text-sm text-orange-600 font-semibold">{order.restaurant_name}</p>
-                      <p className="text-sm text-slate-600">{new Date(order.created_date).toLocaleString()}</p>
-                    </div>
-                    <Badge className={
-                      order.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                      order.status === 'out_for_delivery' ? 'bg-orange-100 text-orange-700' :
-                      'bg-blue-100 text-blue-700'
-                    }>
-                      {order.status.replace('_', ' ')}
-                    </Badge>
+          {orders.map((order) => (
+            <Card key={order.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl">{order.order_number}</CardTitle>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {new Date(order.created_date).toLocaleString()}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-700 mt-1">
+                      {order.restaurant_name}
+                    </p>
                   </div>
-
-                  {order.status === 'out_for_delivery' && order.delivery_code && (
-                    <div className="bg-green-50 p-4 rounded-lg mb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Key className="w-4 h-4 text-green-700" />
-                        <p className="text-sm font-semibold text-green-700">Your Delivery Code:</p>
-                      </div>
-                      <p className="text-3xl font-bold text-green-700 text-center tracking-wider">
-                        {order.delivery_code}
-                      </p>
-                      <p className="text-xs text-slate-600 mt-2 text-center">Share with driver to confirm delivery</p>
-                    </div>
-                  )}
-
-                  {order.driver_name && (
-                    <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                      <p className="text-xs text-slate-600">Driver: {order.driver_name} ({order.driver_phone})</p>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
+                  <Badge className={statusColors[order.status]}>
+                    {order.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="border-t pt-3">
+                    <p className="text-sm font-semibold mb-2">{t('items')}:</p>
                     {order.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
                         <span>{item.quantity}x {item.name}</span>
@@ -88,16 +124,163 @@ export default function CustomerOrders({ user, onBack }) {
                     ))}
                   </div>
 
-                  <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
-                    <span>Total</span>
-                    <span className="text-green-600">${order.total_amount.toFixed(2)}</span>
+                  <div className="border-t pt-3 flex justify-between items-center">
+                    <span className="font-semibold">{t('total')}</span>
+                    <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
                   </div>
-                </CardContent>
-              </Card>
-            ))
+
+                  {order.driver_name && (
+                    <div className="border-t pt-3">
+                      <p className="text-sm font-semibold mb-1">🚗 Driver:</p>
+                      <p className="text-sm">{order.driver_name} - {order.driver_phone}</p>
+                      {order.customer_rating ? (
+                        <div className="flex items-center gap-2 mt-2">
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-4 h-4 ${i < order.customer_rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'}`} />
+                            ))}
+                          </div>
+                          {order.tip_amount > 0 && (
+                            <span className="text-xs text-green-600">• Tip: ${order.tip_amount.toFixed(2)}</span>
+                          )}
+                        </div>
+                      ) : order.status === 'delivered' && (
+                        <Button size="sm" variant="outline" onClick={() => handleRateDriver(order)} className="mt-2">
+                          <Star className="w-4 h-4 mr-2" />
+                          Rate Driver
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="border-t pt-3 flex gap-2">
+                    {['out_for_delivery', 'preparing', 'ready'].includes(order.status) && (
+                      <Button onClick={() => trackOrder(order)} className="flex-1">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        Track Order
+                      </Button>
+                    )}
+                    {order.status === 'delivered' && !order.customer_rating && (
+                      <Button onClick={() => handleRateDriver(order)} className="flex-1">
+                        <Star className="w-4 h-4 mr-2" />
+                        Rate & Tip
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {orders.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-slate-600">{t('no_orders')}</p>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
+
+      <Dialog open={ratingDialog} onOpenChange={setRatingDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rate Your Delivery Experience</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>How was your delivery? *</Label>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`w-12 h-12 ${
+                        star <= rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              {rating > 0 && (
+                <p className="text-center text-sm text-slate-600">
+                  {rating === 1 && "Poor"}
+                  {rating === 2 && "Fair"}
+                  {rating === 3 && "Good"}
+                  {rating === 4 && "Very Good"}
+                  {rating === 5 && "Excellent!"}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Add a Tip for Your Driver (Optional)</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={tipAmount === "2" ? "default" : "outline"}
+                  onClick={() => setTipAmount("2")}
+                  className="flex-1"
+                >
+                  $2
+                </Button>
+                <Button
+                  type="button"
+                  variant={tipAmount === "5" ? "default" : "outline"}
+                  onClick={() => setTipAmount("5")}
+                  className="flex-1"
+                >
+                  $5
+                </Button>
+                <Button
+                  type="button"
+                  variant={tipAmount === "10" ? "default" : "outline"}
+                  onClick={() => setTipAmount("10")}
+                  className="flex-1"
+                >
+                  $10
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label className="whitespace-nowrap">Custom:</Label>
+                <Input
+                  type="number"
+                  step="0.5"
+                  placeholder="0.00"
+                  value={tipAmount}
+                  onChange={(e) => setTipAmount(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+              {tipAmount && parseFloat(tipAmount) > 0 && (
+                <p className="text-sm text-green-600 text-center">
+                  💚 Thank you for supporting our drivers!
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Share Your Feedback (Optional)</Label>
+              <Textarea
+                placeholder="Tell us about your experience..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRatingDialog(false)}>Cancel</Button>
+            <Button onClick={submitRating} disabled={rating === 0}>
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Submit Review
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

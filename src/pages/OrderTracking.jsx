@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Package, Truck, CheckCircle, MapPin, Phone, Clock, Key } from "lucide-react";
+import { Search, Package, Truck, CheckCircle, MapPin, Phone, Clock, Key, User, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import DeliveryMap from "../components/DeliveryMap";
 
@@ -21,11 +21,19 @@ const statuses = [
 export default function OrderTracking() {
   const [orderNumber, setOrderNumber] = useState("");
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderParam = params.get('order');
+    if (orderParam) {
+      setOrderNumber(orderParam);
+    }
+  }, []);
+
   const { data: orders } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
     initialData: [],
-    refetchInterval: 5000
+    refetchInterval: 3000
   });
 
   const searchOrder = () => {
@@ -40,7 +48,7 @@ export default function OrderTracking() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">📦 Track Your Order</h1>
-          <p className="text-slate-600">Enter your order number to see real-time status</p>
+          <p className="text-slate-600">Enter your order number to see real-time status and location</p>
         </div>
 
         <Card className="mb-8">
@@ -62,8 +70,8 @@ export default function OrderTracking() {
 
         {order ? (
           <div className="space-y-6">
-            {/* Show map if delivery order and driver assigned */}
-            {order.order_type === 'delivery' && order.status === 'out_for_delivery' && (
+            {/* Show map if delivery order and driver location available */}
+            {order.order_type === 'delivery' && order.status === 'out_for_delivery' && order.driver_location && (
               <DeliveryMap order={order} />
             )}
 
@@ -73,7 +81,10 @@ export default function OrderTracking() {
                   <div>
                     <CardTitle>{order.order_number}</CardTitle>
                     <p className="text-sm text-slate-600 mt-1">
-                      Ordered on {new Date(order.created_date).toLocaleDateString()}
+                      Ordered on {new Date(order.created_date).toLocaleDateString()} at {new Date(order.created_date).toLocaleTimeString()}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-700 mt-1">
+                      {order.restaurant_name}
                     </p>
                   </div>
                   <Badge className="text-lg px-4 py-2">
@@ -82,8 +93,8 @@ export default function OrderTracking() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="relative">
-                  <div className="flex justify-between mb-8">
+                <div className="relative mb-8">
+                  <div className="flex justify-between">
                     {statuses.map((status, idx) => {
                       const Icon = status.icon;
                       const isActive = idx <= currentStatusIndex;
@@ -144,13 +155,23 @@ export default function OrderTracking() {
                   <div className="space-y-3">
                     {order.driver_name && (
                       <div className="bg-blue-50 p-3 rounded-lg">
-                        <p className="text-xs text-slate-600 mb-1">Driver Assigned:</p>
+                        <div className="flex items-center gap-2 mb-2">
+                          <User className="w-4 h-4 text-blue-700" />
+                          <p className="text-sm font-semibold text-blue-700">Your Driver:</p>
+                        </div>
                         <p className="font-semibold">{order.driver_name}</p>
                         <p className="text-sm text-slate-600">{order.driver_phone}</p>
                         {order.vehicle_type && (
                           <Badge variant="outline" className="mt-2">
                             {order.vehicle_type}
                           </Badge>
+                        )}
+                        {order.customer_rating && (
+                          <div className="flex items-center gap-1 mt-2">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} className={`w-3 h-3 ${i < order.customer_rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'}`} />
+                            ))}
+                          </div>
                         )}
                       </div>
                     )}
@@ -187,6 +208,14 @@ export default function OrderTracking() {
                     <span className="text-green-600">${order.total_amount.toFixed(2)}</span>
                   </div>
                 </div>
+
+                {!order.driver_location && order.status === 'out_for_delivery' && (
+                  <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                    <p className="text-sm text-amber-800">
+                      📍 Waiting for driver to activate GPS tracking...
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

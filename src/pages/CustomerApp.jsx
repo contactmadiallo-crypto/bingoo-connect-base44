@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
 import CustomerOrders from "../components/restaurant/CustomerOrders";
@@ -37,16 +40,31 @@ const cuisineCategories = [
   { value: "mixed", label: "Mixed", emoji: "🌐" }
 ];
 
+const businessTypes = [
+  { value: "all", label: "All", emoji: "🏪" },
+  { value: "restaurant", label: "Restaurants", emoji: "🍽️" },
+  { value: "grocery", label: "Groceries", emoji: "🛒" },
+  { value: "pharmacy", label: "Pharmacies", emoji: "💊" },
+  { value: "local_shop", label: "Local Shops", emoji: "🏪" }
+];
+
 export default function CustomerApp() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedCuisine, setSelectedCuisine] = useState("all");
+  const [selectedBusinessType, setSelectedBusinessType] = useState("all");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showOrders, setShowOrders] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
+  const [filters, setFilters] = useState({
+    minRating: 0,
+    maxDeliveryFee: 100,
+    maxDeliveryTime: 120
+  });
 
   const { t } = useTranslation(language);
 
@@ -86,9 +104,16 @@ export default function CustomerApp() {
   const filteredRestaurants = restaurants.filter(r => {
     const matchCity = selectedCity === "all" || r.city === selectedCity;
     const matchCuisine = selectedCuisine === "all" || r.cuisine_type === selectedCuisine;
+    const matchBusinessType = selectedBusinessType === "all" || r.business_type === selectedBusinessType;
     const matchSearch = !search || r.name.toLowerCase().includes(search.toLowerCase());
-    return matchCity && matchCuisine && matchSearch;
+    const matchRating = (r.rating || 0) >= filters.minRating;
+    const matchDeliveryFee = (r.delivery_fee || 0) <= filters.maxDeliveryFee;
+    const matchDeliveryTime = (r.avg_delivery_time || 0) <= filters.maxDeliveryTime;
+    return matchCity && matchCuisine && matchBusinessType && matchSearch && matchRating && matchDeliveryFee && matchDeliveryTime;
   });
+
+  // Sort by rating
+  const sortedRestaurants = [...filteredRestaurants].sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">{t('loading')}</div>;
@@ -135,16 +160,33 @@ export default function CustomerApp() {
           </div>
 
           <div className="flex flex-col gap-3 mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder={t('search_restaurants')}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 h-12 text-base"
-              />
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder={t('search_restaurants')}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 h-12 text-base"
+                />
+              </div>
+              <Button variant="outline" onClick={() => setShowFilters(true)} className="h-12 px-4">
+                <SlidersHorizontal className="w-4 h-4" />
+              </Button>
             </div>
             <div className="flex gap-2">
+              <Select value={selectedBusinessType} onValueChange={setSelectedBusinessType}>
+                <SelectTrigger className="flex-1 h-12">
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {businessTypes.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.emoji} {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className="flex-1 h-12">
                   <SelectValue placeholder="City" />
@@ -157,18 +199,20 @@ export default function CustomerApp() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
-                <SelectTrigger className="flex-1 h-12">
-                  <SelectValue placeholder="Cuisine" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cuisineCategories.map(cuisine => (
-                    <SelectItem key={cuisine.value} value={cuisine.value}>
-                      {cuisine.emoji} {cuisine.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {selectedBusinessType === "restaurant" && (
+                <Select value={selectedCuisine} onValueChange={setSelectedCuisine}>
+                  <SelectTrigger className="flex-1 h-12">
+                    <SelectValue placeholder="Cuisine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cuisineCategories.map(cuisine => (
+                      <SelectItem key={cuisine.value} value={cuisine.value}>
+                        {cuisine.emoji} {cuisine.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
@@ -190,7 +234,18 @@ export default function CustomerApp() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
-        {filteredRestaurants.length === 0 ? (
+        <div className="mb-4 flex justify-between items-center">
+          <p className="text-sm text-slate-600">
+            {sortedRestaurants.length} {sortedRestaurants.length === 1 ? 'result' : 'results'} found
+          </p>
+          {(filters.minRating > 0 || filters.maxDeliveryFee < 100 || filters.maxDeliveryTime < 120) && (
+            <Button variant="ghost" size="sm" onClick={() => setFilters({ minRating: 0, maxDeliveryFee: 100, maxDeliveryTime: 120 })}>
+              Clear Filters
+            </Button>
+          )}
+        </div>
+
+        {sortedRestaurants.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-slate-600">{t('no_restaurants')}</p>
@@ -198,7 +253,7 @@ export default function CustomerApp() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredRestaurants.map((restaurant) => (
+            {sortedRestaurants.map((restaurant) => (
               <Card 
                 key={restaurant.id} 
                 className="overflow-hidden hover:shadow-xl transition-all"
@@ -211,7 +266,8 @@ export default function CustomerApp() {
                     <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="flex items-center justify-center h-full text-5xl md:text-6xl">
-                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
+                      {businessTypes.find(t => t.value === restaurant.business_type)?.emoji || 
+                       cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
                     </div>
                   )}
                   {restaurant.logo_url && (
@@ -227,7 +283,7 @@ export default function CustomerApp() {
                   <div className="flex items-center gap-3 md:gap-4 text-sm text-slate-600 mb-3">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span>{restaurant.rating || 'New'}</span>
+                      <span className="font-semibold">{restaurant.rating || 'New'}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="w-4 h-4" />
@@ -241,9 +297,15 @@ export default function CustomerApp() {
 
                   <div className="flex items-center gap-2 flex-wrap mb-3">
                     <Badge variant="outline" className="text-xs">
-                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
-                      {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label || restaurant.cuisine_type}
+                      {businessTypes.find(t => t.value === restaurant.business_type)?.emoji} {' '}
+                      {businessTypes.find(t => t.value === restaurant.business_type)?.label || restaurant.business_type}
                     </Badge>
+                    {restaurant.cuisine_type && (
+                      <Badge variant="outline" className="text-xs">
+                        {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
+                        {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label}
+                      </Badge>
+                    )}
                     <div className="flex items-center gap-1 text-xs text-slate-500">
                       <MapPin className="w-3 h-3" />
                       <span>{restaurant.city}</span>
@@ -273,6 +335,49 @@ export default function CustomerApp() {
       </div>
 
       <ScrollToTop />
+
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Advanced Filters</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Minimum Rating: {filters.minRating > 0 ? filters.minRating : 'Any'}</Label>
+              <Slider
+                value={[filters.minRating]}
+                onValueChange={(value) => setFilters({...filters, minRating: value[0]})}
+                min={0}
+                max={5}
+                step={0.5}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Max Delivery Fee: ${filters.maxDeliveryFee}</Label>
+              <Slider
+                value={[filters.maxDeliveryFee]}
+                onValueChange={(value) => setFilters({...filters, maxDeliveryFee: value[0]})}
+                min={0}
+                max={100}
+                step={1}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Max Delivery Time: {filters.maxDeliveryTime} min</Label>
+              <Slider
+                value={[filters.maxDeliveryTime]}
+                onValueChange={(value) => setFilters({...filters, maxDeliveryTime: value[0]})}
+                min={15}
+                max={120}
+                step={5}
+              />
+            </div>
+            <Button onClick={() => setShowFilters(false)} className="w-full">
+              Apply Filters
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {
