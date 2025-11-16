@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap, X, Check, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
@@ -19,6 +20,8 @@ function RestaurantAdminContent() {
   const [bulkUploadDialog, setBulkUploadDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
+  const [orderDetailDialog, setOrderDetailDialog] = useState(false);
+  const [cancelOrderDialog, setCancelOrderDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingBulk, setUploadingBulk] = useState(false);
@@ -26,6 +29,7 @@ function RestaurantAdminContent() {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [tableCount, setTableCount] = useState(20);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
   const [menuForm, setMenuForm] = useState({
     name: "", description: "", price: "", category: "main_course", image_url: "", 
     preparation_time: "", available: true
@@ -58,6 +62,7 @@ function RestaurantAdminContent() {
   const { data: orders = [] } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
+    refetchInterval: 5000,
   });
 
   const { data: tables = [] } = useQuery({
@@ -125,6 +130,67 @@ function RestaurantAdminContent() {
       setSettingsDialog(false);
     },
   });
+
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Order.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: ({ id, reason }) => base44.entities.Order.update(id, { 
+      status: 'cancelled',
+      cancellation_reason: reason 
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      setCancelOrderDialog(false);
+      setOrderDetailDialog(false);
+      setCancelReason("");
+    },
+  });
+
+  const getNextStatus = (currentStatus) => {
+    const statusFlow = {
+      'pending': 'confirmed',
+      'confirmed': 'preparing',
+      'preparing': 'ready',
+      'ready': 'out_for_delivery',
+      'out_for_delivery': 'delivered', // Assuming delivered is the next logical step
+    };
+    return statusFlow[currentStatus];
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'confirmed': 'bg-blue-100 text-blue-800',
+      'preparing': 'bg-purple-100 text-purple-800',
+      'ready': 'bg-green-100 text-green-800',
+      'out_for_delivery': 'bg-indigo-100 text-indigo-800',
+      'delivered': 'bg-green-100 text-green-800',
+      'cancelled': 'bg-red-100 text-red-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+    setOrderDetailDialog(true);
+  };
+
+  const handleStatusUpdate = (orderId, newStatus) => {
+    updateOrderStatusMutation.mutate({ id: orderId, status: newStatus });
+  };
+
+  const handleCancelOrder = () => {
+    if (!cancelReason.trim()) {
+      alert("Please provide a cancellation reason");
+      return;
+    }
+    cancelOrderMutation.mutate({ id: selectedOrder.id, reason: cancelReason });
+  };
 
   const resetMenuForm = () => {
     setMenuForm({ name: "", description: "", price: "", category: "main_course", image_url: "", preparation_time: "", available: true });
@@ -677,12 +743,16 @@ function RestaurantAdminContent() {
           <TabsContent value="orders">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
+                <CardTitle>Order Management</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {myOrders.map((order) => (
-                    <div key={order.id} className="border rounded-lg p-4 hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                    <div 
+                      key={order.id} 
+                      className="border rounded-lg p-4 hover:bg-slate-50 cursor-pointer transition-colors" 
+                      onClick={() => handleOrderClick(order)}
+                    >
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <p className="font-semibold text-lg">{order.order_number}</p>
@@ -690,7 +760,9 @@ function RestaurantAdminContent() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-xl">${order.total_amount.toFixed(2)}</p>
-                          <Badge className="capitalize">{order.status?.replace('_', ' ')}</Badge>
+                          <Badge className={`capitalize mt-1 ${getStatusColor(order.status)}`}>
+                            {order.status?.replace('_', ' ')}
+                          </Badge>
                         </div>
                       </div>
                       <div className="grid md:grid-cols-2 gap-3 text-sm">
@@ -698,35 +770,20 @@ function RestaurantAdminContent() {
                           <p className="font-semibold">Customer:</p>
                           <p>{order.customer_name}</p>
                           <p className="text-slate-600">{order.customer_phone}</p>
-                          {order.customer_address && <p className="text-slate-600">{order.customer_address}</p>}
                         </div>
                         <div>
                           <p className="font-semibold">Order Type:</p>
                           <p className="capitalize">{order.order_type?.replace('_', ' ')}</p>
-                          {order.driver_name && (
-                            <>
-                              <p className="font-semibold mt-2">Driver:</p>
-                              <p>{order.driver_name} - {order.driver_phone}</p>
-                            </>
-                          )}
+                          <p className="text-slate-600 mt-1">{order.items?.length} items</p>
                         </div>
                       </div>
-                      <div className="mt-3 pt-3 border-t">
-                        <p className="font-semibold text-sm mb-2">Items:</p>
-                        {order.items?.map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-sm">
-                            <span>{item.quantity}x {item.name}</span>
-                            <span>${(item.price * item.quantity).toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {order.special_instructions && (
-                        <div className="mt-2 pt-2 border-t">
-                          <p className="text-xs text-slate-600">Instructions: {order.special_instructions}</p>
-                        </div>
-                      )}
                     </div>
                   ))}
+                  {myOrders.length === 0 && (
+                    <div className="text-center py-12 text-slate-500">
+                      No orders yet
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -1185,6 +1242,137 @@ function RestaurantAdminContent() {
                 <Button type="submit">Save Settings</Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={orderDetailDialog} onOpenChange={setOrderDetailDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Order Details - {selectedOrder?.order_number}</DialogTitle>
+            </DialogHeader>
+            {selectedOrder && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="text-sm text-slate-600">Current Status</p>
+                    <Badge className={`mt-1 ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status?.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-slate-600">Total Amount</p>
+                    <p className="text-2xl font-bold text-green-600">${selectedOrder.total_amount.toFixed(2)}</p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">Customer Information</h4>
+                    <div className="text-sm space-y-1">
+                      <p><span className="text-slate-600">Name:</span> {selectedOrder.customer_name}</p>
+                      <p><span className="text-slate-600">Phone:</span> {selectedOrder.customer_phone}</p>
+                      {selectedOrder.customer_address && (
+                        <p><span className="text-slate-600">Address:</span> {selectedOrder.customer_address}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">Order Information</h4>
+                    <div className="text-sm space-y-1">
+                      <p><span className="text-slate-600">Type:</span> <span className="capitalize">{selectedOrder.order_type?.replace('_', ' ')}</span></p>
+                      <p><span className="text-slate-600">Date:</span> {new Date(selectedOrder.created_date).toLocaleString()}</p>
+                      {selectedOrder.table_number && (
+                        <p><span className="text-slate-600">Table:</span> {selectedOrder.table_number}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedOrder.special_instructions && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="font-semibold text-sm mb-1">Special Instructions:</p>
+                    <p className="text-sm text-slate-700">{selectedOrder.special_instructions}</p>
+                  </div>
+                )}
+
+                <div>
+                  <h4 className="font-semibold mb-3">Order Items</h4>
+                  <div className="space-y-2">
+                    {selectedOrder.items?.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <p className="font-medium">{item.quantity}x {item.name}</p>
+                          {item.notes && <p className="text-xs text-slate-600">{item.notes}</p>}
+                        </div>
+                        <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedOrder.driver_name && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="font-semibold text-sm mb-1">Delivery Partner:</p>
+                    <p className="text-sm">{selectedOrder.driver_name} - {selectedOrder.driver_phone}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-4 border-t">
+                  {getNextStatus(selectedOrder.status) && selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
+                    <Button 
+                      onClick={() => handleStatusUpdate(selectedOrder.id, getNextStatus(selectedOrder.status))}
+                      className="flex-1"
+                    >
+                      <ChevronRight className="w-4 h-4 mr-2" />
+                      Move to {getNextStatus(selectedOrder.status)?.replace('_', ' ')}
+                    </Button>
+                  )}
+                  {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
+                    <Button 
+                      variant="destructive"
+                      onClick={() => setCancelOrderDialog(true)}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Cancel Order
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={cancelOrderDialog} onOpenChange={setCancelOrderDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cancel Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-slate-600">
+                Are you sure you want to cancel order {selectedOrder?.order_number}? Please provide a reason.
+              </p>
+              <div className="space-y-2">
+                <Label>Cancellation Reason *</Label>
+                <Textarea 
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="e.g., Out of ingredients, Customer requested, etc."
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                setCancelOrderDialog(false);
+                setCancelReason("");
+              }}>
+                Keep Order
+              </Button>
+              <Button variant="destructive" onClick={handleCancelOrder}>
+                Cancel Order
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
