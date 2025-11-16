@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Calendar, Clock, Pencil, Trash2 } from "lucide-react";
+import { Calendar, Clock, Pencil, Trash2, Play, Square } from "lucide-react";
 import { format, isPast, differenceInDays } from "date-fns";
 
 const priorityConfig = {
@@ -31,7 +31,7 @@ const categoryConfig = {
   other: { emoji: "📌" }
 };
 
-export default function WorkItem({ work, onEdit, onDelete, onStatusChange }) {
+export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onStartTimer, onStopTimer, isTimerActive, totalHours }) {
   const isOverdue = work.due_date && isPast(new Date(work.due_date)) && work.status !== 'completed';
   const daysUntilDue = work.due_date ? differenceInDays(new Date(work.due_date), new Date()) : null;
 
@@ -43,7 +43,9 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange }) {
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className={`bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 border ${isOverdue ? 'border-red-300' : 'border-slate-200'}`}>
+      <Card className={`bg-white/80 backdrop-blur-sm hover:shadow-xl transition-all duration-300 border ${
+        isTimerActive ? 'border-green-400 ring-2 ring-green-400/30' : isOverdue ? 'border-red-300' : 'border-slate-200'
+      }`}>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
@@ -56,6 +58,23 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange }) {
               )}
             </div>
             <div className="flex gap-1">
+              {isTimerActive ? (
+                <Button
+                  size="icon"
+                  onClick={() => onStopTimer(work)}
+                  className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white"
+                >
+                  <Square className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button
+                  size="icon"
+                  onClick={() => onStartTimer(work)}
+                  className="h-8 w-8 bg-green-500 hover:bg-green-600 text-white"
+                >
+                  <Play className="w-4 h-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -97,6 +116,11 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange }) {
             <Badge variant="outline" className="text-slate-600 border-slate-300">
               {work.category.replace(/_/g, ' ')}
             </Badge>
+            {isTimerActive && (
+              <Badge className="bg-green-100 text-green-700 border-green-200 border animate-pulse">
+                ⏱️ Active
+              </Badge>
+            )}
           </div>
           
           <div className="flex items-center gap-4 text-sm text-slate-500">
@@ -110,10 +134,16 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange }) {
                 {isOverdue && <span className="font-medium">(Overdue)</span>}
               </div>
             )}
+            {totalHours > 0 && (
+              <div className="flex items-center gap-1.5 text-blue-600 font-medium">
+                <Clock className="w-4 h-4" />
+                <span>{totalHours.toFixed(1)}h tracked</span>
+              </div>
+            )}
             {work.estimated_hours && (
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4" />
-                <span>{work.estimated_hours}h</span>
+                <span>{work.estimated_hours}h est.</span>
               </div>
             )}
           </div>

@@ -6,9 +6,12 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Plus, ListChecks, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
+import { differenceInMinutes } from "date-fns";
 import StatsCard from "../components/work/StatsCard";
 import WorkItem from "../components/work/WorkItem";
 import WorkFilters from "../components/work/WorkFilters";
+import QuickAddButton from "../components/work/QuickAddButton";
+import ActiveTimer from "../components/work/ActiveTimer";
 
 export default function Dashboard() {
   const [filters, setFilters] = useState({
@@ -26,6 +29,19 @@ export default function Dashboard() {
     initialData: [],
   });
 
+  const { data: sessions } = useQuery({
+    queryKey: ['sessions'],
+    queryFn: () => base44.entities.WorkSession.list('-created_date'),
+    initialData: [],
+  });
+
+  const createWorkMutation = useMutation({
+    mutationFn: (data) => base44.entities.Work.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work'] });
+    },
+  });
+
   const updateWorkMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Work.update(id, data),
     onSuccess: () => {
@@ -39,6 +55,74 @@ export default function Dashboard() {
       queryClient.invalidateQueries({ queryKey: ['work'] });
     },
   });
+
+  const createSessionMutation = useMutation({
+    mutationFn: (data) => base44.entities.WorkSession.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+  });
+
+  const updateSessionMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.WorkSession.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+  });
+
+  const activeSession = sessions.find(s => s.is_active);
+
+  const handleQuickAdd = async (data) => {
+    const newWork = await createWorkMutation.mutateAsync({
+      ...data,
+      status: "in_progress"
+    });
+    
+    // Automatically start timer for the new work
+    await createSessionMutation.mutateAsync({
+      work_id: newWork.id,
+      work_title: newWork.title,
+      start_time: new Date().toISOString(),
+      is_active: true
+    });
+  };
+
+  const handleStartTimer = async (work) => {
+    // Stop any active session first
+    if (activeSession) {
+      await handleStopTimer(activeSession, "");
+    }
+
+    // Update work status to in_progress
+    await updateWorkMutation.mutateAsync({
+      id: work.id,
+      data: { ...work, status: "in_progress" }
+    });
+
+    // Create new session
+    await createSessionMutation.mutateAsync({
+      work_id: work.id,
+      work_title: work.title,
+      start_time: new Date().toISOString(),
+      is_active: true
+    });
+  };
+
+  const handleStopTimer = async (session, notes) => {
+    const endTime = new Date();
+    const startTime = new Date(session.start_time);
+    const durationMinutes = differenceInMinutes(endTime, startTime);
+
+    await updateSessionMutation.mutateAsync({
+      id: session.id,
+      data: {
+        end_time: endTime.toISOString(),
+        duration_minutes: durationMinutes,
+        is_active: false,
+        notes: notes || undefined
+      }
+    });
+  };
 
   const handleStatusChange = (work) => {
     const statusOrder = ['pending', 'in_progress', 'completed'];
@@ -60,6 +144,12 @@ export default function Dashboard() {
     if (confirm("Are you sure you want to delete this work item?")) {
       deleteWorkMutation.mutate(id);
     }
+  };
+
+  const getWorkTotalHours = (workId) => {
+    const workSessions = sessions.filter(s => s.work_id === workId && !s.is_active);
+    const totalMinutes = workSessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0);
+    return totalMinutes / 60;
   };
 
   const filteredWork = workItems.filter(work => {
@@ -97,6 +187,11 @@ export default function Dashboard() {
             </Button>
           </Link>
         </div>
+
+        <ActiveTimer 
+          session={activeSession} 
+          onStop={handleStopTimer}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           <StatsCard 
@@ -143,17 +238,9 @@ export default function Dashboard() {
             <h3 className="text-xl font-semibold text-slate-900 mb-2">No work items found</h3>
             <p className="text-slate-600 mb-6">
               {workItems.length === 0 
-                ? "Get started by adding your first work item" 
+                ? "Use the quick add button below to get started" 
                 : "Try adjusting your filters"}
             </p>
-            {workItems.length === 0 && (
-              <Link to={createPageUrl("AddWork")}>
-                <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Add Your First Work
-                </Button>
-              </Link>
-            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -165,11 +252,20 @@ export default function Dashboard() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onStatusChange={handleStatusChange}
+                  onStartTimer={handleStartTimer}
+                  onStopTimer={handleStopTimer}
+                  isTimerActive={activeSession?.work_id === work.id}
+                  totalHours={getWorkTotalHours(work.id)}
                 />
               ))}
             </AnimatePresence>
           </div>
         )}
+
+        <QuickAddButton 
+          onQuickAdd={handleQuickAdd}
+          isSubmitting={createWorkMutation.isPending || createSessionMutation.isPending}
+        />
       </div>
     </div>
   );
