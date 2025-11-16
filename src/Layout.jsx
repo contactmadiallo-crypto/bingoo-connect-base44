@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +23,39 @@ const navigationItems = [
     icon: LayoutDashboard,
   },
   {
+    title: "Projects",
+    url: createPageUrl("Projects"),
+    icon: FolderKanban,
+  },
+  {
+    title: "Calendar",
+    url: createPageUrl("Calendar"),
+    icon: Calendar,
+  },
+  {
+    title: "Finance",
+    url: createPageUrl("Finance"),
+    icon: DollarSign,
+  },
+  {
+    title: "Reports",
+    url: createPageUrl("Reports"),
+    icon: BarChart3,
+  },
+  {
+    title: "Files",
+    url: createPageUrl("Files"),
+    icon: FileText,
+  },
+  {
+    title: "Team",
+    url: createPageUrl("Team"),
+    icon: Users,
+  },
+];
+
+const quickActions = [
+  {
     title: "Add Work",
     url: createPageUrl("AddWork"),
     icon: Plus,
@@ -42,8 +75,8 @@ export default function Layout({ children, currentPageName }) {
                 <Briefcase className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-slate-900 text-lg">WorkFlow</h2>
-                <p className="text-xs text-slate-500">Pending Work Manager</p>
+                <h2 className="font-bold text-slate-900 text-lg">WorkFlow Pro</h2>
+                <p className="text-xs text-slate-500">Complete Work Manager</p>
               </div>
             </div>
           </SidebarHeader>
@@ -51,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
           <SidebarContent className="p-3">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
-                Menu
+                Main Menu
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -73,6 +106,29 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                Quick Actions
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {quickActions.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className="hover:bg-green-50 hover:text-green-700 transition-all duration-200 rounded-xl mb-1"
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </SidebarContent>
         </Sidebar>
 
@@ -80,7 +136,7 @@ export default function Layout({ children, currentPageName }) {
           <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">WorkFlow</h1>
+              <h1 className="text-xl font-bold text-slate-900">WorkFlow Pro</h1>
             </div>
           </header>
 
