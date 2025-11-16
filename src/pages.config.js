@@ -14,6 +14,7 @@ import DeliveryManagement from './pages/DeliveryManagement';
 import CustomerApp from './pages/CustomerApp';
 import DeliveryPartnerDashboard from './pages/DeliveryPartnerDashboard';
 import RestaurantOnboarding from './pages/RestaurantOnboarding';
+import PlatformFinance from './pages/PlatformFinance';
 import Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "CustomerApp": CustomerApp,
     "DeliveryPartnerDashboard": DeliveryPartnerDashboard,
     "RestaurantOnboarding": RestaurantOnboarding,
+    "PlatformFinance": PlatformFinance,
 }
 
 export const pagesConfig = {

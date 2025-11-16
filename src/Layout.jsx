@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -92,6 +92,14 @@ const restaurantItems = [
     title: "Join Marketplace",
     url: createPageUrl("RestaurantOnboarding"),
     icon: Store,
+  },
+];
+
+const platformItems = [
+  {
+    title: "Platform Finance",
+    url: createPageUrl("PlatformFinance"),
+    icon: TrendingUp,
   },
 ];
 
@@ -193,6 +201,31 @@ export default function Layout({ children, currentPageName }) {
                         asChild 
                         className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
                           location.pathname === item.url ? 'bg-orange-50 text-orange-700 shadow-sm' : ''
+                        }`}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                💼 Platform Admin
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {platformItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'bg-emerald-50 text-emerald-700 shadow-sm' : ''
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
