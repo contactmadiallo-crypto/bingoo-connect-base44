@@ -2,18 +2,32 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed } from "lucide-react";
+import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const categoryLabels = {
+  appetizers: { label: "Appetizers", emoji: "🥗" },
+  main_course: { label: "Main Course", emoji: "🍽️" },
+  daily_special: { label: "Daily Special", emoji: "⭐" },
+  chef_special: { label: "Chef's Special", emoji: "👨‍🍳" },
+  desserts: { label: "Desserts", emoji: "🍰" },
+  beverages: { label: "Beverages", emoji: "🥤" },
+  sides: { label: "Sides", emoji: "🍟" },
+  salads: { label: "Salads", emoji: "🥗" },
+  soups: { label: "Soups", emoji: "🍲" },
+  breakfast: { label: "Breakfast", emoji: "🍳" },
+  lunch: { label: "Lunch", emoji: "🍱" },
+  dinner: { label: "Dinner", emoji: "🍛" }
+};
+
 export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile, onShowOrders }) {
   const [cart, setCart] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [checkoutDialog, setCheckoutDialog] = useState(false);
   const [orderType, setOrderType] = useState("delivery");
@@ -57,13 +71,17 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     },
   });
 
-  const categories = ["all", ...new Set(menuItems.map(item => item.category))];
-
   const filteredItems = menuItems.filter(item => {
-    const matchCategory = selectedCategory === "all" || item.category === selectedCategory;
-    const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase());
-    return matchCategory && matchSearch;
+    const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || 
+                        item.description?.toLowerCase().includes(search.toLowerCase());
+    return matchSearch;
   });
+
+  const itemsByCategory = filteredItems.reduce((acc, item) => {
+    if (!acc[item.category]) acc[item.category] = [];
+    acc[item.category].push(item);
+    return acc;
+  }, {});
 
   const addToCart = (item) => {
     const existing = cart.find(c => c.id === item.id);
@@ -183,47 +201,53 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         </Card>
 
         <div className="mb-6">
-          <Input
-            placeholder="Search menu..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="mb-4"
-          />
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {categories.map(cat => (
-              <Button
-                key={cat}
-                variant={selectedCategory === cat ? "default" : "outline"}
-                onClick={() => setSelectedCategory(cat)}
-                className="whitespace-nowrap"
-              >
-                {cat === "all" ? "All" : cat.replace('_', ' ')}
-              </Button>
-            ))}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search menu..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              {item.image_url && (
-                <div className="h-48 overflow-hidden">
-                  <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-              )}
-              <CardContent className="pt-4">
-                <h3 className="font-bold text-lg mb-2">{item.name}</h3>
-                <p className="text-sm text-slate-600 mb-3">{item.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-2xl font-bold text-orange-600">${item.price}</span>
-                  <Button onClick={() => addToCart(item)} size="sm">
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {Object.entries(itemsByCategory).map(([category, items]) => (
+          <div key={category} className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-3xl">{categoryLabels[category]?.emoji || '🍽️'}</span>
+              <h2 className="text-2xl font-bold text-slate-900">
+                {categoryLabels[category]?.label || category}
+              </h2>
+              <div className="flex-1 h-px bg-slate-200"></div>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {items.map((item) => (
+                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  {item.image_url && (
+                    <div className="h-48 overflow-hidden">
+                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <CardContent className="pt-4">
+                    <h3 className="font-bold text-lg mb-2">{item.name}</h3>
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">{item.description}</p>
+                    {item.preparation_time && (
+                      <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} min</p>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <span className="text-2xl font-bold text-orange-600">${item.price}</span>
+                      <Button onClick={() => addToCart(item)} size="sm">
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
 
       <Dialog open={checkoutDialog} onOpenChange={setCheckoutDialog}>
