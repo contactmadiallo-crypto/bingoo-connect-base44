@@ -13,6 +13,7 @@ import OrderTracking from './pages/OrderTracking';
 import DeliveryManagement from './pages/DeliveryManagement';
 import CustomerApp from './pages/CustomerApp';
 import DeliveryPartnerDashboard from './pages/DeliveryPartnerDashboard';
+import RestaurantOnboarding from './pages/RestaurantOnboarding';
 import Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "DeliveryManagement": DeliveryManagement,
     "CustomerApp": CustomerApp,
     "DeliveryPartnerDashboard": DeliveryPartnerDashboard,
+    "RestaurantOnboarding": RestaurantOnboarding,
 }
 
 export const pagesConfig = {
