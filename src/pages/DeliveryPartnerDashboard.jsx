@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ export default function DeliveryPartnerDashboard() {
   const [driverInfo, setDriverInfo] = useState({ name: "", phone: "" });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationOrder, setNotificationOrder] = useState(null);
+  const [dialogMode, setDialogMode] = useState("verify"); // "pickup" or "verify"
   const [locationPreferences, setLocationPreferences] = useState({
     location_sharing_enabled: true,
     share_location_only_when_active: true,
@@ -145,6 +147,7 @@ export default function DeliveryPartnerDashboard() {
 
   const handlePickup = (order) => {
     setSelectedOrder(order);
+    setDialogMode("pickup");
     setVerifyDialog(true);
   };
 
@@ -213,6 +216,7 @@ export default function DeliveryPartnerDashboard() {
 
   const handleDeliveryComplete = (order) => {
     setSelectedOrder(order);
+    setDialogMode("verify");
     setVerifyDialog(true);
   };
 
@@ -591,10 +595,10 @@ export default function DeliveryPartnerDashboard() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {selectedOrder?.status === 'ready' ? 'Assign Driver & Start Delivery' : 'Verify Delivery'}
+                {dialogMode === "pickup" ? 'Assign Driver & Start Delivery' : 'Verify Delivery'}
               </DialogTitle>
             </DialogHeader>
-            {selectedOrder?.status === 'ready' ? (
+            {dialogMode === "pickup" ? (
               <div className="space-y-4">
                 <div className="bg-blue-50 p-3 rounded-lg mb-4">
                   <p className="text-sm text-slate-700">
@@ -623,6 +627,7 @@ export default function DeliveryPartnerDashboard() {
                   onChange={(e) => setVerificationCode(e.target.value)}
                   maxLength={4}
                   className="text-center text-2xl tracking-widest"
+                  autoFocus
                 />
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
                   <p className="text-sm font-semibold text-amber-900 mb-2">🔒 Security Note:</p>
@@ -636,9 +641,12 @@ export default function DeliveryPartnerDashboard() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setVerifyDialog(false)}>Cancel</Button>
-              <Button onClick={selectedOrder?.status === 'ready' ? handleOutForDelivery : verifyDelivery}>
-                {selectedOrder?.status === 'ready' ? 'Start Delivery' : 'Verify & Complete'}
+              <Button variant="outline" onClick={() => {
+                setVerifyDialog(false);
+                setVerificationCode("");
+              }}>Cancel</Button>
+              <Button onClick={dialogMode === "pickup" ? handleOutForDelivery : verifyDelivery}>
+                {dialogMode === "pickup" ? 'Start Delivery' : 'Verify & Complete'}
               </Button>
             </DialogFooter>
           </DialogContent>
