@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
@@ -18,11 +19,13 @@ function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
   const [bulkUploadDialog, setBulkUploadDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
+  const [settingsDialog, setSettingsDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingBulk, setUploadingBulk] = useState(false);
   const [generatingTables, setGeneratingTables] = useState(false);
   const [tableCount, setTableCount] = useState(20);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [menuForm, setMenuForm] = useState({
     name: "", description: "", price: "", category: "main_course", image_url: "", 
     preparation_time: "", available: true
@@ -30,35 +33,51 @@ function RestaurantAdminContent() {
   const [inventoryForm, setInventoryForm] = useState({
     item_name: "", quantity: "", unit: "pieces", min_quantity: "", category: "other"
   });
+  const [settingsForm, setSettingsForm] = useState({
+    open_hours: "",
+    delivery_fee: "",
+    min_order: "",
+    avg_delivery_time: "",
+    delivery_zones: []
+  });
+  const [newZone, setNewZone] = useState("");
 
   const queryClient = useQueryClient();
 
-  const { data: menuItems } = useQuery({
+  const { data: menuItems = [] } = useQuery({
     queryKey: ['menuItems'],
     queryFn: () => base44.entities.MenuItem.list(),
-    initialData: [],
   });
 
-  const { data: inventory } = useQuery({
+  const { data: inventory = [] } = useQuery({
     queryKey: ['inventory'],
     queryFn: () => base44.entities.Inventory.list(),
-    initialData: [],
   });
 
-  const { data: orders } = useQuery({
+  const { data: orders = [] } = useQuery({
     queryKey: ['orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
-    initialData: [],
   });
 
-  const { data: tables } = useQuery({
+  const { data: tables = [] } = useQuery({
     queryKey: ['tables'],
     queryFn: () => base44.entities.Table.list(),
-    initialData: [],
   });
 
+  const { data: restaurants = [] } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: () => base44.entities.Restaurant.list(),
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const myRestaurant = restaurants.find(r => r.owner_email === user?.email);
+
   const createMenuMutation = useMutation({
-    mutationFn: (data) => base44.entities.MenuItem.create(data),
+    mutationFn: (data) => base44.entities.MenuItem.create({...data, restaurant_id: myRestaurant?.id}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setMenuDialog(false);
@@ -82,12 +101,27 @@ function RestaurantAdminContent() {
     },
   });
 
+  const toggleAvailabilityMutation = useMutation({
+    mutationFn: ({ id, available }) => base44.entities.MenuItem.update(id, { available }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+    },
+  });
+
   const createInventoryMutation = useMutation({
     mutationFn: (data) => base44.entities.Inventory.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       setInventoryDialog(false);
       resetInventoryForm();
+    },
+  });
+
+  const updateRestaurantMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Restaurant.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
+      setSettingsDialog(false);
     },
   });
 
@@ -144,7 +178,13 @@ function RestaurantAdminContent() {
       });
 
       if (result.status === "success" && result.output?.dishes) {
-        await base44.entities.MenuItem.bulkCreate(result.output.dishes);
+        // Assign restaurant_id to each dish
+        const dishesWithRestaurantId = result.output.dishes.map(dish => ({
+          ...dish,
+          restaurant_id: myRestaurant?.id // Ensure restaurant_id is added here
+        }));
+
+        await base44.entities.MenuItem.bulkCreate(dishesWithRestaurantId);
         queryClient.invalidateQueries({ queryKey: ['menuItems'] });
         setBulkUploadDialog(false);
         alert(`Successfully imported ${result.output.dishes.length} dishes!`);
@@ -165,7 +205,7 @@ function RestaurantAdminContent() {
     
     for (let i = 1; i <= tableCount; i++) {
       const tableNumber = `T${i.toString().padStart(2, '0')}`;
-      const menuUrl = `${baseUrl}/RestaurantMenu?table=${tableNumber}`;
+      const menuUrl = `${baseUrl}/RestaurantMenu?table=${tableNumber}&restaurant_id=${myRestaurant?.id}`; // Added restaurant_id
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
       
       tablesToCreate.push({
@@ -173,7 +213,8 @@ function RestaurantAdminContent() {
         capacity: 4,
         status: "available",
         qr_code_url: qrCodeUrl,
-        location: `Section ${Math.ceil(i / 5)}`
+        location: `Section ${Math.ceil(i / 5)}`,
+        restaurant_id: myRestaurant?.id // Assign to current restaurant
       });
     }
     
@@ -209,26 +250,83 @@ function RestaurantAdminContent() {
     createInventoryMutation.mutate({
       ...inventoryForm,
       quantity: parseFloat(inventoryForm.quantity),
-      min_quantity: inventoryForm.min_quantity ? parseFloat(inventoryForm.min_quantity) : undefined
+      min_quantity: inventoryForm.min_quantity ? parseFloat(inventoryForm.min_quantity) : undefined,
+      restaurant_id: myRestaurant?.id // Assign to current restaurant
     });
   };
 
+  const handleSettingsSubmit = (e) => {
+    e.preventDefault();
+    updateRestaurantMutation.mutate({
+      id: myRestaurant.id,
+      data: {
+        open_hours: settingsForm.open_hours,
+        delivery_fee: parseFloat(settingsForm.delivery_fee),
+        min_order: parseFloat(settingsForm.min_order),
+        avg_delivery_time: parseInt(settingsForm.avg_delivery_time),
+        delivery_zones: settingsForm.delivery_zones
+      }
+    });
+  };
+
+  const addDeliveryZone = () => {
+    if (newZone.trim()) {
+      setSettingsForm({
+        ...settingsForm,
+        delivery_zones: [...(settingsForm.delivery_zones || []), newZone.trim()]
+      });
+      setNewZone("");
+    }
+  };
+
+  const removeDeliveryZone = (zoneToRemove) => {
+    setSettingsForm({
+      ...settingsForm,
+      delivery_zones: settingsForm.delivery_zones.filter(z => z !== zoneToRemove)
+    });
+  };
+
+  const openSettings = () => {
+    if (myRestaurant) {
+      setSettingsForm({
+        open_hours: myRestaurant.open_hours || "",
+        delivery_fee: myRestaurant.delivery_fee?.toString() || "",
+        min_order: myRestaurant.min_order?.toString() || "",
+        avg_delivery_time: myRestaurant.avg_delivery_time?.toString() || "",
+        delivery_zones: myRestaurant.delivery_zones || []
+      });
+      setSettingsDialog(true);
+    }
+  };
+
   const stats = {
-    totalOrders: orders.length,
+    totalOrders: orders.filter(o => o.restaurant_id === myRestaurant?.id).length,
     todayRevenue: orders.filter(o => {
       const today = new Date().toDateString();
-      return new Date(o.created_date).toDateString() === today;
+      return o.restaurant_id === myRestaurant?.id && new Date(o.created_date).toDateString() === today;
     }).reduce((sum, o) => sum + o.total_amount, 0),
-    menuItems: menuItems.length,
-    lowStock: inventory.filter(i => i.quantity <= (i.min_quantity || 0)).length
+    menuItems: menuItems.filter(m => m.restaurant_id === myRestaurant?.id).length,
+    lowStock: inventory.filter(i => i.restaurant_id === myRestaurant?.id && i.quantity <= (i.min_quantity || 0)).length
   };
+
+  const myMenuItems = menuItems.filter(m => m.restaurant_id === myRestaurant?.id);
+  const myOrders = orders.filter(o => o.restaurant_id === myRestaurant?.id);
+  const myInventory = inventory.filter(i => i.restaurant_id === myRestaurant?.id);
+  const myTables = tables.filter(t => t.restaurant_id === myRestaurant?.id);
+
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">🍴 Restaurant Admin</h1>
-          <p className="text-slate-600">Manage menu, inventory, and orders</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">🍴 Restaurant Admin</h1>
+            <p className="text-slate-600">{myRestaurant?.name || "Manage menu, inventory, and orders"}</p>
+          </div>
+          <Button onClick={openSettings} variant="outline" disabled={!myRestaurant}>
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -251,11 +349,11 @@ function RestaurantAdminContent() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Menu Management</CardTitle>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setBulkUploadDialog(true)}>
+                  <Button variant="outline" onClick={() => setBulkUploadDialog(true)} disabled={!myRestaurant}>
                     <FileSpreadsheet className="w-4 h-4 mr-2" />
                     Bulk Upload
                   </Button>
-                  <Button onClick={() => { resetMenuForm(); setMenuDialog(true); }}>
+                  <Button onClick={() => { resetMenuForm(); setMenuDialog(true); }} disabled={!myRestaurant}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add Item
                   </Button>
@@ -263,7 +361,7 @@ function RestaurantAdminContent() {
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {menuItems.map((item) => (
+                  {myMenuItems.map((item) => (
                     <Card key={item.id}>
                       {item.image_url && (
                         <div className="h-40 overflow-hidden">
@@ -273,9 +371,13 @@ function RestaurantAdminContent() {
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start mb-2">
                           <h3 className="font-semibold">{item.name}</h3>
-                          <Badge className={item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
-                            {item.available ? "Available" : "Unavailable"}
-                          </Badge>
+                          <button
+                            onClick={() => toggleAvailabilityMutation.mutate({ id: item.id, available: !item.available })}
+                          >
+                            <Badge className={item.available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}>
+                              {item.available ? "Available" : "Unavailable"}
+                            </Badge>
+                          </button>
                         </div>
                         <p className="text-sm text-slate-600 mb-2">{item.description}</p>
                         <p className="text-xl font-bold text-orange-600 mb-3">${item.price}</p>
@@ -305,14 +407,14 @@ function RestaurantAdminContent() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Inventory Management</CardTitle>
-                <Button onClick={() => setInventoryDialog(true)}>
+                <Button onClick={() => setInventoryDialog(true)} disabled={!myRestaurant}>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Item
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {inventory.map((item) => (
+                  {myInventory.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <h3 className="font-semibold">{item.item_name}</h3>
@@ -344,7 +446,7 @@ function RestaurantAdminContent() {
                     min="1"
                     max="100"
                   />
-                  <Button onClick={generateTables} disabled={generatingTables || tables.length > 0}>
+                  <Button onClick={generateTables} disabled={generatingTables || !myRestaurant}>
                     {generatingTables ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -360,7 +462,7 @@ function RestaurantAdminContent() {
                 </div>
               </CardHeader>
               <CardContent>
-                {tables.length === 0 ? (
+                {myTables.length === 0 ? (
                   <div className="text-center py-12">
                     <QrCode className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                     <p className="text-slate-600 mb-4">No tables generated yet</p>
@@ -368,7 +470,7 @@ function RestaurantAdminContent() {
                   </div>
                 ) : (
                   <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {tables.map((table) => (
+                    {myTables.map((table) => (
                       <Card key={table.id} className="text-center">
                         <CardContent className="pt-6">
                           <h3 className="font-bold text-lg mb-2">{table.table_number}</h3>
@@ -396,16 +498,50 @@ function RestaurantAdminContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {orders.slice(0, 10).map((order) => (
-                    <div key={order.id} className="flex justify-between items-center p-4 border rounded-lg">
-                      <div>
-                        <p className="font-semibold">{order.order_number}</p>
-                        <p className="text-sm text-slate-600">{order.customer_name}</p>
+                  {myOrders.map((order) => (
+                    <div key={order.id} className="border rounded-lg p-4 hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="font-semibold text-lg">{order.order_number}</p>
+                          <p className="text-sm text-slate-600">{new Date(order.created_date).toLocaleString()}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-xl">${order.total_amount.toFixed(2)}</p>
+                          <Badge className="capitalize">{order.status?.replace('_', ' ')}</Badge>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold">${order.total_amount}</p>
-                        <Badge>{order.status}</Badge>
+                      <div className="grid md:grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="font-semibold">Customer:</p>
+                          <p>{order.customer_name}</p>
+                          <p className="text-slate-600">{order.customer_phone}</p>
+                          {order.customer_address && <p className="text-slate-600">{order.customer_address}</p>}
+                        </div>
+                        <div>
+                          <p className="font-semibold">Order Type:</p>
+                          <p className="capitalize">{order.order_type?.replace('_', ' ')}</p>
+                          {order.driver_name && (
+                            <>
+                              <p className="font-semibold mt-2">Driver:</p>
+                              <p>{order.driver_name} - {order.driver_phone}</p>
+                            </>
+                          )}
+                        </div>
                       </div>
+                      <div className="mt-3 pt-3 border-t">
+                        <p className="font-semibold text-sm mb-2">Items:</p>
+                        {order.items?.map((item, idx) => (
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span>{item.quantity}x {item.name}</span>
+                            <span>${(item.price * item.quantity).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {order.special_instructions && (
+                        <div className="mt-2 pt-2 border-t">
+                          <p className="text-xs text-slate-600">Instructions: {order.special_instructions}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -545,9 +681,96 @@ function RestaurantAdminContent() {
                   </Select>
                 </div>
               </div>
+              <div className="space-y-2">
+                  <Label>Minimum Quantity</Label>
+                  <Input type="number" value={inventoryForm.min_quantity} onChange={(e) => setInventoryForm({...inventoryForm, min_quantity: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select value={inventoryForm.category} onValueChange={(value) => setInventoryForm({...inventoryForm, category: value})}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="produce">Produce</SelectItem>
+                    <SelectItem value="dairy">Dairy</SelectItem>
+                    <SelectItem value="meat">Meat</SelectItem>
+                    <SelectItem value="dry_goods">Dry Goods</SelectItem>
+                    <SelectItem value="beverages">Beverages</SelectItem>
+                    <SelectItem value="cleaning">Cleaning Supplies</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setInventoryDialog(false)}>Cancel</Button>
                 <Button type="submit">Add</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={settingsDialog} onOpenChange={setSettingsDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Restaurant Settings</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSettingsSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Opening Hours</Label>
+                <Input 
+                  value={settingsForm.open_hours} 
+                  onChange={(e) => setSettingsForm({...settingsForm, open_hours: e.target.value})}
+                  placeholder="e.g., 9:00 AM - 10:00 PM"
+                />
+              </div>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Delivery Fee ($)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.1"
+                    value={settingsForm.delivery_fee} 
+                    onChange={(e) => setSettingsForm({...settingsForm, delivery_fee: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Min Order ($)</Label>
+                  <Input 
+                    type="number" 
+                    step="0.1"
+                    value={settingsForm.min_order} 
+                    onChange={(e) => setSettingsForm({...settingsForm, min_order: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Delivery Time (min)</Label>
+                  <Input 
+                    type="number"
+                    value={settingsForm.avg_delivery_time} 
+                    onChange={(e) => setSettingsForm({...settingsForm, avg_delivery_time: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Delivery Zones</Label>
+                <div className="flex gap-2 mb-2">
+                  <Input 
+                    value={newZone} 
+                    onChange={(e) => setNewZone(e.target.value)}
+                    placeholder="Add zone (e.g., Dakar, Pikine)"
+                  />
+                  <Button type="button" onClick={addDeliveryZone}>Add</Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {settingsForm.delivery_zones?.map((zone, idx) => (
+                    <Badge key={idx} variant="secondary" className="cursor-pointer" onClick={() => removeDeliveryZone(zone)}>
+                      {zone} ✕
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setSettingsDialog(false)}>Cancel</Button>
+                <Button type="submit">Save Settings</Button>
               </DialogFooter>
             </form>
           </DialogContent>
