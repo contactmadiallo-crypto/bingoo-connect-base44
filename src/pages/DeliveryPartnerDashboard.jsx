@@ -10,22 +10,39 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Truck, MapPin, Phone, Clock, CheckCircle, AlertCircle, DollarSign, TrendingUp, Star, Bell, Settings } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Truck, MapPin, Phone, Clock, CheckCircle, AlertCircle, DollarSign, TrendingUp, Star, Bell, Settings, User, Upload, Loader2, BarChart3, Target, Award } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function DeliveryPartnerDashboard() {
   const [verifyDialog, setVerifyDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
+  const [profileDialog, setProfileDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [driverInfo, setDriverInfo] = useState({ name: "", phone: "" });
   const [showNotification, setShowNotification] = useState(false);
   const [notificationOrder, setNotificationOrder] = useState(null);
   const [dialogMode, setDialogMode] = useState("verify"); // "pickup" or "verify"
+  const [uploadingDoc, setUploadingDoc] = useState("");
   const [locationPreferences, setLocationPreferences] = useState({
     location_sharing_enabled: true,
     share_location_only_when_active: true,
     auto_disable_location_after_delivery: true
+  });
+  const [profileForm, setProfileForm] = useState({
+    full_name: "",
+    phone: "",
+    email: "",
+    vehicle_type: "",
+    vehicle_make: "",
+    vehicle_model: "",
+    vehicle_year: "",
+    vehicle_color: "",
+    license_plate: "",
+    profile_photo_url: "",
+    license_document_url: "",
+    vehicle_photo_url: ""
   });
 
   const queryClient = useQueryClient();
@@ -64,6 +81,7 @@ export default function DeliveryPartnerDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partners'] });
       setSettingsDialog(false);
+      setProfileDialog(false);
     },
   });
 
@@ -76,22 +94,38 @@ export default function DeliveryPartnerDashboard() {
     ['confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status)
   );
 
-  // Real-time notification for new orders
+  // Real-time notification for new orders (only when online)
   useEffect(() => {
-    const newOrders = assignedOrders.filter(o => o.status === 'confirmed' && !o.delivery_partner_id);
-    if (newOrders.length > 0 && !showNotification) {
-      setNotificationOrder(newOrders[0]);
-      setShowNotification(true);
+    if (currentPartner?.is_available) {
+      const newOrders = assignedOrders.filter(o => o.status === 'confirmed' && !o.delivery_partner_id);
+      if (newOrders.length > 0 && !showNotification) {
+        setNotificationOrder(newOrders[0]);
+        setShowNotification(true);
+      }
     }
-  }, [assignedOrders]);
+  }, [assignedOrders, currentPartner?.is_available, showNotification]);
 
-  // Load current partner preferences
+  // Load current partner preferences and profile
   useEffect(() => {
     if (currentPartner) {
       setLocationPreferences({
         location_sharing_enabled: currentPartner.location_sharing_enabled !== false,
         share_location_only_when_active: currentPartner.share_location_only_when_active !== false,
         auto_disable_location_after_delivery: currentPartner.auto_disable_location_after_delivery !== false
+      });
+      setProfileForm({
+        full_name: currentPartner.full_name || "",
+        phone: currentPartner.phone || "",
+        email: currentPartner.email || "",
+        vehicle_type: currentPartner.vehicle_type || "",
+        vehicle_make: currentPartner.vehicle_make || "",
+        vehicle_model: currentPartner.vehicle_model || "",
+        vehicle_year: currentPartner.vehicle_year?.toString() || "",
+        vehicle_color: currentPartner.vehicle_color || "",
+        license_plate: currentPartner.license_plate || "",
+        profile_photo_url: currentPartner.profile_photo_url || "",
+        license_document_url: currentPartner.license_document_url || "",
+        vehicle_photo_url: currentPartner.vehicle_photo_url || ""
       });
     }
   }, [currentPartner]);
@@ -118,14 +152,72 @@ export default function DeliveryPartnerDashboard() {
       : 'N/A'
   };
 
+  // Performance metrics
+  const performance = {
+    avgDeliveryTime: completedDeliveries.filter(o => o.actual_delivery_time).length > 0
+      ? (completedDeliveries.reduce((sum, o) => sum + (o.actual_delivery_time || 0), 0) / 
+         completedDeliveries.filter(o => o.actual_delivery_time).length).toFixed(1)
+      : 'N/A',
+    completionRate: myDeliveries.length > 0
+      ? ((completedDeliveries.length / myDeliveries.length) * 100).toFixed(1)
+      : 'N/A',
+    earningsPerHour: (() => {
+      const totalMinutes = completedDeliveries.reduce((sum, o) => sum + (o.actual_delivery_time || 0), 0);
+      const totalHours = totalMinutes / 60;
+      return totalHours > 0 ? (earnings.total / totalHours).toFixed(2) : '0.00';
+    })(),
+    onTimeRate: completedDeliveries.filter(o => o.actual_delivery_time && o.estimated_time).length > 0
+      ? ((completedDeliveries.filter(o => 
+          o.actual_delivery_time && o.estimated_time && o.actual_delivery_time <= o.estimated_time
+        ).length / completedDeliveries.filter(o => o.actual_delivery_time && o.estimated_time).length) * 100).toFixed(1)
+      : 'N/A'
+  };
+
   const canShareLocation = () => {
     if (!currentPartner) return false;
     if (!locationPreferences.location_sharing_enabled) return false;
     if (locationPreferences.share_location_only_when_active) {
-      const hasActiveDelivery = myDeliveries.some(o => o.status === 'out_for_delivery');
+      const hasActiveDelivery = myDeliveries.some(o => ['ready', 'out_for_delivery'].includes(o.status));
       return hasActiveDelivery;
     }
     return true;
+  };
+
+  const toggleOnlineStatus = () => {
+    if (currentPartner) {
+      updatePartnerMutation.mutate({
+        id: currentPartner.id,
+        data: { is_available: !currentPartner.is_available }
+      });
+    }
+  };
+
+  const handleDocumentUpload = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDoc(field);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setProfileForm(prev => ({ ...prev, [field]: file_url }));
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert("Failed to upload document. Please try again.");
+    } finally {
+      setUploadingDoc("");
+    }
+  };
+
+  const saveProfile = () => {
+    if (currentPartner) {
+      updatePartnerMutation.mutate({
+        id: currentPartner.id,
+        data: {
+          ...profileForm,
+          vehicle_year: profileForm.vehicle_year ? parseInt(profileForm.vehicle_year) : undefined
+        }
+      });
+    }
   };
 
   const handleAcceptOrder = (order) => {
@@ -139,7 +231,7 @@ export default function DeliveryPartnerDashboard() {
         delivery_partner_id: partner?.id,
         delivery_partner_name: partner?.company_name || partner?.full_name,
         driver_earnings: driverEarnings,
-        status: 'confirmed'
+        status: 'ready' // Order becomes 'ready' for pickup once accepted by a driver
       }
     });
     setShowNotification(false);
@@ -198,7 +290,7 @@ export default function DeliveryPartnerDashboard() {
         window.deliveryLocationInterval = locationInterval;
       });
     } else {
-      // Start delivery without location if sharing is disabled
+      // Start delivery without location if sharing is disabled or not available
       updateOrderMutation.mutate({
         id: selectedOrder.id,
         data: {
@@ -229,7 +321,7 @@ export default function DeliveryPartnerDashboard() {
       
       const deliveryTime = selectedOrder.pickup_time 
         ? Math.round((new Date() - new Date(selectedOrder.pickup_time)) / 60000)
-        : selectedOrder.estimated_time;
+        : selectedOrder.estimated_time; // Fallback if pickup_time somehow isn't set
       
       updateOrderMutation.mutate({
         id: selectedOrder.id,
@@ -243,14 +335,8 @@ export default function DeliveryPartnerDashboard() {
       });
 
       // Auto-disable location sharing after delivery if preference is enabled
-      if (currentPartner && locationPreferences.auto_disable_location_after_delivery) {
-        const hasOtherActiveDeliveries = myDeliveries.some(
-          o => o.id !== selectedOrder.id && o.status === 'out_for_delivery'
-        );
-        if (!hasOtherActiveDeliveries) {
-          // No other active deliveries, location sharing will be disabled automatically
-        }
-      }
+      // This will be handled by the canShareLocation() check in the interval.
+      // If no other active deliveries, canShareLocation() will return false and clear the interval.
     } else {
       alert("Invalid verification code!");
     }
@@ -279,20 +365,45 @@ export default function DeliveryPartnerDashboard() {
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-start">
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-4xl font-bold text-slate-900 mb-2">🚚 Delivery Partner Dashboard</h1>
             <p className="text-slate-600">Track earnings, deliveries, and manage orders</p>
           </div>
-          <Button variant="outline" onClick={openSettings}>
-            <Settings className="w-4 h-4 mr-2" />
-            Preferences
-          </Button>
+          <div className="flex gap-2 items-center">
+            <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-lg border shadow-sm">
+              <span className="text-sm font-medium">{currentPartner?.is_available ? 'Online' : 'Offline'}</span>
+              <Switch
+                checked={currentPartner?.is_available || false}
+                onCheckedChange={toggleOnlineStatus}
+              />
+              <div className={`w-2 h-2 rounded-full ${currentPartner?.is_available ? 'bg-green-500 animate-pulse' : 'bg-slate-400'}`}></div>
+            </div>
+            <Button variant="outline" onClick={() => setProfileDialog(true)}>
+              <User className="w-4 h-4 mr-2" />
+              Profile
+            </Button>
+            <Button variant="outline" onClick={openSettings}>
+              <Settings className="w-4 h-4 mr-2" />
+              Preferences
+            </Button>
+          </div>
         </div>
 
+        {!currentPartner?.is_available && (
+          <Card className="mb-6 border-slate-300 bg-slate-50">
+            <CardContent className="pt-6">
+              <p className="text-sm text-slate-700">
+                ℹ️ You're currently offline. Toggle online to start receiving delivery requests.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         <Tabs defaultValue="active" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="active">Active Orders</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="earnings">Earnings</TabsTrigger>
             <TabsTrigger value="history">Delivery History</TabsTrigger>
           </TabsList>
@@ -305,7 +416,7 @@ export default function DeliveryPartnerDashboard() {
                     <div>
                       <p className="text-sm text-slate-600">Available</p>
                       <p className="text-3xl font-bold text-blue-600">
-                        {assignedOrders.filter(o => !o.delivery_partner_id).length}
+                        {assignedOrders.filter(o => !o.delivery_partner_id && o.status === 'confirmed').length}
                       </p>
                     </div>
                     <Bell className="w-8 h-8 text-blue-600" />
@@ -406,7 +517,7 @@ export default function DeliveryPartnerDashboard() {
                     )}
 
                     <div className="pt-3">
-                      {!order.delivery_partner_id && order.status === 'confirmed' && (
+                      {!order.delivery_partner_id && order.status === 'confirmed' && currentPartner?.is_available && (
                         <Button onClick={() => handleAcceptOrder(order)} className="w-full bg-green-600 hover:bg-green-700">
                           Accept Order
                         </Button>
@@ -425,7 +536,116 @@ export default function DeliveryPartnerDashboard() {
                   </CardContent>
                 </Card>
               ))}
+              {assignedOrders.length === 0 && (
+                <div className="col-span-2 text-center py-12">
+                  <Bell className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-600">No active orders right now. Check back soon!</p>
+                </div>
+              )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm opacity-90">Avg Delivery Time</p>
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <p className="text-4xl font-bold">{performance.avgDeliveryTime}</p>
+                  <p className="text-xs opacity-75 mt-1">minutes</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm opacity-90">Completion Rate</p>
+                    <Target className="w-5 h-5" />
+                  </div>
+                  <p className="text-4xl font-bold">{performance.completionRate}%</p>
+                  <p className="text-xs opacity-75 mt-1">of accepted orders</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm opacity-90">Earnings Per Hour</p>
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <p className="text-4xl font-bold">${performance.earningsPerHour}</p>
+                  <p className="text-xs opacity-75 mt-1">per hour worked</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm opacity-90">On-Time Rate</p>
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <p className="text-4xl font-bold">{performance.onTimeRate}%</p>
+                  <p className="text-xs opacity-75 mt-1">within estimated time</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                  Performance Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Total Deliveries</span>
+                      <span className="text-2xl font-bold">{completedDeliveries.length}</span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3">
+                      <div className="bg-blue-600 h-3 rounded-full" style={{ width: '100%' }}></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Customer Rating</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold">{earnings.avgRating}</span>
+                        <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3">
+                      <div className="bg-yellow-500 h-3 rounded-full" style={{ width: earnings.avgRating !== 'N/A' ? `${(parseFloat(earnings.avgRating) / 5) * 100}%` : '0%' }}></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium">Completion Rate</span>
+                      <span className="text-2xl font-bold">{performance.completionRate}%</span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-3">
+                      <div className="bg-green-600 h-3 rounded-full" style={{ width: performance.completionRate !== 'N/A' ? `${performance.completionRate}%` : '0%' }}></div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 p-4 rounded-lg mt-6">
+                    <h4 className="font-semibold mb-2">💡 Tips to Improve Performance</h4>
+                    <ul className="text-sm text-slate-700 space-y-1">
+                      <li>• Maintain communication with customers for better ratings</li>
+                      <li>• Plan routes efficiently to reduce delivery time</li>
+                      <li>• Accept orders during peak hours for higher earnings per hour</li>
+                      <li>• Keep your vehicle well-maintained for on-time deliveries</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="earnings">
@@ -554,7 +774,7 @@ export default function DeliveryPartnerDashboard() {
         </Tabs>
 
         <AnimatePresence>
-          {showNotification && notificationOrder && (
+          {showNotification && notificationOrder && currentPartner?.is_available && (
             <motion.div
               initial={{ opacity: 0, y: -50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -674,7 +894,7 @@ export default function DeliveryPartnerDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="font-semibold">Share Only During Active Deliveries</Label>
-                      <p className="text-xs text-slate-600">Location sharing starts when delivery begins</p>
+                      <p className="text-xs text-slate-600">Location sharing starts when delivery begins and stops when it's done</p>
                     </div>
                     <Switch
                       checked={locationPreferences.share_location_only_when_active}
@@ -685,7 +905,7 @@ export default function DeliveryPartnerDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <Label className="font-semibold">Auto-Disable After Delivery</Label>
-                      <p className="text-xs text-slate-600">Stop sharing location when delivery is complete</p>
+                      <p className="text-xs text-slate-600">Stop sharing location when delivery is complete (unless other active deliveries)</p>
                     </div>
                     <Switch
                       checked={locationPreferences.auto_disable_location_after_delivery}
@@ -704,6 +924,108 @@ export default function DeliveryPartnerDashboard() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setSettingsDialog(false)}>Cancel</Button>
               <Button onClick={saveSettings}>Save Preferences</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={profileDialog} onOpenChange={setProfileDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>My Profile</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Full Name *</Label>
+                  <Input value={profileForm.full_name} onChange={(e) => setProfileForm({...profileForm, full_name: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone *</Label>
+                  <Input value={profileForm.phone} onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input value={profileForm.email} onChange={(e) => setProfileForm({...profileForm, email: e.target.value})} />
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-4">Vehicle Information</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Vehicle Type *</Label>
+                    <Select value={profileForm.vehicle_type} onValueChange={(value) => setProfileForm({...profileForm, vehicle_type: value})}>
+                      <SelectTrigger><SelectValue placeholder="Select vehicle type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bicycle">Bicycle</SelectItem>
+                        <SelectItem value="motorcycle">Motorcycle</SelectItem>
+                        <SelectItem value="car">Car</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>License Plate</Label>
+                    <Input value={profileForm.license_plate} onChange={(e) => setProfileForm({...profileForm, license_plate: e.target.value})} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Make</Label>
+                    <Input value={profileForm.vehicle_make} onChange={(e) => setProfileForm({...profileForm, vehicle_make: e.target.value})} placeholder="e.g., Toyota" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Model</Label>
+                    <Input value={profileForm.vehicle_model} onChange={(e) => setProfileForm({...profileForm, vehicle_model: e.target.value})} placeholder="e.g., Camry" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Year</Label>
+                    <Input type="number" value={profileForm.vehicle_year} onChange={(e) => setProfileForm({...profileForm, vehicle_year: e.target.value})} placeholder="2020" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Color</Label>
+                    <Input value={profileForm.vehicle_color} onChange={(e) => setProfileForm({...profileForm, vehicle_color: e.target.value})} placeholder="e.g., Black" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="font-semibold mb-4">Documents</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Profile Photo</Label>
+                    {profileForm.profile_photo_url && (
+                      <div className="w-20 h-20 rounded-full overflow-hidden border mb-2">
+                        <img src={profileForm.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <Input type="file" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'profile_photo_url')} disabled={uploadingDoc === 'profile_photo_url'} />
+                    {uploadingDoc === 'profile_photo_url' && <Loader2 className="w-4 h-4 animate-spin mt-2" />}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Driver's License</Label>
+                    {profileForm.license_document_url && (
+                      <a href={profileForm.license_document_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline block">View current document</a>
+                    )}
+                    <Input type="file" accept="image/*,.pdf" onChange={(e) => handleDocumentUpload(e, 'license_document_url')} disabled={uploadingDoc === 'license_document_url'} />
+                    {uploadingDoc === 'license_document_url' && <Loader2 className="w-4 h-4 animate-spin mt-2" />}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Vehicle Photo</Label>
+                    {profileForm.vehicle_photo_url && (
+                      <div className="w-32 h-20 rounded overflow-hidden border mb-2">
+                        <img src={profileForm.vehicle_photo_url} alt="Vehicle" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <Input type="file" accept="image/*" onChange={(e) => handleDocumentUpload(e, 'vehicle_photo_url')} disabled={uploadingDoc === 'vehicle_photo_url'} />
+                    {uploadingDoc === 'vehicle_photo_url' && <Loader2 className="w-4 h-4 animate-spin mt-2" />}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setProfileDialog(false)}>Cancel</Button>
+              <Button onClick={saveProfile}>Save Profile</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
