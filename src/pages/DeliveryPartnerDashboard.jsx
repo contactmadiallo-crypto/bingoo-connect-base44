@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -40,6 +41,12 @@ export default function DeliveryPartnerDashboard() {
     },
   });
 
+  const updateLocationMutation = useMutation({
+    mutationFn: ({ id, location }) => base44.entities.Order.update(id, {
+      driver_location: location
+    }),
+  });
+
   const assignedOrders = orders.filter(o => 
     o.order_type === 'delivery' && 
     ['confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status)
@@ -68,15 +75,44 @@ export default function DeliveryPartnerDashboard() {
       alert("Please enter driver information");
       return;
     }
-    updateOrderMutation.mutate({
-      id: selectedOrder.id,
-      data: {
-        ...selectedOrder,
-        driver_name: driverInfo.name,
-        driver_phone: driverInfo.phone,
-        status: 'out_for_delivery'
-      }
-    });
+    
+    // Start GPS tracking
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const location = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        
+        updateOrderMutation.mutate({
+          id: selectedOrder.id,
+          data: {
+            ...selectedOrder,
+            driver_name: driverInfo.name,
+            driver_phone: driverInfo.phone,
+            driver_location: location,
+            status: 'out_for_delivery'
+          }
+        });
+        
+        // Update location every 10 seconds
+        const locationInterval = setInterval(() => {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            updateLocationMutation.mutate({
+              id: selectedOrder.id,
+              location: {
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
+              }
+            });
+          });
+        }, 10000);
+        
+        // Store interval ID to clear later
+        window.deliveryLocationInterval = locationInterval;
+      });
+    }
+    
     setVerifyDialog(false);
   };
 
@@ -86,7 +122,13 @@ export default function DeliveryPartnerDashboard() {
   };
 
   const verifyDelivery = () => {
-    if (verificationCode === selectedOrder.delivery_code) {
+    if (selectedOrder && verificationCode === selectedOrder.delivery_code) {
+      // Stop GPS tracking
+      if (window.deliveryLocationInterval) {
+        clearInterval(window.deliveryLocationInterval);
+        delete window.deliveryLocationInterval; // Clean up the global variable
+      }
+      
       updateOrderMutation.mutate({
         id: selectedOrder.id,
         data: {
@@ -230,11 +272,16 @@ export default function DeliveryPartnerDashboard() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedOrder?.status === 'ready' ? 'Assign Driver' : 'Verify Delivery'}
+              {selectedOrder?.status === 'ready' ? 'Assign Driver & Enable GPS' : 'Verify Delivery'}
             </DialogTitle>
           </DialogHeader>
           {selectedOrder?.status === 'ready' ? (
             <div className="space-y-4">
+              <div className="bg-blue-50 p-3 rounded-lg mb-4">
+                <p className="text-sm text-slate-700">
+                  📍 GPS tracking will start automatically. Customer will see your real-time location on the map.
+                </p>
+              </div>
               <div className="space-y-2">
                 <Label>Driver Name *</Label>
                 <Input value={driverInfo.name} onChange={(e) => setDriverInfo({...driverInfo, name: e.target.value})} />
@@ -246,22 +293,29 @@ export default function DeliveryPartnerDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-sm text-slate-600">Enter the verification code from the customer:</p>
+              <p className="text-sm text-slate-600">Enter the 4-digit verification code from the customer:</p>
               <Input 
-                placeholder="6-digit code" 
+                placeholder="4-digit code" 
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
-                maxLength={6}
+                maxLength={4}
+                className="text-center text-2xl tracking-widest"
               />
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-xs text-slate-600">The customer should provide you with their delivery code</p>
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <p className="text-sm font-semibold text-amber-900 mb-2">🔒 Security Note:</p>
+                <p className="text-xs text-amber-800">
+                  • Customer must provide this code to complete delivery<br/>
+                  • Without correct code, order cannot be marked as delivered<br/>
+                  • This prevents fraudulent delivery completions<br/>
+                  • Your delivery history and rating are tracked
+                </p>
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setVerifyDialog(false)}>Cancel</Button>
             <Button onClick={selectedOrder?.status === 'ready' ? handleOutForDelivery : verifyDelivery}>
-              {selectedOrder?.status === 'ready' ? 'Start Delivery' : 'Verify & Complete'}
+              {selectedOrder?.status === 'ready' ? 'Start Delivery & GPS' : 'Verify & Complete'}
             </Button>
           </DialogFooter>
         </DialogContent>

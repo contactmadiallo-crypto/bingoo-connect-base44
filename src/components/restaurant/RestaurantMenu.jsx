@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,7 +60,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const createOrderMutation = useMutation({
     mutationFn: async (data) => {
       const orderNumber = `ORD-${Date.now()}`;
-      const deliveryCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString(); // Modified line
       const platformCommission = (data.total_amount * restaurant.commission_rate) / 100;
       
       return base44.entities.Order.create({
