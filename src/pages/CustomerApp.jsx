@@ -11,7 +11,7 @@ import RestaurantMenu from "../components/restaurant/RestaurantMenu";
 import CustomerProfile from "../components/restaurant/CustomerProfile";
 import CustomerOrders from "../components/restaurant/CustomerOrders";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import { useTranslation } from "../utils/translations";
+import { useTranslation } from "../components/translations";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
