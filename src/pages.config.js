@@ -11,6 +11,8 @@ import KitchenView from './pages/KitchenView';
 import RestaurantAdmin from './pages/RestaurantAdmin';
 import OrderTracking from './pages/OrderTracking';
 import DeliveryManagement from './pages/DeliveryManagement';
+import CustomerApp from './pages/CustomerApp';
+import DeliveryPartnerDashboard from './pages/DeliveryPartnerDashboard';
 import Layout from './Layout.jsx';
 
 
@@ -28,6 +30,8 @@ export const PAGES = {
     "RestaurantAdmin": RestaurantAdmin,
     "OrderTracking": OrderTracking,
     "DeliveryManagement": DeliveryManagement,
+    "CustomerApp": CustomerApp,
+    "DeliveryPartnerDashboard": DeliveryPartnerDashboard,
 }
 
 export const pagesConfig = {

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -54,6 +54,19 @@ const navigationItems = [
   },
 ];
 
+const customerItems = [
+  {
+    title: "Order Food",
+    url: createPageUrl("CustomerApp"),
+    icon: ShoppingBag,
+  },
+  {
+    title: "Track Order",
+    url: createPageUrl("OrderTracking"),
+    icon: MapPin,
+  },
+];
+
 const restaurantItems = [
   {
     title: "Menu",
@@ -71,14 +84,17 @@ const restaurantItems = [
     icon: Settings,
   },
   {
-    title: "Delivery",
+    title: "Delivery Mgmt",
     url: createPageUrl("DeliveryManagement"),
     icon: Truck,
   },
+];
+
+const deliveryItems = [
   {
-    title: "Track Order",
-    url: createPageUrl("OrderTracking"),
-    icon: MapPin,
+    title: "Partner Dashboard",
+    url: createPageUrl("DeliveryPartnerDashboard"),
+    icon: Package,
   },
 ];
 
@@ -137,7 +153,32 @@ export default function Layout({ children, currentPageName }) {
 
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
-                🍴 Restaurant
+                🛍️ Customer
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {customerItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-green-50 hover:text-green-700 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'bg-green-50 text-green-700 shadow-sm' : ''
+                        }`}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                🍴 Restaurant Admin
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -147,6 +188,31 @@ export default function Layout({ children, currentPageName }) {
                         asChild 
                         className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
                           location.pathname === item.url ? 'bg-orange-50 text-orange-700 shadow-sm' : ''
+                        }`}
+                      >
+                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                          <item.icon className="w-5 h-5" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
+                🚚 Delivery Partner
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {deliveryItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        className={`hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'bg-purple-50 text-purple-700 shadow-sm' : ''
                         }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
