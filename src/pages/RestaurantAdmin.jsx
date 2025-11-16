@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet, Settings } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Upload, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
@@ -41,6 +41,7 @@ function RestaurantAdminContent() {
     delivery_zones: []
   });
   const [newZone, setNewZone] = useState("");
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
 
   const queryClient = useQueryClient();
 
@@ -314,6 +315,121 @@ function RestaurantAdminContent() {
   const myInventory = inventory.filter(i => i.restaurant_id === myRestaurant?.id);
   const myTables = tables.filter(t => t.restaurant_id === myRestaurant?.id);
 
+  // Analytics calculations
+  const getDateRange = () => {
+    const now = new Date();
+    const ranges = {
+      day: new Date(now.setHours(0, 0, 0, 0)),
+      week: new Date(now.setDate(now.getDate() - 7)),
+      month: new Date(now.setMonth(now.getMonth() - 1)),
+      year: new Date(now.setFullYear(now.getFullYear() - 1))
+    };
+    return ranges[analyticsTimeRange] || ranges.week;
+  };
+
+  const filteredOrders = myOrders.filter(o => new Date(o.created_date) >= getDateRange());
+  
+  const analytics = {
+    revenue: {
+      total: filteredOrders.reduce((sum, o) => sum + o.total_amount, 0),
+      byDay: filteredOrders.reduce((acc, o) => {
+        const date = new Date(o.created_date).toLocaleDateString();
+        acc[date] = (acc[date] || 0) + o.total_amount;
+        return acc;
+      }, {}),
+      growth: (() => {
+        if (filteredOrders.length === 0) return 0;
+        // Simple growth calculation: compare first half vs second half of the period
+        const sortedOrders = [...filteredOrders].sort((a,b) => new Date(a.created_date) - new Date(b.created_date));
+        const midIndex = Math.ceil(sortedOrders.length / 2);
+        const firstHalf = sortedOrders.slice(0, midIndex);
+        const secondHalf = sortedOrders.slice(midIndex);
+
+        const firstHalfRevenue = firstHalf.reduce((sum, o) => sum + o.total_amount, 0);
+        const secondHalfRevenue = secondHalf.reduce((sum, o) => sum + o.total_amount, 0);
+        
+        if (firstHalfRevenue === 0 && secondHalfRevenue === 0) return 0;
+        if (firstHalfRevenue === 0) return 100; // Infinite growth from zero
+        
+        return (((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100).toFixed(1);
+      })()
+    },
+    topItems: (() => {
+      const itemSales = {};
+      filteredOrders.forEach(order => {
+        order.items?.forEach(item => {
+          if (!itemSales[item.name]) {
+            itemSales[item.name] = { name: item.name, quantity: 0, revenue: 0 };
+          }
+          itemSales[item.name].quantity += item.quantity;
+          itemSales[item.name].revenue += item.price * item.quantity;
+        });
+      });
+      return Object.values(itemSales).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    })(),
+    peakHours: (() => {
+      const hourCounts = {};
+      filteredOrders.forEach(o => {
+        const hour = new Date(o.created_date).getHours();
+        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      });
+      return Object.entries(hourCounts)
+        .map(([hour, count]) => ({ hour: parseInt(hour), count }))
+        .sort((a, b) => b.count - a.count);
+    })(),
+    orderTypes: filteredOrders.reduce((acc, o) => {
+      acc[o.order_type] = (acc[o.order_type] || 0) + 1;
+      return acc;
+    }, {}),
+    avgOrderValue: filteredOrders.length > 0 
+      ? (filteredOrders.reduce((sum, o) => sum + o.total_amount, 0) / filteredOrders.length).toFixed(2)
+      : 0
+  };
+
+  const exportSalesReport = () => {
+    if (filteredOrders.length === 0) {
+      alert("No sales data to export for the selected period.");
+      return;
+    }
+
+    const reportData = filteredOrders.map(order => ({
+      'Order Number': order.order_number,
+      'Date': new Date(order.created_date).toLocaleString(),
+      'Customer Name': order.customer_name || 'N/A',
+      'Customer Phone': order.customer_phone || 'N/A',
+      'Order Type': order.order_type ? order.order_type.replace('_', ' ') : 'N/A',
+      'Items': order.items?.map(i => `${i.quantity}x ${i.name} ($${(i.price * i.quantity).toFixed(2)})`).join('; ') || 'No Items',
+      'Subtotal': order.subtotal?.toFixed(2) || '',
+      'Delivery Fee': order.delivery_fee?.toFixed(2) || '',
+      'Discount': order.discount?.toFixed(2) || '',
+      'Total Amount': order.total_amount.toFixed(2),
+      'Status': order.status ? order.status.replace('_', ' ') : 'N/A',
+      'Special Instructions': order.special_instructions || 'N/A',
+    }));
+
+    const headers = Object.keys(reportData[0] || {});
+    const csv = [
+      headers.map(header => `"${header}"`).join(','),
+      ...reportData.map(row => headers.map(h => {
+        const value = row[h];
+        if (typeof value === 'string' && value.includes(',')) {
+            return `"${value.replace(/"/g, '""')}"`;
+        }
+        return `"${value}"`;
+      }).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `sales-report-${analyticsTimeRange}-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
@@ -337,11 +453,12 @@ function RestaurantAdminContent() {
         </div>
 
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="menu">Menu Items</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
             <TabsTrigger value="tables">Tables & QR</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="menu">
@@ -547,6 +664,181 @@ function RestaurantAdminContent() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Sales Analytics</CardTitle>
+                  <div className="flex gap-2">
+                    <Select value={analyticsTimeRange} onValueChange={setAnalyticsTimeRange}>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="day">Today</SelectItem>
+                        <SelectItem value="week">This Week</SelectItem>
+                        <SelectItem value="month">This Month</SelectItem>
+                        <SelectItem value="year">This Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={exportSalesReport} variant="outline" disabled={filteredOrders.length === 0}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Report
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6 mb-8">
+                    <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-slate-600">Total Revenue</p>
+                        <TrendingUp className="w-5 h-5 text-green-600" />
+                      </div>
+                      <p className="text-3xl font-bold text-green-700">${analytics.revenue.total.toFixed(2)}</p>
+                      <p className="text-xs text-green-600 mt-1">
+                        {analytics.revenue.growth > 0 ? '+' : ''}{analytics.revenue.growth}% vs previous period
+                      </p>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-slate-600">Total Orders</p>
+                        <ShoppingCart className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <p className="text-3xl font-bold text-blue-700">{filteredOrders.length}</p>
+                      <p className="text-xs text-blue-600 mt-1">
+                        {analyticsTimeRange === 'day' ? 'Today' : analyticsTimeRange === 'week' ? 'This week' : analyticsTimeRange === 'month' ? 'This month' : 'This year'}
+                      </p>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-slate-600">Avg Order Value</p>
+                        <DollarSign className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <p className="text-3xl font-bold text-purple-700">${analytics.avgOrderValue}</p>
+                      <p className="text-xs text-purple-600 mt-1">Per order</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <BarChart3 className="w-5 h-5 text-orange-600" />
+                        Daily Sales Trend
+                      </h3>
+                      <div className="space-y-2">
+                        {Object.entries(analytics.revenue.byDay).length > 0 ? (
+                            Object.entries(analytics.revenue.byDay).slice(-7).map(([date, revenue]) => (
+                                <div key={date} className="flex items-center gap-3">
+                                <span className="text-xs text-slate-600 w-24">{date}</span>
+                                <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
+                                    <div 
+                                    className="bg-gradient-to-r from-orange-400 to-red-400 h-full rounded-full flex items-center justify-end pr-2"
+                                    style={{ width: `${(revenue / Math.max(...Object.values(analytics.revenue.byDay))) * 100}%` }}
+                                    >
+                                    <span className="text-xs font-semibold text-white">${revenue.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-slate-500">No daily sales data.</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-4 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-blue-600" />
+                        Peak Order Times
+                      </h3>
+                      <div className="space-y-2">
+                        {analytics.peakHours.length > 0 ? (
+                            analytics.peakHours.slice(0, 7).map(({ hour, count }) => (
+                                <div key={hour} className="flex items-center gap-3">
+                                <span className="text-xs text-slate-600 w-24">
+                                    {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                                </span>
+                                <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
+                                    <div 
+                                    className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full flex items-center justify-end pr-2"
+                                    style={{ width: `${(count / Math.max(...analytics.peakHours.map(h => h.count))) * 100}%` }}
+                                    >
+                                    <span className="text-xs font-semibold text-white">{count} orders</span>
+                                    </div>
+                                </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-slate-500">No peak hour data.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-yellow-600" />
+                    Top Selling Items
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {analytics.topItems.map((item, idx) => (
+                      <div key={item.name} className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-white font-bold">
+                          #{idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{item.name}</h4>
+                          <p className="text-sm text-slate-600">{item.quantity} sold</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">${item.revenue.toFixed(2)}</p>
+                          <p className="text-xs text-slate-500">revenue</p>
+                        </div>
+                      </div>
+                    ))}
+                    {analytics.topItems.length === 0 && (
+                      <div className="text-center py-12 text-slate-500">
+                        No sales data available for this period
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Type Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {Object.entries(analytics.orderTypes).length > 0 ? (
+                        Object.entries(analytics.orderTypes).map(([type, count]) => (
+                            <div key={type} className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border">
+                            <p className="text-sm text-slate-600 capitalize mb-2">{type.replace('_', ' ')}</p>
+                            <p className="text-3xl font-bold text-slate-900">{count}</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                                {((count / filteredOrders.length) * 100).toFixed(1)}% of orders
+                            </p>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-6 text-slate-500 col-span-full">
+                            No order type data for this period.
+                        </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
 
