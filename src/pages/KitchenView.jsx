@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, AlertCircle, Package } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
@@ -31,7 +31,6 @@ export default function KitchenView() {
     const currentUser = await base44.auth.me();
     setUser(currentUser);
     
-    // Find restaurant owned by this user
     const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
     if (restaurants.length > 0) {
       setRestaurant(restaurants[0]);
@@ -40,16 +39,18 @@ export default function KitchenView() {
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders', restaurant?.id],
-    queryFn: () => base44.entities.Order.filter({ restaurant_id: restaurant.id }),
+    queryFn: () => restaurant 
+      ? base44.entities.Order.filter({ restaurant_id: restaurant.id })
+      : base44.entities.Order.list('-created_date'),
     initialData: [],
     refetchInterval: 5000,
-    enabled: !!restaurant,
+    enabled: !!user,
   });
 
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders', restaurant?.id] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
   });
 
@@ -68,7 +69,7 @@ export default function KitchenView() {
 
     updateOrderMutation.mutate({
       id: order.id,
-      data: { ...order, status: statusFlow[order.status] }
+      data: { status: statusFlow[order.status] }
     });
   };
 
@@ -76,7 +77,7 @@ export default function KitchenView() {
     if (confirm('Cancel this order?')) {
       updateOrderMutation.mutate({
         id: order.id,
-        data: { ...order, status: 'cancelled' }
+        data: { status: 'cancelled' }
       });
     }
   };
@@ -85,12 +86,10 @@ export default function KitchenView() {
   const preparingOrders = activeOrders.filter(o => ['confirmed', 'preparing'].includes(o.status));
   const readyOrders = activeOrders.filter(o => ['ready', 'out_for_delivery'].includes(o.status));
 
-  if (!user || !restaurant) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-lg text-slate-600">Loading kitchen...</p>
-        </div>
+        <p className="text-lg text-slate-600">Loading...</p>
       </div>
     );
   }
@@ -100,10 +99,11 @@ export default function KitchenView() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">🍳 Kitchen Dashboard</h1>
-          <p className="text-slate-600">Manage incoming orders for {restaurant.name}</p>
+          <p className="text-slate-600">
+            {restaurant ? `Managing orders for ${restaurant.name}` : 'Managing all orders'}
+          </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
             <CardHeader>
@@ -142,9 +142,7 @@ export default function KitchenView() {
           </Card>
         </div>
 
-        {/* Orders Grid */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* New Orders */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-4">🆕 New Orders</h2>
             <div className="space-y-4">
@@ -164,7 +162,6 @@ export default function KitchenView() {
             </div>
           </div>
 
-          {/* Preparing */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-4">👨‍🍳 Preparing</h2>
             <div className="space-y-4">
@@ -184,7 +181,6 @@ export default function KitchenView() {
             </div>
           </div>
 
-          {/* Ready */}
           <div>
             <h2 className="text-xl font-bold text-slate-900 mb-4">✅ Ready</h2>
             <div className="space-y-4">
@@ -233,6 +229,7 @@ function OrderCard({ order, onNext, onCancel }) {
             <div>
               <CardTitle className="text-lg">{order.order_number}</CardTitle>
               <p className="text-sm text-slate-600">{order.customer_name}</p>
+              <p className="text-xs text-slate-500">{order.restaurant_name}</p>
             </div>
             <Badge className={`${statusColors[order.status]} border font-medium`}>
               {order.status.replace('_', ' ')}
