@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -188,24 +189,29 @@ export default function ChatWindow({ order, user, userType, open, onOpenChange }
   };
 
   const translateMessage = async (msg) => {
-    if (translatingMessages[msg.id]) return;
+    if (!msg.content || translatingMessages[msg.id]) return;
 
     setTranslatingMessages({ ...translatingMessages, [msg.id]: true });
 
-    const targetLang = localStorage.getItem("language") || "fr";
-    
-    const prompt = `Translate the following message to ${targetLang === 'fr' ? 'French' : targetLang === 'en' ? 'English' : targetLang === 'ar' ? 'Arabic' : 'French'}:
-    
+    try {
+      const targetLang = localStorage.getItem("language") || "fr";
+      
+      const prompt = `Translate the following message to ${targetLang === 'fr' ? 'French' : targetLang === 'en' ? 'English' : targetLang === 'ar' ? 'Arabic' : 'French'}:
+      
 "${msg.content}"
 
 Return ONLY the translation, nothing else.`;
 
-    const translation = await base44.integrations.Core.InvokeLLM({ prompt });
-    
-    setTranslatingMessages({ 
-      ...translatingMessages, 
-      [msg.id]: translation 
-    });
+      const translation = await base44.integrations.Core.InvokeLLM({ prompt });
+      
+      setTranslatingMessages({ 
+        ...translatingMessages, 
+        [msg.id]: translation 
+      });
+    } catch (error) {
+      toast.error("Erreur de traduction");
+      setTranslatingMessages({ ...translatingMessages, [msg.id]: false });
+    }
   };
 
   const handleVoiceSend = (voiceData) => {
@@ -289,7 +295,7 @@ Return ONLY the translation, nothing else.`;
                           </div>
                           <span className="text-xs">{msg.voice_duration}s</span>
                         </div>
-                      ) : msg.message_type === 'location' ? (
+                      ) : msg.message_type === 'location' && msg.location ? (
                         <div>
                           <div className="flex items-center gap-2 mb-2">
                             <MapPin className="w-4 h-4" />
@@ -306,8 +312,8 @@ Return ONLY the translation, nothing else.`;
                         </div>
                       ) : (
                         <div>
-                          <p className="text-sm">{isTranslated ? translatingMessages[msg.id] : msg.content}</p>
-                          {isTranslated && (
+                          <p className="text-sm">{isTranslated ? translatingMessages[msg.id] : (msg.content || "")}</p>
+                          {isTranslated && msg.content && (
                             <p className="text-xs mt-1 opacity-70 italic border-t pt-1 mt-2">
                               Original: {msg.content}
                             </p>
@@ -318,7 +324,7 @@ Return ONLY the translation, nothing else.`;
                         {format(new Date(msg.created_date), 'HH:mm')}
                       </p>
                     </div>
-                    {!isMine && msg.message_type === 'text' && !isTranslated && (
+                    {!isMine && msg.message_type === 'text' && msg.content && !isTranslated && (
                       <Button
                         size="sm"
                         variant="ghost"
