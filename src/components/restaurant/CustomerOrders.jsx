@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User } from "lucide-react";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import DeliveryMap from "../DeliveryMap";
+import { motion } from "framer-motion";
+
+const statuses = [
+  { key: 'pending', label: 'Order Placed', icon: Package },
+  { key: 'confirmed', label: 'Confirmed', icon: CheckCircle },
+  { key: 'preparing', label: 'Preparing', icon: Package },
+  { key: 'ready', label: 'Ready', icon: CheckCircle },
+  { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck },
+  { key: 'delivered', label: 'Delivered', icon: CheckCircle },
+];
 
 export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDetailsDialog, setOrderDetailsDialog] = useState(false);
+  const [trackingDialog, setTrackingDialog] = useState(false);
   const [ratingDialog, setRatingDialog] = useState(false);
   const [restaurantReviewDialog, setRestaurantReviewDialog] = useState(false);
   const [tipAmount, setTipAmount] = useState("");
@@ -26,6 +38,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [serviceRating, setServiceRating] = useState(0);
   const [deliveryRating, setDeliveryRating] = useState(0);
   const [restaurantComment, setRestaurantComment] = useState("");
+  const [liveOrder, setLiveOrder] = useState(null);
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
@@ -43,6 +56,19 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     queryFn: () => base44.entities.RestaurantReview.filter({ customer_email: user.email }),
     enabled: !!user,
   });
+
+  useEffect(() => {
+    let interval;
+    if (trackingDialog && liveOrder) {
+      interval = setInterval(async () => {
+        const updated = await base44.entities.Order.filter({ id: liveOrder.id });
+        if (updated[0]) {
+          setLiveOrder(updated[0]);
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [trackingDialog, liveOrder]);
 
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
@@ -72,6 +98,12 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const handleOrderClick = (order) => {
     setSelectedOrder(order);
     setOrderDetailsDialog(true);
+  };
+
+  const handleTrackOrder = (order) => {
+    setLiveOrder(order);
+    setTrackingDialog(true);
+    setOrderDetailsDialog(false);
   };
 
   const handleRateDriver = (order) => {
@@ -127,11 +159,6 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     return myRestaurantReviews.some(r => r.order_id === orderId);
   };
 
-  const trackOrder = (order) => {
-    setOrderDetailsDialog(false);
-    navigate(createPageUrl(`OrderTracking?order=${order.order_number}`));
-  };
-
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-700",
     confirmed: "bg-blue-100 text-blue-700",
@@ -141,6 +168,8 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     delivered: "bg-green-100 text-green-700",
     cancelled: "bg-red-100 text-red-700"
   };
+
+  const currentStatusIndex = liveOrder ? statuses.findIndex(s => s.key === liveOrder.status) : -1;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4 md:p-8">
@@ -198,6 +227,141 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           )}
         </div>
       </div>
+
+      <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Live Order Tracking - {liveOrder?.order_number}</DialogTitle>
+          </DialogHeader>
+          {liveOrder && (
+            <div className="space-y-6">
+              {liveOrder.order_type === 'delivery' && liveOrder.status === 'out_for_delivery' && liveOrder.driver_location && (
+                <DeliveryMap order={liveOrder} />
+              )}
+
+              <div className="relative mb-8">
+                <div className="flex justify-between">
+                  {statuses.map((status, idx) => {
+                    const Icon = status.icon;
+                    const isActive = idx <= currentStatusIndex;
+                    return (
+                      <div key={status.key} className="flex flex-col items-center flex-1 relative">
+                        {idx < statuses.length - 1 && (
+                          <div 
+                            className={`absolute top-5 left-[50%] w-full h-1 -z-10 ${
+                              idx < currentStatusIndex ? 'bg-green-500' : 'bg-slate-200'
+                            }`}
+                          />
+                        )}
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                            isActive ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-400'
+                          }`}
+                        >
+                          <Icon className="w-5 h-5" />
+                        </motion.div>
+                        <p className={`text-xs text-center ${isActive ? 'font-semibold' : 'text-slate-500'}`}>
+                          {status.label}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-slate-400 mt-1" />
+                    <div>
+                      <p className="text-sm font-semibold">{liveOrder.customer_name}</p>
+                      {liveOrder.customer_address && (
+                        <p className="text-sm text-slate-600">{liveOrder.customer_address}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {liveOrder.customer_phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-slate-400" />
+                      <p className="text-sm">{liveOrder.customer_phone}</p>
+                    </div>
+                  )}
+
+                  {liveOrder.estimated_time && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <p className="text-sm">Est. {liveOrder.estimated_time} minutes</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {liveOrder.driver_name && (
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="w-4 h-4 text-blue-700" />
+                        <p className="text-sm font-semibold text-blue-700">Your Driver:</p>
+                      </div>
+                      <p className="font-semibold">{liveOrder.driver_name}</p>
+                      <p className="text-sm text-slate-600">{liveOrder.driver_phone}</p>
+                      {liveOrder.vehicle_type && (
+                        <Badge variant="outline" className="mt-2">
+                          {liveOrder.vehicle_type}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+
+                  {liveOrder.delivery_code && liveOrder.status === 'out_for_delivery' && (
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Key className="w-4 h-4 text-green-700" />
+                        <p className="text-sm font-semibold text-green-700">Your Delivery Code:</p>
+                      </div>
+                      <p className="text-3xl font-bold text-green-700 text-center tracking-wider">
+                        {liveOrder.delivery_code}
+                      </p>
+                      <p className="text-xs text-slate-600 mt-2">
+                        Share this code with the driver to confirm delivery
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <p className="text-sm font-semibold mb-3">Order Items:</p>
+                <div className="space-y-2">
+                  {liveOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span>{item.quantity}x {item.name}</span>
+                      <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
+                  <span>Total</span>
+                  <span className="text-green-600">${liveOrder.total_amount.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {!liveOrder.driver_location && liveOrder.status === 'out_for_delivery' && (
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                  <p className="text-sm text-amber-800">
+                    📍 Waiting for driver to activate GPS tracking...
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setTrackingDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={orderDetailsDialog} onOpenChange={setOrderDetailsDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -303,7 +467,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
               <div className="flex gap-2 pt-4 border-t flex-wrap">
                 {['out_for_delivery', 'preparing', 'ready'].includes(selectedOrder.status) && (
-                  <Button onClick={() => trackOrder(selectedOrder)} className="flex-1">
+                  <Button onClick={() => handleTrackOrder(selectedOrder)} className="flex-1">
                     <MapPin className="w-4 h-4 mr-2" />
                     Track Order Live
                   </Button>
