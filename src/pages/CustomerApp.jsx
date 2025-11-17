@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle, TrendingUp } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle, TrendingUp, Bell } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ import { useTranslation } from "../components/translations";
 import NotificationBell from "../components/restaurant/NotificationBell";
 import ConversationsList from "../components/chat/ConversationsList";
 import ChatWindow from "../components/chat/ChatWindow";
+import NotificationCenter from "../components/restaurant/NotificationCenter";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
@@ -63,6 +65,7 @@ export default function CustomerApp() {
   const [showOrders, setShowOrders] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showConversations, setShowConversations] = useState(false);
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [chatOrder, setChatOrder] = useState(null);
   const [chatDialog, setChatDialog] = useState(false);
   const [sortBy, setSortBy] = useState("relevance");
@@ -125,6 +128,15 @@ export default function CustomerApp() {
     enabled: !!user?.email,
     refetchInterval: 5000,
   });
+
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['customer-notifications', user?.email],
+    queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }),
+    enabled: !!user?.email,
+    refetchInterval: 5000,
+  });
+
+  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const totalUnreadMessages = conversations.reduce((sum, c) => sum + (c.unread_count_customer || 0), 0);
 
@@ -288,7 +300,16 @@ export default function CustomerApp() {
             </div>
             <div className="flex gap-1 sm:gap-2">
               <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
-              <NotificationBell user={user} />
+              <div className="relative">
+                <Button variant="outline" onClick={() => setShowNotificationCenter(true)} size="sm" className="h-8 w-8 sm:h-10 sm:w-10 p-0 sm:p-2">
+                  <Bell className="w-4 h-4" />
+                </Button>
+                {unreadNotifications > 0 && (
+                  <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs">
+                    {unreadNotifications}
+                  </Badge>
+                )}
+              </div>
               <div className="relative">
                 <Button variant="outline" onClick={() => setShowConversations(true)} size="sm" className="h-8 w-8 sm:h-10 sm:w-10 p-0 sm:p-2">
                   <MessageCircle className="w-4 h-4" />
@@ -581,6 +602,12 @@ export default function CustomerApp() {
           onOpenChange={setChatDialog}
         />
       )}
+
+      <NotificationCenter 
+        user={user}
+        open={showNotificationCenter}
+        onOpenChange={setShowNotificationCenter}
+      />
 
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="max-w-md">
