@@ -14,7 +14,7 @@ import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
-import RestaurantReviews from "../components/RestaurantReviews"; // Assuming this component exists or will be created
+import RestaurantReviews from "../components/restaurant/RestaurantReviews";
 
 function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
@@ -1162,7 +1162,7 @@ function RestaurantAdminContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <RestaurantReviews restaurant={myRestaurant} user={user} />
+                {myRestaurant && <RestaurantReviews restaurant={myRestaurant} user={user} />}
               </CardContent>
             </Card>
           </TabsContent>
