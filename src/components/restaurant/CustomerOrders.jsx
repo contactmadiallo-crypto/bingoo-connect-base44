@@ -8,13 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare } from "lucide-react";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderDetailsDialog, setOrderDetailsDialog] = useState(false);
   const [ratingDialog, setRatingDialog] = useState(false);
   const [tipAmount, setTipAmount] = useState("");
   const [rating, setRating] = useState(0);
@@ -36,12 +37,16 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
       setRatingDialog(false);
-      setSelectedOrder(null);
       setRating(0);
       setFeedback("");
       setTipAmount("");
     },
   });
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+    setOrderDetailsDialog(true);
+  };
 
   const handleRateDriver = (order) => {
     setSelectedOrder(order);
@@ -68,6 +73,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   };
 
   const trackOrder = (order) => {
+    setOrderDetailsDialog(false);
     navigate(createPageUrl(`OrderTracking?order=${order.order_number}`));
   };
 
@@ -95,7 +101,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
         <div className="space-y-4">
           {orders.map((order) => (
-            <Card key={order.id} className="hover:shadow-lg transition-shadow">
+            <Card 
+              key={order.id} 
+              className="hover:shadow-xl transition-shadow cursor-pointer"
+              onClick={() => handleOrderClick(order)}
+            >
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
@@ -113,60 +123,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="border-t pt-3">
-                    <p className="text-sm font-semibold mb-2">{t('items')}:</p>
-                    {order.items.map((item, idx) => (
-                      <div key={idx} className="flex justify-between text-sm">
-                        <span>{item.quantity}x {item.name}</span>
-                        <span>${(item.price * item.quantity).toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t pt-3 flex justify-between items-center">
-                    <span className="font-semibold">{t('total')}</span>
-                    <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
-                  </div>
-
-                  {order.driver_name && (
-                    <div className="border-t pt-3">
-                      <p className="text-sm font-semibold mb-1">🚗 Driver:</p>
-                      <p className="text-sm">{order.driver_name} - {order.driver_phone}</p>
-                      {order.customer_rating ? (
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-4 h-4 ${i < order.customer_rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'}`} />
-                            ))}
-                          </div>
-                          {order.tip_amount > 0 && (
-                            <span className="text-xs text-green-600">• Tip: ${order.tip_amount.toFixed(2)}</span>
-                          )}
-                        </div>
-                      ) : order.status === 'delivered' && (
-                        <Button size="sm" variant="outline" onClick={() => handleRateDriver(order)} className="mt-2">
-                          <Star className="w-4 h-4 mr-2" />
-                          Rate Driver
-                        </Button>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="border-t pt-3 flex gap-2">
-                    {['out_for_delivery', 'preparing', 'ready'].includes(order.status) && (
-                      <Button onClick={() => trackOrder(order)} className="flex-1">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        Track Order
-                      </Button>
-                    )}
-                    {order.status === 'delivered' && !order.customer_rating && (
-                      <Button onClick={() => handleRateDriver(order)} className="flex-1">
-                        <Star className="w-4 h-4 mr-2" />
-                        Rate & Tip
-                      </Button>
-                    )}
-                  </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-slate-600">
+                    {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                  </p>
+                  <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -175,12 +136,137 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           {orders.length === 0 && (
             <Card>
               <CardContent className="py-12 text-center">
+                <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                 <p className="text-slate-600">{t('no_orders')}</p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
+
+      <Dialog open={orderDetailsDialog} onOpenChange={setOrderDetailsDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-start p-4 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="font-bold text-lg">{selectedOrder.order_number}</p>
+                  <p className="text-sm text-slate-600">{new Date(selectedOrder.created_date).toLocaleString()}</p>
+                  <p className="text-sm font-semibold text-slate-700 mt-1">{selectedOrder.restaurant_name}</p>
+                </div>
+                <div className="text-right">
+                  <Badge className={statusColors[selectedOrder.status]}>
+                    {selectedOrder.status.replace('_', ' ')}
+                  </Badge>
+                  <p className="text-2xl font-bold text-green-600 mt-2">${selectedOrder.total_amount.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <User className="w-4 h-4 text-slate-600" />
+                    Customer Info
+                  </h4>
+                  <div className="text-sm space-y-1 pl-6">
+                    <p>{selectedOrder.customer_name}</p>
+                    <p className="text-slate-600">{selectedOrder.customer_phone}</p>
+                    {selectedOrder.customer_address && (
+                      <p className="text-slate-600">{selectedOrder.customer_address}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <Package className="w-4 h-4 text-slate-600" />
+                    Order Info
+                  </h4>
+                  <div className="text-sm space-y-1 pl-6">
+                    <p className="capitalize">{selectedOrder.order_type?.replace('_', ' ')}</p>
+                    {selectedOrder.estimated_time && (
+                      <p className="flex items-center gap-1 text-slate-600">
+                        <Clock className="w-3 h-3" />
+                        {selectedOrder.estimated_time} min estimated
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {selectedOrder.special_instructions && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="font-semibold text-sm mb-1">Special Instructions:</p>
+                  <p className="text-sm text-slate-700">{selectedOrder.special_instructions}</p>
+                </div>
+              )}
+
+              <div>
+                <h4 className="font-semibold mb-3">{t('items')}:</h4>
+                {selectedOrder.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between text-sm mb-2 pb-2 border-b">
+                    <span>{item.quantity}x {item.name}</span>
+                    <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
+                  <span>{t('total')}</span>
+                  <span className="text-green-600">${selectedOrder.total_amount.toFixed(2)}</span>
+                </div>
+              </div>
+
+              {selectedOrder.driver_name && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <Truck className="w-4 h-4" />
+                    Driver Information
+                  </p>
+                  <div className="space-y-1 text-sm">
+                    <p className="font-medium">{selectedOrder.driver_name}</p>
+                    <p className="text-slate-600 flex items-center gap-1">
+                      <Phone className="w-3 h-3" />
+                      {selectedOrder.driver_phone}
+                    </p>
+                    {selectedOrder.customer_rating && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < selectedOrder.customer_rating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'}`} />
+                          ))}
+                        </div>
+                        {selectedOrder.tip_amount > 0 && (
+                          <span className="text-xs text-green-600">• Tip: ${selectedOrder.tip_amount.toFixed(2)}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-4 border-t">
+                {['out_for_delivery', 'preparing', 'ready'].includes(selectedOrder.status) && (
+                  <Button onClick={() => trackOrder(selectedOrder)} className="flex-1">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    Track Order Live
+                  </Button>
+                )}
+                {selectedOrder.status === 'delivered' && !selectedOrder.customer_rating && (
+                  <Button onClick={() => {
+                    setOrderDetailsDialog(false);
+                    handleRateDriver(selectedOrder);
+                  }} className="flex-1">
+                    <Star className="w-4 h-4 mr-2" />
+                    Rate & Tip Driver
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={ratingDialog} onOpenChange={setRatingDialog}>
         <DialogContent className="max-w-md">
