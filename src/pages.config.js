@@ -22,6 +22,7 @@ import DriverEarnings from './pages/DriverEarnings';
 import RestaurantManagement from './pages/RestaurantManagement';
 import DriverTracking from './pages/DriverTracking';
 import OrderManagement from './pages/OrderManagement';
+import RestaurantAnalytics from './pages/RestaurantAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -50,6 +51,7 @@ export const PAGES = {
     "RestaurantManagement": RestaurantManagement,
     "DriverTracking": DriverTracking,
     "OrderManagement": OrderManagement,
+    "RestaurantAnalytics": RestaurantAnalytics,
 }
 
 export const pagesConfig = {
