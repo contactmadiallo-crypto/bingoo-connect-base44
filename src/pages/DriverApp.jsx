@@ -27,8 +27,9 @@ export default function DriverApp() {
   const { data: driver, isLoading: driverLoading } = useQuery({
     queryKey: ['driver-profile', user?.email],
     queryFn: async () => {
-      const drivers = await base44.entities.DeliveryPartner.filter({ email: user.email });
-      return drivers[0] || null;
+      const drivers = await base44.entities.DeliveryPartner.list();
+      const myDriver = drivers.find(d => d.email === user.email || d.created_by === user.email);
+      return myDriver || null;
     },
     enabled: !!user?.email,
   });
