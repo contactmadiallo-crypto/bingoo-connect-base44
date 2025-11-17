@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { MapPin, Navigation, DollarSign, Clock, TrendingUp, Loader2, Zap } from "lucide-react";
+import { MapPin, Navigation, DollarSign, Clock, TrendingUp, Loader2, Zap, AlertTriangle } from "lucide-react";
 
-export default function RouteOptimizer({ availableOrders, driverLocation, onAcceptBatch }) {
+export default function RouteOptimizer({ availableOrders, driverLocation, driver, onAcceptBatch }) {
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [showOptimization, setShowOptimization] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -23,6 +23,20 @@ export default function RouteOptimizer({ availableOrders, driverLocation, onAcce
     return R * c;
   };
 
+  const isInPreferredZone = (order) => {
+    if (!driver?.preferred_zones?.length || !order.customer_location) return true;
+    
+    return driver.preferred_zones.some(zone => {
+      const distance = calculateDistance(
+        zone.lat,
+        zone.lng,
+        order.customer_location.lat,
+        order.customer_location.lng
+      );
+      return distance <= zone.radius_km;
+    });
+  };
+
   const nearbyOrders = useMemo(() => {
     if (!driverLocation || availableOrders.length === 0) return [];
     
@@ -35,11 +49,16 @@ export default function RouteOptimizer({ availableOrders, driverLocation, onAcce
           order.customer_location.lat,
           order.customer_location.lng
         );
-        return { ...order, distanceFromDriver: distance };
+        const inPreferredZone = isInPreferredZone(order);
+        return { ...order, distanceFromDriver: distance, inPreferredZone };
       })
       .filter(o => o.distanceFromDriver <= 5)
-      .sort((a, b) => a.distanceFromDriver - b.distanceFromDriver);
-  }, [availableOrders, driverLocation]);
+      .sort((a, b) => {
+        if (a.inPreferredZone && !b.inPreferredZone) return -1;
+        if (!a.inPreferredZone && b.inPreferredZone) return 1;
+        return a.distanceFromDriver - b.distanceFromDriver;
+      });
+  }, [availableOrders, driverLocation, driver]);
 
   const batchableOrders = useMemo(() => {
     const batches = [];
@@ -68,12 +87,16 @@ export default function RouteOptimizer({ availableOrders, driverLocation, onAcce
       if (batch.length >= 2) {
         const totalEarnings = batch.reduce((sum, o) => sum + (o.delivery_fee || 0), 0);
         const avgDistance = batch.reduce((sum, o) => sum + o.distanceFromDriver, 0) / batch.length;
-        batches.push({ orders: batch, totalEarnings, avgDistance });
+        const preferredCount = batch.filter(o => o.inPreferredZone).length;
+        batches.push({ orders: batch, totalEarnings, avgDistance, preferredCount });
         batch.forEach(o => processed.add(o.id));
       }
     });
 
-    return batches.sort((a, b) => b.totalEarnings - a.totalEarnings);
+    return batches.sort((a, b) => {
+      if (a.preferredCount !== b.preferredCount) return b.preferredCount - a.preferredCount;
+      return b.totalEarnings - a.totalEarnings;
+    });
   }, [nearbyOrders]);
 
   const optimizeRouteMutation = useMutation({
@@ -84,21 +107,30 @@ export default function RouteOptimizer({ availableOrders, driverLocation, onAcce
         customer: o.customer_name,
         address: o.customer_address,
         lat: o.customer_location.lat,
-        lng: o.customer_location.lng
+        lng: o.customer_location.lng,
+        inPreferredZone: o.inPreferredZone
       }));
 
-      const prompt = `You are a route optimization AI for delivery drivers in Dakar, Senegal.
+      const preferredZonesInfo = driver?.preferred_zones?.length > 0
+        ? `\n\nDriver's preferred zones:\n${driver.preferred_zones.map(z => `- ${z.name} (${z.lat}, ${z.lng}) radius ${z.radius_km}km`).join('\n')}`
+        : '';
+
+      const prompt = `You are a route optimization AI for delivery drivers in Dakar, Senegal with real-time traffic awareness.
 
 Driver current location: Lat ${driverLocation.lat}, Lng ${driverLocation.lng}
+Current time: ${new Date().toLocaleTimeString('fr-FR')} on ${new Date().toLocaleDateString('fr-FR', { weekday: 'long' })}
+${preferredZonesInfo}
 
 Delivery locations to optimize:
-${locations.map((loc, i) => `${i + 1}. ${loc.restaurant} → ${loc.customer} (${loc.address}) - Lat: ${loc.lat}, Lng: ${loc.lng}`).join('\n')}
+${locations.map((loc, i) => `${i + 1}. ${loc.restaurant} → ${loc.customer} (${loc.address}) - Lat: ${loc.lat}, Lng: ${loc.lng}${loc.inPreferredZone ? ' [PREFERRED ZONE]' : ''}`).join('\n')}
 
-Task: Calculate the most efficient delivery route that:
-1. Minimizes total travel distance
-2. Considers pickup times from restaurants
-3. Ensures timely deliveries
-4. Optimizes for Dakar traffic patterns
+Task: Calculate the most efficient delivery route considering:
+1. Real-time Dakar traffic patterns (rush hours: 7-9am, 12-2pm, 5-8pm)
+2. Road conditions and common bottlenecks in Dakar
+3. Minimize total travel distance and time
+4. Consider pickup times from restaurants
+5. Prioritize orders in driver's preferred zones when efficiency is similar
+6. Account for weather conditions affecting traffic
 
 Return ONLY a JSON object with this exact structure:
 {
@@ -106,7 +138,8 @@ Return ONLY a JSON object with this exact structure:
   "estimated_total_distance_km": number,
   "estimated_total_time_minutes": number,
   "efficiency_score": number (0-100),
-  "reasoning": "brief explanation"
+  "traffic_conditions": "description of current traffic",
+  "reasoning": "brief explanation including traffic considerations"
 }`;
 
       const response = await base44.integrations.Core.InvokeLLM({
@@ -118,6 +151,7 @@ Return ONLY a JSON object with this exact structure:
             estimated_total_distance_km: { type: "number" },
             estimated_total_time_minutes: { type: "number" },
             efficiency_score: { type: "number" },
+            traffic_conditions: { type: "string" },
             reasoning: { type: "string" }
           }
         }
@@ -148,7 +182,7 @@ Return ONLY a JSON object with this exact structure:
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Zap className="w-5 h-5 text-purple-600" />
-              Optimisation d'Itinéraire AI
+              Optimisation d'Itinéraire AI + Trafic
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -160,13 +194,21 @@ Return ONLY a JSON object with this exact structure:
               <div key={idx} className="bg-white rounded-lg p-4 border border-purple-200">
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <Badge className="bg-purple-100 text-purple-700 mb-2">
-                      {batch.orders.length} Commandes Groupées
-                    </Badge>
+                    <div className="flex gap-2 mb-2">
+                      <Badge className="bg-purple-100 text-purple-700">
+                        {batch.orders.length} Commandes
+                      </Badge>
+                      {batch.preferredCount > 0 && (
+                        <Badge className="bg-green-100 text-green-700">
+                          ⭐ {batch.preferredCount} Zone Préférée
+                        </Badge>
+                      )}
+                    </div>
                     <div className="space-y-1">
                       {batch.orders.map((order) => (
-                        <p key={order.id} className="text-sm">
+                        <p key={order.id} className="text-sm flex items-center gap-1">
                           📦 {order.restaurant_name} → {order.customer_name}
+                          {order.inPreferredZone && <span className="text-green-600">⭐</span>}
                         </p>
                       ))}
                     </div>
@@ -189,12 +231,12 @@ Return ONLY a JSON object with this exact structure:
                   {isOptimizing ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Optimisation...
+                      Optimisation avec Trafic...
                     </>
                   ) : (
                     <>
                       <Zap className="w-4 h-4 mr-2" />
-                      Optimiser l'Itinéraire
+                      Optimiser avec Trafic en Temps Réel
                     </>
                   )}
                 </Button>
@@ -209,7 +251,7 @@ Return ONLY a JSON object with this exact structure:
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Navigation className="w-5 h-5 text-purple-600" />
-              Itinéraire Optimisé par AI
+              Itinéraire Optimisé par AI + Trafic
             </DialogTitle>
           </DialogHeader>
 
@@ -239,6 +281,18 @@ Return ONLY a JSON object with this exact structure:
                 </div>
               </div>
 
+              {optimizedRoute.traffic_conditions && (
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-amber-900">Conditions de Trafic:</p>
+                      <p className="text-sm text-amber-800">{optimizedRoute.traffic_conditions}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-slate-50 p-4 rounded-lg">
                 <p className="text-sm font-semibold mb-2">Ordre de Livraison Optimisé:</p>
                 <div className="space-y-2">
@@ -254,6 +308,9 @@ Return ONLY a JSON object with this exact structure:
                           <p className="font-medium text-sm">{order.restaurant_name}</p>
                           <p className="text-xs text-slate-600">→ {order.customer_name}</p>
                         </div>
+                        {order.inPreferredZone && (
+                          <span className="text-green-600">⭐</span>
+                        )}
                         <p className="text-sm font-bold text-green-600">
                           {(order.delivery_fee || 0).toFixed(0)} CFA
                         </p>
@@ -264,7 +321,7 @@ Return ONLY a JSON object with this exact structure:
               </div>
 
               <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-xs font-semibold text-blue-900 mb-1">💡 Analyse AI:</p>
+                <p className="text-xs font-semibold text-blue-900 mb-1">💡 Analyse AI avec Trafic:</p>
                 <p className="text-sm text-blue-800">{optimizedRoute.reasoning}</p>
               </div>
             </div>

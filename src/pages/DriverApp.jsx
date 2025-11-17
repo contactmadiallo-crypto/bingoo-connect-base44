@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet, MessageCircle, BarChart3 } from "lucide-react";
+import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet, MessageCircle, BarChart3, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
 import DriverWallet from "../components/driver/DriverWallet";
@@ -17,6 +17,7 @@ import RouteOptimizer from "../components/driver/RouteOptimizer";
 import ChatWindow from "../components/chat/ChatWindow";
 import ConversationsList from "../components/chat/ConversationsList";
 import AnalyticsDashboard from "../components/driver/AnalyticsDashboard";
+import DriverPreferences from "../components/driver/DriverPreferences";
 import { toast } from "sonner";
 
 export default function DriverApp() {
@@ -32,6 +33,7 @@ export default function DriverApp() {
   const [showConversations, setShowConversations] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showPreferences, setShowPreferences] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -358,6 +360,9 @@ export default function DriverApp() {
               <p className="text-xs text-slate-600 truncate max-w-[120px] sm:max-w-none">Salut, {driver.full_name}</p>
             </div>
             <div className="flex gap-1 sm:gap-2 items-center flex-wrap">
+              <Button variant="outline" size="icon" onClick={() => setShowPreferences(true)} className="h-8 w-8 sm:h-10 sm:w-10">
+                <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
+              </Button>
               <Button variant="outline" size="icon" onClick={() => setShowAnalytics(true)} className="h-8 w-8 sm:h-10 sm:w-10">
                 <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
@@ -435,6 +440,7 @@ export default function DriverApp() {
           <RouteOptimizer
             availableOrders={availableOrders}
             driverLocation={driver.current_location}
+            driver={driver}
             onAcceptBatch={handleAcceptBatch}
           />
         )}
@@ -663,6 +669,16 @@ export default function DriverApp() {
           onOpenChange={setChatDialog}
         />
       )}
+
+      {/* Preferences Dialog */}
+      <Dialog open={showPreferences} onOpenChange={setShowPreferences}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Mes Préférences</DialogTitle>
+          </DialogHeader>
+          <DriverPreferences driver={driver} onClose={() => setShowPreferences(false)} />
+        </DialogContent>
+      </Dialog>
 
       {/* Analytics Dashboard */}
       <Dialog open={showAnalytics} onOpenChange={setShowAnalytics}>
