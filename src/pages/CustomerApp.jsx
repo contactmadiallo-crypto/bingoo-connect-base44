@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import CustomerOrders from "../components/restaurant/CustomerOrders";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import ScrollToTop from "../components/ScrollToTop";
 import { useTranslation } from "../components/translations";
+import NotificationBell from "../components/restaurant/NotificationBell";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
@@ -67,6 +69,7 @@ export default function CustomerApp() {
   });
 
   const { t } = useTranslation(language);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     checkAuth();
@@ -98,6 +101,35 @@ export default function CustomerApp() {
     initialData: [],
     enabled: !!user,
   });
+
+  const { data: favorites = [] } = useQuery({
+    queryKey: ['favorites', user?.email],
+    queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'restaurant' }),
+    enabled: !!user?.email,
+  });
+
+  const toggleFavoriteMutation = useMutation({
+    mutationFn: async (restaurant) => {
+      const existing = favorites.find(f => f.restaurant_id === restaurant.id);
+      if (existing) {
+        await base44.entities.Favorite.delete(existing.id);
+      } else {
+        await base44.entities.Favorite.create({
+          customer_email: user.email,
+          type: 'restaurant',
+          restaurant_id: restaurant.id,
+          restaurant_name: restaurant.name
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favorites'] });
+    },
+  });
+
+  const isFavorite = (restaurantId) => {
+    return favorites.some(f => f.restaurant_id === restaurantId);
+  };
 
   const cities = ["all", ...new Set(restaurants.map(r => r.city).filter(Boolean))];
 
@@ -149,6 +181,7 @@ export default function CustomerApp() {
             </div>
             <div className="flex gap-2">
               <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
+              <NotificationBell user={user} />
               <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs md:text-sm">
                 {t('orders')}
               </Button>
@@ -270,6 +303,15 @@ export default function CustomerApp() {
                        cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
                     </div>
                   )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavoriteMutation.mutate(restaurant);
+                    }}
+                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+                  >
+                    <span className="text-2xl">{isFavorite(restaurant.id) ? '❤️' : '🤍'}</span>
+                  </button>
                   {restaurant.logo_url && (
                     <div className="absolute bottom-3 left-3 w-14 h-14 md:w-16 md:h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
                       <img src={restaurant.logo_url} alt="" className="w-full h-full object-cover" />

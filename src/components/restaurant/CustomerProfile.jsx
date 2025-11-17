@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,12 +19,12 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
     phone: user?.phone || "",
     email: user?.email || ""
   });
-  const [newPayment, setNewPayment] = useState({ 
-    type: "credit_card", 
-    card_number: "", 
-    card_holder_name: "", 
-    expiration_date: "", 
-    cvv: "" 
+  const [newPayment, setNewPayment] = useState({
+    type: "credit_card",
+    card_number: "",
+    card_holder_name: "",
+    expiration_date: "",
+    cvv: ""
   });
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
 
@@ -41,11 +42,31 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
     enabled: !!user?.email,
   });
 
+  const { data: restaurantFavorites = [] } = useQuery({
+    queryKey: ['favorites-restaurants', user?.email],
+    queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'restaurant' }),
+    enabled: !!user?.email,
+  });
+
+  const { data: menuFavorites = [] } = useQuery({
+    queryKey: ['favorites-menu', user?.email],
+    queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'menu_item' }),
+    enabled: !!user?.email,
+  });
+
   const updateUserMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
       onUserUpdate();
       queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+  });
+
+  const deleteFavoriteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Favorite.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favorites-restaurants'] });
+      queryClient.invalidateQueries({ queryKey: ['favorites-menu'] });
     },
   });
 
@@ -98,8 +119,9 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         <Tabs defaultValue="personal">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="personal">Personal Info</TabsTrigger>
+            <TabsTrigger value="favorites">Favorites</TabsTrigger>
             <TabsTrigger value="loyalty">Loyalty</TabsTrigger>
             <TabsTrigger value="payment">Payment</TabsTrigger>
             <TabsTrigger value="addresses">Addresses</TabsTrigger>
@@ -115,8 +137,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input 
-                    placeholder="Your full name" 
+                  <Input
+                    placeholder="Your full name"
                     value={personalInfo.full_name}
                     onChange={(e) => setPersonalInfo({...personalInfo, full_name: e.target.value})}
                   />
@@ -124,8 +146,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
                 <div className="space-y-2">
                   <Label>Phone Number</Label>
-                  <Input 
-                    placeholder="Your phone number" 
+                  <Input
+                    placeholder="Your phone number"
                     value={personalInfo.phone}
                     onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
                   />
@@ -133,8 +155,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
                 <div className="space-y-2">
                   <Label>Email</Label>
-                  <Input 
-                    placeholder="Your email" 
+                  <Input
+                    placeholder="Your email"
                     value={personalInfo.email}
                     disabled
                     className="bg-slate-100"
@@ -145,6 +167,54 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                 <Button onClick={handleUpdatePersonalInfo} className="w-full bg-orange-600 hover:bg-orange-700">
                   Update Personal Information
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="favorites" className="space-y-4">
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-4">❤️ Favorite Restaurants</h3>
+                {restaurantFavorites.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-8">No favorite restaurants yet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {restaurantFavorites.map((fav) => (
+                      <div key={fav.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <p className="font-semibold">{fav.restaurant_name}</p>
+                          <p className="text-xs text-slate-500">Added {new Date(fav.created_date).toLocaleDateString()}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => deleteFavoriteMutation.mutate(fav.id)}>
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <h3 className="font-semibold text-lg mb-4">⭐ Favorite Dishes</h3>
+                {menuFavorites.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-8">No favorite dishes yet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {menuFavorites.map((fav) => (
+                      <div key={fav.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <p className="font-semibold">{fav.menu_item_name}</p>
+                          <p className="text-xs text-slate-500">{fav.restaurant_name}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={() => deleteFavoriteMutation.mutate(fav.id)}>
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -193,7 +263,7 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
             <Card>
               <CardContent className="pt-4 space-y-4">
                 <h3 className="font-semibold">Add Payment Method</h3>
-                
+
                 <div className="space-y-2">
                   <Label>Card Type</Label>
                   <Select value={newPayment.type} onValueChange={(value) => setNewPayment({...newPayment, type: value})}>
@@ -209,8 +279,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
                 <div className="space-y-2">
                   <Label>Card Number</Label>
-                  <Input 
-                    placeholder="1234 5678 9012 3456" 
+                  <Input
+                    placeholder="1234 5678 9012 3456"
                     value={newPayment.card_number}
                     onChange={(e) => setNewPayment({...newPayment, card_number: e.target.value.replace(/\s/g, '')})}
                     maxLength={16}
@@ -219,8 +289,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
 
                 <div className="space-y-2">
                   <Label>Card Holder Name</Label>
-                  <Input 
-                    placeholder="John Doe" 
+                  <Input
+                    placeholder="John Doe"
                     value={newPayment.card_holder_name}
                     onChange={(e) => setNewPayment({...newPayment, card_holder_name: e.target.value})}
                   />
@@ -229,8 +299,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Expiration Date</Label>
-                    <Input 
-                      placeholder="MM/YY" 
+                    <Input
+                      placeholder="MM/YY"
                       value={newPayment.expiration_date}
                       onChange={(e) => setNewPayment({...newPayment, expiration_date: e.target.value})}
                       maxLength={5}
@@ -238,8 +308,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                   </div>
                   <div className="space-y-2">
                     <Label>CVV</Label>
-                    <Input 
-                      placeholder="123" 
+                    <Input
+                      placeholder="123"
                       value={newPayment.cvv}
                       onChange={(e) => setNewPayment({...newPayment, cvv: e.target.value})}
                       maxLength={3}
@@ -276,13 +346,13 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
             <Card>
               <CardContent className="pt-4 space-y-3">
                 <h3 className="font-semibold">Add Address</h3>
-                <Input 
-                  placeholder="Label (e.g., Home, Work)" 
+                <Input
+                  placeholder="Label (e.g., Home, Work)"
                   value={newAddress.label}
                   onChange={(e) => setNewAddress({...newAddress, label: e.target.value})}
                 />
-                <Textarea 
-                  placeholder="Full address" 
+                <Textarea
+                  placeholder="Full address"
                   value={newAddress.address}
                   onChange={(e) => setNewAddress({...newAddress, address: e.target.value})}
                 />

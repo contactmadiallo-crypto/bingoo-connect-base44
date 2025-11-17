@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,9 +32,12 @@ export default function KitchenView() {
     const currentUser = await base44.auth.me();
     setUser(currentUser);
     
-    const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
-    if (restaurants.length > 0) {
-      setRestaurant(restaurants[0]);
+    // Only fetch restaurant if currentUser exists and has an email
+    if (currentUser?.email) {
+      const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
+      if (restaurants.length > 0) {
+        setRestaurant(restaurants[0]);
+      }
     }
   };
 
@@ -41,14 +45,56 @@ export default function KitchenView() {
     queryKey: ['orders', restaurant?.id],
     queryFn: () => restaurant 
       ? base44.entities.Order.filter({ restaurant_id: restaurant.id })
-      : base44.entities.Order.list('-created_date'),
+      : base44.entities.Order.list('-created_date'), // Fallback to list all if no restaurant (e.g., admin view)
     initialData: [],
     refetchInterval: 5000,
-    enabled: !!user,
+    enabled: !!user, // Enable query only when user is loaded
   });
 
-  const updateOrderMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
+  const updateOrderStatusMutation = useMutation({
+    mutationFn: async ({ id, status, order }) => {
+      await base44.entities.Order.update(id, { status });
+      
+      // Create notification for customer
+      const statusMessages = {
+        'confirmed': 'Your order has been confirmed! 🎉',
+        'preparing': 'Your order is now being prepared 👨‍🍳',
+        'ready': 'Your order is ready! 📦',
+        'out_for_delivery': 'Your order is out for delivery! 🚚',
+        'delivered': 'Your order has been delivered! Enjoy! 😊'
+      };
+
+      if (statusMessages[status]) {
+        await base44.entities.Notification.create({
+          customer_email: order.created_by,
+          title: statusMessages[status],
+          message: `Order ${order.order_number} - ${statusMessages[status]}`,
+          type: "order_update",
+          order_id: order.id,
+          restaurant_id: order.restaurant_id,
+          action_url: `/OrderTracking?order=${order.order_number}` // Assuming this path for order tracking
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: async (order) => {
+      await base44.entities.Order.update(order.id, { status: 'cancelled' });
+      
+      // Notify customer
+      await base44.entities.Notification.create({
+        customer_email: order.created_by,
+        title: "Order Cancelled",
+        message: `Your order ${order.order_number} has been cancelled by the restaurant.`,
+        type: "order_update",
+        order_id: order.id,
+        restaurant_id: order.restaurant_id
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
@@ -57,6 +103,10 @@ export default function KitchenView() {
   const activeOrders = orders.filter(o => 
     !['delivered', 'cancelled'].includes(o.status)
   );
+
+  const updateStatus = (order, newStatus) => {
+    updateOrderStatusMutation.mutate({ id: order.id, status: newStatus, order });
+  };
 
   const moveToNextStatus = (order) => {
     const statusFlow = {
@@ -67,18 +117,12 @@ export default function KitchenView() {
       out_for_delivery: 'delivered'
     };
 
-    updateOrderMutation.mutate({
-      id: order.id,
-      data: { status: statusFlow[order.status] }
-    });
+    updateStatus(order, statusFlow[order.status]);
   };
 
   const cancelOrder = (order) => {
-    if (confirm('Cancel this order?')) {
-      updateOrderMutation.mutate({
-        id: order.id,
-        data: { status: 'cancelled' }
-      });
+    if (confirm(`Cancel order ${order.order_number}?`)) {
+      cancelOrderMutation.mutate(order);
     }
   };
 

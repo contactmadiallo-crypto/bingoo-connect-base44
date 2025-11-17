@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -71,6 +72,12 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     enabled: !!user?.email && !!restaurant?.loyalty_enabled,
   });
 
+  const { data: menuFavorites = [] } = useQuery({
+    queryKey: ['menu-favorites', user?.email],
+    queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'menu_item' }),
+    enabled: !!user?.email,
+  });
+
   const createOrUpdateLoyaltyMutation = useMutation({
     mutationFn: async ({ points, spent, orders }) => {
       if (customerLoyalty) {
@@ -110,13 +117,34 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     }
   });
 
+  const toggleMenuFavoriteMutation = useMutation({
+    mutationFn: async (item) => {
+      const existing = menuFavorites.find(f => f.menu_item_id === item.id);
+      if (existing) {
+        await base44.entities.Favorite.delete(existing.id);
+      } else {
+        await base44.entities.Favorite.create({
+          customer_email: user.email,
+          type: 'menu_item',
+          restaurant_id: restaurant.id,
+          restaurant_name: restaurant.name,
+          menu_item_id: item.id,
+          menu_item_name: item.name
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menu-favorites'] });
+    },
+  });
+
   const createOrderMutation = useMutation({
     mutationFn: async (data) => {
       const orderNumber = `ORD-${Date.now()}`;
       const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();
       const platformCommission = (data.total_amount * restaurant.commission_rate) / 100;
       
-      return base44.entities.Order.create({
+      const order = await base44.entities.Order.create({
         ...data,
         restaurant_id: restaurant.id,
         restaurant_name: restaurant.name,
@@ -126,6 +154,19 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         status: 'pending',
         created_by: user.email
       });
+
+      // Create notification for order confirmation
+      await base44.entities.Notification.create({
+        customer_email: user.email,
+        title: "Order Confirmed! 🎉",
+        message: `Your order ${orderNumber} from ${restaurant.name} has been placed successfully.`,
+        type: "order_update",
+        order_id: order.id,
+        restaurant_id: restaurant.id,
+        action_url: `/OrderTracking?order=${orderNumber}`
+      });
+
+      return order;
     },
     onSuccess: async (order) => {
       // Award loyalty points
@@ -152,6 +193,10 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     if (itemReviews.length === 0) return { avg: 0, count: 0 };
     const avg = itemReviews.reduce((sum, r) => sum + r.rating, 0) / itemReviews.length;
     return { avg: avg.toFixed(1), count: itemReviews.length };
+  };
+
+  const isMenuItemFavorite = (itemId) => {
+    return menuFavorites.some(f => f.menu_item_id === itemId);
   };
 
   const filteredItems = menuItems.filter(item => {
@@ -355,7 +400,16 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               {items.map((item) => {
                 const rating = getItemRating(item.id);
                 return (
-                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMenuFavoriteMutation.mutate(item);
+                      }}
+                      className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-10"
+                    >
+                      <span className="text-xl">{isMenuItemFavorite(item.id) ? '❤️' : '🤍'}</span>
+                    </button>
                     {item.image_url && (
                       <div className="h-48 overflow-hidden">
                         <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
