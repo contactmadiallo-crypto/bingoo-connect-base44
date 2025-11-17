@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +15,8 @@ import DriverOrderMap from "../components/driver/DriverOrderMap";
 import DriverWallet from "../components/driver/DriverWallet";
 import RouteOptimizer from "../components/driver/RouteOptimizer";
 import ChatWindow from "../components/chat/ChatWindow";
+import ConversationsList from "../components/chat/ConversationsList";
+import { toast } from "sonner";
 
 export default function DriverApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -25,6 +28,8 @@ export default function DriverApp() {
   const [walletDialog, setWalletDialog] = useState(false);
   const [chatDialog, setChatDialog] = useState(false);
   const [chatOrder, setChatOrder] = useState(null);
+  const [showConversations, setShowConversations] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -79,17 +84,50 @@ export default function DriverApp() {
     queryKey: ['driver-notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }, '-created_date'),
     enabled: !!user?.email,
-    refetchInterval: 5000,
+    refetchInterval: 3000,
   });
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['driver-conversations', driver?.id],
     queryFn: () => base44.entities.Conversation.filter({ driver_id: driver.id, status: 'active' }),
     enabled: !!driver?.id,
-    refetchInterval: 3000,
+    refetchInterval: 2000,
   });
 
+  // Show toast notification for new unread notifications
+  useEffect(() => {
+    const unreadNotifs = notifications.filter(n => !n.read);
+    if (unreadNotifs.length > 0) {
+      // Find the latest unread notification
+      const latest = unreadNotifs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+      // Only show toast if it's recent (within the last 10 seconds, considering refetch interval)
+      if (latest && Date.now() - new Date(latest.created_date).getTime() < 4000) { // Slightly more than refetch
+        toast.info(latest.title, {
+          description: latest.message,
+          duration: 5000,
+        });
+      }
+    }
+  }, [notifications.length, notifications]); // Depend on notifications array directly
+
+  // Show toast notification for new messages
+  useEffect(() => {
+    const unreadConversations = conversations.filter(c => (c.unread_count_driver || 0) > 0);
+    if (unreadConversations.length > 0) {
+      // Find the conversation with the latest unread message
+      const latestConv = unreadConversations.sort((a, b) => new Date(b.last_message_at) - new Date(a.last_message_at))[0];
+      // Only show toast if the last message is recent
+      if (latestConv && Date.now() - new Date(latestConv.last_message_at).getTime() < 3000) { // Slightly more than refetch
+        toast.info("Nouveau message", {
+          description: `${latestConv.customer_name}: ${latestConv.last_message?.slice(0, 50)}${latestConv.last_message.length > 50 ? '...' : ''}`,
+          duration: 5000,
+        });
+      }
+    }
+  }, [conversations.map(c => `${c.id}-${c.unread_count_driver}`).join(','), conversations]);
+
   const totalUnreadMessages = conversations.reduce((sum, c) => sum + (c.unread_count_driver || 0), 0);
+  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const toggleAvailabilityMutation = useMutation({
     mutationFn: (available) => base44.entities.DeliveryPartner.update(driver.id, { is_available: available }),
@@ -242,6 +280,12 @@ export default function DriverApp() {
     setChatDialog(true);
   };
 
+  const handleSelectConversation = (order) => {
+    setChatOrder(order);
+    setChatDialog(true);
+    setShowConversations(false); // Close conversation list when a chat is opened
+  };
+
   const handleAcceptBatch = (batchOrders, routeData) => {
     setOptimizedRouteData(routeData);
     acceptBatchMutation.mutate({ orders: batchOrders, routeData });
@@ -301,46 +345,50 @@ export default function DriverApp() {
     sum + (o.driver_earnings || 0) + (o.tip_amount || 0), 0
   );
 
-  const unreadNotifications = notifications.filter(n => !n.read).length;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 pb-20">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b shadow-sm">
-        <div className="px-4 py-4">
+        <div className="px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h1 className="text-xl font-bold text-purple-600">🚚 Mode Chauffeur</h1>
-              <p className="text-xs text-slate-600">Salut, {driver.full_name}</p>
+              <h1 className="text-lg sm:text-xl font-bold text-purple-600">🚚 Mode Chauffeur</h1>
+              <p className="text-xs text-slate-600 truncate max-w-[120px] sm:max-w-none">Salut, {driver.full_name}</p>
             </div>
-            <div className="flex gap-2 items-center">
-              <Button variant="outline" size="icon" onClick={() => setWalletDialog(true)}>
-                <Wallet className="w-4 h-4" />
+            <div className="flex gap-1 sm:gap-2 items-center flex-wrap">
+              <Button variant="outline" size="icon" onClick={() => setWalletDialog(true)} className="h-8 w-8 sm:h-10 sm:w-10">
+                <Wallet className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <div className="relative">
-                <Button variant="outline" size="icon">
-                  <Bell className="w-4 h-4" />
+                <Button variant="outline" size="icon" onClick={() => setShowNotifications(true)} className="h-8 w-8 sm:h-10 sm:w-10">
+                  <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs">
                       {unreadNotifications}
                     </Badge>
                   )}
                 </Button>
               </div>
               <div className="relative">
-                <Button variant="outline" size="icon">
-                  <MessageCircle className="w-4 h-4" />
+                <Button variant="outline" size="icon" onClick={() => setShowConversations(true)} className="h-8 w-8 sm:h-10 sm:w-10">
+                  <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                   {totalUnreadMessages > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-[10px] sm:text-xs">
                       {totalUnreadMessages}
                     </Badge>
                   )}
                 </Button>
               </div>
-              <div className="flex items-center gap-2 bg-slate-100 rounded-full px-3 py-2">
-                <span className="text-xs font-medium">
+              <div className="hidden sm:flex items-center gap-2 bg-slate-100 rounded-full px-3 py-2">
+                <span className="text-xs font-medium whitespace-nowrap">
                   {driver.is_available ? 'Disponible' : 'Hors Ligne'}
                 </span>
+                <Switch
+                  checked={driver.is_available}
+                  onCheckedChange={(checked) => toggleAvailabilityMutation.mutate(checked)}
+                />
+              </div>
+              <div className="sm:hidden">
                 <Switch
                   checked={driver.is_available}
                   onCheckedChange={(checked) => toggleAvailabilityMutation.mutate(checked)}
@@ -349,34 +397,34 @@ export default function DriverApp() {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
-              <div className="flex items-center gap-2 mb-1">
-                <DollarSign className="w-4 h-4 text-green-600" />
-                <p className="text-xs text-slate-600">Aujourd'hui</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-2 sm:p-3 border border-green-200">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                <p className="text-[10px] sm:text-xs text-slate-600">Aujourd'hui</p>
               </div>
-              <p className="text-xl font-bold text-green-700">{todayEarnings.toFixed(0)} CFA</p>
+              <p className="text-sm sm:text-xl font-bold text-green-700">{todayEarnings.toFixed(0)}</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
-              <div className="flex items-center gap-2 mb-1">
-                <Package className="w-4 h-4 text-blue-600" />
-                <p className="text-xs text-slate-600">Actif</p>
+            <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-3 border border-blue-200">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <Package className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                <p className="text-[10px] sm:text-xs text-slate-600">Actif</p>
               </div>
-              <p className="text-xl font-bold text-blue-700">{activeOrders.length}</p>
+              <p className="text-sm sm:text-xl font-bold text-blue-700">{activeOrders.length}</p>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200">
-              <div className="flex items-center gap-2 mb-1">
-                <CheckCircle className="w-4 h-4 text-purple-600" />
-                <p className="text-xs text-slate-600">Terminé</p>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-2 sm:p-3 border border-purple-200">
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+                <p className="text-[10px] sm:text-xs text-slate-600">Terminé</p>
               </div>
-              <p className="text-xl font-bold text-purple-700">{completedToday.length}</p>
+              <p className="text-sm sm:text-xl font-bold text-purple-700">{completedToday.length}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         {/* Route Optimizer */}
         {driver.is_available && driver.current_location && (
           <RouteOptimizer
@@ -593,6 +641,14 @@ export default function DriverApp() {
 
       <DriverWallet driver={driver} open={walletDialog} onOpenChange={setWalletDialog} />
       
+      <ConversationsList 
+        user={user}
+        userType="driver"
+        open={showConversations}
+        onOpenChange={setShowConversations}
+        onSelectConversation={handleSelectConversation}
+      />
+
       {chatOrder && (
         <ChatWindow 
           order={chatOrder}
@@ -602,6 +658,33 @@ export default function DriverApp() {
           onOpenChange={setChatDialog}
         />
       )}
+
+      {/* Notifications Dialog */}
+      <Dialog open={showNotifications} onOpenChange={setShowNotifications}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Notifications</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {notifications.length === 0 ? (
+              <div className="text-center py-12">
+                <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-600">Aucune notification</p>
+              </div>
+            ) : (
+              notifications.map((notif) => (
+                <div key={notif.id} className={`p-3 rounded-lg border ${notif.read ? 'bg-slate-50' : 'bg-blue-50 border-blue-200'}`}>
+                  <h4 className="font-semibold text-sm mb-1">{notif.title}</h4>
+                  <p className="text-xs text-slate-600">{notif.message}</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {new Date(notif.created_date).toLocaleString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
