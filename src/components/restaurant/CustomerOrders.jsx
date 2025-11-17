@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Filter } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -44,6 +46,8 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [restaurantComment, setRestaurantComment] = useState("");
   const [liveOrder, setLiveOrder] = useState(null);
   const [estimatedArrival, setEstimatedArrival] = useState(null); // New state for ETA
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
@@ -133,6 +137,38 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     },
   });
 
+  const filteredOrders = useMemo(() => {
+    let filtered = orders;
+    
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(o => o.status === statusFilter);
+    }
+    
+    if (dateFilter !== "all") {
+      const now = new Date();
+      const orderDate = (o) => new Date(o.created_date);
+      
+      filtered = filtered.filter(o => {
+        const date = orderDate(o);
+        if (dateFilter === "today") {
+          return date.toDateString() === now.toDateString();
+        } else if (dateFilter === "week") {
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          return date >= weekAgo;
+        } else if (dateFilter === "month") {
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          return date >= monthAgo;
+        }
+        return true;
+      });
+    }
+    
+    return filtered;
+  }, [orders, statusFilter, dateFilter]);
+
+  const activeOrders = filteredOrders.filter(o => ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status));
+  const completedOrders = filteredOrders.filter(o => ['delivered', 'cancelled'].includes(o.status));
+
   const handleOrderClick = (order) => {
     setSelectedOrder(order);
     setOrderDetailsDialog(true);
@@ -202,6 +238,21 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     setChatDialog(true);
   };
 
+  const handleReorder = (order) => {
+    navigate(createPageUrl('CustomerApp'));
+    // Store reorder data in sessionStorage to be picked up by RestaurantMenu
+    sessionStorage.setItem('reorder', JSON.stringify({
+      restaurantId: order.restaurant_id,
+      items: order.items.map(item => ({
+        id: item.id, // Assuming item has an ID
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        // Include any other necessary item details for reordering
+      }))
+    }));
+  };
+
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-700",
     confirmed: "bg-blue-100 text-blue-700",
@@ -226,55 +277,165 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           <p className="text-slate-600">{t('view_track_orders')}</p>
         </div>
 
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <Card 
-              key={order.id} 
-              className="hover:shadow-xl transition-shadow cursor-pointer"
-              onClick={() => handleOrderClick(order)}
-            >
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{order.order_number}</CardTitle>
-                    <p className="text-sm text-slate-600 mt-1">
-                      {new Date(order.created_date).toLocaleString()}
-                    </p>
-                    <p className="text-sm font-semibold text-slate-700 mt-1">
-                      {order.restaurant_name}
-                    </p>
-                  </div>
-                  <Badge className={statusColors[order.status]}>
-                    {order.status.replace('_', ' ')}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-slate-600">
-                    {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
-                  </p>
-                  <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <Tabs defaultValue="active" className="mb-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="active">{t('active_orders')} ({activeOrders.length})</TabsTrigger>
+            <TabsTrigger value="history">{t('order_history')} ({completedOrders.length})</TabsTrigger>
+          </TabsList>
 
-          {orders.length === 0 && (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-600">{t('no_orders')}</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+          <TabsContent value="active" className="space-y-4">
+            {activeOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-600">{t('no_active_orders')}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              activeOrders.map((order) => (
+                <Card 
+                  key={order.id} 
+                  className="hover:shadow-xl transition-shadow cursor-pointer"
+                  onClick={() => handleOrderClick(order)}
+                >
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="text-xl">{order.order_number}</CardTitle>
+                        <p className="text-sm text-slate-600 mt-1">
+                          {new Date(order.created_date).toLocaleString()}
+                        </p>
+                        <p className="text-sm font-semibold text-slate-700 mt-1">
+                          {order.restaurant_name}
+                        </p>
+                      </div>
+                      <Badge className={statusColors[order.status]}>
+                        {order.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-slate-600">
+                        {order.items.length} {order.items.length === 1 ? t('item') : t('items')}
+                      </p>
+                      <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-4">
+            <div className="flex gap-2 mb-4 flex-wrap">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder={t('filter_by_status')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="delivered">{t('delivered')}</SelectItem>
+                  <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={dateFilter} onValueChange={setDateFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder={t('filter_by_date')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('all_dates')}</SelectItem>
+                  <SelectItem value="today">{t('today')}</SelectItem>
+                  <SelectItem value="week">{t('this_week')}</SelectItem>
+                  <SelectItem value="month">{t('this_month')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {completedOrders.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <Calendar className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-600">{t('no_orders_in_history')}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              completedOrders.map((order) => (
+                <Card key={order.id} className="hover:shadow-xl transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-lg">{order.order_number}</CardTitle>
+                          <Badge className={statusColors[order.status]}>
+                            {order.status === 'delivered' ? `✓ ${t('delivered')}` : t('cancelled')}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">
+                          {new Date(order.created_date).toLocaleDateString(language, { 
+                            day: 'numeric', 
+                            month: 'long', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                        <p className="text-sm font-semibold text-slate-700 mt-1">
+                          {order.restaurant_name}
+                        </p>
+                      </div>
+                      <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="text-sm text-slate-600">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex justify-between py-1">
+                            <span>{item.quantity}x {item.name}</span>
+                            <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {order.driver_name && (
+                        <div className="bg-slate-50 p-3 rounded-lg">
+                          <p className="text-xs text-slate-600">{t('driver')}</p>
+                          <p className="text-sm font-semibold">{order.driver_name}</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2 pt-2">
+                        <Button 
+                          onClick={() => handleOrderClick(order)}
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                        >
+                          {t('view_details')}
+                        </Button>
+                        <Button 
+                          onClick={() => handleReorder(order)}
+                          size="sm"
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                        >
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          {t('reorder')}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Live Order Tracking - {liveOrder?.order_number}</DialogTitle>
+            <DialogTitle>{t('live_order_tracking')} - {liveOrder?.order_number}</DialogTitle>
           </DialogHeader>
           {liveOrder && (
             <div className="space-y-6">
@@ -287,12 +448,12 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-green-700 font-semibold mb-1">Temps d'Arrivée Estimé</p>
+                      <p className="text-sm text-green-700 font-semibold mb-1">{t('estimated_arrival_time')}</p>
                       <p className="text-3xl sm:text-4xl font-bold text-green-700">
-                        {estimatedArrival.minutes} min
+                        {estimatedArrival.minutes} {t('min')}
                       </p>
                       <p className="text-xs sm:text-sm text-green-600 mt-1">
-                        Arrivée vers {estimatedArrival.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        {t('arriving_around')} {estimatedArrival.time.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                     <div className="animate-pulse">
@@ -314,8 +475,8 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                       <Package className="w-12 h-12 sm:w-16 sm:h-16 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-lg sm:text-xl font-bold text-blue-700">Chauffeur a récupéré votre commande!</p>
-                      <p className="text-sm text-blue-600 mt-1">Il sera bientôt en route vers vous</p>
+                      <p className="text-lg sm:text-xl font-bold text-blue-700">{t('driver_picked_up_order_message')}</p>
+                      <p className="text-sm text-blue-600 mt-1">{t('will_be_on_your_way_soon')}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -349,7 +510,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                           <Icon className="w-5 h-5" />
                         </motion.div>
                         <p className={`text-xs text-center ${isActive ? 'font-semibold' : 'text-slate-500'}`}>
-                          {status.label}
+                          {t(status.key)}
                         </p>
                       </div>
                     );
@@ -379,7 +540,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   {liveOrder.estimated_time && (
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-slate-400" />
-                      <p className="text-sm">Est. {liveOrder.estimated_time} minutes</p>
+                      <p className="text-sm">{t('estimated')} {liveOrder.estimated_time} {t('minutes')}</p>
                     </div>
                   )}
                 </div>
@@ -389,7 +550,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                     <div className="bg-blue-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
                         <User className="w-4 h-4 text-blue-700" />
-                        <p className="text-sm font-semibold text-blue-700">Your Driver:</p>
+                        <p className="text-sm font-semibold text-blue-700">{t('your_driver')}:</p>
                       </div>
                       <p className="font-semibold">{liveOrder.driver_name}</p>
                       <p className="text-sm text-slate-600">{liveOrder.driver_phone}</p>
@@ -402,12 +563,12 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                         <a href={`tel:${liveOrder.driver_phone}`} className="flex-1">
                           <Button size="sm" variant="outline" className="w-full">
                             <Phone className="w-3 h-3 mr-1" />
-                            Appeler
+                            {t('call')}
                           </Button>
                         </a>
                         <Button size="sm" variant="outline" onClick={() => openChat(liveOrder)} className="flex-1">
                           <MessageCircle className="w-3 h-3 mr-1" />
-                          Chat
+                          {t('chat')}
                         </Button>
                       </div>
                     </div>
@@ -417,13 +578,13 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                     <div className="bg-green-50 p-3 rounded-lg">
                       <div className="flex items-center gap-2 mb-2">
                         <Key className="w-4 h-4 text-green-700" />
-                        <p className="text-sm font-semibold text-green-700">Your Delivery Code:</p>
+                        <p className="text-sm font-semibold text-green-700">{t('your_delivery_code')}:</p>
                       </div>
                       <p className="text-3xl font-bold text-green-700 text-center tracking-wider">
                         {liveOrder.delivery_code}
                       </p>
                       <p className="text-xs text-slate-600 mt-2">
-                        Share this code with the driver to confirm delivery
+                        {t('share_code_with_driver')}
                       </p>
                     </div>
                   )}
@@ -431,7 +592,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               </div>
 
               <div className="pt-4 border-t">
-                <p className="text-sm font-semibold mb-3">Order Items:</p>
+                <p className="text-sm font-semibold mb-3">{t('order_items')}:</p>
                 <div className="space-y-2">
                   {liveOrder.items.map((item, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
@@ -441,7 +602,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   ))}
                 </div>
                 <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
-                  <span>Total</span>
+                  <span>{t('total')}</span>
                   <span className="text-green-600">${liveOrder.total_amount.toFixed(2)}</span>
                 </div>
               </div>
@@ -449,14 +610,14 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               {!liveOrder.driver_location && liveOrder.status === 'out_for_delivery' && (
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
                   <p className="text-sm text-amber-800">
-                    📍 En attente de la position GPS du chauffeur...
+                    📍 {t('awaiting_driver_gps')}
                   </p>
                 </div>
               )}
             </div>
           )}
           <DialogFooter>
-            <Button onClick={() => setTrackingDialog(false)}>Close</Button>
+            <Button onClick={() => setTrackingDialog(false)}>{t('close')}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -464,7 +625,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
       <Dialog open={orderDetailsDialog} onOpenChange={setOrderDetailsDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
+            <DialogTitle>{t('order_details')}</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
@@ -486,7 +647,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 <div className="space-y-2">
                   <h4 className="font-semibold flex items-center gap-2">
                     <User className="w-4 h-4 text-slate-600" />
-                    Customer Info
+                    {t('customer_info')}
                   </h4>
                   <div className="text-sm space-y-1 pl-6">
                     <p>{selectedOrder.customer_name}</p>
@@ -500,14 +661,14 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 <div className="space-y-2">
                   <h4 className="font-semibold flex items-center gap-2">
                     <Package className="w-4 h-4 text-slate-600" />
-                    Order Info
+                    {t('order_info')}
                   </h4>
                   <div className="text-sm space-y-1 pl-6">
                     <p className="capitalize">{selectedOrder.order_type?.replace('_', ' ')}</p>
                     {selectedOrder.estimated_time && (
                       <p className="flex items-center gap-1 text-slate-600">
                         <Clock className="w-3 h-3" />
-                        {selectedOrder.estimated_time} min estimated
+                        {selectedOrder.estimated_time} {t('min_estimated')}
                       </p>
                     )}
                   </div>
@@ -516,7 +677,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
               {selectedOrder.special_instructions && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="font-semibold text-sm mb-1">Special Instructions:</p>
+                  <p className="font-semibold text-sm mb-1">{t('special_instructions')}:</p>
                   <p className="text-sm text-slate-700">{selectedOrder.special_instructions}</p>
                 </div>
               )}
@@ -539,7 +700,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <p className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <Truck className="w-4 h-4" />
-                    Driver Information
+                    {t('driver_information')}
                   </p>
                   <div className="space-y-1 text-sm">
                     <p className="font-medium">{selectedOrder.driver_name}</p>
@@ -553,7 +714,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                       {['confirmed', 'preparing', 'out_for_delivery'].includes(selectedOrder.status) && (
                         <Button size="sm" variant="outline" onClick={() => openChat(selectedOrder)} className="flex-1">
                           <MessageCircle className="w-3 h-3 mr-1" />
-                          Message
+                          {t('message')}
                         </Button>
                       )}
                     </div>
@@ -565,7 +726,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                           ))}
                         </div>
                         {selectedOrder.tip_amount > 0 && (
-                          <span className="text-xs text-green-600">• Tip: ${selectedOrder.tip_amount.toFixed(2)}</span>
+                          <span className="text-xs text-green-600">• {t('tip')}: ${selectedOrder.tip_amount.toFixed(2)}</span>
                         )}
                       </div>
                     )}
@@ -577,7 +738,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 {['out_for_delivery', 'preparing', 'ready'].includes(selectedOrder.status) && (
                   <Button onClick={() => handleTrackOrder(selectedOrder)} className="flex-1">
                     <MapPin className="w-4 h-4 mr-2" />
-                    Track Order Live
+                    {t('track_order_live')}
                   </Button>
                 )}
                 {selectedOrder.status === 'delivered' && !selectedOrder.customer_rating && (
@@ -586,7 +747,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                     handleRateDriver(selectedOrder);
                   }} className="flex-1">
                     <Star className="w-4 h-4 mr-2" />
-                    Rate & Tip Driver
+                    {t('rate_tip_driver')}
                   </Button>
                 )}
                 {selectedOrder.status === 'delivered' && !hasReviewedRestaurant(selectedOrder.id) && (
@@ -595,7 +756,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                     handleReviewRestaurant(selectedOrder);
                   }} variant="outline" className="flex-1">
                     <MessageSquare className="w-4 h-4 mr-2" />
-                    Review Restaurant
+                    {t('review_restaurant')}
                   </Button>
                 )}
               </div>
@@ -617,11 +778,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
       <Dialog open={ratingDialog} onOpenChange={setRatingDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Rate Your Delivery Experience</DialogTitle>
+            <DialogTitle>{t('rate_delivery_experience')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>How was your delivery? *</Label>
+              <Label>{t('how_was_delivery')} *</Label>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -639,17 +800,17 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               </div>
               {rating > 0 && (
                 <p className="text-center text-sm text-slate-600">
-                  {rating === 1 && "Poor"}
-                  {rating === 2 && "Fair"}
-                  {rating === 3 && "Good"}
-                  {rating === 4 && "Very Good"}
-                  {rating === 5 && "Excellent!"}
+                  {rating === 1 && t('poor')}
+                  {rating === 2 && t('fair')}
+                  {rating === 3 && t('good')}
+                  {rating === 4 && t('very_good')}
+                  {rating === 5 && t('excellent')}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Add a Tip for Your Driver (Optional)</Label>
+              <Label>{t('add_tip_for_driver')} ({t('optional')})</Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -677,7 +838,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 </Button>
               </div>
               <div className="flex items-center gap-2">
-                <Label className="whitespace-nowrap">Custom:</Label>
+                <Label className="whitespace-nowrap">{t('custom')}:</Label>
                 <Input
                   type="number"
                   step="0.5"
@@ -689,15 +850,15 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               </div>
               {tipAmount && parseFloat(tipAmount) > 0 && (
                 <p className="text-sm text-green-600 text-center">
-                  💚 Thank you for supporting our drivers!
+                  💚 {t('thank_you_for_supporting_drivers')}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Share Your Feedback (Optional)</Label>
+              <Label>{t('share_your_feedback')} ({t('optional')})</Label>
               <Textarea
-                placeholder="Tell us about your experience..."
+                placeholder={t('tell_us_about_experience')}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={3}
@@ -705,10 +866,10 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRatingDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRatingDialog(false)}>{t('cancel')}</Button>
             <Button onClick={submitRating} disabled={rating === 0}>
               <MessageSquare className="w-4 h-4 mr-2" />
-              Submit Review
+              {t('submit_review')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -717,11 +878,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
       <Dialog open={restaurantReviewDialog} onOpenChange={setRestaurantReviewDialog}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Review {selectedOrder?.restaurant_name}</DialogTitle>
+            <DialogTitle>{t('review')} {selectedOrder?.restaurant_name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
             <div className="space-y-2">
-              <Label>Overall Rating *</Label>
+              <Label>{t('overall_rating')} *</Label>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -740,10 +901,10 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
             </div>
 
             <div className="space-y-4 bg-slate-50 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-slate-700">Detailed Ratings (Optional)</p>
+              <p className="text-sm font-semibold text-slate-700">{t('detailed_ratings')} ({t('optional')})</p>
               
               <div className="space-y-2">
-                <Label className="text-sm">Food Quality</Label>
+                <Label className="text-sm">{t('food_quality')}</Label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -762,7 +923,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">Service</Label>
+                <Label className="text-sm">{t('service')}</Label>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -782,7 +943,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
               {selectedOrder?.order_type === 'delivery' && (
                 <div className="space-y-2">
-                  <Label className="text-sm">Delivery Experience</Label>
+                  <Label className="text-sm">{t('delivery_experience')}</Label>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -803,9 +964,9 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
             </div>
 
             <div className="space-y-2">
-              <Label>Your Review</Label>
+              <Label>{t('your_review')}</Label>
               <Textarea
-                placeholder="Share your experience with this restaurant..."
+                placeholder={t('share_experience_restaurant')}
                 value={restaurantComment}
                 onChange={(e) => setRestaurantComment(e.target.value)}
                 rows={4}
@@ -813,10 +974,10 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRestaurantReviewDialog(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRestaurantReviewDialog(false)}>{t('cancel')}</Button>
             <Button onClick={submitRestaurantReview} disabled={restaurantRating === 0}>
               <MessageSquare className="w-4 h-4 mr-2" />
-              Submit Review
+              {t('submit_review')}
             </Button>
           </DialogFooter>
         </DialogContent>

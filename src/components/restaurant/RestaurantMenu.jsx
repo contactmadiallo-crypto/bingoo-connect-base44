@@ -17,6 +17,7 @@ import LoyaltyCard from "./LoyaltyCard";
 import LoyaltyRewards from "./LoyaltyRewards";
 import RestaurantReviews from "./RestaurantReviews";
 import { useTranslation } from "../translations";
+import { toast } from "sonner"; // Added import for toast notifications
 
 const categoryLabels = {
   appetizers: { label: "Appetizers", emoji: "🥗" },
@@ -54,9 +55,9 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const dietaryOptions = [
     { value: 'vegetarian', label: t('vegetarian'), color: 'bg-green-100 text-green-700' },
     { value: 'vegan', label: t('vegan'), color: 'bg-green-100 text-green-700' },
-    { value: 'gluten_free', label: t('gluten_free'), color: 'bg-blue-100 text-blue-700' },
-    { value: 'dairy_free', label: t('dairy_free'), color: 'bg-purple-100 text-purple-700' },
-    { value: 'nut_free', label: t('nut_free'), color: 'bg-yellow-100 text-yellow-700' },
+    { value: 'gluten_free', label: 'Gluten-Free', color: 'bg-blue-100 text-blue-700' },
+    { value: 'dairy_free', label: 'Dairy-Free', color: 'bg-purple-100 text-purple-700' },
+    { value: 'nut_free', label: 'Nut-Free', color: 'bg-yellow-100 text-yellow-700' },
   ];
 
   const { data: menuItems } = useQuery({
@@ -341,6 +342,25 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       }));
     }
   }, [user.default_delivery_instructions, customerInfo.instructions, user.id]);
+
+  // Handle reorder from session storage
+  useEffect(() => {
+    const reorderData = sessionStorage.getItem('reorder');
+    if (reorderData) {
+      try {
+        const { restaurantId, items } = JSON.parse(reorderData);
+        if (restaurantId === restaurant.id) {
+          // Assuming items from reorder have menu_item_id, map it to id for current cart state
+          setCart(items.map(item => ({ ...item, id: item.menu_item_id })));
+          sessionStorage.removeItem('reorder');
+          toast.success(t("articles_added_to_cart"));
+        }
+      } catch (e) {
+        console.error('Reorder error:', e);
+        toast.error(t("failed_to_load_reorder_items"));
+      }
+    }
+  }, [restaurant.id, t]); // Add t as a dependency for translation updates
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
