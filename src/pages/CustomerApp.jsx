@@ -1,12 +1,11 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle, TrendingUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -66,6 +65,7 @@ export default function CustomerApp() {
   const [showConversations, setShowConversations] = useState(false);
   const [chatOrder, setChatOrder] = useState(null);
   const [chatDialog, setChatDialog] = useState(false);
+  const [sortBy, setSortBy] = useState("relevance");
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [filters, setFilters] = useState({
     minRating: 0,
@@ -160,40 +160,94 @@ export default function CustomerApp() {
 
   const cities = ["all", ...new Set(restaurants.map(r => r.city).filter(Boolean))];
 
-  const filteredRestaurants = restaurants.filter(r => {
-    const matchCity = selectedCity === "all" || r.city === selectedCity;
-    const matchCuisine = selectedCuisine === "all" || r.cuisine_type === selectedCuisine;
-    const matchBusinessType = selectedBusinessType === "all" || r.business_type === selectedBusinessType;
-    const matchSearch = !search || r.name.toLowerCase().includes(search.toLowerCase());
+  // Search suggestions
+  const searchSuggestions = useMemo(() => {
+    if (!search || search.length < 2) return [];
     
-    const restaurantRating = getRestaurantRating(r.id);
-    const actualRating = restaurantRating ? parseFloat(restaurantRating.avg) : (r.rating || 0);
+    const searchLower = search.toLowerCase();
+    const suggestions = new Set();
     
-    const matchRating = actualRating >= filters.minRating;
-    const matchDeliveryFee = (r.delivery_fee || 0) <= filters.maxDeliveryFee;
-    const matchDeliveryTime = (r.avg_delivery_time || 0) <= filters.maxDeliveryTime;
+    restaurants.forEach(r => {
+      if (r.name.toLowerCase().includes(searchLower)) {
+        suggestions.add(r.name);
+      }
+      if (r.description?.toLowerCase().includes(searchLower)) {
+        const words = r.description.split(' ').filter(w => w.toLowerCase().includes(searchLower));
+        words.forEach(w => suggestions.add(w));
+      }
+      if (r.city?.toLowerCase().includes(searchLower)) {
+        suggestions.add(r.city);
+      }
+      const cuisine = cuisineCategories.find(c => c.value === r.cuisine_type);
+      if (cuisine?.label.toLowerCase().includes(searchLower)) {
+        suggestions.add(cuisine.label);
+      }
+    });
     
-    // Filter based on dietary preferences
-    if (user?.dietary_preferences?.length > 0) {
-      const hasSuitableOptions = user.dietary_preferences.some(pref => {
-        if (pref === 'vegetarian' && r.cuisine_type === 'vegetarian') return true;
-        if (pref === 'vegan' && r.cuisine_type === 'vegetarian') return true;
-        if (pref === 'halal' && ['african', 'moroccan', 'lebanese', 'mediterranean'].includes(r.cuisine_type)) return true;
-        return false;
+    return Array.from(suggestions).slice(0, 5);
+  }, [search, restaurants]);
+
+  const filteredRestaurants = useMemo(() => {
+    return restaurants.filter(r => {
+      const matchCity = selectedCity === "all" || r.city === selectedCity;
+      const matchCuisine = selectedCuisine === "all" || r.cuisine_type === selectedCuisine;
+      const matchBusinessType = selectedBusinessType === "all" || r.business_type === selectedBusinessType;
+      
+      // Enhanced search - name, description, cuisine, city
+      const searchLower = search.toLowerCase();
+      const matchSearch = !search || 
+        r.name.toLowerCase().includes(searchLower) ||
+        r.description?.toLowerCase().includes(searchLower) ||
+        r.city?.toLowerCase().includes(searchLower) ||
+        cuisineCategories.find(c => c.value === r.cuisine_type)?.label.toLowerCase().includes(searchLower);
+      
+      const restaurantRating = getRestaurantRating(r.id);
+      const actualRating = restaurantRating ? parseFloat(restaurantRating.avg) : (r.rating || 0);
+      
+      const matchRating = actualRating >= filters.minRating;
+      const matchDeliveryFee = (r.delivery_fee || 0) <= filters.maxDeliveryFee;
+      const matchDeliveryTime = (r.avg_delivery_time || 0) <= filters.maxDeliveryTime;
+      
+      return matchCity && matchCuisine && matchBusinessType && matchSearch && matchRating && matchDeliveryFee && matchDeliveryTime;
+    });
+  }, [restaurants, selectedCity, selectedCuisine, selectedBusinessType, search, filters]);
+
+  const sortedRestaurants = useMemo(() => {
+    const sorted = [...filteredRestaurants];
+    
+    if (sortBy === "relevance") {
+      // Sort by popularity (rating * review count) and total orders
+      sorted.sort((a, b) => {
+        const ratingA = getRestaurantRating(a.id);
+        const ratingB = getRestaurantRating(b.id);
+        
+        const scoreA = ratingA 
+          ? parseFloat(ratingA.avg) * Math.log10(ratingA.count + 1) * (a.total_orders || 1)
+          : (a.rating || 0) * (a.total_orders || 1);
+        const scoreB = ratingB 
+          ? parseFloat(ratingB.avg) * Math.log10(ratingB.count + 1) * (b.total_orders || 1)
+          : (b.rating || 0) * (b.total_orders || 1);
+        
+        return scoreB - scoreA;
       });
-      // Don't strictly filter out, just show all but preferences will filter menu items
+    } else if (sortBy === "rating") {
+      sorted.sort((a, b) => {
+        const ratingA = getRestaurantRating(a.id);
+        const ratingB = getRestaurantRating(b.id);
+        const scoreA = ratingA ? parseFloat(ratingA.avg) : (a.rating || 0);
+        const scoreB = ratingB ? parseFloat(ratingB.avg) : (b.rating || 0);
+        return scoreB - scoreA;
+      });
+    } else if (sortBy === "delivery_time") {
+      sorted.sort((a, b) => (a.avg_delivery_time || 999) - (b.avg_delivery_time || 999));
+    } else if (sortBy === "delivery_fee") {
+      sorted.sort((a, b) => (a.delivery_fee || 999) - (b.delivery_fee || 999));
+    } else if (sortBy === "popular") {
+      sorted.sort((a, b) => (b.total_orders || 0) - (a.total_orders || 0));
     }
     
-    return matchCity && matchCuisine && matchBusinessType && matchSearch && matchRating && matchDeliveryFee && matchDeliveryTime;
-  });
-
-  const sortedRestaurants = [...filteredRestaurants].sort((a, b) => {
-    const ratingA = getRestaurantRating(a.id);
-    const ratingB = getRestaurantRating(b.id);
-    const scoreA = ratingA ? parseFloat(ratingA.avg) : (a.rating || 0);
-    const scoreB = ratingB ? parseFloat(ratingB.avg) : (b.rating || 0);
-    return scoreB - scoreA;
-  });
+    return sorted;
+  }, [filteredRestaurants, sortBy]);
 
   const handleSelectConversation = (order) => {
     setChatOrder(order);
@@ -266,6 +320,20 @@ export default function CustomerApp() {
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 h-12 text-base"
                 />
+                {searchSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-lg shadow-lg z-20 max-h-48 overflow-y-auto">
+                    {searchSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setSearch(suggestion)}
+                        className="w-full text-left px-4 py-2 hover:bg-slate-50 text-sm"
+                      >
+                        <Search className="w-3 h-3 inline mr-2 text-slate-400" />
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button variant="outline" onClick={() => setShowFilters(true)} className="h-12 px-4">
                 <SlidersHorizontal className="w-4 h-4" />
@@ -331,15 +399,44 @@ export default function CustomerApp() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <div className="mb-4 flex justify-between items-center">
+        <div className="mb-4 flex justify-between items-center gap-2 flex-wrap">
           <p className="text-sm text-slate-600">
             {sortedRestaurants.length} {sortedRestaurants.length === 1 ? 'result' : 'results'} found
           </p>
-          {(filters.minRating > 0 || filters.maxDeliveryFee < 100 || filters.maxDeliveryTime < 120) && (
-            <Button variant="ghost" size="sm" onClick={() => setFilters({ minRating: 0, maxDeliveryFee: 100, maxDeliveryTime: 120 })}>
-              Clear Filters
-            </Button>
-          )}
+          <div className="flex gap-2 items-center">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-40 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="relevance">
+                  <TrendingUp className="w-3 h-3 inline mr-2" />
+                  Pertinence
+                </SelectItem>
+                <SelectItem value="rating">
+                  <Star className="w-3 h-3 inline mr-2" />
+                  Note
+                </SelectItem>
+                <SelectItem value="delivery_time">
+                  <Clock className="w-3 h-3 inline mr-2" />
+                  Temps
+                </SelectItem>
+                <SelectItem value="delivery_fee">
+                  <Bike className="w-3 h-3 inline mr-2" />
+                  Frais
+                </SelectItem>
+                <SelectItem value="popular">
+                  <TrendingUp className="w-3 h-3 inline mr-2" />
+                  Populaire
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {(filters.minRating > 0 || filters.maxDeliveryFee < 100 || filters.maxDeliveryTime < 120) && (
+              <Button variant="ghost" size="sm" onClick={() => setFilters({ minRating: 0, maxDeliveryFee: 100, maxDeliveryTime: 120 })}>
+                Clear Filters
+              </Button>
+            )}
+          </div>
         </div>
 
         {sortedRestaurants.length === 0 ? (
