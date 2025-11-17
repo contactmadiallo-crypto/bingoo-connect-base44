@@ -8,15 +8,17 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2 } from "lucide-react";
+import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
+import DriverWallet from "../components/driver/DriverWallet";
 
 export default function DriverApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [trackingDialog, setTrackingDialog] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [verifyDialog, setVerifyDialog] = useState(false);
+  const [walletDialog, setWalletDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -257,6 +259,9 @@ export default function DriverApp() {
               <p className="text-xs text-slate-600">Hi, {driver.full_name}</p>
             </div>
             <div className="flex gap-2 items-center">
+              <Button variant="outline" size="icon" onClick={() => setWalletDialog(true)}>
+                <Wallet className="w-4 h-4" />
+              </Button>
               <div className="relative">
                 <Button variant="outline" size="icon">
                   <Bell className="w-4 h-4" />
@@ -506,6 +511,9 @@ export default function DriverApp() {
           </div>
         )}
       </div>
+
+      {/* Wallet Dialog */}
+      <DriverWallet driver={driver} open={walletDialog} onOpenChange={setWalletDialog} />
 
       {/* Navigation Dialog with Map */}
       <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
