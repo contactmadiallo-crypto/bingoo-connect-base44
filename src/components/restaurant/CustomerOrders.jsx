@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,11 +9,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import DeliveryMap from "../DeliveryMap";
+import ChatWindow from "../chat/ChatWindow";
 import { motion } from "framer-motion";
 
 const statuses = [
@@ -30,6 +32,8 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [trackingDialog, setTrackingDialog] = useState(false);
   const [ratingDialog, setRatingDialog] = useState(false);
   const [restaurantReviewDialog, setRestaurantReviewDialog] = useState(false);
+  const [chatDialog, setChatDialog] = useState(false);
+  const [chatOrder, setChatOrder] = useState(null);
   const [tipAmount, setTipAmount] = useState("");
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
@@ -157,6 +161,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
   const hasReviewedRestaurant = (orderId) => {
     return myRestaurantReviews.some(r => r.order_id === orderId);
+  };
+
+  const openChat = (order) => {
+    setChatOrder(order);
+    setChatDialog(true);
   };
 
   const statusColors = {
@@ -312,6 +321,18 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                           {liveOrder.vehicle_type}
                         </Badge>
                       )}
+                      <div className="flex gap-2 mt-3">
+                        <a href={`tel:${liveOrder.driver_phone}`} className="flex-1">
+                          <Button size="sm" variant="outline" className="w-full">
+                            <Phone className="w-3 h-3 mr-1" />
+                            Appeler
+                          </Button>
+                        </a>
+                        <Button size="sm" variant="outline" onClick={() => openChat(liveOrder)} className="flex-1">
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Chat
+                        </Button>
+                      </div>
                     </div>
                   )}
 
@@ -445,10 +466,20 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   </p>
                   <div className="space-y-1 text-sm">
                     <p className="font-medium">{selectedOrder.driver_name}</p>
-                    <p className="text-slate-600 flex items-center gap-1">
-                      <Phone className="w-3 h-3" />
-                      {selectedOrder.driver_phone}
-                    </p>
+                    <div className="flex gap-2 mt-2">
+                      <a href={`tel:${selectedOrder.driver_phone}`} className="flex-1">
+                        <Button size="sm" variant="outline" className="w-full">
+                          <Phone className="w-3 h-3 mr-1" />
+                          {selectedOrder.driver_phone}
+                        </Button>
+                      </a>
+                      {['confirmed', 'preparing', 'out_for_delivery'].includes(selectedOrder.status) && (
+                        <Button size="sm" variant="outline" onClick={() => openChat(selectedOrder)} className="flex-1">
+                          <MessageCircle className="w-3 h-3 mr-1" />
+                          Message
+                        </Button>
+                      )}
+                    </div>
                     {selectedOrder.customer_rating && (
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center gap-1">
@@ -495,6 +526,16 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           )}
         </DialogContent>
       </Dialog>
+
+      {chatOrder && (
+        <ChatWindow 
+          order={chatOrder}
+          user={user}
+          userType="customer"
+          open={chatDialog}
+          onOpenChange={setChatDialog}
+        />
+      )}
 
       <Dialog open={ratingDialog} onOpenChange={setRatingDialog}>
         <DialogContent className="max-w-md">
