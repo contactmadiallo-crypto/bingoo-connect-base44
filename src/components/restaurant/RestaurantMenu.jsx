@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -48,6 +49,15 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
+
+  // Define dietary options for display and filtering
+  const dietaryOptions = [
+    { value: 'vegetarian', label: t('vegetarian'), color: 'bg-green-100 text-green-700' },
+    { value: 'vegan', label: t('vegan'), color: 'bg-green-100 text-green-700' },
+    { value: 'gluten_free', label: t('gluten_free'), color: 'bg-blue-100 text-blue-700' },
+    { value: 'dairy_free', label: t('dairy_free'), color: 'bg-purple-100 text-purple-700' },
+    { value: 'nut_free', label: t('nut_free'), color: 'bg-yellow-100 text-yellow-700' },
+  ];
 
   const { data: menuItems } = useQuery({
     queryKey: ['menu', restaurant.id],
@@ -205,6 +215,31 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const filteredItems = menuItems.filter(item => {
     const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) || 
                         item.description?.toLowerCase().includes(search.toLowerCase());
+    
+    // Filter based on dietary preferences
+    if (user.dietary_preferences?.length > 0) {
+      const itemIngredients = (item.ingredients || []).map(i => i.toLowerCase());
+      const itemAllergens = (item.allergens || []).map(a => a.toLowerCase());
+      
+      for (const pref of user.dietary_preferences) {
+        if (pref === 'vegetarian' && itemIngredients.some(i => ['meat', 'chicken', 'beef', 'pork', 'fish'].includes(i))) {
+          return false;
+        }
+        if (pref === 'vegan' && itemIngredients.some(i => ['meat', 'chicken', 'beef', 'pork', 'fish', 'dairy', 'egg', 'milk', 'cheese'].includes(i))) {
+          return false;
+        }
+        if (pref === 'gluten_free' && itemAllergens.includes('gluten')) {
+          return false;
+        }
+        if (pref === 'dairy_free' && itemAllergens.includes('dairy')) {
+          return false;
+        }
+        if (pref === 'nut_free' && itemAllergens.includes('nuts')) {
+          return false;
+        }
+      }
+    }
+    
     return matchSearch;
   });
 
@@ -295,6 +330,18 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     ? (restaurantReviews.reduce((sum, r) => sum + r.rating, 0) / restaurantReviews.length).toFixed(1)
     : restaurant.rating || 0;
 
+  // Pre-fill delivery instructions with user's default
+  useEffect(() => {
+    // Only pre-fill if user has default instructions AND the instructions state is currently empty.
+    // This prevents overwriting user's manual input or existing state if component re-renders.
+    if (user.default_delivery_instructions && !customerInfo.instructions) {
+      setCustomerInfo(prev => ({
+        ...prev,
+        instructions: user.default_delivery_instructions
+      }));
+    }
+  }, [user.default_delivery_instructions, customerInfo.instructions, user.id]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b shadow-sm">
@@ -338,7 +385,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {showReviews && (
           <div className="mb-6">
             <RestaurantReviews restaurant={restaurant} user={user} />
@@ -354,6 +401,26 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               onRewardApplied={setAppliedReward}
             />
           </>
+        )}
+
+        {user.dietary_preferences?.length > 0 && (
+          <Card className="mb-4 sm:mb-6 bg-green-50 border-green-200">
+            <CardContent className="pt-4 sm:pt-6">
+              <p className="text-xs sm:text-sm font-semibold mb-2 text-green-800">
+                🥗 {t('active_filters_dietary_preferences')}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {user.dietary_preferences.map(pref => {
+                  const option = dietaryOptions.find(o => o.value === pref);
+                  return (
+                    <Badge key={pref} className={option?.color || "bg-green-100 text-green-700"}>
+                      {option?.label || pref}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <Card className="mb-6 bg-gradient-to-r from-orange-100 to-amber-100 border-orange-200">
@@ -571,13 +638,13 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 )}
                 {loyaltyDiscount > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>🎁 Loyalty Discount ({customerLoyalty.tier})</span>
+                    <span>🎁 {t('loyalty_discount')} ({customerLoyalty.tier})</span>
                     <span>-${loyaltyDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 {rewardDiscount > 0 && (
                   <div className="flex justify-between text-purple-600">
-                    <span>🎟️ Reward Applied</span>
+                    <span>🎟️ {t('reward_applied')}</span>
                     <span>-${rewardDiscount.toFixed(2)}</span>
                   </div>
                 )}
@@ -588,7 +655,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 {restaurant.loyalty_enabled && (
                   <div className="bg-green-50 p-3 rounded-lg mt-2">
                     <p className="text-sm text-green-800">
-                      🎉 You'll earn <strong>{Math.floor(total * (restaurant.loyalty_points_per_dollar || 10))} points</strong> with this order!
+                      🎉 {t('you_will_earn_points', { points: Math.floor(total * (restaurant.loyalty_points_per_dollar || 10)) })}
                     </p>
                   </div>
                 )}

@@ -3,17 +3,18 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, MapPin, LogOut, User, Award } from "lucide-react";
+import { ArrowLeft, CreditCard, MapPin, LogOut, User, Award, Heart, Trash2, Settings } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import LoyaltyCard from "./LoyaltyCard";
+import UserPreferences from "./UserPreferences";
 
-export default function CustomerProfile({ user, onBack, onUserUpdate }) {
+export default function CustomerProfile({ user, onBack, onUserUpdate, language = "en" }) {
   const [personalInfo, setPersonalInfo] = useState({
     full_name: user?.full_name || "",
     phone: user?.phone || "",
@@ -102,32 +103,46 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
-      <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={onBack}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-orange-600">Profile & Settings</h1>
-              <p className="text-sm text-slate-600">{user?.full_name}</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-3 sm:p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-6 sm:mb-8">
+          <Button variant="ghost" onClick={onBack} className="mb-4">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour
+          </Button>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-2">👤 Mon Profil</h1>
+          <p className="text-sm sm:text-base text-slate-600">Gérez vos informations et préférences</p>
         </div>
-      </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <Tabs defaultValue="personal">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="personal">Personal Info</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
-            <TabsTrigger value="loyalty">Loyalty</TabsTrigger>
-            <TabsTrigger value="payment">Payment</TabsTrigger>
-            <TabsTrigger value="addresses">Addresses</TabsTrigger>
+        <Tabs defaultValue="info" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-4 sm:mb-6 h-auto">
+            <TabsTrigger value="info" className="text-xs sm:text-sm py-2 sm:py-3">
+              <User className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Infos</span>
+            </TabsTrigger>
+            <TabsTrigger value="preferences" className="text-xs sm:text-sm py-2 sm:py-3">
+              <Settings className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Préférences</span>
+            </TabsTrigger>
+            <TabsTrigger value="favorites" className="text-xs sm:text-sm py-2 sm:py-3">
+              <Heart className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Favoris</span>
+            </TabsTrigger>
+            <TabsTrigger value="loyalty" className="text-xs sm:text-sm py-2 sm:py-3">
+              <Award className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Fidélité</span>
+            </TabsTrigger>
+            <TabsTrigger value="payment" className="text-xs sm:text-sm py-2 sm:py-3">
+              <CreditCard className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Paiement</span>
+            </TabsTrigger>
+            <TabsTrigger value="addresses" className="text-xs sm:text-sm py-2 sm:py-3">
+              <MapPin className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Adresses</span>
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="personal" className="space-y-4">
+          <TabsContent value="info" className="space-y-4">
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-3 mb-4">
@@ -171,6 +186,10 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
             </Card>
           </TabsContent>
 
+          <TabsContent value="preferences">
+            <UserPreferences user={user} onUpdate={onUserUpdate} />
+          </TabsContent>
+
           <TabsContent value="favorites" className="space-y-4">
             <Card>
               <CardContent className="pt-6">
@@ -186,7 +205,7 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                           <p className="text-xs text-slate-500">Added {new Date(fav.created_date).toLocaleDateString()}</p>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => deleteFavoriteMutation.mutate(fav.id)}>
-                          Remove
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>
                     ))}
@@ -209,7 +228,7 @@ export default function CustomerProfile({ user, onBack, onUserUpdate }) {
                           <p className="text-xs text-slate-500">{fav.restaurant_name}</p>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => deleteFavoriteMutation.mutate(fav.id)}>
-                          Remove
+                          <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
                       </div>
                     ))}

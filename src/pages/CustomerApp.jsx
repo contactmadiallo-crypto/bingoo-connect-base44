@@ -172,6 +172,18 @@ export default function CustomerApp() {
     const matchRating = actualRating >= filters.minRating;
     const matchDeliveryFee = (r.delivery_fee || 0) <= filters.maxDeliveryFee;
     const matchDeliveryTime = (r.avg_delivery_time || 0) <= filters.maxDeliveryTime;
+    
+    // Filter based on dietary preferences
+    if (user?.dietary_preferences?.length > 0) {
+      const hasSuitableOptions = user.dietary_preferences.some(pref => {
+        if (pref === 'vegetarian' && r.cuisine_type === 'vegetarian') return true;
+        if (pref === 'vegan' && r.cuisine_type === 'vegetarian') return true;
+        if (pref === 'halal' && ['african', 'moroccan', 'lebanese', 'mediterranean'].includes(r.cuisine_type)) return true;
+        return false;
+      });
+      // Don't strictly filter out, just show all but preferences will filter menu items
+    }
+    
     return matchCity && matchCuisine && matchBusinessType && matchSearch && matchRating && matchDeliveryFee && matchDeliveryTime;
   });
 
