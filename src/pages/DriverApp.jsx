@@ -12,9 +12,12 @@ import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Cloc
 import { motion, AnimatePresence } from "framer-motion";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
 import DriverWallet from "../components/driver/DriverWallet";
+import RouteOptimizer from "../components/driver/RouteOptimizer";
 
 export default function DriverApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [optimizedRouteData, setOptimizedRouteData] = useState(null);
   const [trackingDialog, setTrackingDialog] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [verifyDialog, setVerifyDialog] = useState(false);
@@ -80,7 +83,6 @@ export default function DriverApp() {
     mutationFn: (available) => base44.entities.DeliveryPartner.update(driver.id, { is_available: available }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-profile'] });
-      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
     },
   });
 
@@ -96,12 +98,38 @@ export default function DriverApp() {
 
       await base44.entities.Notification.create({
         customer_email: order.created_by,
-        title: "Driver Assigned! 🚚",
-        message: `${driver.full_name} will deliver your order ${order.order_number}`,
+        title: "Chauffeur Assigné! 🚚",
+        message: `${driver.full_name} livrera votre commande ${order.order_number}`,
         type: "order_update",
         order_id: order.id,
         restaurant_id: order.restaurant_id
       });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+    },
+  });
+
+  const acceptBatchMutation = useMutation({
+    mutationFn: async ({ orders: batchOrders, routeData }) => {
+      for (const order of batchOrders) {
+        await base44.entities.Order.update(order.id, {
+          delivery_partner_id: driver.id,
+          driver_name: driver.full_name,
+          driver_phone: driver.phone,
+          vehicle_type: driver.vehicle_type,
+          status: 'confirmed'
+        });
+
+        await base44.entities.Notification.create({
+          customer_email: order.created_by,
+          title: "Chauffeur Assigné! 🚚",
+          message: `${driver.full_name} livrera votre commande ${order.order_number}`,
+          type: "order_update",
+          order_id: order.id,
+          restaurant_id: order.restaurant_id
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
@@ -119,10 +147,10 @@ export default function DriverApp() {
       await base44.entities.Order.update(orderId, updateData);
 
       const statusMessages = {
-        'preparing': 'Driver picked up your order! 📦',
-        'ready': 'Driver is on the way! 🚗',
-        'out_for_delivery': 'Your order is out for delivery! 🚚',
-        'delivered': 'Your order has been delivered! Enjoy! 😊'
+        'preparing': 'Chauffeur a récupéré votre commande! 📦',
+        'ready': 'Chauffeur est en route! 🚗',
+        'out_for_delivery': 'Votre commande est en cours de livraison! 🚚',
+        'delivered': 'Votre commande a été livrée! Bon appétit! 😊'
       };
 
       if (statusMessages[status]) {
@@ -130,7 +158,7 @@ export default function DriverApp() {
         await base44.entities.Notification.create({
           customer_email: order.created_by,
           title: statusMessages[status],
-          message: `Order ${order.order_number} - ${statusMessages[status]}`,
+          message: `Commande ${order.order_number} - ${statusMessages[status]}`,
           type: "order_update",
           order_id: orderId,
           restaurant_id: order.restaurant_id
@@ -171,7 +199,7 @@ export default function DriverApp() {
 
   const verifyAndDeliver = async () => {
     if (verificationCode !== selectedOrder.delivery_code) {
-      alert("Invalid delivery code. Please check with the customer.");
+      alert("Code de livraison invalide. Veuillez vérifier avec le client.");
       return;
     }
 
@@ -187,9 +215,19 @@ export default function DriverApp() {
     });
   };
 
-  const openMap = (order) => {
-    setSelectedOrder(order);
+  const openMap = (order, batchOrders = null) => {
+    if (batchOrders) {
+      setSelectedOrders(batchOrders);
+    } else {
+      setSelectedOrder(order);
+      setSelectedOrders([]);
+    }
     setTrackingDialog(true);
+  };
+
+  const handleAcceptBatch = (batchOrders, routeData) => {
+    setOptimizedRouteData(routeData);
+    acceptBatchMutation.mutate({ orders: batchOrders, routeData });
   };
 
   if (driverLoading) {
@@ -198,7 +236,7 @@ export default function DriverApp() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <Loader2 className="w-16 h-16 text-purple-600 mx-auto mb-4 animate-spin" />
-            <p className="text-slate-600">Loading driver profile...</p>
+            <p className="text-slate-600">Chargement du profil chauffeur...</p>
           </CardContent>
         </Card>
       </div>
@@ -211,10 +249,10 @@ export default function DriverApp() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">No Driver Profile Found</h2>
-            <p className="text-slate-600 mb-4">Please sign up as a delivery partner first</p>
+            <h2 className="text-2xl font-bold mb-2">Aucun Profil Chauffeur</h2>
+            <p className="text-slate-600 mb-4">Veuillez vous inscrire en tant que partenaire de livraison</p>
             <Button onClick={() => window.location.href = '/DriverSignup'}>
-              Sign Up as Driver
+              S'inscrire comme Chauffeur
             </Button>
           </CardContent>
         </Card>
@@ -255,8 +293,8 @@ export default function DriverApp() {
         <div className="px-4 py-4">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h1 className="text-xl font-bold text-purple-600">🚚 Driver Mode</h1>
-              <p className="text-xs text-slate-600">Hi, {driver.full_name}</p>
+              <h1 className="text-xl font-bold text-purple-600">🚚 Mode Chauffeur</h1>
+              <p className="text-xs text-slate-600">Salut, {driver.full_name}</p>
             </div>
             <div className="flex gap-2 items-center">
               <Button variant="outline" size="icon" onClick={() => setWalletDialog(true)}>
@@ -274,7 +312,7 @@ export default function DriverApp() {
               </div>
               <div className="flex items-center gap-2 bg-slate-100 rounded-full px-3 py-2">
                 <span className="text-xs font-medium">
-                  {driver.is_available ? 'Available' : 'Offline'}
+                  {driver.is_available ? 'Disponible' : 'Hors Ligne'}
                 </span>
                 <Switch
                   checked={driver.is_available}
@@ -288,21 +326,21 @@ export default function DriverApp() {
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 border border-green-200">
               <div className="flex items-center gap-2 mb-1">
                 <DollarSign className="w-4 h-4 text-green-600" />
-                <p className="text-xs text-slate-600">Today</p>
+                <p className="text-xs text-slate-600">Aujourd'hui</p>
               </div>
-              <p className="text-xl font-bold text-green-700">${todayEarnings.toFixed(2)}</p>
+              <p className="text-xl font-bold text-green-700">{todayEarnings.toFixed(0)} CFA</p>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-3 border border-blue-200">
               <div className="flex items-center gap-2 mb-1">
                 <Package className="w-4 h-4 text-blue-600" />
-                <p className="text-xs text-slate-600">Active</p>
+                <p className="text-xs text-slate-600">Actif</p>
               </div>
               <p className="text-xl font-bold text-blue-700">{activeOrders.length}</p>
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle className="w-4 h-4 text-purple-600" />
-                <p className="text-xs text-slate-600">Done</p>
+                <p className="text-xs text-slate-600">Terminé</p>
               </div>
               <p className="text-xl font-bold text-purple-700">{completedToday.length}</p>
             </div>
@@ -312,12 +350,21 @@ export default function DriverApp() {
 
       {/* Main Content */}
       <div className="p-4 space-y-4">
+        {/* Route Optimizer */}
+        {driver.is_available && driver.current_location && (
+          <RouteOptimizer
+            availableOrders={availableOrders}
+            driverLocation={driver.current_location}
+            onAcceptBatch={handleAcceptBatch}
+          />
+        )}
+
         {/* Available Orders */}
         {availableOrders.length > 0 && driver.is_available && (
           <div>
             <h2 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-600" />
-              New Deliveries Available
+              Nouvelles Livraisons Disponibles
             </h2>
             <div className="space-y-3">
               <AnimatePresence>
@@ -335,7 +382,7 @@ export default function DriverApp() {
                             <p className="font-bold text-lg">{order.restaurant_name}</p>
                             <p className="text-sm text-slate-600">{order.order_number}</p>
                           </div>
-                          <Badge className="bg-orange-100 text-orange-700">New</Badge>
+                          <Badge className="bg-orange-100 text-orange-700">Nouveau</Badge>
                         </div>
                         <div className="space-y-2 text-sm mb-4">
                           <div className="flex items-start gap-2">
@@ -348,7 +395,7 @@ export default function DriverApp() {
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
                               <DollarSign className="w-4 h-4 text-green-600" />
-                              <span className="font-bold text-green-600">${order.delivery_fee?.toFixed(2)}</span>
+                              <span className="font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</span>
                             </div>
                             {order.distance_km && (
                               <div className="flex items-center gap-1">
@@ -362,7 +409,7 @@ export default function DriverApp() {
                           onClick={() => acceptOrderMutation.mutate(order)}
                           className="w-full bg-orange-600 hover:bg-orange-700"
                         >
-                          Accept Delivery
+                          Accepter la Livraison
                         </Button>
                       </CardContent>
                     </Card>
@@ -376,7 +423,7 @@ export default function DriverApp() {
         {/* Active Deliveries */}
         {activeOrders.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">Active Deliveries</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">Livraisons Actives</h2>
             <div className="space-y-3">
               {activeOrders.map((order) => (
                 <Card key={order.id} className="border-2 border-blue-200">
@@ -386,14 +433,14 @@ export default function DriverApp() {
                         <p className="font-bold text-lg">{order.restaurant_name}</p>
                         <p className="text-sm text-slate-600">{order.order_number}</p>
                         <Badge className="mt-1 bg-blue-100 text-blue-700">
-                          {order.status === 'confirmed' && 'Go to Restaurant'}
-                          {order.status === 'preparing' && 'Picking Up'}
-                          {order.status === 'out_for_delivery' && 'Delivering'}
+                          {order.status === 'confirmed' && 'Aller au Restaurant'}
+                          {order.status === 'preparing' && 'En Récupération'}
+                          {order.status === 'out_for_delivery' && 'En Livraison'}
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold text-green-600">${order.delivery_fee?.toFixed(2)}</p>
-                        <p className="text-xs text-slate-500">+ tips</p>
+                        <p className="text-xl font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</p>
+                        <p className="text-xs text-slate-500">+ pourboires</p>
                       </div>
                     </div>
 
@@ -413,7 +460,7 @@ export default function DriverApp() {
                       </div>
                       {order.delivery_code && order.status === 'out_for_delivery' && (
                         <div className="bg-green-50 border border-green-200 p-2 rounded">
-                          <p className="text-xs text-green-800 font-semibold">Delivery Code: {order.delivery_code}</p>
+                          <p className="text-xs text-green-800 font-semibold">Code de Livraison: {order.delivery_code}</p>
                         </div>
                       )}
                     </div>
@@ -425,7 +472,7 @@ export default function DriverApp() {
                         className="flex-1"
                       >
                         <Navigation className="w-4 h-4 mr-2" />
-                        Navigate
+                        Naviguer
                       </Button>
                       
                       {order.status === 'confirmed' && (
@@ -434,7 +481,7 @@ export default function DriverApp() {
                           className="flex-1 bg-blue-600 hover:bg-blue-700"
                         >
                           <Package className="w-4 h-4 mr-2" />
-                          Picked Up
+                          Récupéré
                         </Button>
                       )}
                       
@@ -454,7 +501,7 @@ export default function DriverApp() {
                           className="flex-1 bg-green-600 hover:bg-green-700"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          Delivered
+                          Livré
                         </Button>
                       )}
                     </div>
@@ -471,12 +518,12 @@ export default function DriverApp() {
             <CardContent className="py-12 text-center">
               <Bike className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">
-                {driver.is_available ? 'No Orders Available' : 'You are Offline'}
+                {driver.is_available ? 'Aucune Commande Disponible' : 'Vous êtes Hors Ligne'}
               </h3>
               <p className="text-slate-600 text-sm">
                 {driver.is_available 
-                  ? 'New deliveries will appear here' 
-                  : 'Turn on availability to receive orders'}
+                  ? 'Les nouvelles livraisons apparaîtront ici' 
+                  : 'Activez votre disponibilité pour recevoir des commandes'}
               </p>
             </CardContent>
           </Card>
@@ -485,7 +532,7 @@ export default function DriverApp() {
         {/* Completed Today */}
         {completedToday.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">Completed Today</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-3">Terminé Aujourd'hui</h2>
             <div className="space-y-2">
               {completedToday.slice(0, 5).map((order) => (
                 <Card key={order.id} className="bg-green-50">
@@ -497,10 +544,10 @@ export default function DriverApp() {
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-green-600">
-                          ${((order.driver_earnings || 0) + (order.tip_amount || 0)).toFixed(2)}
+                          {((order.driver_earnings || 0) + (order.tip_amount || 0)).toFixed(0)} CFA
                         </p>
                         {order.tip_amount > 0 && (
-                          <p className="text-xs text-green-600">+${order.tip_amount.toFixed(2)} tip</p>
+                          <p className="text-xs text-green-600">+{order.tip_amount.toFixed(0)} CFA pourboire</p>
                         )}
                       </div>
                     </div>
@@ -520,32 +567,51 @@ export default function DriverApp() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
           <DialogHeader className="p-6 pb-4">
             <DialogTitle className="flex items-center justify-between">
-              <span>Navigation - {selectedOrder?.order_number}</span>
+              <span>Navigation {selectedOrders.length > 0 ? `- ${selectedOrders.length} Arrêts` : `- ${selectedOrder?.order_number}`}</span>
               <Badge className="bg-blue-100 text-blue-700">
-                {selectedOrder?.status === 'confirmed' && 'To Restaurant'}
-                {selectedOrder?.status === 'preparing' && 'Picking Up'}
-                {selectedOrder?.status === 'out_for_delivery' && 'To Customer'}
+                {selectedOrder?.status === 'confirmed' && 'Vers Restaurant'}
+                {selectedOrder?.status === 'preparing' && 'En Récupération'}
+                {selectedOrder?.status === 'out_for_delivery' && 'Vers Client'}
+                {selectedOrders.length > 0 && 'Itinéraire Optimisé'}
               </Badge>
             </DialogTitle>
           </DialogHeader>
           
-          {selectedOrder && (
-            <div>
-              <DriverOrderMap order={selectedOrder} driver={driver} />
-              
-              <div className="p-6 space-y-4">
+          <DriverOrderMap 
+            order={selectedOrder} 
+            orders={selectedOrders.length > 0 ? selectedOrders : null}
+            driver={driver}
+            optimizedRoute={optimizedRouteData}
+          />
+          
+          <div className="p-6">
+            {selectedOrders.length > 0 ? (
+              <div className="space-y-3">
+                <h4 className="font-semibold">Ordre de Livraison:</h4>
+                {selectedOrders.map((o, idx) => (
+                  <div key={o.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+                    <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{o.restaurant_name}</p>
+                      <p className="text-xs text-slate-600">→ {o.customer_name} - {o.customer_address}</p>
+                    </div>
+                    <p className="font-bold text-green-600">{(o.delivery_fee || 0).toFixed(0)} CFA</p>
+                  </div>
+                ))}
+              </div>
+            ) : selectedOrder && (
+              <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Pickup Location</h4>
+                    <h4 className="font-semibold text-sm">Lieu de Récupération</h4>
                     <div className="text-sm text-slate-600">
                       <p className="font-medium">{selectedOrder.restaurant_name}</p>
-                      {selectedOrder.restaurant_address && (
-                        <p>{selectedOrder.restaurant_address}</p>
-                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-sm">Delivery Location</h4>
+                    <h4 className="font-semibold text-sm">Lieu de Livraison</h4>
                     <div className="text-sm text-slate-600">
                       <p className="font-medium">{selectedOrder.customer_name}</p>
                       <p>{selectedOrder.customer_address}</p>
@@ -558,26 +624,13 @@ export default function DriverApp() {
 
                 {selectedOrder.special_instructions && (
                   <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
-                    <p className="text-xs font-semibold text-amber-900 mb-1">Special Instructions:</p>
+                    <p className="text-xs font-semibold text-amber-900 mb-1">Instructions Spéciales:</p>
                     <p className="text-sm text-amber-800">{selectedOrder.special_instructions}</p>
                   </div>
                 )}
-
-                <div className="flex gap-2">
-                  <a 
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(selectedOrder.customer_address)}`}
-                    target="_blank"
-                    className="flex-1"
-                  >
-                    <Button variant="outline" className="w-full">
-                      <Navigation className="w-4 h-4 mr-2" />
-                      Open in Maps
-                    </Button>
-                  </a>
-                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -585,23 +638,23 @@ export default function DriverApp() {
       <Dialog open={verifyDialog} onOpenChange={setVerifyDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Verify Delivery</DialogTitle>
+            <DialogTitle>Vérifier la Livraison</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-blue-50 p-4 rounded-lg text-center">
               <Key className="w-8 h-8 text-blue-600 mx-auto mb-2" />
               <p className="text-sm text-slate-600 mb-3">
-                Ask the customer for their delivery code
+                Demandez au client son code de livraison
               </p>
               <p className="text-xs text-slate-500">
-                Order: {selectedOrder?.order_number}
+                Commande: {selectedOrder?.order_number}
               </p>
             </div>
             <div className="space-y-2">
-              <Label>Enter Delivery Code *</Label>
+              <Label>Entrer le Code de Livraison *</Label>
               <Input
                 type="text"
-                placeholder="Enter 4-digit code"
+                placeholder="Code à 4 chiffres"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
                 maxLength={4}
@@ -614,7 +667,7 @@ export default function DriverApp() {
               setVerifyDialog(false);
               setVerificationCode("");
             }}>
-              Cancel
+              Annuler
             </Button>
             <Button 
               onClick={verifyAndDeliver}
@@ -622,7 +675,7 @@ export default function DriverApp() {
               className="bg-green-600 hover:bg-green-700"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
-              Confirm Delivery
+              Confirmer la Livraison
             </Button>
           </DialogFooter>
         </DialogContent>
