@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -108,6 +108,11 @@ const platformItems = [
     title: "Platform Finance",
     url: createPageUrl("PlatformFinance"),
     icon: TrendingUp,
+  },
+  {
+    title: "Restaurant Mgmt",
+    url: createPageUrl("RestaurantManagement"),
+    icon: Building2,
   },
 ];
 
