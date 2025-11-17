@@ -21,6 +21,7 @@ import DriverApp from './pages/DriverApp';
 import DriverEarnings from './pages/DriverEarnings';
 import RestaurantManagement from './pages/RestaurantManagement';
 import DriverTracking from './pages/DriverTracking';
+import OrderManagement from './pages/OrderManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +49,7 @@ export const PAGES = {
     "DriverEarnings": DriverEarnings,
     "RestaurantManagement": RestaurantManagement,
     "DriverTracking": DriverTracking,
+    "OrderManagement": OrderManagement,
 }
 
 export const pagesConfig = {
