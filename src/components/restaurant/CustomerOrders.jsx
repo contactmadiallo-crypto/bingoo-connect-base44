@@ -43,6 +43,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [deliveryRating, setDeliveryRating] = useState(0);
   const [restaurantComment, setRestaurantComment] = useState("");
   const [liveOrder, setLiveOrder] = useState(null);
+  const [estimatedArrival, setEstimatedArrival] = useState(null); // New state for ETA
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
@@ -61,6 +62,17 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     enabled: !!user,
   });
 
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   useEffect(() => {
     let interval;
     if (trackingDialog && liveOrder) {
@@ -68,11 +80,33 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
         const updated = await base44.entities.Order.filter({ id: liveOrder.id });
         if (updated[0]) {
           setLiveOrder(updated[0]);
+          
+          // Calculate ETA if order is out for delivery and locations are available
+          if (updated[0].status === 'out_for_delivery' && updated[0].driver_location && updated[0].customer_location) {
+            const driverLat = updated[0].driver_location.lat;
+            const driverLng = updated[0].driver_location.lng;
+            const customerLat = updated[0].customer_location.lat;
+            const customerLng = updated[0].customer_location.lng;
+            
+            const distance = calculateDistance(driverLat, driverLng, customerLat, customerLng);
+            const avgSpeed = 25; // km/h average speed for delivery
+            const etaMinutes = Math.ceil((distance / avgSpeed) * 60);
+            
+            const arrivalTime = new Date(Date.now() + etaMinutes * 60000);
+            setEstimatedArrival({ minutes: etaMinutes, time: arrivalTime });
+          } else {
+            setEstimatedArrival(null); // Clear ETA if not out for delivery or locations are missing
+          }
         }
       }, 3000);
+    } else {
+      setEstimatedArrival(null); // Clear ETA when dialog is closed or no live order
     }
-    return () => clearInterval(interval);
-  }, [trackingDialog, liveOrder]);
+    return () => {
+        clearInterval(interval);
+        setEstimatedArrival(null); // Ensure ETA is cleared on unmount/dependency change
+    };
+  }, [trackingDialog, liveOrder]); // calculateDistance is a pure function, no need to include in deps
 
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
@@ -244,6 +278,49 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           </DialogHeader>
           {liveOrder && (
             <div className="space-y-6">
+              {/* ETA Display */}
+              {liveOrder.status === 'out_for_delivery' && estimatedArrival && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 p-4 sm:p-6 rounded-xl"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-green-700 font-semibold mb-1">Temps d'Arrivée Estimé</p>
+                      <p className="text-3xl sm:text-4xl font-bold text-green-700">
+                        {estimatedArrival.minutes} min
+                      </p>
+                      <p className="text-xs sm:text-sm text-green-600 mt-1">
+                        Arrivée vers {estimatedArrival.time.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <div className="animate-pulse">
+                      <Clock className="w-12 h-12 sm:w-16 sm:h-16 text-green-600" />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Driver picked up message */}
+              {liveOrder.status === 'preparing' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 p-4 sm:p-6 rounded-xl"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="animate-bounce">
+                      <Package className="w-12 h-12 sm:w-16 sm:h-16 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-lg sm:text-xl font-bold text-blue-700">Chauffeur a récupéré votre commande!</p>
+                      <p className="text-sm text-blue-600 mt-1">Il sera bientôt en route vers vous</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {liveOrder.order_type === 'delivery' && liveOrder.status === 'out_for_delivery' && liveOrder.driver_location && (
                 <DeliveryMap order={liveOrder} />
               )}
@@ -372,7 +449,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               {!liveOrder.driver_location && liveOrder.status === 'out_for_delivery' && (
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-lg">
                   <p className="text-sm text-amber-800">
-                    📍 Waiting for driver to activate GPS tracking...
+                    📍 En attente de la position GPS du chauffeur...
                   </p>
                 </div>
               )}

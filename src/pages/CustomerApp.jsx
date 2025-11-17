@@ -214,31 +214,32 @@ export default function CustomerApp() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center mb-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex justify-between items-center mb-3 sm:mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-orange-600">🍽️ FoodHub</h1>
-              <p className="text-xs md:text-sm text-slate-600">{t('discover_restaurants')}</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600">🍽️ FoodHub</h1>
+              <p className="text-xs sm:text-sm text-slate-600">{t('discover_restaurants')}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
               <NotificationBell user={user} />
               <div className="relative">
-                <Button variant="outline" onClick={() => setShowConversations(true)} size="sm">
+                <Button variant="outline" onClick={() => setShowConversations(true)} size="sm" className="h-8 w-8 sm:h-10 sm:w-10 p-0 sm:p-2">
                   <MessageCircle className="w-4 h-4" />
                 </Button>
                 {totalUnreadMessages > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs">
+                  <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-[10px] sm:text-xs">
                     {totalUnreadMessages}
                   </Badge>
                 )}
               </div>
-              <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs md:text-sm">
-                {t('orders')}
+              <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
+                <span className="hidden sm:inline">{t('orders')}</span>
+                <span className="sm:hidden">📦</span>
               </Button>
-              <Button variant="outline" onClick={() => setShowProfile(true)} size="sm" className="text-xs md:text-sm">
-                <UserIcon className="w-4 h-4 md:mr-2" />
-                <span className="hidden md:inline">{t('profile')}</span>
+              <Button variant="outline" onClick={() => setShowProfile(true)} size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
+                <UserIcon className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">{t('profile')}</span>
               </Button>
             </div>
           </div>
