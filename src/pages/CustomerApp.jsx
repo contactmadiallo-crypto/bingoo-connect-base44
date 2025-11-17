@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,8 @@ import LanguageSwitcher from "../components/LanguageSwitcher";
 import ScrollToTop from "../components/ScrollToTop";
 import { useTranslation } from "../components/translations";
 import NotificationBell from "../components/restaurant/NotificationBell";
+import ConversationsList from "../components/chat/ConversationsList";
+import ChatWindow from "../components/chat/ChatWindow";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
@@ -60,6 +63,9 @@ export default function CustomerApp() {
   const [showProfile, setShowProfile] = useState(false);
   const [showOrders, setShowOrders] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showConversations, setShowConversations] = useState(false);
+  const [chatOrder, setChatOrder] = useState(null);
+  const [chatDialog, setChatDialog] = useState(false);
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [filters, setFilters] = useState({
     minRating: 0,
@@ -112,6 +118,15 @@ export default function CustomerApp() {
     queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'restaurant' }),
     enabled: !!user?.email,
   });
+
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['customer-conversations', user?.email],
+    queryFn: () => base44.entities.Conversation.filter({ customer_email: user.email, status: 'active' }),
+    enabled: !!user?.email,
+    refetchInterval: 5000,
+  });
+
+  const totalUnreadMessages = conversations.reduce((sum, c) => sum + (c.unread_count_customer || 0), 0);
 
   const toggleFavoriteMutation = useMutation({
     mutationFn: async (restaurant) => {
@@ -168,6 +183,11 @@ export default function CustomerApp() {
     return scoreB - scoreA;
   });
 
+  const handleSelectConversation = (order) => {
+    setChatOrder(order);
+    setChatDialog(true);
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">{t('loading')}</div>;
   }
@@ -203,6 +223,16 @@ export default function CustomerApp() {
             <div className="flex gap-2">
               <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
               <NotificationBell user={user} />
+              <div className="relative">
+                <Button variant="outline" onClick={() => setShowConversations(true)} size="sm">
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+                {totalUnreadMessages > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs">
+                    {totalUnreadMessages}
+                  </Badge>
+                )}
+              </div>
               <Button variant="outline" onClick={() => setShowOrders(true)} size="sm" className="text-xs md:text-sm">
                 {t('orders')}
               </Button>
@@ -423,6 +453,24 @@ export default function CustomerApp() {
       </div>
 
       <ScrollToTop />
+
+      <ConversationsList 
+        user={user}
+        userType="customer"
+        open={showConversations}
+        onOpenChange={setShowConversations}
+        onSelectConversation={handleSelectConversation}
+      />
+
+      {chatOrder && (
+        <ChatWindow 
+          order={chatOrder}
+          user={user}
+          userType="customer"
+          open={chatDialog}
+          onOpenChange={setChatDialog}
+        />
+      )}
 
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
         <DialogContent className="max-w-md">
