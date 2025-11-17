@@ -17,6 +17,7 @@ import RestaurantOnboarding from './pages/RestaurantOnboarding';
 import PlatformFinance from './pages/PlatformFinance';
 import DriverSignup from './pages/DriverSignup';
 import MarketplaceOnboarding from './pages/MarketplaceOnboarding';
+import DriverApp from './pages/DriverApp';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +41,7 @@ export const PAGES = {
     "PlatformFinance": PlatformFinance,
     "DriverSignup": DriverSignup,
     "MarketplaceOnboarding": MarketplaceOnboarding,
+    "DriverApp": DriverApp,
 }
 
 export const pagesConfig = {
