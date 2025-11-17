@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,10 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap, X, Check, ChevronRight, AlertTriangle, Users, Gift, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap, X, Check, ChevronRight, AlertTriangle, Users, Gift, Calendar, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
+import RestaurantReviews from "../components/RestaurantReviews"; // Assuming this component exists or will be created
 
 function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
@@ -114,6 +116,11 @@ function RestaurantAdminContent() {
   const { data: customerLoyalties = [] } = useQuery({
     queryKey: ['customer-loyalties'],
     queryFn: () => base44.entities.CustomerLoyalty.list(),
+  });
+
+  const { data: restaurantReviews = [] } = useQuery({
+    queryKey: ['restaurant-reviews'],
+    queryFn: () => base44.entities.RestaurantReview.list(),
   });
 
   const { data: user } = useQuery({
@@ -619,6 +626,7 @@ function RestaurantAdminContent() {
   const myTables = tables.filter(t => t.restaurant_id === myRestaurant?.id);
   const myRewards = rewards.filter(r => r.restaurant_id === myRestaurant?.id);
   const myCustomerLoyalties = customerLoyalties.filter(l => l.restaurant_id === myRestaurant?.id);
+  const myRestaurantReviews = restaurantReviews.filter(r => r.restaurant_id === myRestaurant?.id);
 
   const getDateRange = () => {
     if (analyticsTimeRange === 'custom' && customDateRange.start && customDateRange.end) {
@@ -793,11 +801,12 @@ function RestaurantAdminContent() {
         </div>
 
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
+          <TabsList className="grid w-full grid-cols-7 mb-6">
             <TabsTrigger value="menu">Menu Items</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
             <TabsTrigger value="tables">Tables & QR</TabsTrigger>
             <TabsTrigger value="loyalty">Loyalty</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -1136,6 +1145,28 @@ function RestaurantAdminContent() {
             </div>
           </TabsContent>
 
+          <TabsContent value="reviews">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Customer Reviews</span>
+                  <div className="flex items-center gap-2">
+                    <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                    <span className="text-2xl font-bold">
+                      {myRestaurantReviews.length > 0
+                        ? (myRestaurantReviews.reduce((sum, r) => sum + r.rating, 0) / myRestaurantReviews.length).toFixed(1)
+                        : '0'}
+                    </span>
+                    <span className="text-sm text-slate-600">({myRestaurantReviews.length} reviews)</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RestaurantReviews restaurant={myRestaurant} user={user} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="orders">
             <Card>
               <CardHeader>
@@ -1395,7 +1426,6 @@ function RestaurantAdminContent() {
           </TabsContent>
         </Tabs>
 
-        {/* All existing dialogs remain unchanged */}
         <Dialog open={bulkUploadDialog} onOpenChange={setBulkUploadDialog}>
           <DialogContent>
             <DialogHeader>

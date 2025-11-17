@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +14,7 @@ import ScrollToTop from "../ScrollToTop";
 import DishReviews from "./DishReviews";
 import LoyaltyCard from "./LoyaltyCard";
 import LoyaltyRewards from "./LoyaltyRewards";
+import RestaurantReviews from "./RestaurantReviews";
 import { useTranslation } from "../translations";
 
 const categoryLabels = {
@@ -39,6 +39,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const [orderType, setOrderType] = useState("delivery");
   const [selectedDish, setSelectedDish] = useState(null);
   const [appliedReward, setAppliedReward] = useState(null);
+  const [showReviews, setShowReviews] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     address: user.addresses?.[0]?.address || "",
     instructions: ""
@@ -58,6 +59,11 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     queryKey: ['allReviews', restaurant.id],
     queryFn: () => base44.entities.Review.filter({ restaurant_id: restaurant.id }),
     initialData: [],
+  });
+
+  const { data: restaurantReviews = [] } = useQuery({
+    queryKey: ['restaurant-reviews', restaurant.id],
+    queryFn: () => base44.entities.RestaurantReview.filter({ restaurant_id: restaurant.id }),
   });
 
   const { data: customerLoyalty } = useQuery({
@@ -85,7 +91,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         const newSpent = customerLoyalty.total_spent + spent;
         const newOrders = customerLoyalty.total_orders + orders;
         
-        // Calculate new tier
         const tiers = restaurant.loyalty_tiers;
         let newTier = "bronze";
         if (tiers) {
@@ -155,7 +160,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
         created_by: user.email
       });
 
-      // Create notification for order confirmation
       await base44.entities.Notification.create({
         customer_email: user.email,
         title: "Order Confirmed! 🎉",
@@ -169,7 +173,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       return order;
     },
     onSuccess: async (order) => {
-      // Award loyalty points
       if (restaurant.loyalty_enabled) {
         const pointsEarned = Math.floor(order.total_amount * (restaurant.loyalty_points_per_dollar || 10));
         await createOrUpdateLoyaltyMutation.mutateAsync({
@@ -233,7 +236,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = orderType === 'delivery' ? restaurant.delivery_fee : 0;
   
-  // Calculate loyalty discount
   let loyaltyDiscount = 0;
   if (customerLoyalty && restaurant.loyalty_enabled) {
     const tierConfig = restaurant.loyalty_tiers?.[customerLoyalty.tier];
@@ -242,7 +244,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     }
   }
   
-  // Apply reward discount if any
   let rewardDiscount = 0;
   if (appliedReward) {
     if (appliedReward.discount_type === "percentage") {
@@ -290,6 +291,10 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     });
   };
 
+  const avgRestaurantRating = restaurantReviews.length > 0
+    ? (restaurantReviews.reduce((sum, r) => sum + r.rating, 0) / restaurantReviews.length).toFixed(1)
+    : restaurant.rating || 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
       <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-xl border-b shadow-sm">
@@ -300,7 +305,17 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             </Button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-orange-600">{restaurant.name}</h1>
-              <p className="text-sm text-slate-600">{restaurant.description}</p>
+              <div className="flex items-center gap-3 mt-1">
+                <p className="text-sm text-slate-600">{restaurant.description}</p>
+                <button 
+                  onClick={() => setShowReviews(!showReviews)}
+                  className="flex items-center gap-1 text-sm hover:underline"
+                >
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <span className="font-semibold">{avgRestaurantRating}</span>
+                  <span className="text-slate-500">({restaurantReviews.length})</span>
+                </button>
+              </div>
             </div>
             <div className="flex gap-2">
               {restaurant.phone && (
@@ -324,6 +339,12 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        {showReviews && (
+          <div className="mb-6">
+            <RestaurantReviews restaurant={restaurant} user={user} />
+          </div>
+        )}
+
         {restaurant.loyalty_enabled && (
           <>
             <LoyaltyCard loyalty={customerLoyalty} restaurant={restaurant} />

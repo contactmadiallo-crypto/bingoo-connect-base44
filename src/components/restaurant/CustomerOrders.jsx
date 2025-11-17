@@ -17,9 +17,15 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDetailsDialog, setOrderDetailsDialog] = useState(false);
   const [ratingDialog, setRatingDialog] = useState(false);
+  const [restaurantReviewDialog, setRestaurantReviewDialog] = useState(false);
   const [tipAmount, setTipAmount] = useState("");
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState("");
+  const [restaurantRating, setRestaurantRating] = useState(0);
+  const [foodRating, setFoodRating] = useState(0);
+  const [serviceRating, setServiceRating] = useState(0);
+  const [deliveryRating, setDeliveryRating] = useState(0);
+  const [restaurantComment, setRestaurantComment] = useState("");
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
@@ -32,6 +38,12 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     enabled: !!user,
   });
 
+  const { data: myRestaurantReviews = [] } = useQuery({
+    queryKey: ['my-restaurant-reviews', user?.email],
+    queryFn: () => base44.entities.RestaurantReview.filter({ customer_email: user.email }),
+    enabled: !!user,
+  });
+
   const updateOrderMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
     onSuccess: () => {
@@ -40,6 +52,20 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
       setRating(0);
       setFeedback("");
       setTipAmount("");
+    },
+  });
+
+  const createRestaurantReviewMutation = useMutation({
+    mutationFn: (data) => base44.entities.RestaurantReview.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-restaurant-reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['restaurant-reviews'] });
+      setRestaurantReviewDialog(false);
+      setRestaurantRating(0);
+      setFoodRating(0);
+      setServiceRating(0);
+      setDeliveryRating(0);
+      setRestaurantComment("");
     },
   });
 
@@ -56,6 +82,11 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     setRatingDialog(true);
   };
 
+  const handleReviewRestaurant = (order) => {
+    setSelectedOrder(order);
+    setRestaurantReviewDialog(true);
+  };
+
   const submitRating = () => {
     if (rating === 0) {
       alert("Please select a rating");
@@ -70,6 +101,30 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
         tip_amount: tipAmount ? parseFloat(tipAmount) : 0
       }
     });
+  };
+
+  const submitRestaurantReview = () => {
+    if (restaurantRating === 0) {
+      alert("Please select an overall rating");
+      return;
+    }
+
+    createRestaurantReviewMutation.mutate({
+      restaurant_id: selectedOrder.restaurant_id,
+      restaurant_name: selectedOrder.restaurant_name,
+      customer_email: user.email,
+      customer_name: user.full_name,
+      order_id: selectedOrder.id,
+      rating: restaurantRating,
+      comment: restaurantComment,
+      food_rating: foodRating || undefined,
+      service_rating: serviceRating || undefined,
+      delivery_rating: selectedOrder.order_type === 'delivery' ? deliveryRating : undefined
+    });
+  };
+
+  const hasReviewedRestaurant = (orderId) => {
+    return myRestaurantReviews.some(r => r.order_id === orderId);
   };
 
   const trackOrder = (order) => {
@@ -246,7 +301,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 </div>
               )}
 
-              <div className="flex gap-2 pt-4 border-t">
+              <div className="flex gap-2 pt-4 border-t flex-wrap">
                 {['out_for_delivery', 'preparing', 'ready'].includes(selectedOrder.status) && (
                   <Button onClick={() => trackOrder(selectedOrder)} className="flex-1">
                     <MapPin className="w-4 h-4 mr-2" />
@@ -260,6 +315,15 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   }} className="flex-1">
                     <Star className="w-4 h-4 mr-2" />
                     Rate & Tip Driver
+                  </Button>
+                )}
+                {selectedOrder.status === 'delivered' && !hasReviewedRestaurant(selectedOrder.id) && (
+                  <Button onClick={() => {
+                    setOrderDetailsDialog(false);
+                    handleReviewRestaurant(selectedOrder);
+                  }} variant="outline" className="flex-1">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Review Restaurant
                   </Button>
                 )}
               </div>
@@ -361,6 +425,114 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           <DialogFooter>
             <Button variant="outline" onClick={() => setRatingDialog(false)}>Cancel</Button>
             <Button onClick={submitRating} disabled={rating === 0}>
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Submit Review
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={restaurantReviewDialog} onOpenChange={setRestaurantReviewDialog}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Review {selectedOrder?.restaurant_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label>Overall Rating *</Label>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRestaurantRating(star)}
+                    className="focus:outline-none transition-transform hover:scale-110"
+                  >
+                    <Star
+                      className={`w-12 h-12 ${
+                        star <= restaurantRating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4 bg-slate-50 p-4 rounded-lg">
+              <p className="text-sm font-semibold text-slate-700">Detailed Ratings (Optional)</p>
+              
+              <div className="space-y-2">
+                <Label className="text-sm">Food Quality</Label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setFoodRating(star)}
+                      className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          star <= foodRating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Service</Label>
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setServiceRating(star)}
+                      className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${
+                          star <= serviceRating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {selectedOrder?.order_type === 'delivery' && (
+                <div className="space-y-2">
+                  <Label className="text-sm">Delivery Experience</Label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setDeliveryRating(star)}
+                        className="focus:outline-none transition-transform hover:scale-110"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${
+                            star <= deliveryRating ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Your Review</Label>
+              <Textarea
+                placeholder="Share your experience with this restaurant..."
+                value={restaurantComment}
+                onChange={(e) => setRestaurantComment(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRestaurantReviewDialog(false)}>Cancel</Button>
+            <Button onClick={submitRestaurantReview} disabled={restaurantRating === 0}>
               <MessageSquare className="w-4 h-4 mr-2" />
               Submit Review
             </Button>

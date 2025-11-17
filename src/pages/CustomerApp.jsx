@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -102,6 +101,12 @@ export default function CustomerApp() {
     enabled: !!user,
   });
 
+  const { data: allRestaurantReviews = [] } = useQuery({
+    queryKey: ['all-restaurant-reviews'],
+    queryFn: () => base44.entities.RestaurantReview.list(),
+    enabled: !!user,
+  });
+
   const { data: favorites = [] } = useQuery({
     queryKey: ['favorites', user?.email],
     queryFn: () => base44.entities.Favorite.filter({ customer_email: user.email, type: 'restaurant' }),
@@ -131,6 +136,13 @@ export default function CustomerApp() {
     return favorites.some(f => f.restaurant_id === restaurantId);
   };
 
+  const getRestaurantRating = (restaurantId) => {
+    const reviews = allRestaurantReviews.filter(r => r.restaurant_id === restaurantId);
+    if (reviews.length === 0) return null;
+    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    return { avg: avg.toFixed(1), count: reviews.length };
+  };
+
   const cities = ["all", ...new Set(restaurants.map(r => r.city).filter(Boolean))];
 
   const filteredRestaurants = restaurants.filter(r => {
@@ -138,14 +150,23 @@ export default function CustomerApp() {
     const matchCuisine = selectedCuisine === "all" || r.cuisine_type === selectedCuisine;
     const matchBusinessType = selectedBusinessType === "all" || r.business_type === selectedBusinessType;
     const matchSearch = !search || r.name.toLowerCase().includes(search.toLowerCase());
-    const matchRating = (r.rating || 0) >= filters.minRating;
+    
+    const restaurantRating = getRestaurantRating(r.id);
+    const actualRating = restaurantRating ? parseFloat(restaurantRating.avg) : (r.rating || 0);
+    
+    const matchRating = actualRating >= filters.minRating;
     const matchDeliveryFee = (r.delivery_fee || 0) <= filters.maxDeliveryFee;
     const matchDeliveryTime = (r.avg_delivery_time || 0) <= filters.maxDeliveryTime;
     return matchCity && matchCuisine && matchBusinessType && matchSearch && matchRating && matchDeliveryFee && matchDeliveryTime;
   });
 
-  // Sort by rating
-  const sortedRestaurants = [...filteredRestaurants].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  const sortedRestaurants = [...filteredRestaurants].sort((a, b) => {
+    const ratingA = getRestaurantRating(a.id);
+    const ratingB = getRestaurantRating(b.id);
+    const scoreA = ratingA ? parseFloat(ratingA.avg) : (a.rating || 0);
+    const scoreB = ratingB ? parseFloat(ratingB.avg) : (b.rating || 0);
+    return scoreB - scoreA;
+  });
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">{t('loading')}</div>;
@@ -286,92 +307,117 @@ export default function CustomerApp() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {sortedRestaurants.map((restaurant) => (
-              <Card 
-                key={restaurant.id} 
-                className="overflow-hidden hover:shadow-xl transition-all"
-              >
-                <div 
-                  className="h-40 md:h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative cursor-pointer"
-                  onClick={() => setSelectedRestaurant(restaurant)}
+            {sortedRestaurants.map((restaurant) => {
+              const restaurantRating = getRestaurantRating(restaurant.id);
+              const displayRating = restaurantRating ? restaurantRating.avg : (restaurant.rating || 'New');
+              const reviewCount = restaurantRating ? restaurantRating.count : 0;
+              
+              return (
+                <Card 
+                  key={restaurant.id} 
+                  className="overflow-hidden hover:shadow-xl transition-all"
                 >
-                  {restaurant.cover_image_url ? (
-                    <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-5xl md:text-6xl">
-                      {businessTypes.find(t => t.value === restaurant.business_type)?.emoji || 
-                       cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
-                    </div>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavoriteMutation.mutate(restaurant);
-                    }}
-                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
+                  <div 
+                    className="h-40 md:h-48 bg-gradient-to-br from-orange-200 to-amber-200 relative cursor-pointer"
+                    onClick={() => setSelectedRestaurant(restaurant)}
                   >
-                    <span className="text-2xl">{isFavorite(restaurant.id) ? '❤️' : '🤍'}</span>
-                  </button>
-                  {restaurant.logo_url && (
-                    <div className="absolute bottom-3 left-3 w-14 h-14 md:w-16 md:h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
-                      <img src={restaurant.logo_url} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
-                <CardContent className="pt-4 md:pt-6 p-4">
-                  <h3 className="font-bold text-lg md:text-xl mb-2">{restaurant.name}</h3>
-                  <p className="text-sm text-slate-600 mb-3 line-clamp-2">{restaurant.description}</p>
-                  
-                  <div className="flex items-center gap-3 md:gap-4 text-sm text-slate-600 mb-3">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-semibold">{restaurant.rating || 'New'}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{restaurant.avg_delivery_time} {t('min')}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bike className="w-4 h-4" />
-                      <span>${restaurant.delivery_fee}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap mb-3">
-                    <Badge variant="outline" className="text-xs">
-                      {businessTypes.find(t => t.value === restaurant.business_type)?.emoji} {' '}
-                      {businessTypes.find(t => t.value === restaurant.business_type)?.label || restaurant.business_type}
-                    </Badge>
-                    {restaurant.cuisine_type && (
-                      <Badge variant="outline" className="text-xs">
-                        {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
-                        {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label}
-                      </Badge>
+                    {restaurant.cover_image_url ? (
+                      <img src={restaurant.cover_image_url} alt={restaurant.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-5xl md:text-6xl">
+                        {businessTypes.find(t => t.value === restaurant.business_type)?.emoji || 
+                         cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji || '🍽️'}
+                      </div>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
-                      <MapPin className="w-3 h-3" />
-                      <span>{restaurant.city}</span>
-                    </div>
-                  </div>
-
-                  {restaurant.phone && (
-                    <a 
-                      href={`tel:${restaurant.phone}`}
-                      className="block w-full"
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavoriteMutation.mutate(restaurant);
+                      }}
+                      className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
                     >
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        size="sm"
-                      >
-                        <Phone className="w-4 h-4 mr-2" />
-                        Call to Order
-                      </Button>
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                      <span className="text-2xl">{isFavorite(restaurant.id) ? '❤️' : '🤍'}</span>
+                    </button>
+                    {restaurant.logo_url && (
+                      <div className="absolute bottom-3 left-3 w-14 h-14 md:w-16 md:h-16 bg-white rounded-full shadow-lg overflow-hidden border-4 border-white">
+                        <img src={restaurant.logo_url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="pt-4 md:pt-6 p-4">
+                    <h3 className="font-bold text-lg md:text-xl mb-2">{restaurant.name}</h3>
+                    <p className="text-sm text-slate-600 mb-3 line-clamp-2">{restaurant.description}</p>
+                    
+                    <div className="flex items-center gap-3 md:gap-4 text-sm text-slate-600 mb-3">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <span className="font-semibold">{displayRating}</span>
+                        {reviewCount > 0 && (
+                          <span className="text-xs text-slate-500">({reviewCount})</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        <span>{restaurant.avg_delivery_time} {t('min')}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Bike className="w-4 h-4" />
+                        <span>${restaurant.delivery_fee}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
+                      <Badge variant="outline" className="text-xs">
+                        {businessTypes.find(t => t.value === restaurant.business_type)?.emoji} {' '}
+                        {businessTypes.find(t => t.value === restaurant.business_type)?.label || restaurant.business_type}
+                      </Badge>
+                      {restaurant.cuisine_type && (
+                        <Badge variant="outline" className="text-xs">
+                          {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.emoji} {' '}
+                          {cuisineCategories.find(c => c.value === restaurant.cuisine_type)?.label}
+                        </Badge>
+                      )}
+                      <div className="flex items-center gap-1 text-xs text-slate-500">
+                        <MapPin className="w-3 h-3" />
+                        <span>{restaurant.city}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      {restaurant.phone && (
+                        <a 
+                          href={`tel:${restaurant.phone}`}
+                          className="flex-1"
+                        >
+                          <Button 
+                            variant="outline" 
+                            className="w-full"
+                            size="sm"
+                          >
+                            <Phone className="w-4 h-4 mr-2" />
+                            Call
+                          </Button>
+                        </a>
+                      )}
+                      {reviewCount > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedRestaurant(restaurant);
+                          }}
+                          className="flex-1"
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Reviews
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
