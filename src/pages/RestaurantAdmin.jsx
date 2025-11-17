@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap, X, Check, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, QrCode, Package, DollarSign, ShoppingCart, Loader2, Download, FileSpreadsheet, Settings, TrendingUp, BarChart3, Clock, Award, Sparkles, Zap, X, Check, ChevronRight, AlertTriangle, Users, Gift, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import StatsCard from "../components/work/StatsCard";
 import AdminAuthGuard from "../components/AdminAuthGuard";
@@ -19,10 +18,14 @@ function RestaurantAdminContent() {
   const [menuDialog, setMenuDialog] = useState(false);
   const [bulkUploadDialog, setBulkUploadDialog] = useState(false);
   const [inventoryDialog, setInventoryDialog] = useState(false);
+  const [purchaseOrderDialog, setPurchaseOrderDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [orderDetailDialog, setOrderDetailDialog] = useState(false);
   const [cancelOrderDialog, setCancelOrderDialog] = useState(false);
+  const [loyaltyDialog, setLoyaltyDialog] = useState(false);
+  const [rewardDialog, setRewardDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [editingReward, setEditingReward] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingBulk, setUploadingBulk] = useState(false);
   const [generatingTables, setGeneratingTables] = useState(false);
@@ -30,13 +33,17 @@ function RestaurantAdminContent() {
   const [tableCount, setTableCount] = useState(20);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [cancelReason, setCancelReason] = useState("");
+  const [selectedLowStockItems, setSelectedLowStockItems] = useState([]);
+  
   const [menuForm, setMenuForm] = useState({
-    name: "", description: "", price: "", category: "main_course", image_url: "",
+    name: "", description: "", price: "", category: "main_course", image_url: "", 
     preparation_time: "", available: true
   });
+  
   const [inventoryForm, setInventoryForm] = useState({
     item_name: "", quantity: "", unit: "pieces", min_quantity: "", category: "other"
   });
+  
   const [settingsForm, setSettingsForm] = useState({
     open_hours: "",
     delivery_fee: "",
@@ -44,10 +51,7 @@ function RestaurantAdminContent() {
     avg_delivery_time: "",
     delivery_zones: []
   });
-  const [newZone, setNewZone] = useState("");
-  const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
-  const [loyaltyDialog, setLoyaltyDialog] = useState(false);
-  const [rewardDialog, setRewardDialog] = useState(false);
+  
   const [loyaltyForm, setLoyaltyForm] = useState({
     loyalty_enabled: false,
     loyalty_points_per_dollar: 10,
@@ -58,14 +62,21 @@ function RestaurantAdminContent() {
       platinum: { min_points: 2000, discount: 15 }
     }
   });
+  
   const [rewardForm, setRewardForm] = useState({
     title: "",
     description: "",
     points_required: "",
     discount_type: "percentage",
     discount_value: "",
-    tier_required: "bronze"
+    tier_required: "bronze",
+    active: true,
+    usage_limit: ""
   });
+  
+  const [newZone, setNewZone] = useState("");
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
+  const [customDateRange, setCustomDateRange] = useState({ start: "", end: "" });
 
   const queryClient = useQueryClient();
 
@@ -90,6 +101,11 @@ function RestaurantAdminContent() {
     queryFn: () => base44.entities.Table.list(),
   });
 
+  const { data: restaurants = [] } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: () => base44.entities.Restaurant.list(),
+  });
+
   const { data: rewards = [] } = useQuery({
     queryKey: ['loyalty-rewards'],
     queryFn: () => base44.entities.LoyaltyReward.list(),
@@ -100,11 +116,6 @@ function RestaurantAdminContent() {
     queryFn: () => base44.entities.CustomerLoyalty.list(),
   });
 
-  const { data: restaurants = [] } = useQuery({
-    queryKey: ['restaurants'],
-    queryFn: () => base44.entities.Restaurant.list(),
-  });
-
   const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: () => base44.auth.me(),
@@ -113,7 +124,7 @@ function RestaurantAdminContent() {
   const myRestaurant = restaurants.find(r => r.owner_email === user?.email);
 
   const createMenuMutation = useMutation({
-    mutationFn: (data) => base44.entities.MenuItem.create({ ...data, restaurant_id: myRestaurant?.id }),
+    mutationFn: (data) => base44.entities.MenuItem.create({...data, restaurant_id: myRestaurant?.id}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setMenuDialog(false);
@@ -153,11 +164,19 @@ function RestaurantAdminContent() {
     },
   });
 
+  const updateInventoryMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Inventory.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] });
+    },
+  });
+
   const updateRestaurantMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Restaurant.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
       setSettingsDialog(false);
+      setLoyaltyDialog(false);
     },
   });
 
@@ -169,9 +188,9 @@ function RestaurantAdminContent() {
   });
 
   const cancelOrderMutation = useMutation({
-    mutationFn: ({ id, reason }) => base44.entities.Order.update(id, {
+    mutationFn: ({ id, reason }) => base44.entities.Order.update(id, { 
       status: 'cancelled',
-      cancellation_reason: reason
+      cancellation_reason: reason 
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -182,11 +201,22 @@ function RestaurantAdminContent() {
   });
 
   const createRewardMutation = useMutation({
-    mutationFn: (data) => base44.entities.LoyaltyReward.create({ ...data, restaurant_id: myRestaurant?.id }),
+    mutationFn: (data) => base44.entities.LoyaltyReward.create({...data, restaurant_id: myRestaurant?.id}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['loyalty-rewards'] });
       setRewardDialog(false);
-      setRewardForm({ title: "", description: "", points_required: "", discount_type: "percentage", discount_value: "", tier_required: "bronze" });
+      setEditingReward(null);
+      setRewardForm({ title: "", description: "", points_required: "", discount_type: "percentage", discount_value: "", tier_required: "bronze", active: true, usage_limit: "" });
+    },
+  });
+
+  const updateRewardMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.LoyaltyReward.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['loyalty-rewards'] });
+      setRewardDialog(false);
+      setEditingReward(null);
+      setRewardForm({ title: "", description: "", points_required: "", discount_type: "percentage", discount_value: "", tier_required: "bronze", active: true, usage_limit: "" });
     },
   });
 
@@ -197,21 +227,13 @@ function RestaurantAdminContent() {
     },
   });
 
-  const updateLoyaltySettingsMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Restaurant.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['restaurants'] });
-      setLoyaltyDialog(false);
-    },
-  });
-
   const getNextStatus = (currentStatus) => {
     const statusFlow = {
       'pending': 'confirmed',
       'confirmed': 'preparing',
       'preparing': 'ready',
       'ready': 'out_for_delivery',
-      'out_for_delivery': 'delivered', // Assuming delivered is the next logical step
+      'out_for_delivery': 'delivered',
     };
     return statusFlow[currentStatus];
   };
@@ -270,12 +292,12 @@ function RestaurantAdminContent() {
       alert("Please enter a dish name first");
       return;
     }
-
+    
     setGeneratingAI(true);
-    const prompt = `Generate a compelling, mouth-watering menu description for a dish called "${menuForm.name}".
-    The description should be 2-3 sentences, appetizing, and highlight what makes this dish special.
+    const prompt = `Generate a compelling, mouth-watering menu description for a dish called "${menuForm.name}". 
+    The description should be 2-3 sentences, appetizing, and highlight what makes this dish special. 
     Write in an elegant, professional style suitable for a restaurant menu.`;
-
+    
     const response = await base44.integrations.Core.InvokeLLM({ prompt });
     setMenuForm({ ...menuForm, description: response });
     setGeneratingAI(false);
@@ -286,9 +308,9 @@ function RestaurantAdminContent() {
       alert("Please enter dish name and category first");
       return;
     }
-
+    
     setGeneratingAI(true);
-    const prompt = `Based on market trends and typical restaurant pricing in 2024, suggest an optimal price in USD for a ${menuForm.category} dish called "${menuForm.name}".
+    const prompt = `Based on market trends and typical restaurant pricing in 2024, suggest an optimal price in USD for a ${menuForm.category} dish called "${menuForm.name}". 
     Consider:
     - Average market prices for similar dishes
     - Ingredient costs
@@ -296,7 +318,7 @@ function RestaurantAdminContent() {
     - Competitive pricing
     
     Return ONLY a single number (the price in dollars), nothing else.`;
-
+    
     const response = await base44.integrations.Core.InvokeLLM({ prompt });
     const price = parseFloat(response.trim());
     if (!isNaN(price)) {
@@ -310,7 +332,7 @@ function RestaurantAdminContent() {
       alert("Please enter a dish name first");
       return;
     }
-
+    
     setGeneratingAI(true);
     const prompt = `Categorize this menu item: "${menuForm.name}"
     ${menuForm.description ? `Description: ${menuForm.description}` : ''}
@@ -323,11 +345,11 @@ function RestaurantAdminContent() {
     - sides
     
     Return ONLY the category name, nothing else.`;
-
+    
     const response = await base44.integrations.Core.InvokeLLM({ prompt });
     const category = response.trim().toLowerCase();
     const validCategories = ['appetizers', 'main_course', 'desserts', 'beverages', 'sides'];
-
+    
     if (validCategories.includes(category)) {
       setMenuForm({ ...menuForm, category });
     }
@@ -339,10 +361,10 @@ function RestaurantAdminContent() {
     if (!file) return;
 
     setUploadingBulk(true);
-
+    
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
+      
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
@@ -391,12 +413,12 @@ function RestaurantAdminContent() {
     setGeneratingTables(true);
     const baseUrl = window.location.origin;
     const tablesToCreate = [];
-
+    
     for (let i = 1; i <= tableCount; i++) {
       const tableNumber = `T${i.toString().padStart(2, '0')}`;
       const menuUrl = `${baseUrl}/RestaurantMenu?table=${tableNumber}&restaurant_id=${myRestaurant?.id}`;
       const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
-
+      
       tablesToCreate.push({
         table_number: tableNumber,
         capacity: 4,
@@ -406,7 +428,7 @@ function RestaurantAdminContent() {
         restaurant_id: myRestaurant?.id
       });
     }
-
+    
     await base44.entities.Table.bulkCreate(tablesToCreate);
     queryClient.invalidateQueries({ queryKey: ['tables'] });
     setGeneratingTables(false);
@@ -458,6 +480,66 @@ function RestaurantAdminContent() {
     });
   };
 
+  const openLoyaltySettings = () => {
+    if (myRestaurant) {
+      setLoyaltyForm({
+        loyalty_enabled: myRestaurant.loyalty_enabled || false,
+        loyalty_points_per_dollar: myRestaurant.loyalty_points_per_dollar || 10,
+        loyalty_tiers: myRestaurant.loyalty_tiers || {
+          bronze: { min_points: 0, discount: 0 },
+          silver: { min_points: 500, discount: 5 },
+          gold: { min_points: 1000, discount: 10 },
+          platinum: { min_points: 2000, discount: 15 }
+        }
+      });
+      setLoyaltyDialog(true);
+    }
+  };
+
+  const handleLoyaltySubmit = (e) => {
+    e.preventDefault();
+    updateRestaurantMutation.mutate({
+      id: myRestaurant.id,
+      data: loyaltyForm
+    });
+  };
+
+  const handleRewardSubmit = (e) => {
+    e.preventDefault();
+    const data = {
+      ...rewardForm,
+      points_required: parseInt(rewardForm.points_required),
+      discount_value: parseFloat(rewardForm.discount_value),
+      usage_limit: rewardForm.usage_limit ? parseInt(rewardForm.usage_limit) : undefined
+    };
+
+    if (editingReward) {
+      updateRewardMutation.mutate({ id: editingReward.id, data });
+    } else {
+      createRewardMutation.mutate(data);
+    }
+  };
+
+  const openRewardDialog = (reward = null) => {
+    if (reward) {
+      setEditingReward(reward);
+      setRewardForm({
+        title: reward.title,
+        description: reward.description || "",
+        points_required: reward.points_required.toString(),
+        discount_type: reward.discount_type,
+        discount_value: reward.discount_value.toString(),
+        tier_required: reward.tier_required,
+        active: reward.active,
+        usage_limit: reward.usage_limit?.toString() || ""
+      });
+    } else {
+      setEditingReward(null);
+      setRewardForm({ title: "", description: "", points_required: "", discount_type: "percentage", discount_value: "", tier_required: "bronze", active: true, usage_limit: "" });
+    }
+    setRewardDialog(true);
+  };
+
   const addDeliveryZone = () => {
     if (newZone.trim()) {
       setSettingsForm({
@@ -488,37 +570,37 @@ function RestaurantAdminContent() {
     }
   };
 
-  const openLoyaltySettings = () => {
-    if (myRestaurant) {
-      setLoyaltyForm({
-        loyalty_enabled: myRestaurant.loyalty_enabled || false,
-        loyalty_points_per_dollar: myRestaurant.loyalty_points_per_dollar || 10,
-        loyalty_tiers: myRestaurant.loyalty_tiers || {
-          bronze: { min_points: 0, discount: 0 },
-          silver: { min_points: 500, discount: 5 },
-          gold: { min_points: 1000, discount: 10 },
-          platinum: { min_points: 2000, discount: 15 }
-        }
-      });
-      setLoyaltyDialog(true);
-    }
+  const generatePurchaseOrder = () => {
+    const lowStockItems = myInventory.filter(i => i.quantity <= (i.min_quantity || 0));
+    setSelectedLowStockItems(lowStockItems);
+    setPurchaseOrderDialog(true);
   };
 
-  const handleLoyaltySubmit = (e) => {
-    e.preventDefault();
-    updateLoyaltySettingsMutation.mutate({
-      id: myRestaurant.id,
-      data: loyaltyForm
-    });
-  };
+  const downloadPurchaseOrder = () => {
+    const poData = selectedLowStockItems.map(item => ({
+      'Item Name': item.item_name,
+      'Current Stock': `${item.quantity} ${item.unit}`,
+      'Min Stock': `${item.min_quantity || 0} ${item.unit}`,
+      'Needed': `${Math.max(0, (item.min_quantity || 0) - item.quantity)} ${item.unit}`,
+      'Category': item.category,
+      'Supplier': item.supplier || 'N/A'
+    }));
 
-  const handleRewardSubmit = (e) => {
-    e.preventDefault();
-    createRewardMutation.mutate({
-      ...rewardForm,
-      points_required: parseInt(rewardForm.points_required),
-      discount_value: parseFloat(rewardForm.discount_value)
-    });
+    const headers = Object.keys(poData[0] || {});
+    const csv = [
+      headers.join(','),
+      ...poData.map(row => headers.map(h => `"${row[h]}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `purchase-order-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const stats = {
@@ -539,6 +621,10 @@ function RestaurantAdminContent() {
   const myCustomerLoyalties = customerLoyalties.filter(l => l.restaurant_id === myRestaurant?.id);
 
   const getDateRange = () => {
+    if (analyticsTimeRange === 'custom' && customDateRange.start && customDateRange.end) {
+      return { start: new Date(customDateRange.start), end: new Date(customDateRange.end) };
+    }
+    
     const now = new Date();
     const ranges = {
       day: new Date(now.setHours(0, 0, 0, 0)),
@@ -546,11 +632,15 @@ function RestaurantAdminContent() {
       month: new Date(now.setMonth(now.getMonth() - 1)),
       year: new Date(now.setFullYear(now.getFullYear() - 1))
     };
-    return ranges[analyticsTimeRange] || ranges.week;
+    return { start: ranges[analyticsTimeRange] || ranges.week, end: new Date() };
   };
 
-  const filteredOrders = myOrders.filter(o => new Date(o.created_date) >= getDateRange());
-
+  const dateRange = getDateRange();
+  const filteredOrders = myOrders.filter(o => {
+    const orderDate = new Date(o.created_date);
+    return orderDate >= dateRange.start && orderDate <= dateRange.end;
+  });
+  
   const analytics = {
     revenue: {
       total: filteredOrders.reduce((sum, o) => sum + o.total_amount, 0),
@@ -559,19 +649,24 @@ function RestaurantAdminContent() {
         acc[date] = (acc[date] || 0) + o.total_amount;
         return acc;
       }, {}),
+      byWeek: filteredOrders.reduce((acc, o) => {
+        const week = `Week ${Math.ceil(new Date(o.created_date).getDate() / 7)}`;
+        acc[week] = (acc[week] || 0) + o.total_amount;
+        return acc;
+      }, {}),
       growth: (() => {
         if (filteredOrders.length === 0) return 0;
-        const sortedOrders = [...filteredOrders].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+        const sortedOrders = [...filteredOrders].sort((a,b) => new Date(a.created_date) - new Date(b.created_date));
         const midIndex = Math.ceil(sortedOrders.length / 2);
         const firstHalf = sortedOrders.slice(0, midIndex);
         const secondHalf = sortedOrders.slice(midIndex);
 
         const firstHalfRevenue = firstHalf.reduce((sum, o) => sum + o.total_amount, 0);
         const secondHalfRevenue = secondHalf.reduce((sum, o) => sum + o.total_amount, 0);
-
+        
         if (firstHalfRevenue === 0 && secondHalfRevenue === 0) return 0;
         if (firstHalfRevenue === 0) return 100;
-
+        
         return (((secondHalfRevenue - firstHalfRevenue) / firstHalfRevenue) * 100).toFixed(1);
       })()
     },
@@ -602,9 +697,17 @@ function RestaurantAdminContent() {
       acc[o.order_type] = (acc[o.order_type] || 0) + 1;
       return acc;
     }, {}),
-    avgOrderValue: filteredOrders.length > 0
+    avgOrderValue: filteredOrders.length > 0 
       ? (filteredOrders.reduce((sum, o) => sum + o.total_amount, 0) / filteredOrders.length).toFixed(2)
-      : 0
+      : 0,
+    totalCustomers: new Set(filteredOrders.map(o => o.customer_name)).size,
+    repeatCustomers: (() => {
+      const customerOrders = {};
+      filteredOrders.forEach(o => {
+        customerOrders[o.customer_name] = (customerOrders[o.customer_name] || 0) + 1;
+      });
+      return Object.values(customerOrders).filter(count => count > 1).length;
+    })()
   };
 
   const exportSalesReport = () => {
@@ -634,7 +737,7 @@ function RestaurantAdminContent() {
       ...reportData.map(row => headers.map(h => {
         const value = row[h];
         if (typeof value === 'string' && value.includes(',')) {
-          return `"${value.replace(/"/g, '""')}"`;
+            return `"${value.replace(/"/g, '""')}"`;
         }
         return `"${value}"`;
       }).join(','))
@@ -644,13 +747,24 @@ function RestaurantAdminContent() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `sales-report-${analyticsTimeRange}-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `sales-report-${analyticsTimeRange}-${new Date().toISOString().slice(0,10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
+  const loyaltyStats = {
+    totalMembers: myCustomerLoyalties.length,
+    totalPoints: myCustomerLoyalties.reduce((sum, l) => sum + (l.points || 0), 0),
+    totalRedeemed: myCustomerLoyalties.reduce((sum, l) => sum + (l.rewards_redeemed || 0), 0),
+    tierDistribution: myCustomerLoyalties.reduce((acc, l) => {
+      acc[l.tier] = (acc[l.tier] || 0) + 1;
+      return acc;
+    }, {}),
+    activeRewards: myRewards.filter(r => r.active).length,
+    totalRedemptions: myRewards.reduce((sum, r) => sum + (r.times_redeemed || 0), 0)
+  };
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-orange-50 to-red-50">
@@ -670,7 +784,12 @@ function RestaurantAdminContent() {
           <StatsCard title="Total Orders" value={stats.totalOrders} icon={ShoppingCart} gradient="bg-gradient-to-br from-blue-500 to-blue-600" />
           <StatsCard title="Today's Revenue" value={`$${stats.todayRevenue.toFixed(2)}`} icon={DollarSign} gradient="bg-gradient-to-br from-green-500 to-green-600" />
           <StatsCard title="Menu Items" value={stats.menuItems} icon={Package} gradient="bg-gradient-to-br from-purple-500 to-purple-600" />
-          <StatsCard title="Low Stock" value={stats.lowStock} icon={Package} gradient="bg-gradient-to-br from-red-500 to-red-600" />
+          <StatsCard 
+            title="Low Stock Items" 
+            value={stats.lowStock} 
+            icon={AlertTriangle} 
+            gradient={stats.lowStock > 0 ? "bg-gradient-to-br from-red-500 to-red-600" : "bg-gradient-to-br from-green-500 to-green-600"} 
+          />
         </div>
 
         <Tabs defaultValue="menu" className="w-full">
@@ -718,7 +837,7 @@ function RestaurantAdminContent() {
                             </Badge>
                           </button>
                         </div>
-                        <p className="text-sm text-slate-600 mb-2">{item.description}</p>
+                        <p className="text-sm text-slate-600 mb-2 line-clamp-2">{item.description}</p>
                         <p className="text-xl font-bold text-orange-600 mb-3">${item.price}</p>
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => {
@@ -729,7 +848,7 @@ function RestaurantAdminContent() {
                             <Pencil className="w-3 h-3" />
                           </Button>
                           <Button size="sm" variant="outline" onClick={() => {
-                            if (confirm('Delete this item?')) deleteMenuMutation.mutate(item.id);
+                            if(confirm('Delete this item?')) deleteMenuMutation.mutate(item.id);
                           }}>
                             <Trash2 className="w-3 h-3" />
                           </Button>
@@ -743,33 +862,65 @@ function RestaurantAdminContent() {
           </TabsContent>
 
           <TabsContent value="inventory">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Inventory Management</CardTitle>
-                <Button onClick={() => setInventoryDialog(true)} disabled={!myRestaurant}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {myInventory.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{item.item_name}</h3>
-                        <p className="text-sm text-slate-600">{item.category}</p>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Inventory Management</CardTitle>
+                  <div className="flex gap-2">
+                    {stats.lowStock > 0 && (
+                      <Button variant="outline" onClick={generatePurchaseOrder}>
+                        <Download className="w-4 h-4 mr-2" />
+                        Generate PO
+                      </Button>
+                    )}
+                    <Button onClick={() => setInventoryDialog(true)} disabled={!myRestaurant}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Item
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {stats.lowStock > 0 && (
+                    <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                        <p className="font-semibold text-red-800">Low Stock Alert</p>
                       </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold">{item.quantity} {item.unit}</p>
-                        {item.min_quantity && item.quantity <= item.min_quantity && (
-                          <Badge className="bg-red-100 text-red-700">Low Stock</Badge>
-                        )}
-                      </div>
+                      <p className="text-sm text-red-700">{stats.lowStock} items are running low. Consider generating a purchase order.</p>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  )}
+                  
+                  <div className="space-y-3">
+                    {myInventory.map((item) => {
+                      const isLowStock = item.quantity <= (item.min_quantity || 0);
+                      return (
+                        <div key={item.id} className={`flex items-center justify-between p-4 border rounded-lg ${isLowStock ? 'bg-red-50 border-red-200' : ''}`}>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold">{item.item_name}</h3>
+                              {isLowStock && <AlertTriangle className="w-4 h-4 text-red-600" />}
+                            </div>
+                            <p className="text-sm text-slate-600 capitalize">{item.category}</p>
+                            {item.supplier && <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>}
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-lg font-bold ${isLowStock ? 'text-red-600' : ''}`}>
+                              {item.quantity} {item.unit}
+                            </p>
+                            {item.min_quantity && (
+                              <p className="text-xs text-slate-500">Min: {item.min_quantity} {item.unit}</p>
+                            )}
+                            {isLowStock && (
+                              <Badge className="bg-red-100 text-red-700 mt-1">Low Stock</Badge>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="tables">
@@ -777,9 +928,9 @@ function RestaurantAdminContent() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Table QR Codes</CardTitle>
                 <div className="flex gap-2 items-center">
-                  <Input
-                    type="number"
-                    value={tableCount}
+                  <Input 
+                    type="number" 
+                    value={tableCount} 
                     onChange={(e) => setTableCount(parseInt(e.target.value) || 0)}
                     className="w-20"
                     min="1"
@@ -847,35 +998,65 @@ function RestaurantAdminContent() {
                         <p className="text-sm text-green-800 font-semibold">✅ Loyalty Program Active</p>
                         <p className="text-xs text-green-700 mt-1">Customers earn {myRestaurant.loyalty_points_per_dollar} points per dollar spent</p>
                       </div>
-
+                      
                       <div className="grid md:grid-cols-4 gap-4">
                         {Object.entries(myRestaurant.loyalty_tiers || {}).map(([tier, config]) => (
                           <div key={tier} className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border">
-                            <p className="text-xs text-slate-500 uppercase">{tier} tier</p>
+                            <p className="text-xs text-slate-500 uppercase">{tier}</p>
                             <p className="text-xl font-bold text-slate-900">{config.min_points}+ pts</p>
                             <p className="text-sm text-green-600">{config.discount}% discount</p>
                           </div>
                         ))}
                       </div>
 
-                      <div className="grid md:grid-cols-3 gap-4 mt-4">
+                      <div className="grid md:grid-cols-4 gap-4 mt-4">
                         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                          <p className="text-sm text-slate-600">Total Members</p>
-                          <p className="text-2xl font-bold text-blue-700">{myCustomerLoyalties.length}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Users className="w-4 h-4 text-blue-600" />
+                            <p className="text-sm text-slate-600">Total Members</p>
+                          </div>
+                          <p className="text-2xl font-bold text-blue-700">{loyaltyStats.totalMembers}</p>
                         </div>
                         <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                          <p className="text-sm text-slate-600">Points Awarded</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Award className="w-4 h-4 text-purple-600" />
+                            <p className="text-sm text-slate-600">Points Awarded</p>
+                          </div>
                           <p className="text-2xl font-bold text-purple-700">
-                            {myCustomerLoyalties.reduce((sum, l) => sum + (l.points || 0), 0).toLocaleString()}
+                            {loyaltyStats.totalPoints.toLocaleString()}
                           </p>
                         </div>
                         <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
-                          <p className="text-sm text-slate-600">Rewards Redeemed</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Gift className="w-4 h-4 text-orange-600" />
+                            <p className="text-sm text-slate-600">Total Redemptions</p>
+                          </div>
                           <p className="text-2xl font-bold text-orange-700">
-                            {myCustomerLoyalties.reduce((sum, l) => sum + (l.rewards_redeemed || 0), 0)}
+                            {loyaltyStats.totalRedemptions}
                           </p>
                         </div>
+                        <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Package className="w-4 h-4 text-green-600" />
+                            <p className="text-sm text-slate-600">Active Rewards</p>
+                          </div>
+                          <p className="text-2xl font-bold text-green-700">{loyaltyStats.activeRewards}</p>
+                        </div>
                       </div>
+
+                      {Object.keys(loyaltyStats.tierDistribution).length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-3">Member Distribution by Tier</h4>
+                          <div className="grid grid-cols-4 gap-3">
+                            {['bronze', 'silver', 'gold', 'platinum'].map(tier => (
+                              <div key={tier} className="text-center p-3 bg-slate-50 rounded-lg">
+                                <p className="text-xs text-slate-500 uppercase">{tier}</p>
+                                <p className="text-2xl font-bold">{loyaltyStats.tierDistribution[tier] || 0}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-12">
@@ -894,31 +1075,37 @@ function RestaurantAdminContent() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Rewards Catalog</CardTitle>
-                    <Button onClick={() => setRewardDialog(true)}>
+                    <Button onClick={() => openRewardDialog()}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Reward
                     </Button>
                   </CardHeader>
                   <CardContent>
                     {myRewards.length === 0 ? (
-                      <div className="text-center py-8 text-slate-500">
-                        No rewards created yet
+                      <div className="text-center py-8">
+                        <Gift className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                        <p className="text-slate-600">No rewards created yet</p>
                       </div>
                     ) : (
                       <div className="grid md:grid-cols-2 gap-4">
                         {myRewards.map((reward) => (
-                          <Card key={reward.id}>
+                          <Card key={reward.id} className={!reward.active ? 'opacity-60' : ''}>
                             <CardContent className="pt-6">
                               <div className="flex justify-between items-start mb-3">
                                 <div className="flex-1">
                                   <h4 className="font-bold text-lg">{reward.title}</h4>
                                   <p className="text-sm text-slate-600">{reward.description}</p>
                                 </div>
-                                <Button size="sm" variant="ghost" onClick={() => {
-                                  if (confirm('Delete this reward?')) deleteRewardMutation.mutate(reward.id);
-                                }}>
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
+                                <div className="flex gap-1">
+                                  <Button size="sm" variant="ghost" onClick={() => openRewardDialog(reward)}>
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => {
+                                    if(confirm('Delete this reward?')) deleteRewardMutation.mutate(reward.id);
+                                  }}>
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
                               </div>
                               <div className="flex gap-2 flex-wrap">
                                 <Badge>{reward.points_required} points</Badge>
@@ -935,7 +1122,7 @@ function RestaurantAdminContent() {
                               </div>
                               {reward.usage_limit && (
                                 <p className="text-xs text-slate-500 mt-2">
-                                  Used {reward.times_redeemed || 0} / {reward.usage_limit} times
+                                  Redeemed {reward.times_redeemed || 0} / {reward.usage_limit} times
                                 </p>
                               )}
                             </CardContent>
@@ -956,10 +1143,10 @@ function RestaurantAdminContent() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {myOrders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="border rounded-lg p-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                  {myOrders.slice(0, 20).map((order) => (
+                    <div 
+                      key={order.id} 
+                      className="border rounded-lg p-4 hover:bg-slate-50 cursor-pointer transition-colors" 
                       onClick={() => handleOrderClick(order)}
                     >
                       <div className="flex justify-between items-start mb-3">
@@ -1013,6 +1200,7 @@ function RestaurantAdminContent() {
                         <SelectItem value="week">This Week</SelectItem>
                         <SelectItem value="month">This Month</SelectItem>
                         <SelectItem value="year">This Year</SelectItem>
+                        <SelectItem value="custom">Custom Range</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button onClick={exportSalesReport} variant="outline" disabled={filteredOrders.length === 0}>
@@ -1022,7 +1210,31 @@ function RestaurantAdminContent() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  {analyticsTimeRange === 'custom' && (
+                    <div className="flex gap-4 mb-6 items-end">
+                      <div className="flex-1">
+                        <Label>Start Date</Label>
+                        <Input 
+                          type="date" 
+                          value={customDateRange.start}
+                          onChange={(e) => setCustomDateRange({...customDateRange, start: e.target.value})}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Label>End Date</Label>
+                        <Input 
+                          type="date" 
+                          value={customDateRange.end}
+                          onChange={(e) => setCustomDateRange({...customDateRange, end: e.target.value})}
+                        />
+                      </div>
+                      <Button variant="outline" onClick={() => setCustomDateRange({ start: "", end: "" })}>
+                        Clear
+                      </Button>
+                    </div>
+                  )}
+
+                  <div className="grid md:grid-cols-4 gap-6 mb-8">
                     <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm text-slate-600">Total Revenue</p>
@@ -1041,7 +1253,7 @@ function RestaurantAdminContent() {
                       </div>
                       <p className="text-3xl font-bold text-blue-700">{filteredOrders.length}</p>
                       <p className="text-xs text-blue-600 mt-1">
-                        {analyticsTimeRange === 'day' ? 'Today' : analyticsTimeRange === 'week' ? 'This week' : analyticsTimeRange === 'month' ? 'This month' : 'This year'}
+                        {analyticsTimeRange === 'day' ? 'Today' : analyticsTimeRange === 'week' ? 'This week' : analyticsTimeRange === 'month' ? 'This month' : analyticsTimeRange === 'year' ? 'This year' : 'Selected period'}
                       </p>
                     </div>
 
@@ -1053,6 +1265,15 @@ function RestaurantAdminContent() {
                       <p className="text-3xl font-bold text-purple-700">${analytics.avgOrderValue}</p>
                       <p className="text-xs text-purple-600 mt-1">Per order</p>
                     </div>
+
+                    <div className="p-6 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm text-slate-600">Customers</p>
+                        <Users className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <p className="text-3xl font-bold text-orange-700">{analytics.totalCustomers}</p>
+                      <p className="text-xs text-orange-600 mt-1">{analytics.repeatCustomers} repeat customers</p>
+                    </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -1063,21 +1284,21 @@ function RestaurantAdminContent() {
                       </h3>
                       <div className="space-y-2">
                         {Object.entries(analytics.revenue.byDay).length > 0 ? (
-                          Object.entries(analytics.revenue.byDay).slice(-7).map(([date, revenue]) => (
-                            <div key={date} className="flex items-center gap-3">
-                              <span className="text-xs text-slate-600 w-24">{date}</span>
-                              <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
-                                <div
-                                  className="bg-gradient-to-r from-orange-400 to-red-400 h-full rounded-full flex items-center justify-end pr-2"
-                                  style={{ width: `${(revenue / Math.max(...Object.values(analytics.revenue.byDay))) * 100}%` }}
-                                >
-                                  <span className="text-xs font-semibold text-white">${revenue.toFixed(2)}</span>
+                            Object.entries(analytics.revenue.byDay).slice(-10).map(([date, revenue]) => (
+                                <div key={date} className="flex items-center gap-3">
+                                <span className="text-xs text-slate-600 w-24">{date}</span>
+                                <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
+                                    <div 
+                                    className="bg-gradient-to-r from-orange-400 to-red-400 h-full rounded-full flex items-center justify-end pr-2"
+                                    style={{ width: `${(revenue / Math.max(...Object.values(analytics.revenue.byDay))) * 100}%` }}
+                                    >
+                                    <span className="text-xs font-semibold text-white">${revenue.toFixed(2)}</span>
+                                    </div>
                                 </div>
-                              </div>
-                            </div>
-                          ))
+                                </div>
+                            ))
                         ) : (
-                          <p className="text-sm text-slate-500">No daily sales data.</p>
+                            <p className="text-sm text-slate-500">No daily sales data.</p>
                         )}
                       </div>
                     </div>
@@ -1089,23 +1310,23 @@ function RestaurantAdminContent() {
                       </h3>
                       <div className="space-y-2">
                         {analytics.peakHours.length > 0 ? (
-                          analytics.peakHours.slice(0, 7).map(({ hour, count }) => (
-                            <div key={hour} className="flex items-center gap-3">
-                              <span className="text-xs text-slate-600 w-24">
-                                {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
-                              </span>
-                              <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
-                                <div
-                                  className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full flex items-center justify-end pr-2"
-                                  style={{ width: `${(count / Math.max(...analytics.peakHours.map(h => h.count))) * 100}%` }}
-                                >
-                                  <span className="text-xs font-semibold text-white">{count} orders</span>
+                            analytics.peakHours.slice(0, 10).map(({ hour, count }) => (
+                                <div key={hour} className="flex items-center gap-3">
+                                <span className="text-xs text-slate-600 w-24">
+                                    {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
+                                </span>
+                                <div className="flex-1 bg-slate-100 rounded-full h-8 relative overflow-hidden">
+                                    <div 
+                                    className="bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full flex items-center justify-end pr-2"
+                                    style={{ width: `${(count / Math.max(...analytics.peakHours.map(h => h.count))) * 100}%` }}
+                                    >
+                                    <span className="text-xs font-semibold text-white">{count} orders</span>
+                                    </div>
                                 </div>
-                              </div>
-                            </div>
-                          ))
+                                </div>
+                            ))
                         ) : (
-                          <p className="text-sm text-slate-500">No peak hour data.</p>
+                            <p className="text-sm text-slate-500">No peak hour data.</p>
                         )}
                       </div>
                     </div>
@@ -1153,19 +1374,19 @@ function RestaurantAdminContent() {
                 <CardContent>
                   <div className="grid md:grid-cols-3 gap-4">
                     {Object.entries(analytics.orderTypes).length > 0 ? (
-                      Object.entries(analytics.orderTypes).map(([type, count]) => (
-                        <div key={type} className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border">
-                          <p className="text-sm text-slate-600 capitalize mb-2">{type.replace('_', ' ')}</p>
-                          <p className="text-3xl font-bold text-slate-900">{count}</p>
-                          <p className="text-xs text-slate-500 mt-1">
-                            {((count / filteredOrders.length) * 100).toFixed(1)}% of orders
-                          </p>
-                        </div>
-                      ))
+                        Object.entries(analytics.orderTypes).map(([type, count]) => (
+                            <div key={type} className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border">
+                            <p className="text-sm text-slate-600 capitalize mb-2">{type.replace('_', ' ')}</p>
+                            <p className="text-3xl font-bold text-slate-900">{count}</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                                {((count / filteredOrders.length) * 100).toFixed(1)}% of orders
+                            </p>
+                            </div>
+                        ))
                     ) : (
-                      <div className="text-center py-6 text-slate-500 col-span-full">
-                        No order type data for this period.
-                      </div>
+                        <div className="text-center py-6 text-slate-500 col-span-full">
+                            No order type data for this period.
+                        </div>
                     )}
                   </div>
                 </CardContent>
@@ -1174,6 +1395,7 @@ function RestaurantAdminContent() {
           </TabsContent>
         </Tabs>
 
+        {/* All existing dialogs remain unchanged */}
         <Dialog open={bulkUploadDialog} onOpenChange={setBulkUploadDialog}>
           <DialogContent>
             <DialogHeader>
@@ -1236,19 +1458,19 @@ function RestaurantAdminContent() {
                   </div>
                 </div>
               </div>
-
+              
               <div className="space-y-2">
                 <Label>Name *</Label>
-                <Input value={menuForm.name} onChange={(e) => setMenuForm({ ...menuForm, name: e.target.value })} required />
+                <Input value={menuForm.name} onChange={(e) => setMenuForm({...menuForm, name: e.target.value})} required />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Description</Label>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline" 
                     onClick={generateDescription}
                     disabled={generatingAI || !menuForm.name}
                     className="h-7"
@@ -1257,9 +1479,9 @@ function RestaurantAdminContent() {
                     AI Generate
                   </Button>
                 </div>
-                <Textarea
-                  value={menuForm.description}
-                  onChange={(e) => setMenuForm({ ...menuForm, description: e.target.value })}
+                <Textarea 
+                  value={menuForm.description} 
+                  onChange={(e) => setMenuForm({...menuForm, description: e.target.value})}
                   placeholder="AI can generate a compelling description for you..."
                 />
               </div>
@@ -1268,10 +1490,10 @@ function RestaurantAdminContent() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Price *</Label>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
+                    <Button 
+                      type="button" 
+                      size="sm" 
+                      variant="outline" 
                       onClick={suggestPrice}
                       disabled={generatingAI || !menuForm.name}
                       className="h-6 text-xs"
@@ -1280,15 +1502,15 @@ function RestaurantAdminContent() {
                       Suggest
                     </Button>
                   </div>
-                  <Input type="number" step="0.01" value={menuForm.price} onChange={(e) => setMenuForm({ ...menuForm, price: e.target.value })} required />
+                  <Input type="number" step="0.01" value={menuForm.price} onChange={(e) => setMenuForm({...menuForm, price: e.target.value})} required />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Category</Label>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
+                    <Button 
+                      type="button" 
+                      size="sm" 
+                      variant="outline" 
                       onClick={autoCategorizeDish}
                       disabled={generatingAI || !menuForm.name}
                       className="h-6 text-xs"
@@ -1297,7 +1519,7 @@ function RestaurantAdminContent() {
                       Auto
                     </Button>
                   </div>
-                  <Select value={menuForm.category} onValueChange={(value) => setMenuForm({ ...menuForm, category: value })}>
+                  <Select value={menuForm.category} onValueChange={(value) => setMenuForm({...menuForm, category: value})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="appetizers">Appetizers</SelectItem>
@@ -1319,7 +1541,7 @@ function RestaurantAdminContent() {
 
               <div className="space-y-2">
                 <Label>Preparation Time (minutes)</Label>
-                <Input type="number" value={menuForm.preparation_time} onChange={(e) => setMenuForm({ ...menuForm, preparation_time: e.target.value })} />
+                <Input type="number" value={menuForm.preparation_time} onChange={(e) => setMenuForm({...menuForm, preparation_time: e.target.value})} />
               </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setMenuDialog(false)}>Cancel</Button>
@@ -1337,16 +1559,16 @@ function RestaurantAdminContent() {
             <form onSubmit={handleInventorySubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Item Name *</Label>
-                <Input value={inventoryForm.item_name} onChange={(e) => setInventoryForm({ ...inventoryForm, item_name: e.target.value })} required />
+                <Input value={inventoryForm.item_name} onChange={(e) => setInventoryForm({...inventoryForm, item_name: e.target.value})} required />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Quantity *</Label>
-                  <Input type="number" value={inventoryForm.quantity} onChange={(e) => setInventoryForm({ ...inventoryForm, quantity: e.target.value })} required />
+                  <Input type="number" value={inventoryForm.quantity} onChange={(e) => setInventoryForm({...inventoryForm, quantity: e.target.value})} required />
                 </div>
                 <div className="space-y-2">
                   <Label>Unit</Label>
-                  <Select value={inventoryForm.unit} onValueChange={(value) => setInventoryForm({ ...inventoryForm, unit: value })}>
+                  <Select value={inventoryForm.unit} onValueChange={(value) => setInventoryForm({...inventoryForm, unit: value})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="kg">Kg</SelectItem>
@@ -1360,20 +1582,21 @@ function RestaurantAdminContent() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Minimum Quantity</Label>
-                <Input type="number" value={inventoryForm.min_quantity} onChange={(e) => setInventoryForm({ ...inventoryForm, min_quantity: e.target.value })} />
+                  <Label>Minimum Quantity</Label>
+                  <Input type="number" value={inventoryForm.min_quantity} onChange={(e) => setInventoryForm({...inventoryForm, min_quantity: e.target.value})} />
               </div>
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select value={inventoryForm.category} onValueChange={(value) => setInventoryForm({ ...inventoryForm, category: value })}>
+                <Select value={inventoryForm.category} onValueChange={(value) => setInventoryForm({...inventoryForm, category: value})}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="produce">Produce</SelectItem>
-                    <SelectItem value="dairy">Dairy</SelectItem>
+                    <SelectItem value="vegetables">Vegetables</SelectItem>
                     <SelectItem value="meat">Meat</SelectItem>
-                    <SelectItem value="dry_goods">Dry Goods</SelectItem>
+                    <SelectItem value="dairy">Dairy</SelectItem>
+                    <SelectItem value="grains">Grains</SelectItem>
+                    <SelectItem value="spices">Spices</SelectItem>
                     <SelectItem value="beverages">Beverages</SelectItem>
-                    <SelectItem value="cleaning">Cleaning Supplies</SelectItem>
+                    <SelectItem value="packaging">Packaging</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1386,6 +1609,48 @@ function RestaurantAdminContent() {
           </DialogContent>
         </Dialog>
 
+        <Dialog open={purchaseOrderDialog} onOpenChange={setPurchaseOrderDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Generate Purchase Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <p className="text-sm text-amber-800">
+                  <strong>{selectedLowStockItems.length} items</strong> are running low on stock. Review and download the purchase order below.
+                </p>
+              </div>
+              <div className="max-h-96 overflow-y-auto space-y-2">
+                {selectedLowStockItems.map(item => (
+                  <div key={item.id} className="p-3 bg-slate-50 rounded-lg border">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold">{item.item_name}</p>
+                        <p className="text-sm text-slate-600">Category: {item.category}</p>
+                        {item.supplier && <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-red-600">Current: {item.quantity} {item.unit}</p>
+                        <p className="text-sm text-slate-600">Min: {item.min_quantity} {item.unit}</p>
+                        <p className="text-sm font-semibold text-green-600">
+                          Need: {Math.max(0, (item.min_quantity || 0) - item.quantity)} {item.unit}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPurchaseOrderDialog(false)}>Close</Button>
+              <Button onClick={downloadPurchaseOrder}>
+                <Download className="w-4 h-4 mr-2" />
+                Download PO (CSV)
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Dialog open={settingsDialog} onOpenChange={setSettingsDialog}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -1394,45 +1659,45 @@ function RestaurantAdminContent() {
             <form onSubmit={handleSettingsSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Opening Hours</Label>
-                <Input
-                  value={settingsForm.open_hours}
-                  onChange={(e) => setSettingsForm({ ...settingsForm, open_hours: e.target.value })}
+                <Input 
+                  value={settingsForm.open_hours} 
+                  onChange={(e) => setSettingsForm({...settingsForm, open_hours: e.target.value})}
                   placeholder="e.g., 9:00 AM - 10:00 PM"
                 />
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Delivery Fee ($)</Label>
-                  <Input
-                    type="number"
+                  <Input 
+                    type="number" 
                     step="0.1"
-                    value={settingsForm.delivery_fee}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, delivery_fee: e.target.value })}
+                    value={settingsForm.delivery_fee} 
+                    onChange={(e) => setSettingsForm({...settingsForm, delivery_fee: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Min Order ($)</Label>
-                  <Input
-                    type="number"
+                  <Input 
+                    type="number" 
                     step="0.1"
-                    value={settingsForm.min_order}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, min_order: e.target.value })}
+                    value={settingsForm.min_order} 
+                    onChange={(e) => setSettingsForm({...settingsForm, min_order: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Delivery Time (min)</Label>
-                  <Input
+                  <Input 
                     type="number"
-                    value={settingsForm.avg_delivery_time}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, avg_delivery_time: e.target.value })}
+                    value={settingsForm.avg_delivery_time} 
+                    onChange={(e) => setSettingsForm({...settingsForm, avg_delivery_time: e.target.value})}
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Delivery Zones</Label>
                 <div className="flex gap-2 mb-2">
-                  <Input
-                    value={newZone}
+                  <Input 
+                    value={newZone} 
                     onChange={(e) => setNewZone(e.target.value)}
                     placeholder="Add zone (e.g., Dakar, Pikine)"
                   />
@@ -1468,7 +1733,7 @@ function RestaurantAdminContent() {
                 <input
                   type="checkbox"
                   checked={loyaltyForm.loyalty_enabled}
-                  onChange={(e) => setLoyaltyForm({ ...loyaltyForm, loyalty_enabled: e.target.checked })}
+                  onChange={(e) => setLoyaltyForm({...loyaltyForm, loyalty_enabled: e.target.checked})}
                   className="w-5 h-5"
                 />
               </div>
@@ -1480,7 +1745,7 @@ function RestaurantAdminContent() {
                     <Input
                       type="number"
                       value={loyaltyForm.loyalty_points_per_dollar}
-                      onChange={(e) => setLoyaltyForm({ ...loyaltyForm, loyalty_points_per_dollar: parseInt(e.target.value) })}
+                      onChange={(e) => setLoyaltyForm({...loyaltyForm, loyalty_points_per_dollar: parseInt(e.target.value)})}
                       min="1"
                     />
                     <p className="text-xs text-slate-500">Customers will earn this many points for every $1 spent</p>
@@ -1530,7 +1795,7 @@ function RestaurantAdminContent() {
 
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <p className="text-sm text-blue-900">
-                      💡 <strong>Tip:</strong> Higher tiers should offer better discounts to incentivize repeat orders.
+                      💡 <strong>Tip:</strong> Higher tiers should offer better discounts to incentivize repeat orders. 
                       Set realistic point thresholds to keep customers engaged.
                     </p>
                   </div>
@@ -1548,14 +1813,14 @@ function RestaurantAdminContent() {
         <Dialog open={rewardDialog} onOpenChange={setRewardDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create Reward</DialogTitle>
+              <DialogTitle>{editingReward ? "Edit" : "Create"} Reward</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleRewardSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Title *</Label>
                 <Input
                   value={rewardForm.title}
-                  onChange={(e) => setRewardForm({ ...rewardForm, title: e.target.value })}
+                  onChange={(e) => setRewardForm({...rewardForm, title: e.target.value})}
                   placeholder="e.g., Free Dessert"
                   required
                 />
@@ -1564,7 +1829,7 @@ function RestaurantAdminContent() {
                 <Label>Description</Label>
                 <Textarea
                   value={rewardForm.description}
-                  onChange={(e) => setRewardForm({ ...rewardForm, description: e.target.value })}
+                  onChange={(e) => setRewardForm({...rewardForm, description: e.target.value})}
                   placeholder="Describe the reward..."
                 />
               </div>
@@ -1574,14 +1839,14 @@ function RestaurantAdminContent() {
                   <Input
                     type="number"
                     value={rewardForm.points_required}
-                    onChange={(e) => setRewardForm({ ...rewardForm, points_required: e.target.value })}
+                    onChange={(e) => setRewardForm({...rewardForm, points_required: e.target.value})}
                     min="1"
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Min Tier</Label>
-                  <Select value={rewardForm.tier_required} onValueChange={(value) => setRewardForm({ ...rewardForm, tier_required: value })}>
+                  <Select value={rewardForm.tier_required} onValueChange={(value) => setRewardForm({...rewardForm, tier_required: value})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="bronze">Bronze</SelectItem>
@@ -1595,7 +1860,7 @@ function RestaurantAdminContent() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Discount Type *</Label>
-                  <Select value={rewardForm.discount_type} onValueChange={(value) => setRewardForm({ ...rewardForm, discount_type: value })}>
+                  <Select value={rewardForm.discount_type} onValueChange={(value) => setRewardForm({...rewardForm, discount_type: value})}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Percentage Off</SelectItem>
@@ -1610,15 +1875,35 @@ function RestaurantAdminContent() {
                     type="number"
                     step="0.01"
                     value={rewardForm.discount_value}
-                    onChange={(e) => setRewardForm({ ...rewardForm, discount_value: e.target.value })}
+                    onChange={(e) => setRewardForm({...rewardForm, discount_value: e.target.value})}
                     placeholder={rewardForm.discount_type === "percentage" ? "10" : "5.00"}
                     required
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Usage Limit (Optional)</Label>
+                  <Input
+                    type="number"
+                    value={rewardForm.usage_limit}
+                    onChange={(e) => setRewardForm({...rewardForm, usage_limit: e.target.value})}
+                    placeholder="Unlimited"
+                  />
+                </div>
+                <div className="flex items-center gap-2 p-4">
+                  <input
+                    type="checkbox"
+                    checked={rewardForm.active}
+                    onChange={(e) => setRewardForm({...rewardForm, active: e.target.checked})}
+                    className="w-4 h-4"
+                  />
+                  <Label>Active</Label>
+                </div>
+              </div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setRewardDialog(false)}>Cancel</Button>
-                <Button type="submit">Create Reward</Button>
+                <Button type="submit">{editingReward ? "Update" : "Create"} Reward</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -1699,7 +1984,7 @@ function RestaurantAdminContent() {
 
                 <div className="flex gap-2 pt-4 border-t">
                   {getNextStatus(selectedOrder.status) && selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
-                    <Button
+                    <Button 
                       onClick={() => handleStatusUpdate(selectedOrder.id, getNextStatus(selectedOrder.status))}
                       className="flex-1"
                     >
@@ -1708,7 +1993,7 @@ function RestaurantAdminContent() {
                     </Button>
                   )}
                   {selectedOrder.status !== 'cancelled' && selectedOrder.status !== 'delivered' && (
-                    <Button
+                    <Button 
                       variant="destructive"
                       onClick={() => setCancelOrderDialog(true)}
                     >
@@ -1733,7 +2018,7 @@ function RestaurantAdminContent() {
               </p>
               <div className="space-y-2">
                 <Label>Cancellation Reason *</Label>
-                <Textarea
+                <Textarea 
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
                   placeholder="e.g., Out of ingredients, Customer requested, etc."
