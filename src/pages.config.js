@@ -20,6 +20,7 @@ import MarketplaceOnboarding from './pages/MarketplaceOnboarding';
 import DriverApp from './pages/DriverApp';
 import DriverEarnings from './pages/DriverEarnings';
 import RestaurantManagement from './pages/RestaurantManagement';
+import DriverTracking from './pages/DriverTracking';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +47,7 @@ export const PAGES = {
     "DriverApp": DriverApp,
     "DriverEarnings": DriverEarnings,
     "RestaurantManagement": RestaurantManagement,
+    "DriverTracking": DriverTracking,
 }
 
 export const pagesConfig = {
