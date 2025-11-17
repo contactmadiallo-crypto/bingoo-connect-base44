@@ -18,6 +18,7 @@ import PlatformFinance from './pages/PlatformFinance';
 import DriverSignup from './pages/DriverSignup';
 import MarketplaceOnboarding from './pages/MarketplaceOnboarding';
 import DriverApp from './pages/DriverApp';
+import DriverEarnings from './pages/DriverEarnings';
 import __Layout from './Layout.jsx';
 
 
@@ -42,6 +43,7 @@ export const PAGES = {
     "DriverSignup": DriverSignup,
     "MarketplaceOnboarding": MarketplaceOnboarding,
     "DriverApp": DriverApp,
+    "DriverEarnings": DriverEarnings,
 }
 
 export const pagesConfig = {

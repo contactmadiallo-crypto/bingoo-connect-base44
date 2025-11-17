@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation } from "lucide-react";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -116,6 +116,11 @@ const deliveryItems = [
     title: "Driver App",
     url: createPageUrl("DriverApp"),
     icon: Navigation,
+  },
+  {
+    title: "Earnings",
+    url: createPageUrl("DriverEarnings"),
+    icon: Wallet,
   },
   {
     title: "Partner Dashboard",
