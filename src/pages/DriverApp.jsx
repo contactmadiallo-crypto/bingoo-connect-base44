@@ -8,33 +8,36 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key } from "lucide-react";
+import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
 
 export default function DriverApp() {
-  const [user, setUser] = useState(null);
-  const [driver, setDriver] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [trackingDialog, setTrackingDialog] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [verifyDialog, setVerifyDialog] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    checkAuth();
-    startLocationTracking();
-  }, []);
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
 
-  const checkAuth = async () => {
-    const currentUser = await base44.auth.me();
-    setUser(currentUser);
-    
-    const drivers = await base44.entities.DeliveryPartner.filter({ email: currentUser.email });
-    if (drivers[0]) {
-      setDriver(drivers[0]);
+  const { data: driver, isLoading: driverLoading } = useQuery({
+    queryKey: ['driver-profile', user?.email],
+    queryFn: async () => {
+      const drivers = await base44.entities.DeliveryPartner.filter({ email: user.email });
+      return drivers[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
+  useEffect(() => {
+    if (driver?.id && driver.location_sharing_enabled) {
+      startLocationTracking();
     }
-  };
+  }, [driver]);
 
   const startLocationTracking = () => {
     if (navigator.geolocation) {
@@ -73,8 +76,8 @@ export default function DriverApp() {
   const toggleAvailabilityMutation = useMutation({
     mutationFn: (available) => base44.entities.DeliveryPartner.update(driver.id, { is_available: available }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['driver-profile'] });
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
-      checkAuth();
     },
   });
 
@@ -186,6 +189,36 @@ export default function DriverApp() {
     setTrackingDialog(true);
   };
 
+  if (driverLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <Loader2 className="w-16 h-16 text-purple-600 mx-auto mb-4 animate-spin" />
+            <p className="text-slate-600">Loading driver profile...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!driver) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">No Driver Profile Found</h2>
+            <p className="text-slate-600 mb-4">Please sign up as a delivery partner first</p>
+            <Button onClick={() => window.location.href = '/DriverSignup'}>
+              Sign Up as Driver
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const myOrders = orders.filter(o => 
     o.delivery_partner_id === driver?.id || 
     (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id)
@@ -211,23 +244,6 @@ export default function DriverApp() {
   );
 
   const unreadNotifications = notifications.filter(n => !n.read).length;
-
-  if (!driver) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">No Driver Profile Found</h2>
-            <p className="text-slate-600 mb-4">Please sign up as a delivery partner first</p>
-            <Button onClick={() => window.location.href = '/DriverSignup'}>
-              Sign Up as Driver
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 pb-20">
