@@ -8,11 +8,12 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet } from "lucide-react";
+import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
 import DriverWallet from "../components/driver/DriverWallet";
 import RouteOptimizer from "../components/driver/RouteOptimizer";
+import ChatWindow from "../components/chat/ChatWindow";
 
 export default function DriverApp() {
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -22,6 +23,8 @@ export default function DriverApp() {
   const [verificationCode, setVerificationCode] = useState("");
   const [verifyDialog, setVerifyDialog] = useState(false);
   const [walletDialog, setWalletDialog] = useState(false);
+  const [chatDialog, setChatDialog] = useState(false);
+  const [chatOrder, setChatOrder] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -78,6 +81,15 @@ export default function DriverApp() {
     enabled: !!user?.email,
     refetchInterval: 5000,
   });
+
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['driver-conversations', driver?.id],
+    queryFn: () => base44.entities.Conversation.filter({ driver_id: driver.id, status: 'active' }),
+    enabled: !!driver?.id,
+    refetchInterval: 3000,
+  });
+
+  const totalUnreadMessages = conversations.reduce((sum, c) => sum + (c.unread_count_driver || 0), 0);
 
   const toggleAvailabilityMutation = useMutation({
     mutationFn: (available) => base44.entities.DeliveryPartner.update(driver.id, { is_available: available }),
@@ -225,6 +237,11 @@ export default function DriverApp() {
     setTrackingDialog(true);
   };
 
+  const openChat = (order) => {
+    setChatOrder(order);
+    setChatDialog(true);
+  };
+
   const handleAcceptBatch = (batchOrders, routeData) => {
     setOptimizedRouteData(routeData);
     acceptBatchMutation.mutate({ orders: batchOrders, routeData });
@@ -306,6 +323,16 @@ export default function DriverApp() {
                   {unreadNotifications > 0 && (
                     <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs">
                       {unreadNotifications}
+                    </Badge>
+                  )}
+                </Button>
+              </div>
+              <div className="relative">
+                <Button variant="outline" size="icon">
+                  <MessageCircle className="w-4 h-4" />
+                  {totalUnreadMessages > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs">
+                      {totalUnreadMessages}
                     </Badge>
                   )}
                 </Button>
@@ -448,11 +475,16 @@ export default function DriverApp() {
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-slate-400" />
                         <span>{order.customer_name}</span>
-                        <a href={`tel:${order.customer_phone}`} className="ml-auto">
-                          <Button size="sm" variant="outline">
-                            <Phone className="w-3 h-3" />
+                        <div className="ml-auto flex gap-1">
+                          <a href={`tel:${order.customer_phone}`}>
+                            <Button size="sm" variant="outline">
+                              <Phone className="w-3 h-3" />
+                            </Button>
+                          </a>
+                          <Button size="sm" variant="outline" onClick={() => openChat(order)}>
+                            <MessageCircle className="w-3 h-3" />
                           </Button>
-                        </a>
+                        </div>
                       </div>
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
@@ -559,10 +591,18 @@ export default function DriverApp() {
         )}
       </div>
 
-      {/* Wallet Dialog */}
       <DriverWallet driver={driver} open={walletDialog} onOpenChange={setWalletDialog} />
+      
+      {chatOrder && (
+        <ChatWindow 
+          order={chatOrder}
+          user={user}
+          userType="driver"
+          open={chatDialog}
+          onOpenChange={setChatDialog}
+        />
+      )}
 
-      {/* Navigation Dialog with Map */}
       <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
           <DialogHeader className="p-6 pb-4">
@@ -634,7 +674,6 @@ export default function DriverApp() {
         </DialogContent>
       </Dialog>
 
-      {/* Verify Delivery Dialog */}
       <Dialog open={verifyDialog} onOpenChange={setVerifyDialog}>
         <DialogContent>
           <DialogHeader>
