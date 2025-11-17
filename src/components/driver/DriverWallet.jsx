@@ -9,16 +9,24 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Wallet, CreditCard, Plus, CheckCircle, Clock, XCircle, TrendingUp, ArrowUpRight } from "lucide-react";
+import { Wallet, CreditCard, Plus, CheckCircle, Clock, XCircle, TrendingUp, ArrowUpRight, Smartphone } from "lucide-react";
 import { format } from "date-fns";
+
+const paymentIcons = {
+  wave: "🌊",
+  orange_money: "🍊",
+  free_money: "📱",
+  bank_account: "🏦"
+};
 
 export default function DriverWallet({ driver, open, onOpenChange }) {
   const [payoutAmount, setPayoutAmount] = useState("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [showAddPaymentMethod, setShowAddPaymentMethod] = useState(false);
   const [paymentMethodForm, setPaymentMethodForm] = useState({
-    type: "bank_account",
+    type: "wave",
     account_holder_name: "",
+    phone_number: "",
     bank_name: "",
     account_number: "",
     routing_number: "",
@@ -77,7 +85,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
         status: 'pending',
         payment_method_id: method.id,
         payment_method_type: method.type,
-        payment_details: method.last_four || method.account_number.slice(-4),
+        payment_details: method.last_four || (method.phone_number?.slice(-4)) || method.account_number?.slice(-4),
         requested_date: new Date().toISOString()
       });
     },
@@ -85,13 +93,17 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
       queryClient.invalidateQueries({ queryKey: ['payouts'] });
       setPayoutAmount("");
       setSelectedPaymentMethod("");
-      alert("Payout request submitted successfully! Processing typically takes 2-3 business days.");
+      alert("Demande de retrait envoyée avec succès! Le traitement prend généralement 2-3 jours ouvrables.");
     },
   });
 
   const addPaymentMethodMutation = useMutation({
     mutationFn: (data) => {
-      const lastFour = data.account_number.slice(-4);
+      const isMobileMoney = ['wave', 'orange_money', 'free_money'].includes(data.type);
+      const lastFour = isMobileMoney 
+        ? data.phone_number?.slice(-4) 
+        : data.account_number?.slice(-4);
+      
       return base44.entities.DriverPaymentMethod.create({
         ...data,
         driver_id: driver.id,
@@ -103,8 +115,9 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
       queryClient.invalidateQueries({ queryKey: ['payment-methods'] });
       setShowAddPaymentMethod(false);
       setPaymentMethodForm({
-        type: "bank_account",
+        type: "wave",
         account_holder_name: "",
+        phone_number: "",
         bank_name: "",
         account_number: "",
         routing_number: "",
@@ -117,17 +130,17 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
     const amount = parseFloat(payoutAmount);
     
     if (!amount || amount <= 0) {
-      alert("Please enter a valid amount");
+      alert("Veuillez entrer un montant valide");
       return;
     }
 
     if (amount > availableBalance) {
-      alert("Insufficient balance");
+      alert("Solde insuffisant");
       return;
     }
 
     if (!selectedPaymentMethod) {
-      alert("Please select a payment method");
+      alert("Veuillez sélectionner un moyen de paiement");
       return;
     }
 
@@ -155,13 +168,23 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
     return <Icon className="w-4 h-4" />;
   };
 
+  const getPaymentMethodDisplay = (method) => {
+    const icon = paymentIcons[method.type] || "💳";
+    if (['wave', 'orange_money', 'free_money'].includes(method.type)) {
+      return `${icon} ${method.type.replace('_', ' ').toUpperCase()} - ${method.phone_number}`;
+    }
+    return `${icon} ${method.bank_name} - ...${method.last_four}`;
+  };
+
+  const isMobileMoney = ['wave', 'orange_money', 'free_money'].includes(paymentMethodForm.type);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wallet className="w-6 h-6 text-green-600" />
-            Driver Wallet
+            Portefeuille Chauffeur
           </DialogTitle>
         </DialogHeader>
 
@@ -172,9 +195,9 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Wallet className="w-5 h-5 opacity-80" />
-                  <p className="text-sm opacity-90">Available Balance</p>
+                  <p className="text-sm opacity-90">Solde Disponible</p>
                 </div>
-                <p className="text-3xl font-bold">${availableBalance.toFixed(2)}</p>
+                <p className="text-3xl font-bold">{availableBalance.toFixed(0)} CFA</p>
               </CardContent>
             </Card>
 
@@ -182,9 +205,9 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="w-5 h-5 opacity-80" />
-                  <p className="text-sm opacity-90">Total Earned</p>
+                  <p className="text-sm opacity-90">Total Gagné</p>
                 </div>
-                <p className="text-3xl font-bold">${totalEarnings.toFixed(2)}</p>
+                <p className="text-3xl font-bold">{totalEarnings.toFixed(0)} CFA</p>
               </CardContent>
             </Card>
 
@@ -192,63 +215,63 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="w-5 h-5 opacity-80" />
-                  <p className="text-sm opacity-90">Pending</p>
+                  <p className="text-sm opacity-90">En Attente</p>
                 </div>
-                <p className="text-3xl font-bold">${pendingPayouts.toFixed(2)}</p>
+                <p className="text-3xl font-bold">{pendingPayouts.toFixed(0)} CFA</p>
               </CardContent>
             </Card>
           </div>
 
           <Tabs defaultValue="payout">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="payout">Request Payout</TabsTrigger>
-              <TabsTrigger value="history">Payout History</TabsTrigger>
-              <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+              <TabsTrigger value="payout">Retrait</TabsTrigger>
+              <TabsTrigger value="history">Historique</TabsTrigger>
+              <TabsTrigger value="methods">Moyens de Paiement</TabsTrigger>
             </TabsList>
 
             <TabsContent value="payout" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Request Payout</CardTitle>
+                  <CardTitle>Demander un Retrait</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Amount ($)</Label>
+                    <Label>Montant (CFA)</Label>
                     <Input
                       type="number"
-                      step="0.01"
-                      placeholder="0.00"
+                      step="100"
+                      placeholder="0"
                       value={payoutAmount}
                       onChange={(e) => setPayoutAmount(e.target.value)}
                     />
                     <p className="text-xs text-slate-500">
-                      Available: ${availableBalance.toFixed(2)}
+                      Disponible: {availableBalance.toFixed(0)} CFA
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Payment Method</Label>
+                    <Label>Moyen de Paiement</Label>
                     <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select payment method" />
+                        <SelectValue placeholder="Sélectionnez un moyen de paiement" />
                       </SelectTrigger>
                       <SelectContent>
                         {paymentMethods.map((method) => (
                           <SelectItem key={method.id} value={method.id}>
-                            {method.type.replace('_', ' ')} - {method.bank_name || method.account_holder_name} (...{method.last_four})
-                            {method.is_default && " (Default)"}
+                            {getPaymentMethodDisplay(method)}
+                            {method.is_default && " (Par défaut)"}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                     {paymentMethods.length === 0 && (
-                      <p className="text-sm text-amber-600">No payment methods added. Add one in the Payment Methods tab.</p>
+                      <p className="text-sm text-amber-600">Aucun moyen de paiement ajouté. Ajoutez-en un dans l'onglet Moyens de Paiement.</p>
                     )}
                   </div>
 
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <p className="text-sm text-blue-900">
-                      <strong>Note:</strong> Payouts are processed within 2-3 business days. A small processing fee may apply.
+                      <strong>Note:</strong> Les retraits sont traités sous 2-3 jours ouvrables. Des frais de traitement peuvent s'appliquer.
                     </p>
                   </div>
 
@@ -258,7 +281,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                     disabled={!payoutAmount || !selectedPaymentMethod || availableBalance <= 0}
                   >
                     <ArrowUpRight className="w-4 h-4 mr-2" />
-                    Request Payout
+                    Demander un Retrait
                   </Button>
                 </CardContent>
               </Card>
@@ -269,7 +292,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                 <Card>
                   <CardContent className="py-12 text-center">
                     <Clock className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-600">No payout history yet</p>
+                    <p className="text-slate-600">Aucun historique de retrait</p>
                   </CardContent>
                 </Card>
               ) : (
@@ -286,15 +309,15 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                               </span>
                             </Badge>
                             <span className="text-xs text-slate-500">
-                              {format(new Date(payout.requested_date || payout.created_date), 'MMM dd, yyyy HH:mm')}
+                              {format(new Date(payout.requested_date || payout.created_date), 'dd MMM yyyy HH:mm')}
                             </span>
                           </div>
                           <p className="text-sm text-slate-600">
-                            {payout.payment_method_type?.replace('_', ' ')} - ...{payout.payment_details}
+                            {paymentIcons[payout.payment_method_type]} {payout.payment_method_type?.replace('_', ' ')} - ...{payout.payment_details}
                           </p>
                           {payout.completed_date && (
                             <p className="text-xs text-green-600 mt-1">
-                              Completed: {format(new Date(payout.completed_date), 'MMM dd, yyyy')}
+                              Complété: {format(new Date(payout.completed_date), 'dd MMM yyyy')}
                             </p>
                           )}
                           {payout.notes && (
@@ -302,7 +325,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                           )}
                         </div>
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">${payout.amount.toFixed(2)}</p>
+                          <p className="text-2xl font-bold text-green-600">{payout.amount.toFixed(0)} CFA</p>
                         </div>
                       </div>
                     </CardContent>
@@ -319,18 +342,27 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                              <CreditCard className="w-6 h-6 text-blue-600" />
+                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">
+                              {paymentIcons[method.type]}
                             </div>
                             <div>
                               <p className="font-semibold capitalize">{method.type.replace('_', ' ')}</p>
-                              <p className="text-sm text-slate-600">{method.bank_name || method.account_holder_name}</p>
-                              <p className="text-xs text-slate-500">...{method.last_four}</p>
+                              {['wave', 'orange_money', 'free_money'].includes(method.type) ? (
+                                <>
+                                  <p className="text-sm text-slate-600">{method.account_holder_name}</p>
+                                  <p className="text-xs text-slate-500">{method.phone_number}</p>
+                                </>
+                              ) : (
+                                <>
+                                  <p className="text-sm text-slate-600">{method.bank_name}</p>
+                                  <p className="text-xs text-slate-500">...{method.last_four}</p>
+                                </>
+                              )}
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            {method.is_default && <Badge>Default</Badge>}
-                            {method.verified && <Badge variant="outline" className="bg-green-50 text-green-700">Verified</Badge>}
+                            {method.is_default && <Badge>Par défaut</Badge>}
+                            {method.verified && <Badge variant="outline" className="bg-green-50 text-green-700">Vérifié</Badge>}
                           </div>
                         </div>
                       </CardContent>
@@ -338,13 +370,13 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                   ))}
                   <Button onClick={() => setShowAddPaymentMethod(true)} variant="outline" className="w-full">
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Payment Method
+                    Ajouter un Moyen de Paiement
                   </Button>
                 </>
               ) : (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Add Payment Method</CardTitle>
+                    <CardTitle>Ajouter un Moyen de Paiement</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -354,51 +386,61 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="bank_account">Bank Account</SelectItem>
-                          <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                          <SelectItem value="paypal">PayPal</SelectItem>
+                          <SelectItem value="wave">🌊 Wave</SelectItem>
+                          <SelectItem value="orange_money">🍊 Orange Money</SelectItem>
+                          <SelectItem value="free_money">📱 Free Money</SelectItem>
+                          <SelectItem value="bank_account">🏦 Compte Bancaire</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Account Holder Name *</Label>
+                      <Label>Nom Complet *</Label>
                       <Input
                         value={paymentMethodForm.account_holder_name}
                         onChange={(e) => setPaymentMethodForm({...paymentMethodForm, account_holder_name: e.target.value})}
-                        placeholder="Full name on account"
+                        placeholder="Nom sur le compte"
                       />
                     </div>
 
-                    {paymentMethodForm.type === 'bank_account' && (
+                    {isMobileMoney ? (
                       <div className="space-y-2">
-                        <Label>Bank Name</Label>
+                        <Label>Numéro de Téléphone *</Label>
                         <Input
-                          value={paymentMethodForm.bank_name}
-                          onChange={(e) => setPaymentMethodForm({...paymentMethodForm, bank_name: e.target.value})}
-                          placeholder="Bank name"
+                          value={paymentMethodForm.phone_number}
+                          onChange={(e) => setPaymentMethodForm({...paymentMethodForm, phone_number: e.target.value})}
+                          placeholder="77 XXX XX XX"
                         />
                       </div>
-                    )}
+                    ) : (
+                      <>
+                        <div className="space-y-2">
+                          <Label>Nom de la Banque</Label>
+                          <Input
+                            value={paymentMethodForm.bank_name}
+                            onChange={(e) => setPaymentMethodForm({...paymentMethodForm, bank_name: e.target.value})}
+                            placeholder="Ex: UBA, Ecobank, CBAO"
+                          />
+                        </div>
 
-                    <div className="space-y-2">
-                      <Label>Account Number / Phone *</Label>
-                      <Input
-                        value={paymentMethodForm.account_number}
-                        onChange={(e) => setPaymentMethodForm({...paymentMethodForm, account_number: e.target.value})}
-                        placeholder={paymentMethodForm.type === 'mobile_money' ? 'Phone number' : 'Account number'}
-                      />
-                    </div>
+                        <div className="space-y-2">
+                          <Label>Numéro de Compte *</Label>
+                          <Input
+                            value={paymentMethodForm.account_number}
+                            onChange={(e) => setPaymentMethodForm({...paymentMethodForm, account_number: e.target.value})}
+                            placeholder="Numéro de compte"
+                          />
+                        </div>
 
-                    {paymentMethodForm.type === 'bank_account' && (
-                      <div className="space-y-2">
-                        <Label>Routing Number / SWIFT Code</Label>
-                        <Input
-                          value={paymentMethodForm.routing_number}
-                          onChange={(e) => setPaymentMethodForm({...paymentMethodForm, routing_number: e.target.value})}
-                          placeholder="Routing number"
-                        />
-                      </div>
+                        <div className="space-y-2">
+                          <Label>Code SWIFT/BIC</Label>
+                          <Input
+                            value={paymentMethodForm.routing_number}
+                            onChange={(e) => setPaymentMethodForm({...paymentMethodForm, routing_number: e.target.value})}
+                            placeholder="Code SWIFT"
+                          />
+                        </div>
+                      </>
                     )}
 
                     <div className="flex items-center gap-2">
@@ -408,7 +450,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                         onChange={(e) => setPaymentMethodForm({...paymentMethodForm, is_default: e.target.checked})}
                         className="w-4 h-4"
                       />
-                      <Label>Set as default payment method</Label>
+                      <Label>Définir comme moyen de paiement par défaut</Label>
                     </div>
 
                     <div className="flex gap-2">
@@ -417,14 +459,14 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                         onClick={() => setShowAddPaymentMethod(false)}
                         className="flex-1"
                       >
-                        Cancel
+                        Annuler
                       </Button>
                       <Button 
                         onClick={() => addPaymentMethodMutation.mutate(paymentMethodForm)}
                         className="flex-1"
-                        disabled={!paymentMethodForm.account_holder_name || !paymentMethodForm.account_number}
+                        disabled={!paymentMethodForm.account_holder_name || (!paymentMethodForm.phone_number && !paymentMethodForm.account_number)}
                       >
-                        Add Method
+                        Ajouter
                       </Button>
                     </div>
                   </CardContent>
