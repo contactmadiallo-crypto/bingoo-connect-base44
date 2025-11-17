@@ -1,16 +1,56 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { MapPin, Navigation, DollarSign, Clock, TrendingUp, Loader2, Zap, AlertTriangle } from "lucide-react";
+import { MapPin, Navigation, DollarSign, Clock, TrendingUp, Loader2, Zap, AlertTriangle, RefreshCw } from "lucide-react";
+import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import { toast } from "sonner";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+});
+
+const createNumberedIcon = (number, color = "#8b5cf6") => {
+  return L.divIcon({
+    html: `<div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${number}</div>`,
+    className: "",
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+  });
+};
+
+const driverIcon = L.divIcon({
+  html: `<div style="background-color: #3b82f6; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.4);"><span style="font-size: 20px;">🚗</span></div>`,
+  className: "",
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+});
+
+function MapUpdater({ center, bounds }) {
+  const map = useMap();
+  useEffect(() => {
+    if (bounds) {
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else if (center) {
+      map.setView(center, 13);
+    }
+  }, [center, bounds, map]);
+  return null;
+}
 
 export default function RouteOptimizer({ availableOrders, driverLocation, driver, onAcceptBatch }) {
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [showOptimization, setShowOptimization] = useState(false);
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [autoRefreshETA, setAutoRefreshETA] = useState(false);
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -139,11 +179,13 @@ Return ONLY a JSON object with this exact structure:
   "estimated_total_time_minutes": number,
   "efficiency_score": number (0-100),
   "traffic_conditions": "description of current traffic",
-  "reasoning": "brief explanation including traffic considerations"
+  "reasoning": "brief explanation including traffic considerations",
+  "waypoints": [{"lat": number, "lng": number, "type": "pickup|delivery", "order_id": "string"}]
 }`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
+        add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
@@ -152,7 +194,19 @@ Return ONLY a JSON object with this exact structure:
             estimated_total_time_minutes: { type: "number" },
             efficiency_score: { type: "number" },
             traffic_conditions: { type: "string" },
-            reasoning: { type: "string" }
+            reasoning: { type: "string" },
+            waypoints: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  lat: { type: "number" },
+                  lng: { type: "number" },
+                  type: { type: "string" },
+                  order_id: { type: "string" }
+                }
+              }
+            }
           }
         }
       });
@@ -163,17 +217,49 @@ Return ONLY a JSON object with this exact structure:
       setOptimizedRoute(data);
       setShowOptimization(true);
       setIsOptimizing(false);
+      toast.success("Itinéraire optimisé avec trafic en temps réel!");
     },
     onError: () => {
       setIsOptimizing(false);
-      alert("Erreur lors de l'optimisation de l'itinéraire");
+      toast.error("Erreur lors de l'optimisation");
     }
   });
 
+  useEffect(() => {
+    let interval;
+    if (autoRefreshETA && optimizedRoute && selectedBatch) {
+      interval = setInterval(() => {
+        optimizeRouteMutation.mutate(selectedBatch.orders);
+      }, 60000); // Refresh every minute
+    }
+    return () => clearInterval(interval);
+  }, [autoRefreshETA, optimizedRoute, selectedBatch]);
+
   const handleOptimizeBatch = (batch) => {
+    setSelectedBatch(batch);
     setIsOptimizing(true);
     optimizeRouteMutation.mutate(batch.orders);
   };
+
+  const getMapBounds = () => {
+    if (!optimizedRoute?.waypoints?.length || !driverLocation) return null;
+    
+    const allPoints = [
+      [driverLocation.lat, driverLocation.lng],
+      ...optimizedRoute.waypoints.map(w => [w.lat, w.lng])
+    ];
+    
+    return allPoints;
+  };
+
+  const routeCoordinates = useMemo(() => {
+    if (!optimizedRoute?.waypoints || !driverLocation) return [];
+    
+    return [
+      [driverLocation.lat, driverLocation.lng],
+      ...optimizedRoute.waypoints.map(w => [w.lat, w.lng])
+    ];
+  }, [optimizedRoute, driverLocation]);
 
   return (
     <>
@@ -247,11 +333,31 @@ Return ONLY a JSON object with this exact structure:
       )}
 
       <Dialog open={showOptimization} onOpenChange={setShowOptimization}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-purple-600" />
-              Itinéraire Optimisé par AI + Trafic
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Navigation className="w-5 h-5 text-purple-600" />
+                Itinéraire Optimisé par AI + Trafic
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (selectedBatch) {
+                    setIsOptimizing(true);
+                    optimizeRouteMutation.mutate(selectedBatch.orders);
+                  }
+                }}
+                disabled={isOptimizing}
+              >
+                {isOptimizing ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                Actualiser ETA
+              </Button>
             </DialogTitle>
           </DialogHeader>
 
@@ -262,21 +368,21 @@ Return ONLY a JSON object with this exact structure:
                   <Navigation className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                   <p className="text-xs text-slate-600">Distance</p>
                   <p className="text-lg font-bold text-blue-700">
-                    {optimizedRoute.estimated_total_distance_km.toFixed(1)} km
+                    {optimizedRoute.estimated_total_distance_km?.toFixed(1) || '0'} km
                   </p>
                 </div>
                 <div className="bg-green-50 p-3 rounded-lg text-center">
                   <Clock className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                  <p className="text-xs text-slate-600">Temps</p>
+                  <p className="text-xs text-slate-600">Temps Estimé</p>
                   <p className="text-lg font-bold text-green-700">
-                    {optimizedRoute.estimated_total_time_minutes} min
+                    {optimizedRoute.estimated_total_time_minutes || '0'} min
                   </p>
                 </div>
                 <div className="bg-purple-50 p-3 rounded-lg text-center">
                   <TrendingUp className="w-5 h-5 text-purple-600 mx-auto mb-1" />
                   <p className="text-xs text-slate-600">Efficacité</p>
                   <p className="text-lg font-bold text-purple-700">
-                    {optimizedRoute.efficiency_score}%
+                    {optimizedRoute.efficiency_score || '0'}%
                   </p>
                 </div>
               </div>
@@ -286,30 +392,68 @@ Return ONLY a JSON object with this exact structure:
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
                     <div>
-                      <p className="text-xs font-semibold text-amber-900">Conditions de Trafic:</p>
+                      <p className="text-xs font-semibold text-amber-900">🚦 Conditions de Trafic en Temps Réel:</p>
                       <p className="text-sm text-amber-800">{optimizedRoute.traffic_conditions}</p>
                     </div>
                   </div>
                 </div>
               )}
 
+              {routeCoordinates.length > 1 && (
+                <div className="h-80 rounded-lg overflow-hidden border-2 border-purple-200">
+                  <MapContainer
+                    style={{ height: "100%", width: "100%" }}
+                    center={driverLocation}
+                    zoom={13}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <MapUpdater bounds={getMapBounds()} />
+                    
+                    <Marker position={[driverLocation.lat, driverLocation.lng]} icon={driverIcon}>
+                      <Popup>📍 Votre Position</Popup>
+                    </Marker>
+
+                    {optimizedRoute.waypoints?.map((waypoint, idx) => (
+                      <Marker
+                        key={idx}
+                        position={[waypoint.lat, waypoint.lng]}
+                        icon={createNumberedIcon(idx + 1)}
+                      >
+                        <Popup>
+                          <strong>Arrêt {idx + 1}</strong><br />
+                          {waypoint.type === 'pickup' ? '🏪 Récupération' : '📦 Livraison'}
+                        </Popup>
+                      </Marker>
+                    ))}
+
+                    <Polyline
+                      positions={routeCoordinates}
+                      color="#8b5cf6"
+                      weight={4}
+                      opacity={0.7}
+                      dashArray="10, 10"
+                    />
+                  </MapContainer>
+                </div>
+              )}
+
               <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm font-semibold mb-2">Ordre de Livraison Optimisé:</p>
+                <p className="text-sm font-semibold mb-2">📍 Ordre de Livraison Optimisé:</p>
                 <div className="space-y-2">
-                  {optimizedRoute.route_order.map((orderId, idx) => {
+                  {optimizedRoute.route_order?.map((orderId, idx) => {
                     const order = nearbyOrders.find(o => o.id === orderId);
                     if (!order) return null;
                     return (
-                      <div key={orderId} className="flex items-center gap-3 bg-white p-2 rounded">
-                        <div className="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                      <div key={orderId} className="flex items-center gap-3 bg-white p-3 rounded-lg border">
+                        <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                           {idx + 1}
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-sm">{order.restaurant_name}</p>
-                          <p className="text-xs text-slate-600">→ {order.customer_name}</p>
+                          <p className="text-xs text-slate-600">→ {order.customer_name} • {order.customer_address}</p>
                         </div>
                         {order.inPreferredZone && (
-                          <span className="text-green-600">⭐</span>
+                          <span className="text-green-600 text-lg">⭐</span>
                         )}
                         <p className="text-sm font-bold text-green-600">
                           {(order.delivery_fee || 0).toFixed(0)} CFA
@@ -324,11 +468,26 @@ Return ONLY a JSON object with this exact structure:
                 <p className="text-xs font-semibold text-blue-900 mb-1">💡 Analyse AI avec Trafic:</p>
                 <p className="text-sm text-blue-800">{optimizedRoute.reasoning}</p>
               </div>
+
+              <div className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={autoRefreshETA}
+                  onChange={(e) => setAutoRefreshETA(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <Label className="text-sm">
+                  🔄 Actualiser automatiquement l'ETA chaque minute
+                </Label>
+              </div>
             </div>
           )}
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowOptimization(false)}>
+            <Button variant="outline" onClick={() => {
+              setShowOptimization(false);
+              setAutoRefreshETA(false);
+            }}>
               Annuler
             </Button>
             <Button
@@ -339,12 +498,14 @@ Return ONLY a JSON object with this exact structure:
                     nearbyOrders.find(o => o.id === id)
                   ).filter(Boolean);
                   onAcceptBatch(ordersToAccept, optimizedRoute);
+                  toast.success(`${ordersToAccept.length} commandes acceptées!`);
                 }
                 setShowOptimization(false);
+                setAutoRefreshETA(false);
               }}
             >
               <Zap className="w-4 h-4 mr-2" />
-              Accepter le Lot
+              Accepter le Lot ({optimizedRoute?.route_order?.length || 0})
             </Button>
           </DialogFooter>
         </DialogContent>
