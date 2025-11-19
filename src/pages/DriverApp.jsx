@@ -77,7 +77,7 @@ export default function DriverApp() {
   const { data: orders = [] } = useQuery({
     queryKey: ['driver-orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
-    refetchInterval: 3000,
+    refetchInterval: 2000, // Check more frequently for new orders
     enabled: !!driver,
   });
 
@@ -85,7 +85,7 @@ export default function DriverApp() {
     queryKey: ['driver-notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }, '-created_date'),
     enabled: !!user?.email,
-    refetchInterval: 3000,
+    refetchInterval: 2000, // Check more frequently for new orders
   });
 
   const { data: conversations = [] } = useQuery({
@@ -198,6 +198,7 @@ export default function DriverApp() {
         status: 'confirmed'
       });
 
+      // Notify customer
       await base44.entities.Notification.create({
         customer_email: order.created_by,
         title: "Chauffeur Assigné! 🚚",
@@ -206,9 +207,21 @@ export default function DriverApp() {
         order_id: order.id,
         restaurant_id: order.restaurant_id
       });
+      
+      // Mark related notification as read for this driver
+      const orderNotifs = await base44.entities.Notification.filter({
+        customer_email: user.email,
+        order_id: order.id,
+        read: false
+      });
+      for (const notif of orderNotifs) {
+        await base44.entities.Notification.update(notif.id, { read: true });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['driver-notifications'] });
+      toast.success("Livraison acceptée!");
     },
   });
 
@@ -504,10 +517,15 @@ export default function DriverApp() {
         {/* Available Orders */}
         {availableOrders.length > 0 && driver.is_available && (
           <div>
-            <h2 className="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
-              <Bell className="w-5 h-5 text-orange-600" />
-              Nouvelles Livraisons Disponibles
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Bell className="w-5 h-5 text-orange-600 animate-pulse" />
+                Nouvelles Livraisons Disponibles
+              </h2>
+              <Badge className="bg-orange-500 text-white animate-bounce">
+                {availableOrders.length} {availableOrders.length === 1 ? 'commande' : 'commandes'}
+              </Badge>
+            </div>
             <div className="space-y-3">
               <AnimatePresence>
                 {availableOrders.map((order) => (
