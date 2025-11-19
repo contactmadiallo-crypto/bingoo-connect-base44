@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -548,13 +547,8 @@ export default function DriverApp() {
                       <div className="flex items-start gap-2">
                         <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
                         <p className="text-slate-600 flex-1">{order.customer_address}</p>
-                      </div>
-                      {order.delivery_code && order.status === 'out_for_delivery' && (
-                        <div className="bg-green-50 border border-green-200 p-2 rounded">
-                          <p className="text-xs text-green-800 font-semibold">Code de Livraison: {order.delivery_code}</p>
                         </div>
-                      )}
-                    </div>
+                        </div>
 
                     <div className="flex gap-2">
                       <Button 
