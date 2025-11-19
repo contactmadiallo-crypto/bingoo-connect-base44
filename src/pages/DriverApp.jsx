@@ -50,37 +50,11 @@ export default function DriverApp() {
     enabled: !!user?.email,
   });
 
-  useEffect(() => {
-    if (driver?.id && driver.location_sharing_enabled) {
-      const hasActiveDeliveries = activeOrders.length > 0;
-      startLocationTracking(hasActiveDeliveries);
-    }
-  }, [driver, activeOrders.length]);
 
-  const startLocationTracking = (isActive) => {
-    if (navigator.geolocation) {
-      // More frequent updates during active deliveries
-      const updateInterval = isActive ? 3000 : 10000;
-      
-      const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          updateDriverLocation(position.coords.latitude, position.coords.longitude, isActive);
-        },
-        (error) => console.error("Location error:", error),
-        { 
-          enableHighAccuracy: true, 
-          maximumAge: updateInterval,
-          timeout: 10000
-        }
-      );
 
-      return () => {
-        if (watchId) navigator.geolocation.clearWatch(watchId);
-      };
-    }
-  };
 
-  const updateDriverLocation = async (lat, lng, updateOrders = false) => {
+
+  const updateDriverLocation = async (lat, lng, activeOrdersList = []) => {
     if (!driver?.id || !driver.location_sharing_enabled) return;
     
     const location = { lat, lng };
@@ -91,8 +65,8 @@ export default function DriverApp() {
     });
     
     // Update active order locations in real-time
-    if (updateOrders && activeOrders.length > 0) {
-      for (const order of activeOrders) {
+    if (activeOrdersList.length > 0) {
+      for (const order of activeOrdersList) {
         await base44.entities.Order.update(order.id, {
           driver_location: location
         });
@@ -144,6 +118,33 @@ export default function DriverApp() {
   const todayEarnings = completedToday.reduce((sum, o) => 
     sum + (o.driver_earnings || 0) + (o.tip_amount || 0), 0
   );
+
+  // Start location tracking with active orders check
+  useEffect(() => {
+    if (driver?.id && driver.location_sharing_enabled) {
+      const hasActiveDeliveries = activeOrders.length > 0;
+      
+      if (navigator.geolocation) {
+        const updateInterval = hasActiveDeliveries ? 3000 : 10000;
+        
+        const watchId = navigator.geolocation.watchPosition(
+          (position) => {
+            updateDriverLocation(position.coords.latitude, position.coords.longitude, activeOrders);
+          },
+          (error) => console.error("Location error:", error),
+          { 
+            enableHighAccuracy: true, 
+            maximumAge: updateInterval,
+            timeout: 10000
+          }
+        );
+
+        return () => {
+          if (watchId) navigator.geolocation.clearWatch(watchId);
+        };
+      }
+    }
+  }, [driver?.id, driver?.location_sharing_enabled, activeOrders.length]);
 
   // Show toast notification for new unread notifications
   useEffect(() => {
