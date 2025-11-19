@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Clock, CheckCircle, AlertCircle, ChefHat, Flame, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
@@ -21,40 +22,51 @@ const statusColors = {
 export default function KitchenView() {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
     loadUser();
   }, []);
 
+  const { data: allRestaurants = [] } = useQuery({
+    queryKey: ['all-restaurants'],
+    queryFn: () => base44.entities.Restaurant.list(),
+    enabled: !!user,
+  });
+
   const loadUser = async () => {
     const currentUser = await base44.auth.me();
     setUser(currentUser);
     
-    // Only fetch restaurant if currentUser exists and has an email
     if (currentUser?.email) {
       const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
       if (restaurants.length > 0) {
         setRestaurant(restaurants[0]);
+        setSelectedRestaurantId(restaurants[0].id);
       } else {
-        // No restaurant found for this user, set to null to indicate check is complete
         setRestaurant(null);
       }
     }
   };
 
+  const handleRestaurantChange = (restaurantId) => {
+    setSelectedRestaurantId(restaurantId);
+    const selected = allRestaurants.find(r => r.id === restaurantId);
+    setRestaurant(selected);
+  };
+
   const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders', restaurant?.id],
+    queryKey: ['orders', selectedRestaurantId],
     queryFn: () => {
-      if (restaurant) {
-        return base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date');
+      if (selectedRestaurantId) {
+        return base44.entities.Order.filter({ restaurant_id: selectedRestaurantId }, '-created_date');
       }
-      // If no restaurant found for this user, return empty array instead of all orders
       return [];
     },
     initialData: [],
-    refetchInterval: 5000,
-    enabled: !!user && restaurant !== undefined, // Enable only when user and restaurant check is done
+    refetchInterval: 3000,
+    enabled: !!selectedRestaurantId,
   });
 
   const updateOrderStatusMutation = useMutation({
@@ -144,72 +156,112 @@ export default function KitchenView() {
     );
   }
 
-  if (restaurant === null) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="max-w-md">
-          <CardContent className="pt-6 text-center">
-            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Aucun Restaurant Trouvé</h2>
-            <p className="text-slate-600">Vous devez posséder un restaurant pour accéder au Kitchen Dashboard.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">🍳 Kitchen Dashboard</h1>
-          <p className="text-slate-600">
-            {restaurant ? `Managing orders for ${restaurant.name}` : 'Managing all orders'}
-          </p>
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-2 flex items-center gap-3">
+                <ChefHat className="w-8 h-8 sm:w-10 sm:h-10 text-orange-600" />
+                Kitchen Dashboard
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600">
+                {restaurant ? `${restaurant.name}` : 'Select a restaurant'}
+              </p>
+            </div>
+            {allRestaurants.length > 0 && (
+              <div className="w-full sm:w-72">
+                <Select value={selectedRestaurantId} onValueChange={handleRestaurantChange}>
+                  <SelectTrigger className="w-full bg-white shadow-sm border-2 border-orange-200 h-12">
+                    <SelectValue placeholder="Select Restaurant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allRestaurants.map((rest) => (
+                      <SelectItem key={rest.id} value={rest.id}>
+                        <div className="flex items-center gap-2">
+                          <span>{rest.name}</span>
+                          <Badge variant="outline" className="text-xs">{rest.business_type}</Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
+        {!selectedRestaurantId ? (
+          <Card className="max-w-md mx-auto">
+            <CardContent className="pt-6 text-center">
+              <ChefHat className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold mb-2">Select a Restaurant</h2>
+              <p className="text-slate-600">Choose a restaurant to manage orders</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <Card className="bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-xl border-0 hover:scale-105 transition-transform">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
                 New Orders
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-5xl font-bold">{pendingOrders.length}</p>
+              <p className="text-4xl sm:text-5xl font-bold">{pendingOrders.length}</p>
+              <p className="text-sm text-white/80 mt-1">Needs confirmation</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Clock className="w-5 h-5" />
+          <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-xl border-0 hover:scale-105 transition-transform">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Flame className="w-5 h-5" />
+                </div>
                 Preparing
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-5xl font-bold">{preparingOrders.length}</p>
+              <p className="text-4xl sm:text-5xl font-bold">{preparingOrders.length}</p>
+              <p className="text-sm text-white/80 mt-1">Being cooked</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
+          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-xl border-0 hover:scale-105 transition-transform">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <Package className="w-5 h-5" />
+                </div>
                 Ready
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-5xl font-bold">{readyOrders.length}</p>
+              <p className="text-4xl sm:text-5xl font-bold">{readyOrders.length}</p>
+              <p className="text-sm text-white/80 mt-1">For pickup/delivery</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-4">🆕 New Orders</h2>
-            <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">New Orders</h2>
+              {pendingOrders.length > 0 && (
+                <Badge className="bg-orange-500">{pendingOrders.length}</Badge>
+              )}
+            </div>
+            <div className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {pendingOrders.map((order) => (
                   <OrderCard 
@@ -221,14 +273,27 @@ export default function KitchenView() {
                 ))}
               </AnimatePresence>
               {pendingOrders.length === 0 && (
-                <p className="text-center text-slate-400 py-8">No new orders</p>
+                <Card className="bg-white/50 backdrop-blur border-dashed">
+                  <CardContent className="py-12 text-center">
+                    <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm">No new orders</p>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-4">👨‍🍳 Preparing</h2>
-            <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                <Flame className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Preparing</h2>
+              {preparingOrders.length > 0 && (
+                <Badge className="bg-purple-500">{preparingOrders.length}</Badge>
+              )}
+            </div>
+            <div className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {preparingOrders.map((order) => (
                   <OrderCard 
@@ -240,14 +305,27 @@ export default function KitchenView() {
                 ))}
               </AnimatePresence>
               {preparingOrders.length === 0 && (
-                <p className="text-center text-slate-400 py-8">No orders preparing</p>
+                <Card className="bg-white/50 backdrop-blur border-dashed">
+                  <CardContent className="py-12 text-center">
+                    <Flame className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm">No orders cooking</p>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>
 
           <div>
-            <h2 className="text-xl font-bold text-slate-900 mb-4">✅ Ready</h2>
-            <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <Package className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">Ready</h2>
+              {readyOrders.length > 0 && (
+                <Badge className="bg-green-500">{readyOrders.length}</Badge>
+              )}
+            </div>
+            <div className="space-y-3 sm:space-y-4">
               <AnimatePresence>
                 {readyOrders.map((order) => (
                   <OrderCard 
@@ -259,11 +337,18 @@ export default function KitchenView() {
                 ))}
               </AnimatePresence>
               {readyOrders.length === 0 && (
-                <p className="text-center text-slate-400 py-8">No ready orders</p>
+                <Card className="bg-white/50 backdrop-blur border-dashed">
+                  <CardContent className="py-12 text-center">
+                    <Package className="w-12 h-12 text-slate-300 mx-auto mb-2" />
+                    <p className="text-slate-400 text-sm">No ready orders</p>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
     </div>
   );
@@ -272,68 +357,88 @@ export default function KitchenView() {
 function OrderCard({ order, onNext, onCancel }) {
   const getNextButtonText = () => {
     switch(order.status) {
-      case 'pending': return 'Confirm';
-      case 'confirmed': return 'Start Preparing';
-      case 'preparing': return 'Mark Ready';
-      case 'ready': return order.order_type === 'delivery' ? 'Out for Delivery' : 'Complete';
-      case 'out_for_delivery': return 'Delivered';
+      case 'pending': return '✓ Confirm Order';
+      case 'confirmed': return '🔥 Start Cooking';
+      case 'preparing': return '✓ Mark Ready';
+      case 'ready': return order.order_type === 'delivery' ? '🚚 Out for Delivery' : '✓ Complete';
+      case 'out_for_delivery': return '✓ Delivered';
       default: return 'Next';
     }
   };
 
+  const getTimeSince = () => {
+    const minutes = Math.floor((Date.now() - new Date(order.created_date)) / 60000);
+    return minutes;
+  };
+
+  const minutes = getTimeSince();
+  const isUrgent = minutes > 15;
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
     >
-      <Card className="bg-white/80 backdrop-blur-sm hover:shadow-xl transition-shadow">
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <CardTitle className="text-lg">{order.order_number}</CardTitle>
-              <p className="text-sm text-slate-600">{order.customer_name}</p>
-              <p className="text-xs text-slate-500">{order.restaurant_name}</p>
+      <Card className={`bg-white shadow-lg hover:shadow-xl transition-all border-l-4 ${
+        isUrgent ? 'border-l-red-500' : 'border-l-orange-400'
+      }`}>
+        <CardHeader className="pb-3 space-y-3">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <CardTitle className="text-base sm:text-lg font-bold text-slate-900 mb-1">
+                {order.order_number}
+              </CardTitle>
+              <p className="text-sm text-slate-600 font-medium">{order.customer_name}</p>
             </div>
-            <Badge className={`${statusColors[order.status]} border font-medium`}>
-              {order.status.replace('_', ' ')}
+            <Badge className={`${statusColors[order.status]} border-2 font-semibold text-xs whitespace-nowrap`}>
+              {order.status.replace('_', ' ').toUpperCase()}
             </Badge>
           </div>
-          <div className="flex gap-2">
-            <Badge variant="outline">
-              {order.order_type === 'dine_in' ? '🍽️' : order.order_type === 'takeout' ? '📦' : '🚚'} 
-              {' '}{order.order_type.replace('_', ' ')}
+          
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="text-xs font-medium">
+              {order.order_type === 'dine_in' ? '🍽️ Dine In' : order.order_type === 'takeout' ? '📦 Takeout' : '🚚 Delivery'}
             </Badge>
-            <Badge variant="outline">
-              ⏱️ {format(new Date(order.created_date), 'HH:mm')}
+            <Badge variant={isUrgent ? "destructive" : "outline"} className="text-xs font-medium">
+              ⏱️ {minutes}m ago
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2 mb-4">
+        
+        <CardContent className="space-y-4">
+          <div className="bg-slate-50 rounded-lg p-3 space-y-2">
             {order.items?.map((item, idx) => (
-              <div key={idx} className="flex justify-between text-sm">
-                <span>{item.quantity}x {item.name}</span>
-                {item.notes && <span className="text-slate-500 text-xs">({item.notes})</span>}
+              <div key={idx} className="flex justify-between items-start text-sm">
+                <div className="flex-1">
+                  <span className="font-semibold text-slate-900">{item.quantity}x</span>
+                  <span className="ml-2 text-slate-700">{item.name}</span>
+                  {item.notes && (
+                    <p className="text-xs text-amber-700 mt-1 ml-6 italic">Note: {item.notes}</p>
+                  )}
+                </div>
+                <span className="text-slate-600 font-medium">${(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
           {order.special_instructions && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mb-3">
-              <p className="text-xs font-semibold text-yellow-800">Special Instructions:</p>
-              <p className="text-sm text-yellow-700">{order.special_instructions}</p>
+            <div className="bg-amber-50 border-l-4 border-amber-400 rounded p-3">
+              <p className="text-xs font-bold text-amber-900 mb-1">📝 Special Instructions:</p>
+              <p className="text-sm text-amber-800">{order.special_instructions}</p>
             </div>
           )}
 
-          <div className="border-t pt-3 mb-3">
-            <p className="text-lg font-bold text-slate-900">Total: ${order.total_amount}</p>
+          <div className="flex justify-between items-center pt-3 border-t-2 border-slate-200">
+            <span className="text-sm font-semibold text-slate-600">Total:</span>
+            <span className="text-xl font-bold text-orange-600">${order.total_amount.toFixed(2)}</span>
           </div>
 
           <div className="flex gap-2">
             <Button 
               onClick={onNext}
-              className="flex-1 bg-gradient-to-r from-green-500 to-green-600"
+              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-md font-semibold h-11"
             >
               {getNextButtonText()}
             </Button>
@@ -341,9 +446,9 @@ function OrderCard({ order, onNext, onCancel }) {
               <Button 
                 onClick={onCancel}
                 variant="outline"
-                className="text-red-600 border-red-300 hover:bg-red-50"
+                className="text-red-600 border-2 border-red-300 hover:bg-red-50 font-semibold h-11 px-4"
               >
-                Cancel
+                ✕
               </Button>
             )}
           </div>
