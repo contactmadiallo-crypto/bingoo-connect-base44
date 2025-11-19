@@ -36,6 +36,9 @@ export default function KitchenView() {
       const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
       if (restaurants.length > 0) {
         setRestaurant(restaurants[0]);
+      } else {
+        // No restaurant found for this user, set to null to indicate check is complete
+        setRestaurant(null);
       }
     }
   };
@@ -137,6 +140,20 @@ export default function KitchenView() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-lg text-slate-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (restaurant === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md">
+          <CardContent className="pt-6 text-center">
+            <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Aucun Restaurant Trouvé</h2>
+            <p className="text-slate-600">Vous devez posséder un restaurant pour accéder au Kitchen Dashboard.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

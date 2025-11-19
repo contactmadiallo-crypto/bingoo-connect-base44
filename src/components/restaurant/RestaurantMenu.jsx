@@ -600,16 +600,24 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             {orderType === 'delivery' && (
               <div className="space-y-2">
                 <Label>{t('delivery_address')}</Label>
-                <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t('delivery_address')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {user?.addresses?.map((addr, idx) => (
-                      <SelectItem key={idx} value={addr.address}>{addr.label || addr.address}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {user?.addresses && user.addresses.length > 0 ? (
+                  <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('delivery_address')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {user.addresses.map((addr, idx) => (
+                        <SelectItem key={idx} value={addr.address}>{addr.label || addr.address}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                    <p className="text-sm text-amber-800">
+                      Aucune adresse enregistrée. <button onClick={onShowProfile} className="underline font-semibold">Ajouter une adresse</button>
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
