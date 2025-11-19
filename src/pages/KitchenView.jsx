@@ -90,8 +90,31 @@ export default function KitchenView() {
           type: "order_update",
           order_id: order.id,
           restaurant_id: order.restaurant_id,
-          action_url: `/OrderTracking?order=${order.order_number}` // Assuming this path for order tracking
+          action_url: `/OrderTracking?order=${order.order_number}`
         });
+      }
+      
+      // When order becomes ready for delivery, notify all available drivers
+      if (status === 'ready' && order.order_type === 'delivery') {
+        try {
+          const drivers = await base44.entities.DeliveryPartner.filter({ 
+            is_available: true,
+            status: 'active'
+          });
+          
+          for (const driver of drivers) {
+            await base44.entities.Notification.create({
+              customer_email: driver.email,
+              title: "🚚 Nouvelle Livraison Disponible!",
+              message: `${order.restaurant_name} - ${order.delivery_fee || 0} CFA - Commande ${order.order_number}`,
+              type: "order_update",
+              order_id: order.id,
+              restaurant_id: order.restaurant_id
+            });
+          }
+        } catch (error) {
+          console.error('Failed to notify drivers:', error);
+        }
       }
     },
     onSuccess: () => {
