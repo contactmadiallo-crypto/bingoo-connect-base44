@@ -559,7 +559,7 @@ export default function CustomerApp() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Bike className="w-4 h-4" />
-                          <span>${restaurant.delivery_fee}</span>
+                          <span>{restaurant.delivery_fee} CFA</span>
                         </div>
                       </div>
 
@@ -662,7 +662,7 @@ export default function CustomerApp() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Max Delivery Fee: ${filters.maxDeliveryFee}</Label>
+                <Label>Max Delivery Fee: {filters.maxDeliveryFee} CFA</Label>
                 <Slider
                   value={[filters.maxDeliveryFee]}
                   onValueChange={(value) => setFilters({...filters, maxDeliveryFee: value[0]})}

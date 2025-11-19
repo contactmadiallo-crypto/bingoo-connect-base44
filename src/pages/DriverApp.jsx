@@ -469,7 +469,7 @@ export default function DriverApp() {
                 <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                 <p className="text-[10px] sm:text-xs text-slate-600">Aujourd'hui</p>
               </div>
-              <p className="text-sm sm:text-xl font-bold text-green-700">{todayEarnings.toFixed(0)}</p>
+              <p className="text-sm sm:text-xl font-bold text-green-700">{todayEarnings.toFixed(0)} CFA</p>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-3 border border-blue-200">
               <div className="flex items-center gap-1 sm:gap-2 mb-1">
@@ -536,7 +536,6 @@ export default function DriverApp() {
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4 text-green-600" />
                               <span className="font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</span>
                             </div>
                             {order.distance_km && (
@@ -583,8 +582,8 @@ export default function DriverApp() {
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</p>
-                        <p className="text-xs text-slate-500">+ pourboires</p>
+                        <p className="text-lg sm:text-xl font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</p>
+                        <p className="text-xs text-slate-500">+ tips</p>
                       </div>
                     </div>
 
@@ -719,7 +718,7 @@ export default function DriverApp() {
                           {((order.driver_earnings || 0) + (order.tip_amount || 0)).toFixed(0)} CFA
                         </p>
                         {order.tip_amount > 0 && (
-                          <p className="text-xs text-green-600">+{order.tip_amount.toFixed(0)} CFA pourboire</p>
+                          <p className="text-xs text-green-600">+{order.tip_amount.toFixed(0)} CFA tip</p>
                         )}
                       </div>
                     </div>
@@ -831,7 +830,7 @@ export default function DriverApp() {
                       <p className="font-medium text-sm">{o.restaurant_name}</p>
                       <p className="text-xs text-slate-600">→ {o.customer_name} - {o.customer_address}</p>
                     </div>
-                    <p className="font-bold text-green-600">{(o.delivery_fee || 0).toFixed(0)} CFA</p>
+                    <p className="font-bold text-green-600 text-sm sm:text-base">{(o.delivery_fee || 0).toFixed(0)} CFA</p>
                   </div>
                 ))}
               </div>

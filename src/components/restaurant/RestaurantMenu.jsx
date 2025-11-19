@@ -616,7 +616,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                         <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} {t('min')}</p>
                       )}
                       <div className="flex justify-between items-center gap-2">
-                        <span className="text-2xl font-bold text-orange-600">${item.price}</span>
+                        <span className="text-2xl font-bold text-orange-600">{item.price} CFA</span>
                         <div className="flex gap-1">
                           {item.customization_options && item.customization_options.length > 0 && (
                             <Button onClick={() => { setItemToCustomize(item); setCustomizeDialog(true); }} size="sm" variant="outline">
@@ -766,7 +766,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                           )}
                         </div>
                       </div>
-                      <span className="font-semibold">${(itemPrice * item.quantity).toFixed(2)}</span>
+                      <span className="font-semibold">{(itemPrice * item.quantity).toFixed(0)} CFA</span>
                     </div>
                   </div>
                 );
@@ -774,43 +774,43 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               <div className="border-t pt-3 mt-3 space-y-2">
                 <div className="flex justify-between">
                   <span>{t('subtotal')}</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{subtotal.toFixed(0)} CFA</span>
                 </div>
                 {orderType === 'delivery' && (
                   <div className="flex justify-between">
                     <span>{t('delivery_fee')}</span>
                     <span className={freeDelivery ? "line-through text-slate-400" : ""}>
-                      ${deliveryFee.toFixed(2)}
+                      {deliveryFee.toFixed(0)} CFA
                     </span>
                   </div>
                 )}
                 {freeDelivery && (
                   <div className="flex justify-between text-blue-600">
                     <span>🎉 Livraison Gratuite</span>
-                    <span>-${deliveryFee.toFixed(2)}</span>
+                    <span>-{deliveryFee.toFixed(0)} CFA</span>
                   </div>
                 )}
                 {loyaltyDiscount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>🎁 {t('loyalty_discount')} ({customerLoyalty.tier})</span>
-                    <span>-${loyaltyDiscount.toFixed(2)}</span>
+                    <span>-{loyaltyDiscount.toFixed(0)} CFA</span>
                   </div>
                 )}
                 {rewardDiscount > 0 && (
                   <div className="flex justify-between text-purple-600">
                     <span>🎟️ {t('reward_applied')}</span>
-                    <span>-${rewardDiscount.toFixed(2)}</span>
+                    <span>-{rewardDiscount.toFixed(0)} CFA</span>
                   </div>
                 )}
                 {offerDiscount > 0 && (
                   <div className="flex justify-between text-orange-600">
                     <span>🏷️ Offre Spéciale ({appliedOffer.code})</span>
-                    <span>-${offerDiscount.toFixed(2)}</span>
+                    <span>-{offerDiscount.toFixed(0)} CFA</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg">
                   <span>{t('total')}</span>
-                  <span className="text-orange-600">${total.toFixed(2)}</span>
+                  <span className="text-orange-600">{total.toFixed(0)} CFA</span>
                 </div>
                 {restaurant.loyalty_enabled && (
                   <div className="bg-green-50 p-3 rounded-lg mt-2">
