@@ -317,7 +317,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                       <p className="text-sm text-slate-600">
                         {order.items.length} {order.items.length === 1 ? t('item') : t('items')}
                       </p>
-                      <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-green-600">{order.total_amount.toFixed(0)} CFA</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -382,7 +382,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                           {order.restaurant_name}
                         </p>
                       </div>
-                      <span className="text-xl font-bold text-green-600">${order.total_amount.toFixed(2)}</span>
+                      <span className="text-xl font-bold text-green-600">{order.total_amount.toFixed(0)} CFA</span>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -595,7 +595,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   {liveOrder.items.map((item, idx) => (
                     <div key={idx} className="flex justify-between text-sm">
                       <span>{item.quantity}x {item.name}</span>
-                      <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-semibold">{(item.price * item.quantity).toFixed(0)} CFA</span>
                     </div>
                   ))}
                 </div>
@@ -685,7 +685,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 {selectedOrder.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between text-sm mb-2 pb-2 border-b">
                     <span>{item.quantity}x {item.name}</span>
-                    <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-semibold">{(item.price * item.quantity).toFixed(0)} CFA</span>
                   </div>
                 ))}
                 <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
