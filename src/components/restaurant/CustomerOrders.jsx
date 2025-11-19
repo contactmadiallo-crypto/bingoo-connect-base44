@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -238,19 +237,18 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     setChatDialog(true);
   };
 
-  const handleReorder = (order) => {
-    navigate(createPageUrl('CustomerApp'));
-    // Store reorder data in sessionStorage to be picked up by RestaurantMenu
+  const handleReorder = async (order) => {
+    // Navigate back and trigger restaurant selection with reorder data
     sessionStorage.setItem('reorder', JSON.stringify({
       restaurantId: order.restaurant_id,
       items: order.items.map(item => ({
-        id: item.id, // Assuming item has an ID
+        menu_item_id: item.menu_item_id || item.id,
         name: item.name,
         price: item.price,
-        quantity: item.quantity,
-        // Include any other necessary item details for reordering
+        quantity: item.quantity
       }))
     }));
+    onBack(); // Go back to customer app which will handle the reorder
   };
 
   const statusColors = {

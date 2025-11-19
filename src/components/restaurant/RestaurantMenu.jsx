@@ -348,18 +348,30 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     if (reorderData) {
       try {
         const { restaurantId, items } = JSON.parse(reorderData);
-        if (restaurantId === restaurant.id) {
-          // Assuming items from reorder have menu_item_id, map it to id for current cart state
-          setCart(items.map(item => ({ ...item, id: item.menu_item_id })));
-          sessionStorage.removeItem('reorder');
-          toast.success(t("articles_added_to_cart"));
+        if (restaurantId === restaurant.id && items && items.length > 0) {
+          // Map menu items to cart format
+          const cartItems = items.map(item => {
+            const menuItem = menuItems.find(m => m.id === item.menu_item_id);
+            if (menuItem) {
+              return {
+                ...menuItem,
+                quantity: item.quantity || 1
+              };
+            }
+            return null;
+          }).filter(Boolean);
+          
+          if (cartItems.length > 0) {
+            setCart(cartItems);
+            sessionStorage.removeItem('reorder');
+            toast.success(`✅ ${cartItems.length} ${t("articles_added_to_cart")}`);
+          }
         }
       } catch (e) {
         console.error('Reorder error:', e);
-        toast.error(t("failed_to_load_reorder_items"));
       }
     }
-  }, [restaurant.id, t]); // Add t as a dependency for translation updates
+  }, [restaurant.id, menuItems.length]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">

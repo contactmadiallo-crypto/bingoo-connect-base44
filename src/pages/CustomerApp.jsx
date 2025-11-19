@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -78,6 +77,22 @@ export default function CustomerApp() {
 
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
+
+  // Handle reorder from session storage
+  useEffect(() => {
+    const reorderData = sessionStorage.getItem('reorder');
+    if (reorderData && restaurants.length > 0) {
+      try {
+        const { restaurantId } = JSON.parse(reorderData);
+        const restaurant = restaurants.find(r => r.id === restaurantId);
+        if (restaurant) {
+          setSelectedRestaurant(restaurant);
+        }
+      } catch (e) {
+        console.error('Reorder error:', e);
+      }
+    }
+  }, [restaurants]);
 
   useEffect(() => {
     checkAuth();
@@ -275,16 +290,19 @@ export default function CustomerApp() {
   }
 
   if (showOrders) {
-    return <CustomerOrders user={user} onBack={() => setShowOrders(false)} language={language} />;
+    return <CustomerOrders user={user} onBack={() => { setShowOrders(false); setSelectedRestaurant(null); }} language={language} />;
   }
 
   if (selectedRestaurant) {
     return <RestaurantMenu 
       restaurant={selectedRestaurant} 
       user={user} 
-      onBack={() => setSelectedRestaurant(null)} 
-      onShowProfile={() => setShowProfile(true)}
-      onShowOrders={() => setShowOrders(true)}
+      onBack={() => { 
+        setSelectedRestaurant(null);
+        sessionStorage.removeItem('reorder'); // Clean up reorder data
+      }} 
+      onShowProfile={() => { setShowProfile(true); setSelectedRestaurant(null); }}
+      onShowOrders={() => { setShowOrders(true); setSelectedRestaurant(null); }}
       language={language}
     />;
   }
@@ -421,6 +439,23 @@ export default function CustomerApp() {
         </div>
 
         <div className="max-w-6xl mx-auto px-4 py-6">
+          {/* Breadcrumb Navigation */}
+          <div className="mb-4 flex items-center gap-2 text-sm text-slate-600">
+            <span className="font-semibold text-orange-600">🏠 {t('home')}</span>
+            {selectedCity !== "all" && (
+              <>
+                <span>›</span>
+                <span>{selectedCity}</span>
+              </>
+            )}
+            {selectedCuisine !== "all" && (
+              <>
+                <span>›</span>
+                <span>{cuisineCategories.find(c => c.value === selectedCuisine)?.label}</span>
+              </>
+            )}
+          </div>
+
           <div className="mb-4 flex justify-between items-center gap-2 flex-wrap">
             <p className="text-sm text-slate-600">
               {sortedRestaurants.length} {sortedRestaurants.length === 1 ? 'result' : 'results'} found
