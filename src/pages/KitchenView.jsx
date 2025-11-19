@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -43,12 +42,16 @@ export default function KitchenView() {
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['orders', restaurant?.id],
-    queryFn: () => restaurant 
-      ? base44.entities.Order.filter({ restaurant_id: restaurant.id })
-      : base44.entities.Order.list('-created_date'), // Fallback to list all if no restaurant (e.g., admin view)
+    queryFn: () => {
+      if (restaurant) {
+        return base44.entities.Order.filter({ restaurant_id: restaurant.id }, '-created_date');
+      }
+      // If no restaurant found for this user, return empty array instead of all orders
+      return [];
+    },
     initialData: [],
     refetchInterval: 5000,
-    enabled: !!user, // Enable query only when user is loaded
+    enabled: !!user && restaurant !== undefined, // Enable only when user and restaurant check is done
   });
 
   const updateOrderStatusMutation = useMutation({

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -396,10 +395,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                   </Button>
                 </a>
               )}
-              <Button onClick={handleCheckout} className="bg-orange-600 hover:bg-orange-700">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                {t('cart')} ({cart.length})
-              </Button>
             </div>
           </div>
         </div>
@@ -566,6 +561,19 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       </div>
 
       <ScrollToTop />
+
+      {cart.length > 0 && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button 
+            onClick={handleCheckout} 
+            className="bg-orange-600 hover:bg-orange-700 shadow-2xl h-16 px-6 text-lg rounded-full"
+            size="lg"
+          >
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            {t('cart')} ({cart.length}) • ${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
+          </Button>
+        </div>
+      )}
 
       {selectedDish && (
         <DishReviews

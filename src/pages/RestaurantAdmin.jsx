@@ -29,9 +29,15 @@ function RestaurantAdminContent() {
   });
 
   const { data: orders = [] } = useQuery({
-    queryKey: ['orders'],
-    queryFn: () => base44.entities.Order.list('-created_date'),
+    queryKey: ['orders', myRestaurant?.id],
+    queryFn: () => {
+      if (myRestaurant?.id) {
+        return base44.entities.Order.filter({ restaurant_id: myRestaurant.id }, '-created_date');
+      }
+      return [];
+    },
     refetchInterval: 5000,
+    enabled: !!myRestaurant,
   });
 
   const { data: restaurants = [] } = useQuery({
