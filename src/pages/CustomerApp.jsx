@@ -71,7 +71,7 @@ export default function CustomerApp() {
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [filters, setFilters] = useState({
     minRating: 0,
-    maxDeliveryFee: 100,
+    maxDeliveryFee: 10000,
     maxDeliveryTime: 120
   });
 
@@ -488,8 +488,8 @@ export default function CustomerApp() {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              {(filters.minRating > 0 || filters.maxDeliveryFee < 100 || filters.maxDeliveryTime < 120) && (
-                <Button variant="ghost" size="sm" onClick={() => setFilters({ minRating: 0, maxDeliveryFee: 100, maxDeliveryTime: 120 })}>
+              {(filters.minRating > 0 || filters.maxDeliveryFee < 10000 || filters.maxDeliveryTime < 120) && (
+                <Button variant="ghost" size="sm" onClick={() => setFilters({ minRating: 0, maxDeliveryFee: 10000, maxDeliveryTime: 120 })}>
                   Clear Filters
                 </Button>
               )}
@@ -667,8 +667,8 @@ export default function CustomerApp() {
                   value={[filters.maxDeliveryFee]}
                   onValueChange={(value) => setFilters({...filters, maxDeliveryFee: value[0]})}
                   min={0}
-                  max={100}
-                  step={1}
+                  max={10000}
+                  step={100}
                 />
               </div>
               <div className="space-y-2">
