@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -94,16 +93,7 @@ export default function DeliveryPartnerDashboard() {
     ['confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status)
   );
 
-  // Real-time notification for new orders (only when online)
-  useEffect(() => {
-    if (currentPartner?.is_available) {
-      const newOrders = assignedOrders.filter(o => o.status === 'confirmed' && !o.delivery_partner_id);
-      if (newOrders.length > 0 && !showNotification) {
-        setNotificationOrder(newOrders[0]);
-        setShowNotification(true);
-      }
-    }
-  }, [assignedOrders, currentPartner?.is_available, showNotification]);
+  // Removed notification popup - partners see orders in the main list
 
   // Load current partner preferences and profile
   useEffect(() => {
@@ -773,43 +763,7 @@ export default function DeliveryPartnerDashboard() {
           </TabsContent>
         </Tabs>
 
-        <AnimatePresence>
-          {showNotification && notificationOrder && currentPartner?.is_available && (
-            <motion.div
-              initial={{ opacity: 0, y: -50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -50, scale: 0.9 }}
-              className="fixed top-4 right-4 z-50 max-w-md"
-            >
-              <Card className="border-2 border-green-500 shadow-2xl bg-white">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <Bell className="w-6 h-6 text-green-600 animate-pulse" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-green-600">New Order Available!</h3>
-                      <p className="text-sm text-slate-600">{notificationOrder.order_number}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2 mb-4">
-                    <p className="text-sm"><strong>Earn:</strong> ${((notificationOrder.delivery_fee || 0) * 0.85).toFixed(2)}</p>
-                    <p className="text-sm"><strong>Destination:</strong> {notificationOrder.customer_address}</p>
-                    <p className="text-sm"><strong>Estimated time:</strong> {notificationOrder.estimated_time} min</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setShowNotification(false)} className="flex-1">
-                      Dismiss
-                    </Button>
-                    <Button onClick={() => handleAcceptOrder(notificationOrder)} className="flex-1 bg-green-600 hover:bg-green-700">
-                      Accept Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
 
         <Dialog open={verifyDialog} onOpenChange={setVerifyDialog}>
           <DialogContent>
