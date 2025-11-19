@@ -52,27 +52,51 @@ export default function DriverApp() {
 
   useEffect(() => {
     if (driver?.id && driver.location_sharing_enabled) {
-      startLocationTracking();
+      const hasActiveDeliveries = activeOrders.length > 0;
+      startLocationTracking(hasActiveDeliveries);
     }
-  }, [driver]);
+  }, [driver, activeOrders.length]);
 
-  const startLocationTracking = () => {
+  const startLocationTracking = (isActive) => {
     if (navigator.geolocation) {
-      navigator.geolocation.watchPosition(
+      // More frequent updates during active deliveries
+      const updateInterval = isActive ? 3000 : 10000;
+      
+      const watchId = navigator.geolocation.watchPosition(
         (position) => {
-          updateDriverLocation(position.coords.latitude, position.coords.longitude);
+          updateDriverLocation(position.coords.latitude, position.coords.longitude, isActive);
         },
         (error) => console.error("Location error:", error),
-        { enableHighAccuracy: true, maximumAge: 5000 }
+        { 
+          enableHighAccuracy: true, 
+          maximumAge: updateInterval,
+          timeout: 10000
+        }
       );
+
+      return () => {
+        if (watchId) navigator.geolocation.clearWatch(watchId);
+      };
     }
   };
 
-  const updateDriverLocation = async (lat, lng) => {
-    if (driver?.id && driver.location_sharing_enabled) {
-      await base44.entities.DeliveryPartner.update(driver.id, {
-        current_location: { lat, lng }
-      });
+  const updateDriverLocation = async (lat, lng, updateOrders = false) => {
+    if (!driver?.id || !driver.location_sharing_enabled) return;
+    
+    const location = { lat, lng };
+    
+    // Update driver location
+    await base44.entities.DeliveryPartner.update(driver.id, {
+      current_location: location
+    });
+    
+    // Update active order locations in real-time
+    if (updateOrders && activeOrders.length > 0) {
+      for (const order of activeOrders) {
+        await base44.entities.Order.update(order.id, {
+          driver_location: location
+        });
+      }
     }
   };
 
@@ -200,9 +224,10 @@ export default function DriverApp() {
       await base44.entities.Order.update(orderId, updateData);
 
       const statusMessages = {
-        'preparing': 'Chauffeur a récupéré votre commande! 📦',
-        'ready': 'Chauffeur est en route! 🚗',
-        'out_for_delivery': 'Votre commande est en cours de livraison! 🚚',
+        'arriving_at_pickup': 'Le chauffeur arrive au restaurant! 🚗',
+        'picked_up': 'Commande récupérée! En route vers vous! 📦',
+        'en_route': 'Le chauffeur est en route! 🚚',
+        'arriving_at_delivery': 'Le chauffeur arrive bientôt! 📍',
         'delivered': 'Votre commande a été livrée! Bon appétit! 😊'
       };
 
@@ -235,14 +260,45 @@ export default function DriverApp() {
     });
   };
 
+  const handleArrivingAtPickup = async (order) => {
+    const location = await getCurrentLocation();
+    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'arriving_at_pickup', location });
+  };
+
   const handlePickup = async (order) => {
     const location = await getCurrentLocation();
-    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'preparing', location });
+    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'picked_up', location });
   };
 
   const handleEnRoute = async (order) => {
     const location = await getCurrentLocation();
-    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'out_for_delivery', location });
+    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'en_route', location });
+  };
+
+  const handleArrivingAtDelivery = async (order) => {
+    const location = await getCurrentLocation();
+    updateOrderStatusMutation.mutate({ orderId: order.id, status: 'arriving_at_delivery', location });
+  };
+
+  const openNativeNavigation = (order) => {
+    const destination = order.customer_location 
+      ? `${order.customer_location.lat},${order.customer_location.lng}`
+      : encodeURIComponent(order.customer_address);
+    
+    // Try to detect user's preferred navigation app
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    if (isIOS) {
+      // iOS - try Apple Maps first, fallback to Google Maps
+      window.location.href = `maps://maps.apple.com/?daddr=${destination}`;
+    } else if (isAndroid) {
+      // Android - try Google Maps app
+      window.location.href = `google.navigation:q=${destination}`;
+    } else {
+      // Desktop or fallback - open Google Maps in browser
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, '_blank');
+    }
   };
 
   const handleVerifyDelivery = (order) => {
@@ -330,7 +386,7 @@ export default function DriverApp() {
   );
 
   const activeOrders = myOrders.filter(o => 
-    ['confirmed', 'preparing', 'out_for_delivery'].includes(o.status)
+    ['confirmed', 'arriving_at_pickup', 'picked_up', 'en_route', 'arriving_at_delivery'].includes(o.status)
   );
 
   const availableOrders = myOrders.filter(o => 
@@ -518,9 +574,11 @@ export default function DriverApp() {
                         <p className="font-bold text-lg">{order.restaurant_name}</p>
                         <p className="text-sm text-slate-600">{order.order_number}</p>
                         <Badge className="mt-1 bg-blue-100 text-blue-700">
-                          {order.status === 'confirmed' && 'Aller au Restaurant'}
-                          {order.status === 'preparing' && 'En Récupération'}
-                          {order.status === 'out_for_delivery' && 'En Livraison'}
+                          {order.status === 'confirmed' && '📍 Vers Restaurant'}
+                          {order.status === 'arriving_at_pickup' && '🏪 Arrivée Restaurant'}
+                          {order.status === 'picked_up' && '📦 Commande Récupérée'}
+                          {order.status === 'en_route' && '🚗 En Route'}
+                          {order.status === 'arriving_at_delivery' && '📍 Proche du Client'}
                         </Badge>
                       </div>
                       <div className="text-right">
@@ -550,43 +608,71 @@ export default function DriverApp() {
                         </div>
                         </div>
 
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => openMap(order)}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <Navigation className="w-4 h-4 mr-2" />
-                        Naviguer
-                      </Button>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => openMap(order)}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          <MapPin className="w-4 h-4 mr-2" />
+                          Carte
+                        </Button>
+                        <Button 
+                          onClick={() => openNativeNavigation(order)}
+                          variant="outline"
+                          className="flex-1 bg-blue-50"
+                        >
+                          <Navigation className="w-4 h-4 mr-2" />
+                          GPS
+                        </Button>
+                      </div>
                       
                       {order.status === 'confirmed' && (
                         <Button 
+                          onClick={() => handleArrivingAtPickup(order)}
+                          className="w-full bg-blue-600 hover:bg-blue-700"
+                        >
+                          🏪 J'arrive au Restaurant
+                        </Button>
+                      )}
+                      
+                      {order.status === 'arriving_at_pickup' && (
+                        <Button 
                           onClick={() => handlePickup(order)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700"
+                          className="w-full bg-purple-600 hover:bg-purple-700"
                         >
                           <Package className="w-4 h-4 mr-2" />
-                          Récupéré
+                          Commande Récupérée
                         </Button>
                       )}
                       
-                      {order.status === 'preparing' && (
+                      {order.status === 'picked_up' && (
                         <Button 
                           onClick={() => handleEnRoute(order)}
-                          className="flex-1 bg-purple-600 hover:bg-purple-700"
+                          className="w-full bg-orange-600 hover:bg-orange-700"
                         >
                           <Bike className="w-4 h-4 mr-2" />
-                          En Route
+                          En Route vers Client
                         </Button>
                       )}
                       
-                      {order.status === 'out_for_delivery' && (
+                      {order.status === 'en_route' && (
+                        <Button 
+                          onClick={() => handleArrivingAtDelivery(order)}
+                          className="w-full bg-amber-600 hover:bg-amber-700"
+                        >
+                          📍 J'arrive chez le Client
+                        </Button>
+                      )}
+                      
+                      {order.status === 'arriving_at_delivery' && (
                         <Button 
                           onClick={() => handleVerifyDelivery(order)}
-                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          className="w-full bg-green-600 hover:bg-green-700"
                         >
                           <CheckCircle className="w-4 h-4 mr-2" />
-                          Livré
+                          Livré - Vérifier
                         </Button>
                       )}
                     </div>
@@ -714,9 +800,11 @@ export default function DriverApp() {
             <DialogTitle className="flex items-center justify-between">
               <span>Navigation {selectedOrders.length > 0 ? `- ${selectedOrders.length} Arrêts` : `- ${selectedOrder?.order_number}`}</span>
               <Badge className="bg-blue-100 text-blue-700">
-                {selectedOrder?.status === 'confirmed' && 'Vers Restaurant'}
-                {selectedOrder?.status === 'preparing' && 'En Récupération'}
-                {selectedOrder?.status === 'out_for_delivery' && 'Vers Client'}
+                {selectedOrder?.status === 'confirmed' && '📍 Vers Restaurant'}
+                {selectedOrder?.status === 'arriving_at_pickup' && '🏪 Arrivée Restaurant'}
+                {selectedOrder?.status === 'picked_up' && '📦 Récupéré'}
+                {selectedOrder?.status === 'en_route' && '🚗 En Route'}
+                {selectedOrder?.status === 'arriving_at_delivery' && '📍 Proche Client'}
                 {selectedOrders.length > 0 && 'Itinéraire Optimisé'}
               </Badge>
             </DialogTitle>
