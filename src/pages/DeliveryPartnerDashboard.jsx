@@ -404,12 +404,12 @@ export default function DeliveryPartnerDashboard() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600">Available</p>
+                      <p className="text-sm text-slate-600">Live Deliveries</p>
                       <p className="text-3xl font-bold text-blue-600">
-                        {assignedOrders.filter(o => !o.delivery_partner_id && o.status === 'confirmed').length}
+                        {myDeliveries.filter(o => ['preparing', 'out_for_delivery'].includes(o.status)).length}
                       </p>
                     </div>
-                    <Bell className="w-8 h-8 text-blue-600" />
+                    <Truck className="w-8 h-8 text-blue-600" />
                   </div>
                 </CardContent>
               </Card>
@@ -418,12 +418,12 @@ export default function DeliveryPartnerDashboard() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-600">In Transit</p>
-                      <p className="text-3xl font-bold text-orange-600">
-                        {myDeliveries.filter(o => o.status === 'out_for_delivery').length}
+                      <p className="text-sm text-slate-600">Active Partners</p>
+                      <p className="text-3xl font-bold text-purple-600">
+                        {partners.filter(p => p.is_available).length}
                       </p>
                     </div>
-                    <Truck className="w-8 h-8 text-orange-600" />
+                    <Truck className="w-8 h-8 text-purple-600" />
                   </div>
                 </CardContent>
               </Card>

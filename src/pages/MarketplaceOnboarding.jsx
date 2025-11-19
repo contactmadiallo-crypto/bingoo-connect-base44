@@ -378,7 +378,7 @@ export default function MarketplaceOnboarding() {
 
                 {currentStep === 3 && (
                   <>
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Default Delivery Fee ($)</Label>
                         <Input
@@ -397,14 +397,11 @@ export default function MarketplaceOnboarding() {
                           onChange={(e) => setFormData({ ...formData, min_order: e.target.value })}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label>Avg Delivery Time (min)</Label>
-                        <Input
-                          type="number"
-                          value={formData.avg_delivery_time}
-                          onChange={(e) => setFormData({ ...formData, avg_delivery_time: e.target.value })}
-                        />
-                      </div>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <p className="text-xs text-slate-600">
+                        ℹ️ Delivery times are automatically estimated based on distance and real-time conditions
+                      </p>
                     </div>
 
                     <div className="space-y-2">
