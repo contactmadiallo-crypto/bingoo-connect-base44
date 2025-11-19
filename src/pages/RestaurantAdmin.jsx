@@ -18,6 +18,18 @@ function RestaurantAdminContent() {
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: restaurants = [] } = useQuery({
+    queryKey: ['restaurants'],
+    queryFn: () => base44.entities.Restaurant.list(),
+  });
+
+  const myRestaurant = restaurants.find(r => r.owner_email === user?.email);
+
   const { data: menuItems = [] } = useQuery({
     queryKey: ['menuItems'],
     queryFn: () => base44.entities.MenuItem.list(),
@@ -40,22 +52,10 @@ function RestaurantAdminContent() {
     enabled: !!myRestaurant,
   });
 
-  const { data: restaurants = [] } = useQuery({
-    queryKey: ['restaurants'],
-    queryFn: () => base44.entities.Restaurant.list(),
-  });
-
   const { data: restaurantReviews = [] } = useQuery({
     queryKey: ['restaurant-reviews'],
     queryFn: () => base44.entities.RestaurantReview.list(),
   });
-
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const myRestaurant = restaurants.find(r => r.owner_email === user?.email);
 
   const stats = {
     totalOrders: orders.filter(o => o.restaurant_id === myRestaurant?.id).length,
