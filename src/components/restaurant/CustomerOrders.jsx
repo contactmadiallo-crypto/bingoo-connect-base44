@@ -646,6 +646,23 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 </div>
               </div>
 
+              {selectedOrder.delivery_code && selectedOrder.order_type === 'delivery' && (
+                <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 rounded-xl shadow-lg">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <Key className="w-6 h-6 text-green-700" />
+                    <p className="text-lg font-bold text-green-700">CODE DE LIVRAISON</p>
+                  </div>
+                  <div className="bg-white rounded-xl p-6 mb-3 shadow-inner">
+                    <p className="text-6xl font-bold text-green-700 text-center tracking-widest">
+                      {selectedOrder.delivery_code}
+                    </p>
+                  </div>
+                  <p className="text-sm text-slate-700 text-center font-semibold">
+                    📱 Donnez ce code au chauffeur à la livraison
+                  </p>
+                </div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <h4 className="font-semibold flex items-center gap-2">
@@ -698,23 +715,6 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   <span className="text-green-600">{selectedOrder.total_amount.toFixed(0)} CFA</span>
                 </div>
               </div>
-
-              {selectedOrder.delivery_code && selectedOrder.order_type === 'delivery' && (
-                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg">
-                  <p className="font-semibold text-sm mb-3 flex items-center gap-2 text-green-700">
-                    <Key className="w-4 h-4" />
-                    {t('your_delivery_code')}
-                  </p>
-                  <div className="bg-white rounded-lg p-4 mb-2">
-                    <p className="text-5xl font-bold text-green-700 text-center tracking-widest">
-                      {selectedOrder.delivery_code}
-                    </p>
-                  </div>
-                  <p className="text-xs text-slate-700 text-center font-semibold">
-                    📱 Partagez ce code avec le chauffeur
-                  </p>
-                </div>
-              )}
 
               {selectedOrder.driver_name && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
