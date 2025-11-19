@@ -391,7 +391,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                         {order.items.map((item, idx) => (
                           <div key={idx} className="flex justify-between py-1">
                             <span>{item.quantity}x {item.name}</span>
-                            <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                            <span className="font-semibold">{(item.price * item.quantity).toFixed(0)} CFA</span>
                           </div>
                         ))}
                       </div>
@@ -601,7 +601,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 </div>
                 <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
                   <span>{t('total')}</span>
-                  <span className="text-green-600">${liveOrder.total_amount.toFixed(2)}</span>
+                  <span className="text-green-600">{liveOrder.total_amount.toFixed(0)} CFA</span>
                 </div>
               </div>
 
@@ -637,7 +637,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   <Badge className={statusColors[selectedOrder.status]}>
                     {selectedOrder.status.replace('_', ' ')}
                   </Badge>
-                  <p className="text-2xl font-bold text-green-600 mt-2">${selectedOrder.total_amount.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-green-600 mt-2">{selectedOrder.total_amount.toFixed(0)} CFA</p>
                 </div>
               </div>
 
@@ -690,7 +690,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                 ))}
                 <div className="flex justify-between font-bold text-lg mt-3 pt-3 border-t">
                   <span>{t('total')}</span>
-                  <span className="text-green-600">${selectedOrder.total_amount.toFixed(2)}</span>
+                  <span className="text-green-600">{selectedOrder.total_amount.toFixed(0)} CFA</span>
                 </div>
               </div>
 
@@ -724,7 +724,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                           ))}
                         </div>
                         {selectedOrder.tip_amount > 0 && (
-                          <span className="text-xs text-green-600">• {t('tip')}: ${selectedOrder.tip_amount.toFixed(2)}</span>
+                          <span className="text-xs text-green-600">• {t('tip')}: {selectedOrder.tip_amount.toFixed(0)} CFA</span>
                         )}
                       </div>
                     )}
@@ -812,27 +812,27 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={tipAmount === "2" ? "default" : "outline"}
-                  onClick={() => setTipAmount("2")}
+                  variant={tipAmount === "500" ? "default" : "outline"}
+                  onClick={() => setTipAmount("500")}
                   className="flex-1"
                 >
-                  $2
+                  500 CFA
                 </Button>
                 <Button
                   type="button"
-                  variant={tipAmount === "5" ? "default" : "outline"}
-                  onClick={() => setTipAmount("5")}
+                  variant={tipAmount === "1000" ? "default" : "outline"}
+                  onClick={() => setTipAmount("1000")}
                   className="flex-1"
                 >
-                  $5
+                  1000 CFA
                 </Button>
                 <Button
                   type="button"
-                  variant={tipAmount === "10" ? "default" : "outline"}
-                  onClick={() => setTipAmount("10")}
+                  variant={tipAmount === "2000" ? "default" : "outline"}
+                  onClick={() => setTipAmount("2000")}
                   className="flex-1"
                 >
-                  $10
+                  2000 CFA
                 </Button>
               </div>
               <div className="flex items-center gap-2">
