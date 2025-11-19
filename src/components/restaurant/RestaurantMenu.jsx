@@ -686,22 +686,38 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
             {orderType === 'delivery' && (
               <div className="space-y-2">
-                <Label>{t('delivery_address')}</Label>
+                <div className="flex items-center justify-between">
+                  <Label>{t('delivery_address')}</Label>
+                  <Button 
+                    type="button"
+                    variant="ghost" 
+                    size="sm"
+                    onClick={onShowProfile}
+                    className="text-xs"
+                  >
+                    + Ajouter
+                  </Button>
+                </div>
                 {user?.addresses && user.addresses.length > 0 ? (
                   <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
                     <SelectTrigger>
-                      <SelectValue placeholder={t('delivery_address')} />
+                      <SelectValue placeholder="Sélectionner une adresse" />
                     </SelectTrigger>
                     <SelectContent>
                       {user.addresses.map((addr, idx) => (
-                        <SelectItem key={idx} value={addr.address}>{addr.label || addr.address}</SelectItem>
+                        <SelectItem key={idx} value={addr.address}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{addr.label || 'Adresse'}</span>
+                            <span className="text-xs text-slate-500">- {addr.address}</span>
+                          </div>
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
-                    <p className="text-sm text-amber-800">
-                      Aucune adresse enregistrée. <button onClick={onShowProfile} className="underline font-semibold">Ajouter une adresse</button>
+                  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      📍 <button onClick={onShowProfile} className="underline font-semibold">Ajouter votre première adresse</button> pour commander rapidement
                     </p>
                   </div>
                 )}
