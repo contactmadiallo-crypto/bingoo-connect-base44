@@ -83,11 +83,6 @@ const restaurantItems = [
     url: createPageUrl("RestaurantAdmin"),
     icon: Settings,
   },
-  {
-    title: "Delivery Mgmt",
-    url: createPageUrl("DeliveryManagement"),
-    icon: Truck,
-  },
 ];
 
 const marketplaceItems = [
