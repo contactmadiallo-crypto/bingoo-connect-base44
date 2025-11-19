@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search, Star, MessageSquare, Phone } from "lucide-react";
+import { ShoppingCart, Plus, Minus, ArrowLeft, Truck, Store, UtensilsCrossed, Search, Star, MessageSquare, Phone, Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,8 +15,10 @@ import DishReviews from "./DishReviews";
 import LoyaltyCard from "./LoyaltyCard";
 import LoyaltyRewards from "./LoyaltyRewards";
 import RestaurantReviews from "./RestaurantReviews";
+import ItemCustomization from "./ItemCustomization";
+import SpecialOffers from "./SpecialOffers";
 import { useTranslation } from "../translations";
-import { toast } from "sonner"; // Added import for toast notifications
+import { toast } from "sonner";
 
 const categoryLabels = {
   appetizers: { label: "Appetizers", emoji: "🥗" },
@@ -40,7 +42,10 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const [orderType, setOrderType] = useState("delivery");
   const [selectedDish, setSelectedDish] = useState(null);
   const [appliedReward, setAppliedReward] = useState(null);
+  const [appliedOffer, setAppliedOffer] = useState(null);
   const [showReviews, setShowReviews] = useState(false);
+  const [customizeDialog, setCustomizeDialog] = useState(false);
+  const [itemToCustomize, setItemToCustomize] = useState(null);
   const [customerInfo, setCustomerInfo] = useState({
     address: user.addresses?.[0]?.address || "",
     instructions: ""
@@ -250,17 +255,33 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   }, {});
 
   const addToCart = (item) => {
-    const existing = cart.find(c => c.id === item.id);
+    // Check if item has customization options
+    if (item.customization_options && item.customization_options.length > 0) {
+      setItemToCustomize(item);
+      setCustomizeDialog(true);
+      return;
+    }
+
+    const existing = cart.find(c => c.id === item.id && !c.customizations);
     if (existing) {
-      setCart(cart.map(c => c.id === item.id ? {...c, quantity: c.quantity + 1} : c));
+      setCart(cart.map(c => c.id === item.id && !c.customizations ? {...c, quantity: c.quantity + 1} : c));
     } else {
       setCart([...cart, {...item, quantity: 1}]);
     }
+    toast.success(`✓ ${item.name} ajouté au panier`);
   };
 
-  const updateQuantity = (itemId, delta) => {
+  const handleCustomizedItem = (customizedItem) => {
+    // Add customized item as unique entry in cart
+    setCart([...cart, { ...customizedItem, cartId: Date.now() }]);
+    toast.success(`✓ ${customizedItem.name} personnalisé ajouté`);
+  };
+
+  const updateQuantity = (itemId, delta, cartId = null) => {
     setCart(cart.map(c => {
-      if (c.id === itemId) {
+      // Match by cartId for customized items, or by id for regular items
+      const isMatch = cartId ? c.cartId === cartId : (c.id === itemId && !c.cartId);
+      if (isMatch) {
         const newQty = c.quantity + delta;
         return newQty > 0 ? {...c, quantity: newQty} : null;
       }
@@ -268,7 +289,17 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     }).filter(Boolean));
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const removeFromCart = (itemId, cartId = null) => {
+    setCart(cart.filter(c => {
+      const isMatch = cartId ? c.cartId === cartId : (c.id === itemId && !c.cartId);
+      return !isMatch;
+    }));
+  };
+
+  const subtotal = cart.reduce((sum, item) => {
+    const itemPrice = item.customized_price || item.price;
+    return sum + (itemPrice * item.quantity);
+  }, 0);
   const deliveryFee = orderType === 'delivery' ? restaurant.delivery_fee : 0;
   
   let loyaltyDiscount = 0;
@@ -287,8 +318,26 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       rewardDiscount = appliedReward.discount_value;
     }
   }
+
+  let offerDiscount = 0;
+  let freeDelivery = false;
+  if (appliedOffer) {
+    if (appliedOffer.min_order && subtotal < appliedOffer.min_order) {
+      // Offer not applicable
+      setAppliedOffer(null);
+    } else {
+      if (appliedOffer.type === "percentage") {
+        offerDiscount = (subtotal * appliedOffer.discount_value) / 100;
+      } else if (appliedOffer.type === "fixed_amount") {
+        offerDiscount = appliedOffer.discount_value;
+      } else if (appliedOffer.type === "free_delivery") {
+        freeDelivery = true;
+      }
+    }
+  }
   
-  const total = subtotal + deliveryFee - loyaltyDiscount - rewardDiscount;
+  const finalDeliveryFee = freeDelivery ? 0 : deliveryFee;
+  const total = subtotal + finalDeliveryFee - loyaltyDiscount - rewardDiscount - offerDiscount;
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
@@ -417,6 +466,15 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
           <div className="mb-6">
             <RestaurantReviews restaurant={restaurant} user={user} />
           </div>
+        )}
+
+        {restaurant.special_offers && restaurant.special_offers.length > 0 && (
+          <SpecialOffers 
+            restaurant={restaurant}
+            onApplyOffer={setAppliedOffer}
+            appliedOffer={appliedOffer}
+            language={language}
+          />
         )}
 
         {restaurant.loyalty_enabled && (
@@ -557,11 +615,18 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                       {item.preparation_time && (
                         <p className="text-xs text-slate-500 mb-2">⏱️ {item.preparation_time} {t('min')}</p>
                       )}
-                      <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center gap-2">
                         <span className="text-2xl font-bold text-orange-600">${item.price}</span>
-                        <Button onClick={() => addToCart(item)} size="sm">
-                          <Plus className="w-4 h-4" />
-                        </Button>
+                        <div className="flex gap-1">
+                          {item.customization_options && item.customization_options.length > 0 && (
+                            <Button onClick={() => { setItemToCustomize(item); setCustomizeDialog(true); }} size="sm" variant="outline">
+                              <Settings className="w-4 h-4" />
+                            </Button>
+                          )}
+                          <Button onClick={() => addToCart(item)} size="sm">
+                            <Plus className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -593,6 +658,16 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
           restaurant={restaurant}
           user={user}
           onClose={() => setSelectedDish(null)}
+        />
+      )}
+
+      {itemToCustomize && (
+        <ItemCustomization
+          item={itemToCustomize}
+          open={customizeDialog}
+          onClose={() => { setCustomizeDialog(false); setItemToCustomize(null); }}
+          onAddToCart={handleCustomizedItem}
+          language={language}
         />
       )}
 
@@ -656,23 +731,46 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
             <div className="border-t pt-4">
               <h3 className="font-semibold mb-3">{t('order_summary')}</h3>
-              {cart.map(item => (
-                <div key={item.id} className="flex justify-between items-center mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, -1)}>
-                        <Minus className="w-3 h-3" />
-                      </Button>
-                      <span className="px-3 py-1 border rounded">{item.quantity}</span>
-                      <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, 1)}>
-                        <Plus className="w-3 h-3" />
-                      </Button>
+              {cart.map((item, idx) => {
+                const itemPrice = item.customized_price || item.price;
+                const itemKey = item.cartId || `${item.id}-${idx}`;
+                return (
+                  <div key={itemKey} className="mb-3 pb-3 border-b last:border-0">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, -1, item.cartId)}>
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                          <span className="px-3 py-1 border rounded">{item.quantity}</span>
+                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, 1, item.cartId)}>
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        <div className="flex-1">
+                          <span className="font-medium">{item.name}</span>
+                          {item.customizations && Object.keys(item.customizations).length > 0 && (
+                            <div className="text-xs text-slate-600 mt-1 space-y-1">
+                              {Object.entries(item.customizations).map(([key, value]) => (
+                                <div key={key}>
+                                  <span className="font-semibold">{key}:</span>{' '}
+                                  {Array.isArray(value) ? value.join(', ') : value}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {item.special_instructions && (
+                            <div className="text-xs text-amber-700 italic mt-1">
+                              Note: {item.special_instructions}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span className="font-semibold">${(itemPrice * item.quantity).toFixed(2)}</span>
                     </div>
-                    <span>{item.name}</span>
                   </div>
-                  <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
+                );
+              })}
               <div className="border-t pt-3 mt-3 space-y-2">
                 <div className="flex justify-between">
                   <span>{t('subtotal')}</span>
@@ -681,7 +779,15 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 {orderType === 'delivery' && (
                   <div className="flex justify-between">
                     <span>{t('delivery_fee')}</span>
-                    <span>${deliveryFee.toFixed(2)}</span>
+                    <span className={freeDelivery ? "line-through text-slate-400" : ""}>
+                      ${deliveryFee.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                {freeDelivery && (
+                  <div className="flex justify-between text-blue-600">
+                    <span>🎉 Livraison Gratuite</span>
+                    <span>-${deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
                 {loyaltyDiscount > 0 && (
@@ -694,6 +800,12 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                   <div className="flex justify-between text-purple-600">
                     <span>🎟️ {t('reward_applied')}</span>
                     <span>-${rewardDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                {offerDiscount > 0 && (
+                  <div className="flex justify-between text-orange-600">
+                    <span>🏷️ Offre Spéciale ({appliedOffer.code})</span>
+                    <span>-${offerDiscount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg">
