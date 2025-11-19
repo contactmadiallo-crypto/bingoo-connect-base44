@@ -121,6 +121,30 @@ export default function DriverApp() {
     refetchInterval: 2000,
   });
 
+  const myOrders = orders.filter(o => 
+    o.delivery_partner_id === driver?.id || 
+    (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id)
+  );
+
+  const activeOrders = myOrders.filter(o => 
+    ['confirmed', 'arriving_at_pickup', 'picked_up', 'en_route', 'arriving_at_delivery'].includes(o.status)
+  );
+
+  const availableOrders = myOrders.filter(o => 
+    o.status === 'ready' && !o.delivery_partner_id
+  );
+
+  const completedToday = orders.filter(o => {
+    const today = new Date().toDateString();
+    return o.delivery_partner_id === driver?.id && 
+           o.status === 'delivered' && 
+           new Date(o.created_date).toDateString() === today;
+  });
+
+  const todayEarnings = completedToday.reduce((sum, o) => 
+    sum + (o.driver_earnings || 0) + (o.tip_amount || 0), 0
+  );
+
   // Show toast notification for new unread notifications
   useEffect(() => {
     const unreadNotifs = notifications.filter(n => !n.read);
