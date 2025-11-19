@@ -47,7 +47,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
   const [customizeDialog, setCustomizeDialog] = useState(false);
   const [itemToCustomize, setItemToCustomize] = useState(null);
   const [customerInfo, setCustomerInfo] = useState({
-    address: user.addresses?.[0]?.address || "",
+    address: "",
     instructions: ""
   });
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -341,23 +341,41 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
+    
+    // Check required fields based on order type
+    if (orderType === 'delivery') {
+      if (!user.addresses?.length) {
+        toast.error("Ajoutez une adresse de livraison");
+        onShowProfile();
+        return;
+      }
+    }
+    
     if (!user.payment_methods?.length) {
-      alert("Please add a payment method first!");
+      toast.error("Ajoutez un moyen de paiement");
       onShowProfile();
       return;
     }
+    
     setCheckoutDialog(true);
   };
 
   const submitOrder = () => {
-    if (!paymentMethod) {
-      alert("Please select a payment method");
+    // Validate based on order type
+    if (orderType === 'delivery' && !customerInfo.address) {
+      toast.error("Sélectionnez une adresse de livraison");
       return;
     }
+    
+    if (!paymentMethod) {
+      toast.error("Sélectionnez un moyen de paiement");
+      return;
+    }
+    
     createOrderMutation.mutate({
       customer_name: user.full_name,
       customer_phone: user.phone,
-      customer_address: customerInfo.address,
+      customer_address: orderType === 'delivery' ? customerInfo.address : null,
       special_instructions: customerInfo.instructions,
       order_type: orderType,
       items: cart.map(item => ({
@@ -368,8 +386,8 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       })),
       total_amount: total,
       subtotal: subtotal,
-      delivery_fee: deliveryFee,
-      discount: loyaltyDiscount + rewardDiscount,
+      delivery_fee: finalDeliveryFee,
+      discount: loyaltyDiscount + rewardDiscount + offerDiscount,
       estimated_time: restaurant.avg_delivery_time,
       payment_status: 'paid'
     });
@@ -379,17 +397,23 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     ? (restaurantReviews.reduce((sum, r) => sum + r.rating, 0) / restaurantReviews.length).toFixed(1)
     : restaurant.rating || 0;
 
-  // Pre-fill delivery instructions with user's default
+  // Pre-fill address, payment, and instructions from user profile
   useEffect(() => {
-    // Only pre-fill if user has default instructions AND the instructions state is currently empty.
-    // This prevents overwriting user's manual input or existing state if component re-renders.
-    if (user.default_delivery_instructions && !customerInfo.instructions) {
+    if (user) {
+      // Find default address or use first address
+      const defaultAddr = user.addresses?.find(a => a.is_default) || user.addresses?.[0];
+      const defaultPayment = user.payment_methods?.find(pm => pm.is_default) || user.payment_methods?.[0];
+      
       setCustomerInfo(prev => ({
-        ...prev,
-        instructions: user.default_delivery_instructions
+        address: defaultAddr?.address || prev.address,
+        instructions: user.default_delivery_instructions || defaultAddr?.instructions || prev.instructions
       }));
+      
+      if (defaultPayment) {
+        setPaymentMethod(defaultPayment.last_four);
+      }
     }
-  }, [user.default_delivery_instructions, customerInfo.instructions, user.id]);
+  }, [user?.id]);
 
   // Handle reorder from session storage
   useEffect(() => {
@@ -674,25 +698,34 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       <Dialog open={checkoutDialog} onOpenChange={setCheckoutDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t('checkout')}</DialogTitle>
+            <DialogTitle className="text-2xl">🛒 {t('checkout')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-orange-50 p-4 rounded-lg">
-              <p className="text-sm font-semibold text-slate-600 mb-1">{t('order_type')}:</p>
-              <p className="text-lg font-bold text-orange-600">
-                {orderType === "dine_in" ? t('dine_in') : orderType === "takeout" ? t('take_out') : t('delivery')}
-              </p>
-            </div>
+            <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">{t('order_type')}</p>
+                    <p className="text-lg font-bold text-orange-600">
+                      {orderType === "dine_in" ? "🍽️ " + t('dine_in') : orderType === "takeout" ? "🛍️ " + t('take_out') : "🚚 " + t('delivery')}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => setCheckoutDialog(false)}>
+                    Modifier
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {orderType === 'delivery' && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>{t('delivery_address')}</Label>
+                  <Label className="text-base">📍 {t('delivery_address')}</Label>
                   <Button 
                     type="button"
                     variant="ghost" 
                     size="sm"
-                    onClick={onShowProfile}
+                    onClick={() => { setCheckoutDialog(false); onShowProfile(); }}
                     className="text-xs"
                   >
                     + Ajouter
@@ -700,7 +733,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                 </div>
                 {user?.addresses && user.addresses.length > 0 ? (
                   <Select value={customerInfo.address} onValueChange={(value) => setCustomerInfo({...customerInfo, address: value})}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12">
                       <SelectValue placeholder="Sélectionner une adresse" />
                     </SelectTrigger>
                     <SelectContent>
@@ -709,31 +742,52 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                           <div className="flex items-center gap-2">
                             <span className="font-semibold">{addr.label || 'Adresse'}</span>
                             <span className="text-xs text-slate-500">- {addr.address}</span>
+                            {addr.is_default && <Badge variant="secondary" className="text-xs">Par défaut</Badge>}
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 ) : (
-                  <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      📍 <button onClick={onShowProfile} className="underline font-semibold">Ajouter votre première adresse</button> pour commander rapidement
-                    </p>
-                  </div>
+                  <Card className="bg-blue-50 border-2 border-blue-300">
+                    <CardContent className="pt-4 text-center">
+                      <p className="text-sm text-blue-800 mb-3">
+                        📍 Aucune adresse enregistrée
+                      </p>
+                      <Button onClick={() => { setCheckoutDialog(false); onShowProfile(); }} size="sm">
+                        Ajouter une adresse
+                      </Button>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             )}
 
             <div className="space-y-2">
-              <Label>{t('payment_method')}</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-base">💳 {t('payment_method')}</Label>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => { setCheckoutDialog(false); onShowProfile(); }}
+                  className="text-xs"
+                >
+                  + Ajouter
+                </Button>
+              </div>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger>
-                  <SelectValue placeholder={t('payment_method')} />
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Sélectionner un moyen de paiement" />
                 </SelectTrigger>
                 <SelectContent>
                   {user?.payment_methods?.map((pm, idx) => (
                     <SelectItem key={idx} value={pm.last_four}>
-                      {pm.type.replace('_', ' ')} **** {pm.last_four}
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{pm.type.replace('_', ' ')}</span>
+                        <span className="text-slate-500">**** {pm.last_four}</span>
+                        {pm.is_default && <Badge variant="secondary" className="text-xs">Par défaut</Badge>}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -741,8 +795,14 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
             </div>
 
             <div className="space-y-2">
-              <Label>{t('special_instructions')}</Label>
-              <Textarea value={customerInfo.instructions} onChange={(e) => setCustomerInfo({...customerInfo, instructions: e.target.value})} />
+              <Label className="text-sm text-slate-600">💬 {t('special_instructions')} (optionnel)</Label>
+              <Textarea 
+                value={customerInfo.instructions} 
+                onChange={(e) => setCustomerInfo({...customerInfo, instructions: e.target.value})}
+                placeholder="Ex: Sonnez à l'interphone, Laissez à la porte..."
+                rows={2}
+                className="text-sm"
+              />
             </div>
 
             <div className="border-t pt-4">
@@ -838,12 +898,20 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCheckoutDialog(false)}>{t('cancel')}</Button>
-            <Button onClick={submitOrder} disabled={!paymentMethod}>{t('place_order')}</Button>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCheckoutDialog(false)} className="flex-1">
+              {t('cancel')}
+            </Button>
+            <Button 
+              onClick={submitOrder} 
+              disabled={!paymentMethod || (orderType === 'delivery' && !customerInfo.address) || createOrderMutation.isPending}
+              className="flex-1 bg-green-600 hover:bg-green-700 h-12 text-base"
+            >
+              {createOrderMutation.isPending ? "⏳ En cours..." : `✓ Payer ${total.toFixed(0)} CFA`}
+            </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+          </Dialog>
     </div>
   );
 }
