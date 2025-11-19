@@ -78,22 +78,6 @@ export default function CustomerApp() {
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
 
-  // Handle reorder from session storage
-  useEffect(() => {
-    const reorderData = sessionStorage.getItem('reorder');
-    if (reorderData && restaurants.length > 0) {
-      try {
-        const { restaurantId } = JSON.parse(reorderData);
-        const restaurant = restaurants.find(r => r.id === restaurantId);
-        if (restaurant) {
-          setSelectedRestaurant(restaurant);
-        }
-      } catch (e) {
-        console.error('Reorder error:', e);
-      }
-    }
-  }, [restaurants]);
-
   useEffect(() => {
     checkAuth();
   }, []);
@@ -124,6 +108,22 @@ export default function CustomerApp() {
     initialData: [],
     enabled: !!user,
   });
+
+  // Handle reorder from session storage
+  useEffect(() => {
+    const reorderData = sessionStorage.getItem('reorder');
+    if (reorderData && restaurants && restaurants.length > 0) {
+      try {
+        const { restaurantId } = JSON.parse(reorderData);
+        const restaurant = restaurants.find(r => r.id === restaurantId);
+        if (restaurant) {
+          setSelectedRestaurant(restaurant);
+        }
+      } catch (e) {
+        console.error('Reorder error:', e);
+      }
+    }
+  }, [restaurants]);
 
   const { data: allRestaurantReviews = [] } = useQuery({
     queryKey: ['all-restaurant-reviews'],
