@@ -572,17 +572,22 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                     </div>
                   )}
 
-                  {liveOrder.delivery_code && liveOrder.status === 'out_for_delivery' && (
-                    <div className="bg-green-50 p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Key className="w-4 h-4 text-green-700" />
-                        <p className="text-sm font-semibold text-green-700">{t('your_delivery_code')}:</p>
+                  {liveOrder.delivery_code && liveOrder.order_type === 'delivery' && (
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Key className="w-5 h-5 text-green-700" />
+                        <p className="text-sm font-bold text-green-700">{t('your_delivery_code')}:</p>
                       </div>
-                      <p className="text-3xl font-bold text-green-700 text-center tracking-wider">
-                        {liveOrder.delivery_code}
+                      <div className="bg-white rounded-lg p-4 mb-3">
+                        <p className="text-4xl font-bold text-green-700 text-center tracking-widest">
+                          {liveOrder.delivery_code}
+                        </p>
+                      </div>
+                      <p className="text-xs text-slate-700 text-center font-semibold">
+                        📱 {t('share_code_with_driver')}
                       </p>
-                      <p className="text-xs text-slate-600 mt-2">
-                        {t('share_code_with_driver')}
+                      <p className="text-xs text-slate-600 text-center mt-1">
+                        Le chauffeur vous demandera ce code à la livraison
                       </p>
                     </div>
                   )}
@@ -693,6 +698,23 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
                   <span className="text-green-600">{selectedOrder.total_amount.toFixed(0)} CFA</span>
                 </div>
               </div>
+
+              {selectedOrder.delivery_code && selectedOrder.order_type === 'delivery' && (
+                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg">
+                  <p className="font-semibold text-sm mb-3 flex items-center gap-2 text-green-700">
+                    <Key className="w-4 h-4" />
+                    {t('your_delivery_code')}
+                  </p>
+                  <div className="bg-white rounded-lg p-4 mb-2">
+                    <p className="text-5xl font-bold text-green-700 text-center tracking-widest">
+                      {selectedOrder.delivery_code}
+                    </p>
+                  </div>
+                  <p className="text-xs text-slate-700 text-center font-semibold">
+                    📱 Partagez ce code avec le chauffeur
+                  </p>
+                </div>
+              )}
 
               {selectedOrder.driver_name && (
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
