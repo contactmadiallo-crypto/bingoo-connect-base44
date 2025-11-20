@@ -122,6 +122,7 @@ export default function QRCodeManager({ restaurant, tables = [] }) {
     createTableMutation.mutate({
       restaurant_id: restaurant.id,
       table_number: tableNumber.trim(),
+      capacity: 4,
       status: "available"
     });
   };
