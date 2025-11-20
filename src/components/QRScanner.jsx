@@ -29,15 +29,12 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
 
   const startCamera = async () => {
     try {
-      // Check if BarcodeDetector is available
-      if (!('BarcodeDetector' in window)) {
-        setManualMode(true);
-        toast.info("Scanner automatique non disponible. Mode manuel activé.");
-        return;
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: "environment" } 
+        video: { 
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
       
       setHasPermission(true);
@@ -47,14 +44,21 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
         
-        // Initialize barcode detector
-        detectorRef.current = new window.BarcodeDetector({ formats: ['qr_code'] });
-        startScanning();
+        // Try to use BarcodeDetector if available
+        if ('BarcodeDetector' in window) {
+          try {
+            detectorRef.current = new window.BarcodeDetector({ formats: ['qr_code'] });
+            startScanning();
+          } catch (e) {
+            console.log("BarcodeDetector not available:", e);
+          }
+        }
       }
     } catch (err) {
       console.error("Camera error:", err);
+      setHasPermission(false);
+      toast.error("Impossible d'accéder à la caméra. Mode manuel activé.");
       setManualMode(true);
-      toast.info("Mode manuel activé");
     }
   };
 
@@ -73,12 +77,13 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
     setScanning(true);
     
     const scan = async () => {
-      if (!scanning && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+      if (scanning && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
         try {
           const barcodes = await detectorRef.current.detect(videoRef.current);
           
           if (barcodes.length > 0) {
             handleScan(barcodes[0].rawValue);
+            return;
           }
         } catch (err) {
           console.error("Scan error:", err);
