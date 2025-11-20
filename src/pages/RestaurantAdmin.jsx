@@ -13,6 +13,7 @@ import RestaurantReviews from "../components/restaurant/RestaurantReviews";
 import MenuManagement from "../components/restaurant/MenuManagement";
 import StockManagement from "../components/restaurant/StockManagement";
 import OpeningHoursManager from "../components/restaurant/OpeningHoursManager";
+import QRCodeManager from "../components/restaurant/QRCodeManager";
 
 function RestaurantAdminContent() {
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState("week");
@@ -57,6 +58,12 @@ function RestaurantAdminContent() {
     queryFn: () => base44.entities.RestaurantReview.list(),
   });
 
+  const { data: tables = [] } = useQuery({
+    queryKey: ['tables', myRestaurant?.id],
+    queryFn: () => myRestaurant ? base44.entities.Table.filter({ restaurant_id: myRestaurant.id }) : [],
+    enabled: !!myRestaurant,
+  });
+
   const stats = {
     totalOrders: orders.filter(o => o.restaurant_id === myRestaurant?.id).length,
     todayRevenue: orders.filter(o => {
@@ -91,10 +98,11 @@ function RestaurantAdminContent() {
         </div>
 
         <Tabs defaultValue="menu" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
             <TabsTrigger value="menu">Menu</TabsTrigger>
             <TabsTrigger value="stock">Stocks</TabsTrigger>
             <TabsTrigger value="hours">Horaires</TabsTrigger>
+            <TabsTrigger value="qrcodes">QR Codes</TabsTrigger>
             <TabsTrigger value="reviews">Avis</TabsTrigger>
           </TabsList>
 
@@ -108,6 +116,10 @@ function RestaurantAdminContent() {
 
           <TabsContent value="hours">
             <OpeningHoursManager restaurant={myRestaurant} />
+          </TabsContent>
+
+          <TabsContent value="qrcodes">
+            {myRestaurant && <QRCodeManager restaurant={myRestaurant} tables={tables} />}
           </TabsContent>
 
           <TabsContent value="reviews">
