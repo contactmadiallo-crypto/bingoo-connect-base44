@@ -147,8 +147,8 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         scanningRef.current = false;
         stopCamera();
         
-        const message = tableNumber ? `Table ${tableNumber} détectée!` : 'Restaurant détecté!';
-        toast.success(`✓ ${message}`);
+        const message = tableNumber ? `✓ Table ${tableNumber} - ${restaurantId.substring(0, 8)}...` : '✓ Restaurant détecté!';
+        toast.success(message);
         
         setTimeout(() => {
           onScan({ restaurantId, tableNumber });
@@ -156,12 +156,11 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
           setScanSuccess(false);
         }, 500);
       } else {
-        toast.error("QR code invalide - Restaurant ID manquant");
-        console.error("No restaurant ID in QR code");
+        toast.error("QR invalide - pas de restaurant ID");
       }
     } catch (err) {
-      console.error("QR parse error:", err, "Data:", data);
-      toast.error("Format QR code incorrect: " + data.substring(0, 50));
+      console.error("QR parse error:", err);
+      toast.error("QR invalide: " + data.substring(0, 40));
     }
   };
 

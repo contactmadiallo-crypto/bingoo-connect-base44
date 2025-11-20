@@ -34,7 +34,7 @@ export default function QRCodeManager({ restaurant, tables = [] }) {
   });
 
   const generateQRCodeURL = (table) => {
-    const orderURL = `${window.location.origin}/CustomerApp?restaurant=${restaurant.id}&table=${table.table_number}&type=dine_in`;
+    const orderURL = `${window.location.origin}/order?restaurant=${restaurant.id}&table=${table.table_number}`;
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(orderURL)}`;
   };
 
