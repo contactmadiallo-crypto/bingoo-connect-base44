@@ -1,38 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Camera, Keyboard, CheckCircle } from "lucide-react";
+import { Camera, CheckCircle, ScanLine } from "lucide-react";
 import { toast } from "sonner";
 
 export default function QRScanner({ open, onOpenChange, onScan }) {
-  const [manualMode, setManualMode] = useState(true);
-  const [tableCode, setTableCode] = useState("");
   const [cameraActive, setCameraActive] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const canvasRef = useRef(null);
   const scanningRef = useRef(false);
 
   useEffect(() => {
-    if (open && !manualMode && !cameraActive) {
+    if (open && !cameraActive) {
       startCamera();
     }
     if (!open) {
       stopCamera();
+      setScanSuccess(false);
     }
     return () => stopCamera();
-  }, [open, manualMode]);
+  }, [open]);
 
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
           facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
         } 
       });
       
@@ -48,15 +44,15 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
           if ('BarcodeDetector' in window) {
             startBarcodeDetection();
           } else {
-            toast.info("Scanner automatique non supporté. Utilisez le mode manuel.");
-            setManualMode(true);
+            toast.error("Votre navigateur ne supporte pas le scan QR");
+            onOpenChange(false);
           }
-        }, 500);
+        }, 300);
       }
     } catch (err) {
       console.error("Camera error:", err);
-      toast.error("Caméra non disponible. Mode manuel activé.");
-      setManualMode(true);
+      toast.error("Impossible d'accéder à la caméra");
+      onOpenChange(false);
     }
   };
 
@@ -75,7 +71,12 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       scanningRef.current = true;
       
       const detectQR = async () => {
-        if (!scanningRef.current || !videoRef.current) return;
+        if (!scanningRef.current || !videoRef.current || videoRef.current.readyState !== 4) {
+          if (scanningRef.current) {
+            requestAnimationFrame(detectQR);
+          }
+          return;
+        }
         
         try {
           const barcodes = await barcodeDetector.detect(videoRef.current);
@@ -86,7 +87,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
             return;
           }
         } catch (e) {
-          console.error("Detection error:", e);
+          // Continue scanning
         }
         
         if (scanningRef.current) {
@@ -97,7 +98,8 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       detectQR();
     } catch (err) {
       console.error("BarcodeDetector error:", err);
-      setManualMode(true);
+      toast.error("Erreur du scanner");
+      onOpenChange(false);
     }
   };
 
@@ -108,46 +110,24 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       const url = new URL(data);
       const params = new URLSearchParams(url.search);
       const restaurantId = params.get('restaurant');
-      const tableNumber = params.get('table');
+      const tableNumber = params.get('table') || null;
 
-      if (restaurantId && tableNumber) {
+      if (restaurantId) {
         setScanSuccess(true);
         scanningRef.current = false;
         stopCamera();
-        toast.success(`✓ Table ${tableNumber} détectée!`);
+        
+        const message = tableNumber ? `Table ${tableNumber} détectée!` : 'Restaurant détecté!';
+        toast.success(`✓ ${message}`);
+        
         setTimeout(() => {
           onScan({ restaurantId, tableNumber });
           onOpenChange(false);
           setScanSuccess(false);
-        }, 500);
+        }, 800);
       }
     } catch (err) {
       // Not a valid URL, continue scanning
-    }
-  };
-
-  const handleManualSubmit = () => {
-    if (!tableCode.trim()) {
-      toast.error("Veuillez entrer le code");
-      return;
-    }
-
-    try {
-      const url = new URL(tableCode);
-      const params = new URLSearchParams(url.search);
-      const restaurantId = params.get('restaurant');
-      const tableNumber = params.get('table');
-
-      if (restaurantId && tableNumber) {
-        onScan({ restaurantId, tableNumber });
-        onOpenChange(false);
-        setTableCode("");
-        toast.success(`Table ${tableNumber} activée!`);
-      } else {
-        toast.error("Code invalide");
-      }
-    } catch (err) {
-      toast.error("Format invalide");
     }
   };
 
