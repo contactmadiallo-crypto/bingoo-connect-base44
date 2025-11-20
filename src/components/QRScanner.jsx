@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Camera, CheckCircle, ScanLine } from "lucide-react";
+import { CheckCircle, ScanLine } from "lucide-react";
 import { toast } from "sonner";
 
 export default function QRScanner({ open, onOpenChange, onScan }) {
@@ -133,92 +132,77 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {manualMode ? <Keyboard className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
-            {manualMode ? "Entrer le Code Table" : "Scanner le QR Code"}
+          <DialogTitle className="flex items-center gap-2 justify-center">
+            <ScanLine className="w-6 h-6 text-orange-600" />
+            Scanner le QR Code du Restaurant
           </DialogTitle>
         </DialogHeader>
-
         <div className="space-y-4">
-          {manualMode ? (
-            <>
-              <div className="space-y-3">
-                <Label>Coller le lien du QR code</Label>
-                <Input
-                  placeholder="Collez le lien ici..."
-                  value={tableCode}
-                  onChange={(e) => setTableCode(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleManualSubmit()}
-                  className="text-sm"
-                />
-                <Button onClick={handleManualSubmit} className="w-full" disabled={!tableCode.trim()}>
-                  Confirmer
-                </Button>
-              </div>
-              {'BarcodeDetector' in window && (
-                <div className="text-center">
-                  <Button variant="ghost" size="sm" onClick={() => { setManualMode(false); startCamera(); }}>
-                    <Camera className="w-4 h-4 mr-2" />
-                    Scanner avec la caméra
-                  </Button>
+          <div className="relative rounded-xl overflow-hidden bg-black aspect-square shadow-2xl">
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              playsInline
+              muted
+              autoPlay
+            />
+            
+            {/* Scanning frame with animation */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className={`relative w-72 h-72 transition-all duration-300 ${scanSuccess ? 'scale-110' : 'scale-100'}`}>
+                <div className={`w-full h-full border-4 rounded-3xl transition-colors ${scanSuccess ? 'border-green-500' : 'border-white/60'}`}>
+                  {/* Corner markers */}
+                  <div className="absolute -top-1 -left-1 w-12 h-12 border-t-4 border-l-4 border-orange-500 rounded-tl-2xl" />
+                  <div className="absolute -top-1 -right-1 w-12 h-12 border-t-4 border-r-4 border-orange-500 rounded-tr-2xl" />
+                  <div className="absolute -bottom-1 -left-1 w-12 h-12 border-b-4 border-l-4 border-orange-500 rounded-bl-2xl" />
+                  <div className="absolute -bottom-1 -right-1 w-12 h-12 border-b-4 border-r-4 border-orange-500 rounded-br-2xl" />
+                  
+                  {/* Scanning line animation */}
+                  {!scanSuccess && (
+                    <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-orange-500 to-transparent scanning-line" />
+                  )}
                 </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="relative rounded-lg overflow-hidden bg-black aspect-square">
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover"
-                  playsInline
-                  muted
-                  autoPlay
-                />
-                <canvas ref={canvasRef} className="hidden" />
-                
-                {/* Scanning frame */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`w-64 h-64 border-4 rounded-2xl transition-colors ${scanSuccess ? 'border-green-500' : 'border-white/50'}`}>
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg" />
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg" />
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg" />
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg" />
-                  </div>
+              </div>
+            </div>
+            
+            {scanSuccess && (
+              <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 backdrop-blur-sm">
+                <div className="bg-green-500 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold text-lg shadow-2xl animate-bounce">
+                  <CheckCircle className="w-6 h-6" />
+                  Restaurant Détecté!
                 </div>
-                
-                {scanSuccess && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/20">
-                    <div className="bg-green-500 text-white px-6 py-3 rounded-full flex items-center gap-2 font-semibold">
-                      <CheckCircle className="w-5 h-5" />
-                      QR Code détecté!
-                    </div>
-                  </div>
-                )}
-                
-                {cameraActive && !scanSuccess && (
-                  <div className="absolute bottom-4 left-0 right-0 text-center">
-                    <div className="bg-black/70 text-white text-sm py-2 px-4 rounded-full inline-block animate-pulse">
-                      📱 Recherche du QR code...
-                    </div>
-                  </div>
-                )}
               </div>
-              <div className="text-center">
-                <Button variant="ghost" size="sm" onClick={() => { stopCamera(); setManualMode(true); }}>
-                  <Keyboard className="w-4 h-4 mr-2" />
-                  Mode manuel
-                </Button>
+            )}
+            
+            {cameraActive && !scanSuccess && (
+              <div className="absolute bottom-6 left-0 right-0 text-center">
+                <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold py-3 px-6 rounded-full inline-flex items-center gap-2 shadow-lg">
+                  <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  Pointez vers le QR code du restaurant
+                </div>
               </div>
-            </>
-          )}
-
-          <div className="text-xs text-slate-600 text-center">
-            <p>💡 Le QR code se trouve sur votre table au restaurant</p>
+            )}
+          </div>
+          
+          <div className="text-center text-sm text-slate-600 space-y-1">
+            <p className="font-semibold">📱 Alignez le QR code dans le cadre orange</p>
+            <p className="text-xs">Le scan se fait automatiquement</p>
           </div>
         </div>
       </DialogContent>
+      
+      <style jsx>{`
+        @keyframes scan {
+          0% { top: 0%; }
+          50% { top: 100%; }
+          100% { top: 0%; }
+        }
+        .scanning-line {
+          animation: scan 2s ease-in-out infinite;
+        }
+      `}</style>
     </Dialog>
   );
 }
