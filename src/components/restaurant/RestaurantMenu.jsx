@@ -35,7 +35,7 @@ const categoryLabels = {
   dinner: { label: "Dinner", emoji: "🍛" }
 };
 
-export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile, onShowOrders, language = "en" }) {
+export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile, onShowOrders, language = "en", tableNumber = null }) {
   const [cart, setCart] = useState([]);
   const [search, setSearch] = useState("");
   const [checkoutDialog, setCheckoutDialog] = useState(false);
@@ -50,6 +50,13 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     address: "",
     instructions: ""
   });
+
+  // Set dine-in mode if table number is provided
+  useEffect(() => {
+    if (tableNumber) {
+      setOrderType("dine_in");
+    }
+  }, [tableNumber]);
   const [paymentMethod, setPaymentMethod] = useState("");
 
   const { t } = useTranslation(language);
@@ -378,6 +385,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       customer_address: orderType === 'delivery' ? customerInfo.address : null,
       special_instructions: customerInfo.instructions,
       order_type: orderType,
+      table_number: tableNumber,
       items: cart.map(item => ({
         menu_item_id: item.id,
         name: item.name,
@@ -534,6 +542,13 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
 
         <Card className="mb-6 bg-gradient-to-r from-orange-100 to-amber-100 border-orange-200">
           <CardContent className="pt-6">
+            {tableNumber && (
+              <div className="mb-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-3 text-center">
+                <p className="text-sm font-semibold text-blue-800">
+                  📍 Table {tableNumber} - Mode Sur Place
+                </p>
+              </div>
+            )}
             <h3 className="font-semibold text-lg mb-4 text-center">{t('choose_order_type')}</h3>
             <div className="grid grid-cols-3 gap-4">
               <Button

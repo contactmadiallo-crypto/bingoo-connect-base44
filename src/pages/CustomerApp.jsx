@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle, TrendingUp, Bell } from "lucide-react";
+import { Search, MapPin, Star, Clock, Bike, User as UserIcon, Phone, SlidersHorizontal, MessageSquare, MessageCircle, TrendingUp, Bell, QrCode } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ import ConversationsList from "../components/chat/ConversationsList";
 import ChatWindow from "../components/chat/ChatWindow";
 import NotificationCenter from "../components/restaurant/NotificationCenter";
 import NotificationProvider from "../components/notifications/NotificationProvider";
+import QRScanner from "../components/QRScanner";
 
 const cuisineCategories = [
   { value: "all", label: "All", emoji: "🍽️" },
@@ -67,6 +68,8 @@ export default function CustomerApp() {
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [chatOrder, setChatOrder] = useState(null);
   const [chatDialog, setChatDialog] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false);
+  const [scannedTable, setScannedTable] = useState(null);
   const [sortBy, setSortBy] = useState("relevance");
   const [language, setLanguage] = useState(localStorage.getItem("language") || "en");
   const [filters, setFilters] = useState({
@@ -281,6 +284,16 @@ export default function CustomerApp() {
     setChatDialog(true);
   };
 
+  const handleQRScan = ({ restaurantId, tableNumber }) => {
+    const restaurant = restaurants.find(r => r.id === restaurantId);
+    if (restaurant) {
+      setScannedTable(tableNumber);
+      setSelectedRestaurant(restaurant);
+    } else {
+      toast.error("Restaurant introuvable");
+    }
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen">{t('loading')}</div>;
   }
@@ -299,11 +312,13 @@ export default function CustomerApp() {
       user={user} 
       onBack={() => { 
         setSelectedRestaurant(null);
+        setScannedTable(null);
         sessionStorage.removeItem('reorder'); // Clean up reorder data
       }} 
       onShowProfile={() => { setShowProfile(true); setSelectedRestaurant(null); }}
       onShowOrders={() => { setShowOrders(true); setSelectedRestaurant(null); }}
       language={language}
+      tableNumber={scannedTable}
     />;
   }
 
@@ -319,6 +334,9 @@ export default function CustomerApp() {
               </div>
               <div className="flex gap-1 sm:gap-2">
                 <LanguageSwitcher language={language} onLanguageChange={setLanguage} compact />
+                <Button variant="outline" onClick={() => setShowQRScanner(true)} size="sm" className="h-8 w-8 sm:h-10 sm:w-10 p-0 sm:p-2">
+                  <QrCode className="w-4 h-4" />
+                </Button>
                 <div className="relative">
                   <Button variant="outline" onClick={() => setShowNotificationCenter(true)} size="sm" className="h-8 w-8 sm:h-10 sm:w-10 p-0 sm:p-2">
                     <Bell className="w-4 h-4" />
@@ -643,6 +661,12 @@ export default function CustomerApp() {
           user={user}
           open={showNotificationCenter}
           onOpenChange={setShowNotificationCenter}
+        />
+
+        <QRScanner 
+          open={showQRScanner}
+          onOpenChange={setShowQRScanner}
+          onScan={handleQRScan}
         />
 
         <Dialog open={showFilters} onOpenChange={setShowFilters}>
