@@ -86,7 +86,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
       scanningRef.current = true;
       let lastScanTime = 0;
-      const scanInterval = 100; // Scan every 100ms for faster detection
+      const scanInterval = 150; // Scan every 150ms
       
       const detectQR = async () => {
         if (!scanningRef.current || !videoRef.current) {
@@ -103,7 +103,8 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
           try {
             const barcodes = await barcodeDetector.detect(videoRef.current);
             
-            if (barcodes.length > 0 && !scanSuccess) {
+            if (barcodes.length > 0) {
+              console.log("QR code détecté, nombre:", barcodes.length);
               const qrData = barcodes[0].rawValue;
               handleScan(qrData);
               return;
@@ -111,7 +112,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
             
             lastScanTime = now;
           } catch (e) {
-            // Continue scanning
+            console.error("Detection error:", e);
           }
         }
         
@@ -131,11 +132,15 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
   const handleScan = (data) => {
     if (scanSuccess) return;
     
+    console.log("QR Code détecté:", data);
+    
     try {
       const url = new URL(data);
       const params = new URLSearchParams(url.search);
       const restaurantId = params.get('restaurant');
       const tableNumber = params.get('table') || null;
+
+      console.log("Restaurant ID:", restaurantId, "Table:", tableNumber);
 
       if (restaurantId) {
         setScanSuccess(true);
@@ -149,10 +154,14 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
           onScan({ restaurantId, tableNumber });
           onOpenChange(false);
           setScanSuccess(false);
-        }, 800);
+        }, 500);
+      } else {
+        toast.error("QR code invalide - Restaurant ID manquant");
+        console.error("No restaurant ID in QR code");
       }
     } catch (err) {
-      // Not a valid URL, continue scanning
+      console.error("QR parse error:", err, "Data:", data);
+      toast.error("Format QR code incorrect: " + data.substring(0, 50));
     }
   };
 
