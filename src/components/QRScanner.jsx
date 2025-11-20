@@ -23,13 +23,24 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        } 
-      });
+      const constraints = {
+        video: {
+          facingMode: { exact: "environment" },
+          width: { ideal: 2560, min: 640 },
+          height: { ideal: 1440, min: 480 },
+          aspectRatio: { ideal: 16/9 },
+          frameRate: { ideal: 60, min: 30 }
+        }
+      };
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      } catch (e) {
+        // Fallback if exact environment camera fails
+        constraints.video.facingMode = "environment";
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+      }
       
       streamRef.current = stream;
       setCameraActive(true);
@@ -37,16 +48,22 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.setAttribute('playsinline', 'true');
+        videoRef.current.setAttribute('autoplay', 'true');
+        videoRef.current.setAttribute('muted', 'true');
+        
         await videoRef.current.play();
         
-        setTimeout(() => {
-          if ('BarcodeDetector' in window) {
-            startBarcodeDetection();
-          } else {
-            toast.error("Votre navigateur ne supporte pas le scan QR");
-            onOpenChange(false);
-          }
-        }, 300);
+        // Wait for video to be ready
+        await new Promise(resolve => {
+          videoRef.current.onloadedmetadata = resolve;
+        });
+        
+        if ('BarcodeDetector' in window) {
+          startBarcodeDetection();
+        } else {
+          toast.error("Votre navigateur ne supporte pas le scan QR");
+          onOpenChange(false);
+        }
       }
     } catch (err) {
       console.error("Camera error:", err);
@@ -68,25 +85,34 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
     try {
       const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
       scanningRef.current = true;
+      let lastScanTime = 0;
+      const scanInterval = 100; // Scan every 100ms for faster detection
       
       const detectQR = async () => {
-        if (!scanningRef.current || !videoRef.current || videoRef.current.readyState !== 4) {
-          if (scanningRef.current) {
-            requestAnimationFrame(detectQR);
-          }
+        if (!scanningRef.current || !videoRef.current) {
+          return;
+        }
+
+        const now = Date.now();
+        if (now - lastScanTime < scanInterval) {
+          requestAnimationFrame(detectQR);
           return;
         }
         
-        try {
-          const barcodes = await barcodeDetector.detect(videoRef.current);
-          
-          if (barcodes.length > 0) {
-            const qrData = barcodes[0].rawValue;
-            handleScan(qrData);
-            return;
+        if (videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+          try {
+            const barcodes = await barcodeDetector.detect(videoRef.current);
+            
+            if (barcodes.length > 0 && !scanSuccess) {
+              const qrData = barcodes[0].rawValue;
+              handleScan(qrData);
+              return;
+            }
+            
+            lastScanTime = now;
+          } catch (e) {
+            // Continue scanning
           }
-        } catch (e) {
-          // Continue scanning
         }
         
         if (scanningRef.current) {
