@@ -3,102 +3,107 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Camera, X, AlertCircle, Keyboard } from "lucide-react";
+import { Camera, Keyboard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function QRScanner({ open, onOpenChange, onScan }) {
-  const [manualMode, setManualMode] = useState(false);
+  const [manualMode, setManualMode] = useState(true);
   const [tableCode, setTableCode] = useState("");
-  const [hasPermission, setHasPermission] = useState(null);
-  const [scanning, setScanning] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [scanSuccess, setScanSuccess] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
-  const detectorRef = useRef(null);
+  const canvasRef = useRef(null);
+  const scanningRef = useRef(false);
 
   useEffect(() => {
-    if (open && !manualMode) {
+    if (open && !manualMode && !cameraActive) {
       startCamera();
-    } else {
+    }
+    if (!open) {
       stopCamera();
     }
-
-    return () => {
-      stopCamera();
-    };
+    return () => stopCamera();
   }, [open, manualMode]);
 
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          facingMode: { ideal: "environment" },
+          facingMode: "environment",
           width: { ideal: 1280 },
           height: { ideal: 720 }
         } 
       });
       
-      setHasPermission(true);
       streamRef.current = stream;
+      setCameraActive(true);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute('playsinline', 'true');
         await videoRef.current.play();
         
-        // Try to use BarcodeDetector if available
-        if ('BarcodeDetector' in window) {
-          try {
-            detectorRef.current = new window.BarcodeDetector({ formats: ['qr_code'] });
-            startScanning();
-          } catch (e) {
-            console.log("BarcodeDetector not available:", e);
+        setTimeout(() => {
+          if ('BarcodeDetector' in window) {
+            startBarcodeDetection();
+          } else {
+            toast.info("Scanner automatique non supporté. Utilisez le mode manuel.");
+            setManualMode(true);
           }
-        }
+        }, 500);
       }
     } catch (err) {
       console.error("Camera error:", err);
-      setHasPermission(false);
-      toast.error("Impossible d'accéder à la caméra. Mode manuel activé.");
+      toast.error("Caméra non disponible. Mode manuel activé.");
       setManualMode(true);
     }
   };
 
   const stopCamera = () => {
-    setScanning(false);
-    
+    scanningRef.current = false;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
+    setCameraActive(false);
   };
 
-  const startScanning = async () => {
-    if (!detectorRef.current || !videoRef.current) return;
-    
-    setScanning(true);
-    
-    const scan = async () => {
-      if (scanning && videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+  const startBarcodeDetection = async () => {
+    try {
+      const barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+      scanningRef.current = true;
+      
+      const detectQR = async () => {
+        if (!scanningRef.current || !videoRef.current) return;
+        
         try {
-          const barcodes = await detectorRef.current.detect(videoRef.current);
+          const barcodes = await barcodeDetector.detect(videoRef.current);
           
           if (barcodes.length > 0) {
-            handleScan(barcodes[0].rawValue);
+            const qrData = barcodes[0].rawValue;
+            handleScan(qrData);
             return;
           }
-        } catch (err) {
-          console.error("Scan error:", err);
+        } catch (e) {
+          console.error("Detection error:", e);
         }
-      }
+        
+        if (scanningRef.current) {
+          requestAnimationFrame(detectQR);
+        }
+      };
       
-      if (scanning) {
-        requestAnimationFrame(scan);
-      }
-    };
-    
-    scan();
+      detectQR();
+    } catch (err) {
+      console.error("BarcodeDetector error:", err);
+      setManualMode(true);
+    }
   };
 
   const handleScan = (data) => {
+    if (scanSuccess) return;
+    
     try {
       const url = new URL(data);
       const params = new URLSearchParams(url.search);
@@ -106,19 +111,24 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       const tableNumber = params.get('table');
 
       if (restaurantId && tableNumber) {
+        setScanSuccess(true);
+        scanningRef.current = false;
         stopCamera();
-        onScan({ restaurantId, tableNumber });
-        onOpenChange(false);
-        toast.success(`Table ${tableNumber} scannée!`);
+        toast.success(`✓ Table ${tableNumber} détectée!`);
+        setTimeout(() => {
+          onScan({ restaurantId, tableNumber });
+          onOpenChange(false);
+          setScanSuccess(false);
+        }, 500);
       }
     } catch (err) {
-      console.error("QR parse error:", err);
+      // Not a valid URL, continue scanning
     }
   };
 
   const handleManualSubmit = () => {
     if (!tableCode.trim()) {
-      toast.error("Veuillez entrer le code de la table");
+      toast.error("Veuillez entrer le code");
       return;
     }
 
@@ -134,10 +144,10 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         setTableCode("");
         toast.success(`Table ${tableNumber} activée!`);
       } else {
-        toast.error("Code QR invalide");
+        toast.error("Code invalide");
       }
     } catch (err) {
-      toast.error("Format de code invalide");
+      toast.error("Format invalide");
     }
   };
 
@@ -157,59 +167,70 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
               <div className="space-y-3">
                 <Label>Coller le lien du QR code</Label>
                 <Input
-                  placeholder="https://app.example.com/order?restaurant=...&table=..."
+                  placeholder="Collez le lien ici..."
                   value={tableCode}
                   onChange={(e) => setTableCode(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleManualSubmit()}
+                  className="text-sm"
                 />
-                <Button onClick={handleManualSubmit} className="w-full">
+                <Button onClick={handleManualSubmit} className="w-full" disabled={!tableCode.trim()}>
                   Confirmer
                 </Button>
               </div>
-              <div className="text-center">
-                <Button variant="ghost" size="sm" onClick={() => setManualMode(false)}>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Scanner avec la caméra
-                </Button>
-              </div>
+              {'BarcodeDetector' in window && (
+                <div className="text-center">
+                  <Button variant="ghost" size="sm" onClick={() => { setManualMode(false); startCamera(); }}>
+                    <Camera className="w-4 h-4 mr-2" />
+                    Scanner avec la caméra
+                  </Button>
+                </div>
+              )}
             </>
           ) : (
             <>
-              {hasPermission === false ? (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-                  <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-3" />
-                  <p className="text-sm text-amber-800 mb-3">
-                    Accès caméra non disponible
-                  </p>
-                  <Button onClick={() => setManualMode(true)} size="sm">
-                    <Keyboard className="w-4 h-4 mr-2" />
-                    Utiliser le mode manuel
-                  </Button>
+              <div className="relative rounded-lg overflow-hidden bg-black aspect-square">
+                <video
+                  ref={videoRef}
+                  className="w-full h-full object-cover"
+                  playsInline
+                  muted
+                  autoPlay
+                />
+                <canvas ref={canvasRef} className="hidden" />
+                
+                {/* Scanning frame */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className={`w-64 h-64 border-4 rounded-2xl transition-colors ${scanSuccess ? 'border-green-500' : 'border-white/50'}`}>
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg" />
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg" />
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg" />
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg" />
+                  </div>
                 </div>
-              ) : (
-                <>
-                  <div className="relative rounded-lg overflow-hidden bg-black aspect-square">
-                    <video
-                      ref={videoRef}
-                      className="w-full h-full object-cover"
-                      playsInline
-                      muted
-                    />
-                    <div className="absolute inset-0 border-4 border-white/30 m-8 rounded-lg pointer-events-none" />
-                    <div className="absolute bottom-4 left-0 right-0 text-center">
-                      <div className="bg-black/70 text-white text-sm py-2 px-4 rounded-full inline-block">
-                        📱 Pointez vers le QR code
-                      </div>
+                
+                {scanSuccess && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-green-500/20">
+                    <div className="bg-green-500 text-white px-6 py-3 rounded-full flex items-center gap-2 font-semibold">
+                      <CheckCircle className="w-5 h-5" />
+                      QR Code détecté!
                     </div>
                   </div>
-                  <div className="text-center">
-                    <Button variant="ghost" size="sm" onClick={() => setManualMode(true)}>
-                      <Keyboard className="w-4 h-4 mr-2" />
-                      Entrer le code manuellement
-                    </Button>
+                )}
+                
+                {cameraActive && !scanSuccess && (
+                  <div className="absolute bottom-4 left-0 right-0 text-center">
+                    <div className="bg-black/70 text-white text-sm py-2 px-4 rounded-full inline-block animate-pulse">
+                      📱 Recherche du QR code...
+                    </div>
                   </div>
-                </>
-              )}
+                )}
+              </div>
+              <div className="text-center">
+                <Button variant="ghost" size="sm" onClick={() => { stopCamera(); setManualMode(true); }}>
+                  <Keyboard className="w-4 h-4 mr-2" />
+                  Mode manuel
+                </Button>
+              </div>
             </>
           )}
 
