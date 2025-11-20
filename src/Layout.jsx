@@ -1,7 +1,9 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
+import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart, LogOut, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +16,15 @@ import {
   SidebarHeader,
   SidebarProvider,
   SidebarTrigger,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 const navigationItems = [
   {
@@ -154,6 +164,15 @@ const quickActions = [
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const handleLogout = () => {
+    base44.auth.logout();
+  };
 
   return (
     <SidebarProvider>
@@ -344,8 +363,35 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-          </SidebarContent>
-        </Sidebar>
+            </SidebarContent>
+
+            <SidebarFooter className="border-t border-slate-200 p-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-slate-100 transition-colors">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    {user?.full_name?.charAt(0) || 'U'}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-sm text-slate-900">{user?.full_name || 'User'}</p>
+                    <p className="text-xs text-slate-500">{user?.email}</p>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-red-600">
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            </SidebarFooter>
+            </Sidebar>
 
         <main className="flex-1 flex flex-col">
           <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
