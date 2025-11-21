@@ -18,6 +18,7 @@ import ConversationsList from "../components/chat/ConversationsList";
 import AnalyticsDashboard from "../components/driver/AnalyticsDashboard";
 import DriverPreferences from "../components/driver/DriverPreferences";
 import DriverNotificationCenter from "../components/driver/DriverNotificationCenter";
+import DeliveryAlert from "../components/driver/DeliveryAlert";
 import { toast } from "sonner";
 
 export default function DriverApp() {
@@ -266,11 +267,16 @@ export default function DriverApp() {
   });
 
   const updateOrderStatusMutation = useMutation({
-    mutationFn: async ({ orderId, status, location }) => {
+    mutationFn: async ({ orderId, status, location, deliveryTime }) => {
       const updateData = { status };
       
       if (location && driver.location_sharing_enabled) {
         updateData.driver_location = location;
+      }
+
+      // Calculate and save actual delivery time
+      if (status === 'delivered' && deliveryTime) {
+        updateData.actual_delivery_time = deliveryTime;
       }
 
       const order = orders.find(o => o.id === orderId);
@@ -342,19 +348,41 @@ export default function DriverApp() {
       ? `${order.customer_location.lat},${order.customer_location.lng}`
       : encodeURIComponent(order.customer_address);
     
-    // Try to detect user's preferred navigation app
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isAndroid = /Android/.test(navigator.userAgent);
-    
-    if (isIOS) {
-      // iOS - try Apple Maps first, fallback to Google Maps
-      window.location.href = `maps://maps.apple.com/?daddr=${destination}`;
-    } else if (isAndroid) {
-      // Android - try Google Maps app
-      window.location.href = `google.navigation:q=${destination}`;
-    } else {
-      // Desktop or fallback - open Google Maps in browser
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, '_blank');
+    // Get current location for directions
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const origin = `${position.coords.latitude},${position.coords.longitude}`;
+          
+          // Try to detect user's preferred navigation app
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const isAndroid = /Android/.test(navigator.userAgent);
+          
+          if (isIOS) {
+            // iOS - Apple Maps with directions
+            window.location.href = `maps://maps.apple.com/?saddr=${origin}&daddr=${destination}&dirflg=d`;
+          } else if (isAndroid) {
+            // Android - Google Maps app with navigation
+            window.location.href = `google.navigation:q=${destination}&mode=d`;
+          } else {
+            // Desktop or fallback - Google Maps with directions
+            window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&travelmode=driving`, '_blank');
+          }
+        },
+        (error) => {
+          // Fallback without origin if location unavailable
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+          const isAndroid = /Android/.test(navigator.userAgent);
+          
+          if (isIOS) {
+            window.location.href = `maps://maps.apple.com/?daddr=${destination}`;
+          } else if (isAndroid) {
+            window.location.href = `google.navigation:q=${destination}`;
+          } else {
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${destination}`, '_blank');
+          }
+        }
+      );
     }
   };
 
@@ -365,20 +393,27 @@ export default function DriverApp() {
 
   const verifyAndDeliver = async () => {
     if (verificationCode !== selectedOrder.delivery_code) {
-      alert("Code de livraison invalide. Veuillez vérifier avec le client.");
+      toast.error("Code de livraison invalide. Veuillez vérifier avec le client.");
       return;
     }
+
+    // Calculate actual delivery time in minutes
+    const orderStartTime = new Date(selectedOrder.created_date);
+    const deliveryTime = Math.floor((Date.now() - orderStartTime.getTime()) / 60000);
 
     const location = await getCurrentLocation();
     updateOrderStatusMutation.mutate({ 
       orderId: selectedOrder.id, 
       status: 'delivered',
-      location 
+      location,
+      deliveryTime
     });
 
     await base44.entities.DeliveryPartner.update(driver.id, {
       total_deliveries: (driver.total_deliveries || 0) + 1
     });
+
+    toast.success(`✅ Livraison complétée en ${deliveryTime} minutes!`);
   };
 
   const openMap = (order, batchOrders = null) => {
@@ -606,6 +641,12 @@ export default function DriverApp() {
               {activeOrders.map((order) => (
                 <Card key={order.id} className="border-2 border-blue-200">
                   <CardContent className="pt-6">
+                    {order.status !== 'confirmed' && (
+                      <DeliveryAlert 
+                        order={order} 
+                        driverLocation={driver.current_location}
+                      />
+                    )}
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <p className="font-bold text-lg">{order.restaurant_name}</p>
@@ -646,22 +687,39 @@ export default function DriverApp() {
                         </div>
 
                     <div className="space-y-2">
+                      <Button 
+                        onClick={() => openNativeNavigation(order)}
+                        variant="outline"
+                        className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 border-0 shadow-lg"
+                      >
+                        <Navigation className="w-5 h-5 mr-2" />
+                        🚗 Démarrer Navigation
+                      </Button>
+
                       <div className="flex gap-2">
                         <Button 
                           onClick={() => openMap(order)}
                           variant="outline"
+                          size="sm"
                           className="flex-1"
                         >
                           <MapPin className="w-4 h-4 mr-2" />
                           Carte
                         </Button>
+                        <a href={`tel:${order.customer_phone}`} className="flex-1">
+                          <Button size="sm" variant="outline" className="w-full">
+                            <Phone className="w-4 h-4 mr-2" />
+                            Appeler
+                          </Button>
+                        </a>
                         <Button 
-                          onClick={() => openNativeNavigation(order)}
-                          variant="outline"
-                          className="flex-1 bg-blue-50"
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => openChat(order)}
+                          className="flex-1"
                         >
-                          <Navigation className="w-4 h-4 mr-2" />
-                          GPS
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Chat
                         </Button>
                       </div>
                       
@@ -890,14 +948,38 @@ export default function DriverApp() {
             <DialogTitle>Vérifier la Livraison</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg text-center">
-              <Key className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <p className="text-sm text-slate-600 mb-3">
-                Demandez au client son code de livraison
-              </p>
-              <p className="text-xs text-slate-500">
-                Commande: {selectedOrder?.order_number}
-              </p>
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg text-center">
+                <Key className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-sm text-slate-600 mb-3">
+                  Demandez au client son code de livraison
+                </p>
+                <p className="text-xs text-slate-500">
+                  Commande: {selectedOrder?.order_number}
+                </p>
+              </div>
+
+              {selectedOrder && (
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <p className="text-sm font-semibold text-green-800 mb-2">
+                    ⏱️ Temps de Livraison
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-green-700">Temps écoulé:</span>
+                    <span className="text-lg font-bold text-green-800">
+                      {Math.floor((Date.now() - new Date(selectedOrder.created_date).getTime()) / 60000)} min
+                    </span>
+                  </div>
+                  {selectedOrder.estimated_time && (
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="text-xs text-green-700">Temps estimé:</span>
+                      <span className="text-sm font-semibold text-green-800">
+                        {selectedOrder.estimated_time} min
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Entrer le Code de Livraison *</Label>
@@ -920,11 +1002,20 @@ export default function DriverApp() {
             </Button>
             <Button 
               onClick={verifyAndDeliver}
-              disabled={verificationCode.length !== 4}
+              disabled={verificationCode.length !== 4 || updateOrderStatusMutation.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Confirmer la Livraison
+              {updateOrderStatusMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Finalisation...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Confirmer la Livraison
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
