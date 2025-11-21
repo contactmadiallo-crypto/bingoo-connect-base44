@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, CheckCircle, AlertCircle, ChefHat, Flame, Package } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, ChefHat, Flame, Package, Search, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 
@@ -23,6 +23,9 @@ export default function KitchenView() {
   const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [orderTypeFilter, setOrderTypeFilter] = useState("all");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -167,9 +170,20 @@ export default function KitchenView() {
     }
   };
 
-  const pendingOrders = activeOrders.filter(o => o.status === 'pending');
-  const preparingOrders = activeOrders.filter(o => ['confirmed', 'preparing'].includes(o.status));
-  const readyOrders = activeOrders.filter(o => ['ready', 'out_for_delivery'].includes(o.status));
+  const filteredActiveOrders = activeOrders.filter(order => {
+    const matchSearch = !searchQuery.trim() || 
+      order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchStatus = statusFilter === "all" || order.status === statusFilter;
+    const matchType = orderTypeFilter === "all" || order.order_type === orderTypeFilter;
+    
+    return matchSearch && matchStatus && matchType;
+  });
+
+  const pendingOrders = filteredActiveOrders.filter(o => o.status === 'pending');
+  const preparingOrders = filteredActiveOrders.filter(o => ['confirmed', 'preparing'].includes(o.status));
+  const readyOrders = filteredActiveOrders.filter(o => ['ready', 'out_for_delivery'].includes(o.status));
 
   if (!user) {
     return (

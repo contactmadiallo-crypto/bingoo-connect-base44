@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Filter } from "lucide-react";
+import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Filter, Search } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -47,6 +47,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   const [estimatedArrival, setEstimatedArrival] = useState(null); // New state for ETA
   const [statusFilter, setStatusFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
@@ -163,8 +164,17 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
       });
     }
     
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(o => 
+        o.order_number?.toLowerCase().includes(query) ||
+        o.customer_name?.toLowerCase().includes(query) ||
+        o.restaurant_name?.toLowerCase().includes(query)
+      );
+    }
+    
     return filtered;
-  }, [orders, statusFilter, dateFilter]);
+  }, [orders, statusFilter, dateFilter, searchQuery]);
 
   const activeOrders = filteredOrders.filter(o => ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery'].includes(o.status));
   const completedOrders = filteredOrders.filter(o => ['delivered', 'cancelled'].includes(o.status));
@@ -274,6 +284,18 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
           </Button>
           <h1 className="text-4xl font-bold text-slate-900 mb-2">📦 {t('orders')}</h1>
           <p className="text-slate-600">{t('view_track_orders')}</p>
+        </div>
+
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Rechercher par numéro, client ou restaurant..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
         <Tabs defaultValue="active" className="mb-6">
