@@ -208,7 +208,8 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       setCheckoutDialog(false);
       setAppliedReward(null);
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      alert("Order placed successfully! You earned loyalty points!");
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      toast.success("Commande passée avec succès! 🎉");
       onShowOrders();
     },
   });
