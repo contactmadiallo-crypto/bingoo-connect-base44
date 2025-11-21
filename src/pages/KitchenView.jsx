@@ -73,10 +73,52 @@ export default function KitchenView() {
     enabled: !!selectedRestaurantId,
   });
 
+  const calculateDistance = (lat1, lng1, lat2, lng2) => {
+    const R = 6371; // Earth radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const updateOrderStatusMutation = useMutation({
     mutationFn: async ({ id, status, order }) => {
-      await base44.entities.Order.update(id, { status });
-      
+      const updateData = { status };
+
+      // Calculate delivery fee based on distance when order becomes ready
+      if (status === 'ready' && order.order_type === 'delivery' && order.customer_location) {
+        try {
+          const restaurantData = await base44.entities.Restaurant.filter({ id: order.restaurant_id });
+          if (restaurantData[0]?.address) {
+            // Get restaurant coordinates (you may need to geocode the address)
+            // For now, use customer_location as reference
+            const distance = order.distance_km || 5; // Default to 5km if not calculated
+
+            // Calculate delivery fee: 500 CFA base + 200 CFA per km
+            const baseDeliveryFee = 500;
+            const perKmRate = 200;
+            const calculatedDeliveryFee = baseDeliveryFee + (distance * perKmRate);
+
+            // Driver gets 70% of delivery fee
+            const driverEarnings = calculatedDeliveryFee * 0.7;
+
+            updateData.delivery_fee = calculatedDeliveryFee;
+            updateData.driver_earnings = driverEarnings;
+            updateData.distance_km = distance;
+          }
+        } catch (error) {
+          console.error('Failed to calculate delivery fee:', error);
+          // Fallback to default
+          updateData.delivery_fee = 1500;
+          updateData.driver_earnings = 1050;
+        }
+      }
+
+      await base44.entities.Order.update(id, updateData);
+
       // Create notification for customer
       const statusMessages = {
         'confirmed': 'Your order has been confirmed! 🎉',
@@ -97,7 +139,7 @@ export default function KitchenView() {
           action_url: `/OrderTracking?order=${order.order_number}`
         });
       }
-      
+
       // When order becomes ready for delivery, notify all available drivers
       if (status === 'ready' && order.order_type === 'delivery') {
         try {
@@ -105,12 +147,12 @@ export default function KitchenView() {
             is_available: true,
             status: 'active'
           });
-          
+
           for (const driver of drivers) {
             await base44.entities.Notification.create({
               customer_email: driver.email,
               title: "🚚 Nouvelle Livraison Disponible!",
-              message: `${order.restaurant_name} - ${order.delivery_fee || 0} CFA - Commande ${order.order_number}`,
+              message: `${order.restaurant_name} - ${updateData.delivery_fee || 0} CFA - Commande ${order.order_number}`,
               type: "order_update",
               order_id: order.id,
               restaurant_id: order.restaurant_id

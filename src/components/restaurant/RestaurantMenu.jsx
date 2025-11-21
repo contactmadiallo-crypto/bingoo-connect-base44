@@ -308,7 +308,8 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     const itemPrice = item.customized_price || item.price;
     return sum + (itemPrice * item.quantity);
   }, 0);
-  const deliveryFee = orderType === 'delivery' ? restaurant.delivery_fee : 0;
+  // Delivery fee will be calculated by the restaurant when order is ready
+  const deliveryFee = orderType === 'delivery' ? 0 : 0;
   
   let loyaltyDiscount = 0;
   if (customerLoyalty && restaurant.loyalty_enabled) {
@@ -380,7 +381,8 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       return;
     }
     
-    createOrderMutation.mutate({
+    // Get customer location if delivery
+    const orderData = {
       customer_name: user.full_name,
       customer_phone: user.phone,
       customer_address: orderType === 'delivery' ? customerInfo.address : null,
@@ -395,11 +397,21 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
       })),
       total_amount: total,
       subtotal: subtotal,
-      delivery_fee: finalDeliveryFee,
+      delivery_fee: 0, // Will be calculated when order is ready
       discount: loyaltyDiscount + rewardDiscount + offerDiscount,
       estimated_time: restaurant.avg_delivery_time,
       payment_status: 'paid'
-    });
+    };
+
+    // Add customer location for delivery orders
+    if (orderType === 'delivery' && user.addresses?.length > 0) {
+      const selectedAddress = user.addresses.find(a => a.address === customerInfo.address);
+      if (selectedAddress?.location) {
+        orderData.customer_location = selectedAddress.location;
+      }
+    }
+
+    createOrderMutation.mutate(orderData);
   };
 
   const avgRestaurantRating = restaurantReviews.length > 0
@@ -876,11 +888,9 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                   <span>{subtotal.toFixed(0)} CFA</span>
                 </div>
                 {orderType === 'delivery' && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between text-slate-500">
                     <span>{t('delivery_fee')}</span>
-                    <span className={freeDelivery ? "line-through text-slate-400" : ""}>
-                      {deliveryFee.toFixed(0)} CFA
-                    </span>
+                    <span className="text-xs">Calculé à la préparation</span>
                   </div>
                 )}
                 {freeDelivery && (
