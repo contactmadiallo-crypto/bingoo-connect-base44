@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Clock, CheckCircle, AlertCircle, ChefHat, Flame, Package, Search, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -227,6 +228,48 @@ export default function KitchenView() {
               </div>
             )}
           </div>
+
+          {selectedRestaurantId && (
+            <div className="mt-6 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Rechercher par numéro ou nom du client..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les Statuts</SelectItem>
+                    <SelectItem value="pending">En Attente</SelectItem>
+                    <SelectItem value="confirmed">Confirmé</SelectItem>
+                    <SelectItem value="preparing">En Préparation</SelectItem>
+                    <SelectItem value="ready">Prêt</SelectItem>
+                    <SelectItem value="out_for_delivery">En Livraison</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={orderTypeFilter} onValueChange={setOrderTypeFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les Types</SelectItem>
+                    <SelectItem value="dine_in">Sur Place</SelectItem>
+                    <SelectItem value="takeout">À Emporter</SelectItem>
+                    <SelectItem value="delivery">Livraison</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
         </div>
 
         {!selectedRestaurantId ? (
