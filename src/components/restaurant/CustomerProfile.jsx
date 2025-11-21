@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,11 +21,13 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
     email: user?.email || ""
   });
   const [newPayment, setNewPayment] = useState({
-    type: "credit_card",
+    type: "mobile_wallet",
     card_number: "",
     card_holder_name: "",
     expiration_date: "",
-    cvv: ""
+    cvv: "",
+    wallet_provider: "",
+    wallet_phone: ""
   });
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
 
@@ -100,16 +101,35 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
   };
 
   const handleAddPayment = () => {
-    if (!newPayment.card_number || !newPayment.card_holder_name || !newPayment.expiration_date || !newPayment.cvv) {
-      alert("Please fill all card details");
-      return;
+    if (newPayment.type === "mobile_wallet") {
+      if (!newPayment.wallet_provider || !newPayment.wallet_phone) {
+        alert("Veuillez remplir tous les détails du portefeuille mobile");
+        return;
+      }
+      const payments = user.payment_methods || [];
+      const last_four = newPayment.wallet_phone.slice(-4);
+      updateUserMutation.mutate({
+        payment_methods: [...payments, { 
+          type: newPayment.type,
+          wallet_provider: newPayment.wallet_provider,
+          wallet_phone: newPayment.wallet_phone,
+          last_four, 
+          is_default: payments.length === 0 
+        }]
+      });
+      setNewPayment({ type: "mobile_wallet", wallet_provider: "", wallet_phone: "", card_number: "", card_holder_name: "", expiration_date: "", cvv: "" });
+    } else {
+      if (!newPayment.card_number || !newPayment.card_holder_name || !newPayment.expiration_date || !newPayment.cvv) {
+        alert("Please fill all card details");
+        return;
+      }
+      const payments = user.payment_methods || [];
+      const last_four = newPayment.card_number.slice(-4);
+      updateUserMutation.mutate({
+        payment_methods: [...payments, { ...newPayment, last_four, is_default: payments.length === 0 }]
+      });
+      setNewPayment({ type: "mobile_wallet", card_number: "", card_holder_name: "", expiration_date: "", cvv: "", wallet_provider: "", wallet_phone: "" });
     }
-    const payments = user.payment_methods || [];
-    const last_four = newPayment.card_number.slice(-4);
-    updateUserMutation.mutate({
-      payment_methods: [...payments, { ...newPayment, last_four, is_default: payments.length === 0 }]
-    });
-    setNewPayment({ type: "credit_card", card_number: "", card_holder_name: "", expiration_date: "", cvv: "" });
   };
 
   const handleAddAddress = () => {
@@ -271,16 +291,25 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
                       <div className="flex items-center gap-3">
                         <CreditCard className="w-5 h-5" />
                         <div>
-                          <p className="font-semibold">{pm.type.replace('_', ' ')}</p>
-                          <p className="text-sm text-slate-600">**** **** **** {pm.last_four}</p>
+                          <p className="font-semibold capitalize">
+                            {pm.type === 'mobile_wallet' ? `${pm.wallet_provider || 'Mobile Wallet'}` : pm.type.replace('_', ' ')}
+                          </p>
+                          <p className="text-sm text-slate-600">
+                            {pm.type === 'mobile_wallet' 
+                              ? `${pm.wallet_phone || `****${pm.last_four}`}` 
+                              : `**** **** **** ${pm.last_four}`
+                            }
+                          </p>
                         </div>
                       </div>
                       {pm.is_default && <Badge>Default</Badge>}
                     </div>
-                    <div className="text-xs text-slate-500 space-y-1">
-                      <p>Card Holder: {pm.card_holder_name}</p>
-                      <p>Expires: {pm.expiration_date}</p>
-                    </div>
+                    {pm.type !== 'mobile_wallet' && (
+                      <div className="text-xs text-slate-500 space-y-1">
+                        <p>Card Holder: {pm.card_holder_name}</p>
+                        <p>Expires: {pm.expiration_date}</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -291,60 +320,96 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
                 <h3 className="font-semibold">Add Payment Method</h3>
 
                 <div className="space-y-2">
-                  <Label>Card Type</Label>
+                  <Label>Type de Paiement</Label>
                   <Select value={newPayment.type} onValueChange={(value) => setNewPayment({...newPayment, type: value})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="credit_card">Credit Card</SelectItem>
-                      <SelectItem value="debit_card">Debit Card</SelectItem>
+                      <SelectItem value="mobile_wallet">📱 Portefeuille Mobile</SelectItem>
+                      <SelectItem value="credit_card">💳 Carte de Crédit</SelectItem>
+                      <SelectItem value="debit_card">💳 Carte de Débit</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Card Number</Label>
-                  <Input
-                    placeholder="1234 5678 9012 3456"
-                    value={newPayment.card_number}
-                    onChange={(e) => setNewPayment({...newPayment, card_number: e.target.value.replace(/\s/g, '')})}
-                    maxLength={16}
-                  />
-                </div>
+                {newPayment.type === "mobile_wallet" ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Fournisseur de Portefeuille</Label>
+                      <Select value={newPayment.wallet_provider} onValueChange={(value) => setNewPayment({...newPayment, wallet_provider: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un fournisseur" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Orange Money">🟠 Orange Money</SelectItem>
+                          <SelectItem value="MTN Mobile Money">🟡 MTN Mobile Money</SelectItem>
+                          <SelectItem value="Wave">🔵 Wave</SelectItem>
+                          <SelectItem value="Free Money">🔴 Free Money</SelectItem>
+                          <SelectItem value="Moov Money">🟢 Moov Money</SelectItem>
+                          <SelectItem value="Wizall">🟣 Wizall</SelectItem>
+                          <SelectItem value="E-Money">⚪ E-Money</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Card Holder Name</Label>
-                  <Input
-                    placeholder="John Doe"
-                    value={newPayment.card_holder_name}
-                    onChange={(e) => setNewPayment({...newPayment, card_holder_name: e.target.value})}
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label>Numéro de Téléphone</Label>
+                      <Input
+                        placeholder="+221 XX XXX XX XX"
+                        value={newPayment.wallet_phone}
+                        onChange={(e) => setNewPayment({...newPayment, wallet_phone: e.target.value})}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Numéro de Carte</Label>
+                      <Input
+                        placeholder="1234 5678 9012 3456"
+                        value={newPayment.card_number}
+                        onChange={(e) => setNewPayment({...newPayment, card_number: e.target.value.replace(/\s/g, '')})}
+                        maxLength={16}
+                      />
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Expiration Date</Label>
-                    <Input
-                      placeholder="MM/YY"
-                      value={newPayment.expiration_date}
-                      onChange={(e) => setNewPayment({...newPayment, expiration_date: e.target.value})}
-                      maxLength={5}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>CVV</Label>
-                    <Input
-                      placeholder="123"
-                      value={newPayment.cvv}
-                      onChange={(e) => setNewPayment({...newPayment, cvv: e.target.value})}
-                      maxLength={3}
-                      type="password"
-                    />
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <Label>Nom sur la Carte</Label>
+                      <Input
+                        placeholder="John Doe"
+                        value={newPayment.card_holder_name}
+                        onChange={(e) => setNewPayment({...newPayment, card_holder_name: e.target.value})}
+                      />
+                    </div>
 
-                <Button onClick={handleAddPayment} className="w-full">Add Payment Method</Button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Date d'Expiration</Label>
+                        <Input
+                          placeholder="MM/YY"
+                          value={newPayment.expiration_date}
+                          onChange={(e) => setNewPayment({...newPayment, expiration_date: e.target.value})}
+                          maxLength={5}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>CVV</Label>
+                        <Input
+                          placeholder="123"
+                          value={newPayment.cvv}
+                          onChange={(e) => setNewPayment({...newPayment, cvv: e.target.value})}
+                          maxLength={3}
+                          type="password"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <Button onClick={handleAddPayment} className="w-full">
+                  Ajouter Moyen de Paiement
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>

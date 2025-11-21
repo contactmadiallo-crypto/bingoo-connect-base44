@@ -800,8 +800,15 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                   {user?.payment_methods?.map((pm, idx) => (
                     <SelectItem key={idx} value={pm.last_four}>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold">{pm.type.replace('_', ' ')}</span>
-                        <span className="text-slate-500">**** {pm.last_four}</span>
+                        <span className="font-semibold capitalize">
+                          {pm.type === 'mobile_wallet' ? pm.wallet_provider || 'Mobile Wallet' : pm.type.replace('_', ' ')}
+                        </span>
+                        <span className="text-slate-500">
+                          {pm.type === 'mobile_wallet' 
+                            ? pm.wallet_phone?.slice(-9) || `****${pm.last_four}`
+                            : `**** ${pm.last_four}`
+                          }
+                        </span>
                         {pm.is_default && <Badge variant="secondary" className="text-xs">Par défaut</Badge>}
                       </div>
                     </SelectItem>
