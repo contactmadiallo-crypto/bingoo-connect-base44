@@ -223,9 +223,10 @@ export default function DriverApp() {
         await base44.entities.Notification.update(notif.id, { read: true });
       }
     },
-    onSuccess: () => {
+    onSuccess: (_, order) => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
       queryClient.invalidateQueries({ queryKey: ['driver-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders', order.created_by] });
       toast.success("Livraison acceptée!");
     },
   });
@@ -264,6 +265,7 @@ export default function DriverApp() {
         updateData.driver_location = location;
       }
 
+      const order = orders.find(o => o.id === orderId);
       await base44.entities.Order.update(orderId, updateData);
 
       const statusMessages = {
@@ -274,8 +276,7 @@ export default function DriverApp() {
         'delivered': 'Votre commande a été livrée! Bon appétit! 😊'
       };
 
-      if (statusMessages[status]) {
-        const order = orders.find(o => o.id === orderId);
+      if (statusMessages[status] && order) {
         await base44.entities.Notification.create({
           customer_email: order.created_by,
           title: statusMessages[status],
@@ -285,9 +286,14 @@ export default function DriverApp() {
           restaurant_id: order.restaurant_id
         });
       }
+      
+      return order;
     },
-    onSuccess: () => {
+    onSuccess: (order) => {
       queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+      if (order?.created_by) {
+        queryClient.invalidateQueries({ queryKey: ['my-orders', order.created_by] });
+      }
       setTrackingDialog(false);
       setVerifyDialog(false);
       setVerificationCode("");
