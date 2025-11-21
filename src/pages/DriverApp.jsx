@@ -530,6 +530,39 @@ export default function DriverApp() {
             </div>
           </div>
 
+          {activeOrders.length > 0 && driver.current_location && (
+            <Card className="mb-3 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+              <CardContent className="pt-3 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                    <Navigation className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-purple-700 font-semibold">🚗 Tournée en Cours</p>
+                    <div className="flex items-center gap-4 mt-1">
+                      <div className="flex items-center gap-1">
+                        <Package className="w-3 h-3 text-purple-600" />
+                        <span className="text-xs font-semibold text-purple-900">{activeOrders.length} livraison(s)</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-purple-600" />
+                        <span className="text-xs font-semibold text-purple-900">
+                          {activeOrders.reduce((sum, o) => sum + (o.distance_km || 0), 0).toFixed(1)} km restants
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="w-3 h-3 text-green-600" />
+                        <span className="text-xs font-semibold text-green-700">
+                          {activeOrders.reduce((sum, o) => sum + (o.driver_earnings || 0), 0).toFixed(0)} CFA
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-2 sm:p-3 border border-green-200">
               <div className="flex items-center gap-1 sm:gap-2 mb-1">

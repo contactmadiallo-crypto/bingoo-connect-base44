@@ -204,10 +204,13 @@ function DriverTrackingContent() {
                 <div className="h-[600px] rounded-lg overflow-hidden border-2 border-slate-200">
                   <MapContainer
                     center={mapCenter}
-                    zoom={12}
+                    zoom={13}
                     style={{ height: "100%", width: "100%" }}
                   >
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <TileLayer 
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    />
                     <MapUpdater center={mapCenter} />
 
                     {driversWithLocation.map((driver) => {
@@ -326,6 +329,14 @@ function DriverTrackingContent() {
                               {idx + 1}. {order.order_number} - {order.customer_name}
                             </p>
                           ))}
+                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-orange-200">
+                            <span className="text-xs text-orange-700">
+                              📍 {orders.reduce((sum, o) => sum + (o.distance_km || 0), 0).toFixed(1)} km
+                            </span>
+                            <span className="text-xs font-semibold text-green-700">
+                              {orders.reduce((sum, o) => sum + (o.driver_earnings || 0), 0).toFixed(0)} CFA
+                            </span>
+                          </div>
                         </div>
                       )}
 
