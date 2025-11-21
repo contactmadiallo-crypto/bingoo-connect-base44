@@ -36,6 +36,11 @@ function RestaurantAnalyticsContent() {
     queryFn: () => base44.entities.MenuItem.list(),
   });
 
+  const { data: deliveryPartners = [] } = useQuery({
+    queryKey: ['delivery-partners-analytics'],
+    queryFn: () => base44.entities.DeliveryPartner.list(),
+  });
+
   const analyzeFeedbackMutation = useMutation({
     mutationFn: async () => {
       const reviews = filteredReviews.map(r => ({
@@ -187,30 +192,49 @@ Return the analysis in JSON format.`;
   }, [filteredOrders]);
 
   const deliveryMetrics = useMemo(() => {
-    const deliveryOrders = filteredOrders.filter(o => o.order_type === 'delivery' && o.actual_delivery_time);
-    const avgTime = deliveryOrders.length > 0
-      ? deliveryOrders.reduce((sum, o) => sum + (o.actual_delivery_time || 0), 0) / deliveryOrders.length
+    const deliveryOrders = filteredOrders.filter(o => o.order_type === 'delivery');
+    const withTime = deliveryOrders.filter(o => o.actual_delivery_time);
+    const avgTime = withTime.length > 0
+      ? withTime.reduce((sum, o) => sum + (o.actual_delivery_time || 0), 0) / withTime.length
       : 0;
 
     const byDriver = {};
     deliveryOrders.forEach(order => {
-      if (order.driver_name) {
-        if (!byDriver[order.driver_name]) {
-          byDriver[order.driver_name] = { name: order.driver_name, orders: 0, totalTime: 0, avgTime: 0 };
+      if (order.delivery_partner_id) {
+        if (!byDriver[order.delivery_partner_id]) {
+          byDriver[order.delivery_partner_id] = { 
+            id: order.delivery_partner_id,
+            name: order.driver_name, 
+            orders: 0, 
+            totalTime: 0, 
+            avgTime: 0,
+            totalEarnings: 0,
+            totalTips: 0,
+            ratings: []
+          };
         }
-        byDriver[order.driver_name].orders += 1;
-        byDriver[order.driver_name].totalTime += (order.actual_delivery_time || 0);
+        byDriver[order.delivery_partner_id].orders += 1;
+        byDriver[order.delivery_partner_id].totalTime += (order.actual_delivery_time || 0);
+        byDriver[order.delivery_partner_id].totalEarnings += (order.driver_earnings || 0);
+        byDriver[order.delivery_partner_id].totalTips += (order.tip_amount || 0);
+        if (order.customer_rating) {
+          byDriver[order.delivery_partner_id].ratings.push(order.customer_rating);
+        }
       }
     });
 
     Object.values(byDriver).forEach(driver => {
-      driver.avgTime = driver.orders > 0 ? driver.totalTime / driver.orders : 0;
+      driver.avgTime = driver.orders > 0 ? Math.round(driver.totalTime / driver.orders) : 0;
+      driver.avgRating = driver.ratings.length > 0 
+        ? (driver.ratings.reduce((sum, r) => sum + r, 0) / driver.ratings.length).toFixed(1)
+        : 0;
     });
 
     return {
       avgTime: Math.round(avgTime),
       totalDeliveries: deliveryOrders.length,
-      byDriver: Object.values(byDriver).sort((a, b) => b.orders - a.orders).slice(0, 5)
+      totalEarnings: deliveryOrders.reduce((sum, o) => sum + (o.delivery_fee || 0), 0),
+      byDriver: Object.values(byDriver).sort((a, b) => b.orders - a.orders)
     };
   }, [filteredOrders]);
 
@@ -225,6 +249,61 @@ Return the analysis in JSON format.`;
 
     return { avgRating: avgRating.toFixed(1), count: filteredReviews.length, distribution };
   }, [filteredReviews]);
+
+  const orderTypeDistribution = useMemo(() => {
+    const types = { dine_in: 0, takeout: 0, delivery: 0 };
+    filteredOrders.forEach(order => {
+      types[order.order_type] = (types[order.order_type] || 0) + 1;
+    });
+    return Object.entries(types).map(([type, count]) => ({
+      type: type === 'dine_in' ? 'Sur Place' : type === 'takeout' ? 'À Emporter' : 'Livraison',
+      count
+    }));
+  }, [filteredOrders]);
+
+  const revenueBreakdown = useMemo(() => {
+    const breakdown = {
+      food: 0,
+      delivery: 0,
+      tips: 0
+    };
+    filteredOrders.forEach(order => {
+      const itemTotal = order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+      breakdown.food += itemTotal;
+      breakdown.delivery += (order.delivery_fee || 0);
+      breakdown.tips += (order.tip_amount || 0);
+    });
+    return [
+      { name: 'Nourriture', value: breakdown.food },
+      { name: 'Frais de Livraison', value: breakdown.delivery },
+      { name: 'Pourboires', value: breakdown.tips }
+    ];
+  }, [filteredOrders]);
+
+  const growthMetrics = useMemo(() => {
+    const { start } = getDateRange();
+    const previousStart = new Date(start);
+    if (timeRange === 'day') previousStart.setDate(previousStart.getDate() - 1);
+    else if (timeRange === 'week') previousStart.setDate(previousStart.getDate() - 7);
+    else previousStart.setDate(previousStart.getDate() - 30);
+
+    const previousOrders = allOrders.filter(o => {
+      const orderDate = new Date(o.created_date);
+      const matchDate = orderDate >= previousStart && orderDate < start;
+      const matchRestaurant = selectedRestaurant === "all" || o.restaurant_id === selectedRestaurant;
+      return matchDate && matchRestaurant && o.status === 'delivered';
+    });
+
+    const currentRevenue = filteredOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    const previousRevenue = previousOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
+    const revenueGrowth = previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 0;
+
+    const orderGrowth = previousOrders.length > 0 
+      ? ((filteredOrders.length - previousOrders.length) / previousOrders.length) * 100 
+      : 0;
+
+    return { revenueGrowth, orderGrowth };
+  }, [filteredOrders, allOrders, selectedRestaurant, timeRange]);
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d'];
 
@@ -265,9 +344,14 @@ Return the analysis in JSON format.`;
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-slate-600">Revenu Total</p>
                   <p className="text-3xl font-bold text-green-600">{salesStats.total.toFixed(0)} CFA</p>
+                  {growthMetrics.revenueGrowth !== 0 && (
+                    <p className={`text-xs mt-1 ${growthMetrics.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {growthMetrics.revenueGrowth > 0 ? '↑' : '↓'} {Math.abs(growthMetrics.revenueGrowth).toFixed(1)}%
+                    </p>
+                  )}
                 </div>
                 <DollarSign className="w-8 h-8 text-green-600" />
               </div>
@@ -277,9 +361,14 @@ Return the analysis in JSON format.`;
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-slate-600">Commandes</p>
                   <p className="text-3xl font-bold text-blue-600">{salesStats.count}</p>
+                  {growthMetrics.orderGrowth !== 0 && (
+                    <p className={`text-xs mt-1 ${growthMetrics.orderGrowth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {growthMetrics.orderGrowth > 0 ? '↑' : '↓'} {Math.abs(growthMetrics.orderGrowth).toFixed(1)}%
+                    </p>
+                  )}
                 </div>
                 <ShoppingCart className="w-8 h-8 text-blue-600" />
               </div>
@@ -304,6 +393,7 @@ Return the analysis in JSON format.`;
                 <div>
                   <p className="text-sm text-slate-600">Note Moyenne</p>
                   <p className="text-3xl font-bold text-yellow-600">{ratingStats.avgRating} ⭐</p>
+                  <p className="text-xs text-slate-600 mt-1">{ratingStats.count} avis</p>
                 </div>
                 <Star className="w-8 h-8 text-yellow-600" />
               </div>
@@ -324,9 +414,65 @@ Return the analysis in JSON format.`;
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="revenue" stroke="#10b981" name="Revenu (CFA)" />
-                  <Line type="monotone" dataKey="orders" stroke="#3b82f6" name="Commandes" />
+                  <Line type="monotone" dataKey="revenue" stroke="#10b981" name="Revenu (CFA)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="orders" stroke="#3b82f6" name="Commandes" strokeWidth={2} />
                 </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Répartition du Revenu</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={revenueBreakdown}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {revenueBreakdown.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Types de Commande</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={orderTypeDistribution}
+                    dataKey="count"
+                    nameKey="type"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label
+                  >
+                    {orderTypeDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
@@ -337,23 +483,15 @@ Return the analysis in JSON format.`;
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={salesByCategory}
-                    dataKey="revenue"
-                    nameKey="category"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {salesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
+                <BarChart data={salesByCategory.slice(0, 6)}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="category" />
+                  <YAxis />
                   <Tooltip />
                   <Legend />
-                </PieChart>
+                  <Bar dataKey="revenue" fill="#10b981" name="Revenu (CFA)" />
+                  <Bar dataKey="count" fill="#3b82f6" name="Quantité" />
+                </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
@@ -418,36 +556,88 @@ Return the analysis in JSON format.`;
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5" />
-              Métriques de Livraison
+              Métriques de Livraison & Performance Chauffeurs
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-slate-600">Temps Moyen de Livraison</p>
+                <p className="text-sm text-slate-600">Temps Moyen</p>
                 <p className="text-3xl font-bold text-blue-600">{deliveryMetrics.avgTime} min</p>
               </div>
               <div className="bg-green-50 p-4 rounded-lg">
                 <p className="text-sm text-slate-600">Total Livraisons</p>
                 <p className="text-3xl font-bold text-green-600">{deliveryMetrics.totalDeliveries}</p>
               </div>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <p className="text-sm text-slate-600">Frais de Livraison</p>
+                <p className="text-3xl font-bold text-purple-600">{deliveryMetrics.totalEarnings.toFixed(0)} CFA</p>
+              </div>
             </div>
 
             {deliveryMetrics.byDriver.length > 0 && (
-              <div>
-                <h4 className="font-semibold mb-3">Performance par Chauffeur</h4>
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={deliveryMetrics.byDriver}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="orders" fill="#3b82f6" name="Commandes" />
-                    <Bar dataKey="avgTime" fill="#10b981" name="Temps Moyen (min)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <>
+                <div>
+                  <h4 className="font-semibold mb-3">Performance par Chauffeur - Graphique</h4>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={deliveryMetrics.byDriver.slice(0, 8)}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="orders" fill="#3b82f6" name="Commandes" />
+                      <Bar dataKey="avgTime" fill="#10b981" name="Temps Moyen (min)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3">Tableau Détaillé des Chauffeurs</h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="bg-slate-100">
+                        <tr>
+                          <th className="p-2 text-left">Chauffeur</th>
+                          <th className="p-2 text-center">Commandes</th>
+                          <th className="p-2 text-center">Temps Moyen</th>
+                          <th className="p-2 text-center">Note Moy.</th>
+                          <th className="p-2 text-right">Gains</th>
+                          <th className="p-2 text-right">Pourboires</th>
+                          <th className="p-2 text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {deliveryMetrics.byDriver.map((driver, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50">
+                            <td className="p-2 font-medium">{driver.name}</td>
+                            <td className="p-2 text-center">{driver.orders}</td>
+                            <td className="p-2 text-center">{driver.avgTime} min</td>
+                            <td className="p-2 text-center">
+                              {driver.avgRating > 0 ? (
+                                <span className="inline-flex items-center gap-1">
+                                  {driver.avgRating} ⭐
+                                </span>
+                              ) : (
+                                <span className="text-slate-400">-</span>
+                              )}
+                            </td>
+                            <td className="p-2 text-right text-green-600 font-semibold">
+                              {driver.totalEarnings.toFixed(0)} CFA
+                            </td>
+                            <td className="p-2 text-right text-purple-600">
+                              {driver.totalTips.toFixed(0)} CFA
+                            </td>
+                            <td className="p-2 text-right font-bold text-blue-600">
+                              {(driver.totalEarnings + driver.totalTips).toFixed(0)} CFA
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
