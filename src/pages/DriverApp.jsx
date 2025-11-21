@@ -95,9 +95,14 @@ export default function DriverApp() {
     refetchInterval: 2000,
   });
 
+  // Only show orders assigned to this driver OR orders from notifications
+  const notifiedOrderIds = notifications
+    .filter(n => !n.read && n.type === 'order_update' && n.order_id)
+    .map(n => n.order_id);
+
   const myOrders = orders.filter(o => 
-    o.delivery_partner_id === driver?.id || 
-    (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id)
+    o.delivery_partner_id === driver?.id ||
+    (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id && notifiedOrderIds.includes(o.id))
   );
 
   const activeOrders = myOrders.filter(o => 
