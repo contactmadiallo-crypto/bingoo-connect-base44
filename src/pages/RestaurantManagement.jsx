@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit, Trash2, UtensilsCrossed, Star, Search, MapPin, Phone, Clock } from "lucide-react";
+import { Plus, Edit, Trash2, UtensilsCrossed, Star, Search, MapPin, Phone, Clock, Filter, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminAuthGuard from "../components/AdminAuthGuard";
 import RestaurantForm from "../components/admin/RestaurantForm";
@@ -14,6 +16,10 @@ import { toast } from "sonner";
 
 function RestaurantManagementContent() {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [cuisineFilter, setCuisineFilter] = useState("all");
+  const [businessTypeFilter, setBusinessTypeFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [editDialog, setEditDialog] = useState(false);
   const [menuDialog, setMenuDialog] = useState(false);
@@ -57,12 +63,22 @@ function RestaurantManagementContent() {
     return menuItems.filter(m => m.restaurant_id === restaurantId).length;
   };
 
-  const filteredRestaurants = restaurants.filter(r => 
-    !search || 
-    r.name?.toLowerCase().includes(search.toLowerCase()) ||
-    r.city?.toLowerCase().includes(search.toLowerCase()) ||
-    r.cuisine_type?.toLowerCase().includes(search.toLowerCase())
-  );
+  const uniqueCities = [...new Set(restaurants.map(r => r.city).filter(Boolean))];
+
+  const filteredRestaurants = restaurants.filter(r => {
+    const matchSearch = !search || 
+      r.name?.toLowerCase().includes(search.toLowerCase()) ||
+      r.city?.toLowerCase().includes(search.toLowerCase()) ||
+      r.cuisine_type?.toLowerCase().includes(search.toLowerCase()) ||
+      r.address?.toLowerCase().includes(search.toLowerCase());
+    
+    const matchStatus = statusFilter === "all" || r.status === statusFilter;
+    const matchCuisine = cuisineFilter === "all" || r.cuisine_type === cuisineFilter;
+    const matchBusinessType = businessTypeFilter === "all" || r.business_type === businessTypeFilter;
+    const matchCity = cityFilter === "all" || r.city === cityFilter;
+    
+    return matchSearch && matchStatus && matchCuisine && matchBusinessType && matchCity;
+  });
 
   const handleEdit = (restaurant) => {
     setSelectedRestaurant(restaurant);
@@ -147,14 +163,107 @@ function RestaurantManagementContent() {
               </div>
             </div>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Rechercher par nom, ville ou type de cuisine..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10"
-              />
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Rechercher par nom, ville, cuisine, adresse..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-semibold text-slate-700">Filtres:</span>
+                </div>
+                {(statusFilter !== "all" || cuisineFilter !== "all" || businessTypeFilter !== "all" || cityFilter !== "all") && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setCuisineFilter("all");
+                      setBusinessTypeFilter("all");
+                      setCityFilter("all");
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Réinitialiser
+                  </Button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Statut</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les Statuts</SelectItem>
+                      <SelectItem value="active">✅ Actif</SelectItem>
+                      <SelectItem value="pending">⏳ En Attente</SelectItem>
+                      <SelectItem value="inactive">❌ Inactif</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Type de Cuisine</Label>
+                  <Select value={cuisineFilter} onValueChange={setCuisineFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les Cuisines</SelectItem>
+                      {Object.entries(cuisineLabels).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Type d'Établissement</Label>
+                  <Select value={businessTypeFilter} onValueChange={setBusinessTypeFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les Types</SelectItem>
+                      <SelectItem value="restaurant">🍽️ Restaurant</SelectItem>
+                      <SelectItem value="grocery">🛒 Épicerie</SelectItem>
+                      <SelectItem value="pharmacy">💊 Pharmacie</SelectItem>
+                      <SelectItem value="local_shop">🏪 Commerce Local</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Ville</Label>
+                  <Select value={cityFilter} onValueChange={setCityFilter}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les Villes</SelectItem>
+                      {uniqueCities.map(city => (
+                        <SelectItem key={city} value={city}>📍 {city}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t">
+                <p className="text-sm text-slate-600">
+                  <span className="font-semibold">{filteredRestaurants.length}</span> restaurant(s) trouvé(s)
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
