@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, X, Download, Package, DollarSign, TrendingUp, Clock } from "lucide-react";
+import { Search, Filter, X, Download, Package, DollarSign, TrendingUp, Clock, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminAuthGuard from "../components/AdminAuthGuard";
 import { toast } from "sonner";
@@ -18,6 +18,8 @@ function OrderManagementContent() {
   const [restaurantFilter, setRestaurantFilter] = useState("all");
   const [driverFilter, setDriverFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [detailsDialog, setDetailsDialog] = useState(false);
 
@@ -38,13 +40,18 @@ function OrderManagementContent() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
-      // Search filter
+      // Enhanced Search filter - now includes IDs
       const searchLower = searchQuery.toLowerCase();
       const matchSearch = !searchQuery ||
         order.order_number?.toLowerCase().includes(searchLower) ||
         order.customer_name?.toLowerCase().includes(searchLower) ||
         order.customer_phone?.toLowerCase().includes(searchLower) ||
-        order.restaurant_name?.toLowerCase().includes(searchLower);
+        order.restaurant_name?.toLowerCase().includes(searchLower) ||
+        order.id?.toLowerCase().includes(searchLower) ||
+        order.restaurant_id?.toLowerCase().includes(searchLower) ||
+        order.delivery_partner_id?.toLowerCase().includes(searchLower) ||
+        order.created_by?.toLowerCase().includes(searchLower) ||
+        order.driver_name?.toLowerCase().includes(searchLower);
 
       // Status filter
       const matchStatus = statusFilter === "all" || order.status === statusFilter;
@@ -55,9 +62,24 @@ function OrderManagementContent() {
       // Driver filter
       const matchDriver = driverFilter === "all" || order.delivery_partner_id === driverFilter;
 
-      // Date filter
+      // Date filter with custom range
       let matchDate = true;
-      if (dateFilter !== "all") {
+      if (startDate || endDate) {
+        const orderDate = new Date(order.created_date);
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999); // Include end of day
+          matchDate = orderDate >= start && orderDate <= end;
+        } else if (startDate) {
+          const start = new Date(startDate);
+          matchDate = orderDate >= start;
+        } else if (endDate) {
+          const end = new Date(endDate);
+          end.setHours(23, 59, 59, 999);
+          matchDate = orderDate <= end;
+        }
+      } else if (dateFilter !== "all") {
         const orderDate = new Date(order.created_date);
         const now = new Date();
         
@@ -74,7 +96,7 @@ function OrderManagementContent() {
 
       return matchSearch && matchStatus && matchRestaurant && matchDriver && matchDate;
     });
-  }, [orders, searchQuery, statusFilter, restaurantFilter, driverFilter, dateFilter]);
+  }, [orders, searchQuery, statusFilter, restaurantFilter, driverFilter, dateFilter, startDate, endDate]);
 
   const stats = useMemo(() => {
     return {
@@ -91,6 +113,8 @@ function OrderManagementContent() {
     setRestaurantFilter("all");
     setDriverFilter("all");
     setDateFilter("all");
+    setStartDate("");
+    setEndDate("");
   };
 
   const exportOrders = () => {
@@ -214,14 +238,21 @@ function OrderManagementContent() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Rechercher par numéro de commande, client, téléphone..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="🔍 Recherche globale: numéro, client, téléphone, ID commande, ID restaurant, ID client, ID chauffeur..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-12"
+                />
+              </div>
+              
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <span className="font-semibold">💡 Astuce:</span>
+                <span>Vous pouvez rechercher par tous les IDs (commande, restaurant, client, chauffeur)</span>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -275,8 +306,14 @@ function OrderManagementContent() {
               </div>
 
               <div className="space-y-2">
-                <Label>Période</Label>
-                <Select value={dateFilter} onValueChange={setDateFilter}>
+                <Label>Période Rapide</Label>
+                <Select value={dateFilter} onValueChange={(value) => {
+                  setDateFilter(value);
+                  if (value !== "all") {
+                    setStartDate("");
+                    setEndDate("");
+                  }
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -288,6 +325,46 @@ function OrderManagementContent() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div className="border-t pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar className="w-4 h-4 text-slate-600" />
+                <Label className="text-sm font-semibold">Plage de Dates Personnalisée</Label>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Date de Début</Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setDateFilter("all");
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-600">Date de Fin</Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setDateFilter("all");
+                    }}
+                  />
+                </div>
+              </div>
+              {(startDate || endDate) && (
+                <p className="text-xs text-blue-600 mt-2">
+                  📅 Filtrage actif: {startDate || '...'} → {endDate || '...'}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mt-4">
+              <div></div>
             </div>
           </CardContent>
         </Card>
