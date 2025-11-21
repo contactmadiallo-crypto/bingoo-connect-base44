@@ -17,6 +17,7 @@ import ChatWindow from "../components/chat/ChatWindow";
 import ConversationsList from "../components/chat/ConversationsList";
 import AnalyticsDashboard from "../components/driver/AnalyticsDashboard";
 import DriverPreferences from "../components/driver/DriverPreferences";
+import DriverNotificationCenter from "../components/driver/DriverNotificationCenter";
 import { toast } from "sonner";
 
 export default function DriverApp() {
@@ -30,7 +31,7 @@ export default function DriverApp() {
   const [chatDialog, setChatDialog] = useState(false);
   const [chatOrder, setChatOrder] = useState(null);
   const [showConversations, setShowConversations] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showPreferences, setShowPreferences] = useState(false);
   const queryClient = useQueryClient();
@@ -151,21 +152,28 @@ export default function DriverApp() {
     }
   }, [driver?.id, driver?.location_sharing_enabled, activeOrders.length]);
 
-  // Show toast notification for new unread notifications
+  // Show toast notification for new unread notifications with sound
   useEffect(() => {
     const unreadNotifs = notifications.filter(n => !n.read);
     if (unreadNotifs.length > 0) {
-      // Find the latest unread notification
       const latest = unreadNotifs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
-      // Only show toast if it's recent (within the last 10 seconds, considering refetch interval)
-      if (latest && Date.now() - new Date(latest.created_date).getTime() < 4000) { // Slightly more than refetch
+      if (latest && Date.now() - new Date(latest.created_date).getTime() < 4000) {
+        // Play notification sound
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSmJ0/DWhC4HGmy28eB7MgYdhM/y04IvBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eFzNgYdhM/y0YIuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4XQ1Bh6Ey/LRgS4HHmq28eF0NQYehMvy0YEuBx5qtvHhdDUGHoTL8tGBLgcearbx4Q==');
+        audio.volume = 0.3;
+        audio.play().catch(err => console.log('Audio play failed:', err));
+        
         toast.info(latest.title, {
           description: latest.message,
-          duration: 5000,
+          duration: 6000,
+          action: latest.action_url ? {
+            label: "Voir",
+            onClick: () => window.location.href = latest.action_url
+          } : undefined,
         });
       }
     }
-  }, [notifications.length, notifications]); // Depend on notifications array directly
+  }, [notifications.length, notifications]);
 
   // Show toast notification for new messages
   useEffect(() => {
@@ -450,10 +458,10 @@ export default function DriverApp() {
                 <Wallet className="w-3 h-3 sm:w-4 sm:h-4" />
               </Button>
               <div className="relative">
-                <Button variant="outline" size="icon" onClick={() => setShowNotifications(true)} className="h-8 w-8 sm:h-10 sm:w-10">
+                <Button variant="outline" size="icon" onClick={() => setShowNotificationCenter(true)} className="h-8 w-8 sm:h-10 sm:w-10">
                   <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs animate-pulse">
                       {unreadNotifications}
                     </Badge>
                   )}
@@ -797,31 +805,11 @@ export default function DriverApp() {
       </Dialog>
 
       {/* Notifications Dialog */}
-      <Dialog open={showNotifications} onOpenChange={setShowNotifications}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Notifications</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            {notifications.length === 0 ? (
-              <div className="text-center py-12">
-                <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600">Aucune notification</p>
-              </div>
-            ) : (
-              notifications.map((notif) => (
-                <div key={notif.id} className={`p-3 rounded-lg border ${notif.read ? 'bg-slate-50' : 'bg-blue-50 border-blue-200'}`}>
-                  <h4 className="font-semibold text-sm mb-1">{notif.title}</h4>
-                  <p className="text-xs text-slate-600">{notif.message}</p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {new Date(notif.created_date).toLocaleString()}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DriverNotificationCenter 
+        user={user}
+        open={showNotificationCenter}
+        onOpenChange={setShowNotificationCenter}
+      />
 
       <Dialog open={trackingDialog} onOpenChange={setTrackingDialog}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
