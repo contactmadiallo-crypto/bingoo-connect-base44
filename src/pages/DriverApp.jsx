@@ -19,6 +19,7 @@ import AnalyticsDashboard from "../components/driver/AnalyticsDashboard";
 import DriverPreferences from "../components/driver/DriverPreferences";
 import DriverNotificationCenter from "../components/driver/DriverNotificationCenter";
 import DeliveryAlert from "../components/driver/DeliveryAlert";
+import RealtimeNotificationSystem from "../components/driver/RealtimeNotificationSystem";
 import { toast } from "sonner";
 
 export default function DriverApp() {
@@ -79,7 +80,7 @@ export default function DriverApp() {
   const { data: orders = [] } = useQuery({
     queryKey: ['driver-orders'],
     queryFn: () => base44.entities.Order.list('-created_date'),
-    refetchInterval: 2000, // Check more frequently for new orders
+    refetchInterval: 3000,
     enabled: !!driver,
   });
 
@@ -87,24 +88,20 @@ export default function DriverApp() {
     queryKey: ['driver-notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }, '-created_date'),
     enabled: !!user?.email,
-    refetchInterval: 2000, // Check more frequently for new orders
+    refetchInterval: 3000,
   });
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['driver-conversations', driver?.id],
     queryFn: () => base44.entities.Conversation.filter({ driver_id: driver.id, status: 'active' }),
     enabled: !!driver?.id,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   });
 
-  // Only show orders assigned to this driver OR orders from notifications
-  const notifiedOrderIds = notifications
-    .filter(n => !n.read && n.type === 'order_update' && n.order_id)
-    .map(n => n.order_id);
-
+  // Only show orders assigned to this driver OR ready orders for delivery
   const myOrders = orders.filter(o => 
     o.delivery_partner_id === driver?.id ||
-    (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id && notifiedOrderIds.includes(o.id))
+    (o.status === 'ready' && o.order_type === 'delivery' && !o.delivery_partner_id)
   );
 
   const activeOrders = myOrders.filter(o => 
@@ -474,6 +471,14 @@ export default function DriverApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 pb-20">
+      {/* Real-time Notification System */}
+      <RealtimeNotificationSystem
+        orders={orders}
+        driver={driver}
+        onAcceptOrder={(order) => acceptOrderMutation.mutate(order)}
+        onViewOrder={handleViewOrder}
+      />
+
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b shadow-sm">
         <div className="px-3 sm:px-4 py-3 sm:py-4">
@@ -601,67 +606,71 @@ export default function DriverApp() {
           />
         )}
 
-        {/* Available Orders */}
+        {/* Available Orders - Static List */}
         {availableOrders.length > 0 && driver.is_available && (
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Bell className="w-5 h-5 text-orange-600 animate-pulse" />
-                Nouvelles Livraisons Disponibles
+                <Package className="w-5 h-5 text-orange-600" />
+                Livraisons Disponibles
               </h2>
-              <Badge className="bg-orange-500 text-white animate-bounce">
-                {availableOrders.length} {availableOrders.length === 1 ? 'commande' : 'commandes'}
+              <Badge className="bg-orange-500 text-white">
+                {availableOrders.length}
               </Badge>
             </div>
             <div className="space-y-3">
-              <AnimatePresence>
-                {availableOrders.map((order) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                  >
-                    <Card className="border-2 border-orange-200 bg-orange-50">
-                      <CardContent className="pt-6">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <p className="font-bold text-lg">{order.restaurant_name}</p>
-                            <p className="text-sm text-slate-600">{order.order_number}</p>
-                          </div>
-                          <Badge className="bg-orange-100 text-orange-700">Nouveau</Badge>
+              {availableOrders.map((order) => (
+                <Card key={order.id} className="border-2 border-orange-200 bg-orange-50">
+                  <CardContent className="pt-6">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <p className="font-bold text-lg">{order.restaurant_name}</p>
+                        <p className="text-sm text-slate-600">{order.order_number}</p>
+                      </div>
+                      <Badge className="bg-orange-100 text-orange-700">Disponible</Badge>
+                    </div>
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
+                        <div>
+                          <p className="font-medium">{order.customer_name}</p>
+                          <p className="text-slate-600">{order.customer_address}</p>
                         </div>
-                        <div className="space-y-2 text-sm mb-4">
-                          <div className="flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                            <div>
-                              <p className="font-medium">{order.customer_name}</p>
-                              <p className="text-slate-600">{order.customer_address}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1">
-                              <span className="font-bold text-green-600">{(order.delivery_fee || 0).toFixed(0)} CFA</span>
-                            </div>
-                            {order.distance_km && (
-                              <div className="flex items-center gap-1">
-                                <Navigation className="w-4 h-4 text-blue-600" />
-                                <span>{order.distance_km} km</span>
-                              </div>
-                            )}
-                          </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="w-4 h-4 text-green-600" />
+                          <span className="font-bold text-green-600">
+                            {(order.driver_earnings || order.delivery_fee * 0.7 || 0).toFixed(0)} CFA
+                          </span>
                         </div>
-                        <Button 
-                          onClick={() => acceptOrderMutation.mutate(order)}
-                          className="w-full bg-orange-600 hover:bg-orange-700"
-                        >
-                          Accepter la Livraison
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                        {order.distance_km && (
+                          <div className="flex items-center gap-1">
+                            <Navigation className="w-4 h-4 text-blue-600" />
+                            <span>{order.distance_km.toFixed(1)} km</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => handleViewOrder(order)}
+                        variant="outline"
+                        className="flex-1"
+                      >
+                        <MapPin className="w-4 h-4 mr-2" />
+                        Voir
+                      </Button>
+                      <Button 
+                        onClick={() => acceptOrderMutation.mutate(order)}
+                        className="flex-1 bg-orange-600 hover:bg-orange-700"
+                      >
+                        Accepter
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         )}
