@@ -187,7 +187,7 @@ export default function DriverApp() {
         });
       }
     }
-  }, [conversations.map(c => `${c.id}-${c.unread_count_driver}`).join(','), conversations]);
+  }, [conversations]);
 
   const totalUnreadMessages = conversations.reduce((sum, c) => sum + (c.unread_count_driver || 0), 0);
   const unreadNotifications = notifications.filter(n => !n.read).length;
