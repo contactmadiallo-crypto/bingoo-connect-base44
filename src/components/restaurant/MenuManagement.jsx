@@ -62,9 +62,9 @@ export default function MenuManagement({ restaurant, menuItems }) {
 
   const toggleAvailabilityMutation = useMutation({
     mutationFn: ({ id, available }) => base44.entities.MenuItem.update(id, { available }),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast.success(available ? "Article maintenant disponible" : "Article marqué indisponible");
+      toast.success(variables.available ? "Article maintenant disponible" : "Article marqué indisponible");
     },
   });
 

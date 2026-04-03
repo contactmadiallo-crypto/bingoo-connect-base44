@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart, LogOut, User } from "lucide-react";
@@ -27,139 +26,47 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navigationItems = [
-  {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Projects",
-    url: createPageUrl("Projects"),
-    icon: FolderKanban,
-  },
-  {
-    title: "Calendar",
-    url: createPageUrl("Calendar"),
-    icon: Calendar,
-  },
-  {
-    title: "Finance",
-    url: createPageUrl("Finance"),
-    icon: DollarSign,
-  },
-  {
-    title: "Reports",
-    url: createPageUrl("Reports"),
-    icon: BarChart3,
-  },
-  {
-    title: "Files",
-    url: createPageUrl("Files"),
-    icon: FileText,
-  },
-  {
-    title: "Team",
-    url: createPageUrl("Team"),
-    icon: Users,
-  },
+  { title: "Dashboard", url: "/Dashboard", icon: LayoutDashboard },
+  { title: "Projects", url: "/Projects", icon: FolderKanban },
+  { title: "Calendar", url: "/Calendar", icon: Calendar },
+  { title: "Finance", url: "/Finance", icon: DollarSign },
+  { title: "Reports", url: "/Reports", icon: BarChart3 },
+  { title: "Files", url: "/Files", icon: FileText },
+  { title: "Team", url: "/Team", icon: Users },
 ];
 
 const customerItems = [
-  {
-    title: "Order Food",
-    url: createPageUrl("CustomerApp"),
-    icon: ShoppingBag,
-  },
-  {
-    title: "Track Order",
-    url: createPageUrl("OrderTracking"),
-    icon: MapPin,
-  },
+  { title: "Order Food", url: "/CustomerApp", icon: ShoppingBag },
+  { title: "Track Order", url: "/OrderTracking", icon: MapPin },
 ];
 
 const restaurantItems = [
-  {
-    title: "Menu",
-    url: createPageUrl("RestaurantMenu"),
-    icon: UtensilsCrossed,
-  },
-  {
-    title: "Kitchen",
-    url: createPageUrl("KitchenView"),
-    icon: ChefHat,
-  },
-  {
-    title: "Admin",
-    url: createPageUrl("RestaurantAdmin"),
-    icon: Settings,
-  },
+  { title: "Menu", url: "/RestaurantMenu", icon: UtensilsCrossed },
+  { title: "Kitchen", url: "/KitchenView", icon: ChefHat },
+  { title: "Admin", url: "/RestaurantAdmin", icon: Settings },
 ];
 
 const marketplaceItems = [
-  {
-    title: "Join Marketplace",
-    url: createPageUrl("MarketplaceOnboarding"),
-    icon: Store,
-  },
-  {
-    title: "Join as Driver",
-    url: createPageUrl("DriverSignup"),
-    icon: UserPlus,
-  },
+  { title: "Join Marketplace", url: "/MarketplaceOnboarding", icon: Store },
+  { title: "Join as Driver", url: "/DriverSignup", icon: UserPlus },
 ];
 
 const platformItems = [
-  {
-    title: "Platform Finance",
-    url: createPageUrl("PlatformFinance"),
-    icon: TrendingUp,
-  },
-  {
-    title: "Restaurant Mgmt",
-    url: createPageUrl("RestaurantManagement"),
-    icon: Building2,
-  },
-  {
-    title: "Restaurant Analytics",
-    url: createPageUrl("RestaurantAnalytics"),
-    icon: LineChart,
-  },
-  {
-    title: "Order Mgmt",
-    url: createPageUrl("OrderManagement"),
-    icon: ClipboardList,
-  },
-  {
-    title: "Driver Tracking",
-    url: createPageUrl("DriverTracking"),
-    icon: Radio,
-  },
+  { title: "Platform Finance", url: "/PlatformFinance", icon: TrendingUp },
+  { title: "Restaurant Mgmt", url: "/RestaurantManagement", icon: Building2 },
+  { title: "Restaurant Analytics", url: "/RestaurantAnalytics", icon: LineChart },
+  { title: "Order Mgmt", url: "/OrderManagement", icon: ClipboardList },
+  { title: "Driver Tracking", url: "/DriverTracking", icon: Radio },
 ];
 
 const deliveryItems = [
-  {
-    title: "Driver App",
-    url: createPageUrl("DriverApp"),
-    icon: Navigation,
-  },
-  {
-    title: "Earnings",
-    url: createPageUrl("DriverEarnings"),
-    icon: Wallet,
-  },
-  {
-    title: "Partner Dashboard",
-    url: createPageUrl("DeliveryPartnerDashboard"),
-    icon: Package,
-  },
+  { title: "Driver App", url: "/DriverApp", icon: Navigation },
+  { title: "Earnings", url: "/DriverEarnings", icon: Wallet },
+  { title: "Partner Dashboard", url: "/DeliveryPartnerDashboard", icon: Package },
 ];
 
 const quickActions = [
-  {
-    title: "Add Work",
-    url: createPageUrl("AddWork"),
-    icon: Plus,
-  },
+  { title: "Add Work", url: "/AddWork", icon: Plus },
 ];
 
 export default function Layout({ children, currentPageName }) {
