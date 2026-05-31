@@ -35,6 +35,8 @@ export default function ProfileEditor({ user }) {
     booking_restricted_emails: [],
     business_hours: {},
     show_location: true,
+    bg_style: "clean",
+    button_style: "pill",
   });
 
   const { data: profiles = [] } = useQuery({
@@ -73,6 +75,8 @@ export default function ProfileEditor({ user }) {
         booking_restricted_emails: profile.booking_restricted_emails || [],
         business_hours: profile.business_hours || {},
         show_location: profile.show_location !== false,
+        bg_style: profile.bg_style || "clean",
+        button_style: profile.button_style || "pill",
       });
     } else if (user) {
       setForm(f => ({ ...f, display_name: user.full_name || "", email: user.email || "" }));
@@ -233,9 +237,38 @@ export default function ProfileEditor({ user }) {
               ))}
             </div>
           </div>
+
           <div>
             <Label className="font-semibold block mb-3">Profile Layout</Label>
             <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color} />
+          </div>
+
+          <div>
+            <Label className="font-semibold block mb-2">Page Background</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {[{v:"clean",label:"Clean White",desc:"Simple & neutral"},{v:"gradient",label:"Soft Gradient",desc:"Colour wash"},{v:"mesh",label:"Mesh",desc:"Dual tone blend"},{v:"night",label:"Night",desc:"Dark atmosphere"}].map(o => (
+                <button key={o.v} onClick={() => setForm(f => ({ ...f, bg_style: o.v }))}
+                  className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${form.bg_style === o.v ? "border-blue-500 bg-blue-50" : "border-slate-100 hover:border-slate-300"}`}>
+                  <div>
+                    <p className={`text-xs font-bold ${form.bg_style === o.v ? "text-blue-600" : "text-slate-700"}`}>{o.label}</p>
+                    <p className="text-[11px] text-slate-400">{o.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label className="font-semibold block mb-2">Button Style</Label>
+            <div className="flex gap-2">
+              {[{v:"pill",label:"Pill"},{v:"rounded",label:"Rounded"},{v:"sharp",label:"Sharp"}].map(o => (
+                <button key={o.v} onClick={() => setForm(f => ({ ...f, button_style: o.v }))}
+                  className={`flex-1 py-2.5 text-xs font-bold border-2 transition-all ${form.button_style === o.v ? "border-blue-500 bg-blue-50 text-blue-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
+                  style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

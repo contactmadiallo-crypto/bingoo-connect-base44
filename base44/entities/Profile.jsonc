@@ -16,15 +16,13 @@
       "type": "string"
     },
     "company_logo": {
-      "type": "string",
-      "description": "URL to company/business logo"
+      "type": "string"
     },
     "bio": {
       "type": "string"
     },
     "profile_photo": {
-      "type": "string",
-      "description": "URL to profile photo"
+      "type": "string"
     },
     "cover_color": {
       "type": "string",
@@ -40,6 +38,27 @@
         "split"
       ],
       "default": "classic"
+    },
+    "bg_style": {
+      "type": "string",
+      "enum": [
+        "clean",
+        "gradient",
+        "mesh",
+        "night"
+      ],
+      "default": "clean",
+      "description": "Page background atmosphere"
+    },
+    "button_style": {
+      "type": "string",
+      "enum": [
+        "pill",
+        "rounded",
+        "sharp"
+      ],
+      "default": "pill",
+      "description": "Button corner style"
     },
     "phone": {
       "type": "string"
@@ -58,8 +77,7 @@
     },
     "show_location": {
       "type": "boolean",
-      "default": true,
-      "description": "Whether to display the address on the public profile"
+      "default": true
     },
     "facebook_url": {
       "type": "string"
@@ -94,24 +112,20 @@
     },
     "booking_enabled": {
       "type": "boolean",
-      "default": false,
-      "description": "Allow visitors to book appointments"
+      "default": false
     },
     "booking_slot_duration": {
       "type": "number",
-      "default": 30,
-      "description": "Slot duration in minutes"
+      "default": 30
     },
     "booking_restricted_emails": {
       "type": "array",
       "items": {
         "type": "string"
-      },
-      "description": "If not empty, only these emails can book."
+      }
     },
     "business_hours": {
       "type": "object",
-      "description": "Weekly schedule keyed by day. Each day: { enabled: bool, start: 'HH:MM', end: 'HH:MM' }",
       "properties": {
         "monday": {
           "type": "object"
