@@ -1,4 +1,3 @@
-import Dashboard from './pages/Dashboard';
 import AddWork from './pages/AddWork';
 import Projects from './pages/Projects';
 import Finance from './pages/Finance';
@@ -27,7 +26,7 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
+
     "AddWork": AddWork,
     "Projects": Projects,
     "Finance": Finance,
@@ -55,7 +54,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Dashboard",
+    mainPage: "CustomerApp",
     Pages: PAGES,
     Layout: __Layout,
 };

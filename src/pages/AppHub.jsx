@@ -31,7 +31,7 @@ export default function AppHub() {
 
         {/* FoodHub */}
         <Link
-          to="/Dashboard"
+          to="/CustomerApp"
           className="group bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 rounded-2xl p-8 flex flex-col gap-4 transition-all duration-300 shadow-xl shadow-orange-900/40 hover:scale-105"
         >
           <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
