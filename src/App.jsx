@@ -51,7 +51,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* ── HUB ── */}
-      <Route path="/" element={<AppHub />} />
+      <Route path="/" element={<Landing />} />
 
       {/* ── BINGOO CONNECT ── */}
       <Route path="/bingoo-home" element={<Landing />} />
