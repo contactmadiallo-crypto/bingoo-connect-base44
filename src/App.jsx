@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
+import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
@@ -14,6 +15,11 @@ import Pricing from './pages/Pricing';
 import NFCRedirect from './pages/NFCRedirect';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+
+const { Pages, Layout } = pagesConfig;
+const LayoutWrapper = ({ children, currentPageName }) => Layout
+  ? <Layout currentPageName={currentPageName}>{children}</Layout>
+  : <>{children}</>;
 
 
 
@@ -43,12 +49,27 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      {/* ── BINGOO CONNECT ── */}
       <Route path="/" element={<Landing />} />
       <Route path="/bingoo" element={<BingooDashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
+
+      {/* ── FOODHUB (original project) ── */}
+      {Object.entries(Pages).map(([path, Page]) => (
+        <Route
+          key={path}
+          path={`/${path}`}
+          element={
+            <LayoutWrapper currentPageName={path}>
+              <Page />
+            </LayoutWrapper>
+          }
+        />
+      ))}
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
