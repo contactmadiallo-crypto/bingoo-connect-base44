@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
-  ExternalLink, Copy, Eye, BarChart3, User, LogOut, Check, Smartphone, Settings
+  ExternalLink, Copy, Eye, BarChart3, User, LogOut, Check, Smartphone, Settings, Camera, Trash2
 } from "lucide-react";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 
@@ -88,6 +88,19 @@ export default function Dashboard() {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileUrl)}&color=1e293b`;
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const [uploading, setUploading] = useState(false);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, profile_photo: file_url }));
+    setUploading(false);
+  };
+
+  const removePhoto = () => setForm(f => ({ ...f, profile_photo: "" }));
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -236,6 +249,37 @@ export default function Dashboard() {
               <Card className="border-slate-100">
                 <CardHeader><CardTitle className="text-base">Basic Information</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Profile Photo */}
+                  <div className="flex flex-col items-center gap-3 pb-2">
+                    <div className="relative">
+                      {form.profile_photo ? (
+                        <img src={form.profile_photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
+                      ) : (
+                        <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg flex items-center justify-center text-4xl font-black text-white" style={{ background: form.cover_color || "#2563eb" }}>
+                          {form.display_name?.charAt(0) || "?"}
+                        </div>
+                      )}
+                      <label className="absolute bottom-0 right-0 w-8 h-8 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center cursor-pointer shadow-md transition-colors">
+                        {uploading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Camera className="w-4 h-4 text-white" />}
+                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className={`cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                        {uploading ? "Uploading..." : "Change Photo"}
+                        <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                      </label>
+                      {form.profile_photo && (
+                        <>
+                          <span className="text-slate-300">·</span>
+                          <button onClick={removePhoto} className="text-sm text-red-500 hover:text-red-600 font-medium transition-colors flex items-center gap-1">
+                            <Trash2 className="w-3.5 h-3.5" /> Remove
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
                   <div>
                     <Label>Username <span className="text-red-500">*</span></Label>
                     <div className="flex mt-1">
