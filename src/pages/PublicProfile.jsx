@@ -1,4 +1,6 @@
 import { useParams } from "react-router-dom";
+import { useState } from "react";
+import RequestInfoModal from "@/components/bingoo/RequestInfoModal";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useEffect } from "react";
@@ -80,7 +82,7 @@ const useProfileLinks = (profile) => {
 };
 
 // ── LAYOUT: Classic ─────────────────────────────────────────────────────────
-function LayoutClassic({ profile, track }) {
+function LayoutClassic({ profile, track, requestInfoBtn }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
   return (
@@ -102,6 +104,7 @@ function LayoutClassic({ profile, track }) {
               {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-800 text-white flex-col py-3 gap-0.5 text-xs" />)}
             </div>
             <Btn onClick={() => { track("save_contact_click"); generateVCF(profile); }} emoji="💾" label="Save Contact" className="bg-blue-50 text-blue-700 border border-blue-100 mb-3 hover:bg-blue-100" />
+            {requestInfoBtn && <div className="mb-3">{requestInfoBtn}</div>}
             <div className="space-y-2">
               {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-50 text-slate-800 border border-slate-100 hover:bg-slate-100" />)}
             </div>
@@ -114,7 +117,7 @@ function LayoutClassic({ profile, track }) {
 }
 
 // ── LAYOUT: Minimal ─────────────────────────────────────────────────────────
-function LayoutMinimal({ profile, track }) {
+function LayoutMinimal({ profile, track, requestInfoBtn }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
   return (
@@ -133,6 +136,7 @@ function LayoutMinimal({ profile, track }) {
           {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="text-white flex-col py-3 gap-0.5 text-xs" style={{ background: color }} />)}
         </div>
         <Btn onClick={() => { track("save_contact_click"); generateVCF(profile); }} emoji="💾" label="Save Contact" className="border mb-3" style={{ borderColor: color, color }} />
+        {requestInfoBtn && <div className="mb-3">{requestInfoBtn}</div>}
         <div className="space-y-2">
           {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-50 text-slate-700 border border-slate-100 hover:bg-slate-100" />)}
         </div>
@@ -143,7 +147,7 @@ function LayoutMinimal({ profile, track }) {
 }
 
 // ── LAYOUT: Dark ─────────────────────────────────────────────────────────────
-function LayoutDark({ profile, track }) {
+function LayoutDark({ profile, track, requestInfoBtn }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
   return (
@@ -164,6 +168,7 @@ function LayoutDark({ profile, track }) {
               {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="text-white flex-col py-3 gap-0.5 text-xs rounded-2xl" style={{ background: color }} />)}
             </div>
             <Btn onClick={() => { track("save_contact_click"); generateVCF(profile); }} emoji="💾" label="Save Contact" className="bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700" />
+            {requestInfoBtn && <div>{requestInfoBtn}</div>}
             <div className="space-y-2">
               {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700" />)}
             </div>
@@ -176,7 +181,7 @@ function LayoutDark({ profile, track }) {
 }
 
 // ── LAYOUT: Bold ─────────────────────────────────────────────────────────────
-function LayoutBold({ profile, track }) {
+function LayoutBold({ profile, track, requestInfoBtn }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
   return (
@@ -196,6 +201,7 @@ function LayoutBold({ profile, track }) {
             {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-white text-slate-800 flex-col py-3 gap-0.5 text-xs hover:bg-white/90" />)}
           </div>
           <Btn onClick={() => { track("save_contact_click"); generateVCF(profile); }} emoji="💾" label="Save Contact" className="bg-white/20 text-white border border-white/30 hover:bg-white/30" />
+          {requestInfoBtn && <div>{requestInfoBtn}</div>}
           <div className="space-y-2">
             {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-white/15 text-white border border-white/20 hover:bg-white/25" />)}
           </div>
@@ -207,7 +213,7 @@ function LayoutBold({ profile, track }) {
 }
 
 // ── LAYOUT: Split ─────────────────────────────────────────────────────────────
-function LayoutSplit({ profile, track }) {
+function LayoutSplit({ profile, track, requestInfoBtn }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
   return (
@@ -229,6 +235,7 @@ function LayoutSplit({ profile, track }) {
               {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="text-white flex-col py-3 gap-0.5 text-xs" style={{ background: color }} />)}
             </div>
             <Btn onClick={() => { track("save_contact_click"); generateVCF(profile); }} emoji="💾" label="Save Contact" className="border mb-2 hover:bg-slate-50" style={{ borderColor: color, color }} />
+            {requestInfoBtn && <div className="mb-2">{requestInfoBtn}</div>}
             <div className="space-y-2">
               {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-50 text-slate-700 border border-slate-100 hover:bg-slate-100" />)}
             </div>
@@ -237,6 +244,19 @@ function LayoutSplit({ profile, track }) {
         <p className="text-center text-slate-400 text-xs mt-4">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
       </div>
     </div>
+  );
+}
+
+// ── Request Info button ─────────────────────────────────────────────────────
+function RequestInfoBtn({ profileId, color }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95 shadow-sm border-2" style={{ borderColor: color, color }}>
+        📋 Request Info
+      </button>
+      {open && <RequestInfoModal profileId={profileId} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 
@@ -272,5 +292,5 @@ export default function PublicProfile() {
   const track = (eventType) => trackEvent(profile.id, eventType);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
 
-  return <Layout profile={profile} track={track} />;
+  return <Layout profile={profile} track={track} requestInfoBtn={<RequestInfoBtn profileId={profile.id} color={profile.cover_color || "#2563eb"} />} />;
 }

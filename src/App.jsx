@@ -10,6 +10,10 @@ import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import PublicProfile from './pages/PublicProfile';
+import BingooDashboard from './pages/BingooDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import Pricing from './pages/Pricing';
+import NFCRedirect from './pages/NFCRedirect';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -61,6 +65,10 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/p/:username" element={<PublicProfile />} />
+      <Route path="/bingoo" element={<BingooDashboard />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
