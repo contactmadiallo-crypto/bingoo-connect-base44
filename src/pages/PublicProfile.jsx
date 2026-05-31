@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import RequestInfoModal from "@/components/bingoo/RequestInfoModal";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
@@ -161,6 +162,9 @@ const PoweredBy = ({ color, dark }) => (
   </p>
 );
 
+// ── Responsive size tokens ───────────────────────────────────────────────────
+const rz = (mobile, small, large) => mobile ? small : large;
+
 // ── Ambient orbs background ───────────────────────────────────────────────────
 const AmbientBg = ({ color, dark }) => (
   <>
@@ -173,7 +177,7 @@ const AmbientBg = ({ color, dark }) => (
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: CLASSIC — floating avatar with ring, ambient glow
 // ────────────────────────────────────────────────────────────────────────────
-function LayoutClassic({ profile, track }) {
+function LayoutClassic({ profile, track, mobile }) {
   const { primary, secondary } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
@@ -189,13 +193,13 @@ function LayoutClassic({ profile, track }) {
     : "#f0f4f8";
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "28px 16px 56px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 48px" : "28px 16px 56px", position: "relative", overflow: "hidden" }}>
       <AmbientBg color={color} dark={dark} />
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
-        <div style={{ borderRadius: 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)` }}>
+      <div style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? "0 0 28px 28px" : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)` }}>
 
           {/* Cover banner */}
-          <div style={{ height: 180, borderRadius: "32px 32px 0 0", position: "relative", background: `linear-gradient(135deg, ${color} 0%, ${color}99 60%, ${color}44 100%)`, overflow: "hidden" }}>
+          <div style={{ height: mobile ? 150 : 180, borderRadius: mobile ? 0 : "32px 32px 0 0", position: "relative", background: `linear-gradient(135deg, ${color} 0%, ${color}99 60%, ${color}44 100%)`, overflow: "hidden" }}>
             {/* Shimmer layer */}
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg,rgba(255,255,255,0.22) 0%,transparent 50%,rgba(255,255,255,0.06) 100%)" }} />
             {/* Dot pattern */}
@@ -209,17 +213,17 @@ function LayoutClassic({ profile, track }) {
           </div>
 
           {/* Body — avatar floats cleanly without overflow:hidden on card */}
-          <div style={{ padding: "0 26px 32px" }}>
+          <div style={{ padding: mobile ? "0 16px 28px" : "0 26px 32px" }}>
             {/* Avatar floated up, outside the cover */}
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: -52, marginBottom: 18, position: "relative" }}>
-              <Avatar profile={profile} size={96} ring />
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: mobile ? -40 : -52, marginBottom: 14, position: "relative" }}>
+              <Avatar profile={profile} size={mobile ? 78 : 96} ring />
               {profile.plan !== "free" && (
                 <span style={{ marginBottom: 4, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 999, background: `linear-gradient(135deg,${color},${color}99)`, color: "#fff", boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }}>PRO</span>
               )}
             </div>
 
             {/* Identity */}
-            <h1 style={{ margin: "0 0 4px", fontSize: 26, fontWeight: 900, color: headColor, lineHeight: 1.15, letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: headColor, lineHeight: 1.15, letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
             {profile.job_title && <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}bb)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
             {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: subColor, fontWeight: 500 }}>{profile.company_name}</p>}
             {profile.bio && (
@@ -261,7 +265,7 @@ function LayoutClassic({ profile, track }) {
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: MINIMAL — centered, no cover, ultra-clean with color accents
 // ────────────────────────────────────────────────────────────────────────────
-function LayoutMinimal({ profile, track }) {
+function LayoutMinimal({ profile, track, mobile }) {
   const { primary, secondary } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
@@ -271,18 +275,18 @@ function LayoutMinimal({ profile, track }) {
   const bgBase = dark ? "linear-gradient(160deg,#08091a 0%,#0d1022 100%)" : `radial-gradient(at 50% 0%,${hexRgb(color,0.1)},transparent 60%),#f1f5f9`;
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: "44px 16px 64px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: mobile ? "0" : "44px 16px 64px", position: "relative", overflow: "hidden" }}>
       <AmbientBg color={color} dark={dark} />
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
-        <div style={{ borderRadius: 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
+      <div style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 18px 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
           {/* Color bar */}
           <div style={{ width: 48, height: 5, borderRadius: 999, background: `linear-gradient(90deg,${color},${color}66)`, marginBottom: 28, boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }} />
 
           {/* Avatar + info */}
-          <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22 }}>
-            <Avatar profile={profile} size={76} ring />
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
+            <Avatar profile={profile} size={mobile ? 62 : 76} ring />
             <div>
-              <h1 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
+              <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 18 : 22, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
               {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
               {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: subColor }}>{profile.company_name}</p>}
             </div>
@@ -316,28 +320,28 @@ function LayoutMinimal({ profile, track }) {
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: DARK — full glassmorphism, always dark
 // ────────────────────────────────────────────────────────────────────────────
-function LayoutDark({ profile, track }) {
+function LayoutDark({ profile, track, mobile }) {
   const { primary, secondary } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#050714 0%,#0a0d1f 100%)", display: "flex", justifyContent: "center", padding: "32px 16px 60px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#050714 0%,#0a0d1f 100%)", display: "flex", justifyContent: "center", padding: mobile ? "0 0 40px" : "32px 16px 60px", position: "relative", overflow: "hidden" }}>
       {/* Multi-layer ambient glow */}
       <div style={{ position: "fixed", top: 0, left: "50%", transform: "translateX(-50%)", width: 700, height: 400, background: `radial-gradient(ellipse at 50% 0%,${hexRgb(color,0.35)},transparent 65%)`, pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "fixed", bottom: 0, left: 0, width: 400, height: 400, background: `radial-gradient(circle,${hexRgb(color,0.12)},transparent 70%)`, pointerEvents: "none", zIndex: 0 }} />
 
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
-        <div style={{ borderRadius: 32, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(32px)", boxShadow: `0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)`, overflow: "hidden" }}>
+      <div style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(32px)", boxShadow: `0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)`, overflow: "hidden" }}>
 
           {/* Top gradient accent */}
           <div style={{ height: 5, background: `linear-gradient(90deg,${color},${color}66,transparent)` }} />
 
-          <div style={{ padding: "32px 26px 36px" }}>
+          <div style={{ padding: mobile ? "24px 18px 32px" : "32px 26px 36px" }}>
             {/* Avatar + info */}
-            <div style={{ display: "flex", gap: 18, marginBottom: 24, alignItems: "center" }}>
-              <Avatar profile={profile} size={82} ring />
+            <div style={{ display: "flex", gap: 14, marginBottom: 20, alignItems: "center" }}>
+              <Avatar profile={profile} size={mobile ? 68 : 82} ring />
               <div style={{ flex: 1 }}>
-                <h1 style={{ margin: "0 0 5px", fontSize: 23, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
+                <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 19 : 23, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
                 {profile.job_title && <p style={{ margin: "0 0 3px", fontSize: 13, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}aa)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
                 {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
               </div>
@@ -372,23 +376,23 @@ function LayoutDark({ profile, track }) {
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: BOLD — immersive full-color hero, frosted card below
 // ────────────────────────────────────────────────────────────────────────────
-function LayoutBold({ profile, track }) {
+function LayoutBold({ profile, track, mobile }) {
   const { primary, secondary } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
 
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${color} 0%,${color}cc 30%,#f0f4ff 75%,#f8f0ff 100%)`, display: "flex", justifyContent: "center", padding: "0 16px 60px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${color} 0%,${color}cc 30%,#f0f4ff 75%,#f8f0ff 100%)`, display: "flex", justifyContent: "center", padding: mobile ? "0 12px 48px" : "0 16px 60px", position: "relative", overflow: "hidden" }}>
       {/* Background patterns */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "50vh", backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.12) 1px,transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
       <div style={{ position: "fixed", top: "10%", right: "-10%", width: 300, height: 300, borderRadius: "50%", background: "rgba(255,255,255,0.1)", pointerEvents: "none" }} />
 
       <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
         {/* Hero section */}
-        <div style={{ padding: "56px 0 36px", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
-            <Avatar profile={profile} size={104} ring />
+        <div style={{ padding: mobile ? "44px 0 28px" : "56px 0 36px", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
+            <Avatar profile={profile} size={mobile ? 86 : 104} ring />
           </div>
-          <h1 style={{ margin: "0 0 7px", fontSize: 30, fontWeight: 900, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.2)", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+          <h1 style={{ margin: "0 0 7px", fontSize: mobile ? 24 : 30, fontWeight: 900, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.2)", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
           {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>{profile.job_title}</p>}
           {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>{profile.company_name}</p>}
           {profile.bio && <p style={{ margin: "16px auto 0", fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.7)", maxWidth: 300 }}>{profile.bio}</p>}
@@ -419,7 +423,7 @@ function LayoutBold({ profile, track }) {
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: SPLIT — accent sidebar, modern two-tone
 // ────────────────────────────────────────────────────────────────────────────
-function LayoutSplit({ profile, track }) {
+function LayoutSplit({ profile, track, mobile }) {
   const { primary, secondary } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
@@ -429,21 +433,21 @@ function LayoutSplit({ profile, track }) {
   const bgBase = dark ? "linear-gradient(160deg,#070818 0%,#0b0e20 100%)" : `linear-gradient(150deg,${hexRgb(color,0.06)} 0%,#f1f5f9 100%)`;
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: "32px 16px 60px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", overflow: "hidden" }}>
       <AmbientBg color={color} dark={dark} />
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
-        <div style={{ borderRadius: 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", overflow: "hidden", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.65)" : "0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 #fff", display: "flex" }}>
+      <div style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", overflow: "hidden", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.65)" : "0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 #fff", display: "flex" }}>
           {/* Accent bar with gradient + dot pattern */}
           <div style={{ width: 7, flexShrink: 0, background: `linear-gradient(180deg,${color} 0%,${color}55 100%)`, position: "relative", overflow: "hidden" }}>
             <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.3) 1px,transparent 1px)", backgroundSize: "6px 12px" }} />
           </div>
 
           {/* Content */}
-          <div style={{ flex: 1, padding: "30px 24px 36px" }}>
-            <div style={{ display: "flex", gap: 16, marginBottom: 22, alignItems: "center" }}>
-              <Avatar profile={profile} size={74} ring />
+          <div style={{ flex: 1, padding: mobile ? "24px 18px 32px" : "30px 24px 36px" }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 18, alignItems: "center" }}>
+              <Avatar profile={profile} size={mobile ? 60 : 74} ring />
               <div>
-                <h1 style={{ margin: "0 0 4px", fontSize: 21, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
+                <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 17 : 21, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
                 {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
                 {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: subColor }}>{profile.company_name}</p>}
               </div>
@@ -488,6 +492,7 @@ const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, dark: LayoutDa
 
 export default function PublicProfile() {
   const { username } = useParams();
+  const mobile = useIsMobile();
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["public-profile", username],
@@ -519,5 +524,5 @@ export default function PublicProfile() {
 
   const track = (ev) => trackEvent(profile.id, ev);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
-  return <><HomeButton /><Layout profile={profile} track={track} /></>;
+  return <><HomeButton /><Layout profile={profile} track={track} mobile={mobile} /></>;
 }
