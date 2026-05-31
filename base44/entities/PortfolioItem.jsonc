@@ -1,0 +1,34 @@
+{
+  "name": "PortfolioItem",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string",
+      "description": "External link for the project"
+    },
+    "category": {
+      "type": "string",
+      "description": "e.g. Design, Dev, Photography, etc."
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "profile_id",
+    "title"
+  ]
+}

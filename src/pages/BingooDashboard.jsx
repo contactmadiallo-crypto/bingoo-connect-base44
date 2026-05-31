@@ -7,7 +7,8 @@ import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import DevicesPanel from "@/components/bingoo/DevicesPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight } from "lucide-react";
+import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -19,6 +20,7 @@ const TABS = [
   { id: "leads",         label: "Leads",         icon: Star,         color: "#f59e0b" },
   { id: "devices",       label: "My Devices",    icon: Smartphone,   color: "#06b6d4" },
   { id: "analytics",     label: "Analytics",     icon: BarChart3,    color: "#ec4899" },
+  { id: "portfolio",     label: "Portfolio",      icon: Briefcase,    color: "#8b5cf6" },
 ];
 
 const STAT_CONFIGS = [
@@ -283,6 +285,7 @@ export default function BingooDashboard() {
         {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
         {tab === "devices"      && <DevicesPanel profileId={profile?.id} />}
         {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
+        {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} />}
       </div>
     </BingooLayout>
   );

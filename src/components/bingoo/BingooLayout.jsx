@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Zap } from "lucide-react";
+import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Zap, Briefcase } from "lucide-react";
 import { useState } from "react";
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { label: "Leads",        icon: Star,            href: "/bingoo?tab=leads",         color: "from-amber-500 to-amber-600" },
   { label: "My Devices",   icon: Smartphone,      href: "/bingoo?tab=devices",       color: "from-cyan-500 to-cyan-600" },
   { label: "Analytics",    icon: BarChart3,       href: "/bingoo?tab=analytics",     color: "from-pink-500 to-pink-600" },
+  { label: "Portfolio",    icon: Briefcase,       href: "/bingoo?tab=portfolio",     color: "from-violet-500 to-violet-600" },
   { label: "Upgrade",      icon: CreditCard,      href: "/pricing",                  color: "from-orange-500 to-orange-600" },
 ];
 
