@@ -15,6 +15,10 @@
     "company_name": {
       "type": "string"
     },
+    "company_logo": {
+      "type": "string",
+      "description": "URL to company/business logo"
+    },
     "bio": {
       "type": "string"
     },

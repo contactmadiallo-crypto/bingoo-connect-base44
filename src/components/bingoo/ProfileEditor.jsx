@@ -20,11 +20,12 @@ export default function ProfileEditor({ user }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     username: "", display_name: "", job_title: "", company_name: "", bio: "",
-    cover_color: "#2563eb", profile_photo: "", cover_photo: "", layout: "classic",
+    cover_color: "#2563eb", profile_photo: "", cover_photo: "", company_logo: "", layout: "classic",
     phone: "", whatsapp_number: "", email: "", website: "", location: "",
     facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
     youtube_url: "", payment_link: "",
@@ -48,6 +49,7 @@ export default function ProfileEditor({ user }) {
         cover_color: profile.cover_color || "#2563eb",
         profile_photo: profile.profile_photo || "",
         cover_photo: profile.cover_photo || "",
+        company_logo: profile.company_logo || "",
         layout: profile.layout || "classic",
         phone: profile.phone || "",
         whatsapp_number: profile.whatsapp_number || "",
@@ -107,6 +109,14 @@ export default function ProfileEditor({ user }) {
     setCoverUploading(false);
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setLogoUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, company_logo: file_url }));
+    setLogoUploading(false);
+  };
+
   const set = (k) => (e) => { setForm(f => ({ ...f, [k]: e.target.value })); setErrors(er => ({ ...er, [k]: undefined })); };
   const field = (k, label, placeholder, type = "text") => (
     <div>
@@ -162,7 +172,27 @@ export default function ProfileEditor({ user }) {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            {/* Company Logo */}
+          <div className="mt-4">
+            <Label className="font-semibold">Company / Business Logo</Label>
+            <div className="flex items-center gap-4 mt-2">
+              {form.company_logo
+                ? <img src={form.company_logo} className="w-16 h-16 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" alt="Logo" />
+                : <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-slate-50">🏢</div>
+              }
+              <div className="flex flex-col gap-2">
+                <label className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                  {logoUploading ? <><div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><Image className="w-3.5 h-3.5" />{form.company_logo ? "Change Logo" : "Upload Logo"}</>}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={logoUploading} />
+                </label>
+                {form.company_logo && (
+                  <button onClick={() => setForm(f => ({ ...f, company_logo: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove</button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <Label>Username <span className="text-red-500">*</span></Label>
                 <div className="flex mt-1">
