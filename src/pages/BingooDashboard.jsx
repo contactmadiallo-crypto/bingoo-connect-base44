@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
@@ -26,7 +26,6 @@ const TABS = [
 ];
 
 export default function BingooDashboard() {
-  const [user, setUser] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "overview";
   const setTab = (t) => setSearchParams(t === "overview" ? {} : { tab: t });
@@ -34,9 +33,10 @@ export default function BingooDashboard() {
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const { isDark } = useBingooTheme();
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin());
-  }, []);
+  const { data: user } = useQuery({
+    queryKey: ["current-user"],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: profiles = [], refetch: refetchProfiles } = useQuery({
     queryKey: ["my-profile", user?.id],

@@ -424,6 +424,16 @@ function LayoutSplit({ profile, track }) {
   );
 }
 
+// ── Home Button ──────────────────────────────────────────────────────────────
+function HomeButton() {
+  return (
+    <a href="/"
+      style={{ position: "fixed", top: 16, left: 16, zIndex: 100, display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(12px)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)", color: "#374151", fontWeight: 700, fontSize: 13, textDecoration: "none", border: "1px solid rgba(0,0,0,0.08)" }}>
+      ← Home
+    </a>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, dark: LayoutDark, bold: LayoutBold, split: LayoutSplit };
 
@@ -460,5 +470,5 @@ export default function PublicProfile() {
 
   const track = (ev) => trackEvent(profile.id, ev);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
-  return <Layout profile={profile} track={track} />;
+  return <><HomeButton /><Layout profile={profile} track={track} /></>;
 }
