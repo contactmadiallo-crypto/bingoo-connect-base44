@@ -13,6 +13,7 @@ import {
   ExternalLink, Copy, Eye, BarChart3, User, LogOut, Check, Smartphone, Settings, Camera, Trash2
 } from "lucide-react";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
+import LayoutPicker from "@/components/bingoo/LayoutPicker";
 
 const COVER_COLORS = ["#2563eb", "#7c3aed", "#db2777", "#d97706", "#16a34a", "#0891b2", "#dc2626", "#1e293b"];
 
@@ -312,6 +313,11 @@ export default function Dashboard() {
                         <button key={c} onClick={() => setForm(f => ({ ...f, cover_color: c }))} className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${form.cover_color === c ? "border-slate-900 scale-110" : "border-transparent"}`} style={{ background: c }} />
                       ))}
                     </div>
+                  </div>
+
+                  <div>
+                    <Label className="mb-3 block font-semibold">Profile Layout</Label>
+                    <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color || "#2563eb"} />
                   </div>
                 </CardContent>
               </Card>

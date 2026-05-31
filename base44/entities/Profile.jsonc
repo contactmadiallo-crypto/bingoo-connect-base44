@@ -26,6 +26,18 @@
       "type": "string",
       "default": "#2563eb"
     },
+    "layout": {
+      "type": "string",
+      "enum": [
+        "classic",
+        "minimal",
+        "dark",
+        "bold",
+        "split"
+      ],
+      "default": "classic",
+      "description": "Visual layout style for the public profile"
+    },
     "phone": {
       "type": "string"
     },
