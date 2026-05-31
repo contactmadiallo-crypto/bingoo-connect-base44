@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Briefcase, LayoutDashboard, Plus, FolderKanban, Calendar, DollarSign, BarChart3, FileText, Users, UtensilsCrossed, ChefHat, Settings, MapPin, Truck, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart, LogOut, User } from "lucide-react";
+import { Briefcase, UtensilsCrossed, ChefHat, Settings, MapPin, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart, LogOut, User } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -25,15 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-const navigationItems = [
-  { title: "Dashboard", url: "/Dashboard", icon: LayoutDashboard },
-  { title: "Projects", url: "/Projects", icon: FolderKanban },
-  { title: "Calendar", url: "/Calendar", icon: Calendar },
-  { title: "Finance", url: "/Finance", icon: DollarSign },
-  { title: "Reports", url: "/Reports", icon: BarChart3 },
-  { title: "Files", url: "/Files", icon: FileText },
-  { title: "Team", url: "/Team", icon: Users },
-];
+
 
 const customerItems = [
   { title: "Order Food", url: "/CustomerApp", icon: ShoppingBag },
@@ -65,9 +57,7 @@ const deliveryItems = [
   { title: "Partner Dashboard", url: "/DeliveryPartnerDashboard", icon: Package },
 ];
 
-const quickActions = [
-  { title: "Add Work", url: "/AddWork", icon: Plus },
-];
+
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -98,30 +88,7 @@ export default function Layout({ children, currentPageName }) {
           </SidebarHeader>
           
           <SidebarContent className="p-3">
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
-                Main Menu
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 rounded-xl mb-1 ${
-                          location.pathname === item.url ? 'bg-blue-50 text-blue-700 shadow-sm' : ''
-                        }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                          <item.icon className="w-5 h-5" />
-                          <span className="font-medium">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+
 
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
@@ -248,28 +215,7 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
-                Quick Actions
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {quickActions.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className="hover:bg-green-50 hover:text-green-700 transition-all duration-200 rounded-xl mb-1"
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                          <item.icon className="w-5 h-5" />
-                          <span className="font-medium">{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+
             </SidebarContent>
 
             <SidebarFooter className="border-t border-slate-200 p-4">
