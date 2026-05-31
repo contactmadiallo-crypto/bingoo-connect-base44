@@ -17,7 +17,7 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user }) {
+export default function ProfileEditor({ user, onSaved }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -104,6 +104,7 @@ export default function ProfileEditor({ user }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });
       toast.success("Profile saved successfully!");
+      onSaved?.();
     },
     onError: (err) => { if (err.message !== "Validation failed") toast.error("Failed to save."); },
   });
