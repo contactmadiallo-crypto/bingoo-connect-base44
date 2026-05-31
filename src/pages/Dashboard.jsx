@@ -334,7 +334,7 @@ export default function Dashboard() {
                       { key: "whatsapp_number", label: "WhatsApp Number", placeholder: "+221 77 000 0000" },
                       { key: "email", label: "Email", placeholder: "you@example.com" },
                       { key: "website", label: "Website", placeholder: "https://yoursite.com" },
-                      { key: "location", label: "Location", placeholder: "Dakar, Senegal" },
+                      { key: "location", label: "Business Address", placeholder: "123 Rue de la République, Dakar, Senegal" },
                       { key: "payment_link", label: "Payment Link", placeholder: "https://paypal.me/..." },
                     ].map(f => (
                       <div key={f.key}>
