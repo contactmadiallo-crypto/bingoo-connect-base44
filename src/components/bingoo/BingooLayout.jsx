@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Zap, Briefcase, Sun, Moon } from "lucide-react";
+import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Zap, Briefcase, Sun, Moon, Home } from "lucide-react";
 import { useState } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
 const navItems = [
+  { label: "Home",        icon: Home,          href: "/",                         color: "from-slate-500 to-slate-600" },
   { label: "Dashboard",    icon: LayoutDashboard, href: "/bingoo",                  color: "from-blue-500 to-blue-600" },
   { label: "My Profile",   icon: User,            href: "/bingoo?tab=profile",       color: "from-violet-500 to-violet-600" },
   { label: "Appointments", icon: CalendarDays,    href: "/bingoo?tab=appointments",  color: "from-emerald-500 to-emerald-600" },
