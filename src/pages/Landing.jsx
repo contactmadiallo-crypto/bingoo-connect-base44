@@ -228,7 +228,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/dashboard">
+                <Link to="/bingoo">
                   <Button className={`w-full font-bold ${p.highlight ? "bg-white text-blue-600 hover:bg-blue-50" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
                     {p.name === "Free" ? "Get Started Free" : `Start ${p.name}`}
                   </Button>

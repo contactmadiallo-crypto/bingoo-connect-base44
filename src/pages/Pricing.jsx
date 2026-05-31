@@ -20,7 +20,7 @@ const plans = [
     ],
     missing: ["Full analytics", "Lead collection", "Custom colors", "Device management", "Export leads"],
     cta: "Get Started Free",
-    href: "/dashboard",
+    href: "/bingoo",
     highlight: false,
   },
   {
@@ -41,7 +41,7 @@ const plans = [
     ],
     missing: ["Multiple team profiles", "NFC device management", "Export leads as CSV"],
     cta: "Start Pro",
-    href: "/dashboard",
+    href: "/bingoo",
     highlight: true,
   },
   {
@@ -64,7 +64,7 @@ const plans = [
     ],
     missing: [],
     cta: "Start Business",
-    href: "/dashboard",
+    href: "/bingoo",
     highlight: false,
   },
 ];
