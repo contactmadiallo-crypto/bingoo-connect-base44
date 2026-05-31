@@ -1,0 +1,49 @@
+{
+  "name": "Profile",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "Unique URL slug (e.g. amadou)"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "avatar_url": {
+      "type": "string"
+    },
+    "cover_color": {
+      "type": "string",
+      "default": "#6366f1"
+    },
+    "whatsapp": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "free",
+        "pro",
+        "business"
+      ],
+      "default": "free"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "username",
+    "display_name"
+  ]
+}

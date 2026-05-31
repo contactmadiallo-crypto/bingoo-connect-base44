@@ -1,0 +1,52 @@
+{
+  "name": "Link",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string",
+      "description": "emoji or icon name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "website",
+        "instagram",
+        "tiktok",
+        "youtube",
+        "twitter",
+        "linkedin",
+        "whatsapp",
+        "email",
+        "phone",
+        "other"
+      ],
+      "default": "other"
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "click_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "profile_id",
+    "title",
+    "url"
+  ]
+}

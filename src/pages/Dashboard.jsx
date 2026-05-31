@@ -1,272 +1,272 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
-import { Plus, ListChecks, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
-import { differenceInMinutes } from "date-fns";
-import StatsCard from "../components/work/StatsCard";
-import WorkItem from "../components/work/WorkItem";
-import WorkFilters from "../components/work/WorkFilters";
-import QuickAddButton from "../components/work/QuickAddButton";
-import ActiveTimer from "../components/work/ActiveTimer";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { ExternalLink, Plus, Trash2, Edit2, Eye, BarChart3, User, Link as LinkIcon, LogOut, GripVertical } from "lucide-react";
+import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
+import LinkForm from "@/components/bingoo/LinkForm";
 
 export default function Dashboard() {
-  const [filters, setFilters] = useState({
-    status: "all",
-    priority: "all",
-    category: "all",
-    search: ""
-  });
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [linkFormOpen, setLinkFormOpen] = useState(false);
+  const [editingLink, setEditingLink] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: workItems, isLoading } = useQuery({
-    queryKey: ['work'],
-    queryFn: () => base44.entities.Work.list('-created_date'),
-    initialData: [],
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => base44.auth.redirectToLogin()).finally(() => setLoading(false));
+  }, []);
+
+  const { data: profiles = [] } = useQuery({
+    queryKey: ["my-profiles", user?.id],
+    queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
+    enabled: !!user?.id,
   });
 
-  const { data: sessions } = useQuery({
-    queryKey: ['sessions'],
-    queryFn: () => base44.entities.WorkSession.list('-created_date'),
-    initialData: [],
+  const profile = profiles[0];
+
+  const { data: links = [] } = useQuery({
+    queryKey: ["my-links", profile?.id],
+    queryFn: () => base44.entities.Link.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id,
   });
 
-  const createWorkMutation = useMutation({
-    mutationFn: (data) => base44.entities.Work.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work'] });
-    },
-  });
+  const [profileForm, setProfileForm] = useState({ username: "", display_name: "", bio: "", cover_color: "#6366f1", whatsapp: "", email: "", phone: "" });
 
-  const updateWorkMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Work.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work'] });
-    },
-  });
-
-  const deleteWorkMutation = useMutation({
-    mutationFn: (id) => base44.entities.Work.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work'] });
-    },
-  });
-
-  const createSessionMutation = useMutation({
-    mutationFn: (data) => base44.entities.WorkSession.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-    },
-  });
-
-  const updateSessionMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.WorkSession.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-    },
-  });
-
-  const activeSession = sessions.find(s => s.is_active);
-
-  const handleQuickAdd = async (data) => {
-    const newWork = await createWorkMutation.mutateAsync({
-      ...data,
-      status: "in_progress"
-    });
-    
-    // Automatically start timer for the new work
-    await createSessionMutation.mutateAsync({
-      work_id: newWork.id,
-      work_title: newWork.title,
-      start_time: new Date().toISOString(),
-      is_active: true
-    });
-  };
-
-  const handleStartTimer = async (work) => {
-    // Stop any active session first
-    if (activeSession) {
-      await handleStopTimer(activeSession, "");
+  useEffect(() => {
+    if (profile) {
+      setProfileForm({
+        username: profile.username || "",
+        display_name: profile.display_name || "",
+        bio: profile.bio || "",
+        cover_color: profile.cover_color || "#6366f1",
+        whatsapp: profile.whatsapp || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+      });
     }
+  }, [profile?.id]);
 
-    // Update work status to in_progress
-    await updateWorkMutation.mutateAsync({
-      id: work.id,
-      data: { ...work, status: "in_progress" }
-    });
+  const saveProfile = useMutation({
+    mutationFn: () => profile
+      ? base44.entities.Profile.update(profile.id, profileForm)
+      : base44.entities.Profile.create({ ...profileForm, is_active: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-profiles"] });
+      toast.success("Profile saved!");
+    },
+  });
 
-    // Create new session
-    await createSessionMutation.mutateAsync({
-      work_id: work.id,
-      work_title: work.title,
-      start_time: new Date().toISOString(),
-      is_active: true
-    });
-  };
+  const createLink = useMutation({
+    mutationFn: (data) => base44.entities.Link.create({ ...data, profile_id: profile.id, is_active: true, click_count: 0 }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["my-links"] }); toast.success("Link added!"); },
+  });
 
-  const handleStopTimer = async (session, notes) => {
-    const endTime = new Date();
-    const startTime = new Date(session.start_time);
-    const durationMinutes = differenceInMinutes(endTime, startTime);
+  const updateLink = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Link.update(id, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["my-links"] }); toast.success("Link updated!"); },
+  });
 
-    await updateSessionMutation.mutateAsync({
-      id: session.id,
-      data: {
-        end_time: endTime.toISOString(),
-        duration_minutes: durationMinutes,
-        is_active: false,
-        notes: notes || undefined
-      }
-    });
-  };
+  const deleteLink = useMutation({
+    mutationFn: (id) => base44.entities.Link.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["my-links"] }); toast.success("Link deleted!"); },
+  });
 
-  const handleStatusChange = (work) => {
-    const statusOrder = ['pending', 'in_progress', 'completed'];
-    const currentIndex = statusOrder.indexOf(work.status);
-    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
-    
-    updateWorkMutation.mutate({
-      id: work.id,
-      data: { ...work, status: nextStatus }
-    });
-  };
+  const toggleLink = useMutation({
+    mutationFn: ({ id, is_active }) => base44.entities.Link.update(id, { is_active }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-links"] }),
+  });
 
-  const handleEdit = (work) => {
-    const url = `${createPageUrl("AddWork")}?id=${work.id}`;
-    window.location.href = url;
-  };
-
-  const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete this work item?")) {
-      deleteWorkMutation.mutate(id);
+  const handleLinkSave = (data) => {
+    if (editingLink) {
+      updateLink.mutate({ id: editingLink.id, data });
+      setEditingLink(null);
+    } else {
+      createLink.mutate({ ...data, order: links.length });
     }
   };
 
-  const getWorkTotalHours = (workId) => {
-    const workSessions = sessions.filter(s => s.work_id === workId && !s.is_active);
-    const totalMinutes = workSessions.reduce((sum, s) => sum + (s.duration_minutes || 0), 0);
-    return totalMinutes / 60;
-  };
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" /></div>;
 
-  const filteredWork = workItems.filter(work => {
-    const matchesStatus = filters.status === "all" || work.status === filters.status;
-    const matchesPriority = filters.priority === "all" || work.priority === filters.priority;
-    const matchesCategory = filters.category === "all" || work.category === filters.category;
-    const matchesSearch = !filters.search || 
-      work.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-      work.description?.toLowerCase().includes(filters.search.toLowerCase());
-    
-    return matchesStatus && matchesPriority && matchesCategory && matchesSearch;
-  });
-
-  const stats = {
-    total: workItems.length,
-    pending: workItems.filter(w => w.status === 'pending').length,
-    inProgress: workItems.filter(w => w.status === 'in_progress').length,
-    completed: workItems.filter(w => w.status === 'completed').length,
-  };
+  const sortedLinks = [...links].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const profileUrl = `${window.location.origin}/p/${profile?.username}`;
 
   return (
-    <div className="p-4 md:p-8 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">
-              Work Dashboard
-            </h1>
-            <p className="text-slate-600">Track and manage your pending work items</p>
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <header className="bg-white border-b px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+            <span className="text-xl font-bold text-slate-900">Bingoo</span>
+            <Badge variant="outline" className="text-xs text-indigo-600 border-indigo-200">Dashboard</Badge>
           </div>
-          <Link to={createPageUrl("AddWork")}>
-            <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-lg shadow-blue-500/30 w-full md:w-auto">
-              <Plus className="w-5 h-5 mr-2" />
-              Add New Work
+          <div className="flex items-center gap-3">
+            {profile && (
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Eye className="w-4 h-4" /> Preview
+                </Button>
+              </a>
+            )}
+            <Button variant="ghost" size="sm" onClick={() => base44.auth.logout()} className="gap-2 text-slate-500">
+              <LogOut className="w-4 h-4" />
             </Button>
-          </Link>
-        </div>
-
-        <ActiveTimer 
-          session={activeSession} 
-          onStop={handleStopTimer}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <StatsCard 
-            title="Total Work" 
-            value={stats.total}
-            icon={ListChecks}
-            gradient="bg-gradient-to-br from-blue-500 to-blue-600"
-            delay={0}
-          />
-          <StatsCard 
-            title="Pending" 
-            value={stats.pending}
-            icon={Clock}
-            gradient="bg-gradient-to-br from-slate-500 to-slate-600"
-            delay={0.1}
-          />
-          <StatsCard 
-            title="In Progress" 
-            value={stats.inProgress}
-            icon={AlertCircle}
-            gradient="bg-gradient-to-br from-purple-500 to-purple-600"
-            delay={0.2}
-          />
-          <StatsCard 
-            title="Completed" 
-            value={stats.completed}
-            icon={CheckCircle}
-            gradient="bg-gradient-to-br from-green-500 to-green-600"
-            delay={0.3}
-          />
-        </div>
-
-        <WorkFilters filters={filters} onFilterChange={setFilters} />
-
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto" />
           </div>
-        ) : filteredWork.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ListChecks className="w-10 h-10 text-slate-400" />
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 py-8">
+        {/* Welcome */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-black text-slate-900">Hello, {user?.full_name?.split(" ")[0]} 👋</h1>
+          {profile ? (
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-slate-500 text-sm">Your profile: </p>
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="text-indigo-600 text-sm font-semibold hover:underline flex items-center gap-1">
+                bingoo.africa/p/{profile.username} <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">No work items found</h3>
-            <p className="text-slate-600 mb-6">
-              {workItems.length === 0 
-                ? "Use the quick add button below to get started" 
-                : "Try adjusting your filters"}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <AnimatePresence>
-              {filteredWork.map((work) => (
-                <WorkItem
-                  key={work.id}
-                  work={work}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onStatusChange={handleStatusChange}
-                  onStartTimer={handleStartTimer}
-                  onStopTimer={handleStopTimer}
-                  isTimerActive={activeSession?.work_id === work.id}
-                  totalHours={getWorkTotalHours(work.id)}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+          ) : (
+            <p className="text-slate-500 text-sm mt-1">Set up your profile to get started.</p>
+          )}
+        </div>
 
-        <QuickAddButton 
-          onQuickAdd={handleQuickAdd}
-          isSubmitting={createWorkMutation.isPending || createSessionMutation.isPending}
-        />
-      </div>
+        <Tabs defaultValue="profile">
+          <TabsList className="mb-6">
+            <TabsTrigger value="profile" className="gap-2"><User className="w-4 h-4" /> Profile</TabsTrigger>
+            <TabsTrigger value="links" className="gap-2" disabled={!profile}><LinkIcon className="w-4 h-4" /> Links</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2" disabled={!profile}><BarChart3 className="w-4 h-4" /> Analytics</TabsTrigger>
+          </TabsList>
+
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Profile</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Username *</Label>
+                    <div className="flex mt-1">
+                      <span className="inline-flex items-center px-3 bg-slate-100 border border-r-0 rounded-l-md text-slate-500 text-sm">/p/</span>
+                      <Input
+                        className="rounded-l-none"
+                        placeholder="amadou"
+                        value={profileForm.username}
+                        onChange={e => setProfileForm({ ...profileForm, username: e.target.value.toLowerCase().replace(/\s/g, "") })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Display Name *</Label>
+                    <Input className="mt-1" placeholder="Amadou Diallo" value={profileForm.display_name} onChange={e => setProfileForm({ ...profileForm, display_name: e.target.value })} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Bio</Label>
+                  <Textarea className="mt-1" placeholder="Real Estate Agent · Dakar" value={profileForm.bio} onChange={e => setProfileForm({ ...profileForm, bio: e.target.value })} rows={2} />
+                </div>
+                <div>
+                  <Label>Cover Color</Label>
+                  <div className="flex gap-3 mt-2 flex-wrap">
+                    {["#6366f1", "#8b5cf6", "#ec4899", "#f59e0b", "#10b981", "#0ea5e9", "#ef4444", "#1e293b"].map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setProfileForm({ ...profileForm, cover_color: c })}
+                        className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${profileForm.cover_color === c ? "border-slate-900 scale-110" : "border-transparent"}`}
+                        style={{ background: c }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>WhatsApp</Label>
+                    <Input className="mt-1" placeholder="+221 77 000 0000" value={profileForm.whatsapp} onChange={e => setProfileForm({ ...profileForm, whatsapp: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input className="mt-1" placeholder="you@example.com" value={profileForm.email} onChange={e => setProfileForm({ ...profileForm, email: e.target.value })} />
+                  </div>
+                  <div>
+                    <Label>Phone</Label>
+                    <Input className="mt-1" placeholder="+221 77 000 0000" value={profileForm.phone} onChange={e => setProfileForm({ ...profileForm, phone: e.target.value })} />
+                  </div>
+                </div>
+                <Button onClick={() => saveProfile.mutate()} disabled={saveProfile.isPending} className="bg-indigo-600 hover:bg-indigo-700">
+                  {saveProfile.isPending ? "Saving..." : "Save Profile"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Links Tab */}
+          <TabsContent value="links">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Your Links</CardTitle>
+                <Button onClick={() => { setEditingLink(null); setLinkFormOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+                  <Plus className="w-4 h-4" /> Add Link
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {sortedLinks.length === 0 ? (
+                  <div className="text-center py-12 text-slate-400">
+                    <LinkIcon className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    <p>No links yet. Add your first one!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sortedLinks.map(link => (
+                      <div key={link.id} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                        <GripVertical className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                        <span className="text-xl">{link.icon || "🔗"}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-800 text-sm">{link.title}</p>
+                          <p className="text-xs text-slate-400 truncate">{link.url}</p>
+                        </div>
+                        <Badge variant="outline" className="text-xs hidden sm:flex">{link.click_count || 0} clicks</Badge>
+                        <Switch
+                          checked={link.is_active}
+                          onCheckedChange={v => toggleLink.mutate({ id: link.id, is_active: v })}
+                        />
+                        <button onClick={() => { setEditingLink(link); setLinkFormOpen(true); }} className="text-slate-400 hover:text-indigo-600">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => { if (confirm("Delete this link?")) deleteLink.mutate(link.id); }} className="text-slate-400 hover:text-red-500">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <AnalyticsPanel profileId={profile?.id} />
+          </TabsContent>
+        </Tabs>
+      </main>
+
+      <LinkForm
+        open={linkFormOpen}
+        onOpenChange={setLinkFormOpen}
+        onSave={handleLinkSave}
+        initial={editingLink}
+      />
     </div>
   );
 }

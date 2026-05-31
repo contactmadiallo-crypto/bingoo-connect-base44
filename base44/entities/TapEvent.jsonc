@@ -1,0 +1,39 @@
+{
+  "name": "TapEvent",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "link_id": {
+      "type": "string",
+      "description": "set if a link was clicked"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "tap",
+        "link_click",
+        "whatsapp_click",
+        "email_click",
+        "phone_click"
+      ],
+      "default": "tap"
+    },
+    "tapped_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "country": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "profile_id",
+    "event_type",
+    "tapped_at"
+  ]
+}
