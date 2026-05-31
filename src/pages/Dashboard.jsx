@@ -21,6 +21,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
 
   const [form, setForm] = useState({
@@ -76,6 +77,7 @@ export default function Dashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });
       toast.success("Profile saved!");
+      setActiveTab("overview");
     },
   });
 
@@ -158,7 +160,7 @@ export default function Dashboard() {
           )}
         </div>
 
-        <Tabs defaultValue="overview">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 bg-white border border-slate-100">
             <TabsTrigger value="overview" className="gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"><Smartphone className="w-4 h-4" /> Overview</TabsTrigger>
             <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white"><Settings className="w-4 h-4" /> Edit Profile</TabsTrigger>
