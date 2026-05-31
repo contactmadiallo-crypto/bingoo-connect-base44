@@ -241,7 +241,7 @@ export default function ProfileEditor({ user, onSaved }) {
 
           <div>
             <Label className="font-semibold block mb-3">Profile Layout</Label>
-            <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color} />
+            <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color} plan={profile?.plan || "free"} />
           </div>
 
           <div>
