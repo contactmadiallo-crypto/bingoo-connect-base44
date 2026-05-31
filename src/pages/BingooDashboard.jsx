@@ -10,7 +10,7 @@ import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -32,6 +32,7 @@ export default function BingooDashboard() {
   const [copied, setCopied] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(undefined); // undefined=first, null=new, string=specific
+  const [profileSearch, setProfileSearch] = useState("");
   const { isDark } = useBingooTheme();
 
   const { data: user } = useQuery({
@@ -152,9 +153,42 @@ export default function BingooDashboard() {
         </div>
 
         {/* Profile Switcher */}
+        {profiles.length > 0 && (
+          <div className="mb-3">
+            <div className="relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? "text-white/30" : "text-slate-400"}`} />
+              <input
+                type="text"
+                placeholder="Search profiles by name, title, or username…"
+                value={profileSearch}
+                onChange={e => setProfileSearch(e.target.value)}
+                className={`w-full pl-9 pr-9 py-2.5 rounded-xl text-sm font-medium outline-none transition-all ${
+                  isDark
+                    ? "bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-white/20 focus:bg-white/8"
+                    : "bg-white border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-100"
+                }`}
+              />
+              {profileSearch && (
+                <button onClick={() => setProfileSearch("")}
+                  className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30 hover:text-white/60" : "text-slate-400 hover:text-slate-600"}`}>
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
         {(profiles.length > 1 || profiles.length > 0) && (
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            {profiles.map(p => (
+            {profiles.filter(p => {
+              if (!profileSearch.trim()) return true;
+              const q = profileSearch.toLowerCase();
+              return (
+                p.display_name?.toLowerCase().includes(q) ||
+                p.username?.toLowerCase().includes(q) ||
+                p.job_title?.toLowerCase().includes(q) ||
+                p.company_name?.toLowerCase().includes(q)
+              );
+            }).map(p => (
               <button key={p.id} onClick={() => { setSelectedProfileId(p.id); setTab("overview"); }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                   (profile?.id === p.id && selectedProfileId !== null) || (selectedProfileId === undefined && p.id === profiles[0]?.id)
