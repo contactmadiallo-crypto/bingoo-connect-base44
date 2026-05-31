@@ -52,7 +52,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-white font-sans">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100 px-6 py-4">
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100 px-4 py-3 md:px-6 md:py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
@@ -65,41 +65,41 @@ export default function Landing() {
             <a href="#pricing" className="hover:text-blue-600 transition-colors">Pricing</a>
             <a href="#use-cases" className="hover:text-blue-600 transition-colors">Use Cases</a>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2">
             <Link to="/bingoo">
-              <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-blue-300">Sign In</Button>
+              <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-blue-300 hidden sm:inline-flex">Sign In</Button>
             </Link>
             <Link to="/bingoo">
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200">Get Started Free</Button>
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">Get Started</Button>
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white py-24 px-6">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white py-16 md:py-24 px-4 md:px-6">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "40px 40px" }} />
         <div className="max-w-6xl mx-auto relative">
           <div className="max-w-3xl mx-auto text-center">
             <Badge className="mb-6 bg-white/20 text-white border-white/30 backdrop-blur hover:bg-white/20">
               🌍 Africa's #1 NFC Digital Identity Platform
             </Badge>
-            <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 leading-tight tracking-tight">
               One Tap.<br />
               Your Entire<br />
               <span className="text-blue-200">Business World.</span>
             </h1>
-            <p className="text-xl text-blue-100 mb-10 max-w-xl mx-auto leading-relaxed">
+            <p className="text-base md:text-xl text-blue-100 mb-8 max-w-xl mx-auto leading-relaxed">
               The smart NFC card that opens your digital profile — with analytics, leads, bookings, and everything you need to grow in Africa.
             </p>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Link to="/bingoo">
-                <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-lg px-8 py-6 rounded-2xl shadow-xl">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <Link to="/bingoo" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl shadow-xl">
                   Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Link to="/p/demo">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-2xl">
+              <Link to="/p/demo" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/40 text-white hover:bg-white/10 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl">
                   See Live Demo
                 </Button>
               </Link>
@@ -162,11 +162,11 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section id="features" className="py-24 px-6 bg-slate-50">
+      <section id="features" className="py-14 md:py-24 px-4 md:px-6 bg-slate-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Features</Badge>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4">Everything your card opens</h2>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4">Everything your card opens</h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">The NFC card is $20. The platform is what creates the recurring value.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -182,15 +182,15 @@ export default function Landing() {
       </section>
 
       {/* Use Cases */}
-      <section id="use-cases" className="py-24 px-6">
+      <section id="use-cases" className="py-14 md:py-24 px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Who uses Bingoo?</Badge>
-            <h2 className="text-4xl font-black text-slate-900 mb-4">Built for every professional</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Built for every professional</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
             {useCases.map(u => (
-              <div key={u.role} className="flex items-center gap-4 bg-slate-50 rounded-2xl p-5 hover:bg-blue-50 transition-colors border border-slate-100 hover:border-blue-100">
+              <div key={u.role} className="flex items-center gap-3 bg-slate-50 rounded-2xl p-4 hover:bg-blue-50 transition-colors border border-slate-100 hover:border-blue-100">
                 <span className="text-3xl">{u.emoji}</span>
                 <div>
                   <p className="font-bold text-slate-800 text-sm">{u.role}</p>
@@ -203,16 +203,16 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-24 px-6 bg-slate-50">
+      <section id="pricing" className="py-14 md:py-24 px-4 md:px-6 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Pricing</Badge>
-            <h2 className="text-4xl font-black text-slate-900 mb-4">Simple, transparent pricing</h2>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Simple, transparent pricing</h2>
             <p className="text-slate-500 text-lg">NFC card sold separately for $20 one-time payment.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {plans.map(p => (
-              <div key={p.name} className={`rounded-2xl p-8 border-2 transition-all ${p.highlight ? "border-blue-500 bg-blue-600 text-white shadow-2xl shadow-blue-200 scale-105" : "border-slate-200 bg-white hover:border-blue-200"}`}>
+              <div key={p.name} className={`rounded-2xl p-6 md:p-8 border-2 transition-all ${p.highlight ? "border-blue-500 bg-blue-600 text-white shadow-2xl shadow-blue-200 md:scale-105" : "border-slate-200 bg-white hover:border-blue-200"}`}>
                 {p.highlight && <Badge className="mb-3 bg-white text-blue-600 border-0">Most Popular</Badge>}
                 <p className={`text-sm font-medium mb-1 ${p.highlight ? "text-blue-100" : "text-slate-500"}`}>{p.desc}</p>
                 <h3 className={`font-black text-2xl mb-1 ${p.highlight ? "text-white" : "text-slate-900"}`}>{p.name}</h3>
@@ -240,12 +240,12 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 px-6 bg-gradient-to-br from-blue-600 to-blue-800 text-white text-center">
+      <section className="py-14 md:py-24 px-4 md:px-6 bg-gradient-to-br from-blue-600 to-blue-800 text-white text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
-          <p className="text-blue-100 text-lg mb-10">Join thousands of professionals across Africa using Bingoo Connect.</p>
+          <h2 className="text-3xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
+          <p className="text-blue-100 text-base md:text-lg mb-8">Join thousands of professionals across Africa using Bingoo Connect.</p>
           <Link to="/bingoo">
-            <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-lg px-10 py-6 rounded-2xl shadow-xl">
+            <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-2xl shadow-xl">
               Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </Link>
