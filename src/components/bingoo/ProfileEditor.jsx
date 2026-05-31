@@ -17,7 +17,7 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user, onSaved }) {
+export default function ProfileEditor({ user, onSaved, editProfileId }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -39,12 +39,19 @@ export default function ProfileEditor({ user, onSaved }) {
     button_style: "pill",
   });
 
+  // editProfileId: undefined = use first profile, null = create new, string = load specific
+  const isCreatingNew = editProfileId === null;
   const { data: profiles = [] } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
-    enabled: !!user?.id,
+    enabled: !!user?.id && editProfileId === undefined,
   });
-  const profile = profiles[0];
+  const { data: specificProfile } = useQuery({
+    queryKey: ["profile-detail", editProfileId],
+    queryFn: () => base44.entities.Profile.get(editProfileId),
+    enabled: typeof editProfileId === "string",
+  });
+  const profile = isCreatingNew ? null : typeof editProfileId === "string" ? specificProfile : profiles[0];
 
   useEffect(() => {
     if (profile) {

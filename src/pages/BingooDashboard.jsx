@@ -31,6 +31,7 @@ export default function BingooDashboard() {
   const setTab = (t) => setSearchParams(t === "overview" ? {} : { tab: t });
   const [copied, setCopied] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState(undefined); // undefined=first, null=new, string=specific
   const { isDark } = useBingooTheme();
 
   const { data: user } = useQuery({
@@ -43,23 +44,28 @@ export default function BingooDashboard() {
     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
     enabled: !!user?.id,
   });
+  // Derive active profile
+  const profile = selectedProfileId === null
+    ? null
+    : selectedProfileId
+    ? profiles.find(p => p.id === selectedProfileId) ?? profiles[0]
+    : profiles[0];
   const { data: leads = [] } = useQuery({
-    queryKey: ["leads", profiles[0]?.id],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profiles[0].id }),
-    enabled: !!profiles[0]?.id,
+    queryKey: ["leads", profile?.id],
+    queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id,
   });
   const { data: analytics = [] } = useQuery({
-    queryKey: ["analytics-all", profiles[0]?.id],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profiles[0].id }),
-    enabled: !!profiles[0]?.id,
+    queryKey: ["analytics-all", profile?.id],
+    queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id,
   });
   const { data: appointments = [] } = useQuery({
-    queryKey: ["appointments", profiles[0]?.id],
-    queryFn: () => base44.entities.Appointment.filter({ profile_id: profiles[0].id }),
-    enabled: !!profiles[0]?.id,
+    queryKey: ["appointments", profile?.id],
+    queryFn: () => base44.entities.Appointment.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id,
   });
 
-  const profile = profiles[0];
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
 
   const copyLink = () => {
@@ -144,6 +150,34 @@ export default function BingooDashboard() {
             )}
           </div>
         </div>
+
+        {/* Profile Switcher */}
+        {(profiles.length > 1 || profiles.length > 0) && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            {profiles.map(p => (
+              <button key={p.id} onClick={() => { setSelectedProfileId(p.id); setTab("overview"); }}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
+                  (profile?.id === p.id && selectedProfileId !== null) || (selectedProfileId === undefined && p.id === profiles[0]?.id)
+                    ? (isDark ? "bg-white/15 border-white/20 text-white" : "bg-blue-600 border-blue-600 text-white")
+                    : (isDark ? "border-white/10 text-white/50 hover:bg-white/10" : "border-slate-200 text-slate-500 hover:bg-slate-50")
+                }`}>
+                {p.profile_photo
+                  ? <img src={p.profile_photo} className="w-5 h-5 rounded-full object-cover" alt="" />
+                  : <span className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black text-white" style={{ background: p.cover_color || "#2563eb" }}>{p.display_name?.charAt(0)}</span>
+                }
+                {p.display_name || p.username}
+              </button>
+            ))}
+            <button onClick={() => { setSelectedProfileId(null); setTab("profile"); }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                selectedProfileId === null
+                  ? (isDark ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : "bg-emerald-50 border-emerald-200 text-emerald-600")
+                  : (isDark ? "border-white/10 text-white/40 hover:bg-white/10 hover:text-white/70" : "border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-600")
+              }`}>
+              + New Profile
+            </button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 rounded-2xl p-1.5 mb-8 overflow-x-auto"
@@ -308,7 +342,7 @@ export default function BingooDashboard() {
           </div>
         )}
 
-        {tab === "profile"      && <ProfileEditor user={user} onSaved={() => setTab("overview")} />}
+        {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} onSaved={() => { refetchProfiles(); setTab("overview"); }} />}
         {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
         {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
         {tab === "devices"      && <DevicesPanel profileId={profile?.id} />}
