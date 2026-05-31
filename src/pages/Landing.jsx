@@ -66,10 +66,10 @@ export default function Landing() {
             <a href="#use-cases" className="hover:text-blue-600 transition-colors">Use Cases</a>
           </div>
           <div className="flex gap-3">
-            <Link to="/dashboard">
+            <Link to="/bingoo">
               <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-blue-300">Sign In</Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/bingoo">
               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200">Get Started Free</Button>
             </Link>
           </div>
@@ -93,7 +93,7 @@ export default function Landing() {
               The smart NFC card that opens your digital profile — with analytics, leads, bookings, and everything you need to grow in Africa.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link to="/dashboard">
+              <Link to="/bingoo">
                 <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-lg px-8 py-6 rounded-2xl shadow-xl">
                   Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -244,7 +244,7 @@ export default function Landing() {
         <div className="max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
           <p className="text-blue-100 text-lg mb-10">Join thousands of professionals across Africa using Bingoo Connect.</p>
-          <Link to="/dashboard">
+          <Link to="/bingoo">
             <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-lg px-10 py-6 rounded-2xl shadow-xl">
               Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
             </Button>

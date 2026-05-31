@@ -8,7 +8,6 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
 import PublicProfile from './pages/PublicProfile';
 import BingooDashboard from './pages/BingooDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -51,8 +50,15 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      {/* ─── Bingoo Connect routes (no FoodHub layout) ─── */}
       <Route path="/" element={<Landing />} />
-      <Route path="/dashboard" element={<LayoutWrapper currentPageName="Dashboard"><Dashboard /></LayoutWrapper>} />
+      <Route path="/bingoo" element={<BingooDashboard />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/p/:username" element={<PublicProfile />} />
+      <Route path="/n/:deviceCode" element={<NFCRedirect />} />
+
+      {/* ─── FoodHub routes (with FoodHub sidebar layout) ─── */}
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
@@ -64,11 +70,6 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/p/:username" element={<PublicProfile />} />
-      <Route path="/bingoo" element={<BingooDashboard />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
