@@ -1,0 +1,45 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "visitor_name": {
+      "type": "string"
+    },
+    "visitor_email": {
+      "type": "string"
+    },
+    "visitor_phone": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "time_slot": {
+      "type": "string",
+      "description": "e.g. 09:00"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "profile_id",
+    "visitor_name",
+    "visitor_email",
+    "date",
+    "time_slot"
+  ]
+}

@@ -1,0 +1,96 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CalendarDays, Clock, User, Phone, Mail, Check, X, Inbox } from "lucide-react";
+
+const STATUS_STYLE = {
+  pending:   "bg-amber-50 text-amber-700 border-amber-200",
+  confirmed: "bg-green-50 text-green-700 border-green-200",
+  cancelled: "bg-red-50 text-red-600 border-red-200",
+};
+
+export default function AppointmentsPanel({ profileId }) {
+  const qc = useQueryClient();
+
+  const { data: appointments = [], isLoading } = useQuery({
+    queryKey: ["appointments", profileId],
+    queryFn: () => base44.entities.Appointment.filter({ profile_id: profileId }, "-created_date"),
+    enabled: !!profileId,
+  });
+
+  const update = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Appointment.update(id, { status }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["appointments", profileId] }),
+  });
+
+  if (!profileId) return <div className="text-center py-12 text-slate-400">Create a profile first.</div>;
+  if (isLoading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
+
+  const upcoming = appointments.filter(a => a.status !== "cancelled" && a.date >= new Date().toISOString().slice(0,10));
+  const past = appointments.filter(a => a.status === "cancelled" || a.date < new Date().toISOString().slice(0,10));
+
+  if (appointments.length === 0) return (
+    <div className="text-center py-16">
+      <Inbox className="w-14 h-14 mx-auto text-slate-200 mb-4" />
+      <p className="font-semibold text-slate-600 text-lg">No appointments yet</p>
+      <p className="text-slate-400 text-sm mt-1">Enable booking on your profile so visitors can book time with you.</p>
+    </div>
+  );
+
+  const Card = ({ a }) => (
+    <div className="bg-white border border-slate-100 rounded-2xl p-5 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <CalendarDays className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <span className="font-bold text-slate-900 text-sm">
+            {new Date(a.date).toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" })}
+          </span>
+          <span className="flex items-center gap-1 text-slate-500 text-sm"><Clock className="w-3.5 h-3.5" />{a.time_slot}</span>
+        </div>
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border capitalize flex-shrink-0 ${STATUS_STYLE[a.status] || ""}`}>{a.status}</span>
+      </div>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2 text-sm text-slate-700"><User className="w-3.5 h-3.5 text-slate-400" /><span className="font-semibold">{a.visitor_name}</span></div>
+        {a.visitor_email && <div className="flex items-center gap-2 text-sm text-slate-500"><Mail className="w-3.5 h-3.5 text-slate-400" />{a.visitor_email}</div>}
+        {a.visitor_phone && <div className="flex items-center gap-2 text-sm text-slate-500"><Phone className="w-3.5 h-3.5 text-slate-400" />{a.visitor_phone}</div>}
+      </div>
+      {a.notes && <p className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 italic">"{a.notes}"</p>}
+      {a.status === "pending" && (
+        <div className="flex gap-2 pt-1">
+          <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700 gap-1.5" onClick={() => update.mutate({ id: a.id, status: "confirmed" })}>
+            <Check className="w-3.5 h-3.5" /> Confirm
+          </Button>
+          <Button size="sm" variant="outline" className="flex-1 text-red-500 border-red-200 hover:bg-red-50 gap-1.5" onClick={() => update.mutate({ id: a.id, status: "cancelled" })}>
+            <X className="w-3.5 h-3.5" /> Decline
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-black text-slate-900">Appointments</h2>
+        <div className="flex gap-2 text-xs font-semibold">
+          <span className="bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1">{appointments.filter(a => a.status === "pending").length} pending</span>
+          <span className="bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-1">{appointments.filter(a => a.status === "confirmed").length} confirmed</span>
+        </div>
+      </div>
+
+      {upcoming.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Upcoming</p>
+          <div className="space-y-3">{upcoming.map(a => <Card key={a.id} a={a} />)}</div>
+        </div>
+      )}
+      {past.length > 0 && (
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Past / Cancelled</p>
+          <div className="space-y-3 opacity-60">{past.map(a => <Card key={a.id} a={a} />)}</div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import RequestInfoModal from "@/components/bingoo/RequestInfoModal";
+import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useEffect } from "react";
@@ -260,6 +261,20 @@ function RequestInfoBtn({ profileId, color }) {
   );
 }
 
+// ── Book Appointment button ──────────────────────────────────────────────────
+function BookAppointmentBtn({ profile, color }) {
+  const [open, setOpen] = useState(false);
+  if (!profile.booking_enabled) return null;
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95 shadow-sm" style={{ background: color, color: "#fff" }}>
+        📅 Book an Appointment
+      </button>
+      {open && <AppointmentBooking profile={profile} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
 // ── Main public profile page ──────────────────────────────────────────────────
 const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, dark: LayoutDark, bold: LayoutBold, split: LayoutSplit };
 
@@ -292,5 +307,12 @@ export default function PublicProfile() {
   const track = (eventType) => trackEvent(profile.id, eventType);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
 
-  return <Layout profile={profile} track={track} requestInfoBtn={<RequestInfoBtn profileId={profile.id} color={profile.cover_color || "#2563eb"} />} />;
+  const color = profile.cover_color || "#2563eb";
+  const infoBtn = (
+    <div className="space-y-2">
+      <RequestInfoBtn profileId={profile.id} color={color} />
+      <BookAppointmentBtn profile={profile} color={color} />
+    </div>
+  );
+  return <Layout profile={profile} track={track} requestInfoBtn={infoBtn} />;
 }

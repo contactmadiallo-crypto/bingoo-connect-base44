@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
+import BusinessHoursEditor from "./BusinessHoursEditor";
 import ProfilePreview from "./ProfilePreview";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
@@ -29,6 +30,10 @@ export default function ProfileEditor({ user }) {
     phone: "", whatsapp_number: "", email: "", website: "", location: "",
     facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
     youtube_url: "", payment_link: "",
+    booking_enabled: false,
+    booking_slot_duration: 30,
+    booking_restricted_emails: [],
+    business_hours: {},
   });
 
   const { data: profiles = [] } = useQuery({
@@ -62,6 +67,10 @@ export default function ProfileEditor({ user }) {
         linkedin_url: profile.linkedin_url || "",
         youtube_url: profile.youtube_url || "",
         payment_link: profile.payment_link || "",
+        booking_enabled: profile.booking_enabled || false,
+        booking_slot_duration: profile.booking_slot_duration || 30,
+        booking_restricted_emails: profile.booking_restricted_emails || [],
+        business_hours: profile.business_hours || {},
       });
     } else if (user) {
       setForm(f => ({ ...f, display_name: user.full_name || "", email: user.email || "" }));
@@ -239,6 +248,51 @@ export default function ProfileEditor({ user }) {
             {field("location", "Business Address", "123 Avenue de la République, Dakar")}
             {field("payment_link", "Payment Link", "https://paypal.me/...")}
           </div>
+        </div>
+
+        {/* Booking Settings */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900">Appointment Booking</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Let visitors book time with you directly from your profile</p>
+            </div>
+            <button type="button" onClick={() => setForm(f => ({ ...f, booking_enabled: !f.booking_enabled }))}
+              className={`w-12 h-7 rounded-full transition-colors relative flex-shrink-0 ${form.booking_enabled ? "bg-blue-600" : "bg-slate-200"}`}>
+              <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${form.booking_enabled ? "left-6" : "left-1"}`} />
+            </button>
+          </div>
+          {form.booking_enabled && (
+            <div className="space-y-5 border-t border-slate-100 pt-5">
+              <div>
+                <Label className="font-semibold">Slot Duration</Label>
+                <select value={form.booking_slot_duration} onChange={e => setForm(f => ({ ...f, booking_slot_duration: Number(e.target.value) }))}
+                  className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white">
+                  <option value={15}>15 minutes</option>
+                  <option value={30}>30 minutes</option>
+                  <option value={45}>45 minutes</option>
+                  <option value={60}>1 hour</option>
+                  <option value={90}>1.5 hours</option>
+                  <option value={120}>2 hours</option>
+                </select>
+              </div>
+              <div>
+                <Label className="font-semibold block mb-2">Business Hours</Label>
+                <BusinessHoursEditor value={form.business_hours} onChange={v => setForm(f => ({ ...f, business_hours: v }))} />
+              </div>
+              <div>
+                <Label className="font-semibold">Restrict booking to specific emails</Label>
+                <p className="text-xs text-slate-400 mt-0.5 mb-2">Leave blank to allow anyone to book. Add emails (one per line) to restrict access.</p>
+                <textarea
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white resize-none"
+                  rows={3}
+                  placeholder="alice@example.com&#10;bob@example.com"
+                  value={(form.booking_restricted_emails || []).join("\n")}
+                  onChange={e => setForm(f => ({ ...f, booking_restricted_emails: e.target.value.split("\n").map(s => s.trim()).filter(Boolean) }))}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Social */}

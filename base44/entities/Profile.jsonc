@@ -39,8 +39,7 @@
         "bold",
         "split"
       ],
-      "default": "classic",
-      "description": "Visual layout style for the public profile"
+      "default": "classic"
     },
     "phone": {
       "type": "string"
@@ -87,6 +86,50 @@
     "is_active": {
       "type": "boolean",
       "default": true
+    },
+    "booking_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Allow visitors to book appointments"
+    },
+    "booking_slot_duration": {
+      "type": "number",
+      "default": 30,
+      "description": "Slot duration in minutes"
+    },
+    "booking_restricted_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "If not empty, only these emails can book. Leave empty for open booking."
+    },
+    "business_hours": {
+      "type": "object",
+      "description": "Weekly schedule keyed by day. Each day: { enabled: bool, start: 'HH:MM', end: 'HH:MM' }",
+      "properties": {
+        "monday": {
+          "type": "object"
+        },
+        "tuesday": {
+          "type": "object"
+        },
+        "wednesday": {
+          "type": "object"
+        },
+        "thursday": {
+          "type": "object"
+        },
+        "friday": {
+          "type": "object"
+        },
+        "saturday": {
+          "type": "object"
+        },
+        "sunday": {
+          "type": "object"
+        }
+      }
     }
   },
   "required": [

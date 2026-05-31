@@ -6,7 +6,8 @@ import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import DevicesPanel from "@/components/bingoo/DevicesPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, MessageSquare } from "lucide-react";
+import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, MessageSquare, CalendarDays } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -14,6 +15,7 @@ import { Link } from "react-router-dom";
 const TABS = [
   { id: "overview", label: "Overview", icon: TrendingUp },
   { id: "profile", label: "Edit Profile", icon: Settings },
+  { id: "appointments", label: "Appointments", icon: CalendarDays },
   { id: "leads", label: "Leads", icon: Star },
   { id: "devices", label: "My Devices", icon: Smartphone },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -38,6 +40,11 @@ export default function BingooDashboard() {
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", profiles[0]?.id],
     queryFn: () => base44.entities.Lead.filter({ profile_id: profiles[0].id }),
+    enabled: !!profiles[0]?.id,
+  });
+  const { data: appointments = [] } = useQuery({
+    queryKey: ["appointments", profiles[0]?.id],
+    queryFn: () => base44.entities.Appointment.filter({ profile_id: profiles[0].id }),
     enabled: !!profiles[0]?.id,
   });
   const { data: analytics = [] } = useQuery({
@@ -93,6 +100,7 @@ export default function BingooDashboard() {
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${tab === t.id ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"}`}>
               <t.icon className="w-4 h-4" />{t.label}
               {t.id === "leads" && leads.length > 0 && <span className="bg-blue-100 text-blue-700 rounded-full px-1.5 py-0.5 text-xs">{leads.length}</span>}
+              {t.id === "appointments" && appointments.filter(a => a.status === "pending").length > 0 && <span className="bg-amber-100 text-amber-700 rounded-full px-1.5 py-0.5 text-xs">{appointments.filter(a => a.status === "pending").length}</span>}
             </button>
           ))}
         </div>
@@ -212,6 +220,7 @@ export default function BingooDashboard() {
         )}
 
         {tab === "profile" && <ProfileEditor user={user} onSaved={() => setTab("overview")} />}
+        {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
         {tab === "leads" && <LeadsPanel profileId={profile?.id} />}
         {tab === "devices" && <DevicesPanel profileId={profile?.id} />}
         {tab === "analytics" && <AnalyticsPanel profileId={profile?.id} />}
