@@ -7,6 +7,7 @@ import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import DevicesPanel from "@/components/bingoo/DevicesPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, MessageSquare } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -20,7 +21,9 @@ const TABS = [
 
 export default function BingooDashboard() {
   const [user, setUser] = useState(null);
-  const [tab, setTab] = useState("overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") || "overview";
+  const setTab = (t) => setSearchParams(t === "overview" ? {} : { tab: t });
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {

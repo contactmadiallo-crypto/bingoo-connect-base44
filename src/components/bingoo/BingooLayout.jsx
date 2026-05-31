@@ -5,11 +5,11 @@ import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star,
 import { useState } from "react";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-  { label: "My Profile", icon: User, href: "/dashboard?tab=profile" },
-  { label: "Leads", icon: Star, href: "/dashboard?tab=leads" },
-  { label: "My Devices", icon: Smartphone, href: "/dashboard?tab=devices" },
-  { label: "Analytics", icon: BarChart3, href: "/dashboard?tab=analytics" },
+  { label: "Dashboard", icon: LayoutDashboard, href: "/bingoo" },
+  { label: "My Profile", icon: User, href: "/bingoo?tab=profile" },
+  { label: "Leads", icon: Star, href: "/bingoo?tab=leads" },
+  { label: "My Devices", icon: Smartphone, href: "/bingoo?tab=devices" },
+  { label: "Analytics", icon: BarChart3, href: "/bingoo?tab=analytics" },
   { label: "Upgrade", icon: CreditCard, href: "/pricing" },
 ];
 
