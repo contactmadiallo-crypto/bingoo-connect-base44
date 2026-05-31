@@ -8,6 +8,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
+import AppHub from './pages/AppHub';
 import PublicProfile from './pages/PublicProfile';
 import BingooDashboard from './pages/BingooDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -49,8 +50,11 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      {/* ── HUB ── */}
+      <Route path="/" element={<AppHub />} />
+
       {/* ── BINGOO CONNECT ── */}
-      <Route path="/" element={<Landing />} />
+      <Route path="/bingoo-home" element={<Landing />} />
       <Route path="/bingoo" element={<BingooDashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/pricing" element={<Pricing />} />
