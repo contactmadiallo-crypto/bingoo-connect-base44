@@ -1,11 +1,10 @@
 import { useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RequestInfoModal from "@/components/bingoo/RequestInfoModal";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { useEffect } from "react";
 
 const trackEvent = (profileId, eventType) => {
   base44.entities.Analytics.create({
@@ -27,7 +26,7 @@ const generateVCF = (profile) => {
     profile.whatsapp_number ? `TEL;TYPE=CELL:${profile.whatsapp_number}` : "",
     profile.email ? `EMAIL:${profile.email}` : "",
     profile.website ? `URL:${profile.website}` : "",
-    profile.location ? `ADR:;;${profile.location};;;;` : "",
+    profile.location && profile.show_location !== false ? `ADR:;;${profile.location};;;;` : "",
     "END:VCARD",
   ].filter(Boolean).join("\n");
   const blob = new Blob([lines], { type: "text/vcard" });
@@ -37,29 +36,19 @@ const generateVCF = (profile) => {
   URL.revokeObjectURL(url);
 };
 
-// ── Avatar ─────────────────────────────────────────────────────────────────
-const Avatar = ({ profile, size = "lg" }) => {
-  const sz = size === "lg" ? "w-24 h-24 text-4xl" : size === "xl" ? "w-32 h-32 text-5xl" : "w-16 h-16 text-2xl";
+const Avatar = ({ profile, size = 96 }) => {
+  const cls = `rounded-full object-cover border-4 border-white shadow-xl`;
+  const style = { width: size, height: size, flexShrink: 0 };
   return profile.profile_photo ? (
-    <img src={profile.profile_photo} alt={profile.display_name} className={`${sz} rounded-full object-cover`} />
+    <img src={profile.profile_photo} alt={profile.display_name} className={cls} style={style} />
   ) : (
-    <div className={`${sz} rounded-full flex items-center justify-center font-black text-white`} style={{ background: profile.cover_color || "#2563eb" }}>
+    <div className={`${cls} flex items-center justify-center font-black text-white`}
+      style={{ ...style, background: profile.cover_color || "#2563eb", fontSize: size * 0.38 }}>
       {profile.display_name?.charAt(0) || "?"}
     </div>
   );
 };
 
-// ── Link button ─────────────────────────────────────────────────────────────
-const Btn = ({ href, onClick, emoji, label, className = "", style }) => {
-  const base = "flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95";
-  return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={`${base} ${className}`} style={style} onClick={onClick}><span>{emoji}</span>{label}</a>
-  ) : (
-    <button onClick={onClick} className={`${base} ${className}`} style={style}><span>{emoji}</span>{label}</button>
-  );
-};
-
-// ── Profile links ────────────────────────────────────────────────────────────
 const useProfileLinks = (profile) => {
   const primary = [
     profile?.whatsapp_number && { emoji: "💬", label: "WhatsApp", href: `https://wa.me/${profile.whatsapp_number.replace(/\D/g, "")}`, event: "whatsapp_click" },
@@ -74,278 +63,343 @@ const useProfileLinks = (profile) => {
     profile?.linkedin_url && { emoji: "💼", label: "LinkedIn", href: profile.linkedin_url, event: "linkedin_click" },
     profile?.youtube_url && { emoji: "▶️", label: "YouTube", href: profile.youtube_url, event: "youtube_click" },
     profile?.website && { emoji: "🌐", label: "Website", href: profile.website, event: "website_click" },
-    profile?.location && { emoji: "📍", label: "Address", href: `https://maps.google.com/?q=${encodeURIComponent(profile.location)}`, event: "location_click" },
+    profile?.location && profile?.show_location !== false && { emoji: "📍", label: "Address", href: `https://maps.google.com/?q=${encodeURIComponent(profile.location)}`, event: "location_click" },
     profile?.payment_link && { emoji: "💳", label: "Pay / Support", href: profile.payment_link, event: "payment_click" },
   ].filter(Boolean);
 
   return { primary, secondary };
 };
 
-// ── Action buttons (shared) ──────────────────────────────────────────────────
-function ActionButtons({ profile, track, color }) {
+// ── Shared Action Block ──────────────────────────────────────────────────────
+function ActionBlock({ profile, track, color, darkMode = false }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
+  const soft = darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)";
+  const softBorder = darkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)";
+
   return (
-    <div className="space-y-2 w-full">
+    <div className="space-y-2.5 w-full">
       <button onClick={() => { track("save_contact_click"); generateVCF(profile); }}
-        className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95"
-        style={{ background: color, color: "#fff" }}>
-        💾 Save Contact
+        className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl font-bold text-sm tracking-wide transition-all active:scale-[0.98] hover:opacity-90 shadow-lg"
+        style={{ background: color, color: "#fff", boxShadow: `0 8px 24px ${color}40` }}>
+        <span className="text-base">💾</span> Save Contact
       </button>
-      <button onClick={() => setInfoOpen(true)}
-        className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95 border-2"
-        style={{ borderColor: color, color }}>
-        📋 Request Info
-      </button>
-      {profile.booking_enabled && (
-        <button onClick={() => setBookOpen(true)}
-          className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-95"
-          style={{ background: color + "22", color }}>
-          📅 Book an Appointment
+
+      <div className={`grid gap-2 ${profile.booking_enabled ? "grid-cols-2" : "grid-cols-1"}`}>
+        <button onClick={() => setInfoOpen(true)}
+          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98] border-2"
+          style={{ borderColor: color, color, background: "transparent" }}>
+          <span>📋</span> Request Info
         </button>
-      )}
+        {profile.booking_enabled && (
+          <button onClick={() => setBookOpen(true)}
+            className="flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[0.98]"
+            style={{ background: soft, color, border: `1px solid ${softBorder}` }}>
+            <span>📅</span> Book a Meeting
+          </button>
+        )}
+      </div>
+
       {infoOpen && <RequestInfoModal profileId={profile.id} onClose={() => setInfoOpen(false)} />}
       {bookOpen && <AppointmentBooking profile={profile} onClose={() => setBookOpen(false)} />}
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// LAYOUT: Classic (Modern Card)
-// ──────────────────────────────────────────────────────────────────────────────
+// ── Secondary Link Row ───────────────────────────────────────────────────────
+function SecondaryLink({ emoji, label, href, onClick, darkMode }) {
+  const hoverBg = darkMode ? "hover:bg-white/10" : "hover:bg-slate-50";
+  const textColor = darkMode ? "text-white/80" : "text-slate-700";
+  const borderColor = darkMode ? "border-white/10" : "border-slate-100";
+  const chevronColor = darkMode ? "text-white/20" : "text-slate-300";
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick}
+      className={`flex items-center gap-3.5 w-full px-4 py-3.5 rounded-2xl border transition-all active:scale-[0.99] ${borderColor} ${hoverBg}`}>
+      <span className="text-xl w-7 text-center">{emoji}</span>
+      <span className={`font-semibold text-sm flex-1 ${textColor}`}>{label}</span>
+      <svg className={`w-4 h-4 ${chevronColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  );
+}
+
+// ── Primary CTA Grid ─────────────────────────────────────────────────────────
+function PrimaryButtons({ links, color, track, darkMode }) {
+  if (!links.length) return null;
+  const softBg = darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
+  return (
+    <div className={`grid gap-2.5 ${links.length === 1 ? "grid-cols-1" : links.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      {links.map(l => (
+        <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => track(l.event)}
+          className="flex flex-col items-center gap-1.5 py-4 rounded-2xl transition-all active:scale-[0.97] hover:opacity-90"
+          style={{ background: color, color: "#fff" }}>
+          <span className="text-2xl leading-none">{l.emoji}</span>
+          <span className="text-[11px] font-bold uppercase tracking-wide">{l.label}</span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
+// ── CLASSIC ──────────────────────────────────────────────────────────────────
 function LayoutClassic({ profile, track }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
 
   return (
     <div className="min-h-screen flex items-start justify-center py-8 px-4"
-      style={{ background: `linear-gradient(160deg, ${color}18 0%, #f1f5f9 60%)` }}>
+      style={{ background: `linear-gradient(170deg, ${color}12 0%, #f8fafc 55%)` }}>
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden" style={{ boxShadow: `0 25px 60px -10px ${color}30, 0 10px 30px -5px #0000001a` }}>
+        <div className="bg-white rounded-3xl overflow-hidden"
+          style={{ boxShadow: `0 32px 80px -12px ${color}28, 0 12px 32px -8px rgba(0,0,0,0.12)` }}>
 
-          {/* Hero band */}
-          <div className="relative h-36" style={{ background: `linear-gradient(135deg, ${color}, ${color}bb)` }}>
-            {/* Decorative circles */}
-            <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-20" style={{ background: "#fff" }} />
-            <div className="absolute top-4 right-8 w-12 h-12 rounded-full opacity-15" style={{ background: "#fff" }} />
-            {profile.company_logo && (
-              <div className="absolute top-4 left-5">
-                <img src={profile.company_logo} className="h-8 object-contain opacity-90" alt="Logo" />
+          {/* Cover + Avatar */}
+          <div className="relative" style={{ paddingBottom: 56 }}>
+            <div className="h-36 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${color} 0%, ${color}cc 100%)` }}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.2),transparent_60%)]" />
+              <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10" />
+              <div className="absolute top-5 right-6 w-12 h-12 rounded-full bg-white/10" />
+              {profile.company_logo && (
+                <img src={profile.company_logo} className="absolute top-4 left-5 h-9 object-contain" style={{ filter: "brightness(0) invert(1)", opacity: 0.8 }} alt="Logo" />
+              )}
+            </div>
+            <div className="absolute bottom-0 left-6">
+              <Avatar profile={profile} size={88} />
+            </div>
+            {profile.plan !== "free" && (
+              <div className="absolute bottom-4 right-6">
+                <span className="text-xs font-black px-3 py-1.5 rounded-full text-white tracking-widest uppercase" style={{ background: color }}>PRO</span>
               </div>
             )}
           </div>
 
-          {/* Avatar float */}
-          <div className="px-6 pb-6">
-            <div className="flex items-end justify-between -mt-14 mb-4">
-              <div className="border-4 border-white rounded-full shadow-xl" style={{ boxShadow: `0 8px 24px ${color}40` }}>
-                <Avatar profile={profile} />
-              </div>
-              {profile.plan !== "free" && (
-                <span className="mb-2 text-xs font-bold px-3 py-1 rounded-full text-white" style={{ background: color }}>PRO</span>
+          {/* Content */}
+          <div className="px-6 pt-3 pb-8 space-y-5">
+            {/* Identity */}
+            <div>
+              <h1 className="text-2xl font-black text-slate-900 leading-tight mt-1">{profile.display_name}</h1>
+              {profile.job_title && (
+                <p className="text-sm font-bold mt-1" style={{ color }}>{profile.job_title}</p>
+              )}
+              {profile.company_name && (
+                <p className="text-slate-400 text-sm mt-0.5 font-medium">at {profile.company_name}</p>
+              )}
+              {profile.bio && (
+                <p className="text-slate-500 text-sm leading-relaxed mt-3 pl-3 border-l-2" style={{ borderColor: `${color}60` }}>
+                  {profile.bio}
+                </p>
               )}
             </div>
 
-            <h1 className="text-2xl font-black text-slate-900">{profile.display_name}</h1>
-            {profile.job_title && <p className="font-semibold text-sm mt-0.5" style={{ color }}>{profile.job_title}</p>}
-            {profile.company_name && (
-              <p className="text-slate-500 text-sm flex items-center gap-1 mt-0.5">
-                🏢 {profile.company_name}
-              </p>
+            {/* Divider */}
+            <div className="border-t border-slate-100" />
+
+            {/* Actions */}
+            <div className="space-y-2.5">
+              <PrimaryButtons links={primary} color={color} track={track} />
+              <ActionBlock profile={profile} track={track} color={color} />
+            </div>
+
+            {/* Social / secondary links */}
+            {secondary.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 px-1">More</p>
+                {secondary.map(l => (
+                  <SecondaryLink key={l.label} {...l} onClick={() => track(l.event)} />
+                ))}
+              </div>
             )}
-            {profile.bio && <p className="text-slate-500 text-sm mt-3 leading-relaxed border-l-2 pl-3 mt-3" style={{ borderColor: color }}>{profile.bio}</p>}
-
-            {/* Primary CTA buttons */}
-            <div className={`grid gap-2 mt-5 ${primary.length === 1 ? "grid-cols-1" : primary.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-              {primary.map(l => (
-                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => track(l.event)}
-                  className="flex flex-col items-center gap-1 py-3 rounded-2xl transition-all active:scale-95 hover:opacity-90"
-                  style={{ background: color, color: "#fff" }}>
-                  <span className="text-xl">{l.emoji}</span>
-                  <span className="text-[11px] font-bold">{l.label}</span>
-                </a>
-              ))}
-            </div>
-
-            <div className="mt-3 space-y-2">
-              <ActionButtons profile={profile} track={track} color={color} />
-              {secondary.map(l => (
-                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => track(l.event)}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl border border-slate-100 hover:border-slate-200 bg-slate-50 hover:bg-slate-100 transition-all text-sm font-semibold text-slate-700">
-                  <span className="text-lg">{l.emoji}</span>{l.label}
-                  <svg className="w-4 h-4 ml-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                </a>
-              ))}
-            </div>
 
             <PortfolioSection profileId={profile.id} color={color} />
           </div>
         </div>
-        <p className="text-center text-slate-400 text-xs mt-4">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
+
+        <p className="text-center text-slate-400 text-xs mt-5">
+          Powered by <a href="/" className="font-bold hover:underline" style={{ color }}>Bingoo Connect</a>
+        </p>
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// LAYOUT: Minimal
-// ──────────────────────────────────────────────────────────────────────────────
+// ── MINIMAL ───────────────────────────────────────────────────────────────────
 function LayoutMinimal({ profile, track }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
+
   return (
-    <div className="min-h-screen bg-white flex items-start justify-center py-10 px-4">
-      <div className="w-full max-w-sm">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="border-2 rounded-full flex-shrink-0" style={{ borderColor: color }}>
-            <Avatar profile={profile} size="sm" />
+    <div className="min-h-screen bg-white flex items-start justify-center py-10 px-5">
+      <div className="w-full max-w-sm space-y-6">
+        {/* Header */}
+        <div className="flex items-start gap-4">
+          <Avatar profile={profile} size={72} />
+          <div className="flex-1 pt-1">
+            <h1 className="text-xl font-black text-slate-900 leading-snug">{profile.display_name}</h1>
+            {profile.job_title && <p className="text-sm font-bold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+            {profile.company_name && <p className="text-slate-400 text-xs mt-0.5">{profile.company_name}</p>}
           </div>
-          <div>
-            <h1 className="text-xl font-black text-slate-900">{profile.display_name}</h1>
-            {profile.job_title && <p className="text-sm font-medium" style={{ color }}>{profile.job_title}</p>}
-            {profile.company_name && <p className="text-slate-400 text-xs">{profile.company_name}</p>}
+        </div>
+        {profile.bio && <p className="text-slate-500 text-sm leading-relaxed pl-3 border-l-2" style={{ borderColor: `${color}60` }}>{profile.bio}</p>}
+
+        <div className="h-px bg-slate-100" />
+
+        <div className="space-y-2.5">
+          <PrimaryButtons links={primary} color={color} track={track} />
+          <ActionBlock profile={profile} track={track} color={color} />
+        </div>
+        {secondary.length > 0 && (
+          <div className="space-y-2">
+            {secondary.map(l => <SecondaryLink key={l.label} {...l} onClick={() => track(l.event)} />)}
           </div>
-        </div>
-        {profile.bio && <p className="text-slate-500 text-sm mb-6 leading-relaxed border-l-2 pl-3" style={{ borderColor: color }}>{profile.bio}</p>}
-        <div className={`grid gap-2 mb-3 ${primary.length === 1 ? "grid-cols-1" : primary.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-          {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} style={{ background: color, color: "#fff" }} />)}
-        </div>
-        <div className="mb-3"><ActionButtons profile={profile} track={track} color={color} /></div>
-        <div className="space-y-2">
-          {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-50 text-slate-700 border border-slate-100 hover:bg-slate-100" />)}
-        </div>
+        )}
         <PortfolioSection profileId={profile.id} color={color} />
-        <p className="text-center text-slate-300 text-xs mt-8">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
+        <p className="text-center text-slate-300 text-xs pt-2">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// LAYOUT: Dark (Glassmorphism)
-// ──────────────────────────────────────────────────────────────────────────────
+// ── DARK ──────────────────────────────────────────────────────────────────────
 function LayoutDark({ profile, track }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
-  return (
-    <div className="min-h-screen flex items-start justify-center py-8 px-4" style={{ background: "linear-gradient(160deg, #0a0a1a 0%, #0f0f20 100%)" }}>
-      <div className="w-full max-w-sm">
-        {/* Glow blob */}
-        <div className="absolute inset-x-0 top-0 h-64 opacity-20 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 0%, ${color}, transparent 70%)` }} />
 
-        <div className="relative rounded-3xl overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", backdropFilter: "blur(20px)", boxShadow: `0 25px 60px -10px ${color}30` }}>
-          {/* Top banner */}
-          <div className="h-24 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}60, ${color}20)` }}>
-            <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full opacity-30" style={{ background: color }} />
-            {profile.company_logo && <img src={profile.company_logo} className="absolute top-3 left-4 h-7 object-contain opacity-70" alt="Logo" />}
+  return (
+    <div className="min-h-screen flex items-start justify-center py-8 px-4"
+      style={{ background: "linear-gradient(160deg, #0a0c18 0%, #0f1020 100%)" }}>
+      {/* ambient glow */}
+      <div className="fixed inset-x-0 top-0 h-80 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% -20%, ${color}35 0%, transparent 70%)` }} />
+
+      <div className="relative w-full max-w-sm">
+        <div className="rounded-3xl overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", backdropFilter: "blur(24px)", boxShadow: `0 32px 80px -12px rgba(0,0,0,0.6), 0 0 0 1px ${color}20` }}>
+
+          {/* Cover */}
+          <div className="relative h-32 overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}70 0%, ${color}30 100%)` }}>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)]" />
+            {profile.company_logo && <img src={profile.company_logo} className="absolute top-4 left-5 h-8 object-contain opacity-70" alt="Logo" />}
+            <div className="absolute bottom-0 left-0 right-0 h-16" style={{ background: "linear-gradient(to bottom, transparent, rgba(10,12,24,0.6))" }} />
           </div>
 
-          <div className="px-6 pb-6">
-            <div className="-mt-12 mb-4 flex items-end justify-between">
-              <div className="border-4 rounded-full" style={{ borderColor: "#0f0f20" }}>
-                <Avatar profile={profile} />
+          <div className="px-6 pb-8">
+            <div className="flex items-end justify-between -mt-11 mb-5">
+              <div style={{ border: "3px solid rgba(10,12,24,0.9)", borderRadius: "50%" }}>
+                <Avatar profile={profile} size={80} />
               </div>
             </div>
-            <h1 className="text-2xl font-black text-white">{profile.display_name}</h1>
-            {profile.job_title && <p className="font-semibold text-sm mt-0.5" style={{ color }}>{profile.job_title}</p>}
-            {profile.company_name && <p className="text-white/40 text-sm">{profile.company_name}</p>}
-            {profile.bio && <p className="text-white/50 text-sm mt-3 leading-relaxed">{profile.bio}</p>}
 
-            <div className={`grid gap-2 mt-5 ${primary.length === 1 ? "grid-cols-1" : primary.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-              {primary.map(l => (
-                <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => track(l.event)}
-                  className="flex flex-col items-center gap-1 py-3 rounded-2xl transition-all active:scale-95"
-                  style={{ background: color, color: "#fff" }}>
-                  <span className="text-xl">{l.emoji}</span>
-                  <span className="text-[11px] font-bold">{l.label}</span>
-                </a>
-              ))}
+            <h1 className="text-2xl font-black text-white leading-tight">{profile.display_name}</h1>
+            {profile.job_title && <p className="font-bold text-sm mt-1" style={{ color }}>{profile.job_title}</p>}
+            {profile.company_name && <p className="text-white/35 text-sm mt-0.5">{profile.company_name}</p>}
+            {profile.bio && <p className="text-white/50 text-sm leading-relaxed mt-3">{profile.bio}</p>}
+
+            <div className="my-5 border-t border-white/8" />
+
+            <div className="space-y-2.5">
+              <PrimaryButtons links={primary} color={color} track={track} darkMode />
+              <ActionBlock profile={profile} track={track} color={color} darkMode />
             </div>
-            <div className="mt-3 space-y-2">
-              <ActionButtons profile={profile} track={track} color={color} />
-              {secondary.map(l => (
-                <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)}
-                  className="bg-white/5 text-white border border-white/10 hover:bg-white/10" />
-              ))}
-            </div>
+
+            {secondary.length > 0 && (
+              <div className="mt-4 space-y-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/20 px-1">More</p>
+                {secondary.map(l => <SecondaryLink key={l.label} {...l} onClick={() => track(l.event)} darkMode />)}
+              </div>
+            )}
             <PortfolioSection profileId={profile.id} color={color} />
           </div>
         </div>
-        <p className="text-center text-white/20 text-xs mt-4">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
+        <p className="text-center text-white/20 text-xs mt-5">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// LAYOUT: Bold (Full bleed gradient)
-// ──────────────────────────────────────────────────────────────────────────────
+// ── BOLD ──────────────────────────────────────────────────────────────────────
 function LayoutBold({ profile, track }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
+
   return (
-    <div className="min-h-screen flex items-start justify-center py-8 px-4"
-      style={{ background: `linear-gradient(160deg, ${color} 0%, ${color}80 50%, #f8fafc 100%)` }}>
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-6 pt-4">
+    <div className="min-h-screen flex items-start justify-center py-10 px-4"
+      style={{ background: `linear-gradient(150deg, ${color} 0%, ${color}aa 40%, #f8fafc 100%)` }}>
+      <div className="w-full max-w-sm space-y-4">
+        {/* Hero */}
+        <div className="text-center py-4">
           <div className="flex justify-center mb-4">
-            <div className="border-4 border-white/40 rounded-full shadow-2xl"><Avatar profile={profile} /></div>
+            <Avatar profile={profile} size={96} />
           </div>
-          <h1 className="text-3xl font-black text-white drop-shadow">{profile.display_name}</h1>
+          <h1 className="text-3xl font-black text-white drop-shadow-sm">{profile.display_name}</h1>
           {profile.job_title && <p className="text-white/80 font-semibold text-sm mt-1">{profile.job_title}</p>}
-          {profile.company_name && <p className="text-white/60 text-sm">{profile.company_name}</p>}
-          {profile.bio && <p className="text-white/70 text-sm mt-3 leading-relaxed max-w-xs mx-auto">{profile.bio}</p>}
+          {profile.company_name && <p className="text-white/55 text-sm mt-0.5 font-medium">{profile.company_name}</p>}
+          {profile.bio && <p className="text-white/65 text-sm mt-3 leading-relaxed max-w-xs mx-auto">{profile.bio}</p>}
         </div>
-        <div className="bg-white/15 backdrop-blur-sm rounded-3xl p-4 border border-white/20 space-y-2">
-          <div className={`grid gap-2 ${primary.length === 1 ? "grid-cols-1" : primary.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-            {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-white text-slate-800 flex-col py-3 gap-0.5 text-xs hover:bg-white/90" />)}
-          </div>
-          <ActionButtons profile={profile} track={track} color={color} />
-          <div className="space-y-2">
-            {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-white/15 text-white border border-white/20 hover:bg-white/25" />)}
-          </div>
+
+        {/* Action card */}
+        <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-5 border border-white/25 space-y-2.5"
+          style={{ boxShadow: "0 16px 40px rgba(0,0,0,0.15)" }}>
+          <PrimaryButtons links={primary} color={color} track={track} darkMode />
+          <ActionBlock profile={profile} track={track} color={color} darkMode />
+          {secondary.map(l => (
+            <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => track(l.event)}
+              className="flex items-center gap-3.5 w-full px-4 py-3.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 transition-all text-white font-semibold text-sm">
+              <span className="text-xl">{l.emoji}</span>{l.label}
+            </a>
+          ))}
         </div>
-        <div className="mt-4 bg-white/10 backdrop-blur-sm rounded-3xl p-4 border border-white/15">
+
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-4 border border-white/15">
           <PortfolioSection profileId={profile.id} color="#fff" />
         </div>
-        <p className="text-center text-white/40 text-xs mt-4">Powered by <a href="/" className="text-white/70 font-bold">Bingoo Connect</a></p>
+
+        <p className="text-center text-white/35 text-xs pb-2">Powered by <a href="/" className="font-bold text-white/60">Bingoo Connect</a></p>
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// LAYOUT: Split
-// ──────────────────────────────────────────────────────────────────────────────
+// ── SPLIT ─────────────────────────────────────────────────────────────────────
 function LayoutSplit({ profile, track }) {
   const { primary, secondary } = useProfileLinks(profile);
   const color = profile.cover_color || "#2563eb";
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-start justify-center py-8 px-4">
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-3xl overflow-hidden shadow-xl flex">
-          <div className="w-1.5 flex-shrink-0 rounded-l-3xl" style={{ background: color }} />
-          <div className="flex-1 px-5 py-6">
-            <div className="flex items-center gap-4 mb-5">
-              <div className="border-2 rounded-full flex-shrink-0" style={{ borderColor: color }}><Avatar profile={profile} size="sm" /></div>
-              <div>
+        <div className="bg-white rounded-3xl overflow-hidden shadow-xl"
+          style={{ boxShadow: `0 24px 60px -8px rgba(0,0,0,0.12), 4px 0 0 0 ${color} inset` }}>
+          <div className="pl-6 pr-6 pt-7 pb-8 space-y-5">
+            {/* Header */}
+            <div className="flex items-center gap-4">
+              <Avatar profile={profile} size={72} />
+              <div className="flex-1">
                 <h1 className="text-xl font-black text-slate-900 leading-tight">{profile.display_name}</h1>
-                {profile.job_title && <p className="text-xs font-bold mt-0.5" style={{ color }}>{profile.job_title}</p>}
-                {profile.company_name && <p className="text-slate-400 text-xs">{profile.company_name}</p>}
+                {profile.job_title && <p className="text-sm font-bold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+                {profile.company_name && <p className="text-slate-400 text-xs mt-0.5">{profile.company_name}</p>}
               </div>
             </div>
-            {profile.bio && <p className="text-slate-500 text-sm mb-4 leading-relaxed">{profile.bio}</p>}
-            <div className={`grid gap-2 mb-2 ${primary.length === 1 ? "grid-cols-1" : primary.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
-              {primary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} style={{ background: color, color: "#fff" }} className="flex-col py-3 gap-0.5 text-xs" />)}
+
+            {profile.bio && (
+              <p className="text-slate-500 text-sm leading-relaxed">{profile.bio}</p>
+            )}
+
+            <div className="h-px bg-slate-100" />
+
+            <div className="space-y-2.5">
+              <PrimaryButtons links={primary} color={color} track={track} />
+              <ActionBlock profile={profile} track={track} color={color} />
             </div>
-            <div className="mb-2"><ActionButtons profile={profile} track={track} color={color} /></div>
-            <div className="space-y-2">
-              {secondary.map(l => <Btn key={l.label} href={l.href} emoji={l.emoji} label={l.label} onClick={() => track(l.event)} className="bg-slate-50 text-slate-700 border border-slate-100 hover:bg-slate-100" />)}
-            </div>
+
+            {secondary.length > 0 && (
+              <div className="space-y-2">
+                {secondary.map(l => <SecondaryLink key={l.label} {...l} onClick={() => track(l.event)} />)}
+              </div>
+            )}
             <PortfolioSection profileId={profile.id} color={color} />
           </div>
         </div>
-        <p className="text-center text-slate-400 text-xs mt-4">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
+        <p className="text-center text-slate-400 text-xs mt-5">Powered by <a href="/" className="font-bold" style={{ color }}>Bingoo Connect</a></p>
       </div>
     </div>
   );
@@ -369,8 +423,11 @@ export default function PublicProfile() {
   }, [profile?.id]);
 
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "#f8fafc" }}>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+        <p className="text-slate-400 text-sm font-medium">Loading profile…</p>
+      </div>
     </div>
   );
 
@@ -379,13 +436,12 @@ export default function PublicProfile() {
       <div className="text-center">
         <div className="text-6xl mb-4">😕</div>
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Profile not found</h2>
-        <p className="text-slate-500">This link may be inactive or the username is incorrect.</p>
+        <p className="text-slate-500 text-sm">This link may be inactive or the username is incorrect.</p>
       </div>
     </div>
   );
 
   const track = (eventType) => trackEvent(profile.id, eventType);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
-
   return <Layout profile={profile} track={track} />;
 }

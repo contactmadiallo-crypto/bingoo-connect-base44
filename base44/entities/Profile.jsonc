@@ -56,6 +56,11 @@
     "location": {
       "type": "string"
     },
+    "show_location": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to display the address on the public profile"
+    },
     "facebook_url": {
       "type": "string"
     },
@@ -102,7 +107,7 @@
       "items": {
         "type": "string"
       },
-      "description": "If not empty, only these emails can book. Leave empty for open booking."
+      "description": "If not empty, only these emails can book."
     },
     "business_hours": {
       "type": "object",

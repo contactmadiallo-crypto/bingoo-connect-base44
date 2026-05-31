@@ -34,6 +34,7 @@ export default function ProfileEditor({ user }) {
     booking_slot_duration: 30,
     booking_restricted_emails: [],
     business_hours: {},
+    show_location: true,
   });
 
   const { data: profiles = [] } = useQuery({
@@ -71,6 +72,7 @@ export default function ProfileEditor({ user }) {
         booking_slot_duration: profile.booking_slot_duration || 30,
         booking_restricted_emails: profile.booking_restricted_emails || [],
         business_hours: profile.business_hours || {},
+        show_location: profile.show_location !== false,
       });
     } else if (user) {
       setForm(f => ({ ...f, display_name: user.full_name || "", email: user.email || "" }));
@@ -245,7 +247,18 @@ export default function ProfileEditor({ user }) {
             {field("whatsapp_number", "WhatsApp", "+221 77 000 0000")}
             {field("email", "Email", "you@example.com", "email")}
             {field("website", "Website", "https://yourwebsite.com")}
-            {field("location", "Business Address", "123 Avenue de la République, Dakar")}
+            <div>
+              <Label>Business Address</Label>
+              <div className="flex gap-2 mt-1">
+                <Input className={`flex-1 border-slate-200 ${errors.location ? 'border-red-400' : ''}`} placeholder="123 Avenue, City" value={form.location} onChange={set("location")} />
+                <button type="button" title={form.show_location ? "Hide on profile" : "Show on profile"}
+                  onClick={() => setForm(f => ({ ...f, show_location: !f.show_location }))}
+                  className={`px-3 rounded-xl border text-sm font-semibold transition-colors ${form.show_location ? "border-blue-200 bg-blue-50 text-blue-600" : "border-slate-200 bg-slate-100 text-slate-400"}`}>
+                  {form.show_location ? "👁 Visible" : "🙈 Hidden"}
+                </button>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">{form.show_location ? "Address is visible on your public profile" : "Address is hidden from visitors"}</p>
+            </div>
             {field("payment_link", "Payment Link", "https://paypal.me/...")}
           </div>
         </div>
