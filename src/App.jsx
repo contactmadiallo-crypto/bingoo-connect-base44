@@ -4,7 +4,6 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
-import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
@@ -16,13 +15,7 @@ import NFCRedirect from './pages/NFCRedirect';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
-const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
@@ -50,26 +43,12 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* ─── Bingoo Connect routes (no FoodHub layout) ─── */}
       <Route path="/" element={<Landing />} />
       <Route path="/bingoo" element={<BingooDashboard />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
-
-      {/* ─── FoodHub routes (with FoodHub sidebar layout) ─── */}
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
