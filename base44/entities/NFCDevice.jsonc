@@ -1,0 +1,42 @@
+{
+  "name": "NFCDevice",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "card",
+        "keychain",
+        "bracelet",
+        "stand",
+        "badge"
+      ],
+      "default": "card"
+    },
+    "device_code": {
+      "type": "string",
+      "description": "Unique identifier printed on device"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "lost"
+      ],
+      "default": "active"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "profile_id",
+    "device_type",
+    "device_code"
+  ]
+}

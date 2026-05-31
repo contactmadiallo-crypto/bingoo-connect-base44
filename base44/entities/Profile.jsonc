@@ -4,28 +4,59 @@
   "properties": {
     "username": {
       "type": "string",
-      "description": "Unique URL slug (e.g. amadou)"
+      "description": "Unique URL slug"
     },
     "display_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "company_name": {
       "type": "string"
     },
     "bio": {
       "type": "string"
     },
-    "avatar_url": {
-      "type": "string"
+    "profile_photo": {
+      "type": "string",
+      "description": "URL to profile photo"
     },
     "cover_color": {
       "type": "string",
-      "default": "#6366f1"
+      "default": "#2563eb"
     },
-    "whatsapp": {
+    "phone": {
+      "type": "string"
+    },
+    "whatsapp_number": {
       "type": "string"
     },
     "email": {
       "type": "string"
     },
-    "phone": {
+    "website": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "facebook_url": {
+      "type": "string"
+    },
+    "instagram_url": {
+      "type": "string"
+    },
+    "tiktok_url": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "youtube_url": {
+      "type": "string"
+    },
+    "payment_link": {
       "type": "string"
     },
     "plan": {

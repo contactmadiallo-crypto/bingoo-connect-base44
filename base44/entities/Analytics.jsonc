@@ -1,0 +1,47 @@
+{
+  "name": "Analytics",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "device_id": {
+      "type": "string",
+      "description": "NFC device ID if applicable"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "profile_view",
+        "whatsapp_click",
+        "phone_click",
+        "email_click",
+        "instagram_click",
+        "facebook_click",
+        "tiktok_click",
+        "linkedin_click",
+        "youtube_click",
+        "website_click",
+        "payment_click",
+        "location_click",
+        "save_contact_click"
+      ],
+      "default": "profile_view"
+    },
+    "visitor_device": {
+      "type": "string"
+    },
+    "visitor_country": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "profile_id",
+    "event_type",
+    "created_at"
+  ]
+}
