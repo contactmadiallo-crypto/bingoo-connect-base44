@@ -42,6 +42,11 @@
     "click_count": {
       "type": "number",
       "default": 0
+    },
+    "description": {
+      "type": "string",
+      "description": "Link description or notes",
+      "maxLength": 1000
     }
   },
   "required": [
@@ -57,22 +62,7 @@
         ]
       }
     },
-    "read": {
-      "$or": [
-        {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": {},
     "update": {
       "$or": [
         {
