@@ -45,9 +45,27 @@ const layouts = [
     ),
   },
   {
+    id: "card",
+    name: "Card",
+    desc: "Portfolio grid",
+    pro: false,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-50 p-2 gap-1">
+        <div className="flex flex-col items-center gap-1 pb-1 border-b border-slate-200">
+          <div className="w-7 h-7 rounded-full" style={{ background: color }} />
+          <div className="w-12 h-1.5 bg-slate-300 rounded" />
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          <div className="h-4 bg-white rounded border border-slate-200" />
+          <div className="h-4 bg-white rounded border border-slate-200" />
+        </div>
+      </div>
+    ),
+  },
+  {
     id: "dark",
     name: "Dark",
-    desc: "Glassmorphism dark card",
+    desc: "Glassmorphism dark",
     pro: true,
     preview: (color) => (
       <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-900 p-2 gap-1.5">
@@ -67,7 +85,7 @@ const layouts = [
   {
     id: "bold",
     name: "Bold",
-    desc: "Full gradient background",
+    desc: "Full gradient",
     pro: true,
     preview: (color) => (
       <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: `linear-gradient(135deg, ${color}, ${color}bb)` }}>
@@ -105,6 +123,43 @@ const layouts = [
             <div className="w-full h-1.5 bg-slate-100 rounded-full" />
             <div className="w-full h-1.5 bg-slate-100 rounded-full" />
           </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "glassmorphic",
+    name: "Glass",
+    desc: "Frosted glass",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 p-2 gap-1.5">
+        <div className="flex flex-col items-center gap-1 backdrop-blur-sm bg-white/40 rounded p-1">
+          <div className="w-6 h-6 rounded-full" style={{ background: color }} />
+          <div className="w-10 h-1 bg-white/60 rounded" />
+        </div>
+        <div className="space-y-1 backdrop-blur-sm bg-white/20 rounded p-1">
+          <div className="w-full h-1.5 bg-white/40 rounded-full" />
+          <div className="w-full h-1.5 bg-white/30 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "gradient",
+    name: "Gradient",
+    desc: "Color blend",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1" style={{ background: `linear-gradient(135deg, ${color}22, ${color}88)` }}>
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="w-6 h-6 rounded-full bg-white/80" />
+          <div className="w-10 h-1 bg-white/60 rounded" />
+        </div>
+        <div className="space-y-1 mt-1">
+          <div className="w-full h-1.5 bg-white/40 rounded-full" />
+          <div className="w-full h-1.5 bg-white/25 rounded-full" />
+          <div className="w-full h-1.5 bg-white/25 rounded-full" />
         </div>
       </div>
     ),
@@ -165,7 +220,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
         <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
           <span className="text-base">✨</span>
           <p className="text-xs text-amber-700 font-semibold flex-1">
-            Upgrade to <strong>Pro</strong> to unlock Dark, Bold and Split templates.
+            Upgrade to <strong>Pro</strong> to unlock Dark, Bold, Split, Glass & Gradient templates.
           </p>
           <Link to="/pricing" className="text-xs font-black text-amber-600 hover:text-amber-700 whitespace-nowrap">
             Upgrade →
