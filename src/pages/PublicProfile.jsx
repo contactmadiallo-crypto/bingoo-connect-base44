@@ -608,7 +608,7 @@ export default function PublicProfile() {
           <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, margin: 0, position: "relative", zIndex: 1 }}>NFC card taps phone · profile opens instantly</p>
         </div>
       )}
-      <Layout profile={profile} track={track} mobile={mobile} />
+      {!isDemo && <Layout profile={profile} track={track} mobile={mobile} />}
     </motion.div>
   );
 }
