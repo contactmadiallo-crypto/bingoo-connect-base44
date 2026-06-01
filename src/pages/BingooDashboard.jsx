@@ -10,6 +10,7 @@ import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
+import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -35,6 +36,9 @@ export default function BingooDashboard() {
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(undefined); // undefined=first, null=new, string=specific
   const [profileSearch, setProfileSearch] = useState("");
+  const [showOnboarding, setShowOnboarding] = useState(
+    !localStorage.getItem("bingoo_onboarding_done")
+  );
   const { isDark } = useBingooTheme();
 
   const { data: user } = useQuery({
@@ -112,6 +116,13 @@ export default function BingooDashboard() {
 
   return (
     <BingooLayout>
+      {showOnboarding && profiles.length === 0 && user && (
+        <OnboardingWizard
+          userName={user.full_name}
+          onCreateProfile={() => { setShowOnboarding(false); setTab("profile"); }}
+          onDismiss={() => setShowOnboarding(false)}
+        />
+      )}
       <div className="p-6 max-w-6xl mx-auto">
 
         {/* Hero header */}
