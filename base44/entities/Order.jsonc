@@ -1,0 +1,269 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "ID of the restaurant"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name for easy reference"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Unique order number"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "customer_phone": {
+      "type": "string"
+    },
+    "customer_address": {
+      "type": "string"
+    },
+    "customer_location": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        },
+        "address": {
+          "type": "string"
+        }
+      },
+      "description": "Customer GPS coordinates for map tracking"
+    },
+    "driver_location": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        }
+      },
+      "description": "Real-time driver location"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "menu_item_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "total_amount": {
+      "type": "number"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "dine_in",
+        "takeout",
+        "delivery"
+      ],
+      "default": "dine_in"
+    },
+    "vehicle_type": {
+      "type": "string",
+      "enum": [
+        "bicycle",
+        "motorcycle",
+        "car"
+      ],
+      "description": "Preferred delivery vehicle type"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "preparing",
+        "ready",
+        "arriving_at_pickup",
+        "picked_up",
+        "en_route",
+        "arriving_at_delivery",
+        "out_for_delivery",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "delivery_fee": {
+      "type": "number",
+      "default": 0
+    },
+    "platform_commission": {
+      "type": "number",
+      "description": "Commission amount for platform"
+    },
+    "driver_earnings": {
+      "type": "number",
+      "description": "Driver earnings from delivery fee"
+    },
+    "tip_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Tip given to driver"
+    },
+    "customer_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Customer rating for driver (1-5)"
+    },
+    "customer_feedback": {
+      "type": "string",
+      "description": "Customer feedback about delivery"
+    },
+    "estimated_time": {
+      "type": "number",
+      "description": "Estimated time in minutes"
+    },
+    "actual_delivery_time": {
+      "type": "number",
+      "description": "Actual delivery time in minutes"
+    },
+    "distance_km": {
+      "type": "number",
+      "description": "Delivery distance in kilometers"
+    },
+    "special_instructions": {
+      "type": "string"
+    },
+    "delivery_partner_id": {
+      "type": "string",
+      "description": "ID of assigned delivery partner"
+    },
+    "delivery_partner_name": {
+      "type": "string",
+      "description": "Name of delivery partner"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "driver_phone": {
+      "type": "string"
+    },
+    "delivery_code": {
+      "type": "string",
+      "description": "OTP code for delivery verification (4-6 digits)"
+    },
+    "delivery_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "table_number": {
+      "type": "string",
+      "description": "Table number for dine-in orders"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "customer_name",
+    "items",
+    "total_amount"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "data.delivery_partner_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "data.delivery_partner_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "data.delivery_partner_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
