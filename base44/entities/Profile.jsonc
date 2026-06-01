@@ -97,6 +97,18 @@
     "payment_link": {
       "type": "string"
     },
+    "zelle_link": {
+      "type": "string"
+    },
+    "cashapp_link": {
+      "type": "string"
+    },
+    "orangemoney_link": {
+      "type": "string"
+    },
+    "wave_link": {
+      "type": "string"
+    },
     "plan": {
       "type": "string",
       "enum": [

@@ -29,7 +29,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
     cover_color: "#2563eb", profile_photo: "", cover_photo: "", company_logo: "", layout: "classic",
     phone: "", whatsapp_number: "", email: "", website: "", location: "",
     facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
-    youtube_url: "", payment_link: "",
+    youtube_url: "", payment_link: "", zelle_link: "", cashapp_link: "", orangemoney_link: "", wave_link: "",
     booking_enabled: false,
     booking_slot_duration: 30,
     booking_restricted_emails: [],
@@ -77,6 +77,10 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
         linkedin_url: profile.linkedin_url || "",
         youtube_url: profile.youtube_url || "",
         payment_link: profile.payment_link || "",
+        zelle_link: profile.zelle_link || "",
+        cashapp_link: profile.cashapp_link || "",
+        orangemoney_link: profile.orangemoney_link || "",
+        wave_link: profile.wave_link || "",
         booking_enabled: profile.booking_enabled || false,
         booking_slot_duration: profile.booking_slot_duration || 30,
         booking_restricted_emails: profile.booking_restricted_emails || [],
@@ -95,7 +99,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
     if (!form.username) e.username = "Required";
     if (!form.display_name) e.display_name = "Required";
     if (form.email && !isValidEmail(form.email)) e.email = "Invalid email";
-    const urlFields = ["website","facebook_url","instagram_url","tiktok_url","linkedin_url","youtube_url","payment_link"];
+    const urlFields = ["website","facebook_url","instagram_url","tiktok_url","linkedin_url","youtube_url","payment_link","zelle_link","cashapp_link","orangemoney_link","wave_link"];
     urlFields.forEach(k => { if (form[k] && !isValidUrl(form[k])) e[k] = "Invalid URL"; });
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -301,8 +305,15 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
               <p className="text-xs text-slate-400 mt-1">{form.show_location ? "Address is visible on your public profile" : "Address is hidden from visitors"}</p>
             </div>
             {field("payment_link", "Payment Link", "https://paypal.me/...")}
-          </div>
-        </div>
+            </div>
+            <h3 className="font-bold text-slate-900 mt-4 mb-3">Money Transfer Links</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+            {field("zelle_link", "💳 Zelle Link", "https://www.zellepay.com/...")}
+            {field("cashapp_link", "💰 Cash App Link", "https://cash.app/...")}
+            {field("orangemoney_link", "🟠 Orange Money Link", "https://orangemoney....")}
+            {field("wave_link", "📲 Wave Link", "https://wave.com/...")}
+            </div>
+            </div>
 
         {/* Booking Settings */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
