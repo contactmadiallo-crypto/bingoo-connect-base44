@@ -599,10 +599,13 @@ export default function PublicProfile() {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <HomeButton />
       {isDemo && (
-        <div style={{ background: "linear-gradient(160deg,#06091a 0%,#0d1030 60%,#0a0622 100%)", padding: "40px 16px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", margin: 0 }}>Live Demo — Tap to Experience</p>
-          <NFCTapMockup />
-          <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, margin: 0 }}>NFC card taps phone · profile opens instantly</p>
+        <div style={{ background: "linear-gradient(135deg,#2d1b4e 0%,#1a0b3f 40%,#0a1428 80%,#0f0820 100%)", padding: "40px 16px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 80% 20%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(6,182,212,0.1) 0%, transparent 50%)", pointerEvents: "none" }} />
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", margin: 0, position: "relative", zIndex: 1 }}>Live Demo — Tap to Experience</p>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            <NFCTapMockup />
+          </div>
+          <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, margin: 0, position: "relative", zIndex: 1 }}>NFC card taps phone · profile opens instantly</p>
         </div>
       )}
       <Layout profile={profile} track={track} mobile={mobile} />
