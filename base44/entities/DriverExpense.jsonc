@@ -1,0 +1,77 @@
+{
+  "name": "DriverExpense",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string",
+      "description": "Driver ID"
+    },
+    "driver_name": {
+      "type": "string",
+      "description": "Driver name for reference"
+    },
+    "expense_type": {
+      "type": "string",
+      "enum": [
+        "fuel",
+        "maintenance",
+        "insurance",
+        "vehicle_payment",
+        "parking",
+        "tolls",
+        "other"
+      ],
+      "description": "Type of expense"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Expense amount"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of expense"
+    },
+    "description": {
+      "type": "string",
+      "description": "Additional details"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "Receipt photo URL"
+    },
+    "odometer_reading": {
+      "type": "number",
+      "description": "Odometer reading at time of expense"
+    }
+  },
+  "required": [
+    "driver_id",
+    "expense_type",
+    "amount",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "data.driver_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.driver_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.driver_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.driver_id": "{{user.id}}"
+    }
+  }
+}
