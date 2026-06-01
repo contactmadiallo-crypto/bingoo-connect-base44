@@ -33,6 +33,8 @@ export default function NFCTapMockup() {
   useEffect(() => {
     let cancelled = false;
     async function loop() {
+      // Wait for motion components to mount before starting animations
+      await new Promise(r => setTimeout(r, 120));
       while (!cancelled) {
         // Reset positions
         cardCtrl.set({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, opacity: 1 });
