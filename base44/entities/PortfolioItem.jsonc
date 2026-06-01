@@ -40,25 +40,52 @@
       }
     },
     "read": {
-      "data.profile_id": {
-        "$in": [
-          "{{user.data.owned_profile_ids}}"
-        ]
-      }
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "update": {
-      "data.profile_id": {
-        "$in": [
-          "{{user.data.owned_profile_ids}}"
-        ]
-      }
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "data.profile_id": {
-        "$in": [
-          "{{user.data.owned_profile_ids}}"
-        ]
-      }
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }

@@ -53,10 +53,13 @@
   ],
   "rls": {
     "create": {
-      "data.driver_id": "{{user.id}}"
+      "created_by_id": "{{user.id}}"
     },
     "read": {
       "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
         {
           "data.driver_id": "{{user.id}}"
         },
@@ -68,10 +71,24 @@
       ]
     },
     "update": {
-      "data.driver_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.driver_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "data.driver_id": "{{user.id}}"
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }

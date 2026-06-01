@@ -54,5 +54,54 @@
   "required": [
     "customer_email",
     "restaurant_id"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

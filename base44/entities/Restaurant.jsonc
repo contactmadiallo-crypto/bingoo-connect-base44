@@ -263,7 +263,21 @@
     "create": {
       "data.owner_email": "{{user.email}}"
     },
-    "read": {},
+    "read": {
+      "$or": [
+        {
+          "data.status": "active"
+        },
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
     "update": {
       "$or": [
         {
@@ -277,16 +291,9 @@
       ]
     },
     "delete": {
-      "$or": [
-        {
-          "data.owner_email": "{{user.email}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }

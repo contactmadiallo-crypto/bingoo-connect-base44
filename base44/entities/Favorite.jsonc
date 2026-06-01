@@ -40,5 +40,21 @@
     "customer_email",
     "type",
     "restaurant_id"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "read": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "data.customer_email": "{{user.email}}"
+    }
+  }
 }

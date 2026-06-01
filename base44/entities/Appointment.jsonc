@@ -43,13 +43,26 @@
     "time_slot"
   ],
   "rls": {
-    "create": {},
-    "read": {
+    "create": {
       "data.profile_id": {
         "$in": [
           "{{user.data.owned_profile_ids}}"
         ]
       }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "data.visitor_email": "{{user.email}}"
+        }
+      ]
     },
     "update": {
       "data.profile_id": {

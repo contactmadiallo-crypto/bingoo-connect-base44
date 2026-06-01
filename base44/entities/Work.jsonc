@@ -123,6 +123,13 @@
           "data.assigned_to": "{{user.email}}"
         },
         {
+          "data.project_id": {
+            "$in": [
+              "{{user.data.managed_project_ids}}"
+            ]
+          }
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -138,16 +145,11 @@
           "data.assigned_to": "{{user.email}}"
         },
         {
-          "user_condition": {
-            "role": "admin"
+          "data.project_id": {
+            "$in": [
+              "{{user.data.managed_project_ids}}"
+            ]
           }
-        }
-      ]
-    },
-    "delete": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -155,6 +157,11 @@
           }
         }
       ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
     }
   }
 }

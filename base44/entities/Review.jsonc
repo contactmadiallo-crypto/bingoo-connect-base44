@@ -42,5 +42,36 @@
     "menu_item_id",
     "restaurant_id",
     "rating"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}",
+      "data.customer_email": "{{user.email}}"
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
