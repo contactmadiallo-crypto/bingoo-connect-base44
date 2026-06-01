@@ -1,0 +1,90 @@
+{
+  "name": "Table",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "ID of the restaurant"
+    },
+    "table_number": {
+      "type": "string"
+    },
+    "capacity": {
+      "type": "number",
+      "description": "Number of seats"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "occupied",
+        "reserved"
+      ],
+      "default": "available"
+    },
+    "qr_code_url": {
+      "type": "string",
+      "description": "QR code for table menu"
+    },
+    "location": {
+      "type": "string",
+      "description": "Table location in restaurant"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "table_number",
+    "capacity"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
