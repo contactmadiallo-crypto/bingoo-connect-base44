@@ -1,0 +1,115 @@
+{
+  "name": "CustomerLoyalty",
+  "type": "object",
+  "properties": {
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "restaurant_id": {
+      "type": "string",
+      "description": "Restaurant ID"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name for reference"
+    },
+    "points": {
+      "type": "number",
+      "default": 0,
+      "description": "Total loyalty points"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum"
+      ],
+      "default": "bronze",
+      "description": "Current loyalty tier"
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount spent"
+    },
+    "total_orders": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of orders"
+    },
+    "rewards_redeemed": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of rewards redeemed"
+    }
+  },
+  "required": [
+    "customer_email",
+    "restaurant_id"
+  ],
+  "rls": {
+    "create": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
