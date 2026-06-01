@@ -55,6 +55,12 @@ const useLinks = (p) => ({
     p?.location && p?.show_location !== false && { e: "📍", l: "Address", h: `https://maps.google.com/?q=${encodeURIComponent(p.location)}`, ev: "location_click" },
     p?.payment_link && { e: "💳", l: "Pay / Support", h: p.payment_link, ev: "payment_click" },
   ].filter(Boolean),
+  payments: [
+    p?.zelle_link && { e: "💳", l: "Zelle", h: p.zelle_link, ev: "zelle_click" },
+    p?.cashapp_link && { e: "💰", l: "Cash App", h: p.cashapp_link, ev: "cashapp_click" },
+    p?.orangemoney_link && { e: "🟠", l: "Orange Money", h: p.orangemoney_link, ev: "orangemoney_click" },
+    p?.wave_link && { e: "📲", l: "Wave", h: p.wave_link, ev: "wave_click" },
+  ].filter(Boolean),
 });
 
 const btnRadius = (s) => s === "pill" ? "9999px" : s === "sharp" ? "8px" : "16px";
@@ -219,7 +225,7 @@ const rz = (mobile, small, large) => mobile ? small : large;
 // LAYOUT: CLASSIC
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutClassic({ profile, track, mobile }) {
-  const { primary, secondary } = useLinks(profile);
+  const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
   const cardBg = dark ? "rgba(15,16,34,0.85)" : "rgba(255,255,255,0.92)";
@@ -295,18 +301,25 @@ function LayoutClassic({ profile, track, mobile }) {
 
             <div style={{ height: 1, background: divider, margin: "22px 0" }} />
 
-            {/* CTAs */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}>
-              {primary.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  <SectionLabel text="Get in touch" dark={dark} />
-                  <PrimaryCtAs links={primary} color={color} track={track} profile={profile} />
-                </div>
-              )}
-              <Actions profile={profile} track={track} color={color} dark={dark} />
-            </motion.div>
+           {/* Payment Methods */}
+           {payments.length > 0 && (
+             <div style={{ marginTop: 20 }}>
+               <SectionLabel text="Send Money" dark={dark} />
+               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+                 {payments.map((p, i) => (
+                   <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
+                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
+                     whileHover={{ scale: 1.08 }}
+                     style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 8px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.75)" : color, fontWeight: 600, fontSize: 10, textAlign: "center", cursor: "pointer", transition: "all 0.2s" }}>
+                     <span style={{ fontSize: 20 }}>{p.e}</span>
+                     <span style={{ lineHeight: 1.1 }}>{p.l}</span>
+                   </motion.a>
+                 ))}
+               </div>
+             </div>
+           )}
 
-            {/* Secondary links */}
+           {/* Secondary links */}
             {secondary.length > 0 && (
               <div style={{ marginTop: 20 }}>
                 <SectionLabel text="Links & Socials" dark={dark} />
@@ -331,7 +344,7 @@ function LayoutClassic({ profile, track, mobile }) {
 // LAYOUT: MINIMAL
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutMinimal({ profile, track, mobile }) {
-  const { primary, secondary } = useLinks(profile);
+  const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
   const headColor = dark ? "#fff" : "#0f172a";
@@ -370,6 +383,22 @@ function LayoutMinimal({ profile, track, mobile }) {
             {primary.length > 0 && <div style={{ marginBottom: 10 }}><PrimaryCtAs links={primary} color={color} track={track} profile={profile} /></div>}
             <Actions profile={profile} track={track} color={color} dark={dark} />
           </motion.div>
+          {payments.length > 0 && (
+            <div style={{ marginTop: 18 }}>
+              <SectionLabel text="Send Money" dark={dark} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 18 }}>
+                {payments.map((p, i) => (
+                  <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
+                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.07 }}
+                    whileHover={{ scale: 1.08 }}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.7)" : color, fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
+                    <span style={{ fontSize: 18 }}>{p.e}</span>
+                    <span style={{ lineHeight: 1 }}>{p.l}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+          )}
           {secondary.length > 0 && (
             <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 8 }}>
               <SectionLabel text="Links" dark={dark} />
@@ -388,7 +417,7 @@ function LayoutMinimal({ profile, track, mobile }) {
 // LAYOUT: DARK
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutDark({ profile, track, mobile }) {
-  const { primary, secondary } = useLinks(profile);
+  const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
 
   return (
@@ -425,6 +454,22 @@ function LayoutDark({ profile, track, mobile }) {
               {primary.length > 0 && <div style={{ marginBottom: 10 }}><PrimaryCtAs links={primary} color={color} track={track} profile={profile} /></div>}
               <Actions profile={profile} track={track} color={color} dark />
             </motion.div>
+            {payments.length > 0 && (
+              <div style={{ marginTop: 18 }}>
+                <SectionLabel text="Send Money" dark />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
+                  {payments.map((p, i) => (
+                    <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
+                      initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 + i * 0.07 }}
+                      whileHover={{ scale: 1.08 }}
+                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", textDecoration: "none", color: "rgba(255,255,255,0.8)", fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
+                      <span style={{ fontSize: 18 }}>{p.e}</span>
+                      <span style={{ lineHeight: 1 }}>{p.l}</span>
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+            )}
             {secondary.length > 0 && (
               <div style={{ marginTop: 20 }}>
                 <SectionLabel text="Links & Socials" dark />
@@ -446,7 +491,7 @@ function LayoutDark({ profile, track, mobile }) {
 // LAYOUT: BOLD
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutBold({ profile, track, mobile }) {
-  const { primary, secondary } = useLinks(profile);
+  const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
 
   return (
@@ -484,9 +529,17 @@ function LayoutBold({ profile, track, mobile }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {primary.length > 0 && <PrimaryCtAs links={primary} color={color} track={track} profile={profile} />}
             <Actions profile={profile} track={track} color={color} dark />
+            {payments.length > 0 && payments.map((p, i) => (
+              <motion.button key={p.l} type="button" onClick={() => { track(p.ev); window.open(p.h, '_blank'); }}
+                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.38 + i * 0.06 }}
+                whileHover={{ x: 4 }}
+                style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", borderRadius: btnRadius(profile.button_style || "pill"), background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", color: "#fff", fontWeight: 600, fontSize: 13, textDecoration: "none", backdropFilter: "blur(8px)", cursor: "pointer", width: "100%" }}>
+                <span style={{ fontSize: 18 }}>{p.e}</span>{p.l}
+              </motion.button>
+            ))}
             {secondary.map((l, i) => (
               <motion.a key={l.l} href={l.h} target="_blank" rel="noopener noreferrer" onClick={() => track(l.ev)}
-                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + i * 0.07 }}
+                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + (payments.length + i) * 0.06 }}
                 whileHover={{ x: 4 }}
                 style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: btnRadius(profile.button_style || "pill"), background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.22)", color: "#fff", fontWeight: 600, fontSize: 14, textDecoration: "none", backdropFilter: "blur(8px)" }}>
                 <span style={{ fontSize: 20, width: 28, textAlign: "center" }}>{l.e}</span>{l.l}
@@ -507,7 +560,7 @@ function LayoutBold({ profile, track, mobile }) {
 // LAYOUT: SPLIT
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutSplit({ profile, track, mobile }) {
-  const { primary, secondary } = useLinks(profile);
+  const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
   const dark = profile.bg_style === "night";
   const cardBg = dark ? "rgba(10,12,26,0.9)" : "rgba(255,255,255,0.92)";
@@ -549,6 +602,22 @@ function LayoutSplit({ profile, track, mobile }) {
             <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}>
               {primary.length > 0 && <div style={{ marginBottom: 10 }}><PrimaryCtAs links={primary} color={color} track={track} profile={profile} /></div>}
               <Actions profile={profile} track={track} color={color} dark={dark} />
+              {payments.length > 0 && (
+                <div style={{ marginTop: 14 }}>
+                  <SectionLabel text="Send Money" dark={dark} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+                    {payments.map((p, i) => (
+                      <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
+                        initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.07 }}
+                        whileHover={{ scale: 1.08 }}
+                        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.7)" : color, fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
+                        <span style={{ fontSize: 18 }}>{p.e}</span>
+                        <span style={{ lineHeight: 1 }}>{p.l}</span>
+                      </motion.a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
             {secondary.length > 0 && (
               <div style={{ marginTop: 18 }}>
