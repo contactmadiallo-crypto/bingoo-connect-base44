@@ -1,0 +1,52 @@
+{
+  "name": "Comment",
+  "type": "object",
+  "properties": {
+    "work_id": {
+      "type": "string",
+      "description": "ID of the work item"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID of the project"
+    },
+    "content": {
+      "type": "string",
+      "description": "Comment content"
+    },
+    "author_name": {
+      "type": "string",
+      "description": "Name of the comment author"
+    },
+    "author_email": {
+      "type": "string",
+      "description": "Email of the comment author"
+    }
+  },
+  "required": [
+    "content"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
