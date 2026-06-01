@@ -264,7 +264,7 @@ function LayoutClassic({ profile, track, mobile }) {
               transition={{ duration: 6, repeat: Infinity, delay: 1 }}
             />
             {profile.company_logo && (
-              <img src={profile.company_logo} alt="Logo" style={{ position: "absolute", top: 18, left: 22, height: 30, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.85 }} />
+              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }} style={{ position: "absolute", top: 20, left: 20, height: 50, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }} />
             )}
           </motion.div>
 
@@ -350,7 +350,7 @@ function LayoutMinimal({ profile, track, mobile }) {
       >
         <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 18px 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
           {profile.company_logo && (
-            <img src={profile.company_logo} alt="Logo" style={{ height: 24, objectFit: "contain", marginBottom: 14, opacity: 0.7 }} />
+            <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25, duration: 0.4 }} style={{ height: 42, objectFit: "contain", marginBottom: 18, padding: "12px 14px", background: dark ? "rgba(255,255,255,0.06)" : hexRgb(color, 0.08), borderRadius: 14, border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}` }} />
           )}
           <div style={{ width: 48, height: 5, borderRadius: 999, background: `linear-gradient(90deg,${color},${color}66)`, marginBottom: 28, boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }} />
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
@@ -402,7 +402,7 @@ function LayoutDark({ profile, track, mobile }) {
           <div style={{ height: 5, background: `linear-gradient(90deg,${color},${color}66,transparent)` }} />
           <div style={{ padding: mobile ? "24px 18px 32px" : "32px 26px 36px" }}>
             {profile.company_logo && (
-              <img src={profile.company_logo} alt="Logo" style={{ height: 20, objectFit: "contain", marginBottom: 12, opacity: 0.6 }} />
+              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ height: 40, objectFit: "contain", marginBottom: 16, padding: "10px 12px", background: "rgba(255,255,255,0.08)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)" }} />
             )}
             <div style={{ display: "flex", gap: 14, marginBottom: 20, alignItems: "center" }}>
               <Avatar profile={profile} size={mobile ? 68 : 82} ring floating />
@@ -454,9 +454,9 @@ function LayoutBold({ profile, track, mobile }) {
           style={{ padding: mobile ? "44px 0 28px" : "56px 0 36px", textAlign: "center" }}
         >
           {profile.company_logo && (
-            <div style={{ marginBottom: 20, display: "flex", justifyContent: "center" }}>
-              <img src={profile.company_logo} alt="Logo" style={{ height: 26, objectFit: "contain", opacity: 0.75 }} />
-            </div>
+            <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ marginBottom: 24, display: "flex", justifyContent: "center" }}>
+              <img src={profile.company_logo} alt="Logo" style={{ height: 48, objectFit: "contain", opacity: 0.85, padding: "14px 16px", background: "rgba(255,255,255,0.2)", borderRadius: 16 }} />
+            </motion.div>
           )}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
             <Avatar profile={profile} size={mobile ? 86 : 104} ring floating />
@@ -521,7 +521,7 @@ function LayoutSplit({ profile, track, mobile }) {
           </div>
           <div style={{ flex: 1, padding: mobile ? "24px 18px 32px" : "30px 24px 36px" }}>
             {profile.company_logo && (
-              <img src={profile.company_logo} alt="Logo" style={{ height: 20, objectFit: "contain", marginBottom: 12, opacity: dark ? 0.5 : 0.65 }} />
+              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ height: 40, objectFit: "contain", marginBottom: 16, padding: "10px 12px", background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.08), borderRadius: 12, border: dark ? "1px solid rgba(255,255,255,0.12)" : `1px solid ${hexRgb(color, 0.2)}` }} />
             )}
             <div style={{ display: "flex", gap: 12, marginBottom: 18, alignItems: "center" }}>
               <Avatar profile={profile} size={mobile ? 60 : 74} ring floating />
