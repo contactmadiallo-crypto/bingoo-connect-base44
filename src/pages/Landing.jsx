@@ -223,6 +223,27 @@ export default function Landing() {
                 </motion.div>
               </Link>
             </motion.div>
+
+            {/* Device Activation CTA */}
+            <motion.div
+              className="mt-5 flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.6 }}
+            >
+              <Link to="/activate-device">
+                <motion.div
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-sm transition-colors cursor-pointer"
+                >
+                  <span className="text-lg">📦</span>
+                  <span className="text-white/90 text-sm font-semibold">Already have a device?</span>
+                  <span className="text-blue-200 text-sm font-bold flex items-center gap-1">
+                    Activate here <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </motion.div>
+              </Link>
+            </motion.div>
           </div>
 
           {/* NFC Tap Mockup */}
