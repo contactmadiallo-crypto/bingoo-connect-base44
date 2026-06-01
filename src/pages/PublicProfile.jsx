@@ -234,7 +234,7 @@ function LayoutClassic({ profile, track, mobile }) {
     : "#f0f4f8";
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 48px" : "28px 16px 56px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 48px" : "28px 16px 56px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <AmbientBg color={color} dark={dark} />
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -242,7 +242,7 @@ function LayoutClassic({ profile, track, mobile }) {
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}
       >
-        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)` }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
 
           {/* Cover banner */}
           <motion.div
@@ -269,7 +269,7 @@ function LayoutClassic({ profile, track, mobile }) {
           </motion.div>
 
           {/* Body */}
-          <div style={{ padding: mobile ? "0 12px 28px" : "0 26px 32px" }}>
+          <div style={{ padding: mobile ? "0 0 28px" : "0 26px 32px" }}>
             {/* Avatar & Branding Section */}
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -48 : -60, marginBottom: 20, position: "relative", zIndex: 10 }}>
               <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
@@ -340,7 +340,7 @@ function LayoutMinimal({ profile, track, mobile }) {
   const bgBase = dark ? "linear-gradient(160deg,#08091a 0%,#0d1022 100%)" : `radial-gradient(at 50% 0%,${hexRgb(color,0.1)},transparent 60%),#f1f5f9`;
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: mobile ? "0" : "44px 16px 64px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: mobile ? "0" : "44px 16px 64px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <AmbientBg color={color} dark={dark} />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -348,7 +348,7 @@ function LayoutMinimal({ profile, track, mobile }) {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}
       >
-        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 12px 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 0 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff", width: "100%" }}>
           {profile.company_logo && (
             <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 28, marginTop: -2 }}>
               <div style={{ padding: "18px 20px", background: dark ? "rgba(255,255,255,0.09)" : hexRgb(color, 0.11), borderRadius: 20, border: dark ? "1.5px solid rgba(255,255,255,0.14)" : `2px solid ${hexRgb(color, 0.35)}`, boxShadow: `0 16px 40px ${hexRgb(color, dark ? 0.2 : 0.3)}` }}>
@@ -392,7 +392,7 @@ function LayoutDark({ profile, track, mobile }) {
   const color = profile.cover_color || "#2563eb";
 
   return (
-    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#050714 0%,#0a0d1f 100%)", display: "flex", justifyContent: "center", padding: mobile ? "0 0 40px" : "32px 16px 60px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#050714 0%,#0a0d1f 100%)", display: "flex", justifyContent: "center", padding: mobile ? "0 0 40px" : "32px 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <AnimatedOrb delay={0} style={{ top: 0, left: "50%", transform: "translateX(-50%)", width: 700, height: 400, background: `radial-gradient(ellipse at 50% 0%,${hexRgb(color,0.35)},transparent 65%)` }} />
       <AnimatedOrb delay={2} style={{ bottom: 0, left: 0, width: 400, height: 400, background: `radial-gradient(circle,${hexRgb(color,0.12)},transparent 70%)` }} />
       <motion.div
@@ -401,9 +401,9 @@ function LayoutDark({ profile, track, mobile }) {
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}
       >
-        <div style={{ borderRadius: mobile ? 0 : 32, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(32px)", boxShadow: `0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)`, overflow: "hidden" }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(32px)", boxShadow: `0 40px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)`, overflow: "hidden", width: "100%" }}>
           <div style={{ height: 5, background: `linear-gradient(90deg,${color},${color}66,transparent)` }} />
-          <div style={{ padding: mobile ? "24px 12px 32px" : "32px 26px 36px" }}>
+          <div style={{ padding: mobile ? "24px 0 32px" : "32px 26px 36px" }}>
             {profile.company_logo && (
               <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
                 <div style={{ padding: "14px 16px", background: "rgba(255,255,255,0.1)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 10px 28px rgba(0,0,0,0.3)" }}>
@@ -450,15 +450,15 @@ function LayoutBold({ profile, track, mobile }) {
   const color = profile.cover_color || "#2563eb";
 
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${color} 0%,${color}cc 30%,#f0f4ff 75%,#f8f0ff 100%)`, display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "0 16px 60px", position: "relative", overflow: "hidden" }}>
+    <div style={{ minHeight: "100vh", background: `linear-gradient(160deg,${color} 0%,${color}cc 30%,#f0f4ff 75%,#f8f0ff 100%)`, display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "0 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "50vh", backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.12) 1px,transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
       <AnimatedOrb delay={0} style={{ top: "10%", right: "-10%", width: 300, height: 300, background: "rgba(255,255,255,0.1)" }} />
-      <div style={{ width: "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
+      <div style={{ width: mobile ? "100vw" : "100%", maxWidth: 420, position: "relative", zIndex: 1 }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          style={{ padding: mobile ? "40px 12px 28px" : "52px 0 36px", textAlign: "center" }}
+          style={{ padding: mobile ? "40px 0 28px" : "52px 0 36px", textAlign: "center" }}
         >
           {profile.company_logo && (
             <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.5 }} style={{ marginBottom: 28, display: "flex", justifyContent: "center" }}>
