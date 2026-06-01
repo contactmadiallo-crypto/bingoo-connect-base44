@@ -270,24 +270,24 @@ function LayoutClassic({ profile, track, mobile }) {
 
           {/* Body */}
           <div style={{ padding: mobile ? "0 16px 28px" : "0 26px 32px" }}>
-            {/* Avatar */}
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: mobile ? -40 : -52, marginBottom: 14, position: "relative" }}>
-              <Avatar profile={profile} size={mobile ? 78 : 96} ring floating />
+            {/* Avatar & Branding Section */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -48 : -60, marginBottom: 20, position: "relative", zIndex: 10 }}>
+              <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
               {profile.plan !== "free" && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5, type: "spring", stiffness: 300 }}
-                  style={{ marginBottom: 4, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 999, background: `linear-gradient(135deg,${color},${color}99)`, color: "#fff", boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }}
+                  style={{ marginTop: -14, fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", padding: "5px 14px", borderRadius: 999, background: `linear-gradient(135deg,${color},${color}99)`, color: "#fff", boxShadow: `0 4px 12px ${hexRgb(color,0.4)}`, position: "relative", zIndex: 20 }}
                 >PRO</motion.span>
               )}
             </div>
 
             {/* Identity */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-              <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: headColor, lineHeight: 1.15, letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
-              {profile.job_title && <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}bb)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
-              {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: subColor, fontWeight: 500 }}>{profile.company_name}</p>}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginBottom: 2 }}>
+              <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: headColor, lineHeight: 1.1, letterSpacing: "-0.6px" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}bb)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 14, color: subColor, fontWeight: 500 }}>{profile.company_name}</p>}
               {profile.bio && (
                 <p style={{ margin: "14px 0 0", fontSize: 13.5, lineHeight: 1.7, color: bioColor, padding: "12px 14px", borderRadius: 14, background: dark ? "rgba(255,255,255,0.04)" : hexRgb(color, 0.05), borderLeft: `3px solid ${hexRgb(color, 0.5)}` }}>{profile.bio}</p>
               )}
@@ -350,19 +350,18 @@ function LayoutMinimal({ profile, track, mobile }) {
       >
         <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 18px 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
           {profile.company_logo && (
-            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 24, marginTop: -8 }}>
-              <div style={{ padding: "16px 18px", background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), borderRadius: 18, border: dark ? "1px solid rgba(255,255,255,0.12)" : `1.5px solid ${hexRgb(color, 0.3)}`, boxShadow: `0 12px 32px ${hexRgb(color, dark ? 0.15 : 0.25)}` }}>
-                <img src={profile.company_logo} alt="Logo" style={{ height: 72, objectFit: "contain" }} />
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 28, marginTop: -2 }}>
+              <div style={{ padding: "18px 20px", background: dark ? "rgba(255,255,255,0.09)" : hexRgb(color, 0.11), borderRadius: 20, border: dark ? "1.5px solid rgba(255,255,255,0.14)" : `2px solid ${hexRgb(color, 0.35)}`, boxShadow: `0 16px 40px ${hexRgb(color, dark ? 0.2 : 0.3)}` }}>
+                <img src={profile.company_logo} alt="Logo" style={{ height: 80, objectFit: "contain" }} />
               </div>
             </motion.div>
           )}
-          <div style={{ width: 48, height: 5, borderRadius: 999, background: `linear-gradient(90deg,${color},${color}66)`, marginBottom: 28, boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
-            <Avatar profile={profile} size={mobile ? 62 : 76} ring floating />
-            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-              <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 18 : 22, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
-              {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
-              {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: subColor }}>{profile.company_name}</p>}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 22 }}>
+            <Avatar profile={profile} size={mobile ? 72 : 88} ring floating />
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22, duration: 0.5 }} style={{ textAlign: "center", marginTop: 12 }}>
+              <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 24, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.4px" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: subColor }}>{profile.company_name}</p>}
             </motion.div>
           </div>
           {profile.bio && <p style={{ margin: "0 0 22px", fontSize: 13.5, lineHeight: 1.7, color: subColor }}>{profile.bio}</p>}
@@ -459,19 +458,19 @@ function LayoutBold({ profile, track, mobile }) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          style={{ padding: mobile ? "44px 0 28px" : "56px 0 36px", textAlign: "center" }}
+          style={{ padding: mobile ? "40px 0 28px" : "52px 0 36px", textAlign: "center" }}
         >
           {profile.company_logo && (
-            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ marginBottom: 28, display: "flex", justifyContent: "center" }}>
-              <div style={{ padding: "16px 20px", background: "rgba(255,255,255,0.25)", backdropFilter: "blur(16px)", borderRadius: 18, border: "1.5px solid rgba(255,255,255,0.35)", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
-                <img src={profile.company_logo} alt="Logo" style={{ height: 76, objectFit: "contain" }} />
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.5 }} style={{ marginBottom: 28, display: "flex", justifyContent: "center" }}>
+              <div style={{ padding: "18px 22px", background: "rgba(255,255,255,0.28)", backdropFilter: "blur(18px)", borderRadius: 20, border: "1.5px solid rgba(255,255,255,0.38)", boxShadow: "0 14px 44px rgba(0,0,0,0.28)" }}>
+                <img src={profile.company_logo} alt="Logo" style={{ height: 84, objectFit: "contain" }} />
               </div>
             </motion.div>
           )}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-            <Avatar profile={profile} size={mobile ? 86 : 104} ring floating />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+            <Avatar profile={profile} size={mobile ? 94 : 114} ring floating />
           </div>
-          <h1 style={{ margin: "0 0 7px", fontSize: mobile ? 24 : 30, fontWeight: 900, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.2)", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+          <h1 style={{ margin: "0 0 8px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: "#fff", textShadow: "0 2px 14px rgba(0,0,0,0.25)", letterSpacing: "-0.6px" }}>{profile.display_name}</h1>
           {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,0.85)" }}>{profile.job_title}</p>}
           {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.55)" }}>{profile.company_name}</p>}
           {profile.bio && <p style={{ margin: "16px auto 0", fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.7)", maxWidth: 300 }}>{profile.bio}</p>}
@@ -531,18 +530,18 @@ function LayoutSplit({ profile, track, mobile }) {
           </div>
           <div style={{ flex: 1, padding: mobile ? "24px 18px 32px" : "30px 24px 36px" }}>
             {profile.company_logo && (
-              <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-                <div style={{ padding: "14px 16px", background: dark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.1), borderRadius: 16, border: dark ? "1px solid rgba(255,255,255,0.15)" : `1.5px solid ${hexRgb(color, 0.3)}`, boxShadow: `0 10px 28px ${hexRgb(color, dark ? 0.2 : 0.25)}` }}>
-                  <img src={profile.company_logo} alt="Logo" style={{ height: 68, objectFit: "contain" }} />
+              <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+                <div style={{ padding: "16px 18px", background: dark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.11), borderRadius: 18, border: dark ? "1.5px solid rgba(255,255,255,0.16)" : `2px solid ${hexRgb(color, 0.36)}`, boxShadow: `0 12px 36px ${hexRgb(color, dark ? 0.22 : 0.32)}` }}>
+                  <img src={profile.company_logo} alt="Logo" style={{ height: 76, objectFit: "contain" }} />
                 </div>
               </motion.div>
             )}
-            <div style={{ display: "flex", gap: 12, marginBottom: 18, alignItems: "center" }}>
-              <Avatar profile={profile} size={mobile ? 60 : 74} ring floating />
-              <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-                <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 17 : 21, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.3px" }}>{profile.display_name}</h1>
-                {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
-                {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: subColor }}>{profile.company_name}</p>}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 20 }}>
+              <Avatar profile={profile} size={mobile ? 70 : 86} ring floating />
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginTop: 12 }}>
+                <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 19 : 23, fontWeight: 900, color: headColor, lineHeight: 1.2, letterSpacing: "-0.4px" }}>{profile.display_name}</h1>
+                {profile.job_title && <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+                {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: subColor }}>{profile.company_name}</p>}
               </motion.div>
             </div>
             {profile.bio && <p style={{ margin: "0 0 20px", fontSize: 13.5, lineHeight: 1.7, color: subColor }}>{profile.bio}</p>}
