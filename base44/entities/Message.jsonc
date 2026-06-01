@@ -1,0 +1,96 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "Conversation ID"
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "driver",
+        "customer"
+      ],
+      "description": "Who sent the message"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Sender name"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "voice",
+        "image",
+        "location"
+      ],
+      "default": "text",
+      "description": "Type of message"
+    },
+    "content": {
+      "type": "string",
+      "description": "Message text content"
+    },
+    "voice_url": {
+      "type": "string",
+      "description": "Voice message URL"
+    },
+    "voice_duration": {
+      "type": "number",
+      "description": "Voice duration in seconds"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Image URL"
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        }
+      },
+      "description": "Shared location coordinates"
+    },
+    "read_by_driver": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_by_customer": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "conversation_id",
+    "sender_type"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
