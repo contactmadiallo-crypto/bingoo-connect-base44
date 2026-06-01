@@ -5,6 +5,10 @@ import { CheckCircle, ArrowRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
+import { base44 } from "@/api/base44Client";
+
+const goSignIn = () => base44.auth.redirectToLogin('/bingoo');
+const goActivate = () => base44.auth.redirectToLogin('/activate-device');
 
 const features = [
   { icon: "📇", title: "Digital Business Card", desc: "Share your full profile with one tap — no paper, no printing." },
@@ -136,16 +140,12 @@ export default function Landing() {
             ))}
           </div>
           <div className="flex gap-2">
-            <Link to="/bingoo">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button variant="outline" size="sm" className="border-slate-200 text-slate-700 hover:border-blue-300 hidden sm:inline-flex">Sign In</Button>
-              </motion.div>
-            </Link>
-            <Link to="/bingoo">
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">Get Started</Button>
-              </motion.div>
-            </Link>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Button variant="outline" size="sm" onClick={goSignIn} className="border-slate-200 text-slate-700 hover:border-blue-300 hidden sm:inline-flex">Sign In</Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Button size="sm" onClick={goSignIn} className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">Get Started</Button>
+            </motion.div>
           </div>
         </div>
       </motion.nav>
@@ -208,13 +208,11 @@ export default function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.65 }}
             >
-              <Link to="/bingoo" className="w-full sm:w-auto">
-                <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-                  <Button size="lg" className="w-full sm:w-auto bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl shadow-xl">
-                    Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </motion.div>
-              </Link>
+              <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
+                <Button size="lg" onClick={goSignIn} className="w-full sm:w-auto bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl shadow-xl">
+                  Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </motion.div>
               <Link to="/p/demo" className="w-full sm:w-auto">
                 <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
                   <Button size="lg" className="w-full sm:w-auto bg-white/20 hover:bg-white/30 border-2 border-white text-white font-bold text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl shadow-lg backdrop-blur-sm">
@@ -231,18 +229,17 @@ export default function Landing() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.9, duration: 0.6 }}
             >
-              <Link to="/activate-device">
-                <motion.div
-                  whileHover={{ scale: 1.04, y: -2 }}
-                  className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-sm transition-colors cursor-pointer"
-                >
+              <motion.div
+                onClick={goActivate}
+                whileHover={{ scale: 1.04, y: -2 }}
+                className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 backdrop-blur-sm transition-colors cursor-pointer"
+              >
                   <span className="text-lg">📦</span>
                   <span className="text-white/90 text-sm font-semibold">Already have a device?</span>
                   <span className="text-blue-200 text-sm font-bold flex items-center gap-1">
                     Activate here <ArrowRight className="w-3.5 h-3.5" />
                   </span>
-                </motion.div>
-              </Link>
+              </motion.div>
             </motion.div>
           </div>
 
@@ -416,13 +413,11 @@ export default function Landing() {
                     </motion.li>
                   ))}
                 </ul>
-                <Link to="/bingoo">
-                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                    <Button className={`w-full font-bold ${p.highlight ? "bg-white text-blue-600 hover:bg-blue-50" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
-                      {p.name === "Free" ? "Get Started Free" : `Start ${p.name}`}
-                    </Button>
-                  </motion.div>
-                </Link>
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <Button onClick={goSignIn} className={`w-full font-bold ${p.highlight ? "bg-white text-blue-600 hover:bg-blue-50" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+                    {p.name === "Free" ? "Get Started Free" : `Start ${p.name}`}
+                  </Button>
+                </motion.div>
               </motion.div>
             ))}
           </motion.div>
@@ -438,13 +433,11 @@ export default function Landing() {
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
             <p className="text-blue-100 text-base md:text-lg mb-8">Join thousands of professionals across Africa using Bingoo Connect.</p>
-            <Link to="/bingoo">
-              <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}>
-                <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-2xl shadow-xl">
-                  Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </motion.div>
-            </Link>
+            <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}>
+              <Button size="lg" onClick={goSignIn} className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-2xl shadow-xl">
+                Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </motion.div>
           </ScrollReveal>
         </div>
       </section>
