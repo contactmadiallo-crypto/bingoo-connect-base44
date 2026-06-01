@@ -41,5 +41,29 @@
     "visitor_email",
     "date",
     "time_slot"
-  ]
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    },
+    "update": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    },
+    "delete": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    }
+  }
 }
