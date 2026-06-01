@@ -350,7 +350,11 @@ function LayoutMinimal({ profile, track, mobile }) {
       >
         <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(255,255,255,0.8)", padding: mobile ? "36px 18px 32px" : "40px 28px 36px", boxShadow: dark ? "0 40px 80px rgba(0,0,0,0.6)" : "0 20px 60px rgba(0,0,0,0.09), inset 0 1px 0 #fff" }}>
           {profile.company_logo && (
-            <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.25, duration: 0.4 }} style={{ height: 42, objectFit: "contain", marginBottom: 18, padding: "12px 14px", background: dark ? "rgba(255,255,255,0.06)" : hexRgb(color, 0.08), borderRadius: 14, border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}` }} />
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 24, marginTop: -8 }}>
+              <div style={{ padding: "16px 18px", background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), borderRadius: 18, border: dark ? "1px solid rgba(255,255,255,0.12)" : `1.5px solid ${hexRgb(color, 0.3)}`, boxShadow: `0 12px 32px ${hexRgb(color, dark ? 0.15 : 0.25)}` }}>
+                <img src={profile.company_logo} alt="Logo" style={{ height: 72, objectFit: "contain" }} />
+              </div>
+            </motion.div>
           )}
           <div style={{ width: 48, height: 5, borderRadius: 999, background: `linear-gradient(90deg,${color},${color}66)`, marginBottom: 28, boxShadow: `0 4px 12px ${hexRgb(color,0.4)}` }} />
           <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20 }}>
@@ -402,7 +406,11 @@ function LayoutDark({ profile, track, mobile }) {
           <div style={{ height: 5, background: `linear-gradient(90deg,${color},${color}66,transparent)` }} />
           <div style={{ padding: mobile ? "24px 18px 32px" : "32px 26px 36px" }}>
             {profile.company_logo && (
-              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ height: 40, objectFit: "contain", marginBottom: 16, padding: "10px 12px", background: "rgba(255,255,255,0.08)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)" }} />
+              <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+                <div style={{ padding: "14px 16px", background: "rgba(255,255,255,0.1)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.15)", boxShadow: "0 10px 28px rgba(0,0,0,0.3)" }}>
+                  <img src={profile.company_logo} alt="Logo" style={{ height: 68, objectFit: "contain" }} />
+                </div>
+              </motion.div>
             )}
             <div style={{ display: "flex", gap: 14, marginBottom: 20, alignItems: "center" }}>
               <Avatar profile={profile} size={mobile ? 68 : 82} ring floating />
@@ -454,8 +462,10 @@ function LayoutBold({ profile, track, mobile }) {
           style={{ padding: mobile ? "44px 0 28px" : "56px 0 36px", textAlign: "center" }}
         >
           {profile.company_logo && (
-            <motion.div initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ marginBottom: 24, display: "flex", justifyContent: "center" }}>
-              <img src={profile.company_logo} alt="Logo" style={{ height: 48, objectFit: "contain", opacity: 0.85, padding: "14px 16px", background: "rgba(255,255,255,0.2)", borderRadius: 16 }} />
+            <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ marginBottom: 28, display: "flex", justifyContent: "center" }}>
+              <div style={{ padding: "16px 20px", background: "rgba(255,255,255,0.25)", backdropFilter: "blur(16px)", borderRadius: 18, border: "1.5px solid rgba(255,255,255,0.35)", boxShadow: "0 12px 40px rgba(0,0,0,0.25)" }}>
+                <img src={profile.company_logo} alt="Logo" style={{ height: 76, objectFit: "contain" }} />
+              </div>
             </motion.div>
           )}
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
@@ -521,7 +531,11 @@ function LayoutSplit({ profile, track, mobile }) {
           </div>
           <div style={{ flex: 1, padding: mobile ? "24px 18px 32px" : "30px 24px 36px" }}>
             {profile.company_logo && (
-              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.4 }} style={{ height: 40, objectFit: "contain", marginBottom: 16, padding: "10px 12px", background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.08), borderRadius: 12, border: dark ? "1px solid rgba(255,255,255,0.12)" : `1px solid ${hexRgb(color, 0.2)}` }} />
+              <motion.div initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
+                <div style={{ padding: "14px 16px", background: dark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.1), borderRadius: 16, border: dark ? "1px solid rgba(255,255,255,0.15)" : `1.5px solid ${hexRgb(color, 0.3)}`, boxShadow: `0 10px 28px ${hexRgb(color, dark ? 0.2 : 0.25)}` }}>
+                  <img src={profile.company_logo} alt="Logo" style={{ height: 68, objectFit: "contain" }} />
+                </div>
+              </motion.div>
             )}
             <div style={{ display: "flex", gap: 12, marginBottom: 18, alignItems: "center" }}>
               <Avatar profile={profile} size={mobile ? 60 : 74} ring floating />
