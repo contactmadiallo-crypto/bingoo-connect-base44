@@ -186,8 +186,8 @@ export default function Landing() {
               </Link>
               <Link to="/p/demo" className="w-full sm:w-auto">
                 <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto border-white/40 text-white hover:bg-white/10 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl">
-                    See Live Demo
+                  <Button size="lg" className="w-full sm:w-auto bg-white/20 hover:bg-white/30 border-2 border-white text-white font-bold text-base md:text-lg px-6 md:px-8 py-5 md:py-6 rounded-2xl shadow-lg backdrop-blur-sm">
+                    👀 See Live Demo
                   </Button>
                 </motion.div>
               </Link>
