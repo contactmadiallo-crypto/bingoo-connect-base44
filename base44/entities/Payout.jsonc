@@ -1,0 +1,98 @@
+{
+  "name": "Payout",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string",
+      "description": "Driver ID"
+    },
+    "driver_name": {
+      "type": "string",
+      "description": "Driver name for reference"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payout amount"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Payout status"
+    },
+    "payment_method_id": {
+      "type": "string",
+      "description": "Payment method used"
+    },
+    "payment_method_type": {
+      "type": "string",
+      "description": "Type of payment method"
+    },
+    "payment_details": {
+      "type": "string",
+      "description": "Last 4 digits or identifier"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When payout was requested"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When payout was completed"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "External transaction reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes or reason for failure"
+    }
+  },
+  "required": [
+    "driver_id",
+    "amount",
+    "status"
+  ],
+  "rls": {
+    "create": {
+      "data.driver_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.driver_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.driver_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
