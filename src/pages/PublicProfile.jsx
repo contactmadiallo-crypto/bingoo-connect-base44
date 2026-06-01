@@ -778,19 +778,44 @@ function LayoutGradient({ profile, track, mobile }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, card: LayoutCard, dark: LayoutDark, bold: LayoutBold, split: LayoutSplit, glassmorphic: LayoutGlassmorphic, gradient: LayoutGradient };
 
+const DEMO_PROFILE = {
+  id: "demo",
+  username: "demo",
+  display_name: "Amadou Diallo",
+  job_title: "Digital Marketing Expert",
+  company_name: "Bingoo Connect",
+  bio: "Helping African businesses grow their digital presence. One tap to share everything.",
+  cover_color: "#2563eb",
+  layout: "classic",
+  bg_style: "clean",
+  button_style: "pill",
+  phone: "+221 77 000 0000",
+  whatsapp_number: "221770000000",
+  email: "amadou@bingooconnect.com",
+  website: "https://bingooconnect.com",
+  instagram_url: "https://instagram.com",
+  linkedin_url: "https://linkedin.com",
+  location: "Dakar, Senegal",
+  show_location: true,
+  plan: "pro",
+  is_active: true,
+  booking_enabled: true,
+};
+
 export default function PublicProfile() {
   const { username } = useParams();
   const mobile = useIsMobile();
+  const isDemo = username === "demo";
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["public-profile", username],
-    queryFn: () => base44.entities.Profile.filter({ username }),
+    queryFn: () => isDemo ? [DEMO_PROFILE] : base44.entities.Profile.filter({ username }),
   });
 
   const profile = profiles[0];
 
   useEffect(() => {
-    if (profile?.id) trackEvent(profile.id, "profile_view");
+    if (profile?.id && !isDemo) trackEvent(profile.id, "profile_view");
   }, [profile?.id]);
 
   if (isLoading) return (
@@ -810,9 +835,8 @@ export default function PublicProfile() {
     </div>
   );
 
-  const track = (ev) => trackEvent(profile.id, ev);
+  const track = (ev) => !isDemo && trackEvent(profile.id, ev);
   const Layout = LAYOUTS[profile.layout || "classic"] || LayoutClassic;
-  const isDemo = username === "demo";
   
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
@@ -827,7 +851,7 @@ export default function PublicProfile() {
           <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, margin: 0, position: "relative", zIndex: 1 }}>NFC card taps phone · profile opens instantly</p>
         </div>
       )}
-      {!isDemo && <Layout profile={profile} track={track} mobile={mobile} />}
+      <Layout profile={profile} track={track} mobile={mobile} />
     </motion.div>
   );
 }

@@ -1,0 +1,75 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "addresses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Address label (Home, Work, etc.)"
+          },
+          "address": {
+            "type": "string",
+            "description": "Full address"
+          },
+          "city": {
+            "type": "string"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Delivery instructions"
+          },
+          "is_default": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "default": [],
+      "description": "Saved delivery addresses"
+    },
+    "default_delivery_instructions": {
+      "type": "string",
+      "description": "Default delivery instructions"
+    },
+    "dietary_preferences": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Dietary preferences"
+    },
+    "payment_methods": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "last_four": {
+            "type": "string"
+          },
+          "is_default": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "default": [],
+      "description": "Saved payment methods"
+    }
+  },
+  "required": [
+    "phone",
+    "default_delivery_instructions"
+  ]
+}
