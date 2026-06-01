@@ -9,6 +9,7 @@ import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
+import DesignTab from "@/components/bingoo/DesignTab";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -23,6 +24,7 @@ const TABS = [
   { id: "devices",       label: "My Devices",    icon: Smartphone,   color: "#06b6d4" },
   { id: "analytics",     label: "Analytics",     icon: BarChart3,    color: "#ec4899" },
   { id: "portfolio",     label: "Portfolio",     icon: Briefcase,    color: "#8b5cf6" },
+  { id: "design",        label: "Design",        icon: Palette,      color: "#ec4899" },
 ];
 
 export default function BingooDashboard() {
@@ -382,6 +384,7 @@ export default function BingooDashboard() {
         {tab === "devices"      && <DevicesPanel profileId={profile?.id} />}
         {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
         {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} />}
+        {tab === "design"       && <DesignTab profile={profile} />}
 
         {/* Layout Picker Modal */}
         {showLayoutPicker && profile && (
