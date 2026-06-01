@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock } from "lucide-react";
 
 const PLAN_COLORS = { free: "bg-slate-100 text-slate-600", pro: "bg-blue-100 text-blue-700", business: "bg-purple-100 text-purple-700" };
 
@@ -50,9 +50,15 @@ export default function AdminDashboard() {
     .filter(p => planFilter === "all" || p.plan === planFilter)
     .filter(p => [p.username, p.display_name, p.company_name, p.email].some(v => v?.toLowerCase().includes(search.toLowerCase())));
 
+  const recentActivations = devices
+    .filter(d => d.assigned_at)
+    .sort((a, b) => new Date(b.assigned_at) - new Date(a.assigned_at))
+    .slice(0, 20);
+
   const TABS = [
     { id: "users", label: "Users & Profiles", icon: Users, count: profiles.length },
     { id: "devices", label: "NFC Devices", icon: Smartphone, count: devices.length },
+    { id: "activations", label: "Recent Activations", icon: Clock, count: recentActivations.length },
     { id: "leads", label: "All Leads", icon: Star, count: leads.length },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
@@ -291,6 +297,56 @@ export default function AdminDashboard() {
                   <p>No leads yet across any profiles</p>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Recent Activations */}
+        {tab === "activations" && (
+          <div className="space-y-4">
+            <p className="text-slate-500 text-sm">{recentActivations.length} devices activated (showing latest 20)</p>
+            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      {["Device Code","Type","User","Profile","Activated"].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {recentActivations.map(d => {
+                      const linkedProfile = profiles.find(p => p.id === d.profile_id);
+                      return (
+                        <tr key={d.id} className="hover:bg-slate-50">
+                          <td className="px-5 py-4 font-mono text-sm font-bold text-slate-900">{d.device_code}</td>
+                          <td className="px-5 py-4 text-sm text-slate-600 capitalize">{d.device_type}</td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              {linkedProfile?.profile_photo
+                                ? <img src={linkedProfile.profile_photo} className="w-7 h-7 rounded-full object-cover" alt="" />
+                                : <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-white text-xs" style={{ background: linkedProfile?.cover_color || "#2563eb" }}>{linkedProfile?.display_name?.charAt(0) || "?"}</div>
+                              }
+                              <span className="text-sm font-bold text-slate-900">{linkedProfile?.display_name || "Unknown"}</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 text-sm text-slate-600">
+                            <a href={`/p/${linkedProfile?.username}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{linkedProfile?.username || "—"}</a>
+                          </td>
+                          <td className="px-5 py-4 text-xs text-slate-500">{new Date(d.assigned_at).toLocaleDateString()} {new Date(d.assigned_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {recentActivations.length === 0 && (
+                  <div className="text-center py-12 text-slate-400">
+                    <Clock className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No device activations yet</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
