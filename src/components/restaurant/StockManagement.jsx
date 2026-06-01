@@ -7,9 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { AlertTriangle, Check, X } from "lucide-react";
 import { toast } from "sonner";
+import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 
 export default function StockManagement({ restaurant, menuItems }) {
   const queryClient = useQueryClient();
+
+  const [localMenuItems, setLocalMenuItems] = React.useState(menuItems);
+  
+  const { optimisticUpdate } = useOptimisticUpdate(
+    (prevItems, { id, available }) => prevItems.map(item => item.id === id ? { ...item, available } : item),
+    setLocalMenuItems
+  );
 
   const toggleAvailabilityMutation = useMutation({
     mutationFn: ({ id, available }) => base44.entities.MenuItem.update(id, { available }),
@@ -18,6 +26,11 @@ export default function StockManagement({ restaurant, menuItems }) {
       toast.success(variables.available ? "✅ Article disponible" : "🚫 Article indisponible");
     },
   });
+
+  const handleToggleAvailability = (id, available) => {
+    optimisticUpdate(localMenuItems, { id, available });
+    toggleAvailabilityMutation.mutate({ id, available });
+  };
 
   const myMenuItems = menuItems.filter(m => m.restaurant_id === restaurant?.id);
   const availableItems = myMenuItems.filter(i => i.available);
@@ -127,7 +140,7 @@ export default function StockManagement({ restaurant, menuItems }) {
                           <Switch
                             checked={item.available}
                             onCheckedChange={(checked) =>
-                              toggleAvailabilityMutation.mutate({ id: item.id, available: checked })
+                              handleToggleAvailability(item.id, checked)
                             }
                             className="data-[state=checked]:bg-green-500"
                           />

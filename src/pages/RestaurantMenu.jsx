@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ShoppingCart, Plus, Minus, Truck, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useOptimisticUpdate } from "@/hooks/useOptimisticUpdate";
 
 const categoryIcons = {
   appetizers: "🥗",
@@ -47,22 +48,18 @@ export default function RestaurantMenu() {
 
   const categories = ["all", "appetizers", "main_course", "desserts", "beverages", "sides"];
 
-  const addToCart = (item) => {
-    const existing = cart.find(c => c.menu_item_id === item.id);
-    if (existing) {
-      setCart(cart.map(c => 
-        c.menu_item_id === item.id 
-          ? { ...c, quantity: c.quantity + 1 }
-          : c
-      ));
-    } else {
-      setCart([...cart, {
-        menu_item_id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: 1
-      }]);
-    }
+  const { optimisticUpdate: addToCart } = useOptimisticUpdate(
+    (prevCart, item) => {
+      const existing = prevCart.find(c => c.menu_item_id === item.id);
+      return existing
+        ? prevCart.map(c => c.menu_item_id === item.id ? { ...c, quantity: c.quantity + 1 } : c)
+        : [...prevCart, { menu_item_id: item.id, name: item.name, price: item.price, quantity: 1 }];
+    },
+    (prevCart) => setCart(prevCart)
+  );
+  
+  const handleAddToCart = (item) => {
+    addToCart(cart, item);
   };
 
   const updateQuantity = (itemId, delta) => {
@@ -198,7 +195,7 @@ export default function RestaurantMenu() {
                             <p className="text-xs text-slate-500 mb-3">⏱️ {item.preparation_time} min</p>
                           )}
                           <Button 
-                            onClick={() => addToCart(item)}
+                            onClick={() => handleAddToCart(item)}
                             className="w-full bg-gradient-to-r from-orange-500 to-red-500"
                           >
                             <Plus className="w-4 h-4 mr-2" />

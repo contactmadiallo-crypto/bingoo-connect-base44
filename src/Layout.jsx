@@ -1,4 +1,5 @@
 import React from "react";
+import { PullToRefreshContainer } from '@/components/mobile/PullToRefreshContainer';
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -246,16 +247,18 @@ export default function Layout({ children, currentPageName }) {
             </SidebarFooter>
             </Sidebar>
 
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-xl border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
+        <main className="flex-1 flex flex-col dark:bg-slate-900">
+          <header className="bg-white/80 dark:bg-slate-800/80 dark:border-slate-700 dark:text-white backdrop-blur-xl border-b border-slate-200 px-6 py-4 md:hidden sticky top-0 z-10">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
-              <h1 className="text-xl font-bold text-slate-900">FoodHub</h1>
+              <SidebarTrigger className="hover:bg-slate-100 dark:hover:bg-slate-700 p-2 rounded-lg transition-colors duration-200" />
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">FoodHub</h1>
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto">
-            {children}
+          <div className="flex-1 overflow-auto dark:bg-slate-900">
+            <PullToRefreshContainer>
+              {children}
+            </PullToRefreshContainer>
           </div>
         </main>
       </div>

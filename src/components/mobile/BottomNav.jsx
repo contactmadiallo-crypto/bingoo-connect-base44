@@ -1,9 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 export default function BottomNav({ tabs = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { pushRoute } = useNavigationStack();
+
+  const handleTabPress = (path) => {
+    pushRoute(path);
+    navigate(path);
+  };
 
   return (
     <motion.div
@@ -18,7 +25,7 @@ export default function BottomNav({ tabs = [] }) {
           return (
             <button
               key={tab.path}
-              onClick={() => navigate(tab.path)}
+              onClick={() => handleTabPress(tab.path)}
               className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
                 isActive
                   ? 'text-blue-600'
