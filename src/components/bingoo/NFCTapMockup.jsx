@@ -1,5 +1,5 @@
 import { motion, useAnimation } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const profileRows = [
   { delay: 0.04, content: (
@@ -29,46 +29,60 @@ export default function NFCTapMockup() {
   const profileCtrl = useAnimation();
   const rippleCtrl  = useAnimation();
   const glowCtrl    = useAnimation();
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-    async function loop() {
-      while (!cancelled) {
-        // Reset positions
-        cardCtrl.set({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, opacity: 1 });
-        profileCtrl.set({ y: "100%", opacity: 0 });
-        rippleCtrl.set({ scale: 0, opacity: 0 });
-        glowCtrl.set({ opacity: 0, scale: 0.8 });
-        await new Promise(r => setTimeout(r, 500));
 
-        // Card floats up
-        await cardCtrl.start({ y: -48, rotateY: 26, rotateX: -6, transition: { duration: 0.9, ease: "easeOut" } });
-        await new Promise(r => setTimeout(r, 300));
+    const startLoop = async () => {
+      // Wait for component to be fully mounted
+      await new Promise(r => setTimeout(r, 500));
+      if (!mountedRef.current || cancelled) return;
 
-        // Card taps phone — FAST
-        await cardCtrl.start({ x: 8, y: -8, rotateY: 3, rotateX: 0, rotateZ: -2, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } });
+      while (mountedRef.current && !cancelled) {
+        try {
+          // Reset positions
+          cardCtrl.set({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, opacity: 1 });
+          profileCtrl.set({ y: "100%", opacity: 0 });
+          rippleCtrl.set({ scale: 0, opacity: 0 });
+          glowCtrl.set({ opacity: 0, scale: 0.8 });
+          await new Promise(r => setTimeout(r, 500));
 
-        // Ripple + glow instantly
-        rippleCtrl.start({ scale: [0, 2], opacity: [0.9, 0], transition: { duration: 0.45, ease: "easeOut" } });
-        glowCtrl.start({ opacity: [0, 1, 0], scale: [0.8, 1.4, 1], transition: { duration: 0.5 } });
+          // Card floats up
+          await cardCtrl.start({ y: -48, rotateY: 26, rotateX: -6, transition: { duration: 0.9, ease: "easeOut" } });
+          await new Promise(r => setTimeout(r, 300));
 
-        // Profile slides up fast
-        await profileCtrl.start({ y: "0%", opacity: 1, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1], delay: 0.06 } });
+          // Card taps phone — FAST
+          await cardCtrl.start({ x: 8, y: -8, rotateY: 3, rotateX: 0, rotateZ: -2, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } });
 
-        await new Promise(r => setTimeout(r, 2200));
+          // Ripple + glow instantly
+          rippleCtrl.start({ scale: [0, 2], opacity: [0.9, 0], transition: { duration: 0.45, ease: "easeOut" } });
+          glowCtrl.start({ opacity: [0, 1, 0], scale: [0.8, 1.4, 1], transition: { duration: 0.5 } });
 
-        // Card retreats
-        cardCtrl.start({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, transition: { duration: 0.55, ease: "easeIn" } });
-        await profileCtrl.start({ y: "100%", opacity: 0, transition: { duration: 0.3, ease: "easeIn" } });
-        await new Promise(r => setTimeout(r, 600));
+          // Profile slides up fast
+          await profileCtrl.start({ y: "0%", opacity: 1, transition: { duration: 0.38, ease: [0.22, 1, 0.36, 1], delay: 0.06 } });
+
+          await new Promise(r => setTimeout(r, 2200));
+
+          // Card retreats
+          cardCtrl.start({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, transition: { duration: 0.55, ease: "easeIn" } });
+          await profileCtrl.start({ y: "100%", opacity: 0, transition: { duration: 0.3, ease: "easeIn" } });
+          await new Promise(r => setTimeout(r, 600));
+        } catch (e) {
+          // Animation cancelled or component unmounted
+          break;
+        }
       }
-    }
-    (async () => {
-      await new Promise(r => setTimeout(r, 300));
-      if (!cancelled) loop();
-    })();
+    };
+
+    startLoop();
     return () => { cancelled = true; };
-  }, []);
+  }, [cardCtrl, profileCtrl, rippleCtrl, glowCtrl]);
 
   return (
     <div className="relative flex items-center justify-center select-none" style={{ perspective: "900px", height: 340 }}>
