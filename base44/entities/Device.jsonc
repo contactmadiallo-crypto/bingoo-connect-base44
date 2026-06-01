@@ -1,0 +1,49 @@
+{
+  "name": "Device",
+  "type": "object",
+  "properties": {
+    "device_code": {
+      "type": "string",
+      "description": "Unique activation code e.g. BG-10001"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "card",
+        "keychain",
+        "bracelet",
+        "stand",
+        "badge"
+      ],
+      "default": "card"
+    },
+    "activation_status": {
+      "type": "string",
+      "enum": [
+        "available",
+        "active",
+        "inactive"
+      ],
+      "default": "available"
+    },
+    "assigned_user": {
+      "type": "string",
+      "description": "User ID who activated the device"
+    },
+    "assigned_profile": {
+      "type": "string",
+      "description": "Profile ID linked to this device"
+    },
+    "activation_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nickname": {
+      "type": "string",
+      "description": "Optional user-defined name for the device"
+    }
+  },
+  "required": [
+    "device_code"
+  ]
+}

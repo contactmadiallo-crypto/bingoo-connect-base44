@@ -381,7 +381,18 @@ export default function BingooDashboard() {
         {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} onSaved={() => { refetchProfiles(); setTab("overview"); }} />}
         {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
         {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
-        {tab === "devices"      && <DevicesPanel profileId={profile?.id} />}
+        {tab === "devices"      && (
+          <div className="space-y-4">
+            <div className="flex justify-end">
+              <Link to="/activate-device">
+                <Button className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2">
+                  <Smartphone className="w-4 h-4" /> Activate Device
+                </Button>
+              </Link>
+            </div>
+            <DevicesPanel profileId={profile?.id} />
+          </div>
+        )}
         {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
         {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} />}
         {tab === "design"       && <DesignTab profile={profile} />}
