@@ -43,5 +43,25 @@
     "profile_id",
     "event_type",
     "created_at"
-  ]
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
