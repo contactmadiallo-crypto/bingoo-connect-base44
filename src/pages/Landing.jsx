@@ -7,8 +7,23 @@ import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
 import { base44 } from "@/api/base44Client";
 
-const goSignIn = () => base44.auth.redirectToLogin('/bingoo');
-const goActivate = () => base44.auth.redirectToLogin('/activate-device');
+const goSignIn = async () => {
+  const authed = await base44.auth.isAuthenticated();
+  if (authed) {
+    window.location.href = '/bingoo';
+  } else {
+    base44.auth.redirectToLogin('/bingoo');
+  }
+};
+
+const goActivate = async () => {
+  const authed = await base44.auth.isAuthenticated();
+  if (authed) {
+    window.location.href = '/activate-device';
+  } else {
+    base44.auth.redirectToLogin('/activate-device');
+  }
+};
 
 const features = [
   { icon: "📇", title: "Digital Business Card", desc: "Share your full profile with one tap — no paper, no printing." },
