@@ -1,0 +1,82 @@
+{
+  "name": "DriverPaymentMethod",
+  "type": "object",
+  "properties": {
+    "driver_id": {
+      "type": "string",
+      "description": "Driver ID"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "bank_account",
+        "wave",
+        "orange_money",
+        "free_money"
+      ],
+      "description": "Payment method type"
+    },
+    "account_holder_name": {
+      "type": "string",
+      "description": "Name on the account"
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "Bank name (for bank accounts)"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Phone number (for mobile money)"
+    },
+    "account_number": {
+      "type": "string",
+      "description": "Account number (for bank accounts)"
+    },
+    "routing_number": {
+      "type": "string",
+      "description": "Routing/SWIFT code (for bank accounts)"
+    },
+    "last_four": {
+      "type": "string",
+      "description": "Last 4 digits for display"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Default payment method"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Verification status"
+    }
+  },
+  "required": [
+    "driver_id",
+    "type",
+    "account_holder_name"
+  ],
+  "rls": {
+    "create": {
+      "data.driver_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.driver_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "data.driver_id": "{{user.id}}"
+    },
+    "delete": {
+      "data.driver_id": "{{user.id}}"
+    }
+  }
+}
