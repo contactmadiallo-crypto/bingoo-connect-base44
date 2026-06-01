@@ -21,43 +21,29 @@ const statusColors = {
 };
 
 export default function KitchenView() {
-  const [user, setUser] = useState(null);
-  const [restaurant, setRestaurant] = useState(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [orderTypeFilter, setOrderTypeFilter] = useState("all");
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const { data: allRestaurants = [] } = useQuery({
-    queryKey: ['all-restaurants'],
-    queryFn: () => base44.entities.Restaurant.list(),
-    enabled: !!user,
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
   });
 
-  const loadUser = async () => {
-    const currentUser = await base44.auth.me();
-    setUser(currentUser);
-    
-    if (currentUser?.email) {
-      const restaurants = await base44.entities.Restaurant.filter({ owner_email: currentUser.email });
-      if (restaurants.length > 0) {
-        setRestaurant(restaurants[0]);
-        setSelectedRestaurantId(restaurants[0].id);
-      } else {
-        setRestaurant(null);
-      }
-    }
-  };
+  const { data: allRestaurants = [] } = useQuery({
+    queryKey: ['all-restaurants', user?.email],
+    queryFn: () => base44.entities.Restaurant.filter({ owner_email: user?.email }),
+    enabled: !!user?.email,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const restaurant = allRestaurants.find(r => r.id === selectedRestaurantId) || allRestaurants[0];
 
   const handleRestaurantChange = (restaurantId) => {
     setSelectedRestaurantId(restaurantId);
-    const selected = allRestaurants.find(r => r.id === restaurantId);
-    setRestaurant(selected);
   };
 
   const { data: orders, isLoading } = useQuery({
@@ -69,7 +55,8 @@ export default function KitchenView() {
       return [];
     },
     initialData: [],
-    refetchInterval: 3000,
+    refetchInterval: 5000,
+    staleTime: 2000,
     enabled: !!selectedRestaurantId,
   });
 
