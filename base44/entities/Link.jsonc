@@ -48,5 +48,62 @@
     "profile_id",
     "title",
     "url"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
 }
