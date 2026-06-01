@@ -1,0 +1,118 @@
+{
+  "name": "LoyaltyReward",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "Restaurant ID"
+    },
+    "title": {
+      "type": "string",
+      "description": "Reward title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Reward description"
+    },
+    "points_required": {
+      "type": "number",
+      "description": "Points needed to redeem"
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "percentage",
+        "fixed_amount",
+        "free_item"
+      ],
+      "description": "Type of discount"
+    },
+    "discount_value": {
+      "type": "number",
+      "description": "Discount amount or percentage"
+    },
+    "tier_required": {
+      "type": "string",
+      "enum": [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum"
+      ],
+      "default": "bronze",
+      "description": "Minimum tier required"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether reward is active"
+    },
+    "usage_limit": {
+      "type": "number",
+      "description": "Max times this can be redeemed"
+    },
+    "times_redeemed": {
+      "type": "number",
+      "default": 0,
+      "description": "Times this has been redeemed"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "title",
+    "points_required",
+    "discount_type",
+    "discount_value"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
