@@ -1,0 +1,86 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Expense description"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Expense amount"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "materials",
+        "software",
+        "services",
+        "travel",
+        "equipment",
+        "marketing",
+        "salary",
+        "other"
+      ],
+      "default": "other"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Associated project ID"
+    },
+    "work_id": {
+      "type": "string",
+      "description": "Associated work item ID"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "URL to receipt file"
+    },
+    "paid_by": {
+      "type": "string",
+      "description": "Who paid for this expense"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "paid",
+        "rejected"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "description",
+    "amount",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
