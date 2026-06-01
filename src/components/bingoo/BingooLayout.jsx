@@ -143,8 +143,8 @@ export default function BingooLayout({ children }) {
         <SidebarContent onNav={null} />
       </aside>
 
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 px-4 py-3 flex items-center justify-between"
-        style={{ background: t.headerBg, borderBottom: `1px solid ${t.headerBorder}` }}>
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 px-4 flex items-center justify-between safe-top"
+        style={{ background: t.headerBg, borderBottom: `1px solid ${t.headerBorder}`, paddingTop: `calc(0.75rem + env(safe-area-inset-top))`, paddingBottom: "0.75rem" }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
             <Zap className="w-4 h-4 text-white fill-white" />
@@ -170,7 +170,38 @@ export default function BingooLayout({ children }) {
         </div>
       )}
 
-      <main className="flex-1 md:ml-64 pt-14 md:pt-0 min-h-screen" style={{ background: t.bg }}>
+      {/* Mobile Bottom Tab Bar */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center justify-around"
+        style={{ background: t.headerBg, borderTop: `1px solid ${t.headerBorder}`, paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {[
+          { label: "Home",      icon: Home,          href: "/bingoo",                  color: "#3b82f6" },
+          { label: "Profile",   icon: User,          href: "/bingoo?tab=profile",       color: "#8b5cf6" },
+          { label: "Devices",   icon: Smartphone,    href: "/bingoo?tab=devices",       color: "#06b6d4" },
+          { label: "Analytics", icon: BarChart3,     href: "/bingoo?tab=analytics",     color: "#ec4899" },
+          { label: "More",      icon: Menu,          href: null,                        color: "#64748b" },
+        ].map((item) => {
+          if (item.href === null) {
+            return (
+              <button key="more" onClick={() => setMobileOpen(true)}
+                className="flex flex-col items-center gap-0.5 px-3 py-2 min-w-[60px]">
+                <item.icon className="w-5 h-5" style={{ color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8" }} />
+                <span className="text-[10px] font-semibold" style={{ color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8" }}>More</span>
+              </button>
+            );
+          }
+          const active = isActive(item.href);
+          return (
+            <Link key={item.label} to={item.href}
+              className="flex flex-col items-center gap-0.5 px-3 py-2 min-w-[60px] transition-all">
+              <item.icon className="w-5 h-5 transition-all" style={{ color: active ? item.color : (isDark ? "rgba(255,255,255,0.3)" : "#94a3b8") }} />
+              <span className="text-[10px] font-semibold transition-all" style={{ color: active ? item.color : (isDark ? "rgba(255,255,255,0.3)" : "#94a3b8") }}>{item.label}</span>
+              {active && <span className="w-1 h-1 rounded-full" style={{ background: item.color }} />}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <main className="flex-1 md:ml-64 pt-14 md:pt-0 pb-safe md:pb-0 min-h-screen" style={{ background: t.bg }}>
         {children}
       </main>
     </div>

@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── iOS Mobile Enhancements ─────────────────────────────── */
+html, body {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable text selection on interactive UI elements */
+button, a, nav, [role="tab"], [role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Safe area inset utilities */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pb-safe {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+.h-tab-bar {
+  height: calc(4rem + env(safe-area-inset-bottom));
+}
+
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

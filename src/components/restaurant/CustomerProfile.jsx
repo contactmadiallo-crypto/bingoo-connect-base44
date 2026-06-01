@@ -30,6 +30,8 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
     wallet_phone: ""
   });
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteInput, setDeleteInput] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -454,11 +456,49 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
         </Tabs>
 
         <Card className="mt-6">
-          <CardContent className="pt-6">
+          <CardContent className="pt-6 space-y-3">
             <Button variant="outline" onClick={() => base44.auth.logout()} className="w-full">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
+          </CardContent>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card className="mt-4 border-red-100">
+          <CardContent className="pt-6">
+            <h3 className="font-semibold text-red-600 mb-1 flex items-center gap-2"><Trash2 className="w-4 h-4" /> Danger Zone</h3>
+            <p className="text-sm text-slate-500 mb-4">Permanently delete your account and all associated data. This action cannot be undone.</p>
+            {!showDeleteConfirm ? (
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(true)}
+                className="w-full border-red-200 text-red-600 hover:bg-red-50">
+                Delete Account
+              </Button>
+            ) : (
+              <div className="space-y-3 p-4 rounded-xl bg-red-50 border border-red-200">
+                <p className="text-sm font-semibold text-red-700">Type <strong>DELETE</strong> to confirm:</p>
+                <Input
+                  placeholder="Type DELETE"
+                  value={deleteInput}
+                  onChange={e => setDeleteInput(e.target.value)}
+                  className="border-red-300 focus:ring-red-400"
+                />
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => { setShowDeleteConfirm(false); setDeleteInput(""); }}
+                    className="flex-1">Cancel</Button>
+                  <Button
+                    disabled={deleteInput !== "DELETE"}
+                    onClick={() => {
+                      if (deleteInput === "DELETE") {
+                        base44.auth.logout();
+                      }
+                    }}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-40">
+                    Confirm Delete
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
