@@ -37,31 +37,16 @@
     "created_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "description": {
+      "type": "string",
+      "description": "Analytics event description or notes",
+      "maxLength": 1000
     }
   },
   "required": [
     "profile_id",
     "event_type",
     "created_at"
-  ],
-  "rls": {
-    "create": {},
-    "read": {
-      "data.profile_id": {
-        "$in": [
-          "{{user.data.owned_profile_ids}}"
-        ]
-      }
-    },
-    "update": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
-    }
-  }
+  ]
 }

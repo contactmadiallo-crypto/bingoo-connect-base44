@@ -53,6 +53,11 @@
         "other"
       ],
       "default": "other"
+    },
+    "description": {
+      "type": "string",
+      "description": "Inventory item description or notes",
+      "maxLength": 1000
     }
   },
   "required": [
@@ -60,71 +65,5 @@
     "item_name",
     "quantity",
     "unit"
-  ],
-  "rls": {
-    "create": {
-      "$or": [
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "read": {
-      "$or": [
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "update": {
-      "$or": [
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "delete": {
-      "$or": [
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    }
-  }
+  ]
 }

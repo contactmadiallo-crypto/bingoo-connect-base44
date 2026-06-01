@@ -63,48 +63,16 @@
       "type": "number",
       "default": 0,
       "description": "Number of users who found this helpful"
+    },
+    "description": {
+      "type": "string",
+      "description": "Review description or summary",
+      "maxLength": 1000
     }
   },
   "required": [
     "restaurant_id",
     "customer_email",
     "rating"
-  ],
-  "rls": {
-    "create": {
-      "created_by_id": "{{user.id}}"
-    },
-    "read": {},
-    "update": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
-    "delete": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    }
-  }
+  ]
 }

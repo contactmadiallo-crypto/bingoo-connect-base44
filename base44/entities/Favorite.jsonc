@@ -29,25 +29,16 @@
     "menu_item_name": {
       "type": "string",
       "description": "Menu item name (only for menu item favorites)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Favorite description or notes",
+      "maxLength": 1000
     }
   },
   "required": [
     "customer_email",
     "type",
     "restaurant_id"
-  ],
-  "rls": {
-    "create": {
-      "data.customer_email": "{{user.email}}"
-    },
-    "read": {
-      "data.customer_email": "{{user.email}}"
-    },
-    "update": {
-      "data.customer_email": "{{user.email}}"
-    },
-    "delete": {
-      "data.customer_email": "{{user.email}}"
-    }
-  }
+  ]
 }
