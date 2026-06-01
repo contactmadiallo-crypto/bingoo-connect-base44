@@ -1,0 +1,53 @@
+{
+  "name": "Favorite",
+  "type": "object",
+  "properties": {
+    "customer_email": {
+      "type": "string",
+      "description": "Customer email"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "restaurant",
+        "menu_item"
+      ],
+      "description": "Type of favorite"
+    },
+    "restaurant_id": {
+      "type": "string",
+      "description": "Restaurant ID (for both restaurant and menu item favorites)"
+    },
+    "restaurant_name": {
+      "type": "string",
+      "description": "Restaurant name"
+    },
+    "menu_item_id": {
+      "type": "string",
+      "description": "Menu item ID (only for menu item favorites)"
+    },
+    "menu_item_name": {
+      "type": "string",
+      "description": "Menu item name (only for menu item favorites)"
+    }
+  },
+  "required": [
+    "customer_email",
+    "type",
+    "restaurant_id"
+  ],
+  "rls": {
+    "create": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "read": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "update": {
+      "data.customer_email": "{{user.email}}"
+    },
+    "delete": {
+      "data.customer_email": "{{user.email}}"
+    }
+  }
+}
