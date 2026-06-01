@@ -1,0 +1,267 @@
+{
+  "name": "DeliveryPartner",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Driver's full name"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name (if applicable)"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "national_id": {
+      "type": "string",
+      "description": "National ID or driver's license number"
+    },
+    "address": {
+      "type": "string",
+      "description": "Residential address"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "emergency_contact_name": {
+      "type": "string"
+    },
+    "emergency_contact_phone": {
+      "type": "string"
+    },
+    "vehicle_type": {
+      "type": "string",
+      "enum": [
+        "bicycle",
+        "motorcycle",
+        "car"
+      ],
+      "description": "Type of vehicle"
+    },
+    "vehicle_make": {
+      "type": "string",
+      "description": "Car/motorcycle manufacturer (e.g., Toyota, Honda)"
+    },
+    "vehicle_model": {
+      "type": "string",
+      "description": "Vehicle model"
+    },
+    "vehicle_year": {
+      "type": "number",
+      "description": "Year of manufacture"
+    },
+    "vehicle_color": {
+      "type": "string"
+    },
+    "license_plate": {
+      "type": "string",
+      "description": "Vehicle registration/license plate"
+    },
+    "driver_license_number": {
+      "type": "string",
+      "description": "Driver's license number"
+    },
+    "insurance_number": {
+      "type": "string",
+      "description": "Vehicle insurance number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "commission_rate": {
+      "type": "number",
+      "description": "Commission percentage per delivery"
+    },
+    "coverage_area": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas covered"
+    },
+    "preferred_zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "radius_km": {
+            "type": "number",
+            "default": 2
+          }
+        }
+      },
+      "description": "Driver's preferred delivery zones"
+    },
+    "preferred_hours": {
+      "type": "object",
+      "properties": {
+        "monday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tuesday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "wednesday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "thursday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "friday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "saturday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sunday": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Preferred working hours per day (e.g., ['09:00-13:00', '17:00-21:00'])"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating"
+    },
+    "total_deliveries": {
+      "type": "number",
+      "default": 0
+    },
+    "current_location": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number"
+        },
+        "lng": {
+          "type": "number"
+        }
+      },
+      "description": "Current GPS location"
+    },
+    "is_available": {
+      "type": "boolean",
+      "default": true,
+      "description": "Available for orders"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "premium"
+      ],
+      "default": "basic"
+    },
+    "location_sharing_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable real-time location sharing"
+    },
+    "share_location_only_when_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Only share location during active deliveries"
+    },
+    "auto_disable_location_after_delivery": {
+      "type": "boolean",
+      "default": true,
+      "description": "Automatically disable location sharing after delivery completion"
+    },
+    "profile_photo_url": {
+      "type": "string"
+    },
+    "id_document_url": {
+      "type": "string"
+    },
+    "license_document_url": {
+      "type": "string"
+    },
+    "vehicle_photo_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone",
+    "vehicle_type"
+  ],
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
