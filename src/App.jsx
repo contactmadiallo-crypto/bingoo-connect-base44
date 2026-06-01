@@ -37,14 +37,22 @@ const AuthenticatedApp = () => {
     );
   }
 
+  // Public routes that don't require authentication
+  const publicPaths = ['/', '/bingoo-home', '/pricing'];
+  const isPublicPath = publicPaths.includes(window.location.pathname) ||
+    window.location.pathname.startsWith('/p/') ||
+    window.location.pathname.startsWith('/n/');
+
   // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
+      // Only redirect to login for protected routes
+      if (!isPublicPath) {
+        navigateToLogin();
+        return null;
+      }
     }
   }
 
