@@ -1,0 +1,130 @@
+{
+  "name": "Inventory",
+  "type": "object",
+  "properties": {
+    "restaurant_id": {
+      "type": "string",
+      "description": "ID of the restaurant"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Inventory item name"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Current quantity in stock"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "kg",
+        "g",
+        "l",
+        "ml",
+        "pieces",
+        "boxes"
+      ],
+      "default": "pieces"
+    },
+    "min_quantity": {
+      "type": "number",
+      "description": "Minimum stock level"
+    },
+    "supplier": {
+      "type": "string"
+    },
+    "last_restocked": {
+      "type": "string",
+      "format": "date"
+    },
+    "cost_per_unit": {
+      "type": "number"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "vegetables",
+        "meat",
+        "dairy",
+        "grains",
+        "spices",
+        "beverages",
+        "packaging",
+        "other"
+      ],
+      "default": "other"
+    }
+  },
+  "required": [
+    "restaurant_id",
+    "item_name",
+    "quantity",
+    "unit"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
