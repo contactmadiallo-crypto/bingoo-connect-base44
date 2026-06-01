@@ -1,0 +1,292 @@
+{
+  "name": "Restaurant",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Business name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Business logo"
+    },
+    "cover_image_url": {
+      "type": "string",
+      "description": "Business cover image"
+    },
+    "business_type": {
+      "type": "string",
+      "enum": [
+        "restaurant",
+        "grocery",
+        "pharmacy",
+        "local_shop"
+      ],
+      "default": "restaurant",
+      "description": "Type of business"
+    },
+    "cuisine_type": {
+      "type": "string",
+      "enum": [
+        "african",
+        "fast_food",
+        "chinese",
+        "italian",
+        "indian",
+        "mediterranean",
+        "american",
+        "french",
+        "japanese",
+        "mexican",
+        "thai",
+        "lebanese",
+        "moroccan",
+        "pizza",
+        "burgers",
+        "seafood",
+        "vegetarian",
+        "desserts",
+        "mixed"
+      ],
+      "default": "african"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string",
+      "default": "Senegal"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Business owner/admin email"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending"
+      ],
+      "default": "active"
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "total_orders": {
+      "type": "number",
+      "default": 0
+    },
+    "delivery_fee": {
+      "type": "number",
+      "default": 5,
+      "description": "Delivery fee"
+    },
+    "min_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Minimum order amount"
+    },
+    "avg_delivery_time": {
+      "type": "number",
+      "default": 30,
+      "description": "Average delivery time in minutes"
+    },
+    "open_hours": {
+      "type": "string",
+      "description": "e.g., 9:00 AM - 10:00 PM"
+    },
+    "operating_hours": {
+      "type": "object",
+      "description": "Detailed weekly schedule with multiple periods per day"
+    },
+    "special_dates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "closed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "description": "Special dates (holidays, exceptions)"
+    },
+    "delivery_zones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of areas covered for delivery"
+    },
+    "commission_rate": {
+      "type": "number",
+      "default": 15,
+      "description": "Platform commission percentage"
+    },
+    "loyalty_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether loyalty program is enabled"
+    },
+    "loyalty_points_per_dollar": {
+      "type": "number",
+      "default": 10,
+      "description": "Points earned per dollar spent"
+    },
+    "loyalty_tiers": {
+      "type": "object",
+      "properties": {
+        "bronze": {
+          "type": "object",
+          "properties": {
+            "min_points": {
+              "type": "number",
+              "default": 0
+            },
+            "discount": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "silver": {
+          "type": "object",
+          "properties": {
+            "min_points": {
+              "type": "number",
+              "default": 500
+            },
+            "discount": {
+              "type": "number",
+              "default": 5
+            }
+          }
+        },
+        "gold": {
+          "type": "object",
+          "properties": {
+            "min_points": {
+              "type": "number",
+              "default": 1000
+            },
+            "discount": {
+              "type": "number",
+              "default": 10
+            }
+          }
+        },
+        "platinum": {
+          "type": "object",
+          "properties": {
+            "min_points": {
+              "type": "number",
+              "default": 2000
+            },
+            "discount": {
+              "type": "number",
+              "default": 15
+            }
+          }
+        }
+      },
+      "description": "Loyalty tier configuration"
+    },
+    "special_offers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "percentage",
+              "fixed_amount",
+              "free_delivery"
+            ]
+          },
+          "discount_value": {
+            "type": "number"
+          },
+          "min_order": {
+            "type": "number"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date"
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "description": "Special offers and promotions"
+    }
+  },
+  "required": [
+    "name",
+    "address",
+    "city",
+    "owner_email"
+  ],
+  "rls": {
+    "create": {
+      "data.owner_email": "{{user.email}}"
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.owner_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
