@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import usePullToRefresh from '@/hooks/usePullToRefresh';
 
-export default function PullToRefreshContainer({ onRefresh, children }) {
+export function PullToRefreshContainer({ onRefresh, children }) {
   const { refreshing, pullDistance } = usePullToRefresh(onRefresh, 60);
   const progress = Math.min(pullDistance / 80, 1);
 
