@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, ArrowRight } from "lucide-react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useAnimation } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 
 const features = [
@@ -73,6 +73,190 @@ function GradientMesh() {
       animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
     />
+  );
+}
+
+function NFCTapMockup() {
+  const cardCtrl = useAnimation();
+  const profileCtrl = useAnimation();
+  const rippleCtrl = useAnimation();
+  const glowCtrl = useAnimation();
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loop() {
+      while (!cancelled) {
+        // Reset
+        cardCtrl.set({ x: 90, y: -30, rotateY: 35, rotateX: -10, rotateZ: -12, z: 0, opacity: 1 });
+        profileCtrl.set({ y: "100%", opacity: 0 });
+        rippleCtrl.set({ scale: 0, opacity: 0 });
+        glowCtrl.set({ opacity: 0, scale: 0.8 });
+        await new Promise(r => setTimeout(r, 600));
+
+        // Card floats
+        await cardCtrl.start({ y: -50, rotateY: 28, rotateX: -8, transition: { duration: 1.2, ease: "easeOut" } });
+        await new Promise(r => setTimeout(r, 400));
+
+        // Card taps phone
+        await cardCtrl.start({ x: 10, y: -10, rotateY: 5, rotateX: 0, rotateZ: -3, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } });
+
+        // Ripple + glow on tap
+        rippleCtrl.start({ scale: [0, 2.2], opacity: [0.7, 0], transition: { duration: 0.6, ease: "easeOut" } });
+        glowCtrl.start({ opacity: [0, 0.8, 0], scale: [0.8, 1.3, 1], transition: { duration: 0.7 } });
+
+        // Profile slides up
+        await profileCtrl.start({ y: "0%", opacity: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.1 } });
+
+        await new Promise(r => setTimeout(r, 2800));
+
+        // Card retreats
+        cardCtrl.start({ x: 90, y: -30, rotateY: 35, rotateX: -10, rotateZ: -12, transition: { duration: 0.7, ease: "easeIn" } });
+        // Profile slides down
+        await profileCtrl.start({ y: "100%", opacity: 0, transition: { duration: 0.4, ease: "easeIn" } });
+
+        await new Promise(r => setTimeout(r, 800));
+      }
+    }
+    loop();
+    return () => { cancelled = true; };
+  }, []);
+
+  const profileRows = [
+    { delay: 0.05, content: (
+      <div className="flex flex-col items-center pt-3 pb-2">
+        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-xl border-2 border-white shadow">👤</div>
+        <p className="font-black text-slate-900 text-xs mt-1 leading-tight">Amadou Diallo</p>
+        <p className="text-blue-600 text-[9px] font-semibold">Real Estate · Dakar</p>
+      </div>
+    )},
+    { delay: 0.12, content: (
+      <div className="grid grid-cols-3 gap-1 px-3 mb-2">
+        {["💬","📞","📧"].map(ic => (
+          <div key={ic} className="bg-blue-50 rounded-lg py-1.5 text-center text-sm">{ic}</div>
+        ))}
+      </div>
+    )},
+    { delay: 0.19, content: (
+      <div className="px-3 space-y-1">
+        {["🏠 View Listings","📅 Book Meeting"].map(b => (
+          <div key={b} className="bg-slate-50 border border-slate-100 rounded-lg py-1 px-2 text-[9px] text-slate-700 font-medium text-center">{b}</div>
+        ))}
+      </div>
+    )},
+  ];
+
+  return (
+    <div className="relative flex items-center justify-center" style={{ perspective: "900px", height: 340 }}>
+      {/* iPhone frame */}
+      <div className="relative z-10" style={{ transformStyle: "preserve-3d" }}>
+        {/* Phone body */}
+        <div className="relative w-48 bg-slate-900 rounded-[2.2rem] p-[3px] shadow-2xl shadow-blue-900/60" style={{ boxShadow: "0 30px 60px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.08)" }}>
+          {/* Side buttons */}
+          <div className="absolute -left-[3px] top-16 w-[3px] h-7 bg-slate-700 rounded-l" />
+          <div className="absolute -left-[3px] top-24 w-[3px] h-10 bg-slate-700 rounded-l" />
+          <div className="absolute -right-[3px] top-20 w-[3px] h-12 bg-slate-700 rounded-r" />
+          {/* Screen */}
+          <div className="bg-white rounded-[2rem] overflow-hidden" style={{ minHeight: 260 }}>
+            {/* Status bar */}
+            <div className="bg-slate-900 flex justify-between items-center px-4 pt-2 pb-1">
+              <span className="text-white text-[8px] font-semibold">9:41</span>
+              <div className="w-14 h-4 bg-black rounded-full" />
+              <div className="flex gap-1">
+                <span className="text-white text-[8px]">●●●</span>
+              </div>
+            </div>
+            {/* Profile area — clipping container */}
+            <div className="relative overflow-hidden" style={{ minHeight: 240 }}>
+              {/* Idle background */}
+              <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+                <motion.div animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2.5, repeat: Infinity }}>
+                  <div className="w-8 h-8 rounded-full border-2 border-blue-200 flex items-center justify-center">
+                    <span className="text-blue-300 text-xs">📶</span>
+                  </div>
+                </motion.div>
+              </div>
+              {/* Ripple */}
+              <motion.div
+                animate={rippleCtrl}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full border-2 border-blue-400 z-20"
+              />
+              {/* Profile slides up */}
+              <motion.div
+                animate={profileCtrl}
+                className="absolute inset-0 bg-white z-10 flex flex-col"
+              >
+                {/* Cover */}
+                <div className="h-14 bg-gradient-to-br from-blue-500 to-blue-700 relative flex-shrink-0">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-white border-2 border-white shadow-lg flex items-center justify-center text-xl"
+                  >👤</motion.div>
+                </div>
+                {/* Staggered profile content */}
+                <div className="pt-7">
+                  {profileRows.map((row, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 + row.delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {row.content}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* NFC tap glow on phone */}
+        <motion.div
+          animate={glowCtrl}
+          className="absolute inset-0 rounded-[2.2rem] bg-blue-400/40 blur-xl -z-10"
+        />
+      </div>
+
+      {/* NFC Card — 3D floating */}
+      <motion.div
+        animate={cardCtrl}
+        className="absolute z-20 w-32 h-20 rounded-2xl shadow-2xl flex flex-col items-center justify-center cursor-pointer"
+        style={{
+          background: "linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%)",
+          transformStyle: "preserve-3d",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
+          right: 0,
+          top: "15%",
+        }}
+      >
+        {/* Card shine */}
+        <div className="absolute inset-0 rounded-2xl overflow-hidden">
+          <div style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)", height: "100%" }} />
+        </div>
+        {/* NFC chip */}
+        <motion.div
+          animate={{ opacity: [0.6, 1, 0.6], boxShadow: ["0 0 6px rgba(96,165,250,0.4)", "0 0 16px rgba(96,165,250,0.8)", "0 0 6px rgba(96,165,250,0.4)"] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-6 h-4 rounded border border-blue-400/60 bg-blue-900/50 mb-1.5"
+        />
+        <span className="text-white/80 text-[8px] font-bold tracking-widest">BINGOO</span>
+        <span className="text-blue-400/70 text-[7px] tracking-wide">NFC · CONNECT</span>
+        {/* Waves */}
+        <div className="absolute right-2 top-2 flex flex-col gap-0.5 opacity-40">
+          {[0,1,2].map(i => (
+            <motion.div
+              key={i}
+              className="border-r-2 border-t-2 border-blue-400 rounded-tr"
+              style={{ width: 4 + i * 3, height: 4 + i * 3 }}
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+            />
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -216,7 +400,7 @@ export default function Landing() {
             </motion.div>
           </div>
 
-          {/* Phone mockup */}
+          {/* NFC Tap Mockup */}
           <motion.div
             className="mt-16 md:mt-20 flex justify-center"
             style={{ y: phoneY }}
@@ -224,71 +408,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="relative">
-              <motion.div
-                className="w-64 md:w-72 bg-white rounded-[2.5rem] p-2 shadow-2xl shadow-blue-900/50"
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <div className="bg-slate-900 rounded-[2rem] overflow-hidden">
-                  <div className="h-36 bg-gradient-to-br from-blue-500 to-blue-700 relative">
-                    <div className="absolute inset-0 flex items-end justify-center pb-0">
-                      <motion.div
-                        className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center text-3xl translate-y-10"
-                        animate={{ scale: [1, 1.05, 1] }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                      >
-                        👤
-                      </motion.div>
-                    </div>
-                  </div>
-                  <div className="bg-white pt-12 pb-6 px-5">
-                    <h3 className="text-center font-black text-slate-900 text-lg">Amadou Diallo</h3>
-                    <p className="text-center text-blue-600 text-sm font-medium">Real Estate Agent</p>
-                    <p className="text-center text-slate-400 text-xs mb-5">Agence Immobilière Dakar</p>
-                    <div className="grid grid-cols-3 gap-2 mb-3">
-                      {["💬", "📞", "📧"].map((icon, i) => (
-                        <motion.div key={icon}
-                          className="bg-blue-50 rounded-xl py-2 text-center text-base"
-                          animate={{ scale: [1, 1.08, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
-                        >{icon}</motion.div>
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      {["🏠 View Listings", "📅 Book Meeting", "📍 Find Location"].map(b => (
-                        <div key={b} className="bg-slate-50 rounded-xl py-2 px-3 text-xs text-slate-700 font-medium text-center">{b}</div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Glow ring behind phone */}
-              <motion.div
-                className="absolute inset-0 rounded-[2.5rem] bg-blue-400/20 blur-2xl -z-10"
-                animate={{ opacity: [0.4, 0.8, 0.4] }}
-                transition={{ duration: 3, repeat: Infinity }}
-              />
-
-              {/* NFC card */}
-              <motion.div
-                className="mt-4 mx-auto w-48 h-28 bg-gradient-to-br from-slate-700 to-slate-900 rounded-2xl shadow-xl flex items-center justify-center"
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              >
-                <div className="text-center">
-                  <motion.div
-                    className="w-10 h-10 bg-white/10 rounded-full border-2 border-white/30 mx-auto mb-1 flex items-center justify-center"
-                    animate={{ borderColor: ["rgba(255,255,255,0.3)", "rgba(255,255,255,0.7)", "rgba(255,255,255,0.3)"] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <span className="text-white text-xl">📶</span>
-                  </motion.div>
-                  <span className="text-white/70 text-xs font-medium">NFC Card · $20</span>
-                </div>
-              </motion.div>
-            </div>
+            <NFCTapMockup />
           </motion.div>
         </motion.div>
       </section>
