@@ -1,0 +1,82 @@
+{
+  "name": "WorkSession",
+  "type": "object",
+  "properties": {
+    "work_id": {
+      "type": "string",
+      "description": "ID of the work item"
+    },
+    "work_title": {
+      "type": "string",
+      "description": "Title of the work item"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the work session started"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the work session ended"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the session is currently active"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about the work session"
+    }
+  },
+  "required": [
+    "work_id",
+    "start_time"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
