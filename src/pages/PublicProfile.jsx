@@ -7,6 +7,7 @@ import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
+import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 const trackEvent = (profileId, eventType) => {
@@ -555,46 +556,6 @@ function HomeButton() {
   );
 }
 
-// ── Video Hero (for demo profile) ────────────────────────────────────────────
-function VideoHero() {
-  const videoSrc = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0&rel=0";
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7 }}
-      className="relative w-full bg-gradient-to-b from-slate-900 to-slate-800 py-12 px-4"
-    >
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          className="relative rounded-2xl overflow-hidden shadow-2xl"
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <div className="aspect-video bg-black relative">
-            <iframe
-              className="w-full h-full"
-              src={videoSrc}
-              title="Bingoo Connect Demo"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-        </motion.div>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-slate-300 text-sm mt-4"
-        >
-          Watch how Bingoo Connect transforms your digital presence
-        </motion.p>
-      </div>
-    </motion.div>
-  );
-}
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, dark: LayoutDark, bold: LayoutBold, split: LayoutSplit };
 
@@ -637,7 +598,13 @@ export default function PublicProfile() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
       <HomeButton />
-      {isDemo && <VideoHero />}
+      {isDemo && (
+        <div style={{ background: "linear-gradient(160deg,#06091a 0%,#0d1030 60%,#0a0622 100%)", padding: "40px 16px 32px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+          <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", margin: 0 }}>Live Demo — Tap to Experience</p>
+          <NFCTapMockup />
+          <p style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, margin: 0 }}>NFC card taps phone · profile opens instantly</p>
+        </div>
+      )}
       <Layout profile={profile} track={track} mobile={mobile} />
     </motion.div>
   );
