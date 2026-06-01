@@ -47,13 +47,31 @@ function ScrollReveal({ children, delay = 0, className = "" }) {
   );
 }
 
-function FloatingOrb({ className, style }) {
+function FloatingOrb({ className, style, delay = 0 }) {
   return (
     <motion.div
       className={`absolute rounded-full blur-3xl pointer-events-none ${className}`}
       style={style}
-      animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
-      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      animate={{ y: [0, -20, 0], scale: [1, 1.05, 1], x: [0, 15, 0] }}
+      transition={{ duration: 6 + delay, repeat: Infinity, ease: "easeInOut", delay }}
+    />
+  );
+}
+
+function GradientMesh() {
+  return (
+    <motion.div
+      className="absolute inset-0 opacity-20 pointer-events-none"
+      style={{
+        background: `
+          radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.6), transparent 50%),
+          radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.4), transparent 50%),
+          radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.3), transparent 60%)
+        `,
+        backgroundSize: "200% 200%"
+      }}
+      animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
+      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
     />
   );
 }
@@ -125,17 +143,21 @@ export default function Landing() {
 
       {/* Hero */}
       <section ref={heroRef} className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white py-16 md:py-24 px-4 md:px-6 min-h-[90vh] flex items-center">
+        {/* Gradient mesh background */}
+        <GradientMesh />
         {/* Animated background dots */}
         <motion.div
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-5"
           style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "40px 40px" }}
           animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         />
-        {/* Floating orbs */}
-        <FloatingOrb className="w-96 h-96 bg-blue-400/30 top-[-10%] left-[-10%]" />
-        <FloatingOrb className="w-72 h-72 bg-violet-500/20 bottom-[-5%] right-[-5%]" style={{ animationDelay: "2s" }} />
-        <FloatingOrb className="w-48 h-48 bg-cyan-400/15 top-1/2 left-1/3" style={{ animationDelay: "4s" }} />
+        {/* Floating orbs with cascading delays */}
+        <FloatingOrb delay={0} className="w-96 h-96 bg-blue-400/40 top-[-10%] left-[-10%]" />
+        <FloatingOrb delay={2} className="w-72 h-72 bg-violet-500/30 bottom-[-5%] right-[-5%]" />
+        <FloatingOrb delay={4} className="w-48 h-48 bg-cyan-400/25 top-1/2 left-1/3" />
+        <FloatingOrb delay={1} className="w-64 h-64 bg-blue-500/20 bottom-1/4 left-[20%]" />
+        <FloatingOrb delay={3} className="w-56 h-56 bg-violet-600/15 top-[30%] right-[10%]" />
 
         <motion.div className="max-w-6xl mx-auto relative w-full" style={{ y: heroY, opacity: heroOpacity }}>
           <div className="max-w-3xl mx-auto text-center">
@@ -293,7 +315,10 @@ export default function Landing() {
       </motion.section>
 
       {/* Features */}
-      <section id="features" className="py-14 md:py-24 px-4 md:px-6 bg-slate-50">
+      {/* Background enhancement */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-white to-transparent pointer-events-none" />
+      
+      <section id="features" className="py-14 md:py-24 px-4 md:px-6 bg-slate-50 relative">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Features</Badge>
@@ -330,7 +355,7 @@ export default function Landing() {
       </section>
 
       {/* Use Cases */}
-      <section id="use-cases" className="py-14 md:py-24 px-4 md:px-6">
+      <section id="use-cases" className="py-14 md:py-24 px-4 md:px-6 relative bg-gradient-to-b from-white via-slate-50 to-white">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Who uses Bingoo?</Badge>
@@ -368,7 +393,7 @@ export default function Landing() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-14 md:py-24 px-4 md:px-6 bg-slate-50">
+      <section id="pricing" className="py-14 md:py-24 px-4 md:px-6 bg-gradient-to-b from-slate-50 to-slate-100">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal className="text-center mb-10 md:mb-14">
             <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">Pricing</Badge>
@@ -439,9 +464,10 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="relative py-14 md:py-24 px-4 md:px-6 bg-gradient-to-br from-blue-600 to-blue-800 text-white text-center overflow-hidden">
-        <FloatingOrb className="w-72 h-72 bg-blue-400/20 top-[-20%] left-[-10%]" />
-        <FloatingOrb className="w-56 h-56 bg-violet-500/15 bottom-[-10%] right-[-5%]" />
+      <section className="relative py-14 md:py-24 px-4 md:px-6 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white text-center overflow-hidden">
+        <GradientMesh />
+        <FloatingOrb delay={0} className="w-72 h-72 bg-blue-400/30 top-[-20%] left-[-10%]" />
+        <FloatingOrb delay={2} className="w-56 h-56 bg-violet-500/25 bottom-[-10%] right-[-5%]" />
         <div className="max-w-2xl mx-auto relative">
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
