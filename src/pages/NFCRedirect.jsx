@@ -6,24 +6,25 @@ import { useEffect } from "react";
 export default function NFCRedirect() {
   const { deviceCode } = useParams();
 
+  // Use the Device entity (self-generated codes, not physical NFC UIDs)
   const { data: devices = [], isLoading } = useQuery({
-    queryKey: ["nfc-device", deviceCode],
-    queryFn: () => base44.entities.NFCDevice.filter({ device_code: deviceCode }),
+    queryKey: ["bingoo-device", deviceCode],
+    queryFn: () => base44.entities.Device.filter({ device_code: deviceCode }),
   });
 
   const device = devices[0];
 
   const { data: profiles = [] } = useQuery({
-    queryKey: ["nfc-profile", device?.profile_id],
-    queryFn: () => base44.entities.Profile.filter({ id: device.profile_id }),
-    enabled: !!device?.profile_id,
+    queryKey: ["bingoo-device-profile", device?.assigned_profile],
+    queryFn: () => base44.entities.Profile.filter({ id: device.assigned_profile }),
+    enabled: !!device?.assigned_profile,
   });
 
   const profile = profiles[0];
 
   useEffect(() => {
     if (profile?.id) {
-      // Track tap event with device info
+      // Track the scan
       base44.entities.Analytics.create({
         profile_id: profile.id,
         device_id: device.id,

@@ -17,6 +17,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Pricing from './pages/Pricing';
 import NFCRedirect from './pages/NFCRedirect';
 import ActivateDevice from './pages/ActivateDevice';
+import MyNFCDevices from './pages/MyNFCDevices';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/activate-device" element={<ActivateDevice />} />
+      <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
 
       {/* ── FOODHUB (original project) ── */}
       {Object.entries(Pages).map(([path, Page]) => (

@@ -12,6 +12,7 @@ const navItems = [
   { label: "Appointments", icon: CalendarDays,    href: "/bingoo?tab=appointments",  color: "from-emerald-500 to-emerald-600" },
   { label: "Leads",        icon: Star,            href: "/bingoo?tab=leads",         color: "from-amber-500 to-amber-600" },
   { label: "My Devices",   icon: Smartphone,      href: "/bingoo?tab=devices",       color: "from-cyan-500 to-cyan-600" },
+  { label: "NFC Devices",  icon: Smartphone,      href: "/my-nfc-devices",            color: "from-teal-500 to-teal-600" },
   { label: "Analytics",    icon: BarChart3,       href: "/bingoo?tab=analytics",     color: "from-pink-500 to-pink-600" },
   { label: "Portfolio",    icon: Briefcase,       href: "/bingoo?tab=portfolio",     color: "from-violet-500 to-violet-600" },
   { label: "Upgrade",      icon: CreditCard,      href: "/pricing",                  color: "from-orange-500 to-orange-600" },
