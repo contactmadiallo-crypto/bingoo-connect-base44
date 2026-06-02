@@ -809,7 +809,11 @@ export default function PublicProfile() {
 
   const { data: profiles = [], isLoading } = useQuery({
     queryKey: ["public-profile", username],
-    queryFn: () => isDemo ? [DEMO_PROFILE] : base44.entities.Profile.filter({ username }),
+    queryFn: async () => {
+      if (isDemo) return [DEMO_PROFILE];
+      const res = await base44.functions.invoke('getPublicProfile', { username });
+      return res.data?.profile ? [res.data.profile] : [];
+    },
   });
 
   const profile = profiles[0];
