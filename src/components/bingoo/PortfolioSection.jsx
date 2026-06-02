@@ -5,7 +5,10 @@ import { ExternalLink, Briefcase } from "lucide-react";
 export default function PortfolioSection({ profileId, color = "#2563eb" }) {
   const { data: items = [] } = useQuery({
     queryKey: ["portfolio-public", profileId],
-    queryFn: () => base44.entities.PortfolioItem.filter({ profile_id: profileId }, "order"),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getPublicPortfolioItems', { profile_id: profileId });
+      return res.data?.items || [];
+    },
     enabled: !!profileId,
   });
 
