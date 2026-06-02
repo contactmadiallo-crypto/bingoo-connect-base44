@@ -27,7 +27,9 @@
     "profile_id"
   ],
   "rls": {
-    "create": {},
+    "create": {
+      "created_by_id": null
+    },
     "read": {
       "$or": [
         {

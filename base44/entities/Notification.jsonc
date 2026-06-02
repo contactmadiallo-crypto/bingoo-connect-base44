@@ -55,9 +55,26 @@
   ],
   "rls": {
     "create": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.customer_email": "{{user.email}}"
+        },
+        {
+          "data.restaurant_id": {
+            "$in": [
+              "{{user.data.owned_restaurant_ids}}"
+            ]
+          }
+        }
+      ]
     },
     "read": {
       "$or": [
