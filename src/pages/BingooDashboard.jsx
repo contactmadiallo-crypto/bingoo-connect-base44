@@ -301,8 +301,8 @@ export default function BingooDashboard() {
                           <Eye className="w-4 h-4" /> View Live
                         </Button>
                       </a>
-                      <Button variant="outline" size="sm" onClick={() => setTab("profile")}
-                        className={`gap-2 ${btnOutline}`}>
+                      <Button size="sm" onClick={() => setTab("profile")}
+                        className={`gap-2 font-bold ${isDark ? "bg-violet-500 hover:bg-violet-400 text-white border-0 shadow-lg shadow-violet-900/40" : "bg-slate-800 hover:bg-slate-700 text-white border-0"}`}>
                         <Settings className="w-4 h-4" /> Edit
                       </Button>
                     </div>
@@ -328,7 +328,7 @@ export default function BingooDashboard() {
                     </div>
                     <p className={`text-xs mt-3 ${mutedText}`}>Scan to open your profile</p>
                     <a href={qrUrl} download="bingoo-qr.png" target="_blank" rel="noopener noreferrer" className="inline-block mt-3">
-                      <Button variant="outline" size="sm" className={`gap-2 text-xs ${btnOutline}`}>
+                      <Button size="sm" className={`gap-2 text-xs font-bold ${isDark ? "bg-cyan-500 hover:bg-cyan-400 text-white border-0 shadow-lg shadow-cyan-900/40" : "bg-blue-600 hover:bg-blue-500 text-white border-0"}`}>
                         <Download className="w-3.5 h-3.5" /> Download QR
                       </Button>
                     </a>
