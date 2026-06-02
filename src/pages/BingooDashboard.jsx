@@ -405,7 +405,7 @@ export default function BingooDashboard() {
           </div>
         )}
         {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
-        {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} />}
+        {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
         {tab === "design"       && <DesignTab profile={profile} />}
 
         {/* Layout Picker Modal */}

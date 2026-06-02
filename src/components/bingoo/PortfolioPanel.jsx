@@ -7,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, ExternalLink, Briefcase, Image } from "lucide-react";
 import { toast } from "sonner";
+import PortfolioComments from "./PortfolioComments";
 
 const EMPTY = { title: "", description: "", image_url: "", link: "", category: "" };
 
-export default function PortfolioPanel({ profileId }) {
+export default function PortfolioPanel({ profileId, user }) {
   const qc = useQueryClient();
   const [form, setForm] = useState(EMPTY);
   const [adding, setAdding] = useState(false);
@@ -109,29 +110,36 @@ export default function PortfolioPanel({ profileId }) {
           <p className="text-white/20 text-sm mt-1">Add your first project, design, or work sample.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {items.map(item => (
-            <div key={item.id} className="group relative rounded-2xl overflow-hidden aspect-square"
-              style={{ background: "rgba(255,255,255,0.05)" }}>
-              {item.image_url
-                ? <img src={item.image_url} alt={item.title} className="absolute inset-0 w-full h-full object-cover" />
-                : <div className="absolute inset-0 flex items-center justify-center text-4xl opacity-30">🖼️</div>
-              }
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-              <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                <p className="text-white font-bold text-xs">{item.title}</p>
-                {item.category && <p className="text-white/50 text-[10px]">{item.category}</p>}
+            <div key={item.id} className="group rounded-2xl overflow-hidden flex flex-col"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.07)" }}>
+              {/* Image */}
+              <div className="relative aspect-video w-full overflow-hidden">
+                {item.image_url
+                  ? <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center text-4xl opacity-30 bg-white/5">🖼️</div>
+                }
+                <button onClick={() => remove.mutate(item.id)}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+                {item.link && (
+                  <a href={item.link} target="_blank" rel="noopener noreferrer"
+                    className="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
               </div>
-              <button onClick={() => remove.mutate(item.id)}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-              {item.link && (
-                <a href={item.link} target="_blank" rel="noopener noreferrer"
-                  className="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70">
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
+              {/* Info + comments */}
+              <div className="p-3 flex-1 flex flex-col">
+                <p className="text-white font-bold text-xs">{item.title}</p>
+                {item.category && <p className="text-white/40 text-[10px] mt-0.5">{item.category}</p>}
+                {item.description && <p className="text-white/30 text-[10px] mt-1 line-clamp-2">{item.description}</p>}
+                <div className="mt-auto">
+                  <PortfolioComments itemId={item.id} user={user} />
+                </div>
+              </div>
             </div>
           ))}
         </div>

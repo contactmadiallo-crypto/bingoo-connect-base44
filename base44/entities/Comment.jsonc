@@ -10,6 +10,10 @@
       "type": "string",
       "description": "ID of the project"
     },
+    "portfolio_item_id": {
+      "type": "string",
+      "description": "ID of the portfolio item being commented on"
+    },
     "content": {
       "type": "string",
       "description": "Comment content"
@@ -30,18 +34,7 @@
     "create": {
       "created_by_id": "{{user.id}}"
     },
-    "read": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": {},
     "update": {
       "created_by_id": "{{user.id}}"
     },
