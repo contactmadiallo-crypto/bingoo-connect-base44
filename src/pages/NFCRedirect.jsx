@@ -6,25 +6,23 @@ import { useEffect } from "react";
 export default function NFCRedirect() {
   const { deviceCode } = useParams();
 
-  // Use the Device entity (self-generated codes, not physical NFC UIDs)
-  const { data: devices = [], isLoading } = useQuery({
+  const { data: devices = [], isLoading: deviceLoading } = useQuery({
     queryKey: ["bingoo-device", deviceCode],
     queryFn: () => base44.entities.Device.filter({ device_code: deviceCode }),
   });
 
   const device = devices[0];
 
-  const { data: profiles = [] } = useQuery({
-    queryKey: ["bingoo-device-profile", device?.assigned_profile],
-    queryFn: () => base44.entities.Profile.filter({ id: device.assigned_profile }),
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ["bingoo-nfc-profile", device?.assigned_profile],
+    queryFn: () => base44.functions.invoke("getProfileById", { profile_id: device.assigned_profile }),
     enabled: !!device?.assigned_profile,
   });
 
-  const profile = profiles[0];
+  const profile = profileData?.data?.profile;
 
   useEffect(() => {
-    if (profile?.id) {
-      // Track the scan
+    if (profile?.username) {
       base44.entities.Analytics.create({
         profile_id: profile.id,
         device_id: device.id,
@@ -32,12 +30,11 @@ export default function NFCRedirect() {
         visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
         created_at: new Date().toISOString(),
       }).catch(() => {});
-      // Redirect to public profile
       window.location.replace(`/p/${profile.username}`);
     }
-  }, [profile?.id]);
+  }, [profile?.username]);
 
-  if (isLoading || (device && !profile)) {
+  if (deviceLoading || (device?.assigned_profile && profileLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">

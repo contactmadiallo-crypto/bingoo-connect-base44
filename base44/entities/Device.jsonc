@@ -13,7 +13,8 @@
         "keychain",
         "bracelet",
         "stand",
-        "badge"
+        "badge",
+        "sticker"
       ],
       "default": "card"
     },
@@ -53,14 +54,9 @@
   ],
   "rls": {
     "create": {
-      "user_condition": {
-        "role": "admin"
-      }
-    },
-    "read": {
       "$or": [
         {
-          "data.assigned_user": "{{user.id}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -69,6 +65,7 @@
         }
       ]
     },
+    "read": {},
     "update": {
       "$or": [
         {
