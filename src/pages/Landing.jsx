@@ -31,13 +31,13 @@ const features = [
   { icon: "💬", title: "Instant WhatsApp", desc: "One button. Customer lands in your WhatsApp chat immediately." },
   { icon: "📅", title: "Save Contact", desc: "Visitors download your contact card directly to their phone." },
   { icon: "💼", title: "Multi-Profile Teams", desc: "One dashboard for your entire team of 50 employees." },
-  { icon: "🌍", title: "Built for Africa", desc: "Designed for Senegal, Mali, Côte d'Ivoire, Ghana, and beyond." },
+  { icon: "🌐", title: "Built for Everyone", desc: "For professionals, freelancers, officials, entrepreneurs & businesses — anywhere in the world." },
 ];
 
 const plans = [
   { name: "Free", price: "$0", period: "", desc: "Get started today", features: ["1 profile", "Basic links", "Basic analytics", "Bingoo branding"], highlight: false },
   { name: "Pro", price: "$4.99", period: "/month", desc: "For professionals", features: ["Unlimited links", "Full analytics", "Custom colors", "Contact collection", "No Bingoo branding"], highlight: true },
-  { name: "Business", price: "$9.99", period: "/month", desc: "For teams", features: ["Team accounts (up to 50)", "Lead capture CRM", "Booking system", "Priority support", "Custom domain"], highlight: false },
+  { name: "Business", price: "$14.99", period: "/month", desc: "For teams", features: ["Team accounts (up to 50)", "Lead capture CRM", "Booking system", "Priority support", "Custom domain"], highlight: false },
 ];
 
 const useCases = [
@@ -113,7 +113,7 @@ export default function Landing() {
 
   const [statsVisible, setStatsVisible] = useState(false);
   const [counts, setCounts] = useState([0, 0, 0, 0]);
-  const targets = [10000, 5, 20, 4.99];
+  const targets = [10000, 30, 20, 4.99];
   const labels = ["Profiles Created", "Countries in Africa", "NFC Card (one-time $)", "Starting at $/mo"];
 
   useEffect(() => {
@@ -147,7 +147,7 @@ export default function Landing() {
             <span className="text-xl font-black text-slate-900">Bingoo<span className="text-blue-600">Connect</span></span>
           </motion.div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            {["features", "pricing", "use-cases"].map(id => (
+            {["features", "use-cases", "pricing", "shop"].map(id => (
               <motion.a key={id} href={`#${id}`} className="hover:text-blue-600 transition-colors capitalize"
                 whileHover={{ y: -1 }}>
                 {id.replace("-", " ")}
@@ -187,7 +187,7 @@ export default function Landing() {
           <div className="max-w-3xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
               <Badge className="mb-6 bg-white/20 text-white border-white/30 backdrop-blur hover:bg-white/20">
-                🌍 Africa's #1 NFC Digital Identity Platform
+                🌐 The Global NFC Digital Identity Platform
               </Badge>
             </motion.div>
 
@@ -214,7 +214,7 @@ export default function Landing() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5 }}
             >
-              The smart NFC card that opens your digital profile — with analytics, leads, bookings, and everything you need to grow in Africa.
+              The smart NFC card that opens your digital profile — for professionals, freelancers, entrepreneurs & officials growing their business worldwide.
             </motion.p>
 
             <motion.div
@@ -280,7 +280,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { val: counts[0].toLocaleString() + "+", label: "Profiles Created" },
-            { val: counts[1] + " Countries", label: "Across Africa" },
+            { val: counts[1] + "+ Countries", label: "Worldwide" },
             { val: "$" + counts[2], label: "NFC Card (one-time)" },
             { val: "$" + counts[3].toFixed(2) + "/mo", label: "Starting Plan" },
           ].map((s, i) => (
@@ -439,6 +439,76 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Shop / Order a Device */}
+      <section id="shop" className="py-14 md:py-24 px-4 md:px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <ScrollReveal className="text-center mb-10 md:mb-14">
+            <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">📦 Shop</Badge>
+            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">Get your Bingoo device</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">One-time purchase. Tap to share your profile instantly — forever.</p>
+          </ScrollReveal>
+          <motion.div
+            className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: "-60px" }}
+          >
+            {[
+              { emoji: "💳", name: "NFC Card", price: "$20", desc: "Classic wallet-size card. Sleek, durable, reusable.", tag: "Most Popular" },
+              { emoji: "🔑", name: "NFC Keychain", price: "$20", desc: "Attach to your keys. Always ready to share.", tag: null },
+              { emoji: "🏷️", name: "NFC Badge", price: "$25", desc: "Perfect for events, conferences, and exhibitions.", tag: "New" },
+            ].map((item, i) => (
+              <motion.div
+                key={item.name}
+                variants={fadeUp}
+                whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(37,99,235,0.12)" }}
+                className="relative bg-white rounded-3xl border-2 border-slate-100 hover:border-blue-200 p-7 flex flex-col items-center text-center shadow-sm transition-all"
+              >
+                {item.tag && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full">{item.tag}</span>
+                )}
+                <motion.div
+                  className="text-6xl mb-4"
+                  animate={{ rotate: [0, 4, -4, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, delay: i * 0.7 }}
+                >{item.emoji}</motion.div>
+                <h3 className="font-black text-xl text-slate-900 mb-1">{item.name}</h3>
+                <p className="text-slate-500 text-sm mb-4 leading-relaxed">{item.desc}</p>
+                <p className="text-3xl font-black text-blue-600 mb-5">{item.price}</p>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full">
+                  <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
+                    onClick={() => {
+                      window.location.href = 'mailto:hello@bingooconnect.com?subject=Order: ' + item.name + '&body=Hi, I would like to order a ' + item.name + ' (' + item.price + '). Please send me payment and delivery details. Thank you!';
+                    }}
+                  >
+                    Order Now →
+                  </Button>
+                </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+          <ScrollReveal delay={0.2}>
+            <div className="mt-10 bg-blue-50 rounded-3xl p-7 flex flex-col md:flex-row items-center justify-between gap-4 border border-blue-100">
+              <div>
+                <p className="font-black text-slate-900 text-lg">Bulk order for your team or event?</p>
+                <p className="text-slate-500 text-sm mt-1">We offer volume discounts for teams, companies, and event organizers.</p>
+              </div>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Button
+                  variant="outline"
+                  className="border-blue-300 text-blue-700 hover:bg-blue-100 font-bold whitespace-nowrap"
+                  onClick={() => { window.location.href = 'mailto:hello@bingooconnect.com?subject=Bulk Order Inquiry'; }}
+                >
+                  Contact for Bulk Orders →
+                </Button>
+              </motion.div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="relative py-14 md:py-24 px-4 md:px-6 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white text-center overflow-hidden">
         <GradientMesh />
@@ -447,7 +517,7 @@ export default function Landing() {
         <div className="max-w-2xl mx-auto relative">
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl font-black mb-4">Ready to grow your business?</h2>
-            <p className="text-blue-100 text-base md:text-lg mb-8">Join thousands of professionals across Africa using Bingoo Connect.</p>
+            <p className="text-blue-100 text-base md:text-lg mb-8">Join thousands of professionals, freelancers, entrepreneurs & officials worldwide using Bingoo Connect.</p>
             <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}>
               <Button size="lg" onClick={goSignIn} className="bg-white text-blue-700 hover:bg-blue-50 font-bold text-base md:text-lg px-8 md:px-10 py-5 md:py-6 rounded-2xl shadow-xl">
                 Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
@@ -463,7 +533,7 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">B</div>
             <span className="text-white font-bold">BingooConnect</span>
-            <span>— Africa's Digital Identity Platform</span>
+            <span>— The Global Digital Identity Platform</span>
           </div>
           <p>© 2026 Bingoo Connect · bingoo.africa</p>
         </div>
