@@ -61,7 +61,10 @@ const useLinks = (p) => ({
     (p?.zelle_qr || p?.zelle_link) && { e: "💳", l: "Zelle", h: p.zelle_link || null, qr: p.zelle_qr || null, ev: "zelle_click" },
     p?.cashapp_link && { e: "💰", l: "Cash App", h: p.cashapp_link, ev: "cashapp_click" },
     p?.orangemoney_link && { e: "🟠", l: "Orange Money", h: p.orangemoney_link, ev: "orangemoney_click" },
-    p?.wave_link && { e: "📲", l: "Wave", h: p.wave_link, ev: "wave_click" },
+    (p?.wave_qr || p?.wave_link) && { e: "📲", l: "Wave", h: p.wave_link || null, qr: p.wave_qr || null, ev: "wave_click" },
+    ...((p?.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({
+      e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null, ev: "payment_click"
+    }))),
   ].filter(Boolean),
 });
 
@@ -200,28 +203,28 @@ function PrimaryCtAs({ links, color, track, profile }) {
   );
 }
 
-// ── Payment Button (handles Zelle QR modal) ───────────────────────────────────
-function PaymentBtn({ p, i, track, dark, color, style }) {
-  const [zelleOpen, setZelleOpen] = useState(false);
-  const handleClick = (e) => {
+// ── Payment Button (handles QR modal) ────────────────────────────────────────
+function PaymentBtn({ p, i, track, style }) {
+  const [qrOpen, setQrOpen] = useState(false);
+  const handleClick = () => {
     track(p.ev);
-    if (p.qr && !p.h) { e.preventDefault(); setZelleOpen(true); }
-    else if (p.qr) { setZelleOpen(true); e.preventDefault(); }
+    if (p.qr) { setQrOpen(true); return; }
+    if (p.h) window.open(p.h, "_blank", "noopener,noreferrer");
   };
   return (
     <>
-      <motion.a
-        key={p.l} href={p.h || "#"} target={p.h ? "_blank" : undefined} rel="noopener noreferrer"
+      <motion.button
+        type="button"
         onClick={handleClick}
         initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
         whileHover={{ scale: 1.12, y: -4 }}
         whileTap={{ scale: 0.95 }}
-        style={style}
+        style={{ ...style, border: "none", cursor: "pointer" }}
       >
         <span style={{ fontSize: 24 }}>{p.e}</span>
         <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
-      </motion.a>
-      {zelleOpen && <ZelleQRModal qrUrl={p.qr} onClose={() => setZelleOpen(false)} />}
+      </motion.button>
+      {qrOpen && <ZelleQRModal qrUrl={p.qr} onClose={() => setQrOpen(false)} />}
     </>
   );
 }
@@ -237,8 +240,8 @@ function PaymentsGrid({ payments, track, dark, color, compact = false }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(payments.length, 4)}, 1fr)`, gap: compact ? 6 : 10 }}>
       {payments.map((p, i) => (
-        <PaymentBtn key={p.l} p={p} i={i} track={track} dark={dark} color={color}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: compact ? 5 : 8, padding: compact ? "10px 6px" : "16px 10px", borderRadius: compact ? 12 : 16, background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), border: dark ? "1px solid rgba(255,255,255,0.14)" : `1.5px solid ${hexRgb(color, 0.28)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.8)" : color, fontWeight: 700, fontSize: compact ? 9 : 11, textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.2)` : `0 2px 12px ${hexRgb(color, 0.15)}` }}
+        <PaymentBtn key={p.l} p={p} i={i} track={track}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: compact ? 5 : 8, padding: compact ? "10px 6px" : "16px 10px", borderRadius: compact ? 12 : 16, background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), color: dark ? "rgba(255,255,255,0.8)" : color, fontWeight: 700, fontSize: compact ? 9 : 11, textAlign: "center", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.2)` : `0 2px 12px ${hexRgb(color, 0.15)}` }}
         />
       ))}
     </div>

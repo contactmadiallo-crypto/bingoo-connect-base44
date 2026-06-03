@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Camera, Trash2, Eye, Image, QrCode } from "lucide-react";
+import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
 import ProfilePreview from "./ProfilePreview";
@@ -23,6 +23,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
   const [coverUploading, setCoverUploading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [zelleQrUploading, setZelleQrUploading] = useState(false);
+  const [waveQrUploading, setWaveQrUploading] = useState(false);
+  const [customQrUploading, setCustomQrUploading] = useState({});
   const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
@@ -30,7 +32,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
     cover_color: "#2563eb", profile_photo: "", cover_photo: "", company_logo: "", layout: "classic",
     phone: "", whatsapp_number: "", email: "", website: "", location: "",
     facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
-    youtube_url: "", payment_link: "", zelle_link: "", cashapp_link: "", orangemoney_link: "", wave_link: "",
+    youtube_url: "", payment_link: "", zelle_link: "", zelle_qr: "",
+    cashapp_link: "", orangemoney_link: "", wave_link: "", wave_qr: "",
+    custom_payments: [],
     booking_enabled: false,
     booking_slot_duration: 30,
     booking_restricted_emails: [],
@@ -83,6 +87,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
         cashapp_link: profile.cashapp_link || "",
         orangemoney_link: profile.orangemoney_link || "",
         wave_link: profile.wave_link || "",
+        wave_qr: profile.wave_qr || "",
+        custom_payments: profile.custom_payments || [],
         booking_enabled: profile.booking_enabled || false,
         booking_slot_duration: profile.booking_slot_duration || 30,
         booking_restricted_emails: profile.booking_restricted_emails || [],
@@ -152,6 +158,42 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm(f => ({ ...f, zelle_qr: file_url }));
     setZelleQrUploading(false);
+  };
+
+  const handleWaveQrUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setWaveQrUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, wave_qr: file_url }));
+    setWaveQrUploading(false);
+  };
+
+  const handleCustomQrUpload = async (idx, e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setCustomQrUploading(u => ({ ...u, [idx]: true }));
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => {
+      const cp = [...(f.custom_payments || [])];
+      cp[idx] = { ...cp[idx], qr: file_url };
+      return { ...f, custom_payments: cp };
+    });
+    setCustomQrUploading(u => ({ ...u, [idx]: false }));
+  };
+
+  const updateCustomPayment = (idx, key, value) => {
+    setForm(f => {
+      const cp = [...(f.custom_payments || [])];
+      cp[idx] = { ...cp[idx], [key]: value };
+      return { ...f, custom_payments: cp };
+    });
+  };
+
+  const removeCustomPayment = (idx) => {
+    setForm(f => ({ ...f, custom_payments: (f.custom_payments || []).filter((_, i) => i !== idx) }));
+  };
+
+  const addCustomPayment = () => {
+    setForm(f => ({ ...f, custom_payments: [...(f.custom_payments || []), { label: "", emoji: "💵", link: "", qr: "" }] }));
   };
 
   const set = (k) => (e) => { setForm(f => ({ ...f, [k]: e.target.value })); setErrors(er => ({ ...er, [k]: undefined })); };
@@ -350,7 +392,76 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
             </div>
             {field("cashapp_link", "💰 Cash App Link", "https://cash.app/...")}
             {field("orangemoney_link", "🟠 Orange Money Link", "https://orangemoney....")}
-            {field("wave_link", "📲 Wave Link", "https://wave.com/...")}
+            {/* Wave: QR upload + optional link */}
+            <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-4 h-4 text-blue-500" />
+                <Label className="font-semibold text-slate-800">📲 Wave</Label>
+              </div>
+              <p className="text-xs text-slate-500">Upload your Wave QR code and/or add a link.</p>
+              <div className="flex items-center gap-4">
+                {form.wave_qr
+                  ? <img src={form.wave_qr} alt="Wave QR" className="w-20 h-20 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" />
+                  : <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-white">🔲</div>
+                }
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                    {waveQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.wave_qr ? "Change QR Code" : "Upload QR Code"}</>}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleWaveQrUpload} disabled={waveQrUploading} />
+                  </label>
+                  {form.wave_qr && (
+                    <button onClick={() => setForm(f => ({ ...f, wave_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1">Wave Link (optional)</Label>
+                <Input className={`border-slate-200 text-sm ${errors.wave_link ? "border-red-400" : ""}`} placeholder="https://wave.com/..." value={form.wave_link} onChange={set("wave_link")} />
+                {errors.wave_link && <p className="text-red-500 text-xs mt-1">{errors.wave_link}</p>}
+              </div>
+            </div>
+            </div>
+
+            {/* Custom Payment Methods */}
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-slate-900">Other Payment Methods</h3>
+                <button type="button" onClick={addCustomPayment} className="flex items-center gap-1.5 text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors">
+                  <Plus className="w-3.5 h-3.5" /> Add Method
+                </button>
+              </div>
+              {(form.custom_payments || []).length === 0 && (
+                <p className="text-xs text-slate-400 italic">No custom methods yet. Add PayPal, Venmo, CinetPay, etc.</p>
+              )}
+              <div className="space-y-3">
+                {(form.custom_payments || []).map((cp, idx) => (
+                  <div key={idx} className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input className="w-14 border-slate-200 text-center text-lg" placeholder="💵" value={cp.emoji || ""} onChange={e => updateCustomPayment(idx, "emoji", e.target.value)} />
+                        <Input className="flex-1 border-slate-200" placeholder="Label (e.g. PayPal, Venmo)" value={cp.label || ""} onChange={e => updateCustomPayment(idx, "label", e.target.value)} />
+                      </div>
+                      <button type="button" onClick={() => removeCustomPayment(idx)} className="ml-2 text-red-400 hover:text-red-600 p-1 rounded-lg hover:bg-red-50 transition-colors">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <Input className="border-slate-200 text-sm" placeholder="Link (optional, e.g. https://paypal.me/...)" value={cp.link || ""} onChange={e => updateCustomPayment(idx, "link", e.target.value)} />
+                    <div className="flex items-center gap-4">
+                      {cp.qr
+                        ? <img src={cp.qr} alt="QR" className="w-16 h-16 rounded-lg border border-slate-200 object-contain bg-white" />
+                        : <div className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 bg-white text-xl">🔲</div>
+                      }
+                      <div className="flex flex-col gap-1.5">
+                        <label className="cursor-pointer text-xs font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
+                          {customQrUploading[idx] ? <><div className="w-3 h-3 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{cp.qr ? "Change QR" : "Upload QR"}</>}
+                          <input type="file" accept="image/*" className="hidden" onChange={e => handleCustomQrUpload(idx, e)} disabled={!!customQrUploading[idx]} />
+                        </label>
+                        {cp.qr && <button type="button" onClick={() => updateCustomPayment(idx, "qr", "")} className="text-xs font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-lg text-left">Remove QR</button>}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             </div>
 

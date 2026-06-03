@@ -150,6 +150,31 @@
     "wave_link": {
       "type": "string"
     },
+    "wave_qr": {
+      "type": "string",
+      "description": "Uploaded Wave QR code image URL"
+    },
+    "custom_payments": {
+      "type": "array",
+      "description": "Custom payment methods added by the user",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "qr": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "plan": {
       "type": "string",
       "enum": [
