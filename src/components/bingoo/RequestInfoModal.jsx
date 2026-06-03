@@ -14,7 +14,7 @@ export default function RequestInfoModal({ profileId, onClose }) {
   const handleSubmit = async () => {
     if (!form.name && !form.phone && !form.email) return;
     setLoading(true);
-    await base44.entities.Lead.create({ profile_id: profileId, ...form });
+    await base44.functions.invoke("createPublicLead", { profile_id: profileId, ...form });
     setLoading(false);
     setDone(true);
   };

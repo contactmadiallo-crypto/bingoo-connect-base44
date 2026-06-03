@@ -68,13 +68,9 @@ export default function AppointmentBooking({ profile, onClose }) {
 
   const handleBook = async () => {
     if (!form.name || !form.email) { setError("Name and email are required."); return; }
-    if (restricted.length > 0 && !restricted.map(e => e.toLowerCase()).includes(form.email.toLowerCase())) {
-      setError("Booking is restricted. Your email is not on the allowed list.");
-      return;
-    }
     setSaving(true);
     setError("");
-    await base44.entities.Appointment.create({
+    const res = await base44.functions.invoke("createPublicAppointment", {
       profile_id: profile.id,
       visitor_name: form.name,
       visitor_email: form.email,
@@ -82,9 +78,13 @@ export default function AppointmentBooking({ profile, onClose }) {
       date: selectedDate,
       time_slot: selectedSlot,
       notes: form.notes,
-      status: "pending",
+      restricted_emails: restricted,
     });
     setSaving(false);
+    if (res.data?.error) {
+      setError(res.data.error);
+      return;
+    }
     setStep(3);
   };
 

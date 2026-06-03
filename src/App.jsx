@@ -44,18 +44,20 @@ const AuthenticatedApp = () => {
   const publicPaths = ['/', '/bingoo-home', '/pricing'];
   const isPublicPath = publicPaths.includes(window.location.pathname) ||
     window.location.pathname.startsWith('/p/') ||
-    window.location.pathname.startsWith('/n/');
+    window.location.pathname.startsWith('/n/') ||
+    window.location.pathname.startsWith('/activate-device');
 
   // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Only redirect to login for protected routes
+      // Only redirect to login for protected routes — never for public ones
       if (!isPublicPath) {
         navigateToLogin();
         return null;
       }
+      // For public paths, just render the app without forcing login
     }
   }
 

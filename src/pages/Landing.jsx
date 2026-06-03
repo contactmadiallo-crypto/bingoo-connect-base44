@@ -106,6 +106,11 @@ function GradientMesh() {
 }
 
 export default function Landing() {
+  const [authed, setAuthed] = useState(false);
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(setAuthed);
+  }, []);
+
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 120]);
@@ -156,12 +161,20 @@ export default function Landing() {
             ))}
           </div>
           <div className="flex gap-2">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <Button variant="outline" size="sm" onClick={goSignIn} className="border-slate-200 text-slate-700 hover:border-blue-300 hidden sm:inline-flex">Sign In</Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <Button size="sm" onClick={goSignIn} className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">Get Started</Button>
-            </motion.div>
+            {authed ? (
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                <Button size="sm" onClick={() => window.location.href = '/bingoo'} className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">My Dashboard →</Button>
+              </motion.div>
+            ) : (
+              <>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                  <Button variant="outline" size="sm" onClick={goSignIn} className="border-slate-200 text-slate-700 hover:border-blue-300 hidden sm:inline-flex">Sign In</Button>
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                  <Button size="sm" onClick={goSignIn} className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200 text-xs sm:text-sm">Get Started</Button>
+                </motion.div>
+              </>
+            )}
           </div>
         </div>
       </motion.nav>
