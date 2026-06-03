@@ -71,8 +71,7 @@
         "classic",
         "glassmorphic"
       ],
-      "default": "modern",
-      "description": "Overall visual theme for the public profile"
+      "default": "modern"
     },
     "bg_style": {
       "type": "string",
@@ -84,8 +83,7 @@
         "blur",
         "animated"
       ],
-      "default": "clean",
-      "description": "Page background atmosphere"
+      "default": "clean"
     },
     "button_style": {
       "type": "string",
@@ -96,8 +94,7 @@
         "outlined",
         "flat"
       ],
-      "default": "pill",
-      "description": "Button corner style"
+      "default": "pill"
     },
     "phone": {
       "type": "string"
@@ -137,7 +134,12 @@
       "type": "string"
     },
     "zelle_link": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional Zelle link (if available)"
+    },
+    "zelle_qr": {
+      "type": "string",
+      "description": "Uploaded Zelle QR code image URL"
     },
     "cashapp_link": {
       "type": "string"

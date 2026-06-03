@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
+import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 const trackEvent = (profileId, eventType) => {
@@ -57,7 +58,7 @@ const useLinks = (p) => ({
     p?.payment_link && { e: "💳", l: "Pay / Support", h: p.payment_link, ev: "payment_click" },
   ].filter(Boolean),
   payments: [
-    p?.zelle_link && { e: "💳", l: "Zelle", h: p.zelle_link, ev: "zelle_click" },
+    (p?.zelle_qr || p?.zelle_link) && { e: "💳", l: "Zelle", h: p.zelle_link || null, qr: p.zelle_qr || null, ev: "zelle_click" },
     p?.cashapp_link && { e: "💰", l: "Cash App", h: p.cashapp_link, ev: "cashapp_click" },
     p?.orangemoney_link && { e: "🟠", l: "Orange Money", h: p.orangemoney_link, ev: "orangemoney_click" },
     p?.wave_link && { e: "📲", l: "Wave", h: p.wave_link, ev: "wave_click" },
@@ -199,10 +200,50 @@ function PrimaryCtAs({ links, color, track, profile }) {
   );
 }
 
+// ── Payment Button (handles Zelle QR modal) ───────────────────────────────────
+function PaymentBtn({ p, i, track, dark, color, style }) {
+  const [zelleOpen, setZelleOpen] = useState(false);
+  const handleClick = (e) => {
+    track(p.ev);
+    if (p.qr && !p.h) { e.preventDefault(); setZelleOpen(true); }
+    else if (p.qr) { setZelleOpen(true); e.preventDefault(); }
+  };
+  return (
+    <>
+      <motion.a
+        key={p.l} href={p.h || "#"} target={p.h ? "_blank" : undefined} rel="noopener noreferrer"
+        onClick={handleClick}
+        initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
+        whileHover={{ scale: 1.12, y: -4 }}
+        whileTap={{ scale: 0.95 }}
+        style={style}
+      >
+        <span style={{ fontSize: 24 }}>{p.e}</span>
+        <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
+      </motion.a>
+      {zelleOpen && <ZelleQRModal qrUrl={p.qr} onClose={() => setZelleOpen(false)} />}
+    </>
+  );
+}
+
 // ── Section label ─────────────────────────────────────────────────────────────
 const SectionLabel = ({ text, dark }) => (
   <p style={{ fontSize: 10, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.14em", color: dark ? "rgba(255,255,255,0.25)" : "#94a3b8", margin: "0 0 8px 2px" }}>{text}</p>
 );
+
+// ── Payments Grid ─────────────────────────────────────────────────────────────
+function PaymentsGrid({ payments, track, dark, color, compact = false }) {
+  if (!payments.length) return null;
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(payments.length, 4)}, 1fr)`, gap: compact ? 6 : 10 }}>
+      {payments.map((p, i) => (
+        <PaymentBtn key={p.l} p={p} i={i} track={track} dark={dark} color={color}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: compact ? 5 : 8, padding: compact ? "10px 6px" : "16px 10px", borderRadius: compact ? 12 : 16, background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), border: dark ? "1px solid rgba(255,255,255,0.14)" : `1.5px solid ${hexRgb(color, 0.28)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.8)" : color, fontWeight: 700, fontSize: compact ? 9 : 11, textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.2)` : `0 2px 12px ${hexRgb(color, 0.15)}` }}
+        />
+      ))}
+    </div>
+  );
+}
 
 // ── Powered by ────────────────────────────────────────────────────────────────
 const PoweredBy = ({ color, dark }) => (
@@ -376,22 +417,11 @@ function LayoutClassic({ profile, track, mobile }) {
 
            {/* Payment Methods */}
             {payments.length > 0 && (
-              <div style={{ marginTop: 28 }}>
-                <SectionLabel text="Send Money" dark={dark} />
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-                  {payments.map((p, i) => (
-                    <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
-                      initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
-                      whileHover={{ scale: 1.12, y: -4 }}
-                      whileTap={{ scale: 0.95 }}
-                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "16px 10px", borderRadius: 16, background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), border: dark ? "1px solid rgba(255,255,255,0.14)" : `1.5px solid ${hexRgb(color, 0.28)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.8)" : color, fontWeight: 700, fontSize: 11, textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.2)` : `0 2px 12px ${hexRgb(color, 0.15)}` }}>
-                      <span style={{ fontSize: 24 }}>{p.e}</span>
-                      <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}</span>
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            )}
+               <div style={{ marginTop: 28 }}>
+                 <SectionLabel text="Send Money" dark={dark} />
+                 <PaymentsGrid payments={payments} track={track} dark={dark} color={color} />
+               </div>
+             )}
 
            {/* Secondary links */}
              {secondary.length > 0 && (
@@ -458,19 +488,9 @@ function LayoutMinimal({ profile, track, mobile }) {
             <Actions profile={profile} track={track} color={color} dark={dark} />
           </motion.div>
           {payments.length > 0 && (
-            <div style={{ marginTop: 18 }}>
+            <div style={{ marginTop: 18, marginBottom: 18 }}>
               <SectionLabel text="Send Money" dark={dark} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 18 }}>
-                {payments.map((p, i) => (
-                  <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
-                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 + i * 0.07 }}
-                    whileHover={{ scale: 1.08 }}
-                    style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.7)" : color, fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
-                    <span style={{ fontSize: 18 }}>{p.e}</span>
-                    <span style={{ lineHeight: 1 }}>{p.l}</span>
-                  </motion.a>
-                ))}
-              </div>
+              <PaymentsGrid payments={payments} track={track} dark={dark} color={color} compact />
             </div>
           )}
           {secondary.length > 0 && (
@@ -529,19 +549,9 @@ function LayoutDark({ profile, track, mobile }) {
               <Actions profile={profile} track={track} color={color} dark />
             </motion.div>
             {payments.length > 0 && (
-              <div style={{ marginTop: 18 }}>
+              <div style={{ marginTop: 18, marginBottom: 12 }}>
                 <SectionLabel text="Send Money" dark />
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, marginBottom: 12 }}>
-                  {payments.map((p, i) => (
-                    <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
-                      initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 + i * 0.07 }}
-                      whileHover={{ scale: 1.08 }}
-                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", textDecoration: "none", color: "rgba(255,255,255,0.8)", fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
-                      <span style={{ fontSize: 18 }}>{p.e}</span>
-                      <span style={{ lineHeight: 1 }}>{p.l}</span>
-                    </motion.a>
-                  ))}
-                </div>
+                <PaymentsGrid payments={payments} track={track} dark color={color} compact />
               </div>
             )}
             {secondary.length > 0 && (
@@ -603,14 +613,11 @@ function LayoutBold({ profile, track, mobile }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {primary.length > 0 && <PrimaryCtAs links={primary} color={color} track={track} profile={profile} />}
             <Actions profile={profile} track={track} color={color} dark />
-            {payments.length > 0 && payments.map((p, i) => (
-              <motion.button key={p.l} type="button" onClick={() => { track(p.ev); window.open(p.h, '_blank'); }}
-                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.38 + i * 0.06 }}
-                whileHover={{ x: 4 }}
-                style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px", borderRadius: btnRadius(profile.button_style || "pill"), background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", color: "#fff", fontWeight: 600, fontSize: 13, textDecoration: "none", backdropFilter: "blur(8px)", cursor: "pointer", width: "100%" }}>
-                <span style={{ fontSize: 18 }}>{p.e}</span>{p.l}
-              </motion.button>
-            ))}
+            {payments.length > 0 && (
+              <div style={{ marginTop: 4 }}>
+                <PaymentsGrid payments={payments} track={track} dark color={color} compact />
+              </div>
+            )}
             {secondary.map((l, i) => (
               <motion.a key={l.l} href={l.h} target="_blank" rel="noopener noreferrer" onClick={() => track(l.ev)}
                 initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + (payments.length + i) * 0.06 }}
@@ -679,17 +686,7 @@ function LayoutSplit({ profile, track, mobile }) {
               {payments.length > 0 && (
                 <div style={{ marginTop: 14 }}>
                   <SectionLabel text="Send Money" dark={dark} />
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-                    {payments.map((p, i) => (
-                      <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
-                        initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.07 }}
-                        whileHover={{ scale: 1.08 }}
-                        style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "10px 6px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.7)" : color, fontWeight: 600, fontSize: 9, textAlign: "center", cursor: "pointer" }}>
-                        <span style={{ fontSize: 18 }}>{p.e}</span>
-                        <span style={{ lineHeight: 1 }}>{p.l}</span>
-                      </motion.a>
-                    ))}
-                  </div>
+                  <PaymentsGrid payments={payments} track={track} dark={dark} color={color} compact />
                 </div>
               )}
             </motion.div>

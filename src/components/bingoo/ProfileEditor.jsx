@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Camera, Trash2, Eye, Image } from "lucide-react";
+import { Camera, Trash2, Eye, Image, QrCode } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
 import ProfilePreview from "./ProfilePreview";
@@ -22,6 +22,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [zelleQrUploading, setZelleQrUploading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
@@ -78,6 +79,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
         youtube_url: profile.youtube_url || "",
         payment_link: profile.payment_link || "",
         zelle_link: profile.zelle_link || "",
+        zelle_qr: profile.zelle_qr || "",
         cashapp_link: profile.cashapp_link || "",
         orangemoney_link: profile.orangemoney_link || "",
         wave_link: profile.wave_link || "",
@@ -142,6 +144,14 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm(f => ({ ...f, company_logo: file_url }));
     setLogoUploading(false);
+  };
+
+  const handleZelleQrUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setZelleQrUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, zelle_qr: file_url }));
+    setZelleQrUploading(false);
   };
 
   const set = (k) => (e) => { setForm(f => ({ ...f, [k]: e.target.value })); setErrors(er => ({ ...er, [k]: undefined })); };
@@ -308,7 +318,36 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
             </div>
             <h3 className="font-bold text-slate-900 mt-4 mb-3">Money Transfer Links</h3>
             <div className="grid md:grid-cols-2 gap-4">
-            {field("zelle_link", "💳 Zelle Link", "https://www.zellepay.com/...")}
+            {/* Zelle: QR upload + optional link */}
+            <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-4 h-4 text-purple-600" />
+                <Label className="font-semibold text-slate-800">💳 Zelle</Label>
+              </div>
+              <p className="text-xs text-slate-500">Upload your Zelle QR code and/or add a link. Visitors will see a button to scan your QR or open the link.</p>
+              {/* QR upload */}
+              <div className="flex items-center gap-4">
+                {form.zelle_qr
+                  ? <img src={form.zelle_qr} alt="Zelle QR" className="w-20 h-20 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" />
+                  : <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-white">🔲</div>
+                }
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer text-xs font-semibold text-purple-600 hover:text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                    {zelleQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.zelle_qr ? "Change QR Code" : "Upload QR Code"}</>}
+                    <input type="file" accept="image/*" className="hidden" onChange={handleZelleQrUpload} disabled={zelleQrUploading} />
+                  </label>
+                  {form.zelle_qr && (
+                    <button onClick={() => setForm(f => ({ ...f, zelle_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
+                  )}
+                </div>
+              </div>
+              {/* Optional link */}
+              <div>
+                <Label className="text-xs text-slate-500 mb-1">Zelle Link (optional)</Label>
+                <Input className={`border-slate-200 text-sm ${errors.zelle_link ? "border-red-400" : ""}`} placeholder="https://enroll.zellepay.com/..." value={form.zelle_link} onChange={set("zelle_link")} />
+                {errors.zelle_link && <p className="text-red-500 text-xs mt-1">{errors.zelle_link}</p>}
+              </div>
+            </div>
             {field("cashapp_link", "💰 Cash App Link", "https://cash.app/...")}
             {field("orangemoney_link", "🟠 Orange Money Link", "https://orangemoney....")}
             {field("wave_link", "📲 Wave Link", "https://wave.com/...")}
