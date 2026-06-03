@@ -42,9 +42,37 @@
         "split",
         "card",
         "glassmorphic",
-        "gradient"
+        "gradient",
+        "neon",
+        "retro",
+        "magazine",
+        "aurora",
+        "minimal_dark",
+        "pastel",
+        "corporate",
+        "floating",
+        "sunset",
+        "ocean",
+        "forest",
+        "luxury",
+        "bubbly",
+        "monochrome",
+        "cyberpunk",
+        "frosted",
+        "paper",
+        "wave"
       ],
       "default": "classic"
+    },
+    "profile_theme": {
+      "type": "string",
+      "enum": [
+        "modern",
+        "classic",
+        "glassmorphic"
+      ],
+      "default": "modern",
+      "description": "Overall visual theme for the public profile"
     },
     "bg_style": {
       "type": "string",

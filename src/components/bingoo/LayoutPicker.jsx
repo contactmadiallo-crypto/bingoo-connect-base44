@@ -324,6 +324,206 @@ const layouts = [
       </div>
     ),
   },
+  // ── 10 NEW PRO LAYOUTS ────────────────────────────────────────
+  {
+    id: "sunset",
+    name: "Sunset",
+    desc: "Warm orange gradient",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-0" style={{ background: "linear-gradient(160deg,#ff6b35,#f7c59f,#ffe0cc)" }}>
+        <div className="flex flex-col items-center pt-3 pb-1 gap-1">
+          <div className="w-8 h-8 rounded-full border-2 border-white/60" style={{ background: color }} />
+          <div className="w-12 h-1.5 bg-white/70 rounded" />
+          <div className="w-8 h-1 bg-white/50 rounded" />
+        </div>
+        <div className="mx-2 mb-2 flex-1 rounded-xl bg-white/25 p-1.5 space-y-1">
+          <div className="w-full h-2 bg-white/40 rounded-full" />
+          <div className="w-full h-2 bg-white/30 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    desc: "Deep sea vibes",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#0077b6,#00b4d8,#90e0ef)" }}>
+        <div className="h-8 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.3) 4px, rgba(255,255,255,0.3) 5px)" }} />
+        </div>
+        <div className="flex flex-col items-center gap-1 p-2">
+          <div className="w-7 h-7 rounded-full border-2 border-white/70 -mt-4" style={{ background: color }} />
+          <div className="w-12 h-1.5 bg-white/70 rounded" />
+          <div className="w-full h-2 bg-white/20 rounded-full" />
+          <div className="w-full h-2 bg-white/20 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "forest",
+    name: "Forest",
+    desc: "Nature & earthy tones",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-emerald-950 p-2 gap-1.5">
+        <div className="h-5 rounded-lg" style={{ background: "linear-gradient(90deg,#16a34a88,#14532d88)" }} />
+        <div className="flex flex-col items-center gap-1">
+          <div className="w-7 h-7 rounded-full border-2 border-emerald-400/50" style={{ background: color }} />
+          <div className="w-12 h-1.5 bg-emerald-300/60 rounded" />
+        </div>
+        <div className="space-y-1">
+          <div className="w-full h-2 rounded-full bg-emerald-900/80 border border-emerald-700/40" />
+          <div className="w-full h-2 rounded-full bg-emerald-900/80 border border-emerald-700/40" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "luxury",
+    name: "Luxury",
+    desc: "Gold & black prestige",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-zinc-950 p-2 gap-1.5">
+        <div className="flex flex-col items-center gap-1 pb-1.5 border-b border-amber-600/40">
+          <div className="w-7 h-7 rounded-full border border-amber-500/70" style={{ background: color }} />
+          <div className="w-12 h-1.5 rounded" style={{ background: "linear-gradient(90deg,#b45309,#fbbf24)" }} />
+          <div className="w-8 h-1 bg-amber-800/40 rounded" />
+        </div>
+        <div className="space-y-1">
+          <div className="w-full h-2 rounded bg-amber-900/30 border border-amber-700/30" />
+          <div className="w-full h-2 rounded bg-amber-900/20 border border-amber-700/20" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "bubbly",
+    name: "Bubbly",
+    desc: "Fun colorful dots",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white p-2 gap-1.5 relative">
+        <div className="absolute top-1 right-1 w-6 h-6 rounded-full opacity-30" style={{ background: color }} />
+        <div className="absolute bottom-2 left-1 w-4 h-4 rounded-full opacity-20" style={{ background: "#f472b6" }} />
+        <div className="flex flex-col items-center gap-1 z-10">
+          <div className="w-8 h-8 rounded-full shadow-lg" style={{ background: `linear-gradient(135deg, ${color}, #f472b6)` }} />
+          <div className="w-14 h-1.5 bg-slate-200 rounded-full" />
+          <div className="w-10 h-1 bg-slate-100 rounded-full" />
+        </div>
+        <div className="space-y-1 z-10">
+          <div className="w-full h-2 rounded-full" style={{ background: `${color}30` }} />
+          <div className="w-full h-2 rounded-full bg-pink-100" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "monochrome",
+    name: "Mono",
+    desc: "Black & white stark",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white border-2 border-black p-0">
+        <div className="bg-black h-8 flex items-center px-2">
+          <div className="w-5 h-5 rounded-full bg-white" />
+        </div>
+        <div className="flex-1 p-2 space-y-1.5">
+          <div className="w-14 h-1.5 bg-black rounded" />
+          <div className="w-10 h-1 bg-gray-400 rounded" />
+          <div className="w-full h-2 border-2 border-black rounded" />
+          <div className="w-full h-2 bg-black rounded" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    desc: "Futuristic grid lines",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: "#0a001f" }}>
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(0deg,transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%), linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%)", backgroundSize: "50px 50px" }} />
+        <div className="flex flex-col items-center gap-1">
+          <div className="w-7 h-7 rounded" style={{ background: color, boxShadow: `0 0 10px ${color}` }} />
+          <div className="w-12 h-1.5 rounded" style={{ background: color, opacity: 0.8 }} />
+        </div>
+        <div className="space-y-1">
+          <div className="w-full h-2 rounded border" style={{ borderColor: `${color}88` }} />
+          <div className="w-full h-2 rounded" style={{ background: `${color}22`, border: `1px solid ${color}44` }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "frosted",
+    name: "Frosted",
+    desc: "iOS-style blur panels",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-1.5 gap-1.5" style={{ background: `linear-gradient(135deg,${color}44,${color}22,#e0e7ff88)` }}>
+        <div className="rounded-xl p-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(8px)" }}>
+          <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ background: color }} />
+          <div className="flex-1 space-y-0.5">
+            <div className="w-full h-1.5 bg-white/70 rounded" />
+            <div className="w-2/3 h-1 bg-white/50 rounded" />
+          </div>
+        </div>
+        <div className="rounded-xl p-1.5 space-y-1" style={{ background: "rgba(255,255,255,0.4)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full h-1.5 bg-white/60 rounded-full" />
+          <div className="w-full h-1.5 bg-white/40 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "paper",
+    name: "Paper",
+    desc: "Clean editorial serif",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-amber-50 p-2 gap-1.5 border border-amber-200">
+        <div className="border-b-2 border-slate-900 pb-1.5 flex items-end justify-between">
+          <div className="flex flex-col gap-0.5">
+            <div className="w-14 h-2 bg-slate-900 rounded-sm" />
+            <div className="w-8 h-1 bg-slate-400 rounded-sm" />
+          </div>
+          <div className="w-6 h-6 rounded-full" style={{ background: color }} />
+        </div>
+        <div className="space-y-0.5">
+          <div className="w-full h-1.5 bg-slate-200 rounded-sm" />
+          <div className="w-4/5 h-1.5 bg-slate-200 rounded-sm" />
+          <div className="w-full h-2 rounded" style={{ background: `${color}22` }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "wave",
+    name: "Wave",
+    desc: "Organic wave shapes",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white">
+        <div className="relative h-12" style={{ background: `linear-gradient(135deg,${color},${color}88)` }}>
+          <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="absolute bottom-0 w-full h-4">
+            <path d="M0,10 C20,20 40,0 60,10 C80,20 100,5 100,10 L100,20 L0,20 Z" fill="white" />
+          </svg>
+        </div>
+        <div className="flex-1 p-2 pt-0 flex flex-col items-center gap-1">
+          <div className="w-7 h-7 rounded-full -mt-3.5 border-2 border-white shadow" style={{ background: color }} />
+          <div className="w-12 h-1.5 bg-slate-200 rounded" />
+          <div className="w-full h-2 bg-slate-100 rounded-full" />
+          <div className="w-full h-2 bg-slate-100 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export { layouts };
@@ -379,7 +579,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
         <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
           <span className="text-base">✨</span>
           <p className="text-xs text-amber-700 font-semibold flex-1">
-            Upgrade to <strong>Pro</strong> to unlock 13+ premium layout styles including Neon, Aurora, Magazine, Pastel & more.
+            Upgrade to <strong>Pro</strong> to unlock 26+ premium layout styles including Neon, Sunset, Luxury, Cyberpunk & more.
           </p>
           <Link to="/pricing" className="text-xs font-black text-amber-600 hover:text-amber-700 whitespace-nowrap">
             Upgrade →
