@@ -86,10 +86,10 @@ function AnimatedOrb({ style, delay = 0 }) {
 function Avatar({ profile, size = 90, ring = true, floating = false }) {
   const color = profile.cover_color || "#2563eb";
   const ringStyle = ring ? {
-    padding: 3,
+    padding: 4,
     background: `linear-gradient(135deg, ${color}, ${color}88)`,
     borderRadius: "50%",
-    boxShadow: `0 0 0 3px white, 0 8px 32px ${hexRgb(color, 0.4)}`,
+    boxShadow: `0 0 0 4px white, 0 0 0 1px ${hexRgb(color, 0.2)}, 0 12px 40px ${hexRgb(color, 0.35)}, 0 0 24px ${hexRgb(color, 0.15)}`,
     display: "inline-block",
     flexShrink: 0,
   } : {};
@@ -119,30 +119,30 @@ function Actions({ profile, track, color, dark = false }) {
   const r = btnRadius(profile.button_style || "pill");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <motion.button
         onClick={() => { track("save_contact_click"); saveContact(profile); }}
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98 }}
-        style={{ width: "100%", padding: "16px 20px", borderRadius: r, background: `linear-gradient(135deg, ${color}, ${color}cc)`, color: "#fff", fontWeight: 800, fontSize: 14, letterSpacing: "0.03em", border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${hexRgb(color, 0.45)}` }}
+        whileHover={{ scale: 1.03, y: -3 }}
+        whileTap={{ scale: 0.97 }}
+        style={{ width: "100%", padding: "17px 22px", borderRadius: r, background: `linear-gradient(135deg, ${color}, ${color}dd)`, color: "#fff", fontWeight: 800, fontSize: 14.5, letterSpacing: "0.03em", border: "none", cursor: "pointer", boxShadow: `0 10px 32px ${hexRgb(color, 0.5)}, 0 0 0 1px ${hexRgb(color, 0.3)}`, transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         💾 &nbsp;Save Contact
       </motion.button>
-      <div style={{ display: "grid", gridTemplateColumns: profile.booking_enabled ? "1fr 1fr" : "1fr", gap: 10 }}>
+      <div style={{ display: "grid", gridTemplateColumns: profile.booking_enabled ? "1fr 1fr" : "1fr", gap: 11 }}>
         <motion.button
           onClick={() => setInfoOpen(true)}
-          whileHover={{ scale: 1.02, y: -1 }}
-          whileTap={{ scale: 0.98 }}
-          style={{ padding: "14px 16px", borderRadius: r, background: dark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.07), color: dark ? "#fff" : color, fontWeight: 700, fontSize: 13, border: `1.5px solid ${dark ? "rgba(255,255,255,0.18)" : hexRgb(color, 0.25)}`, cursor: "pointer" }}
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.97 }}
+          style={{ padding: "15px 18px", borderRadius: r, background: dark ? "rgba(255,255,255,0.12)" : hexRgb(color, 0.1), color: dark ? "#fff" : color, fontWeight: 700, fontSize: 13.5, border: `1.5px solid ${dark ? "rgba(255,255,255,0.22)" : hexRgb(color, 0.35)}`, cursor: "pointer", boxShadow: dark ? `0 4px 12px rgba(0,0,0,0.15)` : `0 2px 8px ${hexRgb(color, 0.1)}`, transition: "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)" }}
         >
           📋 &nbsp;Request Info
         </motion.button>
         {profile.booking_enabled && (
           <motion.button
             onClick={() => setBookOpen(true)}
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            style={{ padding: "14px 16px", borderRadius: r, background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)", color: dark ? "rgba(255,255,255,0.8)" : "#374151", fontWeight: 700, fontSize: 13, border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", cursor: "pointer" }}
+            whileHover={{ scale: 1.03, y: -2 }}
+            whileTap={{ scale: 0.97 }}
+            style={{ padding: "15px 18px", borderRadius: r, background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)", color: dark ? "rgba(255,255,255,0.85)" : "#374151", fontWeight: 700, fontSize: 13.5, border: dark ? "1px solid rgba(255,255,255,0.14)" : "1px solid rgba(0,0,0,0.1)", cursor: "pointer", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.1)` : `0 1px 4px rgba(0,0,0,0.06)`, transition: "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)" }}
           >
             📅 &nbsp;Book Meeting
           </motion.button>
@@ -164,12 +164,13 @@ function LinkRow({ e, l, h, onClick, dark, profile, index = 0 }) {
       initial={{ opacity: 0, x: -16 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.5 + index * 0.07, duration: 0.4 }}
-      whileHover={{ x: 4, background: dark ? "rgba(255,255,255,0.09)" : hexRgb(color, 0.06) }}
-      style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: r, background: dark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", border: dark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(0,0,0,0.06)", textDecoration: "none", color: dark ? "rgba(255,255,255,0.85)" : "#1e293b", fontWeight: 600, fontSize: 14, backdropFilter: "blur(8px)" }}
+      whileHover={{ x: 6, scale: 1.01, background: dark ? "rgba(255,255,255,0.12)" : hexRgb(color, 0.1) }}
+      whileTap={{ scale: 0.98 }}
+      style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 20px", borderRadius: r, background: dark ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.9)", border: dark ? "1px solid rgba(255,255,255,0.12)" : `1px solid ${hexRgb(color, 0.12)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.85)" : "#1e293b", fontWeight: 600, fontSize: 14.5, backdropFilter: "blur(12px)", boxShadow: dark ? `0 4px 16px rgba(0,0,0,0.2)` : `0 2px 8px ${hexRgb(color, 0.08)}`, transition: "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)" }}
     >
       <span style={{ fontSize: 20, width: 28, textAlign: "center" }}>{e}</span>
       <span style={{ flex: 1 }}>{l}</span>
-      <span style={{ width: 20, height: 20, borderRadius: "50%", background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: color }}>›</span>
+      <span style={{ width: 22, height: 22, borderRadius: "50%", background: dark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.12), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: color, fontWeight: 700 }}>›</span>
     </motion.a>
   );
 }
@@ -179,18 +180,18 @@ function PrimaryCtAs({ links, color, track, profile }) {
   if (!links.length) return null;
   const r = btnRadius(profile.button_style || "pill");
   return (
-    <div style={{ display: "grid", gridTemplateColumns: `repeat(${links.length}, 1fr)`, gap: 10 }}>
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${links.length}, 1fr)`, gap: 12 }}>
       {links.map((l, i) => (
         <motion.a
           key={l.l} href={l.h} target="_blank" rel="noopener noreferrer" onClick={() => track(l.ev)}
-          initial={{ opacity: 0, scale: 0.85 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.35 + i * 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          whileHover={{ scale: 1.05, y: -3 }}
-          whileTap={{ scale: 0.96 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7, padding: "16px 8px", borderRadius: r, background: "rgba(255,255,255,0.15)", backdropFilter: "blur(16px)", color: "#fff", fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.07em", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)", boxShadow: `0 4px 16px ${hexRgb(color, 0.25)}` }}
+          whileHover={{ scale: 1.06, y: -4 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "18px 10px", borderRadius: r, background: `linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08))`, backdropFilter: "blur(20px)", color: "#fff", fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", textDecoration: "none", border: "1px solid rgba(255,255,255,0.35)", boxShadow: `0 8px 24px ${hexRgb(color, 0.35)}, inset 0 1px 0 rgba(255,255,255,0.4)`, transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)" }}
         >
-          <span style={{ fontSize: 24 }}>{l.e}</span>{l.l}
+          <span style={{ fontSize: 26 }}>{l.e}</span>{l.l}
         </motion.a>
       ))}
     </div>
@@ -248,7 +249,7 @@ function LayoutClassic({ profile, track, mobile }) {
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}
       >
-        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.95)", overflow: "visible", boxShadow: dark ? `0 60px 100px rgba(0,0,0,0.8), 0 0 0 1px ${hexRgb(color,0.25)}, inset 0 1px 0 rgba(255,255,255,0.12)` : `0 2px 8px rgba(0,0,0,0.04), 0 24px 72px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
 
           {/* Cover banner */}
            <motion.div
