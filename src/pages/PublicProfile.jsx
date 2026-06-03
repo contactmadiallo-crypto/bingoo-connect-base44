@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 import RequestInfoModal from "@/components/bingoo/RequestInfoModal";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
@@ -222,26 +223,103 @@ const AmbientBg = ({ color, dark }) => (
 // ── Responsive size tokens ───────────────────────────────────────────────────
 const rz = (mobile, small, large) => mobile ? small : large;
 
+// ── Theme tokens ──────────────────────────────────────────────────────────────
+const getThemeTokens = (profile, color) => {
+  const theme = profile.profile_theme || "modern";
+  const dark = profile.bg_style === "night";
+  if (dark) {
+    return {
+      dark: true,
+      cardBg: "rgba(15,16,34,0.88)",
+      pageBg: "linear-gradient(160deg,#080a18 0%,#0d1022 100%)",
+      headColor: "#fff",
+      subColor: "rgba(255,255,255,0.45)",
+      bioColor: "rgba(255,255,255,0.5)",
+      divider: "rgba(255,255,255,0.07)",
+      cardRadius: 32,
+      cardShadow: `0 60px 100px rgba(0,0,0,0.8), 0 0 0 1px ${hexRgb(color,0.25)}, inset 0 1px 0 rgba(255,255,255,0.12)`,
+      pagePadding: "28px 16px 56px",
+    };
+  }
+  if (theme === "glassmorphic") {
+    const bgBase = profile.bg_style === "gradient"
+      ? `linear-gradient(135deg,${hexRgb(color,0.2)} 0%,#e0e7ff 50%,#ede9fe 100%)`
+      : profile.bg_style === "mesh"
+      ? `radial-gradient(at 20% 20%,${hexRgb(color,0.25)},transparent 50%),radial-gradient(at 80% 80%,${hexRgb(color,0.15)},transparent 50%),#ddd6fe22`
+      : `linear-gradient(135deg,${hexRgb(color,0.18)} 0%,${hexRgb(color,0.06)} 100%),radial-gradient(at top left,${hexRgb(color,0.25)},transparent 50%),#f0f4ff`;
+    return {
+      dark: false,
+      cardBg: "rgba(255,255,255,0.6)",
+      pageBg: bgBase,
+      headColor: "#0f172a",
+      subColor: "#4c6080",
+      bioColor: "#64748b",
+      divider: `${hexRgb(color,0.12)}`,
+      cardRadius: 28,
+      cardShadow: `0 8px 32px ${hexRgb(color,0.18)}, inset 0 1px 0 rgba(255,255,255,0.9)`,
+      cardBlur: "blur(32px)",
+      pagePadding: "32px 16px 60px",
+      cardBorder: `1px solid rgba(255,255,255,0.75)`,
+    };
+  }
+  if (theme === "classic") {
+    const bgBase = profile.bg_style === "gradient"
+      ? `linear-gradient(150deg,${hexRgb(color,0.06)} 0%,#f0f4ff 100%)`
+      : profile.bg_style === "mesh"
+      ? `radial-gradient(at 15% 25%,${hexRgb(color,0.08)},transparent 50%),#e9eef4`
+      : "#e8edf2";
+    return {
+      dark: false,
+      cardBg: "#fff",
+      pageBg: bgBase,
+      headColor: "#0f172a",
+      subColor: "#475569",
+      bioColor: "#64748b",
+      divider: "rgba(0,0,0,0.08)",
+      cardRadius: 8,
+      cardShadow: "0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)",
+      pagePadding: "0px 0px 48px",
+      cardBorder: "1px solid #d1d5db",
+    };
+  }
+  // modern (default)
+  const bgBase = profile.bg_style === "gradient"
+    ? `linear-gradient(150deg,${hexRgb(color,0.1)} 0%,#f0f4ff 40%,#faf5ff 100%)`
+    : profile.bg_style === "mesh"
+    ? `radial-gradient(at 15% 25%,${hexRgb(color,0.12)},transparent 50%),radial-gradient(at 85% 75%,${hexRgb(color,0.08)},transparent 50%),#f1f5f9`
+    : `linear-gradient(160deg,${hexRgb(color,0.06)} 0%,#f8faff 100%)`;
+  return {
+    dark: false,
+    cardBg: "rgba(255,255,255,0.96)",
+    pageBg: bgBase,
+    headColor: "#0f172a",
+    subColor: "#64748b",
+    bioColor: "#64748b",
+    divider: "rgba(0,0,0,0.06)",
+    cardRadius: 32,
+    cardShadow: `0 2px 8px rgba(0,0,0,0.04), 0 24px 72px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1)`,
+    pagePadding: "28px 16px 56px",
+    cardBorder: "1px solid rgba(255,255,255,0.95)",
+  };
+};
+
 // ────────────────────────────────────────────────────────────────────────────
 // LAYOUT: CLASSIC
 // ────────────────────────────────────────────────────────────────────────────
 function LayoutClassic({ profile, track, mobile }) {
   const { primary, secondary, payments } = useLinks(profile);
   const color = profile.cover_color || "#2563eb";
-  const dark = profile.bg_style === "night";
-  const cardBg = dark ? "rgba(15,16,34,0.85)" : "rgba(255,255,255,0.92)";
-  const headColor = dark ? "#fff" : "#0f172a";
-  const subColor = dark ? "rgba(255,255,255,0.45)" : "#64748b";
-  const bioColor = dark ? "rgba(255,255,255,0.5)" : "#64748b";
-  const divider = dark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
-  const bgBase = dark ? "linear-gradient(160deg,#080a18 0%,#0d1022 100%)" : profile.bg_style === "gradient"
-    ? `linear-gradient(150deg,${hexRgb(color,0.1)} 0%,#f0f4ff 40%,#faf5ff 100%)`
-    : profile.bg_style === "mesh"
-    ? `radial-gradient(at 15% 25%,${hexRgb(color,0.12)},transparent 50%),radial-gradient(at 85% 75%,${hexRgb(color,0.08)},transparent 50%),#f1f5f9`
-    : "#f0f4f8";
+  const t = getThemeTokens(profile, color);
+  const { dark, cardBg, pageBg: bgBase, headColor, subColor, bioColor, divider } = t;
+  const cardRadius = t.cardRadius || 32;
+  const cardShadow = t.cardShadow;
+  const cardBorder = t.cardBorder || "1px solid rgba(255,255,255,0.95)";
+  const cardBlur = t.cardBlur || "blur(24px)";
+
+  const desktopPad = t.pagePadding || "28px 16px 56px";
 
   return (
-    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 48px" : "28px 16px 56px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
+    <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 48px" : desktopPad, position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <AmbientBg color={color} dark={dark} />
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -249,13 +327,13 @@ function LayoutClassic({ profile, track, mobile }) {
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
         style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}
       >
-        <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.95)", overflow: "visible", boxShadow: dark ? `0 60px 100px rgba(0,0,0,0.8), 0 0 0 1px ${hexRgb(color,0.25)}, inset 0 1px 0 rgba(255,255,255,0.12)` : `0 2px 8px rgba(0,0,0,0.04), 0 24px 72px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
+        <div style={{ borderRadius: mobile ? 0 : cardRadius, background: cardBg, backdropFilter: cardBlur, border: cardBorder, overflow: "visible", boxShadow: cardShadow, width: "100%" }}>
 
           {/* Cover banner */}
            <motion.div
              style={{ 
                height: mobile ? 160 : 200, 
-               borderRadius: mobile ? 0 : "32px 32px 0 0", 
+               borderRadius: mobile ? 0 : `${cardRadius}px ${cardRadius}px 0 0`, 
                position: "relative", 
                background: profile.cover_photo 
                  ? `url(${profile.cover_photo}) center/cover`
