@@ -6,10 +6,12 @@ import { useEffect } from "react";
 export default function NFCRedirect() {
   const { deviceCode } = useParams();
 
+  const normalizedCode = deviceCode?.toUpperCase();
+
   const { data: deviceData, isLoading: deviceLoading } = useQuery({
-    queryKey: ["bingoo-device", deviceCode],
-    queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: deviceCode }),
-    enabled: !!deviceCode,
+    queryKey: ["bingoo-device", normalizedCode],
+    queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: normalizedCode }),
+    enabled: !!normalizedCode,
   });
 
   const device = deviceData?.data?.device;
@@ -24,9 +26,10 @@ export default function NFCRedirect() {
 
   useEffect(() => {
     if (profile?.username) {
-      base44.asServiceRole?.entities?.Analytics?.create({
+      // Fire analytics in background, don't let it block redirect
+      base44.entities.Analytics.create({
         profile_id: profile.id,
-        device_id: device.id,
+        device_id: device?.id,
         event_type: "profile_view",
         visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
         created_at: new Date().toISOString(),
