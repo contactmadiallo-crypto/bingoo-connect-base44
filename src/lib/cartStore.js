@@ -23,6 +23,10 @@ export function addToCart(product, quantity = 1) {
   saveCart(cart);
 }
 
+export function updateQuantity(productId, quantity) {
+  return updateCartItem(productId, quantity);
+}
+
 export function updateCartItem(productId, quantity) {
   const cart = getCart();
   const idx = cart.findIndex(item => item.id === productId);
@@ -34,11 +38,13 @@ export function updateCartItem(productId, quantity) {
     }
   }
   saveCart(cart);
+  return cart;
 }
 
 export function removeFromCart(productId) {
   const cart = getCart().filter(item => item.id !== productId);
   saveCart(cart);
+  return cart;
 }
 
 export function clearCart() {
