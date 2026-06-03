@@ -6,12 +6,13 @@ import { useEffect } from "react";
 export default function NFCRedirect() {
   const { deviceCode } = useParams();
 
-  const { data: devices = [], isLoading: deviceLoading } = useQuery({
+  const { data: deviceData, isLoading: deviceLoading } = useQuery({
     queryKey: ["bingoo-device", deviceCode],
-    queryFn: () => base44.entities.Device.filter({ device_code: deviceCode }),
+    queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: deviceCode }),
+    enabled: !!deviceCode,
   });
 
-  const device = devices[0];
+  const device = deviceData?.data?.device;
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ["bingoo-nfc-profile", device?.assigned_profile],
@@ -23,7 +24,7 @@ export default function NFCRedirect() {
 
   useEffect(() => {
     if (profile?.username) {
-      base44.entities.Analytics.create({
+      base44.asServiceRole?.entities?.Analytics?.create({
         profile_id: profile.id,
         device_id: device.id,
         event_type: "profile_view",
