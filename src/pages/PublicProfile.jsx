@@ -224,7 +224,7 @@ function PaymentBtn({ p, i, track, style }) {
         <span style={{ fontSize: 24 }}>{p.e}</span>
         <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
-      {qrOpen && <ZelleQRModal qrUrl={p.qr} onClose={() => setQrOpen(false)} />}
+      {qrOpen && <ZelleQRModal qrUrl={p.qr} label={p.l} emoji={p.e} onClose={() => setQrOpen(false)} />}
     </>
   );
 }
