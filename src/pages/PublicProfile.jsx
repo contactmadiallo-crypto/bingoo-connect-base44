@@ -7,7 +7,7 @@ import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 
@@ -224,7 +224,9 @@ function PaymentBtn({ p, i, track, style }) {
         <span style={{ fontSize: 24 }}>{p.e}</span>
         <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
-      {qrOpen && <ZelleQRModal qrUrl={p.qr} label={p.l} emoji={p.e} onClose={() => setQrOpen(false)} />}
+      <AnimatePresence>
+        {qrOpen && <ZelleQRModal qrUrl={p.qr} label={p.l} emoji={p.e} onClose={() => setQrOpen(false)} />}
+      </AnimatePresence>
     </>
   );
 }
