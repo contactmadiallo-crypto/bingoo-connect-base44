@@ -251,34 +251,50 @@ function LayoutClassic({ profile, track, mobile }) {
         <div style={{ borderRadius: mobile ? 0 : 32, background: cardBg, backdropFilter: "blur(24px)", border: dark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(255,255,255,0.8)", overflow: "visible", boxShadow: dark ? `0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px ${hexRgb(color,0.2)}, inset 0 1px 0 rgba(255,255,255,0.08)` : `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
 
           {/* Cover banner */}
-          <motion.div
-            style={{ height: mobile ? 150 : 180, borderRadius: mobile ? 0 : "32px 32px 0 0", position: "relative", background: `linear-gradient(135deg, ${color} 0%, ${color}99 60%, ${color}44 100%)`, overflow: "hidden" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(120deg,rgba(255,255,255,0.22) 0%,transparent 50%,rgba(255,255,255,0.06) 100%)" }} />
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.15) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
-            <motion.div
-              style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }}
-              animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            />
-            <motion.div
-              style={{ position: "absolute", bottom: -20, left: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }}
-              animate={{ scale: [1, 1.12, 1] }}
-              transition={{ duration: 6, repeat: Infinity, delay: 1 }}
-            />
-            {profile.company_logo && (
-              <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }} style={{ position: "absolute", top: 20, left: 20, height: 50, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }} />
-            )}
-          </motion.div>
+           <motion.div
+             style={{ 
+               height: mobile ? 160 : 200, 
+               borderRadius: mobile ? 0 : "32px 32px 0 0", 
+               position: "relative", 
+               background: profile.cover_photo 
+                 ? `url(${profile.cover_photo}) center/cover`
+                 : `linear-gradient(135deg, ${color} 0%, ${color}99 60%, ${color}44 100%)`, 
+               overflow: "hidden",
+               backgroundSize: "cover",
+               backgroundPosition: "center"
+             }}
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ duration: 0.5 }}
+           >
+             <div style={{ position: "absolute", inset: 0, background: profile.cover_photo 
+               ? "linear-gradient(135deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.08) 100%)"
+               : "linear-gradient(120deg,rgba(255,255,255,0.22) 0%,transparent 50%,rgba(255,255,255,0.06) 100%)" }} />
+             {!profile.cover_photo && (
+               <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.15) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
+             )}
+             <motion.div
+               style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.08)" }}
+               animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.15, 0.08] }}
+               transition={{ duration: 5, repeat: Infinity }}
+             />
+             <motion.div
+               style={{ position: "absolute", bottom: -20, left: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }}
+               animate={{ scale: [1, 1.12, 1] }}
+               transition={{ duration: 6, repeat: Infinity, delay: 1 }}
+             />
+             {profile.company_logo && (
+               <motion.img src={profile.company_logo} alt="Logo" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.4 }} style={{ position: "absolute", top: 20, left: 20, height: 50, objectFit: "contain", filter: profile.cover_photo ? "" : "brightness(0) invert(1)", opacity: 0.9 }} />
+             )}
+           </motion.div>
 
           {/* Body */}
           <div style={{ padding: mobile ? "0 0 28px" : "0 26px 32px" }}>
             {/* Avatar & Branding Section */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -48 : -60, marginBottom: 20, position: "relative", zIndex: 10 }}>
-              <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -56 : -75, marginBottom: 20, position: "relative", zIndex: 10 }}>
+              <div style={{ boxShadow: `0 16px 48px ${hexRgb(color, 0.5)}, 0 0 0 6px white`, borderRadius: "50%", display: "inline-block" }}>
+                <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+              </div>
               {profile.plan !== "free" && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0 }}
@@ -706,12 +722,21 @@ function LayoutGlassmorphic({ profile, track, mobile }) {
     <div style={{ minHeight: "100vh", background: bgBase, display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
         <div style={{ borderRadius: 32, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(20px)", border: `1px solid rgba(255,255,255,0.9)`, boxShadow: `0 8px 32px ${hexRgb(color, 0.1)}, inset 0 1px 0 rgba(255,255,255,0.9)`, overflow: "hidden", width: "100%" }}>
-          <motion.div style={{ height: mobile ? 160 : 200, borderRadius: "32px 32px 0 0", position: "relative", background: `linear-gradient(135deg,${hexRgb(color,0.15)},${hexRgb(color,0.08)})`, overflow: "hidden" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.4) 1px,transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }} />
-          </motion.div>
+           <motion.div style={{ height: mobile ? 160 : 200, borderRadius: "32px 32px 0 0", position: "relative", background: profile.cover_photo 
+             ? `url(${profile.cover_photo}) center/cover`
+             : `linear-gradient(135deg,${hexRgb(color,0.15)},${hexRgb(color,0.08)})`, overflow: "hidden", backgroundSize: "cover", backgroundPosition: "center" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+             <div style={{ position: "absolute", inset: 0, background: profile.cover_photo 
+               ? "linear-gradient(135deg,rgba(255,255,255,0.2) 0%,rgba(255,255,255,0.08) 100%)"
+               : "none" }} />
+             {!profile.cover_photo && (
+               <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.4) 1px,transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }} />
+             )}
+           </motion.div>
           <div style={{ padding: mobile ? "0 20px 24px" : "0 28px 32px" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -56 : -70, marginBottom: 20, position: "relative", zIndex: 10 }}>
-              <Avatar profile={profile} size={mobile ? 90 : 110} ring floating />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -64 : -80, marginBottom: 20, position: "relative", zIndex: 10 }}>
+              <div style={{ boxShadow: `0 16px 48px ${hexRgb(color, 0.4)}, 0 0 0 6px white`, borderRadius: "50%", display: "inline-block" }}>
+                <Avatar profile={profile} size={mobile ? 90 : 110} ring floating />
+              </div>
             </div>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginBottom: 22 }}>
               <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: "#0f172a", lineHeight: 1.1, letterSpacing: "-0.6px" }}>{profile.display_name}</h1>
@@ -746,13 +771,21 @@ function LayoutGradient({ profile, track, mobile }) {
       <AmbientBg color={color} dark={false} />
       <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
         <div style={{ borderRadius: mobile ? 0 : 32, background: "rgba(255,255,255,0.95)", backdropFilter: "blur(24px)", border: `1px solid ${hexRgb(color, 0.15)}`, overflow: "visible", boxShadow: `0 4px 6px rgba(0,0,0,0.02), 0 20px 60px ${hexRgb(color, 0.1)}, inset 0 1px 0 rgba(255,255,255,1)`, width: "100%" }}>
-          <motion.div style={{ height: mobile ? 150 : 180, borderRadius: mobile ? 0 : "32px 32px 0 0", position: "relative", background: `linear-gradient(135deg,${color}22,${color}11 60%,${color}08 100%)`, overflow: "hidden" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            <div style={{ position: "absolute", inset: 0, background: `linear-gradient(120deg,rgba(255,255,255,0.3) 0%,transparent 50%,rgba(255,255,255,0.1) 100%)` }} />
-            <motion.div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: hexRgb(color, 0.1) }} animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.18, 0.1] }} transition={{ duration: 5, repeat: Infinity }} />
+          <motion.div style={{ height: mobile ? 160 : 200, borderRadius: mobile ? 0 : "32px 32px 0 0", position: "relative", background: profile.cover_photo 
+            ? `url(${profile.cover_photo}) center/cover`
+            : `linear-gradient(135deg,${color}22,${color}11 60%,${color}08 100%)`, overflow: "hidden", backgroundSize: "cover", backgroundPosition: "center" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+            <div style={{ position: "absolute", inset: 0, background: profile.cover_photo 
+              ? "linear-gradient(120deg,rgba(255,255,255,0.2) 0%,transparent 50%,rgba(255,255,255,0.08) 100%)"
+              : "linear-gradient(120deg,rgba(255,255,255,0.3) 0%,transparent 50%,rgba(255,255,255,0.1) 100%)" }} />
+            {!profile.cover_photo && (
+              <motion.div style={{ position: "absolute", top: -40, right: -40, width: 160, height: 160, borderRadius: "50%", background: hexRgb(color, 0.1) }} animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.18, 0.1] }} transition={{ duration: 5, repeat: Infinity }} />
+            )}
           </motion.div>
           <div style={{ padding: mobile ? "0 0 28px" : "0 26px 32px" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -48 : -60, marginBottom: 20, position: "relative", zIndex: 10 }}>
-              <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -56 : -75, marginBottom: 20, position: "relative", zIndex: 10 }}>
+              <div style={{ boxShadow: `0 16px 48px ${hexRgb(color, 0.5)}, 0 0 0 6px white`, borderRadius: "50%", display: "inline-block" }}>
+                <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+              </div>
             </div>
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginBottom: 2 }}>
               <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: "#0f172a", lineHeight: 1.1, letterSpacing: "-0.6px" }}>{profile.display_name}</h1>

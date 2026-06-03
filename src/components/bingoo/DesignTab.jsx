@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { layouts } from "./LayoutPicker";
 import { Link } from "react-router-dom";
-import { Eye, Check, Lock } from "lucide-react";
+import { Eye, Check, Lock, Upload, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
@@ -29,6 +29,27 @@ export default function DesignTab({ profile }) {
     await base44.entities.Profile.update(profile.id, { layout: layoutId });
     queryClient.invalidateQueries({ queryKey: ["my-profile"] });
     setSaving(null);
+  };
+
+  const updateProfile = async (data) => {
+    if (!profile) return;
+    setSaving("updating");
+    await base44.entities.Profile.update(profile.id, data);
+    queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+    setSaving(null);
+  };
+
+  const handleCoverPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSaving("cover");
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await updateProfile({ cover_photo: file_url });
+    } catch (err) {
+      console.error("Upload failed:", err);
+      setSaving(null);
+    }
   };
 
   if (!profile) {
@@ -140,6 +161,115 @@ export default function DesignTab({ profile }) {
             </div>
           );
         })}
+      </div>
+
+      {/* Design Customization */}
+      <div className="space-y-6">
+        <div>
+          <h3 className={`text-lg font-black mb-4 flex items-center gap-2 ${headText}`}>
+            <Palette className="w-5 h-5" /> Design Options
+          </h3>
+        </div>
+
+        {/* Cover Photo */}
+        <div>
+          <label className={`block text-sm font-bold mb-3 ${headText}`}>Cover Photo</label>
+          <div className={`rounded-xl p-4 text-center cursor-pointer transition-all ${cardBase} hover:shadow-md`}>
+            <label className="cursor-pointer">
+              <div className="flex flex-col items-center gap-2">
+                <Upload className="w-5 h-5" />
+                <div>
+                  <p className={`font-semibold text-sm ${headText}`}>Upload Cover Image</p>
+                  <p className={`text-xs mt-1 ${subText}`}>PNG, JPG up to 5MB</p>
+                </div>
+              </div>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleCoverPhotoUpload} 
+                disabled={saving === "cover"}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
+        {/* Color Picker */}
+        <div>
+          <label className={`block text-sm font-bold mb-3 ${headText}`}>Primary Color</label>
+          <div className="flex gap-3 flex-wrap">
+            {["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2", "#db2777", "#64748b"].map((c) => (
+              <button
+                key={c}
+                onClick={() => updateProfile({ cover_color: c })}
+                className={`w-12 h-12 rounded-xl border-2 transition-all ${
+                  color === c 
+                    ? `border-slate-900 shadow-lg shadow-[${c}]/40` 
+                    : "border-slate-200 hover:border-slate-400"
+                }`}
+                style={{ background: c }}
+                title={c}
+              />
+            ))}
+            <div className="w-12 h-12 rounded-xl border-2 border-slate-300 flex items-center justify-center">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => updateProfile({ cover_color: e.target.value })}
+                className="w-10 h-10 rounded cursor-pointer"
+                title="Custom color"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Background Style */}
+        <div>
+          <label className={`block text-sm font-bold mb-3 ${headText}`}>Background Style</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {["clean", "gradient", "mesh", "night", "blur", "animated"].map((style) => (
+              <button
+                key={style}
+                onClick={() => updateProfile({ bg_style: style })}
+                className={`p-3 rounded-lg font-semibold text-sm transition-all ${
+                  profile.bg_style === style
+                    ? isDark
+                      ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
+                      : "bg-blue-100 border-2 border-blue-600 text-blue-700"
+                    : isDark
+                    ? "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                    : "bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {style.charAt(0).toUpperCase() + style.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Button Style */}
+        <div>
+          <label className={`block text-sm font-bold mb-3 ${headText}`}>Button Style</label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            {["pill", "rounded", "sharp", "outlined", "flat"].map((style) => (
+              <button
+                key={style}
+                onClick={() => updateProfile({ button_style: style })}
+                className={`p-3 rounded-lg font-semibold text-sm transition-all ${
+                  profile.button_style === style
+                    ? isDark
+                      ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
+                      : "bg-blue-100 border-2 border-blue-600 text-blue-700"
+                    : isDark
+                    ? "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                    : "bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                {style.charAt(0).toUpperCase() + style.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {!isPro && (

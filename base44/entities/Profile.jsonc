@@ -24,6 +24,10 @@
     "profile_photo": {
       "type": "string"
     },
+    "cover_photo": {
+      "type": "string",
+      "description": "Optional background image for cover area"
+    },
     "cover_color": {
       "type": "string",
       "default": "#2563eb"
@@ -35,7 +39,10 @@
         "minimal",
         "dark",
         "bold",
-        "split"
+        "split",
+        "card",
+        "glassmorphic",
+        "gradient"
       ],
       "default": "classic"
     },
@@ -45,7 +52,9 @@
         "clean",
         "gradient",
         "mesh",
-        "night"
+        "night",
+        "blur",
+        "animated"
       ],
       "default": "clean",
       "description": "Page background atmosphere"
@@ -55,7 +64,9 @@
       "enum": [
         "pill",
         "rounded",
-        "sharp"
+        "sharp",
+        "outlined",
+        "flat"
       ],
       "default": "pill",
       "description": "Button corner style"
