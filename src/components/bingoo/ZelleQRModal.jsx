@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
-export default function ZelleQRModal({ qrUrl, label, emoji, onClose }) {
+export default function ZelleQRModal({ qrUrl, link, label, emoji, onClose }) {
   return createPortal(
     <div
       onClick={onClose}
@@ -17,12 +17,31 @@ export default function ZelleQRModal({ qrUrl, label, emoji, onClose }) {
       >
         <div style={{ fontSize: 36, marginBottom: 8 }}>{emoji || "💳"}</div>
         <h3 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>Pay with {label || "Zelle"}</h3>
-        <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>Scan this QR code with your banking app</p>
-        <img
-          src={qrUrl}
-          alt="QR Code"
-          style={{ width: "100%", maxWidth: 240, borderRadius: 12, border: "2px solid #e2e8f0", display: "block", margin: "0 auto 20px" }}
-        />
+
+        {qrUrl ? (
+          <>
+            <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>Scan this QR code with your banking app</p>
+            <img
+              src={qrUrl}
+              alt="QR Code"
+              style={{ width: "100%", maxWidth: 240, borderRadius: 12, border: "2px solid #e2e8f0", display: "block", margin: "0 auto 20px" }}
+            />
+          </>
+        ) : (
+          <p style={{ margin: "0 0 20px", fontSize: 13, color: "#64748b" }}>Tap the button below to send money via {label || "Zelle"}</p>
+        )}
+
+        {link && (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "block", width: "100%", padding: "13px", borderRadius: 12, background: "#6366f1", color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none", marginBottom: 10 }}
+          >
+            Open {label || "Zelle"} →
+          </a>
+        )}
+
         <button
           onClick={onClose}
           style={{ width: "100%", padding: "13px", borderRadius: 12, background: "#f1f5f9", border: "none", fontSize: 14, fontWeight: 700, color: "#374151", cursor: "pointer" }}

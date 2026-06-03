@@ -205,11 +205,11 @@ function PrimaryCtAs({ links, color, track, profile }) {
 
 // ── Payment Button (handles QR modal) ────────────────────────────────────────
 function PaymentBtn({ p, i, track, style }) {
-  const [qrOpen, setQrOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const handleClick = () => {
     track(p.ev);
-    if (p.qr) { setQrOpen(true); return; }
-    if (p.h) window.open(p.h, "_blank", "noopener,noreferrer");
+    // Always open modal if there's a QR or if it's a payment method (to show link inside modal)
+    if (p.qr || p.h) { setModalOpen(true); return; }
   };
   return (
     <>
@@ -225,7 +225,7 @@ function PaymentBtn({ p, i, track, style }) {
         <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
       <AnimatePresence>
-        {qrOpen && <ZelleQRModal qrUrl={p.qr} label={p.l} emoji={p.e} onClose={() => setQrOpen(false)} />}
+        {modalOpen && <ZelleQRModal qrUrl={p.qr} link={p.h} label={p.l} emoji={p.e} onClose={() => setModalOpen(false)} />}
       </AnimatePresence>
     </>
   );
