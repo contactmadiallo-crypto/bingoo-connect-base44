@@ -1,0 +1,58 @@
+{
+  "name": "Feedback",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Submitter's name (optional)"
+    },
+    "email": {
+      "type": "string",
+      "description": "Submitter's email (optional)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "suggestion",
+        "bug",
+        "compliment",
+        "other"
+      ],
+      "default": "suggestion",
+      "description": "Type of feedback"
+    },
+    "message": {
+      "type": "string",
+      "description": "The feedback message"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Optional star rating"
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": null
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { CheckCircle, ArrowRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
+import FeedbackSection from "../components/bingoo/FeedbackSection";
 import { base44 } from "@/api/base44Client";
 
 const goSignIn = async () => {
@@ -147,7 +148,7 @@ export default function Landing() {
             <span className="text-xl font-black text-slate-900">Bingoo<span className="text-blue-600">Connect</span></span>
           </motion.div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            {["features", "use-cases", "pricing", "shop"].map(id => (
+            {["features", "use-cases", "pricing", "shop", "feedback"].map(id => (
               <motion.a key={id} href={`#${id}`} className="hover:text-blue-600 transition-colors capitalize"
                 whileHover={{ y: -1 }}>
                 {id.replace("-", " ")}
@@ -508,6 +509,8 @@ export default function Landing() {
           </ScrollReveal>
         </div>
       </section>
+
+      <FeedbackSection />
 
       {/* CTA */}
       <section className="relative py-14 md:py-24 px-4 md:px-6 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900 text-white text-center overflow-hidden">
