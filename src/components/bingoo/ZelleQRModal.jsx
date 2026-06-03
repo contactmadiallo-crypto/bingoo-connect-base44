@@ -1,10 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
 
 export default function ZelleQRModal({ qrUrl, label, emoji, onClose }) {
   return createPortal(
-    <AnimatePresence>
-      <motion.div
+    <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -30,8 +29,7 @@ export default function ZelleQRModal({ qrUrl, label, emoji, onClose }) {
             Close
           </button>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>,
+    </motion.div>,
     document.body
   );
 }
