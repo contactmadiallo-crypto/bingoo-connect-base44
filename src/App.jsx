@@ -29,6 +29,12 @@ import MyOrders from './pages/MyOrders';
 import ShopAdmin from './pages/ShopAdmin';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import { Navigate } from 'react-router-dom';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 
 const { Pages, Layout } = pagesConfig;
 const LayoutWrapper = ({ children, currentPageName }) => Layout
@@ -49,64 +55,54 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Public routes that don't require authentication
-  const publicPaths = ['/', '/bingoo-home', '/pricing', '/bingoo', '/activate-device', '/my-nfc-devices', '/shop', '/cart', '/checkout', '/order-confirmation', '/plans', '/my-orders', '/shop-admin', '/admin'];
-  const isPublicPath = publicPaths.includes(window.location.pathname) ||
-    window.location.pathname.startsWith('/p/') ||
-    window.location.pathname.startsWith('/n/') ||
-    window.location.pathname.startsWith('/activate-device') ||
-    window.location.pathname.startsWith('/product/');
-
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Only redirect to login for protected routes — never for public ones
-      if (!isPublicPath) {
-        navigateToLogin();
-        return null;
-      }
-      // For public paths, just render the app without forcing login
-    }
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
   // Render the main app
   return (
     <Routes>
-      {/* ── HUB ── */}
-      <Route path="/" element={<Landing />} />
+      {/* ── AUTH ROUTES (public) ── */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* ── BINGOO CONNECT ── */}
-      <Route path="/bingoo-home" element={<Landing />} />
-      <Route path="/bingoo" element={<BingooDashboard />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/pricing" element={<Pricing />} />
+      {/* ── PUBLIC PROFILE / NFC ROUTES ── */}
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
-      <Route path="/activate-device" element={<ActivateDevice />} />
-      <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
-      <Route path="/shop" element={<Shop />} />
-      <Route path="/product/:productId" element={<ProductDetail />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/checkout" element={<Checkout />} />
-      <Route path="/order-confirmation" element={<OrderConfirmation />} />
-      <Route path="/plans" element={<SubscriptionPricing />} />
-      <Route path="/my-orders" element={<MyOrders />} />
-      <Route path="/shop-admin" element={<ShopAdmin />} />
 
-      {/* ── FOODHUB (original project) ── */}
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
+      {/* ── ALL PROTECTED ROUTES ── */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/" element={<Landing />} />
+        <Route path="/bingoo-home" element={<Landing />} />
+        <Route path="/bingoo" element={<BingooDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/activate-device" element={<ActivateDevice />} />
+        <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/product/:productId" element={<ProductDetail />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} />
+        <Route path="/plans" element={<SubscriptionPricing />} />
+        <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/shop-admin" element={<ShopAdmin />} />
+
+        {/* ── FOODHUB (original project) ── */}
+        {Object.entries(Pages).map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            }
+          />
+        ))}
+      </Route>
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
