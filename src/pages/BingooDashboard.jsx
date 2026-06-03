@@ -10,9 +10,10 @@ import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
+import CalendarView from "@/components/bingoo/CalendarView";
 import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -21,6 +22,7 @@ const TABS = [
   { id: "overview",      label: "Overview",      icon: TrendingUp,   color: "#3b82f6" },
   { id: "profile",       label: "Edit Profile",  icon: Settings,     color: "#8b5cf6" },
   { id: "appointments",  label: "Appointments",  icon: CalendarDays, color: "#10b981" },
+  { id: "calendar",      label: "Calendar",      icon: Calendar,     color: "#06b6d4" },
   { id: "leads",         label: "Leads",         icon: Star,         color: "#f59e0b" },
   { id: "devices",       label: "My Devices",    icon: Smartphone,   color: "#06b6d4" },
   { id: "analytics",     label: "Analytics",     icon: BarChart3,    color: "#ec4899" },
@@ -403,6 +405,7 @@ export default function BingooDashboard() {
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} onSaved={() => { refetchProfiles(); setTab("overview"); }} />}
           {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
+          {tab === "calendar"     && <CalendarView profileId={profile?.id} />}
           {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
           {tab === "devices"      && (
             <div className="space-y-4">
