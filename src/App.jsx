@@ -15,9 +15,18 @@ import PublicProfile from './pages/PublicProfile';
 import BingooDashboard from './pages/BingooDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Pricing from './pages/Pricing';
+// Shop/Commerce pages are imported below ActivateDevice
 import NFCRedirect from './pages/NFCRedirect';
 import ActivateDevice from './pages/ActivateDevice';
 import MyNFCDevices from './pages/MyNFCDevices';
+import Shop from './pages/Shop';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
+import SubscriptionPricing from './pages/SubscriptionPricing';
+import MyOrders from './pages/MyOrders';
+import ShopAdmin from './pages/ShopAdmin';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -76,6 +85,14 @@ const AuthenticatedApp = () => {
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/activate-device" element={<ActivateDevice />} />
       <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
+      <Route path="/shop" element={<Shop />} />
+      <Route path="/product/:productId" element={<ProductDetail />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/order-confirmation" element={<OrderConfirmation />} />
+      <Route path="/plans" element={<SubscriptionPricing />} />
+      <Route path="/my-orders" element={<MyOrders />} />
+      <Route path="/shop-admin" element={<ShopAdmin />} />
 
       {/* ── FOODHUB (original project) ── */}
       {Object.entries(Pages).map(([path, Page]) => (

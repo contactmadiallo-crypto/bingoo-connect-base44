@@ -153,12 +153,13 @@ export default function Landing() {
             <span className="text-xl font-black text-slate-900">Bingoo<span className="text-blue-600">Connect</span></span>
           </motion.div>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            {["features", "use-cases", "pricing", "shop", "feedback"].map(id => (
+            {["features", "use-cases", "pricing", "feedback"].map(id => (
               <motion.a key={id} href={`#${id}`} className="hover:text-blue-600 transition-colors capitalize"
                 whileHover={{ y: -1 }}>
                 {id.replace("-", " ")}
               </motion.a>
             ))}
+            <motion.a href="/shop" className="hover:text-blue-600 transition-colors" whileHover={{ y: -1 }}>🛒 Shop</motion.a>
           </div>
           <div className="flex gap-2">
             {authed ? (
@@ -443,7 +444,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Button onClick={goSignIn} className={`w-full font-bold ${p.highlight ? "bg-white text-blue-600 hover:bg-blue-50" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+                  <Button onClick={() => { window.location.href = p.name === "Free" ? '/bingoo' : '/plans'; }} className={`w-full font-bold ${p.highlight ? "bg-white text-blue-600 hover:bg-blue-50" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
                     {p.name === "Free" ? "Get Started Free" : `Start ${p.name}`}
                   </Button>
                 </motion.div>
@@ -493,9 +494,7 @@ export default function Landing() {
                 <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full">
                   <Button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl"
-                    onClick={() => {
-                      window.location.href = 'mailto:hello@bingooconnect.com?subject=Order: ' + item.name + '&body=Hi, I would like to order a ' + item.name + ' (' + item.price + '). Please send me payment and delivery details. Thank you!';
-                    }}
+                    onClick={() => { window.location.href = '/shop'; }}
                   >
                     Order Now →
                   </Button>
@@ -510,14 +509,14 @@ export default function Landing() {
                 <p className="text-slate-500 text-sm mt-1">We offer volume discounts for teams, companies, and event organizers.</p>
               </div>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button
-                  variant="outline"
-                  className="border-blue-300 text-blue-700 hover:bg-blue-100 font-bold whitespace-nowrap"
-                  onClick={() => { window.location.href = 'mailto:hello@bingooconnect.com?subject=Bulk Order Inquiry'; }}
-                >
-                  Contact for Bulk Orders →
-                </Button>
-              </motion.div>
+                 <Button
+                   variant="outline"
+                   className="border-blue-300 text-blue-700 hover:bg-blue-100 font-bold whitespace-nowrap"
+                   onClick={() => { window.location.href = '/shop'; }}
+                 >
+                   Browse All Products →
+                 </Button>
+               </motion.div>
             </div>
           </ScrollReveal>
         </div>
