@@ -21,6 +21,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, lead });
   } catch (error) {
+    console.error('createPublicLead error:', error.message, JSON.stringify(error));
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

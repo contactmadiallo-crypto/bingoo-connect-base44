@@ -1,8 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClient } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
     const body = await req.json();
     const { profile_id, visitor_name, visitor_email, visitor_phone, date, time_slot, notes, restricted_emails } = body;
 
@@ -18,7 +17,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Use service role so unauthenticated visitors can book appointments
+    // Initialize with app ID only — service role bypasses auth requirement
+    const base44 = createClient({ appId: Deno.env.get("BASE44_APP_ID") });
+
     const appointment = await base44.asServiceRole.entities.Appointment.create({
       profile_id,
       visitor_name,
@@ -32,6 +33,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, appointment });
   } catch (error) {
+    console.error('createPublicAppointment error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
