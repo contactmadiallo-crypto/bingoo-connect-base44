@@ -888,8 +888,300 @@ function LayoutGradient({ profile, track, mobile }) {
   );
 }
 
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: NEON
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutNeon({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#00ff88";
+  const r = btnRadius(profile.button_style || "pill");
+  return (
+    <div style={{ minHeight: "100vh", background: "#050505", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
+      <AnimatedOrb delay={0} style={{ top: "10%", left: "20%", width: 300, height: 300, background: `radial-gradient(circle, ${hexRgb(color,0.25)},transparent 70%)` }} />
+      <AnimatedOrb delay={3} style={{ bottom: "10%", right: "10%", width: 250, height: 250, background: `radial-gradient(circle, ${hexRgb(color,0.15)},transparent 70%)` }} />
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 28, border: `1px solid ${hexRgb(color,0.4)}`, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(24px)", boxShadow: `0 0 60px ${hexRgb(color,0.2)}, inset 0 1px 0 ${hexRgb(color,0.2)}`, overflow: "hidden" }}>
+          <div style={{ padding: mobile ? "36px 16px 32px" : "40px 28px 36px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
+              <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ textAlign: "center", marginTop: 14 }}>
+                <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 26 : 30, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px", textShadow: `0 0 20px ${hexRgb(color,0.6)}` }}>{profile.display_name}</h1>
+                {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color }}>{profile.job_title}</p>}
+                {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
+                {profile.bio && <p style={{ margin: "12px 0 0", fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.5)", padding: "12px", borderRadius: 12, background: `${hexRgb(color,0.07)}`, border: `1px solid ${hexRgb(color,0.2)}` }}>{profile.bio}</p>}
+              </motion.div>
+            </div>
+            <div style={{ height: 1, background: `${hexRgb(color,0.2)}`, marginBottom: 20 }} />
+            <Actions profile={profile} track={track} color={color} dark />
+            {secondary.length > 0 && <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark profile={profile} />)}</div>}
+            <PortfolioSection profileId={profile.id} color={color} />
+          </div>
+        </div>
+        <PoweredBy color={color} dark />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: AURORA
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutAurora({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#8b5cf6";
+  const r = btnRadius(profile.button_style || "pill");
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#0f0c29,#302b63,#24243e)", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
+      <div style={{ position: "fixed", top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg,${color},#a855f7,#06b6d4)`, zIndex: 10 }} />
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 28, background: "rgba(255,255,255,0.07)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 40px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)", overflow: "hidden" }}>
+          <div style={{ padding: mobile ? "36px 16px 32px" : "40px 28px 36px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 24 }}>
+              <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ textAlign: "center", marginTop: 14 }}>
+                <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 26 : 30, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+                {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},#06b6d4)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+                {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
+                {profile.bio && <p style={{ margin: "12px 0 0", fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.5)" }}>{profile.bio}</p>}
+              </motion.div>
+            </div>
+            <div style={{ height: 1, background: "rgba(255,255,255,0.1)", marginBottom: 20 }} />
+            <Actions profile={profile} track={track} color={color} dark />
+            {secondary.length > 0 && <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark profile={profile} />)}</div>}
+            <PortfolioSection profileId={profile.id} color={color} />
+          </div>
+        </div>
+        <PoweredBy color={color} dark />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: PASTEL
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutPastel({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#ec4899";
+  return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#fdf2f8,#eff6ff)", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 32, background: "rgba(255,255,255,0.85)", backdropFilter: "blur(24px)", border: "1px solid rgba(255,192,203,0.4)", overflow: "hidden", boxShadow: "0 20px 60px rgba(236,72,153,0.1), inset 0 1px 0 #fff" }}>
+          <motion.div style={{ height: mobile ? 140 : 180, position: "relative", background: profile.cover_photo ? `url(${profile.cover_photo}) center/cover` : `linear-gradient(135deg,${hexRgb(color,0.4)},#f9a8d455)`, backgroundSize: "cover", backgroundPosition: "center" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.3) 1px,transparent 1px)", backgroundSize: "20px 20px", opacity: 0.5 }} />
+          </motion.div>
+          <div style={{ padding: mobile ? "0 18px 32px" : "0 28px 36px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -52 : -68, marginBottom: 20, position: "relative", zIndex: 10 }}>
+              <div style={{ boxShadow: `0 12px 32px ${hexRgb(color,0.4)}, 0 0 0 6px white`, borderRadius: "50%" }}>
+                <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+              </div>
+            </div>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ textAlign: "center", marginBottom: 20 }}>
+              <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: "#1e1b4b", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},#a855f7)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "#94a3b8" }}>{profile.company_name}</p>}
+              {profile.bio && <p style={{ margin: "12px 0 0", fontSize: 13.5, lineHeight: 1.7, color: "#64748b", padding: "12px", borderRadius: 16, background: hexRgb(color, 0.06), border: `1px solid ${hexRgb(color, 0.15)}` }}>{profile.bio}</p>}
+            </motion.div>
+            <div style={{ height: 1, background: "rgba(0,0,0,0.06)", marginBottom: 18 }} />
+            <Actions profile={profile} track={track} color={color} dark={false} />
+            {secondary.length > 0 && <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={false} profile={profile} />)}</div>}
+            <PortfolioSection profileId={profile.id} color={color} />
+          </div>
+        </div>
+        <PoweredBy color={color} dark={false} />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: CORPORATE
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutCorporate({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#2563eb";
+  return (
+    <div style={{ minHeight: "100vh", background: "#f1f5f9", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", width: "100vw", boxSizing: "border-box" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 16, background: "#fff", border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+          <div style={{ height: 6, background: `linear-gradient(90deg,${color},${color}88)` }} />
+          <div style={{ padding: "24px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 72, height: 72, borderRadius: 12, overflow: "hidden", border: "2px solid #e2e8f0", flexShrink: 0 }}>
+              {profile.profile_photo
+                ? <img src={profile.profile_photo} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+                : <div style={{ width: "100%", height: "100%", background: color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 28 }}>{profile.display_name?.charAt(0) || "?"}</div>
+              }
+            </div>
+            <div>
+              <h1 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 900, color: "#0f172a" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>{profile.company_name}</p>}
+            </div>
+          </div>
+          <div style={{ padding: "20px 24px 28px" }}>
+            {profile.bio && <p style={{ margin: "0 0 18px", fontSize: 13.5, lineHeight: 1.7, color: "#64748b", padding: "12px", background: "#f8fafc", borderRadius: 8, borderLeft: `3px solid ${color}` }}>{profile.bio}</p>}
+            <Actions profile={profile} track={track} color={color} dark={false} />
+            {secondary.length > 0 && <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={false} profile={profile} />)}</div>}
+            <PortfolioSection profileId={profile.id} color={color} />
+          </div>
+        </div>
+        <PoweredBy color={color} dark={false} />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: FLOATING
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutFloating({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#2563eb";
+  return (
+    <div style={{ minHeight: "100vh", background: `radial-gradient(circle at 50% 0%, ${hexRgb(color,0.12)},#f1f5f9 55%)`, display: "flex", justifyContent: "center", padding: mobile ? "32px 16px 64px" : "40px 16px 64px", position: "relative", overflow: "hidden", width: "100vw", boxSizing: "border-box" }}>
+      <AmbientBg color={color} dark={false} />
+      <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1, display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ borderRadius: 28, background: "#fff", boxShadow: `0 24px 64px rgba(0,0,0,0.12), 0 0 0 1px rgba(255,255,255,0.9)`, padding: "32px 24px", textAlign: "center" }}>
+          <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ marginTop: 16 }}>
+            <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 26 : 30, fontWeight: 900, color: "#0f172a", letterSpacing: "-0.5px" }}>{profile.display_name}</h1>
+            {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
+            {profile.company_name && <p style={{ margin: 0, fontSize: 13, color: "#94a3b8" }}>{profile.company_name}</p>}
+            {profile.bio && <p style={{ margin: "12px 0 0", fontSize: 13.5, lineHeight: 1.7, color: "#64748b" }}>{profile.bio}</p>}
+          </motion.div>
+        </div>
+        <div style={{ borderRadius: 24, background: "#fff", boxShadow: "0 12px 40px rgba(0,0,0,0.08)", padding: "20px 20px" }}>
+          <Actions profile={profile} track={track} color={color} dark={false} />
+          {secondary.length > 0 && <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={false} profile={profile} />)}</div>}
+        </div>
+        <div style={{ borderRadius: 20, background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.06)", padding: "16px 20px" }}>
+          <PortfolioSection profileId={profile.id} color={color} />
+        </div>
+        <PoweredBy color={color} dark={false} />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: MAGAZINE
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutMagazine({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#2563eb";
+  return (
+    <div style={{ minHeight: "100vh", background: "#fff", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "0 16px 60px", position: "relative", width: "100vw", boxSizing: "border-box" }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        {/* Hero cover */}
+        <div style={{ height: mobile ? 200 : 260, position: "relative", background: profile.cover_photo ? `url(${profile.cover_photo}) center/cover` : `linear-gradient(135deg,${color},${color}77)`, backgroundSize: "cover", backgroundPosition: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.7))" }} />
+          <div style={{ position: "absolute", bottom: 20, left: 20, right: 20 }}>
+            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 24 : 30, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{profile.display_name}</h1>
+            {profile.job_title && <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>{profile.job_title}</p>}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, padding: "16px 20px 20px", borderBottom: "1px solid #f1f5f9", alignItems: "flex-end" }}>
+          <div style={{ marginTop: -40, flexShrink: 0, boxShadow: "0 4px 20px rgba(0,0,0,0.2)", borderRadius: "50%", border: "4px solid #fff" }}>
+            <Avatar profile={profile} size={72} ring={false} />
+          </div>
+          <div style={{ flex: 1, paddingBottom: 4 }}>
+            {profile.company_name && <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color }}>{profile.company_name}</p>}
+            {profile.bio && <p style={{ margin: 0, fontSize: 12.5, color: "#64748b", lineHeight: 1.6, WebkitLineClamp: 2, display: "-webkit-box", WebkitBoxOrient: "vertical", overflow: "hidden" }}>{profile.bio}</p>}
+          </div>
+        </div>
+        <div style={{ padding: "20px" }}>
+          <Actions profile={profile} track={track} color={color} dark={false} />
+          {secondary.length > 0 && <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={false} profile={profile} />)}</div>}
+          <PortfolioSection profileId={profile.id} color={color} />
+        </div>
+        <PoweredBy color={color} dark={false} />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: MINIMAL_DARK
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutMinimalDark({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#2563eb";
+  return (
+    <div style={{ minHeight: "100vh", background: "#18181b", display: "flex", justifyContent: "center", padding: mobile ? "0 0 48px" : "32px 16px 60px", position: "relative", width: "100vw", boxSizing: "border-box" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ borderRadius: mobile ? 0 : 24, background: "#27272a", border: "1px solid #3f3f46", overflow: "hidden" }}>
+          <div style={{ padding: "28px 24px", borderBottom: "1px solid #3f3f46", display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ width: 64, height: 64, borderRadius: 14, overflow: "hidden", border: `2px solid ${hexRgb(color,0.4)}`, flexShrink: 0 }}>
+              {profile.profile_photo
+                ? <img src={profile.profile_photo} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+                : <div style={{ width: "100%", height: "100%", background: color, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 26 }}>{profile.display_name?.charAt(0) || "?"}</div>
+              }
+            </div>
+            <div>
+              <h1 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 900, color: "#fff" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 11, color: "#71717a" }}>{profile.company_name}</p>}
+            </div>
+          </div>
+          <div style={{ padding: "20px 24px 28px" }}>
+            {profile.bio && <p style={{ margin: "0 0 18px", fontSize: 13, lineHeight: 1.7, color: "#a1a1aa" }}>{profile.bio}</p>}
+            <Actions profile={profile} track={track} color={color} dark />
+            {secondary.length > 0 && <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark profile={profile} />)}</div>}
+            <PortfolioSection profileId={profile.id} color={color} />
+          </div>
+        </div>
+        <PoweredBy color={color} dark />
+      </motion.div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// LAYOUT: RETRO
+// ────────────────────────────────────────────────────────────────────────────────
+function LayoutRetro({ profile, track, mobile }) {
+  const { primary, secondary, payments } = useLinks(profile);
+  const color = profile.cover_color || "#2563eb";
+  return (
+    <div style={{ minHeight: "100vh", background: "#fffbeb", display: "flex", justifyContent: "center", padding: mobile ? "24px 16px 60px" : "40px 16px 60px", position: "relative", width: "100vw", boxSizing: "border-box" }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ width: "100%", maxWidth: mobile ? "100%" : 420, position: "relative", zIndex: 1 }}>
+        <div style={{ border: "4px solid #000", borderRadius: 4, background: "#fff", overflow: "hidden" }}>
+          <div style={{ background: "#000", padding: "12px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f57" }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#febc2e" }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#28c840" }} />
+            <p style={{ margin: "0 0 0 8px", color: "#fff", fontSize: 11, fontWeight: 700, fontFamily: "monospace", opacity: 0.6 }}>{profile.username || "profile"}.nfc</p>
+          </div>
+          <div style={{ padding: "24px 20px 28px" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ border: "4px solid #000", borderRadius: "50%", padding: 2 }}>
+                <Avatar profile={profile} size={mobile ? 80 : 100} ring={false} />
+              </div>
+              <h1 style={{ margin: "12px 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#000", textAlign: "center", fontFamily: "monospace" }}>{profile.display_name}</h1>
+              {profile.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color, fontFamily: "monospace" }}>{profile.job_title}</p>}
+              {profile.company_name && <p style={{ margin: 0, fontSize: 12, color: "#666", fontFamily: "monospace" }}>{profile.company_name}</p>}
+            </div>
+            <div style={{ height: 3, background: "#000", marginBottom: 18 }} />
+            {profile.bio && <p style={{ margin: "0 0 16px", fontSize: 12.5, lineHeight: 1.7, color: "#444", fontFamily: "monospace", borderLeft: "3px solid #000", paddingLeft: 10 }}>{profile.bio}</p>}
+            <Actions profile={profile} track={track} color={color} dark={false} />
+            {secondary.length > 0 && <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }}>{secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={false} profile={profile} />)}</div>}
+          </div>
+        </div>
+        <PoweredBy color={color} dark={false} />
+      </motion.div>
+    </div>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
-const LAYOUTS = { classic: LayoutClassic, minimal: LayoutMinimal, card: LayoutCard, dark: LayoutDark, bold: LayoutBold, split: LayoutSplit, glassmorphic: LayoutGlassmorphic, gradient: LayoutGradient };
+const LAYOUTS = {
+  classic: LayoutClassic, minimal: LayoutMinimal, card: LayoutCard,
+  dark: LayoutDark, bold: LayoutBold, split: LayoutSplit,
+  glassmorphic: LayoutGlassmorphic, gradient: LayoutGradient,
+  neon: LayoutNeon, aurora: LayoutAurora, pastel: LayoutPastel,
+  corporate: LayoutCorporate, floating: LayoutFloating, magazine: LayoutMagazine,
+  minimal_dark: LayoutMinimalDark, retro: LayoutRetro,
+};
 
 const DEMO_PROFILE = {
   id: "demo",

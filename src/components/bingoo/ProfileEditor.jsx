@@ -161,7 +161,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
         {/* Photos */}
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
           {/* Cover */}
-          <div className="relative h-32 bg-gradient-to-r from-blue-500 to-blue-600 group" style={form.cover_photo ? { backgroundImage: `url(${form.cover_photo})`, backgroundSize: "cover", backgroundPosition: "center" } : {}}>
+          <div className="relative h-40 group" style={{ background: form.cover_photo ? undefined : "linear-gradient(135deg,#3b82f6,#2563eb)", backgroundImage: form.cover_photo ? `url(${form.cover_photo})` : undefined, backgroundSize: "cover", backgroundPosition: "center" }}>
             <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/0 group-hover:bg-black/30 transition-all">
               <span className={`flex items-center gap-2 bg-white/90 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all ${coverUploading ? "opacity-100" : ""}`}>
                 {coverUploading ? <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" /> : <Image className="w-4 h-4" />}
