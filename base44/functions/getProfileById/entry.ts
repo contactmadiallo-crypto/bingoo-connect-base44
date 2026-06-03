@@ -10,14 +10,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'profile_id is required' }, { status: 400 });
     }
 
-    const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
+    const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
 
-    if (!profiles || profiles.length === 0) {
+    if (!profile) {
       return Response.json({ profile: null });
     }
 
-    return Response.json({ profile: profiles[0] });
+    return Response.json({ profile });
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ profile: null, error: error.message }, { status: 200 });
   }
 });
