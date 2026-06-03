@@ -74,8 +74,13 @@ export default function ActivateDevice() {
       return;
     }
     const device = devices[0];
-    if (device.activation_status === "active") {
+    if (device.activation_status === "active" && device.assigned_user !== user.id) {
       setActivateMsg({ type: "error", text: "This device is already activated by another account." });
+      setActivating(false);
+      return;
+    }
+    if (device.activation_status === "active" && device.assigned_user === user.id) {
+      setActivateMsg({ type: "error", text: "You already own this device. You can manage it below." });
       setActivating(false);
       return;
     }
