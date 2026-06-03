@@ -290,12 +290,12 @@ function LayoutClassic({ profile, track, mobile }) {
            </motion.div>
 
           {/* Body */}
-          <div style={{ padding: mobile ? "0 0 28px" : "0 26px 32px" }}>
+          <div style={{ padding: mobile ? "0 18px 32px" : "0 32px 40px" }}>
             {/* Avatar & Branding Section */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -56 : -75, marginBottom: 20, position: "relative", zIndex: 10 }}>
-              <div style={{ boxShadow: `0 16px 48px ${hexRgb(color, 0.5)}, 0 0 0 6px white`, borderRadius: "50%", display: "inline-block" }}>
-                <Avatar profile={profile} size={mobile ? 88 : 110} ring floating />
-              </div>
+             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -60 : -85, marginBottom: 32, position: "relative", zIndex: 10 }}>
+               <div style={{ boxShadow: `0 20px 60px ${hexRgb(color, 0.6)}, 0 0 0 8px white`, borderRadius: "50%", display: "inline-block" }}>
+                 <Avatar profile={profile} size={mobile ? 92 : 120} ring floating />
+               </div>
               {profile.plan !== "free" && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0 }}
@@ -307,46 +307,47 @@ function LayoutClassic({ profile, track, mobile }) {
             </div>
 
             {/* Identity */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginBottom: 2 }}>
-              <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: headColor, lineHeight: 1.1, letterSpacing: "-0.6px" }}>{profile.display_name}</h1>
-              {profile.job_title && <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 700, background: `linear-gradient(90deg,${color},${color}bb)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.job_title}</p>}
-              {profile.company_name && <p style={{ margin: 0, fontSize: 14, color: subColor, fontWeight: 500 }}>{profile.company_name}</p>}
-              {profile.bio && (
-                <p style={{ margin: "14px 0 0", fontSize: 13.5, lineHeight: 1.7, color: bioColor, padding: "12px 14px", borderRadius: 14, background: dark ? "rgba(255,255,255,0.04)" : hexRgb(color, 0.05), borderLeft: `3px solid ${hexRgb(color, 0.5)}` }}>{profile.bio}</p>
-              )}
-            </motion.div>
+             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ textAlign: "center", marginBottom: 8 }}>
+               <h1 style={{ margin: "0 0 8px", fontSize: mobile ? 28 : 32, fontWeight: 950, color: headColor, lineHeight: 1.1, letterSpacing: "-0.8px" }}>{profile.display_name}</h1>
+               {profile.job_title && <p style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 750, background: `linear-gradient(90deg,${color},${color}99)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "0.02em" }}>{profile.job_title}</p>}
+               {profile.company_name && <p style={{ margin: "0 0 12px", fontSize: 14.5, color: subColor, fontWeight: 600, letterSpacing: "0.01em" }}>{profile.company_name}</p>}
+               {profile.bio && (
+                 <p style={{ margin: "0", fontSize: 14, lineHeight: 1.8, color: bioColor, padding: "16px 18px", borderRadius: 16, background: dark ? "rgba(255,255,255,0.06)" : hexRgb(color, 0.07), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.15)}`, fontWeight: 500, letterSpacing: "0.005em" }}>{profile.bio}</p>
+               )}
+             </motion.div>
 
-            <div style={{ height: 1, background: divider, margin: "22px 0" }} />
+            <div style={{ height: 1.5, background: divider, margin: "28px 0" }} />
 
            {/* Payment Methods */}
-           {payments.length > 0 && (
-             <div style={{ marginTop: 20 }}>
-               <SectionLabel text="Send Money" dark={dark} />
-               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-                 {payments.map((p, i) => (
-                   <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
-                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
-                     whileHover={{ scale: 1.08 }}
-                     style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "12px 8px", borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.06), border: dark ? "1px solid rgba(255,255,255,0.1)" : `1px solid ${hexRgb(color, 0.2)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.75)" : color, fontWeight: 600, fontSize: 10, textAlign: "center", cursor: "pointer", transition: "all 0.2s" }}>
-                     <span style={{ fontSize: 20 }}>{p.e}</span>
-                     <span style={{ lineHeight: 1.1 }}>{p.l}</span>
-                   </motion.a>
-                 ))}
-               </div>
-             </div>
-           )}
-
-           {/* Secondary links */}
-            {secondary.length > 0 && (
-              <div style={{ marginTop: 20 }}>
-                <SectionLabel text="Links & Socials" dark={dark} />
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={dark} profile={profile} />)}
+            {payments.length > 0 && (
+              <div style={{ marginTop: 28 }}>
+                <SectionLabel text="Send Money" dark={dark} />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                  {payments.map((p, i) => (
+                    <motion.a key={p.l} href={p.h} target="_blank" rel="noopener noreferrer" onClick={() => track(p.ev)}
+                      initial={{ opacity: 0, scale: 0.75 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 + i * 0.08 }}
+                      whileHover={{ scale: 1.12, y: -4 }}
+                      whileTap={{ scale: 0.95 }}
+                      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, padding: "16px 10px", borderRadius: 16, background: dark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.1), border: dark ? "1px solid rgba(255,255,255,0.14)" : `1.5px solid ${hexRgb(color, 0.28)}`, textDecoration: "none", color: dark ? "rgba(255,255,255,0.8)" : color, fontWeight: 700, fontSize: 11, textAlign: "center", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)", boxShadow: dark ? `0 2px 8px rgba(0,0,0,0.2)` : `0 2px 12px ${hexRgb(color, 0.15)}` }}>
+                      <span style={{ fontSize: 24 }}>{p.e}</span>
+                      <span style={{ lineHeight: 1.2, fontSize: "10px" }}>{p.l}</span>
+                    </motion.a>
+                  ))}
                 </div>
               </div>
             )}
 
-            <div style={{ marginTop: 22 }}>
+           {/* Secondary links */}
+             {secondary.length > 0 && (
+               <div style={{ marginTop: 28 }}>
+                 <SectionLabel text="Links & Socials" dark={dark} />
+                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                   {secondary.map((l, i) => <LinkRow key={l.l} {...l} index={i} onClick={() => track(l.ev)} dark={dark} profile={profile} />)}
+                 </div>
+               </div>
+             )}
+
+            <div style={{ marginTop: 28 }}>
               <PortfolioSection profileId={profile.id} color={color} />
             </div>
           </div>
