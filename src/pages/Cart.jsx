@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Tag } from 'lucide-react';
