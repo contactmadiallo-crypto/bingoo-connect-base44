@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle } from "lucide-react";
 
 const PLAN_COLORS = { free: "bg-slate-100 text-slate-600", pro: "bg-blue-100 text-blue-700", business: "bg-purple-100 text-purple-700" };
 
@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const [planFilter, setPlanFilter] = useState("all");
   const [showDeviceForm, setShowDeviceForm] = useState(false);
   const [deviceForm, setDeviceForm] = useState({ profile_id: "", device_type: "card", device_code: "", status: "active" });
+  const [resetConfirm, setResetConfirm] = useState(null); // device to reset
+  const [resetting, setResetting] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -31,6 +33,7 @@ export default function AdminDashboard() {
 
   const { data: profiles = [] } = useQuery({ queryKey: ["admin-profiles"], queryFn: () => base44.entities.Profile.list() });
   const { data: devices = [] } = useQuery({ queryKey: ["admin-devices"], queryFn: () => base44.entities.NFCDevice.list() });
+  const { data: allNfcDevices = [], refetch: refetchNfcDevices } = useQuery({ queryKey: ["admin-nfc-devices"], queryFn: () => base44.entities.Device.list() });
   const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list() });
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
 
@@ -38,6 +41,21 @@ export default function AdminDashboard() {
     mutationFn: (data) => base44.entities.NFCDevice.create({ ...data, assigned_at: new Date().toISOString() }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-devices"] }); setShowDeviceForm(false); setDeviceForm({ profile_id: "", device_type: "card", device_code: "", status: "active" }); toast.success("Device created!"); },
   });
+
+  const handleForceReset = async (device) => {
+    setResetting(true);
+    await base44.entities.Device.update(device.id, {
+      activation_status: "available",
+      assigned_user: "",
+      assigned_profile: "",
+      activation_date: null,
+      nickname: "",
+    });
+    toast.success(`Device ${device.device_code} has been reset and is now available for a new account.`);
+    setResetConfirm(null);
+    setResetting(false);
+    refetchNfcDevices();
+  };
 
   const updatePlan = useMutation({
     mutationFn: ({ id, plan }) => base44.entities.Profile.update(id, { plan }),
@@ -57,7 +75,8 @@ export default function AdminDashboard() {
 
   const TABS = [
     { id: "users", label: "Users & Profiles", icon: Users, count: profiles.length },
-    { id: "devices", label: "NFC Devices", icon: Smartphone, count: devices.length },
+    { id: "nfc_manager", label: "NFC Manager", icon: RotateCcw, count: allNfcDevices.length },
+    { id: "devices", label: "Legacy Devices", icon: Smartphone, count: devices.length },
     { id: "activations", label: "Recent Activations", icon: Clock, count: recentActivations.length },
     { id: "leads", label: "All Leads", icon: Star, count: leads.length },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -177,6 +196,73 @@ export default function AdminDashboard() {
                   <div className="text-center py-12 text-slate-400">
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No profiles found</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* NFC Manager — force reset */}
+        {tab === "nfc_manager" && (
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
+              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-amber-800 text-sm">Force Reset</p>
+                <p className="text-amber-700 text-xs mt-0.5">Resetting a device clears its owner and makes it available for a new account. Use this when a device was accidentally claimed.</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      {["Code","Type","Status","Owner","Profile","Action"].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {allNfcDevices.map(d => {
+                      const linkedProfile = profiles.find(p => p.id === d.assigned_profile);
+                      return (
+                        <tr key={d.id} className="hover:bg-slate-50">
+                          <td className="px-5 py-4 font-mono text-sm font-bold text-slate-900">{d.device_code}</td>
+                          <td className="px-5 py-4 text-sm text-slate-600 capitalize">{d.device_type}</td>
+                          <td className="px-5 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                              d.activation_status === "active" ? "bg-green-100 text-green-700"
+                              : d.activation_status === "inactive" ? "bg-slate-100 text-slate-500"
+                              : "bg-blue-100 text-blue-700"
+                            }`}>{d.activation_status}</span>
+                          </td>
+                          <td className="px-5 py-4 text-xs text-slate-500 font-mono">{d.assigned_user?.slice(0,10) || "—"}</td>
+                          <td className="px-5 py-4 text-sm text-slate-600">{linkedProfile?.display_name || linkedProfile?.username || "—"}</td>
+                          <td className="px-5 py-4">
+                            {d.activation_status === "active" ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setResetConfirm(d)}
+                                className="text-xs h-7 px-3 border-red-200 text-red-600 hover:bg-red-50 gap-1.5"
+                              >
+                                <RotateCcw className="w-3 h-3" /> Force Reset
+                              </Button>
+                            ) : (
+                              <span className="text-xs text-slate-300 italic">Available</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {allNfcDevices.length === 0 && (
+                  <div className="text-center py-12 text-slate-400">
+                    <Smartphone className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No NFC devices found</p>
                   </div>
                 )}
               </div>
@@ -368,6 +454,35 @@ export default function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {/* Force Reset Confirmation Modal */}
+      {resetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-red-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <RotateCcw className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900">Force Reset Device</h3>
+                <p className="text-xs text-slate-400 font-mono">{resetConfirm.device_code}</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 mb-2">This will <strong>remove the current owner</strong> and make this device available for a new account to claim.</p>
+            <p className="text-xs text-red-500 bg-red-50 rounded-xl p-3 mb-5">⚠️ This action cannot be undone. The previous owner will lose access to this device.</p>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleForceReset(resetConfirm)}
+                disabled={resetting}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold"
+              >
+                {resetting ? "Resetting..." : "Yes, Force Reset"}
+              </Button>
+              <Button variant="outline" onClick={() => setResetConfirm(null)} className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </BingooLayout>
   );
 }
