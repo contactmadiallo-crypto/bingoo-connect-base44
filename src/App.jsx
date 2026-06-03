@@ -50,11 +50,12 @@ const AuthenticatedApp = () => {
   }
 
   // Public routes that don't require authentication
-  const publicPaths = ['/', '/bingoo-home', '/pricing'];
+  const publicPaths = ['/', '/bingoo-home', '/pricing', '/bingoo', '/activate-device', '/my-nfc-devices', '/shop', '/cart', '/checkout', '/order-confirmation', '/plans', '/my-orders', '/shop-admin', '/admin'];
   const isPublicPath = publicPaths.includes(window.location.pathname) ||
     window.location.pathname.startsWith('/p/') ||
     window.location.pathname.startsWith('/n/') ||
-    window.location.pathname.startsWith('/activate-device');
+    window.location.pathname.startsWith('/activate-device') ||
+    window.location.pathname.startsWith('/product/');
 
   // Handle authentication errors
   if (authError) {
