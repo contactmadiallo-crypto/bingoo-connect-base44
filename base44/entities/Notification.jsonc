@@ -62,12 +62,6 @@
           }
         },
         {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.customer_email": "{{user.email}}"
-        },
-        {
           "data.restaurant_id": {
             "$in": [
               "{{user.data.owned_restaurant_ids}}"
