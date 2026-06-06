@@ -529,7 +529,7 @@ const layouts = [
 export { layouts };
 
 export default function LayoutPicker({ value, onChange, color = "#2563eb", plan = "free", isAdmin = false }) {
-  const isPro = isAdmin || plan === "pro" || plan === "business";
+  const isPro = isAdmin || plan === "pro" || plan === "professional" || plan === "business" || plan === "salon" || plan === "restaurant" || plan === "lawfirm" || plan === "corporate";
   return (
     <div>
       <div className="grid grid-cols-4 gap-3">
