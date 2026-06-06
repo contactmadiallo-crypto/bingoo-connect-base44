@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Bingoo Connect — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #071d47 0%, #0B2E6B 50%, #0f3d8c 100%);
+      color: white;
+      overflow: hidden;
+    }
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      padding-top: calc(24px + env(safe-area-inset-top));
+      padding-bottom: calc(24px + env(safe-area-inset-bottom));
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 24px;
+      border-radius: 20px;
+    }
+    .icon-ring {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255,122,0,0.15);
+      border: 2px dashed rgba(255,122,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.8; }
+    }
+    .wifi-icon {
+      font-size: 48px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+    .gold { color: #FDBA21; }
+    p {
+      font-size: 16px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      max-width: 320px;
+      margin: 0 auto 32px;
+    }
+    .btn {
+      display: inline-block;
+      background: #FF7A00;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      margin-bottom: 12px;
+      min-width: 200px;
+    }
+    .btn:active { opacity: 0.85; transform: scale(0.98); }
+    .tags {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.05em;
+    }
+    .divider {
+      width: 48px;
+      height: 2px;
+      background: rgba(255,122,0,0.4);
+      margin: 24px auto;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img
+      src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+      alt="Bingoo Connect"
+      class="logo"
+      onerror="this.style.display='none'"
+    />
+
+    <div class="icon-ring">
+      <span class="wifi-icon">📡</span>
+    </div>
+
+    <h1>You're <span class="gold">Offline</span></h1>
+    <p>No internet connection right now. Check your connection and try again — your data is saved and ready when you're back online.</p>
+
+    <div class="divider"></div>
+
+    <button class="btn" onclick="window.location.reload()">Try Again →</button>
+
+    <div class="tags">
+      <span class="tag">CONNECT</span>
+      <span class="tag">SHARE</span>
+      <span class="tag">GROW</span>
+      <span class="tag">SUCCEED</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -36,6 +36,8 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import PWASplashScreen from '@/components/pwa/PWASplashScreen';
+import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 
 const { Pages, Layout } = pagesConfig;
 const LayoutWrapper = ({ children, currentPageName }) => Layout
@@ -117,10 +119,12 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <PWASplashScreen />
         <Router>
           <NavigationStackProvider>
             <NavigationTracker />
             <AuthenticatedApp />
+            <PWAInstallBanner />
           </NavigationStackProvider>
         </Router>
         <Toaster />
