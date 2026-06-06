@@ -34,7 +34,8 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
     const priceInfo = PLAN_MAP[plan];
-    const appUrl = req.headers.get('origin') || 'https://bingooconnect.com';
+    // Always route to the production domain — never the base44 preview URL
+    const appUrl = 'https://bingooconnect.com';
 
     // Find or use existing Stripe customer
     let customerId;

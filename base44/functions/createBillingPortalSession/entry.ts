@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
-    const appUrl = req.headers.get('origin') || 'https://bingooconnect.com';
+    // Always route to the production domain — never the base44 preview URL
+    const appUrl = 'https://bingooconnect.com';
 
     // Find customer ID from subscription
     const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
