@@ -11,7 +11,7 @@ import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
 import CalendarView from "@/components/bingoo/CalendarView";
-import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
+import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import FeatureGate from "@/components/bingoo/FeatureGate";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
@@ -42,6 +42,7 @@ export default function BingooDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(
     !localStorage.getItem("bingoo_onboarding_done")
   );
+  const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
 
   const { data: user } = useQuery({
@@ -120,10 +121,18 @@ export default function BingooDashboard() {
   return (
     <BingooLayout>
       {showOnboarding && profiles.length === 0 && user && (
-        <OnboardingWizard
+        <AIOnboardingAssistant
           userName={user.full_name}
-          onCreateProfile={() => { setShowOnboarding(false); setTab("profile"); }}
-          onDismiss={() => setShowOnboarding(false)}
+          onComplete={(generatedData) => {
+            setShowOnboarding(false);
+            setAiGeneratedProfile(generatedData);
+            setSelectedProfileId(null);
+            setTab("profile");
+          }}
+          onDismiss={() => {
+            setShowOnboarding(false);
+            setTab("profile");
+          }}
         />
       )}
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
@@ -405,7 +414,7 @@ export default function BingooDashboard() {
           </div>
         )}
 
-          {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} onSaved={() => { refetchProfiles(); setTab("overview"); }} />}
+          {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
           {tab === "appointments" && (
             <FeatureGate feature="appointment_booking">
               <AppointmentsPanel profileId={profile?.id} />

@@ -17,7 +17,7 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user, onSaved, editProfileId }) {
+export default function ProfileEditor({ user, onSaved, editProfileId, prefillData }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -97,10 +97,32 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
         bg_style: profile.bg_style || "clean",
         button_style: profile.button_style || "pill",
       });
+    } else if (prefillData && !profile) {
+      // AI-generated data — map suggested_username → username
+      const slug = (prefillData.suggested_username || "")
+        .toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20);
+      setForm(f => ({
+        ...f,
+        display_name: prefillData.display_name || user?.full_name || "",
+        job_title: prefillData.job_title || "",
+        company_name: prefillData.company_name || "",
+        bio: prefillData.bio || "",
+        email: prefillData.email || user?.email || "",
+        phone: prefillData.phone || "",
+        location: prefillData.location || "",
+        website: prefillData.website || "",
+        instagram_url: prefillData.instagram_url || "",
+        facebook_url: prefillData.facebook_url || "",
+        linkedin_url: prefillData.linkedin_url || "",
+        tiktok_url: prefillData.tiktok_url || "",
+        youtube_url: prefillData.youtube_url || "",
+        booking_enabled: prefillData.booking_enabled || false,
+        username: slug,
+      }));
     } else if (user) {
       setForm(f => ({ ...f, display_name: user.full_name || "", email: user.email || "" }));
     }
-  }, [profile?.id, user?.id]);
+  }, [profile?.id, user?.id, prefillData]);
 
   const validate = () => {
     const e = {};
