@@ -12,15 +12,15 @@ export const PLAN_LABELS = {
 };
 
 export const FEATURE_REQUIREMENTS = {
-  nfc_devices:         { minPlan: 'pro',      maxDevices: { free: 0, pro: 3, business: 25 } },
+  nfc_devices:         { minPlan: 'pro',      maxDevices: { free: 0, pro: 5, business: 25 } },
   analytics:           { minPlan: 'pro' },
   lead_collection:     { minPlan: 'pro' },
+  appointment_booking: { minPlan: 'pro' },
   save_contact:        { minPlan: 'pro' },
   custom_colors:       { minPlan: 'pro' },
   qr_download:         { minPlan: 'pro' },
   digital_resume:      { minPlan: 'pro' },
   storefront:          { minPlan: 'business' },
-  appointment_booking: { minPlan: 'business' },
   team_members:        { minPlan: 'business',  maxMembers: { pro: 0, business: 10 } },
   advanced_analytics:  { minPlan: 'business' },
   marketplace_listing: { minPlan: 'business' },
@@ -37,7 +37,7 @@ export const FEATURE_DESCRIPTIONS = {
   qr_download:         { title: 'QR Code Download',      upgradeTarget: 'Pro',      message: 'Upgrade to Pro to download and print your profile QR code.' },
   digital_resume:      { title: 'Digital Resume',        upgradeTarget: 'Pro',      message: 'Upgrade to Pro to create a full digital resume profile.' },
   storefront:          { title: 'Digital Storefront',    upgradeTarget: 'Business', message: 'Upgrade to Business to sell products and services from your profile.' },
-  appointment_booking: { title: 'Appointment Booking',   upgradeTarget: 'Business', message: 'Upgrade to Business to let clients book appointments directly.' },
+  appointment_booking: { title: 'Appointment Booking',   upgradeTarget: 'Pro',      message: 'Upgrade to Pro to let clients book appointments directly.' },
   team_members:        { title: 'Team Members',          upgradeTarget: 'Business', message: 'Upgrade to Business to manage team cards and staff profiles.' },
   advanced_analytics:  { title: 'Advanced Analytics',    upgradeTarget: 'Business', message: 'Upgrade to Business for advanced analytics and customer insights.' },
   marketplace_listing: { title: 'Marketplace Listing',   upgradeTarget: 'Business', message: 'Upgrade to Business to get listed in the Bingoo Marketplace.' },
@@ -77,12 +77,9 @@ export function maxTeamMembers(userPlan) {
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
-  // 'free' or 'canceled' or 'past_due' statuses mean no paid access
-  if (!status || status === 'free' || status === 'canceled' || status === 'past_due') {
-    // Still respect the plan field if it's explicitly set to pro/business
-    if (plan && plan !== 'free') return plan;
-    return 'free';
-  }
-  // active paid subscription
-  return plan || 'free';
+  // Always trust the plan field if it's set to a paid tier
+  if (plan && plan !== 'free') return plan;
+  // Degraded statuses
+  if (status === 'canceled' || status === 'past_due') return 'free';
+  return 'free';
 }
