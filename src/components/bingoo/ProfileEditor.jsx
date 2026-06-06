@@ -136,11 +136,23 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   };
 
   const saveProfile = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (!validate()) throw new Error("Validation failed");
-      return profile
-        ? base44.entities.Profile.update(profile.id, { ...form, is_active: true })
-        : base44.entities.Profile.create({ ...form, is_active: true, plan: "free" });
+      let savedProfile;
+      if (profile) {
+        savedProfile = await base44.entities.Profile.update(profile.id, { ...form, is_active: true });
+      } else {
+        savedProfile = await base44.entities.Profile.create({ ...form, is_active: true, plan: "free" });
+      }
+      // Ensure owned_profile_ids is set on the user so RLS works for appointments/leads
+      if (savedProfile?.id) {
+        const me = await base44.auth.me();
+        const existing = me?.owned_profile_ids || [];
+        if (!existing.includes(savedProfile.id)) {
+          await base44.auth.updateMe({ owned_profile_ids: [...existing, savedProfile.id] });
+        }
+      }
+      return savedProfile;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });

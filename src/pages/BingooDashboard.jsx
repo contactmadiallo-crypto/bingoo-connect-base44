@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
@@ -49,7 +49,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
 
-  const { data: user } = useQuery({
+  const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
     queryFn: () => base44.auth.me(),
   });
@@ -59,6 +59,23 @@ export default function BingooDashboard() {
     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
     enabled: !!user?.id,
   });
+
+  // Auto-backfill owned_profile_ids so RLS works for appointments/leads
+  const [backfilled, setBackfilled] = useState(false);
+  useEffect(() => {
+    if (!user || !profiles.length || backfilled) return;
+    const profileIds = profiles.map(p => p.id);
+    const existing = user.owned_profile_ids || [];
+    const missing = profileIds.filter(id => !existing.includes(id));
+    if (missing.length > 0) {
+      base44.auth.updateMe({ owned_profile_ids: [...existing, ...missing] }).then(() => {
+        refetchUser();
+        setBackfilled(true);
+      }).catch(() => {});
+    } else {
+      setBackfilled(true);
+    }
+  }, [user, profiles, backfilled]);
   // Derive active profile
   const profile = selectedProfileId === null
     ? null
