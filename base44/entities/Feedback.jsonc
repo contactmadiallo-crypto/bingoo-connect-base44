@@ -30,6 +30,11 @@
       "minimum": 1,
       "maximum": 5,
       "description": "Optional star rating"
+    },
+    "description": {
+      "type": "string",
+      "description": "Additional description or notes",
+      "maxLength": 1000
     }
   },
   "required": [

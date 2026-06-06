@@ -48,6 +48,11 @@
     "cancel_at_period_end": {
       "type": "boolean",
       "default": false
+    },
+    "description": {
+      "type": "string",
+      "description": "Subscription description or notes",
+      "maxLength": 1000
     }
   },
   "required": [

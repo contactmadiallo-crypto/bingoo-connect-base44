@@ -666,6 +666,8 @@ export default function Landing() {
             <a href="/p/demo" className="hover:text-white/70 transition-colors">Demo Profile</a>
             <a href="/shop" className="hover:text-white/70 transition-colors">Shop</a>
             <a href="/plans" className="hover:text-white/70 transition-colors">Pricing</a>
+            <a href="/about" className="hover:text-white/70 transition-colors">About</a>
+            <a href="/contact" className="hover:text-white/70 transition-colors">Contact</a>
           </div>
           <p className="text-white/30 text-xs">© 2026 Bingoo Connect · bingoo.africa</p>
         </div>

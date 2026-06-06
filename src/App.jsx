@@ -26,6 +26,8 @@ import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import SubscriptionPricing from './pages/SubscriptionPricing';
 import Billing from './pages/Billing';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import MyOrders from './pages/MyOrders';
 import ShopAdmin from './pages/ShopAdmin';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -93,6 +95,8 @@ const AuthenticatedApp = () => {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* ── FOODHUB (original project) ── */}
         {Object.entries(Pages).map(([path, Page]) => (

@@ -99,6 +99,11 @@
       "items": {
         "type": "string"
       }
+    },
+    "description": {
+      "type": "string",
+      "description": "Order description or notes",
+      "maxLength": 1000
     }
   },
   "required": [
