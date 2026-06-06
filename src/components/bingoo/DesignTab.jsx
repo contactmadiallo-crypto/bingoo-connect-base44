@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { layouts } from "./LayoutPicker";
 import { Link } from "react-router-dom";
-import { Eye, Check, Lock, Upload, Palette } from "lucide-react";
+import { Eye, Check, Upload, Palette, CheckCircle, Lock } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
@@ -24,20 +25,25 @@ export default function DesignTab({ profile, user }) {
     ? "bg-white/5 border border-white/10 hover:border-white/20"
     : "bg-white border border-slate-200 hover:border-slate-300";
 
-  const selectLayout = async (layoutId) => {
-    if (!profile) return;
-    setSaving(layoutId);
-    await base44.entities.Profile.update(profile.id, { layout: layoutId });
-    queryClient.invalidateQueries({ queryKey: ["my-profile"] });
-    setSaving(null);
+  const [pendingChanges, setPendingChanges] = useState({});
+  const hasChanges = Object.keys(pendingChanges).length > 0;
+
+  const selectLayout = (layoutId) => {
+    setPendingChanges(prev => ({ ...prev, layout: layoutId }));
   };
 
-  const updateProfile = async (data) => {
-    if (!profile) return;
-    setSaving("updating");
-    await base44.entities.Profile.update(profile.id, data);
+  const updateProfile = (data) => {
+    setPendingChanges(prev => ({ ...prev, ...data }));
+  };
+
+  const handleSave = async () => {
+    if (!profile || !hasChanges) return;
+    setSaving("saving");
+    await base44.entities.Profile.update(profile.id, pendingChanges);
     queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+    setPendingChanges({});
     setSaving(null);
+    toast.success("Design saved!");
   };
 
   const handleCoverPhotoUpload = async (e) => {
@@ -73,8 +79,8 @@ export default function DesignTab({ profile, user }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {layouts.map((layout) => {
           const locked = false;
-          const isActive = currentLayout === layout.id;
-          const isSaving = saving === layout.id;
+          const isActive = (pendingChanges.layout || currentLayout) === layout.id;
+          const isSaving = false;
 
           return (
             <div
@@ -273,7 +279,23 @@ export default function DesignTab({ profile, user }) {
         </div>
       </div>
 
-
+      {/* Sticky Save Bar */}
+      {hasChanges && (
+        <div className={`sticky bottom-4 z-20 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-2xl ${isDark ? "bg-slate-800 border border-white/15" : "bg-slate-900 border border-slate-700"}`}>
+          <p className="text-white text-sm font-semibold">You have unsaved design changes</p>
+          <Button
+            onClick={handleSave}
+            disabled={saving === "saving"}
+            className="bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2 flex-shrink-0"
+          >
+            {saving === "saving" ? (
+              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> Saving…</>
+            ) : (
+              <><CheckCircle className="w-4 h-4" /> Save Changes</>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
