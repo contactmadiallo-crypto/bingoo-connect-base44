@@ -12,6 +12,7 @@ import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
 import CalendarView from "@/components/bingoo/CalendarView";
 import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
+import FeatureGate from "@/components/bingoo/FeatureGate";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -405,22 +406,40 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} onSaved={() => { refetchProfiles(); setTab("overview"); }} />}
-          {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
-          {tab === "calendar"     && <CalendarView profileId={profile?.id} />}
-          {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
-          {tab === "devices"      && (
-            <div className="space-y-4">
-              <div className="flex justify-end">
-                <Link to="/activate-device">
-                  <Button className="rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2">
-                    <Smartphone className="w-4 h-4" /> Activate Device
-                  </Button>
-                </Link>
-              </div>
-              <DevicesPanel profileId={profile?.id} />
-            </div>
+          {tab === "appointments" && (
+            <FeatureGate feature="appointment_booking">
+              <AppointmentsPanel profileId={profile?.id} />
+            </FeatureGate>
           )}
-          {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
+          {tab === "calendar"     && (
+            <FeatureGate feature="appointment_booking">
+              <CalendarView profileId={profile?.id} />
+            </FeatureGate>
+          )}
+          {tab === "leads"        && (
+            <FeatureGate feature="lead_collection">
+              <LeadsPanel profileId={profile?.id} />
+            </FeatureGate>
+          )}
+          {tab === "devices"      && (
+            <FeatureGate feature="nfc_devices">
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <Link to="/activate-device">
+                    <Button className="rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2">
+                      <Smartphone className="w-4 h-4" /> Activate Device
+                    </Button>
+                  </Link>
+                </div>
+                <DevicesPanel profileId={profile?.id} />
+              </div>
+            </FeatureGate>
+          )}
+          {tab === "analytics"    && (
+            <FeatureGate feature="analytics">
+              <AnalyticsPanel profileId={profile?.id} />
+            </FeatureGate>
+          )}
           {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
           {tab === "design"       && <DesignTab profile={profile} />}
 

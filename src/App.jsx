@@ -25,6 +25,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import SubscriptionPricing from './pages/SubscriptionPricing';
+import Billing from './pages/Billing';
 import MyOrders from './pages/MyOrders';
 import ShopAdmin from './pages/ShopAdmin';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
         <Route path="/plans" element={<SubscriptionPricing />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shop-admin" element={<ShopAdmin />} />
+        <Route path="/billing" element={<Billing />} />
 
         {/* ── FOODHUB (original project) ── */}
         {Object.entries(Pages).map(([path, Page]) => (

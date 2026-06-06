@@ -178,6 +178,9 @@ export default function SubscriptionPricing() {
             Choose Your Plan
           </h1>
           <p className="text-slate-500 max-w-md mx-auto text-lg">Billed monthly. Cancel anytime. NFC device sold separately ($20 one-time).</p>
+          <Link to="/billing" className="inline-flex items-center gap-1 mt-3 text-sm font-semibold hover:underline" style={{ color: B.navy }}>
+            Manage current subscription →
+          </Link>
         </div>
 
         {/* Plans grid */}

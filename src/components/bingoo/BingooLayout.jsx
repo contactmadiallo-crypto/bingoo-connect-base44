@@ -15,7 +15,7 @@ const navItems = [
   { label: "NFC Devices",  icon: Smartphone,      href: "/my-nfc-devices",            color: "from-teal-500 to-teal-600" },
   { label: "Analytics",    icon: BarChart3,       href: "/bingoo?tab=analytics",     color: "from-pink-500 to-pink-600" },
   { label: "Portfolio",    icon: Briefcase,       href: "/bingoo?tab=portfolio",     color: "from-violet-500 to-violet-600" },
-  { label: "Upgrade",      icon: CreditCard,      href: "/pricing",                  color: "from-orange-500 to-orange-600" },
+  { label: "Billing",      icon: CreditCard,      href: "/billing",                  color: "from-orange-500 to-orange-600" },
 ];
 
 export default function BingooLayout({ children }) {
