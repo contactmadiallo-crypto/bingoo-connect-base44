@@ -26,6 +26,26 @@ Deno.serve(async (req) => {
     try {
       const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
       const profile = profiles?.[0];
+
+      // Send push notification to profile owner
+      if (profile?.created_by_id) {
+        const owners = await base44.asServiceRole.entities.User.filter({ id: profile.created_by_id });
+        const owner = owners?.[0];
+        if (owner?.data?.push_subscriptions?.length) {
+          try {
+            await base44.asServiceRole.functions.invoke('sendPushNotification', {
+              user_id: profile.created_by_id,
+              profile_id,
+              title: `📅 New Appointment from ${visitor_name}`,
+              body: `${date || ''} ${time_slot || ''} – Check your dashboard`,
+              url: '/bingoo?tab=appointments',
+            });
+          } catch (pushErr) {
+            console.error('Push notification failed (non-blocking):', pushErr.message);
+          }
+        }
+      }
+
       if (profile?.email) {
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: profile.email,

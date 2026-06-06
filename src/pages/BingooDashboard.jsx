@@ -15,6 +15,7 @@ import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
 import FeatureGate from "@/components/bingoo/FeatureGate";
 import ResumePanel from "@/components/bingoo/ResumePanel";
+import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
@@ -424,6 +425,18 @@ export default function BingooDashboard() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Push Notifications */}
+            {profile && (
+              <div className={`rounded-2xl p-4 flex items-center justify-between gap-4 ${isDark ? "bg-white/5" : "bg-white"}`}
+                style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.06)" }}>
+                <div>
+                  <p className={`font-bold text-sm ${headText}`}>Push Notifications</p>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>Get instant alerts for new leads & appointments</p>
+                </div>
+                <PushNotificationToggle profileId={profile.id} darkMode={isDark} />
               </div>
             )}
 
