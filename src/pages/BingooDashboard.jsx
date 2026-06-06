@@ -487,7 +487,7 @@ export default function BingooDashboard() {
           {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
           {tab === "design"       && <DesignTab profile={profile} user={user} />}
           {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
-          {tab === "resumes"      && <ResumePanel user={user} />}
+          {tab === "resumes"      && <ResumePanel user={user} profileId={profile?.id} />}
 
         </div>
       </div>

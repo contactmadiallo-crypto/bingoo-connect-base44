@@ -21,7 +21,7 @@ const FIELD_LABELS = {
   website: "Website",
 };
 
-function ResumeEditor({ resume, onClose, onSaved }) {
+function ResumeEditor({ resume, onClose, onSaved, profileId }) {
   const [form, setForm] = useState(resume || {
     display_name: "", job_title: "", company_name: "", bio: "", skills: "",
     experience: "", education: "", email: "", phone: "", location: "",
@@ -34,10 +34,15 @@ function ResumeEditor({ resume, onClose, onSaved }) {
     if (!form.display_name) return toast.error("Full name is required");
     setSaving(true);
     try {
+      const data = { ...form };
+      // Auto-link to profile when "Show on profile" is checked
+      if (data.attached_to_profile && profileId) {
+        data.profile_id = profileId;
+      }
       if (resume?.id) {
-        await base44.entities.Resume.update(resume.id, form);
+        await base44.entities.Resume.update(resume.id, data);
       } else {
-        await base44.entities.Resume.create({ ...form, source: "manual" });
+        await base44.entities.Resume.create({ ...data, source: "manual" });
       }
       qc.invalidateQueries({ queryKey: ["my-resumes"] });
       toast.success(resume?.id ? "Resume updated!" : "Resume created!");
@@ -82,8 +87,9 @@ function ResumeEditor({ resume, onClose, onSaved }) {
               <span className="text-sm font-semibold text-slate-600">Public resume link</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={form.attached_to_profile} onChange={e => setForm(f => ({ ...f, attached_to_profile: e.target.checked }))} className="rounded" />
+              <input type="checkbox" checked={form.attached_to_profile} onChange={e => setForm(f => ({ ...f, attached_to_profile: e.target.checked, is_public: e.target.checked ? true : f.is_public }))} className="rounded" />
               <span className="text-sm font-semibold text-slate-600">Show on profile</span>
+              {!profileId && form.attached_to_profile && <span className="text-xs text-amber-500">(select a profile first)</span>}
             </label>
           </div>
         </div>
@@ -202,7 +208,7 @@ function ResumeCard({ resume, onEdit, origin }) {
   );
 }
 
-export default function ResumePanel({ user }) {
+export default function ResumePanel({ user, profileId }) {
   const [editingResume, setEditingResume] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
   const qc = useQueryClient();
@@ -255,6 +261,7 @@ export default function ResumePanel({ user }) {
           resume={editingResume}
           onClose={closeEditor}
           onSaved={() => qc.invalidateQueries({ queryKey: ["my-resumes"] })}
+          profileId={profileId}
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
+import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
@@ -471,6 +472,9 @@ export default function PublicProfile() {
                     </div>
                   </>
                 )}
+
+                {/* Resume / Experience — only renders if a resume is attached */}
+                <ProfileResumeSection profileId={profile.id} color={color} isDark={isDark} showDivider />
 
                 {/* Portfolio */}
                 <Divider />
