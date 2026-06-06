@@ -11,7 +11,7 @@ const navItems = [
   { label: "My Profile",   icon: User,            href: "/bingoo?tab=profile",      color: "from-violet-500 to-violet-600" },
   { label: "Appointments", icon: CalendarDays,    href: "/bingoo?tab=appointments", color: "from-emerald-500 to-emerald-600" },
   { label: "Leads",        icon: Star,            href: "/bingoo?tab=leads",        color: "from-amber-500 to-amber-600" },
-  { label: "My Devices",   icon: Smartphone,      href: "/bingoo?tab=devices",      color: "from-cyan-500 to-cyan-600" },
+  { label: "My NFC Devices", icon: Smartphone,    href: "/my-nfc-devices",          color: "from-cyan-500 to-cyan-600" },
   { label: "Analytics",    icon: BarChart3,       href: "/bingoo?tab=analytics",    color: "from-pink-500 to-pink-600" },
   { label: "Portfolio",    icon: Briefcase,       href: "/bingoo?tab=portfolio",    color: "from-violet-500 to-violet-600" },
   { label: "Billing",      icon: CreditCard,      href: "/billing",                 color: "from-orange-500 to-orange-600" },
@@ -21,7 +21,7 @@ const navItems = [
 const bottomTabs = [
   { label: "Home",     icon: Home,          href: "/bingoo",             color: "#3b82f6" },
   { label: "Profile",  icon: User,          href: "/bingoo?tab=profile", color: "#8b5cf6" },
-  { label: "Devices",  icon: Smartphone,    href: "/bingoo?tab=devices", color: "#06b6d4" },
+  { label: "NFC",      icon: Smartphone,    href: "/my-nfc-devices",     color: "#06b6d4" },
   { label: "More",     icon: Menu,          href: null,                  color: "#64748b" },
   { label: "Logout",   icon: LogOut,        href: "logout",              color: "#ef4444" },
 ];

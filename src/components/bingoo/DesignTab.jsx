@@ -72,7 +72,7 @@ export default function DesignTab({ profile, user }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {layouts.map((layout) => {
-          const locked = layout.pro && !isPro;
+          const locked = false;
           const isActive = currentLayout === layout.id;
           const isSaving = saving === layout.id;
 
@@ -273,17 +273,7 @@ export default function DesignTab({ profile, user }) {
         </div>
       </div>
 
-      {!isPro && (
-        <div className={`rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 ${isDark ? "bg-amber-500/10 border border-amber-500/20" : "bg-amber-50 border border-amber-100"}`}>
-          <div className="flex-1">
-            <p className={`font-black text-base ${isDark ? "text-amber-400" : "text-amber-700"}`}>Unlock Dark, Bold and Split layouts</p>
-            <p className={`text-sm mt-0.5 ${isDark ? "text-amber-500/70" : "text-amber-600"}`}>Upgrade to Pro to access all premium layout styles.</p>
-          </div>
-          <Link to="/pricing" className="flex-shrink-0">
-            <Button className="bg-amber-500 hover:bg-amber-600 text-white font-bold">Upgrade to Pro</Button>
-          </Link>
-        </div>
-      )}
+
     </div>
   );
 }

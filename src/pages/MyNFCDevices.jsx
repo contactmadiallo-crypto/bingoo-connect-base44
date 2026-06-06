@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
 import { motion, AnimatePresence } from "framer-motion";
-import { Smartphone, Plus, Trash2, Copy, QrCode, ExternalLink, X, ChevronDown, ChevronUp, Shield, CheckCircle, Wifi } from "lucide-react";
+import { Smartphone, Plus, Trash2, Copy, ExternalLink, X, ChevronDown, ChevronUp, CheckCircle, AlertCircle, Info, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
@@ -40,6 +40,10 @@ export default function MyNFCDevices() {
   const qc = useQueryClient();
 
   const [showAdd, setShowAdd] = useState(false);
+  const [showActivate, setShowActivate] = useState(false);
+  const [activateCode, setActivateCode] = useState("");
+  const [activating, setActivating] = useState(false);
+  const [activateMsg, setActivateMsg] = useState(null);
   const [nfcWriting, setNfcWriting] = useState(null); // device id being written
   const [nfcMsg, setNfcMsg] = useState(null); // {id, text, type}
 
@@ -60,6 +64,40 @@ export default function MyNFCDevices() {
       setNfcWriting(null);
     }
   };
+  const handleActivateCode = async () => {
+    if (!activateCode.trim()) return;
+    setActivating(true);
+    setActivateMsg(null);
+    const trimmed = activateCode.trim().toUpperCase();
+    const devices = await base44.entities.Device.filter({ device_code: trimmed });
+    if (!devices.length) {
+      setActivateMsg({ type: "error", text: "Device code not found. Please check and try again." });
+      setActivating(false);
+      return;
+    }
+    const device = devices[0];
+    if (device.activation_status === "active" && device.assigned_user !== user.id) {
+      setActivateMsg({ type: "error", text: "This device is already activated by another account." });
+      setActivating(false);
+      return;
+    }
+    if (device.activation_status === "active" && device.assigned_user === user.id) {
+      setActivateMsg({ type: "info", text: "You already own this device — it appears in your list below." });
+      setActivating(false);
+      return;
+    }
+    await base44.entities.Device.update(device.id, {
+      activation_status: "active",
+      assigned_user: user.id,
+      assigned_profile: profiles[0]?.id || "",
+      activation_date: new Date().toISOString(),
+    });
+    setActivateMsg({ type: "success", text: "Device activated successfully! 🎉" });
+    setActivateCode("");
+    qc.invalidateQueries({ queryKey: ["my-nfc-devices", user?.id] });
+    setActivating(false);
+  };
+
   const [newType, setNewType] = useState("card");
   const [newProfile, setNewProfile] = useState("");
   const [newNickname, setNewNickname] = useState("");
@@ -148,14 +186,65 @@ export default function MyNFCDevices() {
                 <p className={`text-sm mt-0.5 ${mutedText}`}>Manage your Bingoo NFC cards, keychains, and more</p>
               </div>
             </div>
-            <Button
-              onClick={() => setShowAdd(v => !v)}
-              className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold gap-2 shadow-lg flex-shrink-0"
-            >
-              <Plus className="w-4 h-4" /> Add Device
-            </Button>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button
+                onClick={() => { setShowActivate(v => !v); setShowAdd(false); }}
+                variant="outline"
+                className={`font-bold gap-2 ${isDark ? "border-white/20 text-white hover:bg-white/10" : ""}`}
+              >
+                🔑 Activate Code
+              </Button>
+              <Button
+                onClick={() => { setShowAdd(v => !v); setShowActivate(false); }}
+                className="bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold gap-2 shadow-lg"
+              >
+                <Plus className="w-4 h-4" /> New Device
+              </Button>
+            </div>
           </div>
         </div>
+
+        {/* Activate by Code */}
+        <AnimatePresence>
+          {showActivate && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="rounded-2xl p-6 space-y-4"
+              style={{ background: bg, border: `1px solid ${border}` }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className={`font-black text-lg ${headText}`}>Activate Device by Code</h2>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>Enter the code printed on your Bingoo device (e.g. BG-10001)</p>
+                </div>
+                <button onClick={() => setShowActivate(false)} className={`${mutedText} hover:text-red-400 transition-colors`}>
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex gap-3">
+                <input
+                  className={`${inputCls} flex-1`}
+                  placeholder="e.g. BG-10001"
+                  value={activateCode}
+                  onChange={e => setActivateCode(e.target.value.toUpperCase())}
+                  onKeyDown={e => e.key === "Enter" && handleActivateCode()}
+                />
+                <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6">
+                  {activating ? "Checking…" : "Activate"}
+                </Button>
+              </div>
+              {activateMsg && (
+                <div className={`flex items-start gap-3 p-4 rounded-xl ${activateMsg.type === "success" ? "bg-emerald-50 border border-emerald-200" : activateMsg.type === "error" ? "bg-red-50 border border-red-200" : "bg-blue-50 border border-blue-200"}`}>
+                  {activateMsg.type === "success" ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : activateMsg.type === "error" ? <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /> : <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />}
+                  <p className={`text-sm font-semibold ${activateMsg.type === "success" ? "text-emerald-700" : activateMsg.type === "error" ? "text-red-600" : "text-blue-600"}`}>{activateMsg.text}</p>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Add Device Form */}
         <AnimatePresence>
