@@ -366,7 +366,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
                 <QrCode className="w-4 h-4 text-purple-600" />
                 <Label className="font-semibold text-slate-800">💳 Zelle</Label>
               </div>
-              <p className="text-xs text-slate-500">Upload your Zelle QR code and/or add a link. Visitors will see a button to scan your QR or open the link.</p>
+              <p className="text-xs text-slate-500">Upload your Zelle QR code image (JPG or PNG) — this is the downloadable QR image from your bank app. Visitors will see a button to scan it.</p>
               {/* QR upload */}
               <div className="flex items-center gap-4">
                 {form.zelle_qr
@@ -376,7 +376,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
                 <div className="flex flex-col gap-2">
                   <label className="cursor-pointer text-xs font-semibold text-purple-600 hover:text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
                     {zelleQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.zelle_qr ? "Change QR Code" : "Upload QR Code"}</>}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleZelleQrUpload} disabled={zelleQrUploading} />
+                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" className="hidden" onChange={handleZelleQrUpload} disabled={zelleQrUploading} />
                   </label>
                   {form.zelle_qr && (
                     <button onClick={() => setForm(f => ({ ...f, zelle_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
@@ -398,7 +398,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
                 <QrCode className="w-4 h-4 text-blue-500" />
                 <Label className="font-semibold text-slate-800">📲 Wave</Label>
               </div>
-              <p className="text-xs text-slate-500">Upload your Wave QR code and/or add a link.</p>
+              <p className="text-xs text-slate-500">Upload your Wave QR code image (JPG or PNG) — the downloadable QR image from your Wave app.</p>
               <div className="flex items-center gap-4">
                 {form.wave_qr
                   ? <img src={form.wave_qr} alt="Wave QR" className="w-20 h-20 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" />
@@ -407,7 +407,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId }) {
                 <div className="flex flex-col gap-2">
                   <label className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
                     {waveQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.wave_qr ? "Change QR Code" : "Upload QR Code"}</>}
-                    <input type="file" accept="image/*" className="hidden" onChange={handleWaveQrUpload} disabled={waveQrUploading} />
+                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" className="hidden" onChange={handleWaveQrUpload} disabled={waveQrUploading} />
                   </label>
                   {form.wave_qr && (
                     <button onClick={() => setForm(f => ({ ...f, wave_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
