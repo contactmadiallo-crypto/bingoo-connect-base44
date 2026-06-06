@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
-import { X, Send, Upload, Sparkles, ArrowRight, CheckCircle } from "lucide-react";
+import { X, Send, Upload, Sparkles, ArrowRight, CheckCircle, PenLine } from "lucide-react";
 
 // ── User types
 const USER_TYPES = [
@@ -238,7 +238,8 @@ function Bubble({ msg, isAI }) {
 
 // ── Main component
 export default function AIOnboardingAssistant({ userName, onComplete, onDismiss }) {
-  const [phase, setPhase] = useState("welcome"); // welcome | type | chat | resume | generating | review
+  const [phase, setPhase] = useState("welcome"); // welcome | type | chat | resume | generating | review | manual
+  const [manualForm, setManualForm] = useState({ display_name: "", suggested_username: "", job_title: "", company_name: "", bio: "", phone: "", email: "", location: "", website: "", linkedin_url: "", instagram_url: "" });
   const [userType, setUserType] = useState(null);
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -365,6 +366,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               {(phase === "chat" || phase === "resume") && `${userType ? USER_TYPES.find(u => u.id === userType)?.label : ""} profile`}
               {phase === "generating" && "Generating your profile..."}
               {phase === "review" && "Review & publish"}
+              {phase === "manual" && "Manual profile setup"}
             </p>
           </div>
           <button onClick={handleDismiss} style={{ background: "rgba(255,255,255,0.12)", border: "none", borderRadius: 8, width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff", fontSize: 16 }}>
@@ -410,8 +412,8 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               >
                 <Sparkles size={18} /> Get Started
               </button>
-              <button onClick={handleDismiss} style={{ marginTop: 10, background: "none", border: "none", color: "#94a3b8", fontSize: 12, cursor: "pointer", fontWeight: 600 }}>
-                I'll set up manually
+              <button onClick={() => setPhase("manual")} style={{ marginTop: 10, background: "none", border: "none", color: "#94a3b8", fontSize: 12, cursor: "pointer", fontWeight: 600, textDecoration: "underline" }}>
+                Fill in manually instead
               </button>
             </motion.div>
           )}
@@ -530,6 +532,54 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               </div>
             </motion.div>
           )}
+          {/* MANUAL phase */}
+          {phase === "manual" && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "20px 20px 8px" }}>
+              <div style={{ padding: "12px 16px", borderRadius: 14, background: "#f0f9ff", border: "1px solid #bae6fd", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+                <PenLine size={16} style={{ color: "#0284c7", flexShrink: 0 }} />
+                <p style={{ fontSize: 12, color: "#0369a1", margin: 0, fontWeight: 600 }}>Fill in your profile details below. Only name and username are required.</p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {[
+                  { key: "display_name", label: "Full Name *", placeholder: "Jane Smith", multi: false },
+                  { key: "suggested_username", label: "Username (your profile URL) *", placeholder: "janesmith", multi: false },
+                  { key: "job_title", label: "Job Title", placeholder: "Marketing Manager", multi: false },
+                  { key: "company_name", label: "Company / Business Name", placeholder: "Acme Corp", multi: false },
+                  { key: "bio", label: "Short Bio", placeholder: "Tell people what you do and who you help...", multi: true },
+                  { key: "phone", label: "Phone Number", placeholder: "+1 555 000 0000", multi: false },
+                  { key: "email", label: "Email Address", placeholder: "jane@example.com", multi: false },
+                  { key: "location", label: "Location", placeholder: "New York, USA", multi: false },
+                  { key: "website", label: "Website URL", placeholder: "https://yoursite.com", multi: false },
+                  { key: "linkedin_url", label: "LinkedIn URL", placeholder: "https://linkedin.com/in/...", multi: false },
+                  { key: "instagram_url", label: "Instagram URL", placeholder: "https://instagram.com/...", multi: false },
+                ].map(({ key, label, placeholder, multi }) => (
+                  <div key={key}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>{label}</label>
+                    {multi ? (
+                      <textarea
+                        rows={3}
+                        placeholder={placeholder}
+                        value={manualForm[key] || ""}
+                        onChange={e => setManualForm(p => ({ ...p, [key]: e.target.value }))}
+                        style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 13, fontWeight: 500, color: "#1e293b", resize: "vertical", outline: "none", fontFamily: "inherit", background: "#fff", boxSizing: "border-box" }}
+                      />
+                    ) : (
+                      <input
+                        placeholder={placeholder}
+                        value={manualForm[key] || ""}
+                        onChange={e => {
+                          let val = e.target.value;
+                          if (key === "suggested_username") val = val.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20);
+                          setManualForm(p => ({ ...p, [key]: val }));
+                        }}
+                        style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 13, fontWeight: 500, color: "#1e293b", outline: "none", background: "#fff", boxSizing: "border-box" }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Chat input */}
@@ -568,6 +618,22 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,46,107,0.4)", opacity: (!editedProfile?.display_name || !editedProfile?.suggested_username) ? 0.5 : 1 }}
             >
               <ArrowRight size={16} /> Publish My Profile
+            </button>
+          </div>
+        )}
+
+        {/* Manual entry footer */}
+        {phase === "manual" && (
+          <div style={{ padding: "14px 20px", borderTop: "1px solid #f1f5f9", background: "#fff", flexShrink: 0, display: "flex", gap: 10 }}>
+            <button onClick={() => setPhase("welcome")} style={{ flex: 1, padding: "13px", borderRadius: 14, background: "#f1f5f9", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, color: "#475569" }}>
+              ← Back
+            </button>
+            <button
+              onClick={() => { localStorage.setItem("bingoo_onboarding_done", "1"); onComplete(manualForm); }}
+              disabled={!manualForm.display_name || !manualForm.suggested_username}
+              style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,46,107,0.4)", opacity: (!manualForm.display_name || !manualForm.suggested_username) ? 0.5 : 1 }}
+            >
+              <ArrowRight size={16} /> Create My Profile
             </button>
           </div>
         )}
