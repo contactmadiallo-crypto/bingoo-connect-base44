@@ -7,16 +7,19 @@ import { Eye, Check, Upload, Palette, CheckCircle, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import ProfilePreview from "./ProfilePreview";
 
 export default function DesignTab({ profile, user }) {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(null);
 
+  const [pendingChanges, setPendingChanges] = useState({});
+
   const isAdmin = user?.role === 'admin';
   const isPro = isAdmin || profile?.plan === "pro" || profile?.plan === "business";
   const currentLayout = profile?.layout || "classic";
-  const color = profile?.cover_color || "#2563eb";
+  const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
 
   const headText = isDark ? "text-white" : "text-slate-900";
@@ -24,8 +27,6 @@ export default function DesignTab({ profile, user }) {
   const cardBase = isDark
     ? "bg-white/5 border border-white/10 hover:border-white/20"
     : "bg-white border border-slate-200 hover:border-slate-300";
-
-  const [pendingChanges, setPendingChanges] = useState({});
   const hasChanges = Object.keys(pendingChanges).length > 0;
 
   const selectLayout = (layoutId) => {
@@ -67,13 +68,32 @@ export default function DesignTab({ profile, user }) {
     );
   }
 
+  // Merged profile reflects pending changes for live preview
+  const previewProfile = { ...profile, ...pendingChanges };
+
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>
-        <p className={`text-sm mt-1 ${subText}`}>
-          Choose a layout for <span className="font-bold">/p/{profile.username}</span>. Changes apply instantly.
-        </p>
+      <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1 min-w-0">
+          <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>
+          <p className={`text-sm mt-1 ${subText}`}>
+            Choose a layout for <span className="font-bold">/p/{profile.username}</span>. Select a layout to preview it live.
+          </p>
+        </div>
+        {/* Live Preview Panel */}
+        <div className={`lg:w-64 flex-shrink-0 rounded-2xl overflow-hidden border ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
+          <div className={`px-4 py-2.5 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-200"}`}>
+            <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}>Live Preview</p>
+            {hasChanges && (
+              <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">Unsaved</span>
+            )}
+          </div>
+          <div className="relative overflow-hidden" style={{ height: "420px" }}>
+            <div style={{ width: "375px", transformOrigin: "top left", transform: "scale(0.68)", pointerEvents: "none" }}>
+              <ProfilePreview profile={previewProfile} />
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -239,7 +259,7 @@ export default function DesignTab({ profile, user }) {
                 key={style}
                 onClick={() => updateProfile({ bg_style: style })}
                 className={`p-3 rounded-lg font-semibold text-sm transition-all ${
-                  profile.bg_style === style
+                  previewProfile.bg_style === style
                     ? isDark
                       ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
                       : "bg-blue-100 border-2 border-blue-600 text-blue-700"
@@ -263,7 +283,7 @@ export default function DesignTab({ profile, user }) {
                 key={style}
                 onClick={() => updateProfile({ button_style: style })}
                 className={`p-3 rounded-lg font-semibold text-sm transition-all ${
-                  profile.button_style === style
+                  previewProfile.button_style === style
                     ? isDark
                       ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
                       : "bg-blue-100 border-2 border-blue-600 text-blue-700"
