@@ -118,9 +118,14 @@ export default function BingooDashboard() {
     { label: "Appointments",    value: appointments.filter(a=>a.status==="pending").length, icon: CalendarDays, gradient: "from-emerald-500 to-emerald-600", shadow: isDark ? "shadow-emerald-900/40" : "shadow-emerald-200" },
   ];
 
+  const launchAI = () => {
+    localStorage.removeItem("bingoo_onboarding_done");
+    setShowOnboarding(true);
+  };
+
   return (
     <BingooLayout>
-      {showOnboarding && profiles.length === 0 && user && (
+      {showOnboarding && user && (
         <AIOnboardingAssistant
           userName={user.full_name}
           onComplete={(generatedData) => {
@@ -238,6 +243,10 @@ export default function BingooDashboard() {
                 }`}>
                 + New Profile
               </button>
+              <button onClick={launchAI}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${isDark ? "border-violet-400/30 text-violet-400 hover:bg-violet-400/10" : "border-violet-300 text-violet-600 hover:bg-violet-50"}`}>
+                <Zap className="w-3.5 h-3.5" /> AI Builder
+              </button>
             </div>
           )}
 
@@ -332,7 +341,12 @@ export default function BingooDashboard() {
                     <User className={`w-10 h-10 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
                     <p className={`font-semibold text-sm ${subText}`}>No profile yet</p>
                     <p className={`text-xs mt-1 mb-3 ${mutedText}`}>Create your digital card to get started.</p>
-                    <Button onClick={() => setTab("profile")} size="sm" className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold">Create Profile</Button>
+                    <div className="flex gap-2 justify-center">
+                      <Button onClick={launchAI} size="sm" className="rounded-xl bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] hover:opacity-90 text-white font-bold gap-1.5">
+                        <Zap className="w-3.5 h-3.5" /> Build with AI
+                      </Button>
+                      <Button onClick={() => setTab("profile")} size="sm" variant="outline" className="rounded-xl font-bold">Manual</Button>
+                    </div>
                   </div>
                 )}
               </div>
