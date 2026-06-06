@@ -12,8 +12,13 @@
       "type": "string",
       "enum": [
         "free",
+        "professional",
         "pro",
-        "business"
+        "salon",
+        "restaurant",
+        "lawfirm",
+        "business",
+        "corporate"
       ],
       "default": "free"
     },

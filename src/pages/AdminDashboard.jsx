@@ -7,9 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2 } from "lucide-react";
+import { PLAN_LABELS } from "@/lib/planPermissions";
 
-const PLAN_COLORS = { free: "bg-slate-100 text-slate-600", pro: "bg-blue-100 text-blue-700", business: "bg-purple-100 text-purple-700" };
+const PLAN_COLORS = {
+  free: "bg-slate-100 text-slate-600",
+  professional: "bg-blue-100 text-blue-700",
+  pro: "bg-blue-100 text-blue-700",
+  salon: "bg-pink-100 text-pink-700",
+  restaurant: "bg-orange-100 text-orange-700",
+  lawfirm: "bg-sky-100 text-sky-700",
+  business: "bg-orange-100 text-orange-700",
+  corporate: "bg-violet-100 text-violet-700",
+};
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -36,6 +46,10 @@ export default function AdminDashboard() {
   const { data: allNfcDevices = [], refetch: refetchNfcDevices } = useQuery({ queryKey: ["admin-nfc-devices"], queryFn: () => base44.entities.Device.list() });
   const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list() });
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
+  const { data: subscriptions = [], refetch: refetchSubs } = useQuery({ queryKey: ["admin-subscriptions"], queryFn: () => base44.entities.Subscription.list("-created_date", 200) });
+  const [subSearch, setSubSearch] = useState("");
+  const [subPlanFilter, setSubPlanFilter] = useState("all");
+  const [subStatusFilter, setSubStatusFilter] = useState("all");
 
   const createDevice = useMutation({
     mutationFn: (data) => base44.entities.NFCDevice.create({ ...data, assigned_at: new Date().toISOString() }),
@@ -74,12 +88,13 @@ export default function AdminDashboard() {
     .slice(0, 20);
 
   const TABS = [
-    { id: "users", label: "Users & Profiles", icon: Users, count: profiles.length },
-    { id: "nfc_manager", label: "NFC Manager", icon: RotateCcw, count: allNfcDevices.length },
-    { id: "devices", label: "Legacy Devices", icon: Smartphone, count: devices.length },
-    { id: "activations", label: "Recent Activations", icon: Clock, count: recentActivations.length },
-    { id: "leads", label: "All Leads", icon: Star, count: leads.length },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
+    { id: "users",        label: "Users & Profiles",  icon: Users,      count: profiles.length },
+    { id: "subscriptions",label: "Subscriptions",     icon: CreditCard, count: subscriptions.length },
+    { id: "nfc_manager",  label: "NFC Manager",       icon: RotateCcw,  count: allNfcDevices.length },
+    { id: "devices",      label: "Legacy Devices",    icon: Smartphone, count: devices.length },
+    { id: "activations",  label: "Recent Activations",icon: Clock,      count: recentActivations.length },
+    { id: "leads",        label: "All Leads",         icon: Star,       count: leads.length },
+    { id: "analytics",    label: "Analytics",         icon: BarChart3 },
   ];
 
   // Bingoo brand colors for admin
@@ -162,8 +177,8 @@ export default function AdminDashboard() {
                   value={search} onChange={e => setSearch(e.target.value)}
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
               </div>
-              <div className="flex gap-2">
-                {["all","free","pro","business","lawfirm"].map(p => (
+              <div className="flex gap-2 flex-wrap">
+                {["all","free","professional","salon","restaurant","lawfirm","corporate"].map(p => (
                   <button key={p} onClick={() => setPlanFilter(p)}
                     className="px-3 py-2 rounded-xl text-sm font-bold transition-all"
                     style={{
@@ -171,7 +186,7 @@ export default function AdminDashboard() {
                       color: planFilter === p ? "#fff" : "rgba(255,255,255,0.5)",
                       border: "1px solid rgba(255,255,255,0.08)"
                     }}>
-                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                    {PLAN_LABELS[p] || p.charAt(0).toUpperCase() + p.slice(1)}
                   </button>
                 ))}
               </div>
@@ -214,9 +229,11 @@ export default function AdminDashboard() {
                             className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
                             style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
                             <option value="free">Free</option>
-                            <option value="pro">Pro</option>
-                            <option value="business">Business</option>
+                            <option value="professional">Professional</option>
+                            <option value="salon">Salon</option>
+                            <option value="restaurant">Restaurant</option>
                             <option value="lawfirm">Law Firm</option>
+                            <option value="corporate">Corporate</option>
                           </select>
                         </td>
                         <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{p.company_name || "—"}</td>
@@ -236,6 +253,132 @@ export default function AdminDashboard() {
                   <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No profiles found</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subscriptions */}
+        {tab === "subscriptions" && (
+          <div className="space-y-4">
+            {/* Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total Subscribers", value: subscriptions.filter(s => s.status === "active").length, color: "#22c55e" },
+                { label: "Free Users", value: subscriptions.filter(s => s.status === "free").length, color: "rgba(255,255,255,0.4)" },
+                { label: "Past Due", value: subscriptions.filter(s => s.status === "past_due").length, color: "#f59e0b" },
+                { label: "Canceled", value: subscriptions.filter(s => s.status === "canceled").length, color: "#ef4444" },
+              ].map(s => (
+                <div key={s.label} className="rounded-2xl p-4 border"
+                  style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none"
+                  placeholder="Search by email..."
+                  value={subSearch} onChange={e => setSubSearch(e.target.value)}
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {["all","free","professional","salon","restaurant","lawfirm","corporate"].map(p => (
+                  <button key={p} onClick={() => setSubPlanFilter(p)}
+                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                    style={{ background: subPlanFilter === p ? orange : "rgba(255,255,255,0.07)", color: subPlanFilter === p ? "#fff" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    {PLAN_LABELS[p] || p.charAt(0).toUpperCase() + p.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {["all","active","past_due","canceled"].map(s => (
+                  <button key={s} onClick={() => setSubStatusFilter(s)}
+                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                    style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071d47" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    {s.charAt(0).toUpperCase() + s.replace("_"," ").slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {["Customer","Plan","Status","Period End","Stripe ID","Actions"].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subscriptions
+                      .filter(s => subSearch ? s.customer_email?.toLowerCase().includes(subSearch.toLowerCase()) || s.customer_name?.toLowerCase().includes(subSearch.toLowerCase()) : true)
+                      .filter(s => subPlanFilter === "all" || s.plan === subPlanFilter || (subPlanFilter === "professional" && s.plan === "pro"))
+                      .filter(s => subStatusFilter === "all" || s.status === subStatusFilter)
+                      .map(s => {
+                        const statusColors = { active: "#22c55e", free: "rgba(255,255,255,0.3)", past_due: "#f59e0b", canceled: "#ef4444" };
+                        const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
+                        return (
+                          <tr key={s.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                            onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                            <td className="px-5 py-4">
+                              <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
+                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="px-2.5 py-1 rounded-full text-xs font-bold"
+                                style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
+                                {planDisplay}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4">
+                              <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>
+                                {s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+                                {s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1) || "Free"}
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                              {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}
+                            </td>
+                            <td className="px-5 py-4 text-xs font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>
+                              {s.stripe_subscription_id?.slice(0, 14) || "—"}
+                            </td>
+                            <td className="px-5 py-4">
+                              <select
+                                value={s.plan || "free"}
+                                onChange={async e => {
+                                  await base44.entities.Subscription.update(s.id, { plan: e.target.value });
+                                  refetchSubs();
+                                }}
+                                className="px-2 py-1 rounded-full text-xs font-bold cursor-pointer"
+                                style={{ background: "rgba(255,122,0,0.15)", color: orange, border: "1px solid rgba(255,122,0,0.3)" }}>
+                                <option value="free">Free</option>
+                                <option value="professional">Professional</option>
+                                <option value="salon">Salon</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="lawfirm">Law Firm</option>
+                                <option value="corporate">Corporate</option>
+                              </select>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+                {subscriptions.length === 0 && (
+                  <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No subscriptions yet</p>
                   </div>
                 )}
               </div>

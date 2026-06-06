@@ -27,15 +27,17 @@ async function upsertSubscription(base44, { customer_email, plan, status, stripe
 
 async function updateProfilePlan(base44, customerEmail, plan) {
   try {
-    // Find profiles by email cross-referencing user
     const allProfiles = await base44.asServiceRole.entities.Profile.filter({});
-    // We need to find profiles belonging to this user email
-    // Get user by email via subscription record linkage
     const profiles = allProfiles.filter(p => p.email === customerEmail);
     for (const profile of profiles) {
       await base44.asServiceRole.entities.Profile.update(profile.id, { plan });
     }
-    console.log('Profile plans updated for', customerEmail, '->', plan);
+    // Also update subscription record plan field
+    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: customerEmail });
+    if (subs.length > 0 && plan !== 'free') {
+      await base44.asServiceRole.entities.Subscription.update(subs[0].id, { plan });
+    }
+    console.log('Profile/subscription plans updated for', customerEmail, '->', plan);
   } catch (err) {
     console.error('updateProfilePlan error:', err.message);
   }

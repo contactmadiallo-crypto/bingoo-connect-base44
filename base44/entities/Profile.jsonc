@@ -135,7 +135,7 @@
     },
     "zelle_link": {
       "type": "string",
-      "description": "Optional Zelle link (if available)"
+      "description": "Optional Zelle link"
     },
     "zelle_qr": {
       "type": "string",
@@ -179,8 +179,13 @@
       "type": "string",
       "enum": [
         "free",
+        "professional",
         "pro",
-        "business"
+        "salon",
+        "restaurant",
+        "lawfirm",
+        "business",
+        "corporate"
       ],
       "default": "free"
     },

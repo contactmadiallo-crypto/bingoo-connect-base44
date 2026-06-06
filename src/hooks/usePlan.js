@@ -30,16 +30,25 @@ export function usePlan() {
   const profilePlan = profiles?.[0]?.plan || 'free';
   const activePlan = PLAN_HIERARCHY[subPlan] >= PLAN_HIERARCHY[profilePlan] ? subPlan : profilePlan;
 
+  // Normalize legacy plan names
+  const normalizedPlan = activePlan === 'pro' ? 'professional' : activePlan === 'business' ? 'restaurant' : activePlan;
+  const isPaid = normalizedPlan !== 'free';
+
   return {
     user,
     subscription,
-    plan: activePlan,
+    plan: normalizedPlan,
+    rawPlan: activePlan,
     isLoading: loadingUser || loadingSub || loadingProfile,
-    canAccess: (featureKey) => canAccess(activePlan, featureKey),
-    maxNFCDevices: maxNFCDevices(activePlan),
-    maxTeamMembers: maxTeamMembers(activePlan),
-    isPro: activePlan === 'pro' || activePlan === 'business',
-    isBusiness: activePlan === 'business',
-    isFree: activePlan === 'free',
+    canAccess: (featureKey) => canAccess(normalizedPlan, featureKey),
+    maxNFCDevices: maxNFCDevices(normalizedPlan),
+    maxTeamMembers: maxTeamMembers(normalizedPlan),
+    isPro: normalizedPlan === 'professional',
+    isSalon: normalizedPlan === 'salon',
+    isRestaurant: normalizedPlan === 'restaurant',
+    isLawFirm: normalizedPlan === 'lawfirm',
+    isCorporate: normalizedPlan === 'corporate',
+    isBusiness: isPaid,
+    isFree: normalizedPlan === 'free',
   };
 }
