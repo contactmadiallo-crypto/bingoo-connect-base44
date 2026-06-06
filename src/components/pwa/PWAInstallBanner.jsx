@@ -66,7 +66,7 @@ export default function PWAInstallBanner() {
 
   if (isIOS) {
     return (
-      <div className="fixed bottom-20 left-3 right-3 z-50 md:hidden">
+      <div className="fixed left-3 right-3 z-50 md:hidden" style={{ bottom: "calc(4rem + env(safe-area-inset-bottom) + 8px)" }}>
         <div
           className="rounded-2xl p-4 shadow-2xl"
           style={{
@@ -125,7 +125,7 @@ export default function PWAInstallBanner() {
 
   // Android / Chrome
   return (
-    <div className="fixed bottom-20 left-3 right-3 z-50 md:hidden">
+    <div className="fixed left-3 right-3 z-50 md:hidden" style={{ bottom: "calc(4rem + env(safe-area-inset-bottom) + 8px)" }}>
       <div
         className="rounded-2xl p-4 shadow-2xl flex items-center gap-3"
         style={{

@@ -136,18 +136,18 @@ export default function BingooDashboard() {
         />
       )}
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-16 pt-6">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-16 pt-3 sm:pt-6">
 
           {/* ── iOS-style Hero ── */}
           <div className={`relative rounded-3xl overflow-hidden mb-6 ${isDark ? "bg-gradient-to-br from-[#13162a] to-[#0d1022]" : "bg-white"}`}
             style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.4)" : "0 1px 0 rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.07)" }}>
             {/* Gradient accent bar at top */}
             <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, #0B2E6B, #FF7A00, #FDBA21)` }} />
-            <div className="p-5 md:p-7">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="p-4 md:p-7">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-semibold tracking-widest uppercase mb-1.5 ${mutedText}`}>Dashboard</p>
-                  <h1 className={`text-2xl md:text-3xl font-black leading-tight tracking-tight ${headText}`}>
+                  <p className={`text-[10px] font-semibold tracking-widest uppercase mb-1 ${mutedText}`}>Dashboard</p>
+                  <h1 className={`text-xl md:text-3xl font-black leading-tight tracking-tight ${headText}`}>
                     {user?.full_name?.split(" ")[0] || "Hello"} <span className="inline-block animate-bounce">👋</span>
                   </h1>
                   {profile ? (
@@ -242,7 +242,7 @@ export default function BingooDashboard() {
           )}
 
           {/* ── iOS Tab Bar ── */}
-          <div className={`relative flex gap-0.5 rounded-2xl p-1 mb-6 overflow-x-auto scrollbar-none`}
+          <div className={`relative flex gap-0.5 rounded-2xl p-1 mb-4 sm:mb-6 overflow-x-auto scrollbar-none`}
             style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)", boxShadow: isDark ? "inset 0 1px 0 rgba(255,255,255,0.04)" : "inset 0 1px 0 rgba(0,0,0,0.04)" }}>
             {TABS.map(t => {
               const isActive = tab === t.id;
@@ -250,7 +250,7 @@ export default function BingooDashboard() {
               const apptBadge = t.id === "appointments" ? appointments.filter(a => a.status === "pending").length : 0;
               return (
                 <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`relative flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
+                  className={`relative flex items-center gap-1 px-2.5 sm:px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
                     isActive
                       ? (isDark ? "text-white" : "text-slate-900")
                       : (isDark ? "text-white/35 hover:text-white/65 hover:bg-white/5" : "text-slate-400 hover:text-slate-600 hover:bg-black/4")
@@ -272,16 +272,16 @@ export default function BingooDashboard() {
           {tab === "overview" && (
           <div className="space-y-5">
             {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
               {STAT_CONFIGS.map(s => (
                 <div key={s.label}
-                  className={`relative rounded-2xl p-4 overflow-hidden transition-all duration-200 group cursor-default ${isDark ? "bg-white/5 hover:bg-white/7" : "bg-white hover:shadow-md"}`}
+                  className={`relative rounded-2xl p-3 sm:p-4 overflow-hidden transition-all duration-200 group cursor-default ${isDark ? "bg-white/5 hover:bg-white/7" : "bg-white hover:shadow-md"}`}
                   style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)" }}>
-                  <div className={`w-9 h-9 rounded-xl mb-3 flex items-center justify-center bg-gradient-to-br ${s.gradient} shadow-lg ${s.shadow}`}>
-                    <s.icon className="w-4.5 h-4.5 text-white" style={{ width: "1.1rem", height: "1.1rem" }} />
+                  <div className={`w-8 h-8 rounded-xl mb-2.5 flex items-center justify-center bg-gradient-to-br ${s.gradient} shadow-md ${s.shadow}`}>
+                    <s.icon className="w-4 h-4 text-white" />
                   </div>
-                  <p className={`text-2xl font-black tracking-tight ${statVal}`}>{s.value}</p>
-                  <p className={`text-xs mt-0.5 font-medium ${mutedText}`}>{s.label}</p>
+                  <p className={`text-xl font-black tracking-tight ${statVal}`}>{s.value}</p>
+                  <p className={`text-[11px] mt-0.5 font-medium ${mutedText}`}>{s.label}</p>
                 </div>
               ))}
             </div>
