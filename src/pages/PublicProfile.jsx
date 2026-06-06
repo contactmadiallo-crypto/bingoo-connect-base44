@@ -10,6 +10,7 @@ import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
+import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
@@ -382,7 +383,7 @@ export default function PublicProfile() {
 
                 {/* Save + Share row */}
                 <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-                  style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+                  style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
                   <motion.button
                     onClick={() => { track("save_contact_click"); saveContact(profile); }}
                     whileHover={{ scale: 1.03, y: -2 }}
@@ -391,6 +392,7 @@ export default function PublicProfile() {
                   >
                     <SaveContactIcon size={18} /> Save Contact
                   </motion.button>
+                  <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
                   <motion.button
                     onClick={handleShare}
                     whileHover={{ scale: 1.03, y: -2 }}

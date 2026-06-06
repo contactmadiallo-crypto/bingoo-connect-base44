@@ -119,8 +119,8 @@ export default function BingooLayout({ children }) {
       {/* User + actions */}
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${t.sidebarBorder}` }}>
         <button onClick={toggle}
-          className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all ${isDark ? "text-white/40 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100"}`}>
-          {isDark ? <><Sun className="w-4 h-4" /> Light Mode</> : <><Moon className="w-4 h-4" /> Dark Mode</>}
+          className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all ${isDark ? "bg-white/8 text-white hover:bg-white/15 border border-white/10" : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"}`}>
+          {isDark ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</> : <><Moon className="w-4 h-4 text-slate-500" /> Dark Mode</>}
         </button>
         <div className={`flex items-center gap-3 px-3 py-3 rounded-xl ${t.userBg}`}>
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md">
@@ -162,7 +162,7 @@ export default function BingooLayout({ children }) {
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
           <button onClick={toggle}
-            className={`p-2.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/50" : "hover:bg-slate-100 text-slate-400"}`}>
+            className={`p-2.5 rounded-xl transition-colors ${isDark ? "bg-white/10 text-yellow-300 hover:bg-white/15" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           <button onClick={() => setMobileOpen(!mobileOpen)}

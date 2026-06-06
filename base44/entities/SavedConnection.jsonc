@@ -1,0 +1,71 @@
+{
+  "name": "SavedConnection",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "description": "The profile ID that was saved"
+    },
+    "profile_username": {
+      "type": "string",
+      "description": "Username of the saved profile"
+    },
+    "profile_display_name": {
+      "type": "string",
+      "description": "Display name of the saved profile"
+    },
+    "profile_job_title": {
+      "type": "string"
+    },
+    "profile_company": {
+      "type": "string"
+    },
+    "profile_photo": {
+      "type": "string"
+    },
+    "profile_cover_color": {
+      "type": "string"
+    },
+    "profile_phone": {
+      "type": "string"
+    },
+    "profile_email": {
+      "type": "string"
+    },
+    "profile_whatsapp": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "nfc_scan",
+        "qr_scan"
+      ],
+      "default": "manual",
+      "description": "How the connection was saved"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Personal notes about this connection"
+    }
+  },
+  "required": [
+    "profile_id",
+    "profile_display_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

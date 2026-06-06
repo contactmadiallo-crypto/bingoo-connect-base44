@@ -16,8 +16,9 @@ import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
 import FeatureGate from "@/components/bingoo/FeatureGate";
 import ResumePanel from "@/components/bingoo/ResumePanel";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
+import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -34,6 +35,7 @@ const TABS = [
   { id: "design",        label: "Design",        icon: Palette,      color: "#ec4899" },
   { id: "appt_settings", label: "Booking Setup", icon: Settings,     color: "#0d9488" },
   { id: "resumes",       label: "Resumes",       icon: FileText,     color: "#6366f1" },
+  { id: "connections",   label: "Connections",   icon: Users,        color: "#0d9488" },
 ];
 
 export default function BingooDashboard() {
@@ -501,6 +503,7 @@ export default function BingooDashboard() {
           {tab === "design"       && <DesignTab profile={profile} user={user} />}
           {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
           {tab === "resumes"      && <ResumePanel user={user} profileId={profile?.id} />}
+          {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
 
         </div>
       </div>
