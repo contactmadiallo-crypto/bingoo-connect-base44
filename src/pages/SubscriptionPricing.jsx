@@ -90,15 +90,33 @@ export default function SubscriptionPricing() {
   const [loading, setLoading] = useState(null);
   const [currentPlan, setCurrentPlan] = useState('free');
 
+  const [successMsg, setSuccessMsg] = useState('');
+
   useEffect(() => {
-    base44.auth.me().then(user => {
-      // Try to get profile plan
-      if (user?.id) {
-        base44.entities.Profile.filter({ created_by_id: user.id }).then(profiles => {
-          if (profiles?.[0]?.plan) setCurrentPlan(profiles[0].plan);
-        }).catch(() => {});
-      }
-    }).catch(() => {});
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === '1') {
+      const plan = params.get('plan');
+      setSuccessMsg(`🎉 You're now on the ${plan?.charAt(0).toUpperCase() + plan?.slice(1)} plan! Welcome aboard.`);
+      // Update profile plan in DB
+      base44.auth.me().then(user => {
+        if (user?.id) {
+          base44.entities.Profile.filter({ created_by_id: user.id }).then(profiles => {
+            if (profiles?.[0]?.id) {
+              base44.entities.Profile.update(profiles[0].id, { plan });
+            }
+            setCurrentPlan(plan || 'free');
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    } else {
+      base44.auth.me().then(user => {
+        if (user?.id) {
+          base44.entities.Profile.filter({ created_by_id: user.id }).then(profiles => {
+            if (profiles?.[0]?.plan) setCurrentPlan(profiles[0].plan);
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+    }
   }, []);
 
   const handleSubscribe = async (plan) => {
@@ -108,9 +126,19 @@ export default function SubscriptionPricing() {
       return;
     }
     setLoading(plan.id);
-    const res = await base44.functions.invoke('createSubscriptionSession', { plan: plan.id });
-    setLoading(null);
-    if (res.data?.url) window.location.href = res.data.url;
+    try {
+      const res = await base44.functions.invoke('createSubscriptionSession', { plan: plan.id });
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        alert('Could not start checkout. Please try again.');
+        setLoading(null);
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Checkout failed: ' + (err.message || 'Unknown error'));
+      setLoading(null);
+    }
   };
 
   return (
@@ -132,6 +160,14 @@ export default function SubscriptionPricing() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-14">
+        {/* Success banner */}
+        {successMsg && (
+          <div className="mb-8 p-4 rounded-2xl text-center font-bold text-white"
+            style={{ background: "#16a34a" }}>
+            {successMsg}
+          </div>
+        )}
+
         {/* Title */}
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
