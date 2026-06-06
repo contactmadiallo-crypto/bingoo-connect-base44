@@ -260,11 +260,13 @@ export default function PublicProfile() {
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
 
   // Build link lists
+  const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
+
   const primaryLinks = [
     profile.phone && { label: "Call", color: "#16a34a", bg: "linear-gradient(135deg,#16a34a,#15803d)", href: `tel:${profile.phone}`, icon: <PhoneIcon size={24} />, ev: "phone_click" },
     profile.whatsapp_number && { label: "WhatsApp", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" },
     profile.email && { label: "Email", color: "#6366f1", bg: "linear-gradient(135deg,#6366f1,#4f46e5)", href: `mailto:${profile.email}`, icon: <EmailSvgIcon size={24} />, ev: "email_click" },
-    profile.booking_enabled && { label: "Book", color: color, bg: `linear-gradient(135deg,${color},${hexRgb(color,0.8)})`, href: null, onClick: () => setBookOpen(true), icon: <CalendarSvgIcon size={24} />, ev: null },
+    canBook && { label: "Book", color: color, bg: `linear-gradient(135deg,${color},${hexRgb(color,0.8)})`, href: null, onClick: () => setBookOpen(true), icon: <CalendarSvgIcon size={24} />, ev: null },
   ].filter(Boolean);
 
   const socialLinks = [
@@ -298,7 +300,13 @@ export default function PublicProfile() {
 
       {/* Back button */}
       <motion.button
-        onClick={() => window.history.length > 1 ? window.history.back() : (window.location.href = "/")}
+        onClick={() => {
+          if (window.history.length > 2) {
+            window.history.back();
+          } else {
+            window.location.href = "/";
+          }
+        }}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}

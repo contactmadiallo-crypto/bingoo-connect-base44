@@ -17,6 +17,24 @@
     "message": {
       "type": "string"
     },
+    "preferred_contact_method": {
+      "type": "string",
+      "enum": [
+        "WhatsApp",
+        "Phone",
+        "Email"
+      ],
+      "default": "WhatsApp"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "closed"
+      ],
+      "default": "new"
+    },
     "description": {
       "type": "string",
       "description": "Lead description or notes",

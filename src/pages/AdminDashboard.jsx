@@ -44,7 +44,8 @@ export default function AdminDashboard() {
   const { data: profiles = [] } = useQuery({ queryKey: ["admin-profiles"], queryFn: () => base44.entities.Profile.list() });
   const { data: devices = [] } = useQuery({ queryKey: ["admin-devices"], queryFn: () => base44.entities.NFCDevice.list() });
   const { data: allNfcDevices = [], refetch: refetchNfcDevices } = useQuery({ queryKey: ["admin-nfc-devices"], queryFn: () => base44.entities.Device.list() });
-  const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list() });
+  const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list("-created_date", 500) });
+  const { data: allAppointments = [] } = useQuery({ queryKey: ["admin-appointments"], queryFn: () => base44.entities.Appointment.list("-created_date", 500) });
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
   const { data: subscriptions = [], refetch: refetchSubs } = useQuery({ queryKey: ["admin-subscriptions"], queryFn: () => base44.entities.Subscription.list("-created_date", 200) });
   const { data: prospectLeads = [], refetch: refetchProspects } = useQuery({ queryKey: ["admin-prospect-leads"], queryFn: () => base44.entities.ProspectLead.list("-created_at", 500) });
@@ -95,6 +96,7 @@ export default function AdminDashboard() {
     { id: "devices",      label: "Legacy Devices",    icon: Smartphone, count: devices.length },
     { id: "activations",  label: "Recent Activations",icon: Clock,      count: recentActivations.length },
     { id: "leads",        label: "All Leads",         icon: Star,       count: leads.length },
+    { id: "appointments", label: "All Appointments",  icon: CheckCircle2, count: allAppointments.length },
     { id: "prospects",    label: "Prospect Clients",  icon: UserPlus2,  count: prospectLeads.length },
     { id: "analytics",    label: "Analytics",         icon: BarChart3 },
   ];
@@ -615,6 +617,80 @@ export default function AdminDashboard() {
                   <div className="text-center py-12 text-slate-400">
                     <Clock className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No device activations yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All Appointments */}
+        {tab === "appointments" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total", value: allAppointments.length, color: "#FF7A00" },
+                { label: "Pending", value: allAppointments.filter(a => a.status === "pending").length, color: "#FDBA21" },
+                { label: "Confirmed", value: allAppointments.filter(a => a.status === "confirmed").length, color: "#22c55e" },
+                { label: "Completed", value: allAppointments.filter(a => a.status === "completed").length, color: "#06b6d4" },
+              ].map(s => (
+                <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {["Customer","Date/Time","Contact","Source Profile","Status","Created"].map(h => (
+                        <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allAppointments.map(a => {
+                      const srcProfile = profiles.find(p => p.id === a.profile_id);
+                      const statusColors = { pending: "#FDBA21", confirmed: "#22c55e", completed: "#06b6d4", cancelled: "#ef4444" };
+                      return (
+                        <tr key={a.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                          <td className="px-4 py-4">
+                            <p className="font-bold text-white text-sm">{a.visitor_name || "—"}</p>
+                          </td>
+                          <td className="px-4 py-4">
+                            <p className="text-sm text-white/70">{a.date || "—"}</p>
+                            <p className="text-xs text-white/40">{a.time_slot || ""}</p>
+                          </td>
+                          <td className="px-4 py-4">
+                            {a.visitor_email && <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>📧 {a.visitor_email}</p>}
+                            {a.visitor_phone && <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>📞 {a.visitor_phone}</p>}
+                          </td>
+                          <td className="px-4 py-4">
+                            {srcProfile ? (
+                              <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#FF7A00" }}>{srcProfile.display_name || srcProfile.username}</a>
+                            ) : <span className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>{a.profile_id?.slice(0,10)}…</span>}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize" style={{ background: `${statusColors[a.status] || "#FDBA21"}20`, color: statusColors[a.status] || "#FDBA21", border: `1px solid ${statusColors[a.status] || "#FDBA21"}40` }}>
+                              {a.status || "pending"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {a.created_date?.slice(0, 10) || "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {allAppointments.length === 0 && (
+                  <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No appointments yet</p>
                   </div>
                 )}
               </div>
