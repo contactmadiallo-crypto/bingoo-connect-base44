@@ -336,8 +336,32 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
     setResumeUploading(false);
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     localStorage.setItem("bingoo_onboarding_done", "1");
+    // If this was a job seeker or resume-based profile, also save as a Resume record
+    if (userType === "job_seeker" || userType === "student" || resumeText) {
+      try {
+        await base44.entities.Resume.create({
+          display_name: editedProfile.display_name || "",
+          job_title: editedProfile.job_title || "",
+          bio: editedProfile.bio || "",
+          skills: editedProfile.skills || answers.skills || "",
+          experience: editedProfile.experience || answers.experience || "",
+          education: editedProfile.education || answers.education || "",
+          email: editedProfile.email || "",
+          phone: editedProfile.phone || "",
+          location: editedProfile.location || "",
+          linkedin_url: editedProfile.linkedin_url || "",
+          website: editedProfile.website || "",
+          company_name: editedProfile.company_name || "",
+          is_public: true,
+          attached_to_profile: false,
+          source: resumeText ? "resume_upload" : "ai_chat",
+        });
+      } catch (e) {
+        // non-blocking
+      }
+    }
     onComplete(editedProfile);
   };
 

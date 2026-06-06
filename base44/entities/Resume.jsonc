@@ -1,0 +1,119 @@
+{
+  "name": "Resume",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "description": "Linked profile ID (optional)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Resume title e.g. 'Software Engineer Resume'"
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "bio": {
+      "type": "string"
+    },
+    "skills": {
+      "type": "string"
+    },
+    "experience": {
+      "type": "string"
+    },
+    "education": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "linkedin_url": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "instagram_url": {
+      "type": "string"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this resume is publicly visible"
+    },
+    "attached_to_profile": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this resume is attached to the public profile"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "ai_chat",
+        "resume_upload",
+        "manual"
+      ],
+      "default": "manual"
+    }
+  },
+  "required": [
+    "display_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.is_public": true
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
