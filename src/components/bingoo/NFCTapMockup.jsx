@@ -3,22 +3,28 @@ import { useEffect, useRef } from "react";
 
 const profileRows = [
   { delay: 0.04, content: (
-    <div className="flex flex-col items-center pt-3 pb-1">
-      <p className="font-black text-slate-900 text-xs mt-1 leading-tight">Amadou Diallo</p>
-      <p className="text-blue-600 text-[9px] font-semibold">Real Estate · Dakar</p>
+    <div className="flex flex-col items-center pt-2 pb-1 px-2">
+      <p className="font-black text-slate-800 text-xs mt-1 leading-tight">Bingoo Connect</p>
+      <p className="text-[9px] font-semibold mt-0.5" style={{ color: "#6b7280" }}>Digital Business Platform</p>
     </div>
   )},
   { delay: 0.10, content: (
     <div className="grid grid-cols-3 gap-1 px-3 mb-2">
-      {["💬","📞","📧"].map(ic => (
-        <div key={ic} className="bg-blue-50 rounded-lg py-1.5 text-center text-sm">{ic}</div>
+      {["📞","💬","📧"].map(ic => (
+        <div key={ic} className="rounded-xl py-1.5 text-center text-sm font-medium"
+          style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.7)", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          {ic}
+        </div>
       ))}
     </div>
   )},
   { delay: 0.16, content: (
     <div className="px-3 space-y-1">
-      {["🏠 View Listings","📅 Book Meeting","📍 Location"].map(b => (
-        <div key={b} className="bg-slate-50 border border-slate-100 rounded-lg py-1 px-2 text-[9px] text-slate-700 font-semibold text-center">{b}</div>
+      {["📅 Book Appointment","🔗 View Profile","📍 Location"].map(b => (
+        <div key={b} className="rounded-xl py-1 px-2 text-[9px] font-semibold text-center"
+          style={{ background: "rgba(255,255,255,0.5)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.65)", color: "#374151", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+          {b}
+        </div>
       ))}
     </div>
   )},
@@ -110,7 +116,7 @@ export default function NFCTapMockup() {
             {/* Profile area */}
             <div className="relative overflow-hidden" style={{ minHeight: 248 }}>
               {/* Idle state */}
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-slate-50 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #b8c8e8 0%, #c5b8d8 35%, #d4c5a8 70%, #b8c0d8 100%)" }}>
                 <motion.div animate={{ opacity: [0.3, 0.8, 0.3], scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>
                   <div className="w-10 h-10 rounded-full border-2 border-blue-200 flex items-center justify-center">
                     <span className="text-blue-300 text-base">📶</span>
@@ -125,16 +131,31 @@ export default function NFCTapMockup() {
               />
 
               {/* Profile panel — slides up */}
-              <motion.div animate={profileCtrl} className="absolute inset-0 bg-white z-10 flex flex-col">
-                {/* Cover */}
-                <div className="h-16 bg-gradient-to-br from-blue-500 to-blue-700 relative flex-shrink-0">
-                  <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-white border-[2.5px] border-white shadow-lg flex items-center justify-center text-2xl">👤</div>
+              <motion.div animate={profileCtrl} className="absolute inset-0 z-10 flex flex-col"
+                style={{ background: "linear-gradient(135deg, #b8c8e8 0%, #c5b8d8 35%, #d4c5a8 70%, #b8c0d8 100%)" }}>
+                {/* Glassmorphic card top */}
+                <div className="flex flex-col items-center pt-4 pb-2 mx-2 mt-2 rounded-2xl"
+                  style={{ background: "rgba(255,255,255,0.38)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                  <div className="w-11 h-11 rounded-xl bg-white shadow-md overflow-hidden flex items-center justify-center mb-1.5">
+                    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png" alt="Bingoo" className="w-full h-full object-contain p-1" />
+                  </div>
+                  {profileRows[0] && (
+                    <motion.div
+                      key={0}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.28 + profileRows[0].delay, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {profileRows[0].content}
+                    </motion.div>
+                  )}
                 </div>
 
-                <div className="pt-7">
-                  {profileRows.map((row, i) => (
+                <div className="mx-2 mt-2 rounded-2xl pb-2 pt-1"
+                  style={{ background: "rgba(255,255,255,0.32)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.55)", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
+                  {profileRows.slice(1).map((row, i) => (
                     <motion.div
-                      key={i}
+                      key={i + 1}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.28 + row.delay, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
