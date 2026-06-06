@@ -8,8 +8,10 @@ export default function PublicResume() {
 
   const { data: resume, isLoading, isError } = useQuery({
     queryKey: ["public-resume", resumeId],
-    queryFn: () => base44.entities.Resume.filter({ id: resumeId }),
-    select: (data) => data?.[0],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getPublicResume", { resumeId });
+      return res.data?.resume;
+    },
     enabled: !!resumeId,
   });
 

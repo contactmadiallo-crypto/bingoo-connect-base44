@@ -78,6 +78,7 @@ const AuthenticatedApp = () => {
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
+      <Route path="/r/:resumeId" element={<PublicResume />} />
 
       {/* ── ALL PROTECTED ROUTES ── */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
