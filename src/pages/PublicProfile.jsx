@@ -9,6 +9,7 @@ import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
+import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
   XIcon, WhatsAppIcon, SnapchatIcon, WebsiteIcon, MapPinIcon,
@@ -285,18 +286,11 @@ export default function PublicProfile() {
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);
 
-  const pageBg = profile.bg_style === "night"
-    ? "linear-gradient(160deg, #080a18 0%, #0d1022 100%)"
-    : `linear-gradient(160deg, ${hexRgb(color, 0.05)} 0%, #f8fafc 100%)`;
-
-  const isDark = profile.bg_style === "night";
+  const darkLayouts = ["dark", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk", "forest", "ocean"];
+  const isDark = profile.bg_style === "night" || darkLayouts.includes(profile.layout);
 
   return (
-    <div ref={topRef} style={{ minHeight: "100vh", background: pageBg, position: "relative", overflowX: "hidden" }}>
-
-      {/* Ambient orbs */}
-      <Orb delay={0} style={{ top: "-8%", left: "-8%", width: "60vw", height: "60vw", maxWidth: 400, maxHeight: 400, background: `radial-gradient(circle, ${hexRgb(color, isDark ? 0.25 : 0.12)} 0%, transparent 70%)` }} />
-      <Orb delay={3} style={{ bottom: "5%", right: "-5%", width: "50vw", height: "50vw", maxWidth: 350, maxHeight: 350, background: `radial-gradient(circle, ${hexRgb(color, isDark ? 0.15 : 0.08)} 0%, transparent 70%)` }} />
+    <div ref={topRef} style={{ position: "relative", overflowX: "hidden" }}>
 
       {/* Back button */}
       <motion.button
@@ -317,58 +311,43 @@ export default function PublicProfile() {
       </motion.button>
 
       {/* Main card */}
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", padding: mobile ? "0 0 140px" : "32px 16px 100px", position: "relative", zIndex: 1 }}>
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}
-        >
+      <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
+        {/* ── COVER + HEADER ── */}
+        <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
+          {/* Cover image / gradient */}
+          <div style={{
+            height: mobile ? 190 : 220,
+            background: profile.cover_photo
+              ? `url(${profile.cover_photo}) center/contain no-repeat, linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`
+              : `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
+            position: "relative",
+          }}>
+            {/* Pattern overlay */}
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
+            {/* Bottom gradient */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.3))" }} />
 
-          {/* ── COVER + HEADER ── */}
-          <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
-            {/* Cover image / gradient */}
-            <div style={{
-              height: mobile ? 190 : 220,
-              background: profile.cover_photo
-                ? `url(${profile.cover_photo}) center/contain no-repeat, linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`
-                : `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
-              position: "relative",
-            }}>
-              {/* Pattern overlay */}
-              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
-              {/* Bottom gradient */}
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.3))" }} />
+            {/* Company logo overlay */}
+            {profile.company_logo && (
+              <motion.img src={profile.company_logo} alt="Logo"
+                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
+                style={{ position: "absolute", top: 20, left: 20, height: 44, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }}
+              />
+            )}
 
-              {/* Company logo overlay */}
-              {profile.company_logo && (
-                <motion.img src={profile.company_logo} alt="Logo"
-                  initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-                  style={{ position: "absolute", top: 20, left: 20, height: 44, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }}
-                />
-              )}
+            {/* Pro badge */}
+            {profile.plan !== "free" && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: "spring" }}
+                style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.5)" }}
+              >
+                ✦ VERIFIED PRO
+              </motion.div>
+            )}
+          </div>
 
-              {/* Pro badge */}
-              {profile.plan !== "free" && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: "spring" }}
-                  style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.5)" }}
-                >
-                  ✦ VERIFIED PRO
-                </motion.div>
-              )}
-            </div>
-
-            {/* Card body */}
-            <div style={{
-              background: isDark ? "rgba(10,12,28,0.95)" : "rgba(255,255,255,0.97)",
-              backdropFilter: "blur(24px)",
-              border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(255,255,255,0.9)",
-              borderTop: "none",
-              borderRadius: mobile ? 0 : "0 0 28px 28px",
-              boxShadow: isDark ? "0 40px 80px rgba(0,0,0,0.6)" : `0 32px 80px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.9)`,
-              overflow: "visible",
-            }}>
+          {/* Card body — transparent so the shell background shows */}
+          <div style={{ overflow: "visible" }}>
 
               {/* Avatar section */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: -60, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
@@ -515,8 +494,7 @@ export default function PublicProfile() {
               </div>
             </div>
           </div>
-        </motion.div>
-      </div>
+        </ProfileLayoutShell>
 
       {/* ── STICKY BOTTOM BAR ── */}
       {profile.phone && (
