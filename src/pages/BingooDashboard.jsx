@@ -450,7 +450,7 @@ export default function BingooDashboard() {
             </FeatureGate>
           )}
           {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
-          {tab === "design"       && <DesignTab profile={profile} />}
+          {tab === "design"       && <DesignTab profile={profile} user={user} />}
 
         </div>
       </div>
@@ -476,6 +476,7 @@ export default function BingooDashboard() {
                   refetchProfiles();
                   setShowLayoutPicker(false);
                 }}
+                isAdmin={user?.role === 'admin'}
               />
             </div>
           </div>

@@ -7,12 +7,13 @@ import { Eye, Check, Lock, Upload, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
-export default function DesignTab({ profile }) {
+export default function DesignTab({ profile, user }) {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(null);
 
-  const isPro = profile?.plan === "pro" || profile?.plan === "business";
+  const isAdmin = user?.role === 'admin';
+  const isPro = isAdmin || profile?.plan === "pro" || profile?.plan === "business";
   const currentLayout = profile?.layout || "classic";
   const color = profile?.cover_color || "#2563eb";
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
