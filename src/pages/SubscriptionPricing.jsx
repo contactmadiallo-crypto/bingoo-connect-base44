@@ -196,8 +196,6 @@ export default function SubscriptionPricing() {
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
           <div className="h-5 w-px bg-white/10 mx-1" />
-          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
-            alt="Bingoo Connect" className="h-8 w-auto object-contain" />
           <div className="ml-auto">
             <Link to="/billing" className="text-white/60 hover:text-white text-sm font-semibold transition-colors">
               Manage Billing →
