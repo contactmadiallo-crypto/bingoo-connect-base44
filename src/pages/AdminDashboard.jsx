@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2 } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2 } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
 const PLAN_COLORS = {
@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list() });
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
   const { data: subscriptions = [], refetch: refetchSubs } = useQuery({ queryKey: ["admin-subscriptions"], queryFn: () => base44.entities.Subscription.list("-created_date", 200) });
+  const { data: prospectLeads = [], refetch: refetchProspects } = useQuery({ queryKey: ["admin-prospect-leads"], queryFn: () => base44.entities.ProspectLead.list("-created_at", 500) });
   const [subSearch, setSubSearch] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("all");
   const [subStatusFilter, setSubStatusFilter] = useState("all");
@@ -94,6 +95,7 @@ export default function AdminDashboard() {
     { id: "devices",      label: "Legacy Devices",    icon: Smartphone, count: devices.length },
     { id: "activations",  label: "Recent Activations",icon: Clock,      count: recentActivations.length },
     { id: "leads",        label: "All Leads",         icon: Star,       count: leads.length },
+    { id: "prospects",    label: "Prospect Clients",  icon: UserPlus2,  count: prospectLeads.length },
     { id: "analytics",    label: "Analytics",         icon: BarChart3 },
   ];
 
@@ -613,6 +615,103 @@ export default function AdminDashboard() {
                   <div className="text-center py-12 text-slate-400">
                     <Clock className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No device activations yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Prospect Clients */}
+        {tab === "prospects" && (
+          <div className="space-y-4">
+            {/* Summary row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total Prospects", value: prospectLeads.length, color: "#FF7A00" },
+                { label: "New", value: prospectLeads.filter(p => p.status === "new").length, color: "#FDBA21" },
+                { label: "Contacted", value: prospectLeads.filter(p => p.status === "contacted").length, color: "#06b6d4" },
+                { label: "Converted", value: prospectLeads.filter(p => p.status === "converted").length, color: "#22c55e" },
+              ].map(s => (
+                <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {["Prospect","Contact","Interest","Source","Date","Status"].map(h => (
+                        <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {prospectLeads.map(p => {
+                      const srcProfile = profiles.find(pr => pr.id === p.source_profile_id);
+                      const statusColors = { new: "#FDBA21", contacted: "#06b6d4", converted: "#22c55e", closed: "#ef4444" };
+                      return (
+                        <tr key={p.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                          <td className="px-4 py-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+                                {p.visitor_name?.charAt(0) || "?"}
+                              </div>
+                              <p className="font-bold text-white text-sm">{p.visitor_name || "Anonymous"}</p>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            {p.visitor_email && <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>📧 {p.visitor_email}</p>}
+                            {p.visitor_phone && <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>📞 {p.visitor_phone}</p>}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "rgba(255,122,0,0.18)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                              {p.interested_in || "—"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            {srcProfile ? (
+                              <div>
+                                <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#FF7A00" }}>{srcProfile.display_name || srcProfile.username}</a>
+                                {p.source_device_code && <p className="text-xs mt-0.5 font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>📟 {p.source_device_code}</p>}
+                              </div>
+                            ) : <span className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>{p.source_profile_id?.slice(0,10)}…</span>}
+                          </td>
+                          <td className="px-4 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {p.created_at ? new Date(p.created_at).toLocaleDateString() : "—"}
+                          </td>
+                          <td className="px-4 py-4">
+                            <select
+                              value={p.status || "new"}
+                              onChange={async e => {
+                                await base44.entities.ProspectLead.update(p.id, { status: e.target.value });
+                                refetchProspects();
+                                toast.success("Status updated");
+                              }}
+                              className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
+                              style={{ background: `${statusColors[p.status] || "#FDBA21"}20`, color: statusColors[p.status] || "#FDBA21", border: `1px solid ${statusColors[p.status] || "#FDBA21"}40` }}>
+                              <option value="new">New</option>
+                              <option value="contacted">Contacted</option>
+                              <option value="converted">Converted</option>
+                              <option value="closed">Closed</option>
+                            </select>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {prospectLeads.length === 0 && (
+                  <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    <UserPlus2 className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No prospect leads yet</p>
+                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.15)" }}>They'll appear here when visitors tap NFC profiles and interact with the popup.</p>
                   </div>
                 )}
               </div>

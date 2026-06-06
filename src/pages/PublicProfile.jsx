@@ -8,6 +8,7 @@ import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
+import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
   XIcon, WhatsAppIcon, SnapchatIcon, WebsiteIcon, MapPinIcon,
@@ -150,7 +151,7 @@ function PaymentBtn({ p, i, color }) {
         whileTap={{ scale: 0.95 }}
         style={{
           display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-          padding: "14px 10px", borderRadius: 18, border: "none", cursor: "pointer",
+          padding: "14px 10px", borderRadius: 18, cursor: "pointer",
           background: `linear-gradient(135deg, ${hexRgb(color, 0.1)}, ${hexRgb(color, 0.05)})`,
           border: `1.5px solid ${hexRgb(color, 0.2)}`, color, fontWeight: 800, fontSize: 10,
           textTransform: "uppercase", letterSpacing: "0.05em", minHeight: 76,
@@ -197,6 +198,8 @@ export default function PublicProfile() {
   const { username } = useParams();
   const mobile = useIsMobile();
   const isDemo = username === "demo";
+  const urlParams = new URLSearchParams(window.location.search);
+  const deviceCodeParam = urlParams.get("device") || urlParams.get("d") || null;
   const topRef = useRef(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [bookOpen, setBookOpen] = useState(false);
@@ -562,6 +565,9 @@ export default function PublicProfile() {
 
       {/* Appointment modal */}
       {bookOpen && <AppointmentBooking profile={profile} onClose={() => setBookOpen(false)} />}
+
+      {/* Prospect marketing popup */}
+      <ProspectPopup profileId={profile?.id} deviceCode={deviceCodeParam} isDemo={isDemo} />
     </div>
   );
 }
