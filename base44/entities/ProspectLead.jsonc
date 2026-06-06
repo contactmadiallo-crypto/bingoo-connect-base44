@@ -1,0 +1,70 @@
+{
+  "name": "ProspectLead",
+  "type": "object",
+  "properties": {
+    "source_profile_id": {
+      "type": "string"
+    },
+    "source_device_code": {
+      "type": "string"
+    },
+    "visitor_name": {
+      "type": "string"
+    },
+    "visitor_email": {
+      "type": "string"
+    },
+    "visitor_phone": {
+      "type": "string"
+    },
+    "interested_in": {
+      "type": "string",
+      "enum": [
+        "NFC Card",
+        "Business Profile",
+        "Resume Profile",
+        "Restaurant Menu",
+        "Appointment Booking",
+        "Team Cards"
+      ],
+      "default": "NFC Card"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "converted",
+        "closed"
+      ],
+      "default": "new"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "source_profile_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": null
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
