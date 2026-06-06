@@ -141,26 +141,34 @@ export default function SubscriptionPricing() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === '1') {
-      const plan = params.get('plan');
-      setSuccessMsg(`🎉 You're now on the ${PLANS.find(p => p.id === plan)?.name || plan} plan! Welcome aboard.`);
-      base44.auth.me().then(user => {
-        if (user?.id) {
-          base44.entities.Profile.filter({ created_by_id: user.id }).then(profiles => {
-            if (profiles?.[0]?.id) base44.entities.Profile.update(profiles[0].id, { plan });
-            setCurrentPlan(plan || 'free');
-          }).catch(() => {});
+    const isSuccess = params.get('success') === '1';
+    const successPlan = params.get('plan');
+
+    base44.auth.me().then(user => {
+      if (!user?.id) return;
+
+      // Load both profile plan AND subscription to determine true active plan
+      Promise.all([
+        base44.entities.Profile.filter({ created_by_id: user.id }).catch(() => []),
+        base44.entities.Subscription.filter({ customer_email: user.email }).catch(() => []),
+      ]).then(([profiles, subscriptions]) => {
+        const profilePlan = profiles?.[0]?.plan || 'free';
+        const sub = subscriptions?.[0];
+        const subPlan = (sub?.status === 'active' || sub?.status === 'free') ? (sub.plan || 'free') : 'free';
+
+        // Pick the higher plan between subscription and profile
+        const HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 3, lawfirm: 4, business: 4, corporate: 5 };
+        const activePlan = (HIERARCHY[subPlan] || 0) >= (HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
+
+        if (isSuccess && successPlan) {
+          setSuccessMsg(`🎉 You're now on the ${PLANS.find(p => p.id === successPlan)?.name || successPlan} plan! Welcome aboard.`);
+          if (profiles?.[0]?.id) base44.entities.Profile.update(profiles[0].id, { plan: successPlan });
+          setCurrentPlan(successPlan);
+        } else {
+          setCurrentPlan(activePlan);
         }
-      }).catch(() => {});
-    } else {
-      base44.auth.me().then(user => {
-        if (user?.id) {
-          base44.entities.Profile.filter({ created_by_id: user.id }).then(profiles => {
-            if (profiles?.[0]?.plan) setCurrentPlan(profiles[0].plan);
-          }).catch(() => {});
-        }
-      }).catch(() => {});
-    }
+      });
+    }).catch(() => {});
   }, []);
 
   const handleSubscribe = async (plan) => {
@@ -184,7 +192,10 @@ export default function SubscriptionPricing() {
     }
   };
 
-  const isCurrent = (planId) => currentPlan === planId || (planId === 'professional' && currentPlan === 'pro');
+  const isCurrent = (planId) => {
+    const normalized = currentPlan === 'pro' ? 'professional' : currentPlan;
+    return normalized === planId || currentPlan === planId;
+  };
 
   return (
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
