@@ -190,7 +190,7 @@ export default function MyNFCDevices() {
               <Button
                 onClick={() => { setShowActivate(v => !v); setShowAdd(false); }}
                 variant="outline"
-                className={`font-bold gap-2 ${isDark ? "border-white/20 text-white hover:bg-white/10" : ""}`}
+                className={`font-bold gap-2 ${isDark ? "bg-white/10 border-white/30 text-white hover:bg-white/20" : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"}`}
               >
                 🔑 Activate Code
               </Button>
