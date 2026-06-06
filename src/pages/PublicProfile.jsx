@@ -331,7 +331,7 @@ export default function PublicProfile() {
             <div style={{
               height: mobile ? 190 : 220,
               background: profile.cover_photo
-                ? `url(${profile.cover_photo}) center/cover`
+                ? `url(${profile.cover_photo}) center/contain no-repeat, linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`
                 : `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
               position: "relative",
             }}>
