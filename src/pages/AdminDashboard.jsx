@@ -82,45 +82,72 @@ export default function AdminDashboard() {
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
+  // Bingoo brand colors for admin
+  const navyBg = "#071d47";
+  const navyCard = "#0B2E6B";
+  const orange = "#FF7A00";
+  const gold = "#FDBA21";
+
   return (
     <BingooLayout>
+      <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071d47 0%, #0B2E6B 50%, #0f3d8c 100%)" }}>
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-200">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
+        <div className="flex items-center gap-4 mb-8 pt-2">
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+            alt="Bingoo Connect"
+            className="h-10 w-auto object-contain"
+          />
+          <div className="h-8 w-px bg-white/10" />
           <div>
-            <h1 className="text-2xl font-black text-slate-900">Admin Dashboard</h1>
-            <p className="text-slate-500 text-sm">Bingoo Connect — Super Admin</p>
+            <h1 className="text-2xl font-black text-white">Admin Dashboard</h1>
+            <p className="text-white/40 text-sm">Super Admin Control Panel</p>
+          </div>
+          <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full"
+            style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
+            <Shield className="w-4 h-4" style={{ color: gold }} />
+            <span className="text-xs font-black" style={{ color: gold }}>ADMIN</span>
           </div>
         </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Profiles", value: profiles.length, icon: Users, color: "blue" },
-            { label: "NFC Devices", value: devices.length, icon: Smartphone, color: "purple" },
-            { label: "Total Leads", value: leads.length, icon: Star, color: "amber" },
-            { label: "Total Events", value: analytics.length, icon: BarChart3, color: "green" },
+            { label: "Total Profiles", value: profiles.length, icon: Users, accent: orange },
+            { label: "NFC Devices", value: devices.length, icon: Smartphone, accent: gold },
+            { label: "Total Leads", value: leads.length, icon: Star, accent: "#22c55e" },
+            { label: "Analytics Events", value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
           ].map(s => (
-            <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-5">
-              <div className={`w-10 h-10 rounded-xl mb-3 flex items-center justify-center bg-${s.color}-50`}>
-                <s.icon className={`w-5 h-5 text-${s.color}-600`} />
+            <div key={s.label} className="rounded-2xl p-5 border"
+              style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
+                style={{ background: s.accent + "20" }}>
+                <s.icon className="w-5 h-5" style={{ color: s.accent }} />
               </div>
-              <p className="text-2xl font-black text-slate-900">{s.value}</p>
-              <p className="text-slate-500 text-xs mt-0.5">{s.label}</p>
+              <p className="text-2xl font-black text-white">{s.value}</p>
+              <p className="text-xs mt-0.5 text-white/40">{s.label}</p>
             </div>
           ))}
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white border border-slate-100 rounded-2xl p-1.5 mb-6 overflow-x-auto">
+        <div className="flex gap-1 rounded-2xl p-1.5 mb-6 overflow-x-auto"
+          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${tab === t.id ? "bg-purple-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"}`}>
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all"
+              style={{
+                background: tab === t.id ? orange : "transparent",
+                color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)",
+              }}>
               <t.icon className="w-4 h-4" />{t.label}
-              {t.count !== undefined && <span className={`rounded-full px-1.5 py-0.5 text-xs ${tab === t.id ? "bg-white/20" : "bg-slate-100 text-slate-500"}`}>{t.count}</span>}
+              {t.count !== undefined && (
+                <span className="rounded-full px-1.5 py-0.5 text-xs"
+                  style={{ background: tab === t.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
+                  {t.count}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -130,70 +157,83 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input className="pl-9 border-slate-200" placeholder="Search by name, username, company..." value={search} onChange={e => setSearch(e.target.value)} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <Input className="pl-9" placeholder="Search by name, username, company..."
+                  value={search} onChange={e => setSearch(e.target.value)}
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
               </div>
               <div className="flex gap-2">
-                {["all","free","pro","business"].map(p => (
-                  <button key={p} onClick={() => setPlanFilter(p)} className={`px-3 py-2 rounded-xl text-sm font-bold transition-all ${planFilter === p ? "bg-blue-600 text-white" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                {["all","free","pro","business","lawfirm"].map(p => (
+                  <button key={p} onClick={() => setPlanFilter(p)}
+                    className="px-3 py-2 rounded-xl text-sm font-bold transition-all"
+                    style={{
+                      background: planFilter === p ? orange : "rgba(255,255,255,0.07)",
+                      color: planFilter === p ? "#fff" : "rgba(255,255,255,0.5)",
+                      border: "1px solid rgba(255,255,255,0.08)"
+                    }}>
                     {p.charAt(0).toUpperCase() + p.slice(1)}
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <div className="rounded-2xl overflow-hidden border"
+              style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Profile</th>
-                      <th className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">Username</th>
-                      <th className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Plan</th>
-                      <th className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:table-cell">Company</th>
-                      <th className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Actions</th>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {["Profile","Username","Plan","Company","Actions"].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody>
                     {filteredProfiles.map(p => (
-                      <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                      <tr key={p.id} className="transition-colors"
+                        style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             {p.profile_photo
                               ? <img src={p.profile_photo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" alt="" />
-                              : <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0" style={{ background: p.cover_color || "#2563eb" }}>{p.display_name?.charAt(0)}</div>
+                              : <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0" style={{ background: p.cover_color || "#0B2E6B" }}>{p.display_name?.charAt(0)}</div>
                             }
                             <div>
-                              <p className="font-bold text-slate-900 text-sm">{p.display_name}</p>
-                              <p className="text-slate-400 text-xs">{p.job_title}</p>
+                              <p className="font-bold text-white text-sm">{p.display_name}</p>
+                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{p.job_title}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-4 hidden md:table-cell">
-                          <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-sm font-mono hover:underline">/p/{p.username}</a>
+                        <td className="px-5 py-4">
+                          <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{p.username}</a>
                         </td>
                         <td className="px-5 py-4">
                           <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
-                            className={`px-2.5 py-1 rounded-full text-xs font-bold border-0 cursor-pointer ${PLAN_COLORS[p.plan || "free"]}`}>
+                            className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
+                            style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
                             <option value="free">Free</option>
                             <option value="pro">Pro</option>
                             <option value="business">Business</option>
+                            <option value="lawfirm">Law Firm</option>
                           </select>
                         </td>
-                        <td className="px-5 py-4 hidden lg:table-cell text-sm text-slate-500">{p.company_name || "—"}</td>
+                        <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{p.company_name || "—"}</td>
                         <td className="px-5 py-4">
-                          <div className="flex gap-1">
-                            <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer">
-                              <Button variant="ghost" size="sm" className="text-xs h-7 px-2 text-blue-600">View</Button>
-                            </a>
-                          </div>
+                          <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer">
+                            <Button size="sm" className="text-xs h-7 px-3 font-bold"
+                              style={{ background: "rgba(255,122,0,0.15)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                              View
+                            </Button>
+                          </a>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 {filteredProfiles.length === 0 && (
-                  <div className="text-center py-12 text-slate-400">
+                  <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No profiles found</p>
                   </div>
@@ -453,6 +493,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Force Reset Confirmation Modal */}

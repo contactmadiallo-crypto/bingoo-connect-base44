@@ -132,7 +132,7 @@ export default function BingooDashboard() {
           <div className={`relative rounded-3xl overflow-hidden mb-6 ${isDark ? "bg-gradient-to-br from-[#13162a] to-[#0d1022]" : "bg-white"}`}
             style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.4)" : "0 1px 0 rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.07)" }}>
             {/* Gradient accent bar at top */}
-            <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)` }} />
+            <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, #0B2E6B, #FF7A00, #FDBA21)` }} />
             <div className="p-5 md:p-7">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex-1 min-w-0">
@@ -385,15 +385,16 @@ export default function BingooDashboard() {
             {/* Upgrade CTA */}
             {profile?.plan === "free" && (
               <div className="relative rounded-2xl p-5 overflow-hidden"
-                style={{ background: isDark ? "linear-gradient(135deg,rgba(37,99,235,0.15),rgba(124,58,237,0.12))" : "linear-gradient(135deg,#eff6ff,#f5f3ff)", border: `1px solid ${isDark ? "rgba(99,102,241,0.22)" : "rgba(99,102,241,0.15)"}`, boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.3)" : "0 4px 20px rgba(99,102,241,0.1)" }}>
-                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+                style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", border: "1px solid rgba(255,122,0,0.3)", boxShadow: "0 8px 32px rgba(11,46,107,0.3)" }}>
+                <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(255,122,0,0.15)" }} />
                 <div className="relative flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1">
-                    <h3 className={`text-lg font-black mb-0.5 ${headText}`}>Unlock Full Power 🚀</h3>
-                    <p className={`text-sm ${subText}`}>Pro analytics, lead capture, unlimited links & more.</p>
+                    <h3 className="text-lg font-black mb-0.5 text-white">Unlock Full Power 🚀</h3>
+                    <p className="text-sm text-white/60">Pro analytics, lead capture, booking & unlimited devices.</p>
                   </div>
-                  <Link to="/pricing" className="flex-shrink-0">
-                    <Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold gap-2 shadow-lg shadow-blue-500/25">
+                  <Link to="/plans" className="flex-shrink-0">
+                    <Button className="rounded-xl font-bold gap-2 text-white border-none"
+                      style={{ background: "#FF7A00" }}>
                       View Plans <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>

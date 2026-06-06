@@ -89,16 +89,15 @@ export default function BingooLayout({ children }) {
 
   const SidebarContent = ({ onNav }) => (
     <>
-      <div className="px-5 py-6" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
+      <div className="px-5 py-5" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <Zap className="w-5 h-5 text-white fill-white" />
-          </div>
-          <div>
-            <div className={`font-black text-lg leading-none ${t.text}`}>Bingoo<span className="text-blue-500">Connect</span></div>
-            <div className={`text-[10px] uppercase tracking-widest mt-0.5 ${t.textMuted}`}>Digital Identity</div>
-          </div>
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+            alt="Bingoo Connect"
+            className="h-10 w-auto object-contain"
+          />
         </div>
+        <div className={`text-[10px] uppercase tracking-widest mt-2 font-bold ${t.textMuted}`}>CONNECT • SHARE • GROW • SUCCEED</div>
       </div>
 
       <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
@@ -147,10 +146,11 @@ export default function BingooLayout({ children }) {
       <header className="md:hidden fixed top-0 inset-x-0 z-30 px-4 flex items-center justify-between safe-top"
         style={{ background: t.headerBg, borderBottom: `1px solid ${t.headerBorder}`, paddingTop: `calc(0.75rem + env(safe-area-inset-top))`, paddingBottom: "0.75rem" }}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white fill-white" />
-          </div>
-          <span className={`font-black ${t.text}`}>Bingoo<span className="text-blue-500">Connect</span></span>
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+            alt="Bingoo Connect"
+            className="h-8 w-auto object-contain"
+          />
         </div>
         <div className="flex items-center gap-2">
           <button onClick={toggle} className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/50" : "hover:bg-slate-100 text-slate-400"}`}>
