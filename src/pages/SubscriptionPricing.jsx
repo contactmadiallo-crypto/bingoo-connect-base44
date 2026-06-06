@@ -27,7 +27,7 @@ const PLANS = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 14.99,
+    price: 4.99,
     description: 'For professionals',
     icon: <Star className="w-5 h-5" />,
     features: [
@@ -47,7 +47,7 @@ const PLANS = [
   {
     id: 'business',
     name: 'Business',
-    price: 49.99,
+    price: 14.99,
     description: 'For teams & companies',
     icon: <Shield className="w-5 h-5" />,
     features: [

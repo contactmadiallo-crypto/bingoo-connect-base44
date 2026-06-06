@@ -77,7 +77,12 @@ export function maxTeamMembers(userPlan) {
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
-  if (status === 'active') return plan || 'free';
-  if (status === 'canceled' || status === 'past_due') return 'free';
+  // 'free' or 'canceled' or 'past_due' statuses mean no paid access
+  if (!status || status === 'free' || status === 'canceled' || status === 'past_due') {
+    // Still respect the plan field if it's explicitly set to pro/business
+    if (plan && plan !== 'free') return plan;
+    return 'free';
+  }
+  // active paid subscription
   return plan || 'free';
 }
