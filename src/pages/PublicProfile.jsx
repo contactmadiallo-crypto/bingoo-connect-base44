@@ -295,10 +295,10 @@ export default function PublicProfile() {
       {/* Back button */}
       <motion.button
         onClick={() => {
-          if (window.history.length > 2) {
+          if (window.history.length > 1) {
             window.history.back();
           } else {
-            window.location.href = "/";
+            window.location.href = "/bingoo";
           }
         }}
         initial={{ opacity: 0, x: -20 }}
@@ -316,24 +316,23 @@ export default function PublicProfile() {
         <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
           {/* Cover image / gradient */}
           <div style={{
-            height: mobile ? 190 : 220,
-            background: profile.cover_photo
-              ? `url(${profile.cover_photo}) center/contain no-repeat, linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`
-              : `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
+            height: mobile ? 160 : 190,
             position: "relative",
+            background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
+            overflow: "hidden",
           }}>
-            {/* Pattern overlay */}
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
-            {/* Bottom gradient */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.3))" }} />
-
-            {/* Company logo overlay */}
-            {profile.company_logo && (
-              <motion.img src={profile.company_logo} alt="Logo"
-                initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-                style={{ position: "absolute", top: 20, left: 20, height: 44, objectFit: "contain", filter: "brightness(0) invert(1)", opacity: 0.9 }}
+            {/* Cover photo — full bleed */}
+            {profile.cover_photo && (
+              <img src={profile.cover_photo} alt="Cover"
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
               />
             )}
+            {/* Pattern overlay when no cover photo */}
+            {!profile.cover_photo && (
+              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
+            )}
+            {/* Bottom gradient */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.25))" }} />
 
             {/* Pro badge */}
             {profile.plan !== "free" && (
@@ -350,7 +349,7 @@ export default function PublicProfile() {
           <div style={{ overflow: "visible" }}>
 
               {/* Avatar section */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: -60, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: -50, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
                 <div style={{ padding: mobile ? "0 20px" : "0 32px", display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <Avatar profile={profile} color={color} />
 
@@ -553,7 +552,7 @@ export default function PublicProfile() {
       {bookOpen && <AppointmentBooking profile={profile} onClose={() => setBookOpen(false)} />}
 
       {/* Prospect marketing popup */}
-      <ProspectPopup profileId={profile?.id} deviceCode={deviceCodeParam} isDemo={isDemo} />
+      <ProspectPopup profileId={profile?.id} profileOwnerId={profile?.created_by_id} deviceCode={deviceCodeParam} isDemo={isDemo} />
     </div>
   );
 }

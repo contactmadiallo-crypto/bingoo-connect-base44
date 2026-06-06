@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 import { X, Zap, ArrowRight } from "lucide-react";
 
 const STORAGE_KEY = "bingoo_prospect_closed";
@@ -15,15 +16,23 @@ function trackProspect(event, profileId) {
   }).catch(() => {});
 }
 
-export default function ProspectPopup({ profileId, deviceCode, isDemo = false }) {
+export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, isDemo = false }) {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState("banner"); // "banner" | "form"
   const [form, setForm] = useState({ name: "", phone: "", email: "", interested_in: "NFC Card" });
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
+  const { data: currentUser } = useQuery({
+    queryKey: ["current-user-popup"],
+    queryFn: () => base44.auth.me().catch(() => null),
+    retry: false,
+  });
+
+  const isOwner = currentUser && profileOwnerId && currentUser.id === profileOwnerId;
+
   useEffect(() => {
-    if (isDemo) return;
+    if (isDemo || isOwner) return;
     const closed = localStorage.getItem(STORAGE_KEY);
     if (closed && Date.now() - parseInt(closed, 10) < 24 * 60 * 60 * 1000) return;
     const timer = setTimeout(() => {
@@ -31,7 +40,7 @@ export default function ProspectPopup({ profileId, deviceCode, isDemo = false })
       if (profileId) trackProspect("prospect_popup_shown", profileId);
     }, 5000);
     return () => clearTimeout(timer);
-  }, [profileId, isDemo]);
+  }, [profileId, isDemo, isOwner]);
 
   const dismiss = () => {
     setVisible(false);

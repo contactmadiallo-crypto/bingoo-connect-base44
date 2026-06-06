@@ -47,6 +47,11 @@ export default function AppointmentBooking({ profile, onClose }) {
   const duration = profile.booking_slot_duration || 30;
   const restricted = profile.booking_restricted_emails || [];
 
+  // Parse holidays from description metadata
+  let holidays = [];
+  try { holidays = JSON.parse(profile.description || "{}").holidays || []; } catch {}
+  const holidaySet = new Set(holidays);
+
   // Build 7-day window starting from today + weekOffset*7
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -127,7 +132,7 @@ export default function AppointmentBooking({ profile, onClose }) {
               <div className="grid grid-cols-7 gap-1">
                 {days.map(d => {
                   const cfg = dayConfig(d);
-                  const available = cfg.enabled && cfg.start && cfg.end;
+                  const available = cfg.enabled && cfg.start && cfg.end && !holidaySet.has(formatDate(d));
                   const isPast = d < today;
                   const ds = formatDate(d);
                   const selected = selectedDate === ds;

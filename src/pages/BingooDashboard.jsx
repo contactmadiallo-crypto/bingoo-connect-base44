@@ -12,6 +12,7 @@ import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
 import CalendarView from "@/components/bingoo/CalendarView";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
+import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
 import FeatureGate from "@/components/bingoo/FeatureGate";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X } from "lucide-react";
@@ -29,6 +30,7 @@ const TABS = [
   { id: "analytics",     label: "Analytics",     icon: BarChart3,    color: "#ec4899" },
   { id: "portfolio",     label: "Portfolio",     icon: Briefcase,    color: "#8b5cf6" },
   { id: "design",        label: "Design",        icon: Palette,      color: "#ec4899" },
+  { id: "appt_settings", label: "Booking Setup", icon: Settings,     color: "#0d9488" },
 ];
 
 export default function BingooDashboard() {
@@ -465,6 +467,7 @@ export default function BingooDashboard() {
           )}
           {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
           {tab === "design"       && <DesignTab profile={profile} user={user} />}
+          {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
 
         </div>
       </div>

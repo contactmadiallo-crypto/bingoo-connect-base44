@@ -2,20 +2,27 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, User, Phone, Mail, Check, X, CheckCircle, Inbox, MessageSquare } from "lucide-react";
+import { CalendarDays, Clock, User, Phone, Mail, Check, X, CheckCircle, Inbox, MessageSquare, Download, Filter } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_STYLE = {
-  pending:   "bg-amber-50 text-amber-700 border-amber-200",
-  confirmed: "bg-green-50 text-green-700 border-green-200",
-  completed: "bg-blue-50 text-blue-700 border-blue-200",
-  cancelled: "bg-red-50 text-red-600 border-red-200",
+  pending:     "bg-amber-50 text-amber-700 border-amber-200",
+  confirmed:   "bg-green-50 text-green-700 border-green-200",
+  accepted:    "bg-green-50 text-green-700 border-green-200",
+  completed:   "bg-blue-50 text-blue-700 border-blue-200",
+  cancelled:   "bg-red-50 text-red-600 border-red-200",
+  declined:    "bg-red-50 text-red-600 border-red-200",
+  rescheduled: "bg-purple-50 text-purple-700 border-purple-200",
 };
 
 export default function AppointmentsPanel({ profileId }) {
   const qc = useQueryClient();
-  const [addNote, setAddNote] = useState({}); // { [id]: noteText }
+  const [addNote, setAddNote] = useState({});
   const [showNoteFor, setShowNoteFor] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [rescheduleId, setRescheduleId] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
 
   const { data: appointments = [], isLoading } = useQuery({
     queryKey: ["appointments", profileId],
@@ -28,22 +35,42 @@ export default function AppointmentsPanel({ profileId }) {
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["appointments", profileId] });
       const msgs = {
-        confirmed: "Appointment confirmed!",
-        cancelled: "Appointment declined.",
+        confirmed: "Appointment accepted!",
+        accepted: "Appointment accepted!",
+        cancelled: "Appointment cancelled.",
+        declined: "Appointment declined.",
         completed: "Marked as completed.",
+        rescheduled: "Appointment rescheduled.",
       };
       if (vars.data.status) toast.success(msgs[vars.data.status] || "Updated");
       if (vars.data.notes !== undefined) toast.success("Note saved");
       setShowNoteFor(null);
+      setRescheduleId(null);
     },
   });
+
+  const handleReschedule = (id) => {
+    if (!rescheduleDate || !rescheduleTime) return;
+    update.mutate({ id, data: { status: "rescheduled", date: rescheduleDate, time_slot: rescheduleTime } });
+    setRescheduleDate(""); setRescheduleTime("");
+  };
+
+  const exportCSV = () => {
+    const rows = [["Name", "Email", "Phone", "Date", "Time", "Status", "Notes"]];
+    appointments.forEach(a => rows.push([a.visitor_name, a.visitor_email, a.visitor_phone, a.date, a.time_slot, a.status, a.notes || ""]));
+    const csv = rows.map(r => r.map(v => `"${(v||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    Object.assign(document.createElement("a"), { href: url, download: "appointments.csv" }).click();
+    URL.revokeObjectURL(url);
+  };
 
   if (!profileId) return <div className="text-center py-12 text-slate-400">Create a profile first.</div>;
   if (isLoading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
 
   const today = new Date().toISOString().slice(0,10);
-  const upcoming = appointments.filter(a => a.status !== "cancelled" && a.status !== "completed" && (a.date || "") >= today);
-  const past = appointments.filter(a => a.status === "cancelled" || a.status === "completed" || (a.date || "") < today);
+  const filtered = filterStatus === "all" ? appointments : appointments.filter(a => (a.status || "pending") === filterStatus);
+  const upcoming = filtered.filter(a => !["cancelled","completed","declined"].includes(a.status) && (a.date || "") >= today);
+  const past = filtered.filter(a => ["cancelled","completed","declined"].includes(a.status) || (a.date || "") < today);
 
   if (appointments.length === 0) return (
     <div className="text-center py-16">
@@ -97,24 +124,47 @@ export default function AppointmentsPanel({ profileId }) {
       )}
       {a.description && <p className="text-xs text-blue-600 bg-blue-50 rounded-xl p-3">📝 {a.description}</p>}
 
-      {a.status === "pending" && (
-        <div className="flex gap-2 pt-1">
-          <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "confirmed" } })}>
-            <Check className="w-3.5 h-3.5" /> Accept
-          </Button>
-          <Button size="sm" variant="outline" className="flex-1 text-red-500 border-red-200 hover:bg-red-50 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "cancelled" } })}>
-            <X className="w-3.5 h-3.5" /> Decline
-          </Button>
+      {/* Reschedule form */}
+      {rescheduleId === a.id && (
+        <div className="space-y-2 mt-1">
+          <div className="flex gap-2">
+            <input type="date" value={rescheduleDate} onChange={e => setRescheduleDate(e.target.value)}
+              className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" />
+            <input type="time" value={rescheduleTime} onChange={e => setRescheduleTime(e.target.value)}
+              className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" />
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => handleReschedule(a.id)} disabled={!rescheduleDate || !rescheduleTime} className="flex-1 bg-purple-600 hover:bg-purple-500 text-xs">Confirm Reschedule</Button>
+            <Button size="sm" variant="outline" onClick={() => setRescheduleId(null)} className="text-xs">Cancel</Button>
+          </div>
         </div>
       )}
-      {a.status === "confirmed" && (
-        <div className="flex gap-2 pt-1">
-          <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "completed" } })}>
-            <CheckCircle className="w-3.5 h-3.5" /> Mark Completed
+
+      {["pending", "confirmed", "accepted", "rescheduled"].includes(a.status) && rescheduleId !== a.id && (
+        <div className="flex gap-2 pt-1 flex-wrap">
+          {(a.status === "pending" || a.status === "rescheduled") && (
+            <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "accepted" } })}>
+              <Check className="w-3.5 h-3.5" /> Accept
+            </Button>
+          )}
+          {(a.status === "confirmed" || a.status === "accepted") && (
+            <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "completed" } })}>
+              <CheckCircle className="w-3.5 h-3.5" /> Complete
+            </Button>
+          )}
+          <Button size="sm" variant="outline" className="flex-1 text-purple-600 border-purple-200 hover:bg-purple-50 gap-1.5 text-xs" onClick={() => setRescheduleId(a.id)}>
+            📅 Reschedule
           </Button>
-          <Button size="sm" variant="outline" className="flex-1 text-red-500 border-red-200 hover:bg-red-50 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "cancelled" } })}>
-            <X className="w-3.5 h-3.5" /> Cancel
-          </Button>
+          {a.status === "pending" && (
+            <Button size="sm" variant="outline" className="flex-1 text-red-500 border-red-200 hover:bg-red-50 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "declined" } })}>
+              <X className="w-3.5 h-3.5" /> Decline
+            </Button>
+          )}
+          {["confirmed","accepted"].includes(a.status) && (
+            <Button size="sm" variant="outline" className="flex-1 text-red-500 border-red-200 hover:bg-red-50 gap-1.5 text-xs" onClick={() => update.mutate({ id: a.id, data: { status: "cancelled" } })}>
+              <X className="w-3.5 h-3.5" /> Cancel
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -122,12 +172,23 @@ export default function AppointmentsPanel({ profileId }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <h2 className="text-xl font-black text-slate-900">Appointments</h2>
-        <div className="flex gap-2 text-xs font-semibold flex-wrap">
-          <span className="bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1">{appointments.filter(a => a.status === "pending").length} pending</span>
-          <span className="bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-1">{appointments.filter(a => a.status === "confirmed").length} confirmed</span>
-          <span className="bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-1">{appointments.filter(a => a.status === "completed").length} done</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+            className="border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none bg-white">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Accepted</option>
+            <option value="rescheduled">Rescheduled</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="declined">Declined</option>
+          </select>
+          <button onClick={exportCSV} className="flex items-center gap-1.5 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+            <Download className="w-3.5 h-3.5" /> Export
+          </button>
+          <span className="bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1 text-xs font-semibold">{appointments.filter(a => a.status === "pending").length} pending</span>
         </div>
       </div>
 

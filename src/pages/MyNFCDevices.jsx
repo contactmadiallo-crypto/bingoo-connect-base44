@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
 import { motion, AnimatePresence } from "framer-motion";
-import { Smartphone, Plus, Trash2, Copy, QrCode, ExternalLink, X, ChevronDown, ChevronUp, Shield, CheckCircle } from "lucide-react";
+import { Smartphone, Plus, Trash2, Copy, QrCode, ExternalLink, X, ChevronDown, ChevronUp, Shield, CheckCircle, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
@@ -16,13 +16,18 @@ const DEVICE_TYPES = [
   { value: "sticker",  label: "Sticker",        emoji: "🏷️" },
 ];
 
-const BASE_URL = window.location.origin;
+const PROD_BASE_URL = "https://bingooconnect.com";
 
 function generateCode(existingCodes) {
-  let num = 10001;
-  const existing = new Set(existingCodes.map(c => c.replace("BG-", "")));
-  while (existing.has(String(num))) num++;
-  return `BG-${num}`;
+  const year = new Date().getFullYear();
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no ambiguous chars
+  const existingSet = new Set(existingCodes);
+  let code;
+  do {
+    const rand = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    code = `BG-${year}-${rand}`;
+  } while (existingSet.has(code));
+  return code;
 }
 
 function QRImage({ url }) {
@@ -35,6 +40,26 @@ export default function MyNFCDevices() {
   const qc = useQueryClient();
 
   const [showAdd, setShowAdd] = useState(false);
+  const [nfcWriting, setNfcWriting] = useState(null); // device id being written
+  const [nfcMsg, setNfcMsg] = useState(null); // {id, text, type}
+
+  const handleWriteNFC = async (device) => {
+    const url = `${PROD_BASE_URL}/n/${device.device_code}`;
+    if (!("NDEFReader" in window)) {
+      setNfcMsg({ id: device.id, text: "Web NFC not supported on this browser. Use NFC Tools app and write this URL manually.", type: "info" });
+      return;
+    }
+    try {
+      setNfcWriting(device.id);
+      const ndef = new window.NDEFReader();
+      await ndef.write({ records: [{ recordType: "url", data: url }] });
+      setNfcMsg({ id: device.id, text: "NFC tag written successfully! 🎉", type: "success" });
+    } catch (e) {
+      setNfcMsg({ id: device.id, text: `NFC write failed: ${e.message}`, type: "error" });
+    } finally {
+      setNfcWriting(null);
+    }
+  };
   const [newType, setNewType] = useState("card");
   const [newProfile, setNewProfile] = useState("");
   const [newNickname, setNewNickname] = useState("");
@@ -220,7 +245,7 @@ export default function MyNFCDevices() {
         ) : (
           <div className="space-y-4">
             {myDevices.map(device => {
-              const deviceUrl = `${BASE_URL}/n/${device.device_code}`;
+              const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
               const profile = getProfile(device.assigned_profile);
               const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
               const isExpanded = expandedId === device.id;
@@ -319,20 +344,38 @@ export default function MyNFCDevices() {
                                 <p className={`font-semibold ${headText}`}>Use this QR code to share your device link</p>
                                 <p className={`${mutedText} text-xs`}>Right-click the QR code to save it as an image.</p>
                                 <a
-                                  href={`/n/${device.device_code}`}
+                                  href={deviceUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors"
                                 >
-                                  <ExternalLink className="w-3.5 h-3.5" /> Test Device
+                                  <ExternalLink className="w-3.5 h-3.5" /> Open Device URL
                                 </a>
                               </div>
                             </div>
                           </div>
 
+                          {/* Write NFC */}
+                          <div>
+                            <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-2`}>Write to NFC Tag</p>
+                            <button
+                              onClick={() => handleWriteNFC(device)}
+                              disabled={nfcWriting === device.id}
+                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-sm font-bold transition-colors"
+                            >
+                              <Wifi className="w-4 h-4" />
+                              {nfcWriting === device.id ? "Hold your NFC tag near phone…" : "Write NFC Tag"}
+                            </button>
+                            {nfcMsg?.id === device.id && (
+                              <p className={`mt-2 text-xs font-medium p-3 rounded-xl ${nfcMsg.type === "success" ? "bg-emerald-50 text-emerald-700" : nfcMsg.type === "error" ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-700"}`}>
+                                {nfcMsg.text}
+                              </p>
+                            )}
+                          </div>
+
                           {/* Setup Instructions */}
                           <div>
-                            <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>How to Program Your NFC Tag</p>
+                            <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>How to Program Your NFC Tag (Manual)</p>
                             <NFCSetupInstructions deviceUrl={deviceUrl} />
                           </div>
 
