@@ -175,11 +175,10 @@ export default function BingooLayout({ children }) {
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center justify-around"
         style={{ background: t.headerBg, borderTop: `1px solid ${t.headerBorder}`, paddingBottom: "env(safe-area-inset-bottom)" }}>
         {[
-          { label: "Home",      icon: Home,          href: "/bingoo",                  color: "#3b82f6" },
-          { label: "Profile",   icon: User,          href: "/bingoo?tab=profile",       color: "#8b5cf6" },
-          { label: "Devices",   icon: Smartphone,    href: "/bingoo?tab=devices",       color: "#06b6d4" },
-          { label: "Analytics", icon: BarChart3,     href: "/bingoo?tab=analytics",     color: "#ec4899" },
-          { label: "More",      icon: Menu,          href: null,                        color: "#64748b" },
+          { label: "Home",      icon: Home,       href: "/bingoo",              color: "#3b82f6" },
+          { label: "Profile",   icon: User,       href: "/bingoo?tab=profile",  color: "#8b5cf6" },
+          { label: "Devices",   icon: Smartphone, href: "/bingoo?tab=devices",  color: "#06b6d4" },
+          { label: "More",      icon: Menu,       href: null,                   color: "#64748b" },
         ].map((item) => {
           if (item.href === null) {
             return (
@@ -200,6 +199,12 @@ export default function BingooLayout({ children }) {
             </Link>
           );
         })}
+        {/* Logout always visible in mobile tab bar */}
+        <button onClick={() => base44.auth.logout()}
+          className="flex flex-col items-center gap-0.5 px-2 py-1.5 min-w-[52px]">
+          <LogOut className="w-[18px] h-[18px]" style={{ color: "#ef4444" }} />
+          <span className="text-[9px] font-semibold" style={{ color: "#ef4444" }}>Logout</span>
+        </button>
       </nav>
 
       <main className="flex-1 md:ml-64 pt-12 md:pt-0 pb-safe md:pb-0 min-h-screen" style={{ background: t.bg }}>
