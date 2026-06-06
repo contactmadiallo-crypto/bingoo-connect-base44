@@ -476,6 +476,7 @@ export default function BingooDashboard() {
                   refetchProfiles();
                   setShowLayoutPicker(false);
                 }}
+                plan={profile?.plan || "free"}
                 isAdmin={user?.role === 'admin'}
               />
             </div>
