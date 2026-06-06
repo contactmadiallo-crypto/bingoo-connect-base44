@@ -127,14 +127,14 @@ export default function DesignTab({ profile }) {
                         size="sm"
                         onClick={() => selectLayout(layout.id)}
                         disabled={isActive || !!saving}
-                        className={`flex-1 font-bold text-xs gap-1.5 ${
+                        className={`flex-1 font-bold text-xs gap-1.5 border-0 ${
                           isActive
                             ? isDark
-                              ? "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                              : "bg-blue-50 text-blue-600 border border-blue-200"
-                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                              ? "!bg-blue-500/20 !text-blue-300 !border !border-blue-500/40"
+                              : "!bg-blue-50 !text-blue-600 !border !border-blue-200"
+                            : "!bg-blue-600 hover:!bg-blue-700 !text-white"
                         }`}
-                        variant={isActive ? "outline" : "default"}
+                        variant="default"
                       >
                         {isSaving ? (
                           <span className="flex items-center gap-1.5">
@@ -149,7 +149,7 @@ export default function DesignTab({ profile }) {
                       </Button>
                       {profileUrl && (
                         <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-                          <Button size="sm" variant="outline" className={`px-3 gap-1.5 text-xs font-semibold ${isDark ? "border-white/15 text-white/60 hover:bg-white/10 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                          <Button size="sm" variant="ghost" className={`px-3 gap-1.5 text-xs font-semibold ${isDark ? "border border-white/15 text-white/60 hover:bg-white/10 hover:text-white" : "border border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
                         </a>
