@@ -23,6 +23,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   const [coverUploading, setCoverUploading] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
   const [zelleQrUploading, setZelleQrUploading] = useState(false);
+  const [cashappQrUploading, setCashappQrUploading] = useState(false);
+  const [orangemoneyQrUploading, setOrangemoneyQrUploading] = useState(false);
   const [waveQrUploading, setWaveQrUploading] = useState(false);
   const [customQrUploading, setCustomQrUploading] = useState({});
   const [errors, setErrors] = useState({});
@@ -33,7 +35,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
     phone: "", whatsapp_number: "", email: "", website: "", location: "",
     facebook_url: "", instagram_url: "", tiktok_url: "", linkedin_url: "",
     youtube_url: "", payment_link: "", zelle_link: "", zelle_qr: "",
-    cashapp_link: "", orangemoney_link: "", wave_link: "", wave_qr: "",
+    cashapp_link: "", cashapp_qr: "",
+    orangemoney_link: "", orangemoney_qr: "",
+    wave_link: "", wave_qr: "",
     custom_payments: [],
     google_review_url: "",
     whatsapp_booking_message: "",
@@ -87,7 +91,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         zelle_link: profile.zelle_link || "",
         zelle_qr: profile.zelle_qr || "",
         cashapp_link: profile.cashapp_link || "",
+        cashapp_qr: profile.cashapp_qr || "",
         orangemoney_link: profile.orangemoney_link || "",
+        orangemoney_qr: profile.orangemoney_qr || "",
         wave_link: profile.wave_link || "",
         wave_qr: profile.wave_qr || "",
         custom_payments: profile.custom_payments || [],
@@ -196,6 +202,22 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm(f => ({ ...f, zelle_qr: file_url }));
     setZelleQrUploading(false);
+  };
+
+  const handleCashappQrUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setCashappQrUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, cashapp_qr: file_url }));
+    setCashappQrUploading(false);
+  };
+
+  const handleOrangemoneyQrUpload = async (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    setOrangemoneyQrUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setForm(f => ({ ...f, orangemoney_qr: file_url }));
+    setOrangemoneyQrUploading(false);
   };
 
   const handleWaveQrUpload = async (e) => {
@@ -428,8 +450,63 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
                 {errors.zelle_link && <p className="text-red-500 text-xs mt-1">{errors.zelle_link}</p>}
               </div>
             </div>
-            {field("cashapp_link", "💰 Cash App Link", "https://cash.app/...")}
-            {field("orangemoney_link", "🟠 Orange Money Link", "https://orangemoney....")}
+            {/* Cash App: QR upload + link */}
+            <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-4 h-4 text-green-600" />
+                <Label className="font-semibold text-slate-800">💰 Cash App</Label>
+              </div>
+              <p className="text-xs text-slate-500">Upload your Cash App QR code — visitors can scan it to send you money instantly.</p>
+              <div className="flex items-center gap-4">
+                {form.cashapp_qr
+                  ? <img src={form.cashapp_qr} alt="Cash App QR" className="w-20 h-20 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" />
+                  : <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-white">🔲</div>
+                }
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer text-xs font-semibold text-green-600 hover:text-green-700 bg-green-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                    {cashappQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.cashapp_qr ? "Change QR Code" : "Upload QR Code"}</>}
+                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" className="hidden" onChange={handleCashappQrUpload} disabled={cashappQrUploading} />
+                  </label>
+                  {form.cashapp_qr && (
+                    <button onClick={() => setForm(f => ({ ...f, cashapp_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1">Cash App Link (optional)</Label>
+                <Input className={`border-slate-200 text-sm ${errors.cashapp_link ? "border-red-400" : ""}`} placeholder="https://cash.app/$..." value={form.cashapp_link} onChange={set("cashapp_link")} />
+                {errors.cashapp_link && <p className="text-red-500 text-xs mt-1">{errors.cashapp_link}</p>}
+              </div>
+            </div>
+
+            {/* Orange Money: QR upload + link */}
+            <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <QrCode className="w-4 h-4 text-orange-500" />
+                <Label className="font-semibold text-slate-800">🟠 Orange Money</Label>
+              </div>
+              <p className="text-xs text-slate-500">Upload your Orange Money QR code for easy mobile money transfers.</p>
+              <div className="flex items-center gap-4">
+                {form.orangemoney_qr
+                  ? <img src={form.orangemoney_qr} alt="Orange Money QR" className="w-20 h-20 rounded-xl border border-slate-200 object-contain bg-white shadow-sm" />
+                  : <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-white">🔲</div>
+                }
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer text-xs font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                    {orangemoneyQrUploading ? <><div className="w-3.5 h-3.5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><QrCode className="w-3.5 h-3.5" />{form.orangemoney_qr ? "Change QR Code" : "Upload QR Code"}</>}
+                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" className="hidden" onChange={handleOrangemoneyQrUpload} disabled={orangemoneyQrUploading} />
+                  </label>
+                  {form.orangemoney_qr && (
+                    <button onClick={() => setForm(f => ({ ...f, orangemoney_qr: "" }))} className="text-xs font-semibold text-red-500 hover:text-red-600 bg-red-50 px-3 py-1.5 rounded-lg text-left">Remove QR</button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-slate-500 mb-1">Orange Money Link (optional)</Label>
+                <Input className={`border-slate-200 text-sm ${errors.orangemoney_link ? "border-red-400" : ""}`} placeholder="https://orangemoney...." value={form.orangemoney_link} onChange={set("orangemoney_link")} />
+                {errors.orangemoney_link && <p className="text-red-500 text-xs mt-1">{errors.orangemoney_link}</p>}
+              </div>
+            </div>
             {/* Wave: QR upload + optional link */}
             <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
               <div className="flex items-center gap-2">

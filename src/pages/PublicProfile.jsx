@@ -293,8 +293,8 @@ export default function PublicProfile() {
 
   const payments = [
     (profile.zelle_qr || profile.zelle_link) && { e: "💳", l: "Zelle", h: profile.zelle_link || null, qr: profile.zelle_qr || null },
-    profile.cashapp_link && { e: "💰", l: "Cash App", h: profile.cashapp_link, qr: null },
-    profile.orangemoney_link && { e: "🟠", l: "Orange Money", h: profile.orangemoney_link, qr: null },
+    (profile.cashapp_qr || profile.cashapp_link) && { e: "💰", l: "Cash App", h: profile.cashapp_link || null, qr: profile.cashapp_qr || null },
+    (profile.orangemoney_qr || profile.orangemoney_link) && { e: "🟠", l: "Orange Money", h: profile.orangemoney_link || null, qr: profile.orangemoney_qr || null },
     (profile.wave_qr || profile.wave_link) && { e: "📲", l: "Wave", h: profile.wave_link || null, qr: profile.wave_qr || null },
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);

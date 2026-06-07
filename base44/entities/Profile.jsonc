@@ -144,8 +144,16 @@
     "cashapp_link": {
       "type": "string"
     },
+    "cashapp_qr": {
+      "type": "string",
+      "description": "Uploaded Cash App QR code image URL"
+    },
     "orangemoney_link": {
       "type": "string"
+    },
+    "orangemoney_qr": {
+      "type": "string",
+      "description": "Uploaded Orange Money QR code image URL"
     },
     "wave_link": {
       "type": "string"
