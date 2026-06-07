@@ -639,10 +639,7 @@ export default function Landing() {
         <FloatingOrb delay={2} style={{ width: 350, height: 350, bottom: "-15%", right: "-5%", background: `radial-gradient(circle, ${B.gold}18 0%, transparent 70%)` }} />
         <div className="max-w-3xl mx-auto relative">
           <ScrollReveal>
-            <img
-              src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-              alt="Bingoo Connect"
-              className="h-20 object-contain mx-auto mb-6 opacity-90" />
+
             
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">
               Ready to grow your business?
