@@ -8,11 +8,14 @@ const hexRgb = (hex, a = 1) => {
 };
 
 export default function SalonServicesSection({ profileId, color = "#0B2E6B", isDark }) {
-  const { data: services = [] } = useQuery({
+  const { data: allServices = [] } = useQuery({
     queryKey: ["public-salon-services", profileId],
-    queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId, is_active: true }, "order", 100),
+    queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),
     enabled: !!profileId,
   });
+
+  // Show all services where is_active is not explicitly false
+  const services = allServices.filter(s => s.is_active !== false);
 
   if (!services.length) return null;
 
