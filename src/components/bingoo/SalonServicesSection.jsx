@@ -8,15 +8,26 @@ const hexRgb = (hex, a = 1) => {
 };
 
 export default function SalonServicesSection({ profileId, color = "#0B2E6B", isDark }) {
-  const { data: allServices = [] } = useQuery({
+  const { data: allServices = [], isLoading, error } = useQuery({
     queryKey: ["public-salon-services", profileId],
-    queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),
+    queryFn: async () => {
+      if (!profileId) return [];
+      const result = await base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100);
+      console.log(`[SalonServices] Fetched ${result?.length || 0} services for profile ${profileId}`, result);
+      return result || [];
+    },
     enabled: !!profileId,
+    staleTime: 5000, // Refresh every 5s to catch newly added services
   });
 
   // Show all services where is_active is not explicitly false
-  const services = allServices.filter(s => s.is_active !== false);
+  const services = (allServices || []).filter(s => s.is_active !== false);
 
+  if (isLoading) return <div style={{ marginBottom: 28, padding: "16px", textAlign: "center", color: "#94a3b8", fontSize: "13px" }}>Loading services…</div>;
+  if (error) {
+    console.error("[SalonServices] Query error:", error);
+    return null;
+  }
   if (!services.length) return null;
 
   const categories = [...new Set(services.map(s => s.category || "Services"))];

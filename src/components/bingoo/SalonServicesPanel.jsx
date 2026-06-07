@@ -163,8 +163,14 @@ export default function SalonServicesPanel({ profileId, isDark }) {
 
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["salon-services", profileId],
-    queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),
+    queryFn: async () => {
+      if (!profileId) return [];
+      const result = await base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100);
+      console.log(`[SalonServicesPanel] Fetched ${result?.length || 0} services for profile ${profileId}`, result);
+      return result || [];
+    },
     enabled: !!profileId,
+    staleTime: 0, // Always fetch fresh
   });
 
   const createService = useMutation({
@@ -235,6 +241,7 @@ export default function SalonServicesPanel({ profileId, isDark }) {
         <div>
           <h2 className={`font-black text-lg ${headText}`}>✂️ Service Menu</h2>
           <p className={`text-xs mt-0.5 ${mutedText}`}>Add your salon services — they'll appear on your public profile</p>
+          <p className={`text-[11px] mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Profile ID: {profileId || "loading..."}</p>
         </div>
         {editingId !== "new" && (
           <Button onClick={startNew} size="sm" className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl">
