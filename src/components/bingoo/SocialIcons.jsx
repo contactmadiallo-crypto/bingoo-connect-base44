@@ -180,62 +180,24 @@ export function MapPinIcon({ size = 20, color = "#64748b" }) {
 
 export function ZelleIcon({ size = 20, className = "" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#7D3FB6" />
-      {/* Dollar sign */}
-      <text x="12" y="16" fontSize="13" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle" fill="white">$</text>
-    </svg>
+    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/3a4060c4b_Zelle.png" alt="Zelle" width={size} height={size} className={className} style={{ objectFit: 'contain' }} />
   );
 }
 
 export function CashAppIcon({ size = 20, className = "" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00C964" />
-      {/* Large dollar sign */}
-      <path d="M12 7V17M8.5 10.5C8.5 9.5 9.5 8.5 11 8.5C12.5 8.5 13.5 9.5 13.5 10.5M8.5 13.5C8.5 14.5 9.5 15.5 11 15.5C12.5 15.5 13.5 14.5 13.5 13.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-    </svg>
+    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c32279489_CashApp.png" alt="Cash App" width={size} height={size} className={className} style={{ objectFit: 'contain' }} />
   );
 }
 
 export function WaveIconNew({ size = 20, className = "" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#1BA0E1" />
-      {/* Penguin body (dark) */}
-      <ellipse cx="12" cy="13" rx="4.5" ry="5.5" fill="#1a1a1a" />
-      {/* Penguin head (dark) */}
-      <circle cx="12" cy="8" r="4.5" fill="#1a1a1a" />
-      {/* Belly (white) */}
-      <ellipse cx="12" cy="13" rx="2.8" ry="3.5" fill="white" />
-      {/* Left eye (white) */}
-      <circle cx="10.5" cy="7.5" r="1.2" fill="white" />
-      {/* Right eye (white) */}
-      <circle cx="13.5" cy="7.5" r="1.2" fill="white" />
-      {/* Left pupil (black) */}
-      <circle cx="10.5" cy="7.5" r="0.5" fill="#000" />
-      {/* Right pupil (black) */}
-      <circle cx="13.5" cy="7.5" r="0.5" fill="#000" />
-      {/* Smile */}
-      <path d="M10.5 9.5C11.5 10.2 12.5 10.2 13.5 9.5" stroke="#000" strokeWidth="0.6" strokeLinecap="round" fill="none" />
-    </svg>
+    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/bcf44daee_WAVEIMAGE.png" alt="Wave" width={size} height={size} className={className} style={{ objectFit: 'contain' }} />
   );
 }
 
 export function OrangeMoneyIconNew({ size = 20, className = "" }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#FF6600" />
-      {/* Up-right arrow (black) */}
-      <g>
-        <path d="M17 8L9.5 15.5" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M15 8H17V10" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-      {/* Down-left arrow (orange/darker) - secondary */}
-      <g opacity="0.5">
-        <path d="M7 16L14.5 8.5" stroke="black" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M9 16H7V14" stroke="black" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-    </svg>
+    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/9945764c7_OrangeMoney.png" alt="Orange Money" width={size} height={size} className={className} style={{ objectFit: 'contain' }} />
   );
 }

@@ -492,8 +492,8 @@ export default function PublicProfile() {
                   </>
                 )}
 
-                {/* Services (all paid plans) */}
-                {profile.plan !== "free" && (
+                {/* Services (salon & restaurant only) */}
+                {isSalonOrRestaurant && (
                   <>
                     <Divider />
                     <SalonServicesSection profileId={profile.id} color={color} isDark={isDark} />
