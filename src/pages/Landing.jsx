@@ -338,25 +338,7 @@ export default function Landing() {
                   </span>
                 </motion.div>
 
-                {/* Live Demo pill */}
-                <motion.a
-                  href="/bingoo"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full cursor-pointer transition-colors"
-                  style={{ background: "rgba(255,122,0,0.12)", border: "1px solid rgba(255,122,0,0.35)", textDecoration: "none" }}
-                >
-                  <motion.span
-                    animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: B.orange, display: "inline-block", flexShrink: 0 }}
-                  />
-                  <span className="text-white/70 text-sm font-semibold">See it in action</span>
-                  <span className="text-sm font-black flex items-center gap-1" style={{ color: B.orange }}>
-                    Live Demo <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
-                </motion.a>
+
               </motion.div>
             </div>
 
