@@ -2,74 +2,27 @@
   "name": "User",
   "type": "object",
   "properties": {
-    "phone": {
+    "role": {
       "type": "string",
-      "description": "Phone number"
+      "enum": [
+        "admin",
+        "user",
+        "business_owner",
+        "team_member"
+      ],
+      "default": "user",
+      "description": "User role on the platform"
     },
-    "addresses": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "type": "string",
-            "description": "Address label (Home, Work, etc.)"
-          },
-          "address": {
-            "type": "string",
-            "description": "Full address"
-          },
-          "city": {
-            "type": "string"
-          },
-          "instructions": {
-            "type": "string",
-            "description": "Delivery instructions"
-          },
-          "is_default": {
-            "type": "boolean",
-            "default": false
-          }
-        }
-      },
-      "default": [],
-      "description": "Saved delivery addresses"
-    },
-    "default_delivery_instructions": {
-      "type": "string",
-      "description": "Default delivery instructions"
-    },
-    "dietary_preferences": {
+    "owned_profile_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "default": [],
-      "description": "Dietary preferences"
+      "description": "Profile IDs owned by this user"
     },
-    "payment_methods": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "last_four": {
-            "type": "string"
-          },
-          "is_default": {
-            "type": "boolean",
-            "default": false
-          }
-        }
-      },
-      "default": [],
-      "description": "Saved payment methods"
+    "assigned_business_id": {
+      "type": "string",
+      "description": "For team_member: the business profile ID they are assigned to"
     }
-  },
-  "required": [
-    "phone",
-    "default_delivery_instructions"
-  ]
+  }
 }

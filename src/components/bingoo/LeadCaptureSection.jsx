@@ -11,12 +11,16 @@ const hexRgb = (hex, a = 1) => {
 
 const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
 
+const RATE_LIMIT_KEY = "bingoo_lead_last_submit";
+const RATE_LIMIT_MS = 60_000; // 60 seconds
+
 export default function LeadCaptureSection({ profileId, color = "#0B2E6B" }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "", preferred_contact: "WhatsApp" });
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [rateLimited, setRateLimited] = useState(false);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
@@ -24,8 +28,20 @@ export default function LeadCaptureSection({ profileId, color = "#0B2E6B" }) {
     e.preventDefault();
     if (!form.name) { setError("Please enter your name."); return; }
     if (!form.phone && !form.email) { setError("Please enter a phone number or email."); return; }
+
+    // Rate limiting check
+    const lastSubmit = localStorage.getItem(RATE_LIMIT_KEY);
+    if (lastSubmit && Date.now() - parseInt(lastSubmit) < RATE_LIMIT_MS) {
+      const remaining = Math.ceil((RATE_LIMIT_MS - (Date.now() - parseInt(lastSubmit))) / 1000);
+      setError(`Please wait ${remaining}s before submitting again.`);
+      setRateLimited(true);
+      setTimeout(() => setRateLimited(false), remaining * 1000);
+      return;
+    }
+
     setError("");
     setLoading(true);
+    localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
     await base44.functions.invoke("createPublicLead", {
       profile_id: profileId,
       name: form.name,

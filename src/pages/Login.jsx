@@ -20,6 +20,18 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
+      // Log login to ActivityLog after successful auth
+      const user = await base44.auth.me().catch(() => null);
+      if (user) {
+        base44.entities.ActivityLog.create({
+          user_id: user.id,
+          user_email: user.email,
+          action: "login",
+          description: `Login via email/password from ${navigator.userAgent.includes("Mobile") ? "mobile" : "desktop"}`,
+          user_agent: navigator.userAgent.slice(0, 200),
+          timestamp: new Date().toISOString(),
+        }).catch(() => {});
+      }
       window.location.href = "/";
     } catch (err) {
       setError(err.message || "Invalid email or password");

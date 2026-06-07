@@ -73,6 +73,17 @@ export default function AppointmentBooking({ profile, onClose }) {
 
   const handleBook = async () => {
     if (!form.name || !form.email) { setError("Name and email are required."); return; }
+
+    // Rate limiting: 60s between appointment bookings
+    const APPT_RL_KEY = "bingoo_appt_last_submit";
+    const lastSubmit = localStorage.getItem(APPT_RL_KEY);
+    if (lastSubmit && Date.now() - parseInt(lastSubmit) < 60000) {
+      const remaining = Math.ceil((60000 - (Date.now() - parseInt(lastSubmit))) / 1000);
+      setError(`Please wait ${remaining}s before submitting another booking.`);
+      return;
+    }
+    localStorage.setItem(APPT_RL_KEY, Date.now().toString());
+
     setSaving(true);
     setError("");
     const res = await base44.functions.invoke("createPublicAppointment", {

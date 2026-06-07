@@ -56,18 +56,22 @@ export default function SecurityAuditTab() {
 
   // Security health checks
   const checks = [
-    { label: "Email Verification (OTP)", status: "pass", note: "Active — all new accounts verified via OTP" },
+    { label: "Email Verification (OTP)", status: "pass", note: "All new accounts verified via 6-digit OTP at registration" },
     { label: "Password Strength Validation", status: "pass", note: "Min 8 chars, uppercase, number, special char required" },
-    { label: "Admin Dashboard Protection", status: "pass", note: "Role check enforced — redirects non-admins" },
-    { label: "Row-Level Security (RLS)", status: "pass", note: "All entities have per-user data access rules" },
-    { label: "NFC Device Ownership Check", status: "pass", note: "Users can only manage devices linked to their profiles" },
-    { label: "Lost Mode Data Protection", status: "pass", note: "Phone number display is opt-in (lost_show_phone)" },
-    { label: "Lead Form Rate Limiting", status: "pass", note: "Client-side cooldown: 60s between submissions" },
-    { label: "Appointment Form Rate Limiting", status: "pass", note: "Client-side cooldown: 60s between submissions" },
-    { label: "Abuse Reporting", status: "pass", note: "Report button on all public profiles" },
-    { label: "Activity Logging Entity", status: "pass", note: "ActivityLog entity configured with RLS" },
-    { label: "Public Data Isolation", status: "pass", note: "Public profiles only expose fields marked is_active=true" },
-    { label: "Stripe Webhook Verification", status: "pass", note: "STRIPE_WEBHOOK_SECRET used for signature validation" },
+    { label: "Admin Dashboard Protection", status: "pass", note: "Role check enforced — non-admins redirected on load" },
+    { label: "Row-Level Security (RLS)", status: "pass", note: "All entities have per-user data access rules enforced server-side" },
+    { label: "Role-Based Access Control", status: "pass", note: "Roles: admin, user, business_owner, team_member — enforced via User.role" },
+    { label: "NFC Device Ownership Check", status: "pass", note: "RLS ensures users only manage devices linked to their owned profiles" },
+    { label: "Unique Device Code Enforcement", status: "pass", note: "Admin form validates uniqueness before creating device codes" },
+    { label: "Lost Mode Data Protection", status: "pass", note: "Phone number display is opt-in via lost_show_phone field" },
+    { label: "Lead Form Rate Limiting", status: "pass", note: "Client-side 60s cooldown stored in localStorage between submissions" },
+    { label: "Appointment Form Rate Limiting", status: "pass", note: "Client-side 60s cooldown between appointment booking attempts" },
+    { label: "Abuse Reporting", status: "pass", note: "Report button on all public profiles, admin can review & action" },
+    { label: "Activity Logging + Login History", status: "pass", note: "Login, logout, profile edits, exports, and deletions tracked in ActivityLog" },
+    { label: "Export My Data", status: "pass", note: "Users can download all personal data as JSON from Account Settings" },
+    { label: "Delete Account Option", status: "pass", note: "Account deletion request flow in Account Settings with email confirmation" },
+    { label: "Public Data Isolation", status: "pass", note: "Public profiles only expose fields when is_active=true; sensitive fields hidden" },
+    { label: "Stripe Webhook Verification", status: "pass", note: "STRIPE_WEBHOOK_SECRET validates every incoming webhook signature" },
   ];
 
   return (

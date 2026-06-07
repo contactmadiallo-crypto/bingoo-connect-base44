@@ -116,8 +116,15 @@ export default function AdminDashboard() {
   const [subStatusFilter, setSubStatusFilter] = useState("all");
 
   const createDevice = useMutation({
-    mutationFn: (data) => base44.entities.NFCDevice.create({ ...data, assigned_at: new Date().toISOString() }),
+    mutationFn: async (data) => {
+      // Uniqueness check: reject if device_code already exists in NFCDevice or Device
+      const existingNfc = devices.find(d => d.device_code?.toUpperCase() === data.device_code?.toUpperCase());
+      const existingDev = allNfcDevices.find(d => d.device_code?.toUpperCase() === data.device_code?.toUpperCase());
+      if (existingNfc || existingDev) throw new Error(`Device code "${data.device_code}" already exists. Use a unique code.`);
+      return base44.entities.NFCDevice.create({ ...data, assigned_at: new Date().toISOString() });
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-devices"] }); setShowDeviceForm(false); setDeviceForm({ profile_id: "", device_type: "card", device_code: "", status: "active" }); toast.success("Device created!"); },
+    onError: (err) => toast.error(err.message),
   });
 
   const handleForceReset = async (device) => {
