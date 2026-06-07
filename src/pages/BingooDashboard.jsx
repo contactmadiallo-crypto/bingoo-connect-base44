@@ -114,7 +114,13 @@ export default function BingooDashboard() {
     : null;
 
   // Language toggle (persisted in localStorage)
-  const [lang, setLang] = useState(() => localStorage.getItem("bingoo_lang") || "en");
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem("bingoo_lang");
+    if (saved) return saved;
+    // Auto-detect from browser/phone language setting
+    const browserLang = navigator.language || navigator.userLanguage || "en";
+    return browserLang.toLowerCase().startsWith("fr") ? "fr" : "en";
+  });
   const toggleLang = () => setLang(l => {
     const next = l === "en" ? "fr" : "en";
     localStorage.setItem("bingoo_lang", next);

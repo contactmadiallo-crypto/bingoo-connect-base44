@@ -84,7 +84,12 @@ export default function AdminDashboard() {
   const [deviceForm, setDeviceForm] = useState({ profile_id: "", device_type: "card", device_code: "", status: "active" });
   const [resetConfirm, setResetConfirm] = useState(null); // device to reset
   const [resetting, setResetting] = useState(false);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem("bingoo_lang");
+    if (saved) return saved;
+    const browserLang = navigator.language || navigator.userLanguage || "en";
+    return browserLang.toLowerCase().startsWith("fr") ? "fr" : "en";
+  });
   const t = T[lang];
   const queryClient = useQueryClient();
 
