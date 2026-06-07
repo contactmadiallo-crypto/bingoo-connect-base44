@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const profiles = await base44.asServiceRole.entities.Profile.filter({
       username: username,
       is_active: true,
-    });
+    }, '-updated_date', 1); // Get most recently updated profile
 
     if (!profiles || profiles.length === 0) {
       return Response.json({ profile: null });
