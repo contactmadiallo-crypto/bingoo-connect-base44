@@ -10,6 +10,59 @@ import { toast } from "sonner";
 import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2 } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
+const T = {
+  en: {
+    title: "Admin Dashboard", subtitle: "Super Admin Control Panel",
+    tabs: { users: "Users & Profiles", subscriptions: "Subscriptions", nfc_manager: "NFC Manager", devices: "Legacy Devices", activations: "Recent Activations", leads: "All Leads", appointments: "All Appointments", prospects: "Prospect Clients", new_users: "New Users", analytics: "Analytics" },
+    stats: { profiles: "Total Profiles", devices: "NFC Devices", leads: "Total Leads", analytics: "Analytics Events" },
+    search: "Search by name, username, company...", searchEmail: "Search by email...",
+    view: "View", addDevice: "Add Device", creating: "Creating...", createDevice: "Create Device",
+    noProfiles: "No profiles found", noSubs: "No subscriptions yet", noDevices: "No devices yet", noNfc: "No NFC devices found", noLeads: "No leads yet across any profiles", noActivations: "No device activations yet", noAppointments: "No appointments yet", noProspects: "No prospect leads yet", noUsers: "No users found",
+    totalSubs: "Total Subscribers", freeUsers: "Free Users", pastDue: "Past Due", canceled: "Canceled",
+    totalUsers: "Total Users", last7: "Last 7 Days", last30: "Last 30 Days",
+    totalProspects: "Total Prospects", contacted: "Contacted", converted: "Converted",
+    forceReset: "Force Reset", forceResetTitle: "Force Reset Device", forceResetMsg: "This will remove the current owner and make this device available for a new account to claim.", forceResetWarning: "⚠️ This action cannot be undone. The previous owner will lose access to this device.", yesReset: "Yes, Force Reset", resetting: "Resetting...", cancel: "Cancel", available: "Available",
+    profileCol: "Profile", username: "Username", plan: "Plan", company: "Company", actions: "Actions",
+    customer: "Customer", status: "Status", periodEnd: "Period End", stripeId: "Stripe ID",
+    code: "Code", type: "Type", owner: "Owner", action: "Action",
+    deviceCode: "Device Code", user: "User", activated: "Activated",
+    prospect: "Prospect", contact: "Contact", interest: "Interest", source: "Source", date: "Date",
+    userCol: "User", email: "Email", role: "Role", joined: "Joined", newBadge: "NEW",
+    totalEvents: "total events recorded", totalLeads: "total leads across all profiles", totalActivations: "devices activated (showing latest 20)",
+    profileIdLabel: "Profile ID (to assign)", deviceCodeLabel: "Device Code (unique)", deviceType: "Device Type", statusLabel: "Status",
+    forceResetNote: "Resetting a device clears its owner and makes it available for a new account. Use this when a device was accidentally claimed.",
+    prospectsNote: "They'll appear here when visitors tap NFC profiles and interact with the popup.",
+    anonymous: "Anonymous", unknown: "Unknown",
+    new: "New", closed: "Closed",
+    all: "All", active: "Active", inactive: "Inactive",
+  },
+  fr: {
+    title: "Tableau de Bord Admin", subtitle: "Panneau de Contrôle Super Admin",
+    tabs: { users: "Utilisateurs & Profils", subscriptions: "Abonnements", nfc_manager: "Gestionnaire NFC", devices: "Appareils Legacy", activations: "Activations Récentes", leads: "Tous les Prospects", appointments: "Tous les RDV", prospects: "Clients Potentiels", new_users: "Nouveaux Utilisateurs", analytics: "Analytiques" },
+    stats: { profiles: "Total Profils", devices: "Appareils NFC", leads: "Total Prospects", analytics: "Événements Analytics" },
+    search: "Rechercher par nom, identifiant, entreprise...", searchEmail: "Rechercher par email...",
+    view: "Voir", addDevice: "Ajouter Appareil", creating: "Création...", createDevice: "Créer l'Appareil",
+    noProfiles: "Aucun profil trouvé", noSubs: "Aucun abonnement", noDevices: "Aucun appareil", noNfc: "Aucun appareil NFC", noLeads: "Aucun prospect sur tous les profils", noActivations: "Aucune activation", noAppointments: "Aucun rendez-vous", noProspects: "Aucun client potentiel", noUsers: "Aucun utilisateur trouvé",
+    totalSubs: "Total Abonnés", freeUsers: "Utilisateurs Gratuits", pastDue: "En Retard", canceled: "Annulé",
+    totalUsers: "Total Utilisateurs", last7: "7 Derniers Jours", last30: "30 Derniers Jours",
+    totalProspects: "Total Clients Potentiels", contacted: "Contacté", converted: "Converti",
+    forceReset: "Réinitialiser", forceResetTitle: "Réinitialiser l'Appareil", forceResetMsg: "Cela supprimera le propriétaire actuel et rendra cet appareil disponible pour un nouveau compte.", forceResetWarning: "⚠️ Cette action est irréversible. L'ancien propriétaire perdra l'accès à cet appareil.", yesReset: "Oui, Réinitialiser", resetting: "Réinitialisation...", cancel: "Annuler", available: "Disponible",
+    profileCol: "Profil", username: "Identifiant", plan: "Forfait", company: "Entreprise", actions: "Actions",
+    customer: "Client", status: "Statut", periodEnd: "Fin de Période", stripeId: "ID Stripe",
+    code: "Code", type: "Type", owner: "Propriétaire", action: "Action",
+    deviceCode: "Code Appareil", user: "Utilisateur", activated: "Activé le",
+    prospect: "Prospect", contact: "Contact", interest: "Intérêt", source: "Source", date: "Date",
+    userCol: "Utilisateur", email: "Email", role: "Rôle", joined: "Inscrit le", newBadge: "NOUVEAU",
+    totalEvents: "événements enregistrés au total", totalLeads: "prospects au total sur tous les profils", totalActivations: "appareils activés (20 derniers)",
+    profileIdLabel: "ID Profil (à assigner)", deviceCodeLabel: "Code Appareil (unique)", deviceType: "Type d'Appareil", statusLabel: "Statut",
+    forceResetNote: "Réinitialiser un appareil efface son propriétaire et le rend disponible pour un nouveau compte.",
+    prospectsNote: "Ils apparaîtront ici lorsque des visiteurs tapoteront les profils NFC.",
+    anonymous: "Anonyme", unknown: "Inconnu",
+    new: "Nouveau", closed: "Fermé",
+    all: "Tous", active: "Actif", inactive: "Inactif",
+  }
+};
+
 const PLAN_COLORS = {
   free: "bg-slate-100 text-slate-600",
   professional: "bg-blue-100 text-blue-700",
@@ -31,6 +84,8 @@ export default function AdminDashboard() {
   const [deviceForm, setDeviceForm] = useState({ profile_id: "", device_type: "card", device_code: "", status: "active" });
   const [resetConfirm, setResetConfirm] = useState(null); // device to reset
   const [resetting, setResetting] = useState(false);
+  const [lang, setLang] = useState("en");
+  const t = T[lang];
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -91,16 +146,16 @@ export default function AdminDashboard() {
     .slice(0, 20);
 
   const TABS = [
-    { id: "users",        label: "Users & Profiles",  icon: Users,      count: profiles.length },
-    { id: "subscriptions",label: "Subscriptions",     icon: CreditCard, count: subscriptions.length },
-    { id: "nfc_manager",  label: "NFC Manager",       icon: RotateCcw,  count: allNfcDevices.length },
-    { id: "devices",      label: "Legacy Devices",    icon: Smartphone, count: devices.length },
-    { id: "activations",  label: "Recent Activations",icon: Clock,      count: recentActivations.length },
-    { id: "leads",        label: "All Leads",         icon: Star,       count: leads.length },
-    { id: "appointments", label: "All Appointments",  icon: CheckCircle2, count: allAppointments.length },
-    { id: "prospects",    label: "Prospect Clients",  icon: UserPlus2,  count: prospectLeads.length },
-    { id: "new_users",    label: "New Users",         icon: UserPlus2,  count: undefined },
-    { id: "analytics",    label: "Analytics",         icon: BarChart3 },
+    { id: "users",        label: t.tabs.users,        icon: Users,        count: profiles.length },
+    { id: "subscriptions",label: t.tabs.subscriptions,icon: CreditCard,   count: subscriptions.length },
+    { id: "nfc_manager",  label: t.tabs.nfc_manager,  icon: RotateCcw,    count: allNfcDevices.length },
+    { id: "devices",      label: t.tabs.devices,      icon: Smartphone,   count: devices.length },
+    { id: "activations",  label: t.tabs.activations,  icon: Clock,        count: recentActivations.length },
+    { id: "leads",        label: t.tabs.leads,        icon: Star,         count: leads.length },
+    { id: "appointments", label: t.tabs.appointments, icon: CheckCircle2, count: allAppointments.length },
+    { id: "prospects",    label: t.tabs.prospects,    icon: UserPlus2,    count: prospectLeads.length },
+    { id: "new_users",    label: t.tabs.new_users,    icon: UserPlus2,    count: undefined },
+    { id: "analytics",    label: t.tabs.analytics,    icon: BarChart3 },
   ];
 
   // Bingoo brand colors for admin
@@ -122,23 +177,32 @@ export default function AdminDashboard() {
           />
           <div className="h-8 w-px bg-white/10" />
           <div>
-            <h1 className="text-2xl font-black text-white">Admin Dashboard</h1>
-            <p className="text-white/40 text-sm">Super Admin Control Panel</p>
+            <h1 className="text-2xl font-black text-white">{t.title}</h1>
+            <p className="text-white/40 text-sm">{t.subtitle}</p>
           </div>
-          <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full"
-            style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
-            <Shield className="w-4 h-4" style={{ color: gold }} />
-            <span className="text-xs font-black" style={{ color: gold }}>ADMIN</span>
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={() => setLang(l => l === "en" ? "fr" : "en")}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black transition-all"
+              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.7)" }}
+            >
+              {lang === "en" ? "🇫🇷 Français" : "🇺🇸 English"}
+            </button>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
+              style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
+              <Shield className="w-4 h-4" style={{ color: gold }} />
+              <span className="text-xs font-black" style={{ color: gold }}>ADMIN</span>
+            </div>
           </div>
         </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Total Profiles", value: profiles.length, icon: Users, accent: orange },
-            { label: "NFC Devices", value: devices.length, icon: Smartphone, accent: gold },
-            { label: "Total Leads", value: leads.length, icon: Star, accent: "#22c55e" },
-            { label: "Analytics Events", value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
+            { label: t.stats.profiles, value: profiles.length, icon: Users, accent: orange },
+            { label: t.stats.devices, value: devices.length, icon: Smartphone, accent: gold },
+            { label: t.stats.leads, value: leads.length, icon: Star, accent: "#22c55e" },
+            { label: t.stats.analytics, value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-5 border"
               style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
@@ -179,7 +243,7 @@ export default function AdminDashboard() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <Input className="pl-9" placeholder="Search by name, username, company..."
+                <Input className="pl-9" placeholder={t.search}
                   value={search} onChange={e => setSearch(e.target.value)}
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
               </div>
@@ -204,7 +268,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["Profile","Username","Plan","Company","Actions"].map(h => (
+                      {[t.profileCol, t.username, t.plan, t.company, t.actions].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -258,7 +322,7 @@ export default function AdminDashboard() {
                 {filteredProfiles.length === 0 && (
                   <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No profiles found</p>
+                    <p>{t.noProfiles}</p>
                   </div>
                 )}
               </div>
@@ -272,10 +336,10 @@ export default function AdminDashboard() {
             {/* Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Total Subscribers", value: subscriptions.filter(s => s.status === "active").length, color: "#22c55e" },
-                { label: "Free Users", value: subscriptions.filter(s => s.status === "free").length, color: "rgba(255,255,255,0.4)" },
-                { label: "Past Due", value: subscriptions.filter(s => s.status === "past_due").length, color: "#f59e0b" },
-                { label: "Canceled", value: subscriptions.filter(s => s.status === "canceled").length, color: "#ef4444" },
+                { label: t.totalSubs, value: subscriptions.filter(s => s.status === "active").length, color: "#22c55e" },
+                { label: t.freeUsers, value: subscriptions.filter(s => s.status === "free").length, color: "rgba(255,255,255,0.4)" },
+                { label: t.pastDue, value: subscriptions.filter(s => s.status === "past_due").length, color: "#f59e0b" },
+                { label: t.canceled, value: subscriptions.filter(s => s.status === "canceled").length, color: "#ef4444" },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-4 border"
                   style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
@@ -290,7 +354,7 @@ export default function AdminDashboard() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                 <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none"
-                  placeholder="Search by email..."
+                  placeholder={t.searchEmail}
                   value={subSearch} onChange={e => setSubSearch(e.target.value)}
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
               </div>
@@ -320,7 +384,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["Customer","Plan","Status","Period End","Stripe ID","Actions"].map(h => (
+                      {[t.customer, t.plan, t.status, t.periodEnd, t.stripeId, t.actions].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -384,7 +448,7 @@ export default function AdminDashboard() {
                 {subscriptions.length === 0 && (
                   <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No subscriptions yet</p>
+                    <p>{t.noSubs}</p>
                   </div>
                 )}
               </div>
@@ -398,8 +462,8 @@ export default function AdminDashboard() {
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
               <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-amber-800 text-sm">Force Reset</p>
-                <p className="text-amber-700 text-xs mt-0.5">Resetting a device clears its owner and makes it available for a new account. Use this when a device was accidentally claimed.</p>
+                <p className="font-bold text-amber-800 text-sm">{t.forceReset}</p>
+                <p className="text-amber-700 text-xs mt-0.5">{t.forceResetNote}</p>
               </div>
             </div>
 
@@ -408,7 +472,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      {["Code","Type","Status","Owner","Profile","Action"].map(h => (
+                      {[t.code, t.type, t.status, t.owner, t.profileCol, t.action].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -437,10 +501,10 @@ export default function AdminDashboard() {
                                 onClick={() => setResetConfirm(d)}
                                 className="text-xs h-7 px-3 border-red-200 text-red-600 hover:bg-red-50 gap-1.5"
                               >
-                                <RotateCcw className="w-3 h-3" /> Force Reset
+                                <RotateCcw className="w-3 h-3" /> {t.forceReset}
                               </Button>
                             ) : (
-                              <span className="text-xs text-slate-300 italic">Available</span>
+                              <span className="text-xs text-slate-300 italic">{t.available}</span>
                             )}
                           </td>
                         </tr>
@@ -451,7 +515,7 @@ export default function AdminDashboard() {
                 {allNfcDevices.length === 0 && (
                   <div className="text-center py-12 text-slate-400">
                     <Smartphone className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No NFC devices found</p>
+                    <p>{t.noNfc}</p>
                   </div>
                 )}
               </div>
@@ -465,7 +529,7 @@ export default function AdminDashboard() {
             <div className="flex justify-between items-center">
               <p className="text-slate-500 text-sm">{devices.length} devices total</p>
               <Button onClick={() => setShowDeviceForm(true)} className="bg-blue-600 hover:bg-blue-700 gap-2">
-                <Plus className="w-4 h-4" /> Add Device
+                <Plus className="w-4 h-4" /> {t.addDevice}
               </Button>
             </div>
 
@@ -510,7 +574,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      {["Code","Type","Status","Profile","Tap URL","Assigned"].map(h => (
+                      {[t.code, t.type, t.status, t.profileCol, "Tap URL", t.activated].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -538,7 +602,7 @@ export default function AdminDashboard() {
                 {devices.length === 0 && (
                   <div className="text-center py-12 text-slate-400">
                     <Smartphone className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No devices yet</p>
+                    <p>{t.noDevices}</p>
                   </div>
                 )}
               </div>
@@ -569,7 +633,7 @@ export default function AdminDashboard() {
               {leads.length === 0 && (
                 <div className="col-span-3 text-center py-16 text-slate-400">
                   <Star className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                  <p>No leads yet across any profiles</p>
+                  <p>{t.noLeads}</p>
                 </div>
               )}
             </div>
@@ -585,7 +649,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-100">
-                      {["Device Code","Type","User","Profile","Activated"].map(h => (
+                      {[t.deviceCode, t.type, t.user, t.profileCol, t.activated].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
                       ))}
                     </tr>
@@ -618,7 +682,7 @@ export default function AdminDashboard() {
                 {recentActivations.length === 0 && (
                   <div className="text-center py-12 text-slate-400">
                     <Clock className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No device activations yet</p>
+                    <p>{t.noActivations}</p>
                   </div>
                 )}
               </div>
@@ -631,10 +695,10 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Total", value: allAppointments.length, color: "#FF7A00" },
-                { label: "Pending", value: allAppointments.filter(a => a.status === "pending").length, color: "#FDBA21" },
-                { label: "Confirmed", value: allAppointments.filter(a => a.status === "confirmed").length, color: "#22c55e" },
-                { label: "Completed", value: allAppointments.filter(a => a.status === "completed").length, color: "#06b6d4" },
+                { label: lang === "fr" ? "Total" : "Total", value: allAppointments.length, color: "#FF7A00" },
+                { label: lang === "fr" ? "En attente" : "Pending", value: allAppointments.filter(a => a.status === "pending").length, color: "#FDBA21" },
+                { label: lang === "fr" ? "Confirmé" : "Confirmed", value: allAppointments.filter(a => a.status === "confirmed").length, color: "#22c55e" },
+                { label: lang === "fr" ? "Complété" : "Completed", value: allAppointments.filter(a => a.status === "completed").length, color: "#06b6d4" },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -647,7 +711,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["Customer","Date/Time","Contact","Source Profile","Status","Created"].map(h => (
+                      {[t.customer, lang === "fr" ? "Date/Heure" : "Date/Time", t.contact, lang === "fr" ? "Profil Source" : "Source Profile", t.status, lang === "fr" ? "Créé le" : "Created"].map(h => (
                         <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -692,7 +756,7 @@ export default function AdminDashboard() {
                 {allAppointments.length === 0 && (
                   <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No appointments yet</p>
+                    <p>{t.noAppointments}</p>
                   </div>
                 )}
               </div>
@@ -706,10 +770,10 @@ export default function AdminDashboard() {
             {/* Summary row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: "Total Prospects", value: prospectLeads.length, color: "#FF7A00" },
-                { label: "New", value: prospectLeads.filter(p => p.status === "new").length, color: "#FDBA21" },
-                { label: "Contacted", value: prospectLeads.filter(p => p.status === "contacted").length, color: "#06b6d4" },
-                { label: "Converted", value: prospectLeads.filter(p => p.status === "converted").length, color: "#22c55e" },
+                { label: t.totalProspects, value: prospectLeads.length, color: "#FF7A00" },
+                { label: t.new, value: prospectLeads.filter(p => p.status === "new").length, color: "#FDBA21" },
+                { label: t.contacted, value: prospectLeads.filter(p => p.status === "contacted").length, color: "#06b6d4" },
+                { label: t.converted, value: prospectLeads.filter(p => p.status === "converted").length, color: "#22c55e" },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -723,7 +787,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["Prospect","Contact","Interest","Source","Date","Status"].map(h => (
+                      {[t.prospect, t.contact, t.interest, t.source, t.date, t.status].map(h => (
                         <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -788,8 +852,8 @@ export default function AdminDashboard() {
                 {prospectLeads.length === 0 && (
                   <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <UserPlus2 className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No prospect leads yet</p>
-                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.15)" }}>They'll appear here when visitors tap NFC profiles and interact with the popup.</p>
+                    <p>{t.noProspects}</p>
+                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.15)" }}>{t.prospectsNote}</p>
                   </div>
                 )}
               </div>
@@ -802,9 +866,9 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-2">
               {[
-                { label: "Total Users", value: allUsers.length, color: "#FF7A00" },
-                { label: "Last 7 Days", value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 7*24*60*60*1000)).length, color: "#22c55e" },
-                { label: "Last 30 Days", value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 30*24*60*60*1000)).length, color: "#FDBA21" },
+                { label: t.totalUsers, value: allUsers.length, color: "#FF7A00" },
+                { label: t.last7, value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 7*24*60*60*1000)).length, color: "#22c55e" },
+                { label: t.last30, value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 30*24*60*60*1000)).length, color: "#FDBA21" },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -817,7 +881,7 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["User","Email","Role","Joined"].map(h => (
+                      {[t.userCol, t.email, t.role, t.joined].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -836,7 +900,7 @@ export default function AdminDashboard() {
                               </div>
                               <div>
                                 <p className="font-bold text-white text-sm">{u.full_name || "—"}</p>
-                                {isNew && <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">NEW</span>}
+                                {isNew && <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">{t.newBadge}</span>}
                               </div>
                             </div>
                           </td>
@@ -858,7 +922,7 @@ export default function AdminDashboard() {
                 {allUsers.length === 0 && (
                   <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>No users found</p>
+                    <p>{t.noUsers}</p>
                   </div>
                 )}
               </div>
@@ -894,21 +958,21 @@ export default function AdminDashboard() {
                 <RotateCcw className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <h3 className="font-black text-slate-900">Force Reset Device</h3>
+                <h3 className="font-black text-slate-900">{t.forceResetTitle}</h3>
                 <p className="text-xs text-slate-400 font-mono">{resetConfirm.device_code}</p>
               </div>
             </div>
-            <p className="text-sm text-slate-600 mb-2">This will <strong>remove the current owner</strong> and make this device available for a new account to claim.</p>
-            <p className="text-xs text-red-500 bg-red-50 rounded-xl p-3 mb-5">⚠️ This action cannot be undone. The previous owner will lose access to this device.</p>
+            <p className="text-sm text-slate-600 mb-2">{t.forceResetMsg}</p>
+            <p className="text-xs text-red-500 bg-red-50 rounded-xl p-3 mb-5">{t.forceResetWarning}</p>
             <div className="flex gap-2">
               <Button
                 onClick={() => handleForceReset(resetConfirm)}
                 disabled={resetting}
                 className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold"
               >
-                {resetting ? "Resetting..." : "Yes, Force Reset"}
+                {resetting ? t.resetting : t.yesReset}
               </Button>
-              <Button variant="outline" onClick={() => setResetConfirm(null)} className="flex-1">Cancel</Button>
+              <Button variant="outline" onClick={() => setResetConfirm(null)} className="flex-1">{t.cancel}</Button>
             </div>
           </div>
         </div>
