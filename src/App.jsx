@@ -36,6 +36,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 import PublicResume from '@/pages/PublicResume';
 import LostDevicePage from '@/pages/LostDevicePage';
+import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfService from '@/pages/TermsOfService';
+import DataDeletion from '@/pages/DataDeletion';
+import ContactSupport from '@/pages/ContactSupport';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -81,6 +85,10 @@ const AuthenticatedApp = () => {
       <Route path="/resume/:resumeId" element={<PublicResume />} />
       <Route path="/r/:resumeId" element={<PublicResume />} />
       <Route path="/lost/:deviceCode" element={<LostDevicePage />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/data-deletion" element={<DataDeletion />} />
+      <Route path="/contact-support" element={<ContactSupport />} />
 
       {/* ── ALL PROTECTED ROUTES ── */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>

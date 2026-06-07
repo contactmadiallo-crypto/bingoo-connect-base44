@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle, Phone, Mail, MapPin, Send, CheckCircle2, Loader2 } from "lucide-react";
+import PublicFooter from "@/components/bingoo/PublicFooter";
 
 export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp } = {}) {
   const params = useParams();
@@ -219,7 +220,8 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 pb-4">Powered by Bingoo Connect</p>
+        <p className="text-center text-xs text-slate-400 pb-2">Powered by Bingoo Connect</p>
+        <PublicFooter />
       </div>
     </div>
   );

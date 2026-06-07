@@ -11,6 +11,7 @@ import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
+import PublicFooter from "@/components/bingoo/PublicFooter";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
@@ -489,12 +490,13 @@ export default function PublicProfile() {
                 <Divider />
                 <LeadCaptureSection profileId={profile.id} color={color} />
 
-                {/* Powered by */}
+                {/* Powered by + Footer */}
                 <div style={{ textAlign: "center", marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(0,0,0,0.05)" }}>
                   <a href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
                     <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png" alt="Bingoo Connect" style={{ height: 22, objectFit: "contain", opacity: 0.55 }} />
                     <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Powered by Bingoo Connect</span>
                   </a>
+                  <PublicFooter dark={isDark} />
                 </div>
               </div>
             </div>
