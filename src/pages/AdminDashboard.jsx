@@ -49,6 +49,7 @@ export default function AdminDashboard() {
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
   const { data: subscriptions = [], refetch: refetchSubs } = useQuery({ queryKey: ["admin-subscriptions"], queryFn: () => base44.entities.Subscription.list("-created_date", 200) });
   const { data: prospectLeads = [], refetch: refetchProspects } = useQuery({ queryKey: ["admin-prospect-leads"], queryFn: () => base44.entities.ProspectLead.list("-created_at", 500) });
+  const { data: allUsers = [] } = useQuery({ queryKey: ["admin-users"], queryFn: () => base44.entities.User.list("-created_date", 200) });
   const [subSearch, setSubSearch] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("all");
   const [subStatusFilter, setSubStatusFilter] = useState("all");
@@ -98,6 +99,7 @@ export default function AdminDashboard() {
     { id: "leads",        label: "All Leads",         icon: Star,       count: leads.length },
     { id: "appointments", label: "All Appointments",  icon: CheckCircle2, count: allAppointments.length },
     { id: "prospects",    label: "Prospect Clients",  icon: UserPlus2,  count: prospectLeads.length },
+    { id: "new_users",    label: "New Users",         icon: UserPlus2,  count: undefined },
     { id: "analytics",    label: "Analytics",         icon: BarChart3 },
   ];
 
@@ -788,6 +790,75 @@ export default function AdminDashboard() {
                     <UserPlus2 className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>No prospect leads yet</p>
                     <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.15)" }}>They'll appear here when visitors tap NFC profiles and interact with the popup.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* New Users */}
+        {tab === "new_users" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-2">
+              {[
+                { label: "Total Users", value: allUsers.length, color: "#FF7A00" },
+                { label: "Last 7 Days", value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 7*24*60*60*1000)).length, color: "#22c55e" },
+                { label: "Last 30 Days", value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 30*24*60*60*1000)).length, color: "#FDBA21" },
+              ].map(s => (
+                <div key={s.label} className="rounded-2xl p-4 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {["User","Email","Role","Joined"].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allUsers.map(u => {
+                      const isNew = new Date(u.created_date) > new Date(Date.now() - 7*24*60*60*1000);
+                      return (
+                        <tr key={u.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-yellow-400 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+                                {u.full_name?.charAt(0) || "?"}
+                              </div>
+                              <div>
+                                <p className="font-bold text-white text-sm">{u.full_name || "—"}</p>
+                                {isNew && <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">NEW</span>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{u.email}</td>
+                          <td className="px-5 py-4">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize"
+                              style={{ background: u.role === "admin" ? "rgba(253,186,33,0.15)" : "rgba(255,255,255,0.07)", color: u.role === "admin" ? gold : "rgba(255,255,255,0.4)", border: `1px solid ${u.role === "admin" ? "rgba(253,186,33,0.3)" : "rgba(255,255,255,0.1)"}` }}>
+                              {u.role || "user"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {u.created_date ? new Date(u.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                {allUsers.length === 0 && (
+                  <div className="text-center py-16" style={{ color: "rgba(255,255,255,0.2)" }}>
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p>No users found</p>
                   </div>
                 )}
               </div>
