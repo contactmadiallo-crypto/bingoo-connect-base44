@@ -48,39 +48,39 @@ const plans = [
   price: "$0",
   period: "",
   desc: "Get started today",
-  features: ["1 profile", "1 NFC device", "Basic contact info", "Social links", "Limited analytics"],
+  features: ["1 profile", "Public profile link", "Basic contact sharing", "Social links", "QR code", "WhatsApp button"],
   highlight: false,
   cta: "Get Started Free",
   color: B.navy
 },
 {
-  name: "Pro",
-  price: "$14.99",
+  name: "Professional",
+  price: "$4.99",
   period: "/mo",
-  desc: "For professionals",
-  features: ["Everything in Free", "Appointment Booking", "Lead Collection", "Gallery & Portfolio", "Full Analytics", "Custom Branding", "QR Codes", "5 NFC devices"],
+  desc: "For individuals & freelancers",
+  features: ["Everything in Free", "Appointment booking", "Lead collection CRM", "Gallery & portfolio", "Full analytics dashboard", "Custom branding & colors", "QR code download", "Up to 5 NFC devices", "Instagram integration", "Save contact button"],
   highlight: true,
-  cta: "Start Pro",
+  cta: "Get Professional",
   color: B.orange
 },
 {
-  name: "Business",
-  price: "$49.99",
+  name: "Salon",
+  price: "$19.99",
   period: "/mo",
-  desc: "For teams & companies",
-  features: ["Unlimited NFC devices", "Team Members", "Advanced Analytics", "Lead Management CRM", "Customer Database", "Priority Support", "AI Assistant"],
+  desc: "Hair, beauty & wellness",
+  features: ["Salon business profile", "Staff profiles", "Service menu", "Appointment booking", "WhatsApp booking button", "Instagram showcase", "Google review link", "Up to 10 NFC devices", "Advanced analytics", "Lead export"],
   highlight: false,
-  cta: "Start Business",
+  cta: "Get Salon Plan",
   color: B.navy
 },
 {
-  name: "Law Firm",
+  name: "Corporate Team",
   price: "$99",
   period: "/mo",
-  desc: "For legal professionals",
-  features: ["Everything in Business", "Case Intake Forms", "Practice Area Profiles", "Staff Profiles", "Multi-Language Support", "AI Intake Assistant", "Client Pipeline"],
+  desc: "Teams, enterprises & orgs",
+  features: ["Employee profiles", "Team NFC cards (up to 50)", "Clock in / clock out", "Attendance dashboard", "Team analytics", "Admin role management", "CRM pipeline", "Lead export", "Advanced analytics", "Priority support"],
   highlight: false,
-  cta: "Start Law Firm",
+  cta: "Get Corporate Plan",
   color: B.navyDark
 }];
 
@@ -405,7 +405,7 @@ export default function Landing() {
           { val: counts[0].toLocaleString() + "+", label: "Profiles Created" },
           { val: counts[1] + "+", label: "Countries Served" },
           { val: counts[2] + " Plans", label: "For Every Business" },
-          { val: "$" + counts[3] + "/mo", label: "Law Firm Plan" }].
+          { val: "$" + counts[3] + "/mo", label: "Corporate Plan" }].
           map((s, i) =>
           <ScrollReveal key={s.label} delay={i * 0.1}>
               <p className="text-3xl font-black" style={{ color: B.gold }}>{s.val}</p>
