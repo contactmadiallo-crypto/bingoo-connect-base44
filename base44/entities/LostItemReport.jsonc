@@ -1,0 +1,94 @@
+{
+  "name": "LostItemReport",
+  "type": "object",
+  "properties": {
+    "device_code": {
+      "type": "string"
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "owner_profile_id": {
+      "type": "string"
+    },
+    "finder_name": {
+      "type": "string"
+    },
+    "finder_phone": {
+      "type": "string"
+    },
+    "finder_email": {
+      "type": "string"
+    },
+    "finder_location": {
+      "type": "string"
+    },
+    "finder_message": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "scan_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "recovered"
+      ],
+      "default": "new"
+    }
+  },
+  "required": [
+    "device_code"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": null
+    },
+    "read": {
+      "$or": [
+        {
+          "data.owner_profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.owner_profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

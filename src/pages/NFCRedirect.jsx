@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { useEffect } from "react";
+import LostDevicePage from "./LostDevicePage";
 
 export default function NFCRedirect() {
   const { deviceCode } = useParams();
@@ -25,8 +26,8 @@ export default function NFCRedirect() {
   const profile = profileData?.data?.profile;
 
   useEffect(() => {
+    if (device?.status === "lost") return; // Don't redirect, show lost page
     if (profile?.username) {
-      // Fire analytics in background, don't let it block redirect
       base44.entities.Analytics.create({
         profile_id: profile.id,
         device_id: device?.id,
@@ -36,7 +37,12 @@ export default function NFCRedirect() {
       }).catch(() => {});
       window.location.replace(`/p/${profile.username}`);
     }
-  }, [profile?.username]);
+  }, [profile?.username, device?.status]);
+
+  // Show lost mode page
+  if (device?.status === "lost" && !deviceLoading) {
+    return <LostDevicePage deviceCodeProp={normalizedCode} deviceProp={device} profileProp={profile} />;
+  }
 
   if (deviceLoading || (device?.assigned_profile && profileLoading)) {
     return (

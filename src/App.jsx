@@ -35,6 +35,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 import PublicResume from '@/pages/PublicResume';
+import LostDevicePage from '@/pages/LostDevicePage';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
       <Route path="/r/:resumeId" element={<PublicResume />} />
+      <Route path="/lost/:deviceCode" element={<LostDevicePage />} />
 
       {/* ── ALL PROTECTED ROUTES ── */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>

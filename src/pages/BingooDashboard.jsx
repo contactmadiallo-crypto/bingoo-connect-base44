@@ -17,8 +17,9 @@ import FeatureGate from "@/components/bingoo/FeatureGate";
 import ResumePanel from "@/components/bingoo/ResumePanel";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
+import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, ShieldAlert } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -36,6 +37,7 @@ const TABS_CONFIG = [
   { id: "appt_settings", labelKey: "bookingSetup",  icon: Settings,     color: "#0d9488" },
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
+  { id: "lost_mode",    labelKey: "lostMode",      icon: ShieldAlert,  color: "#ef4444" },
 ];
 
 export default function BingooDashboard() {
@@ -145,6 +147,7 @@ export default function BingooDashboard() {
       preview: "Preview", setupFirst: "Set up your first profile to get started.",
       activateDevice: "Activate Device", searchProfiles: "Search profiles…",
       newProfile: "+ New Profile", aiBuilder: "AI Builder",
+      lostMode: "Lost Mode",
     },
     fr: {
       overview: "Aperçu", editProfile: "Modifier le Profil", appointments: "Rendez-vous",
@@ -164,6 +167,7 @@ export default function BingooDashboard() {
       preview: "Aperçu", setupFirst: "Configurez votre premier profil pour commencer.",
       activateDevice: "Activer l'Appareil", searchProfiles: "Rechercher des profils…",
       newProfile: "+ Nouveau Profil", aiBuilder: "Créateur IA",
+      lostMode: "Mode Perdu",
     }
   };
   const tr = TR[lang];
@@ -565,6 +569,7 @@ export default function BingooDashboard() {
           {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
           {tab === "resumes"      && <ResumePanel user={user} profileId={profile?.id} />}
           {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
+          {tab === "lost_mode"   && <LostDeviceManager profileId={profile?.id} isDark={isDark} />}
 
         </div>
       </div>
