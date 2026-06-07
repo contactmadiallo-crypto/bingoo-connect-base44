@@ -1,0 +1,86 @@
+{
+  "name": "SalonService",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "description": "e.g. Hair, Nails, Skin"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "duration_minutes": {
+      "type": "number"
+    },
+    "price": {
+      "type": "number"
+    },
+    "price_label": {
+      "type": "string",
+      "description": "e.g. 'From $25', '$30\u2013$50'"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "profile_id",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "data.profile_id": {
+        "$in": [
+          "{{user.data.owned_profile_ids}}"
+        ]
+      }
+    },
+    "read": {},
+    "update": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.profile_id": {
+            "$in": [
+              "{{user.data.owned_profile_ids}}"
+            ]
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

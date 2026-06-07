@@ -12,6 +12,7 @@ import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
+import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
@@ -474,6 +475,14 @@ export default function PublicProfile() {
                         {payments.map((p, i) => <PaymentBtn key={p.l} p={p} i={i} color={color} />)}
                       </div>
                     </div>
+                  </>
+                )}
+
+                {/* Salon / Restaurant Services */}
+                {["salon","restaurant"].includes(profile.plan) && (
+                  <>
+                    <Divider />
+                    <SalonServicesSection profileId={profile.id} color={color} isDark={isDark} />
                   </>
                 )}
 
