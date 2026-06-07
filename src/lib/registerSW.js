@@ -5,6 +5,14 @@
 export async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return null;
 
+  // Never register in dev — stale SW cache causes duplicate React / null hook errors
+  if (import.meta.env.DEV) {
+    // Unregister any existing dev workers so they don't serve stale chunks
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for (const reg of regs) await reg.unregister();
+    return null;
+  }
+
   try {
     const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
     console.log("[PWA] Service worker registered:", reg.scope);
