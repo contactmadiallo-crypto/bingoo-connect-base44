@@ -175,6 +175,14 @@
         }
       }
     },
+    "google_review_url": {
+      "type": "string",
+      "description": "Google Maps/Business review link"
+    },
+    "whatsapp_booking_message": {
+      "type": "string",
+      "description": "Pre-filled WhatsApp message for booking (salon/restaurant)"
+    },
     "plan": {
       "type": "string",
       "enum": [

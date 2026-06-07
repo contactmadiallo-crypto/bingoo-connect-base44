@@ -35,6 +35,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
     youtube_url: "", payment_link: "", zelle_link: "", zelle_qr: "",
     cashapp_link: "", orangemoney_link: "", wave_link: "", wave_qr: "",
     custom_payments: [],
+    google_review_url: "",
+    whatsapp_booking_message: "",
     booking_enabled: false,
     booking_slot_duration: 30,
     booking_restricted_emails: [],
@@ -89,6 +91,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         wave_link: profile.wave_link || "",
         wave_qr: profile.wave_qr || "",
         custom_payments: profile.custom_payments || [],
+        google_review_url: profile.google_review_url || "",
+        whatsapp_booking_message: profile.whatsapp_booking_message || "",
         booking_enabled: profile.booking_enabled || false,
         booking_slot_duration: profile.booking_slot_duration || 30,
         booking_restricted_emails: profile.booking_restricted_emails || [],
@@ -129,7 +133,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
     if (!form.username) e.username = "Required";
     if (!form.display_name) e.display_name = "Required";
     if (form.email && !isValidEmail(form.email)) e.email = "Invalid email";
-    const urlFields = ["website","facebook_url","instagram_url","tiktok_url","linkedin_url","youtube_url","payment_link","zelle_link","cashapp_link","orangemoney_link","wave_link"];
+    const urlFields = ["website","facebook_url","instagram_url","tiktok_url","linkedin_url","youtube_url","payment_link","zelle_link","cashapp_link","orangemoney_link","wave_link","google_review_url"];
     urlFields.forEach(k => { if (form[k] && !isValidUrl(form[k])) e[k] = "Invalid URL"; });
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -543,6 +547,23 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             </div>
           )}
         </div>
+
+        {/* Salon / Restaurant extras */}
+        {["salon", "restaurant"].includes(profile?.plan) && (
+          <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-lg">{profile?.plan === "salon" ? "✂️" : "🍽️"}</span>
+              <h3 className="font-bold text-slate-900">{profile?.plan === "salon" ? "Salon" : "Restaurant"} Extras</h3>
+            </div>
+            {field("google_review_url", "⭐ Google Review Link", "https://g.page/r/...")}
+            <p className="text-xs text-slate-400 -mt-2">Paste your Google Maps review link — visitors will see a "Leave a Review" button on your profile.</p>
+            <div>
+              <Label>💬 WhatsApp Booking Message</Label>
+              <Input className="mt-1 border-slate-200" placeholder={`Hi, I'd like to book an appointment at your ${profile?.plan === "salon" ? "salon" : "restaurant"}...`} value={form.whatsapp_booking_message} onChange={set("whatsapp_booking_message")} />
+              <p className="text-xs text-slate-400 mt-1">Pre-filled message when visitors tap the WhatsApp booking button.</p>
+            </div>
+          </div>
+        )}
 
         {/* Social */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6">

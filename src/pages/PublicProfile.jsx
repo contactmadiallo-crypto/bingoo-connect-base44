@@ -268,9 +268,17 @@ export default function PublicProfile() {
   // Build link lists
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
 
+  const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
+  const waBookingHref = profile.whatsapp_number
+    ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
+    : null;
+
   const primaryLinks = [
     profile.phone && { label: "Call", color: "#16a34a", bg: "linear-gradient(135deg,#16a34a,#15803d)", href: `tel:${profile.phone}`, icon: <PhoneIcon size={24} />, ev: "phone_click" },
-    profile.whatsapp_number && { label: "WhatsApp", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" },
+    // Salon/Restaurant: show WhatsApp Booking as primary action when whatsapp_booking_message set
+    isSalonOrRestaurant && waBookingHref
+      ? { label: "Book via WA", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: waBookingHref, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" }
+      : profile.whatsapp_number && { label: "WhatsApp", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" },
     profile.email && { label: "Email", color: "#6366f1", bg: "linear-gradient(135deg,#6366f1,#4f46e5)", href: `mailto:${profile.email}`, icon: <EmailSvgIcon size={24} />, ev: "email_click" },
     canBook && { label: "Book", color: color, bg: `linear-gradient(135deg,${color},${hexRgb(color,0.8)})`, href: null, onClick: () => setBookOpen(true), icon: <CalendarSvgIcon size={24} />, ev: null },
   ].filter(Boolean);
@@ -433,8 +441,8 @@ export default function PublicProfile() {
                   </div>
                 )}
 
-                {/* Website + Location */}
-                {(profile.website || (profile.location && profile.show_location !== false)) && (
+                {/* Website + Location + Google Review */}
+                {(profile.website || (profile.location && profile.show_location !== false) || profile.google_review_url) && (
                   <>
                     <Divider />
                     <div style={{ marginBottom: 28 }}>
@@ -457,6 +465,17 @@ export default function PublicProfile() {
                             <div style={{ flex: 1 }}>
                               <p style={{ margin: 0, fontWeight: 600 }}>{profile.location}</p>
                               <p style={{ margin: 0, fontSize: 11, color: "#0077b6", fontWeight: 700 }}>Get Directions →</p>
+                            </div>
+                          </motion.a>
+                        )}
+                        {profile.google_review_url && (
+                          <motion.a href={profile.google_review_url} target="_blank" rel="noopener noreferrer"
+                            whileHover={{ x: 4 }}
+                            style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 16, background: isDark ? "rgba(255,255,255,0.06)" : "#fffbeb", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #fde68a", textDecoration: "none", color: isDark ? "rgba(255,255,255,0.8)" : "#374151", fontWeight: 700, fontSize: 14 }}>
+                            <span style={{ fontSize: 22 }}>⭐</span>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ margin: 0, fontWeight: 700 }}>Leave a Google Review</p>
+                              <p style={{ margin: 0, fontSize: 11, color: "#d97706", fontWeight: 700 }}>Share your experience →</p>
                             </div>
                           </motion.a>
                         )}
@@ -538,10 +557,10 @@ export default function PublicProfile() {
               <PhoneIcon size={18} /> Call Now
             </a>
             {profile.whatsapp_number
-              ? <a href={`https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
+              ? <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
                   onClick={() => track("whatsapp_click")}
                   style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 14, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 13.5, textDecoration: "none", boxShadow: "0 6px 20px rgba(37,211,102,0.4)" }}>
-                  <WhatsAppIcon size={18} /> WhatsApp
+                  <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book via WA" : "WhatsApp"}
                 </a>
               : <button
                   onClick={() => { track("save_contact_click"); saveContact(profile); }}
