@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Edit2, X, Check, Image, Scissors } from "lucide-react";
+import { Plus, Trash2, Edit2, X, Check, Image, Scissors, Clock, Tag } from "lucide-react";
 import { toast } from "sonner";
 
 const EMPTY_SERVICE = {
@@ -13,18 +13,153 @@ const EMPTY_SERVICE = {
   duration_minutes: 30, price: 0, price_label: "", image_url: "", is_active: true, order: 0
 };
 
+// ── Service Form — defined OUTSIDE the panel so it never remounts on re-render
+function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isDark, uploading, onImageUpload }) {
+  const headText = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/50" : "text-slate-500";
+  const labelCls = `block text-xs font-semibold mb-1.5 ${mutedText}`;
+  const inputCls = isDark
+    ? "bg-white/6 border-white/12 text-white placeholder:text-white/25 focus:border-white/30 focus:bg-white/8"
+    : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100";
+
+  return (
+    <div className={`rounded-2xl border overflow-hidden ${isDark ? "bg-[#0f1623] border-white/10" : "bg-white border-slate-200"}`}
+      style={{ boxShadow: isDark ? "0 4px 24px rgba(0,0,0,0.4)" : "0 4px 24px rgba(0,0,0,0.08)" }}>
+
+      {/* Form header */}
+      <div className={`flex items-center justify-between px-5 py-4 border-b ${isDark ? "border-white/8 bg-white/3" : "border-slate-100 bg-slate-50"}`}>
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <Scissors className="w-3.5 h-3.5 text-white" />
+          </div>
+          <h3 className={`font-bold text-sm ${headText}`}>
+            {editingId === "new" ? "New Service" : "Edit Service"}
+          </h3>
+        </div>
+        <button onClick={onCancel}
+          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-200 text-slate-400 hover:text-slate-600"}`}>
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="p-5 space-y-4">
+        {/* Row 1: Name + Category */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>Service Name <span className="text-red-500">*</span></label>
+            <Input
+              className={inputCls}
+              placeholder="e.g. Full Haircut"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Category</label>
+            <Input
+              className={inputCls}
+              placeholder="e.g. Hair, Nails, Skin"
+              value={form.category}
+              onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        {/* Row 2: Price Label + Duration */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={labelCls}>
+              <span className="flex items-center gap-1.5"><Tag className="w-3 h-3" /> Price</span>
+            </label>
+            <Input
+              className={inputCls}
+              placeholder='e.g. $25 or "From $30"'
+              value={form.price_label}
+              onChange={e => setForm(f => ({ ...f, price_label: e.target.value }))}
+            />
+          </div>
+          <div>
+            <label className={labelCls}>
+              <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> Duration (minutes)</span>
+            </label>
+            <Input
+              className={inputCls}
+              type="number"
+              min="5"
+              placeholder="30"
+              value={form.duration_minutes}
+              onChange={e => setForm(f => ({ ...f, duration_minutes: Number(e.target.value) }))}
+            />
+          </div>
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className={labelCls}>Description <span className={mutedText + " font-normal"}>(optional)</span></label>
+          <Textarea
+            className={inputCls}
+            placeholder="Brief description of this service..."
+            rows={2}
+            value={form.description}
+            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+          />
+        </div>
+
+        {/* Image upload */}
+        <div>
+          <label className={labelCls}>Service Image <span className={mutedText + " font-normal"}>(optional)</span></label>
+          <div className="flex items-center gap-3">
+            {form.image_url
+              ? <img src={form.image_url} className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0" alt="" />
+              : <div className={`w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center text-xl flex-shrink-0 ${isDark ? "border-white/15 text-white/20" : "border-slate-200 text-slate-300"}`}>🖼️</div>
+            }
+            <div className="flex gap-2">
+              <label className={`cursor-pointer text-xs font-semibold px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5 transition-colors ${isDark ? "bg-white/10 text-white/70 hover:bg-white/15" : "bg-blue-50 text-blue-600 hover:bg-blue-100"}`}>
+                {uploading
+                  ? <><div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" /> Uploading...</>
+                  : <><Image className="w-3.5 h-3.5" /> {form.image_url ? "Change" : "Upload"}</>
+                }
+                <input type="file" accept="image/*" className="hidden" onChange={onImageUpload} disabled={uploading} />
+              </label>
+              {form.image_url && (
+                <button onClick={() => setForm(f => ({ ...f, image_url: "" }))}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className={`flex items-center gap-3 pt-1 border-t ${isDark ? "border-white/8" : "border-slate-100"}`}>
+          <Button
+            onClick={onSave}
+            disabled={isSaving}
+            className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-5">
+            <Check className="w-4 h-4" />
+            {isSaving ? "Saving…" : "Save Service"}
+          </Button>
+          <button onClick={onCancel}
+            className={`text-sm font-semibold transition-colors ${isDark ? "text-white/40 hover:text-white/70" : "text-slate-400 hover:text-slate-600"}`}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main panel
 export default function SalonServicesPanel({ profileId, isDark }) {
   const qc = useQueryClient();
-  const [editingId, setEditingId] = useState(null); // null=none, "new"=creating
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_SERVICE);
   const [uploading, setUploading] = useState(false);
 
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const cardBg = isDark ? "bg-white/5 border-white/8" : "bg-white border-slate-100";
-  const inputStyle = isDark
-    ? "bg-white/5 border-white/10 text-white placeholder:text-white/25"
-    : "border-slate-200";
 
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["salon-services", profileId],
@@ -34,18 +169,30 @@ export default function SalonServicesPanel({ profileId, isDark }) {
 
   const createService = useMutation({
     mutationFn: (data) => base44.entities.SalonService.create({ ...data, profile_id: profileId }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["salon-services", profileId] }); toast.success("Service added!"); setEditingId(null); setForm(EMPTY_SERVICE); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      toast.success("Service added!");
+      setEditingId(null);
+      setForm(EMPTY_SERVICE);
+    },
     onError: () => toast.error("Failed to save service"),
   });
 
   const updateService = useMutation({
     mutationFn: ({ id, data }) => base44.entities.SalonService.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["salon-services", profileId] }); toast.success("Service updated!"); setEditingId(null); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      toast.success("Service updated!");
+      setEditingId(null);
+    },
   });
 
   const deleteService = useMutation({
     mutationFn: (id) => base44.entities.SalonService.delete(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["salon-services", profileId] }); toast.success("Service removed"); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      toast.success("Service removed");
+    },
   });
 
   const handleImageUpload = async (e) => {
@@ -56,15 +203,9 @@ export default function SalonServicesPanel({ profileId, isDark }) {
     setUploading(false);
   };
 
-  const startEdit = (service) => {
-    setEditingId(service.id);
-    setForm({ ...service });
-  };
-
-  const startNew = () => {
-    setEditingId("new");
-    setForm(EMPTY_SERVICE);
-  };
+  const startEdit = (service) => { setEditingId(service.id); setForm({ ...service }); };
+  const startNew = () => { setEditingId("new"); setForm(EMPTY_SERVICE); };
+  const handleCancel = () => setEditingId(null);
 
   const handleSave = () => {
     if (!form.name.trim()) { toast.error("Service name is required"); return; }
@@ -75,68 +216,7 @@ export default function SalonServicesPanel({ profileId, isDark }) {
     }
   };
 
-  // Group by category
   const categories = [...new Set(services.map(s => s.category || "General"))];
-
-  const ServiceForm = () => (
-    <div className={`rounded-2xl border p-5 space-y-4 ${isDark ? "bg-white/8 border-white/12" : "bg-blue-50 border-blue-200"}`}>
-      <div className="flex items-center justify-between">
-        <h3 className={`font-bold text-sm ${headText}`}>{editingId === "new" ? "Add New Service" : "Edit Service"}</h3>
-        <button onClick={() => setEditingId(null)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-200 text-slate-400"}`}>
-          <X className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="grid sm:grid-cols-2 gap-3">
-        <div>
-          <Label className={`text-xs font-bold mb-1 ${mutedText}`}>Service Name *</Label>
-          <Input className={`${inputStyle} mt-1`} placeholder="e.g. Full Haircut" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-        </div>
-        <div>
-          <Label className={`text-xs font-bold mb-1 ${mutedText}`}>Category</Label>
-          <Input className={`${inputStyle} mt-1`} placeholder="e.g. Hair, Nails, Skin" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} />
-        </div>
-        <div>
-          <Label className={`text-xs font-bold mb-1 ${mutedText}`}>Price Label</Label>
-          <Input className={`${inputStyle} mt-1`} placeholder='e.g. "$25" or "From $30"' value={form.price_label} onChange={e => setForm(f => ({ ...f, price_label: e.target.value }))} />
-        </div>
-        <div>
-          <Label className={`text-xs font-bold mb-1 ${mutedText}`}>Duration (minutes)</Label>
-          <Input className={`${inputStyle} mt-1`} type="number" placeholder="30" value={form.duration_minutes} onChange={e => setForm(f => ({ ...f, duration_minutes: Number(e.target.value) }))} />
-        </div>
-      </div>
-
-      <div>
-        <Label className={`text-xs font-bold mb-1 ${mutedText}`}>Description (optional)</Label>
-        <Textarea className={`${inputStyle} mt-1`} placeholder="Brief description of this service..." rows={2} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
-      </div>
-
-      {/* Service image */}
-      <div>
-        <Label className={`text-xs font-bold mb-2 ${mutedText}`}>Service Image (optional)</Label>
-        <div className="flex items-center gap-3">
-          {form.image_url
-            ? <img src={form.image_url} className="w-16 h-16 rounded-xl object-cover border border-slate-200" alt="" />
-            : <div className={`w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center text-slate-300 text-xl ${isDark ? "border-white/15" : "border-slate-200"}`}>🖼️</div>
-          }
-          <label className="cursor-pointer text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg inline-flex items-center gap-1.5">
-            {uploading ? <><div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><Image className="w-3.5 h-3.5" />{form.image_url ? "Change" : "Upload"}</>}
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-          </label>
-          {form.image_url && <button onClick={() => setForm(f => ({ ...f, image_url: "" }))} className="text-xs text-red-500 font-semibold bg-red-50 px-3 py-1.5 rounded-lg">Remove</button>}
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3 pt-1">
-        <Button onClick={handleSave} disabled={createService.isPending || updateService.isPending}
-          className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white">
-          <Check className="w-4 h-4" />
-          {createService.isPending || updateService.isPending ? "Saving..." : "Save Service"}
-        </Button>
-        <button onClick={() => setEditingId(null)} className={`text-sm font-semibold ${mutedText} hover:text-slate-700`}>Cancel</button>
-      </div>
-    </div>
-  );
 
   if (!profileId) {
     return (
@@ -163,11 +243,18 @@ export default function SalonServicesPanel({ profileId, isDark }) {
       </div>
 
       {/* New service form */}
-      {editingId === "new" && <ServiceForm />}
+      {editingId === "new" && (
+        <ServiceForm
+          form={form} setForm={setForm} editingId={editingId}
+          onSave={handleSave} onCancel={handleCancel}
+          isSaving={createService.isPending}
+          isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload}
+        />
+      )}
 
-      {/* Services list grouped by category */}
+      {/* Services list */}
       {isLoading ? (
-        <div className={`text-center py-10 ${mutedText}`}>Loading...</div>
+        <div className={`text-center py-10 ${mutedText}`}>Loading…</div>
       ) : services.length === 0 && editingId !== "new" ? (
         <div className={`rounded-2xl border p-10 text-center ${cardBg}`}>
           <Scissors className={`w-10 h-10 mx-auto mb-3 opacity-20`} />
@@ -181,12 +268,17 @@ export default function SalonServicesPanel({ profileId, isDark }) {
         <div className="space-y-5">
           {categories.map(cat => (
             <div key={cat}>
-              <p className={`text-xs font-black uppercase tracking-widest mb-2 ${mutedText}`}>{cat}</p>
+              <p className={`text-[11px] font-black uppercase tracking-widest mb-2 px-1 ${mutedText}`}>{cat}</p>
               <div className="space-y-2">
                 {services.filter(s => (s.category || "General") === cat).map(service => (
                   <div key={service.id}>
                     {editingId === service.id ? (
-                      <ServiceForm />
+                      <ServiceForm
+                        form={form} setForm={setForm} editingId={editingId}
+                        onSave={handleSave} onCancel={handleCancel}
+                        isSaving={updateService.isPending}
+                        isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload}
+                      />
                     ) : (
                       <div className={`rounded-2xl border p-4 flex items-center gap-4 transition-all ${cardBg}`}
                         style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.04)" : "0 1px 3px rgba(0,0,0,0.05)" }}>
