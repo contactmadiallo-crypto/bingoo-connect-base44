@@ -19,7 +19,7 @@ import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
   XIcon, WhatsAppIcon, SnapchatIcon, WebsiteIcon, MapPinIcon,
   SaveContactIcon, ShareIcon, CalendarSvgIcon, EmailSvgIcon, PhoneIcon,
-  WaveIcon, OrangeMoneyIcon, ZelleIcon, CashAppIcon
+  WaveIcon, OrangeMoneyIcon, ZelleIcon, CashAppIcon, WaveIconNew, OrangeMoneyIconNew
 } from "@/components/bingoo/SocialIcons";
 
 // ── Brand palette
@@ -164,7 +164,7 @@ function PaymentBtn({ p, i, color }) {
           textTransform: "uppercase", letterSpacing: "0.05em", minHeight: 76,
         }}
       >
-        {p.e === "wave" ? <WaveIcon size={28} /> : p.e === "orangemoney" ? <OrangeMoneyIcon size={28} /> : p.e === "zelle" ? <ZelleIcon size={28} /> : p.e === "cashapp" ? <CashAppIcon size={28} /> : <span style={{ fontSize: 22 }}>{p.e}</span>}
+        {p.e === "wave" ? <WaveIconNew size={28} /> : p.e === "orangemoney" ? <OrangeMoneyIconNew size={28} /> : p.e === "zelle" ? <ZelleIcon size={28} /> : p.e === "cashapp" ? <CashAppIcon size={28} /> : <span style={{ fontSize: 22 }}>{p.e}</span>}
         <span style={{ lineHeight: 1.2, textAlign: "center" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
       <AnimatePresence>

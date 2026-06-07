@@ -182,8 +182,7 @@ export function ZelleIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#0073DE" />
-      <path d="M7 10L10.5 13.5L17 7" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <rect x="4" y="4" width="16" height="16" rx="3" stroke="white" strokeWidth="1.2" fill="none" opacity="0.3" />
+      <path d="M8 12L11 15L17 8" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
@@ -192,7 +191,34 @@ export function CashAppIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#00D54B" />
-      <text x="12" y="17" fontSize="14" fontWeight="bold" textAnchor="middle" fill="white">$</text>
+      <path d="M12 7V17M7 12H17" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function WaveIconNew({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00B4E5" />
+      {/* Penguin head */}
+      <ellipse cx="12" cy="10" rx="4.5" ry="5" fill="white" />
+      {/* Penguin body */}
+      <ellipse cx="12" cy="16" rx="5.5" ry="4" fill="white" />
+      {/* Eyes */}
+      <circle cx="10" cy="9" r="1.2" fill="#000" />
+      <circle cx="14" cy="9" r="1.2" fill="#000" />
+      {/* Smile */}
+      <path d="M10.5 11C11 11.5 13 11.5 13.5 11" stroke="#000" strokeWidth="0.8" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+export function OrangeMoneyIconNew({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#FF6600" />
+      {/* Arrow up and right */}
+      <path d="M7 15L14 8M14 8L14 14M14 8L8 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
