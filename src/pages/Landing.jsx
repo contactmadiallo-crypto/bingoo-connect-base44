@@ -543,6 +543,17 @@ export default function Landing() {
               </motion.div>
             )}
           </motion.div>
+
+          {/* Browse All Plans CTA */}
+          <ScrollReveal delay={0.2} className="text-center mt-10">
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-block">
+              <Button size="lg" onClick={() => window.location.href = '/plans'}
+                className="font-black text-base px-10 py-6 rounded-2xl"
+                style={{ background: B.navy, color: "#fff", border: "none" }}>
+                Browse All Plans <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </motion.div>
+          </ScrollReveal>
         </div>
       </section>
 
