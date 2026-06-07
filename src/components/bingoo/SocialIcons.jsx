@@ -177,3 +177,22 @@ export function MapPinIcon({ size = 20, color = "#64748b" }) {
     </svg>
   );
 }
+
+export function ZelleIcon({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#0073DE" />
+      <path d="M7 10L10.5 13.5L17 7" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <rect x="4" y="4" width="16" height="16" rx="3" stroke="white" strokeWidth="1.2" fill="none" opacity="0.3" />
+    </svg>
+  );
+}
+
+export function CashAppIcon({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00D54B" />
+      <text x="12" y="17" fontSize="14" fontWeight="bold" textAnchor="middle" fill="white">$</text>
+    </svg>
+  );
+}
