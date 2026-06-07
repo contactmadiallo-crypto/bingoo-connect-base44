@@ -56,7 +56,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
   const { isSalon, isRestaurant, isBusiness, isFree } = usePlan();
-  const hasServiceMenu = !isFree; // all paid plans get services + hours tabs
+  const hasServiceMenu = isSalon || isRestaurant; // only salon and restaurant get services + hours tabs
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
