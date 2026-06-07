@@ -13,11 +13,11 @@ Deno.serve(async (req) => {
     const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
 
     if (!profile) {
-      return Response.json({ profile: null });
+      return Response.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     return Response.json({ profile });
   } catch (error) {
-    return Response.json({ profile: null, error: error.message }, { status: 200 });
+    return Response.json({ error: error.message }, { status: 500 });
   }
 });
