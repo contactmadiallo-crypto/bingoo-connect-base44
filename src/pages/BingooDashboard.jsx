@@ -18,7 +18,7 @@ import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -269,6 +269,11 @@ export default function BingooDashboard() {
                         <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
                     </a>
+                    <Link to="/account-settings">
+                      <Button size="sm" variant="ghost" className={`rounded-full gap-1.5 text-xs font-bold ${isDark ? "text-white/40 hover:text-white hover:bg-white/8" : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"}`}>
+                        <Shield className="w-3.5 h-3.5" />
+                      </Button>
+                    </Link>
                   </div>
                 )}
               </div>

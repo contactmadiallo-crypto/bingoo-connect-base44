@@ -11,6 +11,7 @@ import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
+import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
@@ -492,10 +493,14 @@ export default function PublicProfile() {
 
                 {/* Powered by + Footer */}
                 <div style={{ textAlign: "center", marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(0,0,0,0.05)" }}>
-                  <a href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/d277fc218_BingooConnectBrand.png" alt="Bingoo Connect" style={{ height: 22, objectFit: "contain", opacity: 0.55 }} />
+                  <a href="/" style={{ textDecoration: "none" }}>
                     <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Powered by Bingoo Connect</span>
                   </a>
+                  {!isDemo && (
+                    <div style={{ marginTop: 8 }}>
+                      <ReportAbuseButton profileId={profile?.id} username={profile?.username} />
+                    </div>
+                  )}
                   <PublicFooter dark={isDark} />
                 </div>
               </div>
@@ -561,6 +566,7 @@ export default function PublicProfile() {
 
       {/* Prospect marketing popup */}
       <ProspectPopup profileId={profile?.id} profileOwnerId={profile?.created_by_id} deviceCode={deviceCodeParam} isDemo={isDemo} />
+
     </div>
   );
 }

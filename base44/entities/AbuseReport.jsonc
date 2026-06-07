@@ -1,0 +1,64 @@
+{
+  "name": "AbuseReport",
+  "type": "object",
+  "properties": {
+    "reported_profile_id": {
+      "type": "string"
+    },
+    "reported_username": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "spam",
+        "fake_profile",
+        "harassment",
+        "impersonation",
+        "inappropriate_content",
+        "scam",
+        "other"
+      ]
+    },
+    "details": {
+      "type": "string"
+    },
+    "reporter_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "reviewed",
+        "dismissed",
+        "actioned"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "reported_profile_id",
+    "reason"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": null
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

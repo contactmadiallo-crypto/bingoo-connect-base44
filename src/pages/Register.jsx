@@ -20,9 +20,19 @@ export default function Register() {
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
 
+  const validatePassword = (pw) => {
+    if (pw.length < 8) return "Password must be at least 8 characters";
+    if (!/[A-Z]/.test(pw)) return "Password must contain at least one uppercase letter";
+    if (!/[0-9]/.test(pw)) return "Password must contain at least one number";
+    if (!/[^A-Za-z0-9]/.test(pw)) return "Password must contain at least one special character";
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const pwError = validatePassword(password);
+    if (pwError) { setError(pwError); return; }
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -209,6 +219,7 @@ export default function Register() {
               required
             />
           </div>
+          <p className="text-xs text-muted-foreground">Min 8 chars · 1 uppercase · 1 number · 1 special character</p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="confirm">Confirm Password</Label>

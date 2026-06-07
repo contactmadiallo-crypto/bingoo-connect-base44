@@ -44,6 +44,8 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import AccountSettings from '@/pages/AccountSettings';
+
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 
@@ -108,6 +110,7 @@ const AuthenticatedApp = () => {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
 

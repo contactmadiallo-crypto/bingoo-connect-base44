@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2 } from "lucide-react";
+import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
 const T = {
@@ -161,6 +162,7 @@ export default function AdminDashboard() {
     { id: "prospects",    label: t.tabs.prospects,    icon: UserPlus2,    count: prospectLeads.length },
     { id: "new_users",    label: t.tabs.new_users,    icon: UserPlus2,    count: undefined },
     { id: "analytics",    label: t.tabs.analytics,    icon: BarChart3 },
+    { id: "security",     label: "Security Audit",    icon: Shield },
   ];
 
   // Bingoo brand colors for admin
@@ -175,11 +177,6 @@ export default function AdminDashboard() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 pt-2">
-          <img
-            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
-            alt="Bingoo Connect"
-            className="h-10 w-auto object-contain"
-          />
           <div className="h-8 w-px bg-white/10" />
           <div>
             <h1 className="text-2xl font-black text-white">{t.title}</h1>
@@ -934,6 +931,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* Security Audit */}
+        {tab === "security" && <SecurityAuditTab />}
 
         {/* Analytics */}
         {tab === "analytics" && (
