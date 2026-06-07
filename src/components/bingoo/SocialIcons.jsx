@@ -181,9 +181,9 @@ export function MapPinIcon({ size = 20, color = "#64748b" }) {
 export function ZelleIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#0073DE" />
-      {/* Checkmark */}
-      <path d="M7 12.5L10.5 16L18 7" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#7D3FB6" />
+      {/* Dollar sign */}
+      <text x="12" y="16" fontSize="13" fontWeight="900" fontFamily="Arial, sans-serif" textAnchor="middle" fill="white">$</text>
     </svg>
   );
 }
@@ -191,9 +191,9 @@ export function ZelleIcon({ size = 20, className = "" }) {
 export function CashAppIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00D54B" />
-      {/* Plus sign */}
-      <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00C964" />
+      {/* Large dollar sign */}
+      <path d="M12 7V17M8.5 10.5C8.5 9.5 9.5 8.5 11 8.5C12.5 8.5 13.5 9.5 13.5 10.5M8.5 13.5C8.5 14.5 9.5 15.5 11 15.5C12.5 15.5 13.5 14.5 13.5 13.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
@@ -201,17 +201,23 @@ export function CashAppIcon({ size = 20, className = "" }) {
 export function WaveIconNew({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00B4D8" />
-      {/* Penguin head - simplified */}
-      <circle cx="12" cy="10" r="5" fill="white" />
-      {/* Penguin body - simplified */}
-      <ellipse cx="12" cy="16" rx="6" ry="4.5" fill="white" />
-      {/* Left eye */}
-      <circle cx="10" cy="9" r="1.3" fill="#000" />
-      {/* Right eye */}
-      <circle cx="14" cy="9" r="1.3" fill="#000" />
-      {/* Mouth dot */}
-      <circle cx="12" cy="12" r="0.8" fill="#000" />
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#1BA0E1" />
+      {/* Penguin body (dark) */}
+      <ellipse cx="12" cy="13" rx="4.5" ry="5.5" fill="#1a1a1a" />
+      {/* Penguin head (dark) */}
+      <circle cx="12" cy="8" r="4.5" fill="#1a1a1a" />
+      {/* Belly (white) */}
+      <ellipse cx="12" cy="13" rx="2.8" ry="3.5" fill="white" />
+      {/* Left eye (white) */}
+      <circle cx="10.5" cy="7.5" r="1.2" fill="white" />
+      {/* Right eye (white) */}
+      <circle cx="13.5" cy="7.5" r="1.2" fill="white" />
+      {/* Left pupil (black) */}
+      <circle cx="10.5" cy="7.5" r="0.5" fill="#000" />
+      {/* Right pupil (black) */}
+      <circle cx="13.5" cy="7.5" r="0.5" fill="#000" />
+      {/* Smile */}
+      <path d="M10.5 9.5C11.5 10.2 12.5 10.2 13.5 9.5" stroke="#000" strokeWidth="0.6" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -220,8 +226,16 @@ export function OrangeMoneyIconNew({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#FF6600" />
-      {/* Up-right arrow */}
-      <path d="M16 8H9V9L16 8M16 8L8 16" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Up-right arrow (black) */}
+      <g>
+        <path d="M17 8L9.5 15.5" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M15 8H17V10" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      {/* Down-left arrow (orange/darker) - secondary */}
+      <g opacity="0.5">
+        <path d="M7 16L14.5 8.5" stroke="black" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 16H7V14" stroke="black" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
     </svg>
   );
 }
