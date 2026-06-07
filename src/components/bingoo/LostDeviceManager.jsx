@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AlertTriangle, CheckCircle2, Clock, MapPin, Phone, Mail, MessageSquare, Smartphone, CreditCard, Key, Award, Shield, Wifi, Eye, EyeOff } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 const deviceIcons = { card: CreditCard, keychain: Key, bracelet: Award, stand: Shield, badge: Wifi, sticker: Smartphone };
@@ -15,7 +16,7 @@ const statusConfig = {
   inactive:  { label: "Inactive",  color: "bg-slate-100 text-slate-500 border-slate-200",  icon: Clock },
 };
 
-export default function LostDeviceManager({ profileId, isDark }) {
+export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }) {
   const qc = useQueryClient();
   const [expandedDevice, setExpandedDevice] = useState(null);
 
@@ -76,6 +77,16 @@ export default function LostDeviceManager({ profileId, isDark }) {
 
   return (
     <div className="space-y-6">
+      {/* Header with Activate Device button */}
+      <div className="flex items-center justify-between">
+        <h2 className={`text-xl font-black ${headText}`}>Devices & Lost Mode</h2>
+        <Link to="/activate-device">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm transition-colors">
+            <Smartphone className="w-4 h-4" /> {tr.activateDevice || "Activate Device"}
+          </button>
+        </Link>
+      </div>
+
       {/* Lost Devices Alert */}
       {lostDevices.length > 0 && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">

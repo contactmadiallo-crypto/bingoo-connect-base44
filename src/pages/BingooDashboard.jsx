@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
-import DevicesPanel from "@/components/bingoo/DevicesPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
@@ -30,7 +29,6 @@ const TABS_CONFIG = [
   { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
   { id: "calendar",      labelKey: "calendar",      icon: Calendar,     color: "#06b6d4" },
   { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
-  { id: "devices",       labelKey: "myDevices",     icon: Smartphone,   color: "#06b6d4" },
   { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#ec4899" },
   { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
   { id: "design",        labelKey: "design",        icon: Palette,      color: "#ec4899" },
@@ -545,20 +543,7 @@ export default function BingooDashboard() {
               <LeadsPanel profileId={profile?.id} />
             </FeatureGate>
           )}
-          {tab === "devices"      && (
-            <FeatureGate feature="nfc_devices">
-              <div className="space-y-4">
-                <div className="flex justify-end">
-                  <Link to="/activate-device">
-                    <Button className="rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2">
-                      <Smartphone className="w-4 h-4" /> {tr.activateDevice}
-                    </Button>
-                  </Link>
-                </div>
-                <DevicesPanel profileId={profile?.id} />
-              </div>
-            </FeatureGate>
-          )}
+
           {tab === "analytics"    && (
             <FeatureGate feature="analytics">
               <AnalyticsPanel profileId={profile?.id} />
@@ -569,7 +554,7 @@ export default function BingooDashboard() {
           {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
           {tab === "resumes"      && <ResumePanel user={user} profileId={profile?.id} />}
           {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
-          {tab === "lost_mode"   && <LostDeviceManager profileId={profile?.id} isDark={isDark} />}
+          {tab === "lost_mode"   && <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />}
 
         </div>
       </div>
@@ -587,7 +572,7 @@ export default function BingooDashboard() {
                 <button onClick={() => setShowLayoutPicker(false)} className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-white/50" : "hover:bg-slate-100 text-slate-400"}`}>✕</button>
               </div>
             </div>
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto max-h-[65vh]">
               <LayoutPicker
                 value={profile.layout || "classic"}
                 onChange={async (newLayout) => {
