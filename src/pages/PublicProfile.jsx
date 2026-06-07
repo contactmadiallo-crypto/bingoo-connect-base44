@@ -18,7 +18,8 @@ import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
   XIcon, WhatsAppIcon, SnapchatIcon, WebsiteIcon, MapPinIcon,
-  SaveContactIcon, ShareIcon, CalendarSvgIcon, EmailSvgIcon, PhoneIcon
+  SaveContactIcon, ShareIcon, CalendarSvgIcon, EmailSvgIcon, PhoneIcon,
+  WaveIcon, OrangeMoneyIcon
 } from "@/components/bingoo/SocialIcons";
 
 // ── Brand palette
@@ -163,7 +164,7 @@ function PaymentBtn({ p, i, color }) {
           textTransform: "uppercase", letterSpacing: "0.05em", minHeight: 76,
         }}
       >
-        <span style={{ fontSize: 22 }}>{p.e}</span>
+        {p.e === "wave" ? <WaveIcon size={28} /> : p.e === "orangemoney" ? <OrangeMoneyIcon size={28} /> : <span style={{ fontSize: 22 }}>{p.e}</span>}
         <span style={{ lineHeight: 1.2, textAlign: "center" }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
       <AnimatePresence>
@@ -294,8 +295,8 @@ export default function PublicProfile() {
   const payments = [
     (profile.zelle_qr || profile.zelle_link) && { e: "💳", l: "Zelle", h: profile.zelle_link || null, qr: profile.zelle_qr || null },
     (profile.cashapp_qr || profile.cashapp_link) && { e: "💰", l: "Cash App", h: profile.cashapp_link || null, qr: profile.cashapp_qr || null },
-    (profile.orangemoney_qr || profile.orangemoney_link) && { e: "🟠", l: "Orange Money", h: profile.orangemoney_link || null, qr: profile.orangemoney_qr || null },
-    (profile.wave_qr || profile.wave_link) && { e: "📲", l: "Wave", h: profile.wave_link || null, qr: profile.wave_qr || null },
+    (profile.orangemoney_qr || profile.orangemoney_link) && { e: "orangemoney", l: "Orange Money", h: profile.orangemoney_link || null, qr: profile.orangemoney_qr || null },
+    (profile.wave_qr || profile.wave_link) && { e: "wave", l: "Wave", h: profile.wave_link || null, qr: profile.wave_qr || null },
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);
 
@@ -307,13 +308,7 @@ export default function PublicProfile() {
 
       {/* Back button */}
       <motion.button
-        onClick={() => {
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            window.location.href = "/bingoo";
-          }
-        }}
+        onClick={() => window.history.back()}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}

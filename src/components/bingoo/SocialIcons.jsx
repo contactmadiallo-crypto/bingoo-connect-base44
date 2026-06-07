@@ -147,6 +147,28 @@ export function WebsiteIcon({ size = 20, color = "#64748b" }) {
   );
 }
 
+export function WaveIcon({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#1BA0E1" />
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#0077B6" />
+      {/* Wave "W" logo style */}
+      <path d="M5 8L7.5 16L10 10L12 15L14 10L16.5 16L19 8" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
+export function OrangeMoneyIcon({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#FF6600" />
+      {/* Orange Money arrows style */}
+      <path d="M7 12H17M13 8L17 12L13 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 8L7 12L11 16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function MapPinIcon({ size = 20, color = "#64748b" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">

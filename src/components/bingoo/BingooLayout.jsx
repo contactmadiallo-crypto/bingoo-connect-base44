@@ -97,7 +97,7 @@ export default function BingooLayout({ children }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 flex-shrink-0" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
-        <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+        <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-10 w-auto object-contain" />
         <div className={`text-[10px] uppercase tracking-widest mt-2 font-bold ${t.textMuted}`}>CONNECT • SHARE • GROW</div>
       </div>
@@ -158,7 +158,7 @@ export default function BingooLayout({ children }) {
           height: "calc(56px + env(safe-area-inset-top))",
         }}>
         <img
-          src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+          src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
           <button onClick={toggle}
