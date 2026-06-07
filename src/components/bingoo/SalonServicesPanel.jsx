@@ -175,7 +175,7 @@ export default function SalonServicesPanel({ profileId, isDark }) {
       setEditingId(null);
       setForm(EMPTY_SERVICE);
     },
-    onError: () => toast.error("Failed to save service"),
+    onError: (err) => toast.error("Failed to save: " + (err?.message || "Permission denied")),
   });
 
   const updateService = useMutation({
@@ -185,6 +185,7 @@ export default function SalonServicesPanel({ profileId, isDark }) {
       toast.success("Service updated!");
       setEditingId(null);
     },
+    onError: (err) => toast.error("Failed to update: " + (err?.message || "Permission denied")),
   });
 
   const deleteService = useMutation({
