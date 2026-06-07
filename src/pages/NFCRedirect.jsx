@@ -25,8 +25,10 @@ export default function NFCRedirect() {
 
   const profile = profileData?.data?.profile;
 
+  const deviceIsLost = device?.description === "lost";
+
   useEffect(() => {
-    if (device?.status === "lost") return; // Don't redirect, show lost page
+    if (deviceIsLost) return; // Don't redirect, show lost page
     if (profile?.username) {
       base44.entities.Analytics.create({
         profile_id: profile.id,
@@ -37,10 +39,10 @@ export default function NFCRedirect() {
       }).catch(() => {});
       window.location.replace(`/p/${profile.username}`);
     }
-  }, [profile?.username, device?.status]);
+  }, [profile?.username, deviceIsLost]);
 
   // Show lost mode page
-  if (device?.status === "lost" && !deviceLoading) {
+  if (deviceIsLost && !deviceLoading) {
     return <LostDevicePage deviceCodeProp={normalizedCode} deviceProp={device} profileProp={profile} />;
   }
 
