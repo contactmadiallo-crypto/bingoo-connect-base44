@@ -327,7 +327,7 @@ export default function Landing() {
               </motion.div>
 
               {/* Device activation */}
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
+              <motion.div className="flex flex-col sm:flex-row gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
                 <motion.div onClick={goActivate} whileHover={{ scale: 1.03, y: -1 }}
                 className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full cursor-pointer transition-colors"
                 style={{ background: "rgba(253,186,33,0.1)", border: "1px solid rgba(253,186,33,0.3)" }}>
@@ -337,6 +337,26 @@ export default function Landing() {
                     Activate here <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </motion.div>
+
+                {/* Live Demo pill */}
+                <motion.a
+                  href="/p/demo"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full cursor-pointer transition-colors"
+                  style={{ background: "rgba(255,122,0,0.12)", border: "1px solid rgba(255,122,0,0.35)", textDecoration: "none" }}
+                >
+                  <motion.span
+                    animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-2 h-2 rounded-full"
+                    style={{ background: B.orange, display: "inline-block", flexShrink: 0 }}
+                  />
+                  <span className="text-white/70 text-sm font-semibold">See it in action</span>
+                  <span className="text-sm font-black flex items-center gap-1" style={{ color: B.orange }}>
+                    Live Demo <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
+                </motion.a>
               </motion.div>
             </div>
 
@@ -647,22 +667,16 @@ export default function Landing() {
       {/* ── FOOTER */}
       <footer className="py-10 px-6 text-sm" style={{ background: B.navyDark }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img
-              src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
-              alt="Bingoo Connect"
-              className="h-8 w-auto object-contain" />
-            
-            <span className="text-white/40 text-xs">— Connect • Share • Grow • Succeed</span>
-          </div>
-          <div className="flex gap-6 text-white/40 text-xs">
-            <a href="/p/demo" className="hover:text-white/70 transition-colors">Demo Profile</a>
+          <span className="text-white/40 text-xs font-semibold tracking-wider">Connect • Share • Grow • Succeed</span>
+          <div className="flex flex-wrap justify-center gap-5 text-white/40 text-xs">
             <a href="/shop" className="hover:text-white/70 transition-colors">Shop</a>
             <a href="/plans" className="hover:text-white/70 transition-colors">Pricing</a>
-            <a href="/about" className="hover:text-white/70 transition-colors">About</a>
-            <a href="/contact" className="hover:text-white/70 transition-colors">Contact</a>
+            <a href="/privacy" className="hover:text-white/70 transition-colors">Privacy Policy</a>
+            <a href="/terms" className="hover:text-white/70 transition-colors">Terms of Service</a>
+            <a href="/data-deletion" className="hover:text-white/70 transition-colors">Data Deletion</a>
+            <a href="/contact-support" className="hover:text-white/70 transition-colors">Contact</a>
           </div>
-          <p className="text-white/30 text-xs">© 2026 Bingoo Connect · bingoo.africa</p>
+          <p className="text-white/30 text-xs">© {new Date().getFullYear()} Bingoo Connect · bingoo.africa</p>
         </div>
       </footer>
     </div>);
