@@ -182,7 +182,8 @@ export function ZelleIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#0073DE" />
-      <path d="M8 12L11 15L17 8" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      {/* Checkmark */}
+      <path d="M7 12.5L10.5 16L18 7" stroke="white" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
@@ -191,7 +192,8 @@ export function CashAppIcon({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#00D54B" />
-      <path d="M12 7V17M7 12H17" stroke="white" strokeWidth="2.4" strokeLinecap="round" />
+      {/* Plus sign */}
+      <path d="M12 8V16M8 12H16" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -199,16 +201,17 @@ export function CashAppIcon({ size = 20, className = "" }) {
 export function WaveIconNew({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00B4E5" />
-      {/* Penguin head */}
-      <ellipse cx="12" cy="10" rx="4.5" ry="5" fill="white" />
-      {/* Penguin body */}
-      <ellipse cx="12" cy="16" rx="5.5" ry="4" fill="white" />
-      {/* Eyes */}
-      <circle cx="10" cy="9" r="1.2" fill="#000" />
-      <circle cx="14" cy="9" r="1.2" fill="#000" />
-      {/* Smile */}
-      <path d="M10.5 11C11 11.5 13 11.5 13.5 11" stroke="#000" strokeWidth="0.8" strokeLinecap="round" fill="none" />
+      <rect x="2" y="2" width="20" height="20" rx="5" fill="#00B4D8" />
+      {/* Penguin head - simplified */}
+      <circle cx="12" cy="10" r="5" fill="white" />
+      {/* Penguin body - simplified */}
+      <ellipse cx="12" cy="16" rx="6" ry="4.5" fill="white" />
+      {/* Left eye */}
+      <circle cx="10" cy="9" r="1.3" fill="#000" />
+      {/* Right eye */}
+      <circle cx="14" cy="9" r="1.3" fill="#000" />
+      {/* Mouth dot */}
+      <circle cx="12" cy="12" r="0.8" fill="#000" />
     </svg>
   );
 }
@@ -217,8 +220,8 @@ export function OrangeMoneyIconNew({ size = 20, className = "" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
       <rect x="2" y="2" width="20" height="20" rx="5" fill="#FF6600" />
-      {/* Arrow up and right */}
-      <path d="M7 15L14 8M14 8L14 14M14 8L8 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Up-right arrow */}
+      <path d="M16 8H9V9L16 8M16 8L8 16" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </svg>
   );
 }
