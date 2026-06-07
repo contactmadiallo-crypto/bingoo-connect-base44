@@ -24,7 +24,7 @@ export default function DataDeletion() {
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <div style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", padding: "40px 24px 32px", textAlign: "center" }}>
         <Link to="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, marginBottom: 20, textDecoration: "none" }}>
-          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png" alt="Bingoo Connect" style={{ height: 28, objectFit: "contain" }} />
+          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/d277fc218_BingooConnectBrand.png" alt="Bingoo Connect" style={{ height: 28, objectFit: "contain" }} />
         </Link>
         <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Data Deletion Request</h1>
         <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>Submit a request to delete your personal data</p>
