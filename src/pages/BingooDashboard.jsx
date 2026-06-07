@@ -23,19 +23,19 @@ import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-const TABS = [
-  { id: "overview",      label: "Overview",      icon: TrendingUp,   color: "#3b82f6" },
-  { id: "profile",       label: "Edit Profile",  icon: Settings,     color: "#8b5cf6" },
-  { id: "appointments",  label: "Appointments",  icon: CalendarDays, color: "#10b981" },
-  { id: "calendar",      label: "Calendar",      icon: Calendar,     color: "#06b6d4" },
-  { id: "leads",         label: "Leads",         icon: Star,         color: "#f59e0b" },
-  { id: "devices",       label: "My Devices",    icon: Smartphone,   color: "#06b6d4" },
-  { id: "analytics",     label: "Analytics",     icon: BarChart3,    color: "#ec4899" },
-  { id: "portfolio",     label: "Portfolio",     icon: Briefcase,    color: "#8b5cf6" },
-  { id: "design",        label: "Design",        icon: Palette,      color: "#ec4899" },
-  { id: "appt_settings", label: "Booking Setup", icon: Settings,     color: "#0d9488" },
-  { id: "resumes",       label: "Resumes",       icon: FileText,     color: "#6366f1" },
-  { id: "connections",   label: "Connections",   icon: Users,        color: "#0d9488" },
+const TABS_CONFIG = [
+  { id: "overview",      labelKey: "overview",      icon: TrendingUp,   color: "#3b82f6" },
+  { id: "profile",       labelKey: "editProfile",   icon: Settings,     color: "#8b5cf6" },
+  { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
+  { id: "calendar",      labelKey: "calendar",      icon: Calendar,     color: "#06b6d4" },
+  { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
+  { id: "devices",       labelKey: "myDevices",     icon: Smartphone,   color: "#06b6d4" },
+  { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#ec4899" },
+  { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
+  { id: "design",        labelKey: "design",        icon: Palette,      color: "#ec4899" },
+  { id: "appt_settings", labelKey: "bookingSetup",  icon: Settings,     color: "#0d9488" },
+  { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
+  { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
 ];
 
 export default function BingooDashboard() {
@@ -101,7 +101,7 @@ export default function BingooDashboard() {
     enabled: !!profile?.id,
   });
 
-  const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
+  const profileUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : null;
 
   const copyLink = () => {
     navigator.clipboard.writeText(profileUrl);
@@ -112,6 +112,55 @@ export default function BingooDashboard() {
   const qrUrl = profileUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileUrl)}&color=ffffff&bgcolor=1e293b`
     : null;
+
+  // Language toggle (persisted in localStorage)
+  const [lang, setLang] = useState(() => localStorage.getItem("bingoo_lang") || "en");
+  const toggleLang = () => setLang(l => {
+    const next = l === "en" ? "fr" : "en";
+    localStorage.setItem("bingoo_lang", next);
+    return next;
+  });
+  const TR = {
+    en: {
+      overview: "Overview", editProfile: "Edit Profile", appointments: "Appointments",
+      calendar: "Calendar", leads: "Leads", myDevices: "My Devices", analytics: "Analytics",
+      portfolio: "Portfolio", design: "Design", bookingSetup: "Booking Setup",
+      resumes: "Resumes", connections: "Connections",
+      profileViews: "Profile Views", linkClicks: "Link Clicks", leadsCaptured: "Leads Captured",
+      yourProfile: "Your Profile", style: "Style", viewLive: "View Live", edit: "Edit",
+      noProfile: "No profile yet", createCard: "Create your digital card to get started.",
+      buildAI: "Build with AI", manual: "Manual",
+      qrCode: "QR Code", scanQr: "Scan to open your profile", download: "Download",
+      createFirst: "Create a profile first",
+      recentLeads: "Recent Leads", viewAll: "View all",
+      pushNotifs: "Push Notifications", pushDesc: "Get instant alerts for new leads & appointments",
+      unlockPower: "Unlock Full Power 🚀", unlockDesc: "Pro analytics, lead capture, booking & unlimited devices.",
+      viewPlans: "View Plans", copy: "Copy", copied: "Copied!",
+      preview: "Preview", setupFirst: "Set up your first profile to get started.",
+      activateDevice: "Activate Device", searchProfiles: "Search profiles…",
+      newProfile: "+ New Profile", aiBuilder: "AI Builder",
+    },
+    fr: {
+      overview: "Aperçu", editProfile: "Modifier le Profil", appointments: "Rendez-vous",
+      calendar: "Calendrier", leads: "Prospects", myDevices: "Mes Appareils", analytics: "Analytiques",
+      portfolio: "Portfolio", design: "Design", bookingSetup: "Config. Réservation",
+      resumes: "CV", connections: "Connexions",
+      profileViews: "Vues du Profil", linkClicks: "Clics sur Liens", leadsCaptured: "Prospects Capturés",
+      yourProfile: "Votre Profil", style: "Style", viewLive: "Voir en Direct", edit: "Modifier",
+      noProfile: "Pas encore de profil", createCard: "Créez votre carte numérique pour commencer.",
+      buildAI: "Créer avec l'IA", manual: "Manuel",
+      qrCode: "Code QR", scanQr: "Scannez pour ouvrir votre profil", download: "Télécharger",
+      createFirst: "Créez d'abord un profil",
+      recentLeads: "Prospects Récents", viewAll: "Voir tout",
+      pushNotifs: "Notifications Push", pushDesc: "Alertes instantanées pour les prospects & rendez-vous",
+      unlockPower: "Débloquez Tout le Pouvoir 🚀", unlockDesc: "Analytics pro, prospects, réservations & appareils illimités.",
+      viewPlans: "Voir les Forfaits", copy: "Copier", copied: "Copié!",
+      preview: "Aperçu", setupFirst: "Configurez votre premier profil pour commencer.",
+      activateDevice: "Activer l'Appareil", searchProfiles: "Rechercher des profils…",
+      newProfile: "+ Nouveau Profil", aiBuilder: "Créateur IA",
+    }
+  };
+  const tr = TR[lang];
 
   const totalViews = analytics.filter(a => a.event_type === "profile_view").length;
   const totalClicks = analytics.filter(a => a.event_type !== "profile_view").length;
@@ -135,11 +184,13 @@ export default function BingooDashboard() {
     : "linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #f3e8ff 100%)";
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
+  const TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
+
   const STAT_CONFIGS = [
-    { label: "Profile Views",   value: totalViews,   icon: Eye,       gradient: "from-blue-500 to-blue-600",   shadow: isDark ? "shadow-blue-900/40" : "shadow-blue-200" },
-    { label: "Link Clicks",     value: totalClicks,  icon: BarChart3, gradient: "from-violet-500 to-violet-600", shadow: isDark ? "shadow-violet-900/40" : "shadow-violet-200" },
-    { label: "Leads Captured",  value: leads.length, icon: Star,      gradient: "from-amber-500 to-amber-600", shadow: isDark ? "shadow-amber-900/40" : "shadow-amber-200" },
-    { label: "Appointments",    value: appointments.filter(a=>a.status==="pending").length, icon: CalendarDays, gradient: "from-emerald-500 to-emerald-600", shadow: isDark ? "shadow-emerald-900/40" : "shadow-emerald-200" },
+    { label: tr.profileViews,  value: totalViews,   icon: Eye,       gradient: "from-blue-500 to-blue-600",   shadow: isDark ? "shadow-blue-900/40" : "shadow-blue-200" },
+    { label: tr.linkClicks,    value: totalClicks,  icon: BarChart3, gradient: "from-violet-500 to-violet-600", shadow: isDark ? "shadow-violet-900/40" : "shadow-violet-200" },
+    { label: tr.leadsCaptured, value: leads.length, icon: Star,      gradient: "from-amber-500 to-amber-600", shadow: isDark ? "shadow-amber-900/40" : "shadow-amber-200" },
+    { label: tr.appointments,  value: appointments.filter(a=>a.status==="pending").length, icon: CalendarDays, gradient: "from-emerald-500 to-emerald-600", shadow: isDark ? "shadow-emerald-900/40" : "shadow-emerald-200" },
   ];
 
   const launchAI = () => {
@@ -188,11 +239,11 @@ export default function BingooDashboard() {
                       <button onClick={copyLink}
                         className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 transition-all font-semibold ${isDark ? "bg-white/8 hover:bg-white/14 text-white/55 hover:text-white border border-white/10" : "bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200"}`}>
                         {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-                        {copied ? "Copied!" : "Copy"}
+                        {copied ? tr.copied : tr.copy}
                       </button>
                     </div>
                   ) : (
-                    <p className={`text-sm mt-1.5 ${mutedText}`}>Set up your first profile to get started.</p>
+                    <p className={`text-sm mt-1.5 ${mutedText}`}>{tr.setupFirst}</p>
                   )}
                 </div>
                 {profile && (
@@ -201,9 +252,13 @@ export default function BingooDashboard() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       {profile.plan?.toUpperCase() || "FREE"}
                     </span>
+                    <button onClick={toggleLang}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${isDark ? "bg-white/8 border border-white/10 text-white/50 hover:text-white" : "bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800"}`}>
+                      {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
+                    </button>
                     <a href={profileUrl} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" className="rounded-full font-bold gap-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-md shadow-blue-500/25">
-                        <Eye className="w-3.5 h-3.5" /> Preview
+                        <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
                     </a>
                   </div>
@@ -219,7 +274,7 @@ export default function BingooDashboard() {
                 <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${mutedText}`} />
                 <input
                   type="text"
-                  placeholder="Search profiles…"
+                  placeholder={tr.searchProfiles}
                   value={profileSearch}
                   onChange={e => setProfileSearch(e.target.value)}
                   className={`w-full pl-10 pr-9 py-2.5 rounded-2xl text-sm font-medium outline-none transition-all ${
@@ -265,11 +320,11 @@ export default function BingooDashboard() {
                     ? (isDark ? "bg-emerald-500/18 border-emerald-500/30 text-emerald-400" : "bg-emerald-50 border-emerald-200 text-emerald-600")
                     : (isDark ? "border-white/10 border-dashed text-white/35 hover:text-white/60" : "border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-600")
                 }`}>
-                + New Profile
+                {tr.newProfile}
               </button>
               <button onClick={launchAI}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-semibold border transition-all ${isDark ? "border-violet-400/30 text-violet-400 hover:bg-violet-400/10" : "border-violet-300 text-violet-600 hover:bg-violet-50"}`}>
-                <Zap className="w-3.5 h-3.5" /> AI Builder
+                <Zap className="w-3.5 h-3.5" /> {tr.aiBuilder}
               </button>
             </div>
           )}
@@ -325,11 +380,11 @@ export default function BingooDashboard() {
               <div className={`rounded-2xl overflow-hidden ${isDark ? "bg-white/5" : "bg-white"}`}
                 style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
                 <div className="flex items-center justify-between p-4 pb-3">
-                  <p className={`font-bold text-sm ${headText}`}>Your Profile</p>
+                  <p className={`font-bold text-sm ${headText}`}>{tr.yourProfile}</p>
                   {profile && (
                     <button onClick={() => setShowLayoutPicker(true)}
                       className={`flex items-center gap-1 text-xs font-semibold transition-colors ${isDark ? "text-violet-400 hover:text-violet-300" : "text-violet-600 hover:text-violet-500"}`}>
-                      <Palette className="w-3.5 h-3.5" /> Style
+                      <Palette className="w-3.5 h-3.5" /> {tr.style}
                     </button>
                   )}
                 </div>
@@ -351,25 +406,25 @@ export default function BingooDashboard() {
                     <div className="flex gap-2 mt-3">
                       <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
                         <Button className="w-full rounded-xl bg-blue-600 hover:bg-blue-500 gap-1.5 text-xs text-white font-bold shadow-md shadow-blue-500/20" size="sm">
-                          <Eye className="w-3.5 h-3.5" /> View Live
+                          <Eye className="w-3.5 h-3.5" /> {tr.viewLive}
                         </Button>
                       </a>
                       <Button size="sm" onClick={() => setTab("profile")}
                         className={`rounded-xl gap-1.5 font-bold text-xs ${isDark ? "bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-900/40" : "bg-slate-800 hover:bg-slate-700 text-white shadow-md"}`}>
-                        <Settings className="w-3.5 h-3.5" /> Edit
+                        <Settings className="w-3.5 h-3.5" /> {tr.edit}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="text-center px-4 pb-6 pt-2">
                     <User className={`w-10 h-10 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-                    <p className={`font-semibold text-sm ${subText}`}>No profile yet</p>
-                    <p className={`text-xs mt-1 mb-3 ${mutedText}`}>Create your digital card to get started.</p>
+                    <p className={`font-semibold text-sm ${subText}`}>{tr.noProfile}</p>
+                    <p className={`text-xs mt-1 mb-3 ${mutedText}`}>{tr.createCard}</p>
                     <div className="flex gap-2 justify-center">
                       <Button onClick={launchAI} size="sm" className="rounded-xl bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] hover:opacity-90 text-white font-bold gap-1.5">
-                        <Zap className="w-3.5 h-3.5" /> Build with AI
+                        <Zap className="w-3.5 h-3.5" /> {tr.buildAI}
                       </Button>
-                      <Button onClick={() => setTab("profile")} size="sm" variant="outline" className="rounded-xl font-bold">Manual</Button>
+                      <Button onClick={() => setTab("profile")} size="sm" variant="outline" className="rounded-xl font-bold">{tr.manual}</Button>
                     </div>
                   </div>
                 )}
@@ -379,7 +434,7 @@ export default function BingooDashboard() {
               <div className={`rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`}
                 style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
                 <div className="p-4 pb-2">
-                  <p className={`font-bold text-sm ${headText}`}>QR Code</p>
+                  <p className={`font-bold text-sm ${headText}`}>{tr.qrCode}</p>
                 </div>
                 {qrUrl ? (
                   <div className="text-center px-4 pb-4">
@@ -387,17 +442,17 @@ export default function BingooDashboard() {
                       <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`}
                         alt="QR Code" className="w-36 h-36 mx-auto rounded-lg" />
                     </div>
-                    <p className={`text-xs mt-2.5 ${mutedText}`}>Scan to open your profile</p>
+                    <p className={`text-xs mt-2.5 ${mutedText}`}>{tr.scanQr}</p>
                     <a href={qrUrl} download="bingoo-qr.png" target="_blank" rel="noopener noreferrer" className="inline-block mt-2.5">
                       <Button size="sm" className={`rounded-xl gap-1.5 text-xs font-bold ${isDark ? "bg-cyan-500 hover:bg-cyan-400 text-white shadow-md shadow-cyan-900/30" : "bg-slate-800 hover:bg-slate-700 text-white"}`}>
-                        <Download className="w-3.5 h-3.5" /> Download
+                        <Download className="w-3.5 h-3.5" /> {tr.download}
                       </Button>
                     </a>
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4">
                     <QrCode className={`w-10 h-10 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-                    <p className={`text-sm ${mutedText}`}>Create a profile first</p>
+                    <p className={`text-sm ${mutedText}`}>{tr.createFirst}</p>
                   </div>
                 )}
               </div>
@@ -408,9 +463,9 @@ export default function BingooDashboard() {
               <div className={`rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`}
                 style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
                 <div className="flex items-center justify-between p-4 pb-3">
-                  <p className={`font-bold text-sm ${headText}`}>Recent Leads</p>
+                  <p className={`font-bold text-sm ${headText}`}>{tr.recentLeads}</p>
                   <button onClick={() => setTab("leads")} className="text-xs text-blue-500 font-semibold hover:text-blue-400 flex items-center gap-1">
-                    View all <ArrowRight className="w-3 h-3" />
+                    {tr.viewAll} <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
                 <div className="px-4 pb-4 space-y-1.5">
@@ -435,8 +490,8 @@ export default function BingooDashboard() {
               <div className={`rounded-2xl p-4 flex items-center justify-between gap-4 ${isDark ? "bg-white/5" : "bg-white"}`}
                 style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.06)" }}>
                 <div>
-                  <p className={`font-bold text-sm ${headText}`}>Push Notifications</p>
-                  <p className={`text-xs mt-0.5 ${mutedText}`}>Get instant alerts for new leads & appointments</p>
+                  <p className={`font-bold text-sm ${headText}`}>{tr.pushNotifs}</p>
+                   <p className={`text-xs mt-0.5 ${mutedText}`}>{tr.pushDesc}</p>
                 </div>
                 <PushNotificationToggle profileId={profile.id} darkMode={isDark} />
               </div>
@@ -449,13 +504,13 @@ export default function BingooDashboard() {
                 <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(255,122,0,0.15)" }} />
                 <div className="relative flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1">
-                    <h3 className="text-lg font-black mb-0.5 text-white">Unlock Full Power 🚀</h3>
-                    <p className="text-sm text-white/60">Pro analytics, lead capture, booking & unlimited devices.</p>
+                    <h3 className="text-lg font-black mb-0.5 text-white">{tr.unlockPower}</h3>
+                    <p className="text-sm text-white/60">{tr.unlockDesc}</p>
                   </div>
                   <Link to="/plans" className="flex-shrink-0">
                     <Button className="rounded-xl font-bold gap-2 text-white border-none"
                       style={{ background: "#FF7A00" }}>
-                      View Plans <ArrowRight className="w-4 h-4" />
+                      {tr.viewPlans} <ArrowRight className="w-4 h-4" />
                     </Button>
                   </Link>
                 </div>
@@ -486,7 +541,7 @@ export default function BingooDashboard() {
                 <div className="flex justify-end">
                   <Link to="/activate-device">
                     <Button className="rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold gap-2">
-                      <Smartphone className="w-4 h-4" /> Activate Device
+                      <Smartphone className="w-4 h-4" /> {tr.activateDevice}
                     </Button>
                   </Link>
                 </div>
