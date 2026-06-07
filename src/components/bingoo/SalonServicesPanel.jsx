@@ -223,7 +223,7 @@ export default function SalonServicesPanel({ profileId, isDark }) {
       )}
 
       <p className={`text-xs ${mutedText} pt-2`}>
-        💡 Services will appear on your public profile. Make sure your plan is set to <strong>Salon</strong> in the Admin Dashboard.
+        💡 Services appear on your public profile. You can add unlimited services with photos.
       </p>
     </div>
   );

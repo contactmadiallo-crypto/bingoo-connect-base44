@@ -497,13 +497,61 @@ export default function PublicProfile() {
                   </>
                 )}
 
-                {/* Salon / Restaurant Services */}
-                {["salon","restaurant"].includes(profile.plan) && (
+                {/* Services (all paid plans) */}
+                {profile.plan !== "free" && (
                   <>
                     <Divider />
                     <SalonServicesSection profileId={profile.id} color={color} isDark={isDark} />
                   </>
                 )}
+
+                {/* Business Hours */}
+                {profile.business_hours && Object.keys(profile.business_hours).length > 0 && (() => {
+                  const DAYS = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+                  const DAY_LABELS = { monday:"Mon",tuesday:"Tue",wednesday:"Wed",thursday:"Thu",friday:"Fri",saturday:"Sat",sunday:"Sun" };
+                  const activeDays = DAYS.filter(d => profile.business_hours[d]?.enabled);
+                  if (!activeDays.length) return null;
+                  const now = new Date();
+                  const todayKey = DAYS[now.getDay() === 0 ? 6 : now.getDay() - 1];
+                  const todayCfg = profile.business_hours[todayKey];
+                  const isOpenNow = todayCfg?.enabled && (() => {
+                    const [sh,sm] = (todayCfg.start||"00:00").split(":").map(Number);
+                    const [eh,em] = (todayCfg.end||"23:59").split(":").map(Number);
+                    const cur = now.getHours()*60 + now.getMinutes();
+                    return cur >= sh*60+sm && cur <= eh*60+em;
+                  })();
+                  return (
+                    <>
+                      <Divider />
+                      <div style={{ marginBottom: 28 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <span style={{ fontSize: 18 }}>🕐</span>
+                            <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>Business Hours</span>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: isOpenNow ? "#dcfce7" : "#fee2e2", color: isOpenNow ? "#16a34a" : "#dc2626" }}>
+                            {isOpenNow ? "● Open Now" : "● Closed"}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {DAYS.filter(d => profile.business_hours[d]).map(d => {
+                            const cfg = profile.business_hours[d];
+                            const isToday = d === todayKey;
+                            return (
+                              <div key={d} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", borderRadius: 12, background: isToday ? (isDark ? "rgba(255,255,255,0.08)" : hexRgb(color, 0.07)) : (isDark ? "rgba(255,255,255,0.03)" : "#f8fafc"), border: isToday ? `1px solid ${hexRgb(color, 0.25)}` : (isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid #e2e8f0") }}>
+                                <span style={{ fontSize: 13, fontWeight: isToday ? 800 : 600, color: isToday ? (isDark ? "#fff" : color) : (isDark ? "rgba(255,255,255,0.6)" : "#64748b") }}>{DAY_LABELS[d]}{isToday ? " (Today)" : ""}</span>
+                                {cfg.enabled
+                                  ? <span style={{ fontSize: 13, fontWeight: 700, color: isDark ? "rgba(255,255,255,0.8)" : "#374151" }}>{cfg.start} – {cfg.end}</span>
+                                  : <span style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>Closed</span>
+                                }
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
 
                 {/* Resume / Experience — only renders if a resume is attached */}
                 <ProfileResumeSection profileId={profile.id} color={color} isDark={isDark} showDivider />

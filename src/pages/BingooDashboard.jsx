@@ -18,9 +18,10 @@ import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
+import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -38,6 +39,7 @@ const TABS_CONFIG = [
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
   { id: "lost_mode",    labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
+  { id: "hours",        labelKey: "hours",         icon: Clock,        color: "#0891b2" },
 ];
 
 export default function BingooDashboard() {
@@ -53,8 +55,8 @@ export default function BingooDashboard() {
   );
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isRestaurant } = usePlan();
-  const hasServiceMenu = isSalon || isRestaurant;
+  const { isSalon, isRestaurant, isBusiness, isFree } = usePlan();
+  const hasServiceMenu = !isFree; // all paid plans get services + hours tabs
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -150,6 +152,7 @@ export default function BingooDashboard() {
       activateDevice: "Activate Device", searchProfiles: "Search profiles…",
       newProfile: "+ New Profile", aiBuilder: "AI Builder",
       lostMode: "Lost Mode",
+      hours: "Hours",
     },
     fr: {
       overview: "Aperçu", editProfile: "Modifier le Profil", appointments: "Rendez-vous",
@@ -170,6 +173,7 @@ export default function BingooDashboard() {
       activateDevice: "Activer l'Appareil", searchProfiles: "Rechercher des profils…",
       newProfile: "+ Nouveau Profil", aiBuilder: "Créateur IA",
       lostMode: "Mode Perdu",
+      hours: "Horaires",
     }
   };
   const tr = TR[lang];
@@ -196,9 +200,14 @@ export default function BingooDashboard() {
     : "linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #f3e8ff 100%)";
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
-  const BASE_TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
+  const BASE_TABS = TABS_CONFIG.map(t => t.id === "hours" ? null : ({ ...t, label: tr[t.labelKey] })).filter(Boolean);
   const TABS = hasServiceMenu
-    ? [...BASE_TABS.slice(0, 5), { id: "services", label: lang === "fr" ? "Services" : "Services", icon: Scissors, color: "#db2777" }, ...BASE_TABS.slice(5)]
+    ? [
+        ...BASE_TABS.slice(0, 5),
+        { id: "services", label: "Services", icon: Scissors, color: "#db2777" },
+        { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
+        ...BASE_TABS.slice(5),
+      ]
     : BASE_TABS;
 
   const STAT_CONFIGS = [
@@ -568,6 +577,7 @@ export default function BingooDashboard() {
           {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
           {tab === "lost_mode"   && <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />}
           {tab === "services"    && <SalonServicesPanel profileId={profile?.id} isDark={isDark} />}
+          {tab === "hours"       && <BusinessHoursTab profileId={profile?.id} isDark={isDark} />}
 
         </div>
       </div>
