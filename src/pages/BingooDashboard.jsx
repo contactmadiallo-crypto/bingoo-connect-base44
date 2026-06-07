@@ -19,7 +19,7 @@ import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, ShieldAlert } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -37,7 +37,7 @@ const TABS_CONFIG = [
   { id: "appt_settings", labelKey: "bookingSetup",  icon: Settings,     color: "#0d9488" },
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
-  { id: "lost_mode",    labelKey: "lostMode",      icon: ShieldAlert,  color: "#ef4444" },
+  { id: "lost_mode",    labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
 ];
 
 export default function BingooDashboard() {
