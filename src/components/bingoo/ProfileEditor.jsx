@@ -666,9 +666,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
-      {/* Live Preview — sticky sidebar that scrolls with the page */}
+      {/* Live Preview — scrolls with the page */}
       <div className="hidden lg:block lg:w-[340px] flex-shrink-0">
-        <div className="sticky top-6" style={{ maxHeight: "calc(100vh - 48px)" }}>
+        <div>
           {/* Header */}
           <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
             <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
