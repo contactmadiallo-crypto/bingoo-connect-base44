@@ -266,51 +266,57 @@ export default function BingooDashboard() {
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
         <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-16 pt-3 sm:pt-6">
 
-          {/* ── iOS-style Hero ── */}
-          <div className={`relative rounded-3xl overflow-hidden mb-6 ${isDark ? "bg-gradient-to-br from-[#13162a] to-[#0d1022]" : "bg-white"}`}
-            style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.4)" : "0 1px 0 rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.07)" }}>
-            {/* Gradient accent bar at top */}
-            <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, #0B2E6B, #FF7A00, #FDBA21)` }} />
-            <div className="p-4 md:p-7">
+          {/* ── Bingoo Branded Hero ── */}
+          <div className="relative rounded-3xl overflow-hidden mb-6"
+            style={{
+              background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 60%, #0f3080 100%)",
+              boxShadow: "0 4px 32px rgba(11,46,107,0.35), 0 1px 0 rgba(255,255,255,0.08)"
+            }}>
+            {/* Orange/gold accent bar */}
+            <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)` }} />
+            {/* Subtle background glow */}
+            <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(255,122,0,0.08)" }} />
+            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(255,255,255,0.03)" }} />
+            <div className="p-4 md:p-7 relative">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className={`text-[10px] font-semibold tracking-widest uppercase mb-1 ${mutedText}`}>Dashboard</p>
-                  <h1 className={`text-xl md:text-3xl font-black leading-tight tracking-tight ${headText}`}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-1 text-white/50">Dashboard</p>
+                  <h1 className="text-xl md:text-3xl font-black leading-tight tracking-tight text-white">
                     {user?.full_name?.split(" ")[0] || "Hello"} <span className="inline-block animate-bounce">👋</span>
                   </h1>
                   {profile ? (
                     <div className="flex flex-wrap items-center gap-2 mt-2.5">
                       <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                        className="text-blue-500 text-sm font-bold hover:underline flex items-center gap-1">
+                        className="text-blue-300 text-sm font-bold hover:text-white hover:underline flex items-center gap-1">
                         /p/{profile.username} <ExternalLink className="w-3 h-3" />
                       </a>
                       <button onClick={copyLink}
-                        className={`flex items-center gap-1.5 text-xs rounded-full px-3 py-1 transition-all font-semibold ${isDark ? "bg-white/8 hover:bg-white/14 text-white/55 hover:text-white border border-white/10" : "bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 border border-slate-200"}`}>
-                        {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+                        className="flex items-center gap-1.5 text-xs rounded-full px-3 py-1 transition-all font-semibold bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15">
+                        {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
                         {copied ? tr.copied : tr.copy}
                       </button>
                     </div>
                   ) : (
-                    <p className={`text-sm mt-1.5 ${mutedText}`}>{tr.setupFirst}</p>
+                    <p className="text-sm mt-1.5 text-white/50">{tr.setupFirst}</p>
                   )}
                 </div>
                 {profile && (
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide ${isDark ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+                    <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide bg-white/10 text-white border border-white/20">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       {profile.plan?.toUpperCase() || "FREE"}
                     </span>
                     <button onClick={toggleLang}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${isDark ? "bg-white/8 border border-white/10 text-white/50 hover:text-white" : "bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-800"}`}>
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all bg-white/10 border border-white/15 text-white/60 hover:text-white hover:bg-white/20">
                       {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
                     </button>
                     <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-                      <Button size="sm" className="rounded-full font-bold gap-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-md shadow-blue-500/25">
+                      <Button size="sm" className="rounded-full font-bold gap-1.5 text-xs text-white border-0 shadow-md" style={{ background: "#FF7A00" }}>
                         <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
                     </a>
                     <Link to="/account-settings">
-                      <Button size="sm" variant="ghost" className={`rounded-full gap-1.5 text-xs font-bold ${isDark ? "text-white/40 hover:text-white hover:bg-white/8" : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"}`}>
+                      <Button size="sm" variant="ghost" className="rounded-full gap-1.5 text-xs font-bold text-white/50 hover:text-white hover:bg-white/10">
                         <Shield className="w-3.5 h-3.5" />
                       </Button>
                     </Link>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { Activity } from "lucide-react";
 
 const EVENT_LABELS = {
   profile_view: "Profile Views",
@@ -37,6 +39,7 @@ const PERIODS = [
 export default function AnalyticsPanel({ profileId }) {
   const [period, setPeriod] = useState(7);
   const qc = useQueryClient();
+  const { isDark } = useBingooTheme();
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["analytics", profileId],
@@ -63,6 +66,15 @@ export default function AnalyticsPanel({ profileId }) {
     return () => { unsubAnalytics(); unsubTaps(); };
   }, [profileId]);
 
+  // Theme tokens
+  const cardBg = isDark ? "rgba(255,255,255,0.05)" : "#ffffff";
+  const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
+  const headText = isDark ? "text-white" : "text-slate-800";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const rowBorder = isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9";
+  const rowText = isDark ? "text-white/70" : "text-slate-600";
+  const rowTextBold = isDark ? "text-white" : "text-slate-900";
+
   const filtered = events.filter(e => {
     if (period === null) return true;
     if (period === 0) return new Date(e.created_at).toDateString() === new Date().toDateString();
@@ -75,12 +87,12 @@ export default function AnalyticsPanel({ profileId }) {
   filtered.forEach(e => { counts[e.event_type] = (counts[e.event_type] || 0) + 1; });
 
   const stats = [
-    { key: "profile_view", label: "Profile Views", color: "bg-blue-100 text-blue-700", icon: "👁️" },
-    { key: "whatsapp_click", label: "WhatsApp", color: "bg-green-100 text-green-700", icon: "💬" },
-    { key: "phone_click", label: "Phone Clicks", color: "bg-purple-100 text-purple-700", icon: "📞" },
-    { key: "email_click", label: "Email Clicks", color: "bg-orange-100 text-orange-700", icon: "📧" },
-    { key: "save_contact_click", label: "Saves", color: "bg-slate-100 text-slate-700", icon: "💾" },
-    { key: "website_click", label: "Website", color: "bg-indigo-100 text-indigo-700", icon: "🌐" },
+    { key: "profile_view",      label: "Profile Views",  color: isDark ? "bg-blue-500/20 text-blue-300"    : "bg-blue-100 text-blue-700",    icon: "👁️" },
+    { key: "whatsapp_click",    label: "WhatsApp",       color: isDark ? "bg-green-500/20 text-green-300"  : "bg-green-100 text-green-700",  icon: "💬" },
+    { key: "phone_click",       label: "Phone Clicks",   color: isDark ? "bg-purple-500/20 text-purple-300": "bg-purple-100 text-purple-700",icon: "📞" },
+    { key: "email_click",       label: "Email Clicks",   color: isDark ? "bg-orange-500/20 text-orange-300": "bg-orange-100 text-orange-700",icon: "📧" },
+    { key: "save_contact_click",label: "Saves",          color: isDark ? "bg-white/10 text-white/60"       : "bg-slate-100 text-slate-700",  icon: "💾" },
+    { key: "website_click",     label: "Website",        color: isDark ? "bg-indigo-500/20 text-indigo-300": "bg-indigo-100 text-indigo-700",icon: "🌐" },
   ];
 
   const filteredTaps = tapEvents.filter(e => {
@@ -102,17 +114,29 @@ export default function AnalyticsPanel({ profileId }) {
     clicks: events.filter(e => e.created_at?.startsWith(date) && e.event_type !== "profile_view").length,
   }));
 
+  const socialKeys = ["instagram_click", "facebook_click", "tiktok_click", "linkedin_click", "youtube_click"];
+  const hasSocial = socialKeys.some(k => counts[k]);
+
   if (isLoading) return <div className="flex justify-center py-10"><div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
+
+  if (!profileId) return (
+    <div className="text-center py-20">
+      <Activity className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "text-slate-200"}`} />
+      <p className={`font-semibold ${isDark ? "text-white/40" : "text-slate-500"}`}>Create a profile first to see analytics.</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
+      {/* Period selector */}
       <div className="flex gap-2 flex-wrap">
         {PERIODS.map(p => (
-          <button
-            key={p.label}
-            onClick={() => setPeriod(p.days)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${period === p.days ? "bg-blue-600 text-white shadow-md" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
-          >
+          <button key={p.label} onClick={() => setPeriod(p.days)}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              period === p.days
+                ? "bg-blue-600 text-white shadow-md"
+                : isDark ? "bg-white/8 text-white/50 hover:bg-white/12 hover:text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}>
             {p.label}
           </button>
         ))}
@@ -121,14 +145,15 @@ export default function AnalyticsPanel({ profileId }) {
         </span>
       </div>
 
+      {/* NFC/QR block — always dark gradient, readable */}
       <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-3">📡 NFC Taps & QR Scans</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "NFC Taps", value: filteredTaps.filter(e => e.event_type === "tap").length, icon: "📲" },
-            { label: "Link Clicks", value: filteredTaps.filter(e => e.event_type === "link_click").length, icon: "🔗" },
-            { label: "WhatsApp", value: filteredTaps.filter(e => e.event_type === "whatsapp_click").length, icon: "💬" },
-            { label: "Total Interactions", value: filteredTaps.length, icon: "⚡" },
+            { label: "NFC Taps",          value: filteredTaps.filter(e => e.event_type === "tap").length,           icon: "📲" },
+            { label: "Link Clicks",       value: filteredTaps.filter(e => e.event_type === "link_click").length,    icon: "🔗" },
+            { label: "WhatsApp",          value: filteredTaps.filter(e => e.event_type === "whatsapp_click").length,icon: "💬" },
+            { label: "Total Interactions",value: filteredTaps.length,                                               icon: "⚡" },
           ].map(s => (
             <div key={s.label} className="bg-white/10 rounded-xl p-3">
               <p className="text-lg mb-0.5">{s.icon}</p>
@@ -139,61 +164,73 @@ export default function AnalyticsPanel({ profileId }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {stats.map(s => (
-          <div key={s.key} className={`rounded-2xl p-4 ${s.color}`}>
-            <div className="flex items-center gap-2 mb-1">
-              <span>{s.icon}</span>
-              <p className="text-xs font-medium opacity-70">{s.label}</p>
+      {/* Stats grid */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-12 rounded-2xl" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+          <Activity className={`w-10 h-10 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
+          <p className={`font-semibold ${isDark ? "text-white/40" : "text-slate-500"}`}>No analytics data yet.</p>
+          <p className={`text-sm mt-1 ${mutedText}`}>Share your profile to start collecting data.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {stats.map(s => (
+            <div key={s.key} className={`rounded-2xl p-4 ${s.color}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <span>{s.icon}</span>
+                <p className="text-xs font-medium opacity-80">{s.label}</p>
+              </div>
+              <p className="text-3xl font-black">{counts[s.key] || 0}</p>
             </div>
-            <p className="text-3xl font-black">{counts[s.key] || 0}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {(counts.instagram_click || counts.facebook_click || counts.tiktok_click || counts.linkedin_click) ? (
-        <div className="bg-white rounded-2xl border p-5">
-          <h3 className="font-bold text-slate-800 mb-3 text-sm">Social Media Clicks</h3>
+      {/* Social clicks */}
+      {hasSocial && (
+        <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+          <h3 className={`font-bold mb-3 text-sm ${headText}`}>Social Media Clicks</h3>
           <div className="space-y-2">
-            {["instagram_click", "facebook_click", "tiktok_click", "linkedin_click", "youtube_click"].map(key => counts[key] ? (
+            {socialKeys.map(key => counts[key] ? (
               <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-slate-600">{EVENT_LABELS[key]}</span>
-                <span className="font-bold text-slate-900">{counts[key]}</span>
+                <span className={`text-sm ${rowText}`}>{EVENT_LABELS[key]}</span>
+                <span className={`font-bold ${rowTextBold}`}>{counts[key]}</span>
               </div>
             ) : null)}
           </div>
         </div>
-      ) : null}
+      )}
 
-      <div className="bg-white rounded-2xl border p-5">
-        <h3 className="font-bold text-slate-800 mb-4 text-sm">Last 7 Days Activity</h3>
+      {/* Chart */}
+      <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+        <h3 className={`font-bold mb-4 text-sm ${headText}`}>Last 7 Days Activity</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={chartData}>
-            <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-            <Tooltip />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: isDark ? "rgba(255,255,255,0.4)" : "#94a3b8" }} />
+            <YAxis tick={{ fontSize: 11, fill: isDark ? "rgba(255,255,255,0.4)" : "#94a3b8" }} allowDecimals={false} />
+            <Tooltip contentStyle={{ background: isDark ? "#1e2538" : "#fff", border: `1px solid ${cardBorder}`, borderRadius: 8, color: isDark ? "#fff" : "#1e293b" }} />
             <Bar dataKey="views" fill="#2563eb" radius={[4, 4, 0, 0]} name="Profile Views" />
-            <Bar dataKey="clicks" fill="#93c5fd" radius={[4, 4, 0, 0]} name="Link Clicks" />
+            <Bar dataKey="clicks" fill={isDark ? "#60a5fa" : "#93c5fd"} radius={[4, 4, 0, 0]} name="Link Clicks" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
+      {/* Recent NFC activity */}
       {tapEvents.length > 0 && (
-        <div className="bg-white rounded-2xl border p-5">
-          <h3 className="font-bold text-slate-800 mb-3 text-sm flex items-center gap-2">
+        <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+          <h3 className={`font-bold mb-3 text-sm flex items-center gap-2 ${headText}`}>
             📲 Recent NFC / QR Activity
-            <span className="text-xs font-normal text-slate-400">(most recent first)</span>
+            <span className={`text-xs font-normal ${mutedText}`}>(most recent first)</span>
           </h3>
           <div className="space-y-2 max-h-56 overflow-y-auto">
             {tapEvents.slice(0, 20).map(e => (
-              <div key={e.id} className="flex items-center justify-between text-sm py-2 border-b border-slate-50 last:border-0">
+              <div key={e.id} className="flex items-center justify-between text-sm py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                 <div className="flex items-center gap-2">
                   <span>{e.event_type === "tap" ? "📲" : e.event_type === "whatsapp_click" ? "💬" : "🔗"}</span>
-                  <span className="font-semibold text-slate-700 capitalize">{TAP_EVENT_LABELS[e.event_type] || e.event_type}</span>
-                  {e.country && <span className="text-slate-400 text-xs">· {e.country}</span>}
-                  {e.device && <span className="text-slate-400 text-xs">· {e.device}</span>}
+                  <span className={`font-semibold capitalize ${isDark ? "text-white/70" : "text-slate-700"}`}>{TAP_EVENT_LABELS[e.event_type] || e.event_type}</span>
+                  {e.country && <span className={`text-xs ${mutedText}`}>· {e.country}</span>}
+                  {e.device && <span className={`text-xs ${mutedText}`}>· {e.device}</span>}
                 </div>
-                <span className="text-xs text-slate-400 flex-shrink-0">{e.tapped_at ? new Date(e.tapped_at).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+                <span className={`text-xs flex-shrink-0 ${mutedText}`}>{e.tapped_at ? new Date(e.tapped_at).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
               </div>
             ))}
           </div>
