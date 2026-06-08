@@ -343,8 +343,8 @@ export default function AdminDashboard() {
 
         {/* Subscriptions */}
         {tab === "subscriptions" && (
-          <div className="space-y-4">
-            {/* Summary */}
+          <div className="space-y-6">
+            {/* Summary Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { label: t.totalSubs, value: subscriptions.filter(s => s.status === "active").length, color: "#22c55e" },
@@ -360,108 +360,132 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none"
-                  placeholder={t.searchEmail}
-                  value={subSearch} onChange={e => setSubSearch(e.target.value)}
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+            {/* ACTIVE SUBSCRIBERS - Card Layout */}
+            <div className="rounded-2xl border p-6" style={{ background: "rgba(34, 197, 94, 0.08)", borderColor: "rgba(34, 197, 94, 0.2)" }}>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(34, 197, 94, 0.2)" }}>
+                  <CheckCircle2 className="w-5 h-5" style={{ color: "#22c55e" }} />
+                </div>
+                <div>
+                  <h3 className="font-black text-white text-lg">Active Subscribers ({subscriptions.filter(s => s.status === "active").length})</h3>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Currently paying customers</p>
+                </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
-                {["all","free","professional","salon","restaurant","lawfirm","corporate"].map(p => (
-                  <button key={p} onClick={() => setSubPlanFilter(p)}
-                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{ background: subPlanFilter === p ? orange : "rgba(255,255,255,0.07)", color: subPlanFilter === p ? "#fff" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    {PLAN_LABELS[p] || p.charAt(0).toUpperCase() + p.slice(1)}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                {["all","active","past_due","canceled"].map(s => (
-                  <button key={s} onClick={() => setSubStatusFilter(s)}
-                    className="px-3 py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071d47" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    {s.charAt(0).toUpperCase() + s.replace("_"," ").slice(1)}
-                  </button>
-                ))}
-              </div>
+              
+              {subscriptions.filter(s => s.status === "active").length === 0 ? (
+                <div className="text-center py-8" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">No active subscribers yet</p>
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {subscriptions.filter(s => s.status === "active").map(s => {
+                    const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
+                    return (
+                      <div key={s.id} className="p-4 rounded-xl border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
+                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                          <div className="flex-1 min-w-48">
+                            <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
+                            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.customer_email}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold"
+                              style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
+                              {planDisplay}
+                            </span>
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.3)" }}>
+                              <CheckCircle2 className="w-3 h-3" /> Active
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-white/60">Renews:</p>
+                            <p className="text-sm font-mono text-white">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Table */}
-            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {[t.customer, t.plan, t.status, t.periodEnd, t.stripeId, t.actions].map(h => (
-                        <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subscriptions
-                      .filter(s => subSearch ? s.customer_email?.toLowerCase().includes(subSearch.toLowerCase()) || s.customer_name?.toLowerCase().includes(subSearch.toLowerCase()) : true)
-                      .filter(s => subPlanFilter === "all" || s.plan === subPlanFilter || (subPlanFilter === "professional" && s.plan === "pro"))
-                      .filter(s => subStatusFilter === "all" || s.status === subStatusFilter)
-                      .map(s => {
-                        const statusColors = { active: "#22c55e", free: "rgba(255,255,255,0.3)", past_due: "#f59e0b", canceled: "#ef4444" };
-                        const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
-                        return (
-                          <tr key={s.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-                            onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                            <td className="px-5 py-4">
-                              <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
-                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
-                            </td>
-                            <td className="px-5 py-4">
-                              <span className="px-2.5 py-1 rounded-full text-xs font-bold"
-                                style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
-                                {planDisplay}
-                              </span>
-                            </td>
-                            <td className="px-5 py-4">
-                              <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>
-                                {s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
-                                {s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1) || "Free"}
-                              </span>
-                            </td>
-                            <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                              {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}
-                            </td>
-                            <td className="px-5 py-4 text-xs font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>
-                              {s.stripe_subscription_id?.slice(0, 14) || "—"}
-                            </td>
-                            <td className="px-5 py-4">
-                              <select
-                                value={s.plan || "free"}
-                                onChange={async e => {
-                                  await base44.entities.Subscription.update(s.id, { plan: e.target.value });
-                                  refetchSubs();
-                                }}
-                                className="px-2 py-1 rounded-full text-xs font-bold cursor-pointer"
-                                style={{ background: "rgba(255,122,0,0.15)", color: orange, border: "1px solid rgba(255,122,0,0.3)" }}>
-                                <option value="free">Free</option>
-                                <option value="professional">Professional</option>
-                                <option value="salon">Salon</option>
-                                <option value="restaurant">Restaurant</option>
-                                <option value="lawfirm">Law Firm</option>
-                                <option value="corporate">Corporate</option>
-                              </select>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-                {subscriptions.length === 0 && (
-                  <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>{t.noSubs}</p>
-                  </div>
-                )}
+            {/* All Subscriptions - Searchable Table */}
+            <div>
+              <h3 className="font-bold text-white text-sm mb-4">All Subscriptions</h3>
+              
+              {/* Filters */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                  <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none"
+                    placeholder={t.searchEmail}
+                    value={subSearch} onChange={e => setSubSearch(e.target.value)}
+                    style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {["all","active","free","past_due","canceled"].map(s => (
+                    <button key={s} onClick={() => setSubStatusFilter(s)}
+                      className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+                      style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071d47" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.replace("_"," ").slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                        {[t.customer, t.plan, t.status, t.periodEnd].map(h => (
+                          <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {subscriptions
+                        .filter(s => subSearch ? s.customer_email?.toLowerCase().includes(subSearch.toLowerCase()) || s.customer_name?.toLowerCase().includes(subSearch.toLowerCase()) : true)
+                        .filter(s => subStatusFilter === "all" || s.status === subStatusFilter)
+                        .map(s => {
+                          const statusColors = { active: "#22c55e", free: "rgba(255,255,255,0.3)", past_due: "#f59e0b", canceled: "#ef4444" };
+                          const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
+                          return (
+                            <tr key={s.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                              <td className="px-5 py-4">
+                                <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
+                                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
+                              </td>
+                              <td className="px-5 py-4">
+                                <span className="px-2.5 py-1 rounded-full text-xs font-bold"
+                                  style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
+                                  {planDisplay}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4">
+                                <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>
+                                  {s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+                                  {s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1) || "Free"}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                                {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                  {subscriptions.length === 0 && (
+                    <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
+                      <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                      <p>{t.noSubs}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
