@@ -17,6 +17,8 @@ export default function PracticeAreasPanel({ profileId, isDark }) {
     queryKey: ["practice-areas", profileId],
     queryFn: () => base44.entities.PracticeArea.filter({ profile_id: profileId }, "order"),
     enabled: !!profileId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const createMutation = useMutation({

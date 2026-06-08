@@ -18,6 +18,8 @@ export default function LegalServicesPanel({ profileId, isDark }) {
     queryKey: ["legal-services", profileId],
     queryFn: () => base44.entities.LegalService.filter({ profile_id: profileId }, "order"),
     enabled: !!profileId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const createMutation = useMutation({

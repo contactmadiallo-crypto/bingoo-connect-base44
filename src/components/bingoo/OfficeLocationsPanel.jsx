@@ -15,6 +15,8 @@ export default function OfficeLocationsPanel({ profileId, isDark }) {
     queryKey: ["office-locations", profileId],
     queryFn: () => base44.entities.OfficeLocation.filter({ profile_id: profileId }, "order"),
     enabled: !!profileId,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const createMutation = useMutation({
