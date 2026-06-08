@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const isValidUrl = (v) => { try { new URL(v); return true; } catch { return fals
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function ProfileEditor({ user, onSaved, editProfileId, prefillData }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -167,6 +169,10 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });
       toast.success("Profile saved successfully!");
       onSaved?.();
+      // Auto-navigate back after save
+      setTimeout(() => {
+        navigate(-1);
+      }, 500);
     },
     onError: (err) => { if (err.message !== "Validation failed") toast.error("Failed to save."); },
   });
