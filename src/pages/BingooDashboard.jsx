@@ -243,8 +243,8 @@ export default function BingooDashboard() {
   const BASE_TABS = TABS_CONFIG.map(t => t.id === "hours" ? null : ({ ...t, label: tr[t.labelKey] })).filter(Boolean);
   const TABS = [
     ...BASE_TABS.slice(0, 5),
-    ...(hasServiceMenu ? [
-      { id: "services", label: "Services", icon: Scissors,    color: "#db2777" },
+    ...(hasServiceMenu || isLawFirm ? [
+      { id: "services", label: isLawFirm ? "Practice Areas" : "Services", icon: Scissors,    color: isLawFirm ? "#0B2E6B" : "#db2777" },
       { id: "hours",    label: tr.hours,   icon: Clock,       color: "#0891b2" },
     ] : []),
     ...BASE_TABS.slice(5),
@@ -633,7 +633,7 @@ export default function BingooDashboard() {
           {tab === "resumes"      && (canAccess("digital_resume") ? <ResumePanel user={user} profileId={profile?.id} /> : <PlanGateScreen feature="digital_resume" isDark={isDark} />)}
           {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
           {tab === "lost_mode"   && (canAccess("lost_mode") ? <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} /> : <PlanGateScreen feature="lost_mode" isDark={isDark} />)}
-          {tab === "services"    && (canAccess("service_menu") ? <SalonServicesPanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
+          {tab === "services"    && (canAccess("service_menu") ? (isLawFirm ? <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />) : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
           {tab === "hours"       && (canAccess("service_menu") ? <BusinessHoursTab profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
           {tab === "team"        && (canAccess("team_members") ? <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} /> : <PlanGateScreen feature="team_members" isDark={isDark} />)}
           {tab === "crm"         && (canAccess("crm_pipeline") ? (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} />) : <PlanGateScreen feature="crm_pipeline" isDark={isDark} />)}
