@@ -35,6 +35,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
 import PublicResume from '@/pages/PublicResume';
+import PublicLawFirmProfile from '@/pages/PublicLawFirmProfile';
 import LostDevicePage from '@/pages/LostDevicePage';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
 import TermsOfService from '@/pages/TermsOfService';
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
       <Route path="/r/:resumeId" element={<PublicResume />} />
+      <Route path="/firm/:username" element={<PublicLawFirmProfile />} />
       <Route path="/lost/:deviceCode" element={<LostDevicePage />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
