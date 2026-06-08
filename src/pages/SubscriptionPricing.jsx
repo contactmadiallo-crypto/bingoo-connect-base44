@@ -36,6 +36,20 @@ const PLAN_DEFS = [
     cta: 'Get Professional',
   },
   {
+    id: 'business',
+    name: 'Business',
+    priceUSD: 14.99,
+    tagline: 'Small teams & enterprises',
+    icon: <Building2 className="w-5 h-5" />,
+    color: '#6d28d9',
+    features: [
+      'Everything in Professional', 'Team profiles', 'Advanced CRM pipeline',
+      'Lead management & export', 'Up to 10 NFC devices', 'Team analytics',
+      'Admin role management', 'Priority support',
+    ],
+    cta: 'Get Business Plan',
+  },
+  {
     id: 'salon',
     name: 'Salon',
     priceUSD: 19.99,
@@ -48,20 +62,6 @@ const PLAN_DEFS = [
       'NFC counter stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
     ],
     cta: 'Get Salon Plan',
-  },
-  {
-    id: 'restaurant',
-    name: 'Restaurant',
-    priceUSD: 29.99,
-    tagline: 'Food, drinks & hospitality',
-    icon: <UtensilsCrossed className="w-5 h-5" />,
-    color: '#c2410c',
-    features: [
-      'Restaurant business profile', 'Digital menu', 'Food ordering link',
-      'Delivery link integration', 'WhatsApp order button', 'Google review link',
-      'NFC table stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
-    ],
-    cta: 'Get Restaurant Plan',
   },
   {
     id: 'lawfirm',
@@ -78,23 +78,9 @@ const PLAN_DEFS = [
     ],
     cta: 'Get Law Firm Plan',
   },
-  {
-    id: 'corporate',
-    name: 'Corporate Team',
-    priceUSD: 99,
-    tagline: 'Teams, enterprises & orgs',
-    icon: <Building2 className="w-5 h-5" />,
-    color: '#6d28d9',
-    features: [
-      'Employee profiles', 'Team NFC cards (up to 50)', 'Clock in / clock out',
-      'Attendance dashboard', 'Team analytics', 'Admin role management',
-      'CRM pipeline', 'Lead export', 'Advanced analytics', 'Priority support',
-    ],
-    cta: 'Get Corporate Plan',
-  },
 ];
 
-const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 2, lawfirm: 3, business: 2, corporate: 4 };
+const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, business: 2, salon: 3, lawfirm: 4 };
 
 export default function SubscriptionPricing() {
   const [loading, setLoading] = useState(null);
