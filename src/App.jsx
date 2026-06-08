@@ -83,7 +83,9 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* ── PUBLIC PROFILE / NFC / RESUME ROUTES ── */}
+      {/* ── PUBLIC ROUTES (no login needed) ── */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/bingoo-home" element={<Landing />} />
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
@@ -94,29 +96,28 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/data-deletion" element={<DataDeletion />} />
       <Route path="/contact-support" element={<ContactSupport />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/shop" element={<Shop />} />
+      <Route path="/product/:productId" element={<ProductDetail />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/plans" element={<SubscriptionPricing />} />
 
       {/* ── ALL PROTECTED ROUTES ── */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        <Route path="/" element={<Landing />} />
-        <Route path="/bingoo-home" element={<Landing />} />
         <Route path="/bingoo" element={<BingooDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/monitor" element={<SubscriberMonitoring />} />
-        <Route path="/pricing" element={<Pricing />} />
         <Route path="/activate-device" element={<ActivateDevice />} />
         <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
-        <Route path="/shop" element={<Shop />} />
-        <Route path="/product/:productId" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
-        <Route path="/plans" element={<SubscriptionPricing />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/account-settings" element={<AccountSettings />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/pricing" element={<Pricing />} />
 
         {/* ── FOODHUB (original project) ── */}
         {Object.entries(Pages).map(([path, Page]) => (

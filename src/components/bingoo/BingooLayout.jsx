@@ -237,10 +237,10 @@ export default function BingooLayout({ children }) {
       {/* ── MAIN CONTENT ── */}
       {/* Mobile: push content below top header and above bottom tab bar */}
       {/* Desktop: only offset by sidebar (ml-64), no top/bottom padding needed */}
-      <main className="flex-1 md:ml-64 min-h-screen overflow-x-hidden md:pt-0 md:pb-0"
-        style={{ background: t.bg }}
+      <main className="flex-1 md:ml-64 overflow-x-hidden overflow-y-auto"
+        style={{ background: t.bg, minHeight: "100vh" }}
       >
-        {/* Mobile spacers via inline wrapper — avoids CSS var issues in Tailwind */}
+        {/* Mobile: push content below top header and above bottom tab bar */}
         <div className="md:hidden" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         {children}
         <div className="md:hidden" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
