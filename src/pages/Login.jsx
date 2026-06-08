@@ -32,7 +32,7 @@ export default function Login() {
           timestamp: new Date().toISOString(),
         }).catch(() => {});
       }
-      window.location.href = "/";
+      window.location.href = "/bingoo";
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
+    base44.auth.loginWithProvider("google", "/bingoo");
   };
 
   return (
