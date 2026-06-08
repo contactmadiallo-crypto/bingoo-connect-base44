@@ -40,6 +40,12 @@ const ALL_PLANS = [
   { id: 'corporate',    name: 'Corporate',    price: '$99/mo' },
 ];
 
+const BILLING_HIERARCHY = {
+  free: 0, professional: 1, pro: 1,
+  salon: 2, restaurant: 2, business: 2,
+  lawfirm: 3, corporate: 4,
+};
+
 const STATUS_CONFIG = {
   active:   { label: 'Active',    icon: CheckCircle2,  color: '#16a34a', bg: '#dcfce7' },
   free:     { label: 'Free',      icon: Zap,           color: '#64748b', bg: '#f1f5f9' },
@@ -176,12 +182,14 @@ export default function Billing() {
           </ul>
         </div>
 
-        {/* Upgrade options */}
-        {plan === 'free' && (
+        {/* Upgrade options — show all higher-tier plans */}
+        {ALL_PLANS.filter(p => (BILLING_HIERARCHY[p.id] ?? 0) > (BILLING_HIERARCHY[normalizedPlan] ?? 0)).length > 0 && (
           <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
-            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>Upgrade Your Plan</h2>
+            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>
+              {normalizedPlan === 'free' ? 'Upgrade Your Plan' : 'Upgrade to a Higher Plan'}
+            </h2>
             <div className="space-y-3">
-              {ALL_PLANS.map(p => (
+              {ALL_PLANS.filter(p => (BILLING_HIERARCHY[p.id] ?? 0) > (BILLING_HIERARCHY[normalizedPlan] ?? 0)).map(p => (
                 <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl border-2 transition-all"
                   style={{ borderColor: p.id === 'professional' ? B.orange : '#e2e8f0', background: p.id === 'professional' ? `${B.orange}06` : '#fafafa' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"

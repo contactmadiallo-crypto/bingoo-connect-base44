@@ -1,126 +1,186 @@
 /**
- * Bingoo Connect — Plan Permissions
- * Single source of truth for all 6 industry plans.
+ * Bingoo Connect — Plan Permissions (Stacked Benefits Model)
+ * Each plan inherits ALL features from lower plans + adds its own.
+ * Hierarchy: free(0) → professional(1) → salon/restaurant/lawfirm/corporate(2+)
  */
 
 export const PLAN_HIERARCHY = {
-  free:        0,
+  free:         0,
   professional: 1,
-  salon:       2,
-  restaurant:  3,
-  lawfirm:     4,
-  corporate:   5,
-  // Legacy aliases
-  pro:         1,
-  business:    3,
+  pro:          1,   // legacy alias
+  salon:        2,
+  restaurant:   2,
+  lawfirm:      3,
+  business:     2,   // legacy alias → restaurant level
+  corporate:    4,
 };
 
 export const PLAN_LABELS = {
-  free:        'Free',
+  free:         'Free',
   professional: 'Professional',
-  pro:         'Professional',
-  salon:       'Salon',
-  restaurant:  'Restaurant',
-  lawfirm:     'Law Firm',
-  business:    'Restaurant',
-  corporate:   'Corporate Team',
+  pro:          'Professional',
+  salon:        'Salon',
+  restaurant:   'Restaurant',
+  lawfirm:      'Law Firm',
+  business:     'Restaurant',
+  corporate:    'Corporate Team',
 };
 
 export const PLAN_COLORS = {
-  free:        { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
+  free:         { bg: '#f1f5f9', text: '#64748b', border: '#e2e8f0' },
   professional: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
-  pro:         { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
-  salon:       { bg: '#fdf2f8', text: '#be185d', border: '#fbcfe8' },
-  restaurant:  { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
-  business:    { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
-  lawfirm:     { bg: '#f0f9ff', text: '#0369a1', border: '#bae6fd' },
-  corporate:   { bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe' },
+  pro:          { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
+  salon:        { bg: '#fdf2f8', text: '#be185d', border: '#fbcfe8' },
+  restaurant:   { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+  business:     { bg: '#fff7ed', text: '#c2410c', border: '#fed7aa' },
+  lawfirm:      { bg: '#f0f9ff', text: '#0369a1', border: '#bae6fd' },
+  corporate:    { bg: '#f5f3ff', text: '#6d28d9', border: '#ddd6fe' },
 };
 
-// Maps plan ID → Stripe product ID from platform context
+export const PLAN_PRICES_USD = {
+  free:         0,
+  professional: 4.99,
+  salon:        19.99,
+  restaurant:   29.99,
+  lawfirm:      49,
+  corporate:    99,
+};
+
+// Stripe product IDs (existing from catalog)
 export const PLAN_STRIPE_PRODUCTS = {
-  professional: 'prod_UdL2W8XwDY3Bmq',  // $4.99/mo — repurpose existing Pro
-  lawfirm:     'prod_UdL2NqVtcHwKb2',   // $14.99/mo — repurpose existing Business
-  // salon, restaurant, corporate — need new products (will be created dynamically)
-};
-
-export const FEATURE_REQUIREMENTS = {
-  // Core features
-  nfc_devices:          { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'], maxDevices: { free: 0, professional: 5, pro: 5, salon: 10, restaurant: 10, lawfirm: 25, corporate: 50, business: 25 } },
-  analytics:            { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  lead_collection:      { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  appointment_booking:  { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  save_contact:         { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  custom_colors:        { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  qr_download:          { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-  digital_resume:       { plans: ['professional','pro','salon','restaurant','lawfirm','corporate','business'] },
-
-  // Industry-specific
-  storefront:           { plans: ['restaurant','business','corporate'] },
-  team_members:         { plans: ['lawfirm','corporate'],   maxMembers: { lawfirm: 20, corporate: 100 } },
-  advanced_analytics:   { plans: ['salon','restaurant','lawfirm','corporate','business'] },
-  marketplace_listing:  { plans: ['restaurant','business'] },
-  lead_export:          { plans: ['salon','restaurant','lawfirm','corporate','business'] },
-  menu_services:        { plans: ['salon','restaurant','lawfirm','corporate','business'] },
-  consultation_form:    { plans: ['lawfirm'] },
-  crm_pipeline:         { plans: ['lawfirm','corporate'] },
-  clock_in_out:         { plans: ['corporate'] },
-  attendance_dashboard: { plans: ['corporate'] },
-  admin_roles:          { plans: ['lawfirm','corporate'] },
-  service_menu:         { plans: ['salon','restaurant'] },
-  online_ordering:      { plans: ['restaurant'] },
-  nfc_table_stand:      { plans: ['restaurant'] },
-  nfc_counter_stand:    { plans: ['salon'] },
-  staff_profiles:       { plans: ['salon','restaurant','lawfirm','corporate'] },
-  instagram_integration:{ plans: ['salon','professional','pro'] },
-  google_review_link:   { plans: ['salon','restaurant'] },
-  whatsapp_booking:     { plans: ['salon','restaurant','lawfirm'] },
-};
-
-export const FEATURE_DESCRIPTIONS = {
-  nfc_devices:          { title: 'NFC Device Activation',    upgradeTarget: 'Professional', message: 'Upgrade to activate NFC devices and tap-to-share your profile.' },
-  analytics:            { title: 'Analytics Dashboard',      upgradeTarget: 'Professional', message: 'Upgrade to view full analytics and track profile performance.' },
-  lead_collection:      { title: 'Lead Collection',          upgradeTarget: 'Professional', message: 'Upgrade to collect and manage leads from your profile.' },
-  appointment_booking:  { title: 'Appointment Booking',      upgradeTarget: 'Professional', message: 'Upgrade to let clients book appointments directly.' },
-  save_contact:         { title: 'Save Contact Button',      upgradeTarget: 'Professional', message: 'Upgrade to let visitors save your contact to their phone.' },
-  custom_colors:        { title: 'Custom Profile Colors',    upgradeTarget: 'Professional', message: 'Upgrade to fully customize your profile colors and branding.' },
-  qr_download:          { title: 'QR Code Download',         upgradeTarget: 'Professional', message: 'Upgrade to download and print your profile QR code.' },
-  digital_resume:       { title: 'Digital Resume',           upgradeTarget: 'Professional', message: 'Upgrade to create a full digital resume profile.' },
-  storefront:           { title: 'Digital Storefront',       upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to sell products and services.' },
-  team_members:         { title: 'Team Members',             upgradeTarget: 'Law Firm / Corporate', message: 'Upgrade to manage team cards and staff profiles.' },
-  advanced_analytics:   { title: 'Advanced Analytics',       upgradeTarget: 'Salon+',       message: 'Upgrade for advanced analytics and customer insights.' },
-  lead_export:          { title: 'Lead Export',              upgradeTarget: 'Salon+',       message: 'Upgrade to export your customer leads as CSV.' },
-  consultation_form:    { title: 'Legal Consultation Form',  upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for legal intake forms.' },
-  crm_pipeline:         { title: 'CRM Pipeline',             upgradeTarget: 'Law Firm+',    message: 'Upgrade to Law Firm or Corporate for a full CRM pipeline.' },
-  clock_in_out:         { title: 'Clock In / Clock Out',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for time tracking.' },
-  attendance_dashboard: { title: 'Attendance Dashboard',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for attendance management.' },
-  admin_roles:          { title: 'Admin Role Management',    upgradeTarget: 'Corporate',    message: 'Upgrade to manage admin roles across your team.' },
-  service_menu:         { title: 'Service Menu',             upgradeTarget: 'Salon',        message: 'Upgrade to display your full service menu.' },
-  online_ordering:      { title: 'Online Ordering',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for online ordering.' },
-  nfc_table_stand:      { title: 'NFC Table Stand',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for NFC table stands.' },
-  nfc_counter_stand:    { title: 'NFC Counter Stand',        upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for NFC counter stands.' },
-  staff_profiles:       { title: 'Staff Profiles',           upgradeTarget: 'Salon+',       message: 'Upgrade to manage staff profiles.' },
-  google_review_link:   { title: 'Google Review Link',       upgradeTarget: 'Salon+',       message: 'Upgrade to add a Google review link to your profile.' },
-  whatsapp_booking:     { title: 'WhatsApp Booking Button',  upgradeTarget: 'Salon+',       message: 'Upgrade to add a WhatsApp booking button.' },
-  menu_services:        { title: 'Menu / Services Section',  upgradeTarget: 'Salon+',       message: 'Upgrade to showcase your menu or services.' },
+  professional: 'prod_UdL2W8XwDY3Bmq',  // $4.99/mo
+  // salon, restaurant, lawfirm, corporate → created dynamically
 };
 
 /**
- * Returns true if the given plan can access a feature.
+ * FEATURE REQUIREMENTS — uses minimum plan level (hierarchy).
+ * Any plan at or above the required level gets the feature.
+ * For industry-specific features, list exact allowed plans.
+ */
+export const FEATURE_REQUIREMENTS = {
+  // ── Tier 1: Professional+ (level >= 1) ──
+  nfc_devices:          { minLevel: 1, maxDevices: { free: 0, professional: 5, pro: 5, salon: 10, restaurant: 10, lawfirm: 25, business: 10, corporate: 50 } },
+  analytics:            { minLevel: 1 },
+  lead_collection:      { minLevel: 1 },
+  appointment_booking:  { minLevel: 1 },
+  save_contact:         { minLevel: 1 },
+  custom_colors:        { minLevel: 1 },
+  qr_download:          { minLevel: 1 },
+  digital_resume:       { minLevel: 1 },
+  portfolio:            { minLevel: 1 },
+  lost_mode:            { minLevel: 1 },
+
+  // ── Tier 2: Salon (exact plan) ──
+  nfc_counter_stand:    { exactPlans: ['salon'] },
+  salon_profile:        { exactPlans: ['salon'] },
+  instagram_integration:{ exactPlans: ['salon', 'professional', 'pro'] },
+
+  // ── Tier 2: Restaurant (exact plan) ──
+  nfc_table_stand:      { exactPlans: ['restaurant', 'business'] },
+  restaurant_profile:   { exactPlans: ['restaurant', 'business'] },
+  online_ordering:      { exactPlans: ['restaurant', 'business'] },
+  digital_menu:         { exactPlans: ['restaurant', 'business'] },
+
+  // ── Shared Tier 2+ (salon OR restaurant) ──
+  service_menu:         { exactPlans: ['salon', 'restaurant', 'business'] },
+  staff_profiles:       { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate'] },
+  google_review_link:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
+  whatsapp_booking:     { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
+  advanced_analytics:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
+  lead_export:          { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
+  menu_services:        { exactPlans: ['salon', 'restaurant', 'business'] },
+
+  // ── Tier 3: Law Firm ──
+  consultation_form:    { exactPlans: ['lawfirm', 'corporate'] },
+  crm_pipeline:         { exactPlans: ['lawfirm', 'corporate'] },
+  team_members:         { exactPlans: ['lawfirm', 'corporate'], maxMembers: { lawfirm: 20, corporate: 100 } },
+  attorney_profiles:    { exactPlans: ['lawfirm', 'corporate'] },
+  admin_roles:          { exactPlans: ['lawfirm', 'corporate'] },
+
+  // ── Tier 4: Corporate ──
+  clock_in_out:         { exactPlans: ['corporate'] },
+  attendance_dashboard: { exactPlans: ['corporate'] },
+  employee_profiles:    { exactPlans: ['corporate'] },
+};
+
+export const FEATURE_DESCRIPTIONS = {
+  nfc_devices:          { title: 'NFC Device Activation',    upgradeTarget: 'Professional', message: 'Upgrade to Professional to activate NFC devices and tap-to-share your profile.' },
+  analytics:            { title: 'Analytics Dashboard',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to view full analytics and track profile performance.' },
+  lead_collection:      { title: 'Lead Collection',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to collect and manage leads from your profile.' },
+  appointment_booking:  { title: 'Appointment Booking',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to let clients book appointments directly.' },
+  save_contact:         { title: 'Save Contact Button',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to let visitors save your contact to their phone.' },
+  custom_colors:        { title: 'Custom Profile Colors',    upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile colors and branding.' },
+  qr_download:          { title: 'QR Code Download',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to download and print your profile QR code.' },
+  digital_resume:       { title: 'Digital Resume',           upgradeTarget: 'Professional', message: 'Upgrade to Professional to create a full digital resume profile.' },
+  portfolio:            { title: 'Portfolio / Gallery',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to showcase your portfolio and projects.' },
+  lost_mode:            { title: 'Lost Mode Recovery',       upgradeTarget: 'Professional', message: 'Upgrade to Professional to enable Lost Mode for your NFC devices.' },
+  service_menu:         { title: 'Service Menu',             upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to display your full service menu.' },
+  salon_profile:        { title: 'Salon Business Profile',   upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full salon business profile.' },
+  nfc_counter_stand:    { title: 'NFC Counter Stand',        upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for NFC counter stand support.' },
+  google_review_link:   { title: 'Google Review Link',       upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to add a Google review link to your profile.' },
+  whatsapp_booking:     { title: 'WhatsApp Booking Button',  upgradeTarget: 'Salon',        message: 'Upgrade to add a WhatsApp booking button to your profile.' },
+  advanced_analytics:   { title: 'Advanced Analytics',       upgradeTarget: 'Salon',        message: 'Upgrade for advanced analytics and customer insights.' },
+  lead_export:          { title: 'Lead Export',              upgradeTarget: 'Salon',        message: 'Upgrade to export your customer leads as CSV.' },
+  menu_services:        { title: 'Menu / Services Section',  upgradeTarget: 'Salon',        message: 'Upgrade to showcase your full menu or services.' },
+  restaurant_profile:   { title: 'Restaurant Business Profile', upgradeTarget: 'Restaurant', message: 'Upgrade to the Restaurant plan for a full restaurant profile.' },
+  online_ordering:      { title: 'Online Ordering',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for online ordering.' },
+  digital_menu:         { title: 'Digital Menu',             upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add a digital menu.' },
+  nfc_table_stand:      { title: 'NFC Table Stand',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for NFC table stands.' },
+  staff_profiles:       { title: 'Staff Profiles',           upgradeTarget: 'Salon',        message: 'Upgrade to manage staff profiles.' },
+  instagram_integration:{ title: 'Instagram Showcase',       upgradeTarget: 'Professional', message: 'Upgrade to showcase your Instagram feed on your profile.' },
+  consultation_form:    { title: 'Legal Consultation Form',  upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for legal intake forms.' },
+  crm_pipeline:         { title: 'CRM Pipeline',             upgradeTarget: 'Law Firm',     message: 'Upgrade to Law Firm or Corporate for a full CRM pipeline.' },
+  team_members:         { title: 'Team Members',             upgradeTarget: 'Law Firm',     message: 'Upgrade to Law Firm or Corporate to manage team cards and staff profiles.' },
+  attorney_profiles:    { title: 'Attorney Profiles',        upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to add attorney profiles.' },
+  admin_roles:          { title: 'Admin Role Management',    upgradeTarget: 'Law Firm',     message: 'Upgrade to Law Firm or Corporate to manage admin roles.' },
+  clock_in_out:         { title: 'Clock In / Clock Out',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for time tracking.' },
+  attendance_dashboard: { title: 'Attendance Dashboard',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for attendance management.' },
+  employee_profiles:    { title: 'Employee Profiles',        upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for employee profile management.' },
+};
+
+/**
+ * Normalize legacy plan names
+ */
+export function normalizePlan(plan) {
+  if (plan === 'pro') return 'professional';
+  if (plan === 'business') return 'restaurant';
+  return plan || 'free';
+}
+
+/**
+ * Returns true if the given plan can access a feature (stacked model).
  */
 export function canAccess(userPlan, featureKey) {
   const req = FEATURE_REQUIREMENTS[featureKey];
   if (!req) return true;
-  const normalizedPlan = userPlan === 'pro' ? 'professional' : userPlan === 'business' ? 'restaurant' : userPlan;
-  return (req.plans || []).includes(normalizedPlan);
+
+  const normalized = normalizePlan(userPlan);
+  const userLevel = PLAN_HIERARCHY[normalized] ?? 0;
+
+  // minLevel check: any plan at or above the level gets it
+  if (req.minLevel !== undefined) {
+    return userLevel >= req.minLevel;
+  }
+
+  // exactPlans: must be in the list (but corporate gets everything lawfirm has too)
+  if (req.exactPlans) {
+    if (req.exactPlans.includes(normalized)) return true;
+    // Corporate inherits law firm features
+    if (normalized === 'corporate' && req.exactPlans.includes('lawfirm')) return true;
+    return false;
+  }
+
+  return true;
 }
 
 export function maxNFCDevices(userPlan) {
-  return FEATURE_REQUIREMENTS.nfc_devices.maxDevices[userPlan] ?? 0;
+  const normalized = normalizePlan(userPlan);
+  return FEATURE_REQUIREMENTS.nfc_devices.maxDevices[normalized] ?? 0;
 }
 
 export function maxTeamMembers(userPlan) {
-  return FEATURE_REQUIREMENTS.team_members.maxMembers?.[userPlan] ?? 0;
+  const normalized = normalizePlan(userPlan);
+  return FEATURE_REQUIREMENTS.team_members.maxMembers?.[normalized] ?? 0;
 }
 
 export function resolveActivePlan(subscription) {

@@ -19,6 +19,7 @@ import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
+import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock } from "lucide-react";
@@ -56,7 +57,7 @@ export default function BingooDashboard() {
   );
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isRestaurant, isBusiness, isFree } = usePlan();
+  const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: userPlan } = usePlan();
   const hasServiceMenu = isSalon || isRestaurant; // only salon and restaurant get services + hours tabs
 
   const { data: user, refetch: refetchUser } = useQuery({
@@ -610,18 +611,18 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
-          {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} userId={user?.id} />}
-          {tab === "calendar"     && <CalendarView profileId={profile?.id} />}
-          {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
-          {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
-          {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
+          {tab === "appointments" && (canAccess("appointment_booking") ? <AppointmentsPanel profileId={profile?.id} userId={user?.id} /> : <PlanGateScreen feature="appointment_booking" isDark={isDark} />)}
+          {tab === "calendar"     && (canAccess("appointment_booking") ? <CalendarView profileId={profile?.id} /> : <PlanGateScreen feature="appointment_booking" isDark={isDark} />)}
+          {tab === "leads"        && (canAccess("lead_collection") ? <LeadsPanel profileId={profile?.id} /> : <PlanGateScreen feature="lead_collection" isDark={isDark} />)}
+          {tab === "analytics"    && (canAccess("analytics") ? <AnalyticsPanel profileId={profile?.id} /> : <PlanGateScreen feature="analytics" isDark={isDark} />)}
+          {tab === "portfolio"    && (canAccess("portfolio") ? <PortfolioPanel profileId={profile?.id} user={user} /> : <PlanGateScreen feature="portfolio" isDark={isDark} />)}
           {tab === "design"       && <DesignTab profile={profile} user={user} />}
-          {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
-          {tab === "resumes"      && <ResumePanel user={user} profileId={profile?.id} />}
+          {tab === "appt_settings" && (canAccess("appointment_booking") ? <AppointmentSettings profileId={profile?.id} /> : <PlanGateScreen feature="appointment_booking" isDark={isDark} />)}
+          {tab === "resumes"      && (canAccess("digital_resume") ? <ResumePanel user={user} profileId={profile?.id} /> : <PlanGateScreen feature="digital_resume" isDark={isDark} />)}
           {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
-          {tab === "lost_mode"   && <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />}
-          {tab === "services"    && <SalonServicesPanel profileId={profile?.id} isDark={isDark} />}
-          {tab === "hours"       && <BusinessHoursTab profileId={profile?.id} isDark={isDark} />}
+          {tab === "lost_mode"   && (canAccess("lost_mode") ? <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} /> : <PlanGateScreen feature="lost_mode" isDark={isDark} />)}
+          {tab === "services"    && (canAccess("service_menu") ? <SalonServicesPanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
+          {tab === "hours"       && (canAccess("service_menu") ? <BusinessHoursTab profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
 
         </div>
       </div>

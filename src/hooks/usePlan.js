@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, PLAN_HIERARCHY } from '@/lib/planPermissions';
+import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
 
 /**
  * Returns the current user's active plan, subscription info,
@@ -28,10 +28,10 @@ export function usePlan() {
   // Use subscription plan first, fall back to profile plan
   const subPlan = resolveActivePlan(subscription);
   const profilePlan = profiles?.[0]?.plan || 'free';
-  const activePlan = PLAN_HIERARCHY[subPlan] >= PLAN_HIERARCHY[profilePlan] ? subPlan : profilePlan;
+  const activePlan = (PLAN_HIERARCHY[subPlan] ?? 0) >= (PLAN_HIERARCHY[profilePlan] ?? 0) ? subPlan : profilePlan;
 
   // Normalize legacy plan names
-  const normalizedPlan = activePlan === 'pro' ? 'professional' : activePlan === 'business' ? 'restaurant' : activePlan;
+  const normalizedPlan = normalizePlan(activePlan);
   const isPaid = normalizedPlan !== 'free';
 
   return {

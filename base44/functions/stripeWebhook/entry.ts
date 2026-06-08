@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import Stripe from 'npm:stripe@14.21.0';
 
-async function upsertSubscription(base44, { customer_email, plan, status, stripe_subscription_id, stripe_customer_id, stripe_session_id, current_period_end, cancel_at_period_end }) {
+async function upsertSubscription(base44, { customer_email, customer_name, plan, status, stripe_subscription_id, stripe_customer_id, stripe_session_id, current_period_end, cancel_at_period_end }) {
   const existing = await base44.asServiceRole.entities.Subscription.filter({ customer_email });
   if (existing.length > 0) {
     await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
@@ -15,6 +15,7 @@ async function upsertSubscription(base44, { customer_email, plan, status, stripe
   } else {
     await base44.asServiceRole.entities.Subscription.create({
       customer_email,
+      customer_name: customer_name || '',
       plan, status,
       stripe_subscription_id: stripe_subscription_id || '',
       stripe_customer_id: stripe_customer_id || '',
@@ -25,19 +26,31 @@ async function upsertSubscription(base44, { customer_email, plan, status, stripe
   }
 }
 
-async function updateProfilePlan(base44, customerEmail, plan) {
+/**
+ * Update all profiles belonging to the user to the new plan.
+ * Tries to find profiles by user_id first (from session metadata), then falls back to email match.
+ */
+async function updateProfilePlan(base44, { customerEmail, userId, plan }) {
   try {
-    const allProfiles = await base44.asServiceRole.entities.Profile.filter({});
-    const profiles = allProfiles.filter(p => p.email === customerEmail);
-    for (const profile of profiles) {
+    let profilesToUpdate = [];
+
+    // Primary: find by created_by_id using user_id from metadata
+    if (userId) {
+      const byUser = await base44.asServiceRole.entities.Profile.filter({ created_by_id: userId });
+      if (byUser.length > 0) profilesToUpdate = byUser;
+    }
+
+    // Fallback: find by email field on profile
+    if (profilesToUpdate.length === 0 && customerEmail) {
+      const allProfiles = await base44.asServiceRole.entities.Profile.filter({});
+      profilesToUpdate = allProfiles.filter(p => p.email === customerEmail);
+    }
+
+    for (const profile of profilesToUpdate) {
       await base44.asServiceRole.entities.Profile.update(profile.id, { plan });
     }
-    // Also update subscription record plan field
-    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: customerEmail });
-    if (subs.length > 0 && plan !== 'free') {
-      await base44.asServiceRole.entities.Subscription.update(subs[0].id, { plan });
-    }
-    console.log('Profile/subscription plans updated for', customerEmail, '->', plan);
+
+    console.log(`Updated ${profilesToUpdate.length} profile(s) to plan=${plan} for user=${userId || customerEmail}`);
   } catch (err) {
     console.error('updateProfilePlan error:', err.message);
   }
@@ -60,10 +73,10 @@ Deno.serve(async (req) => {
 
     console.log('Stripe webhook event:', event.type);
 
-    // ── checkout.session.completed ──────────────────────────────
+    // ── checkout.session.completed ─────────────────────────────
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
-      const { order_id, plan } = session.metadata || {};
+      const { order_id, plan, user_id, user_email } = session.metadata || {};
 
       if (session.mode === 'payment' && order_id) {
         await base44.asServiceRole.entities.ShopOrder.update(order_id, {
@@ -73,36 +86,55 @@ Deno.serve(async (req) => {
         console.log('Order marked as paid:', order_id);
 
       } else if (session.mode === 'subscription' && plan) {
+        const customerEmail = session.customer_email || user_email;
+
         // Get subscription details for period end
         let periodEnd = null;
+        let stripeSubId = session.subscription || '';
         if (session.subscription) {
           try {
             const sub = await stripe.subscriptions.retrieve(session.subscription);
             periodEnd = new Date(sub.current_period_end * 1000).toISOString();
+            stripeSubId = sub.id;
           } catch (e) { console.error('retrieve sub error:', e.message); }
         }
 
+        // Get customer name from Stripe if available
+        let customerName = '';
+        if (session.customer) {
+          try {
+            const customer = await stripe.customers.retrieve(session.customer);
+            customerName = customer.name || customer.email || '';
+          } catch (_) {}
+        }
+
         await upsertSubscription(base44, {
-          customer_email: session.customer_email,
+          customer_email: customerEmail,
+          customer_name: customerName,
           plan,
           status: 'active',
-          stripe_subscription_id: session.subscription || '',
+          stripe_subscription_id: stripeSubId,
           stripe_customer_id: session.customer || '',
           stripe_session_id: session.id,
           current_period_end: periodEnd,
         });
-        await updateProfilePlan(base44, session.customer_email, plan);
+
+        await updateProfilePlan(base44, {
+          customerEmail,
+          userId: user_id,
+          plan,
+        });
       }
     }
 
-    // ── customer.subscription.updated ──────────────────────────
+    // ── customer.subscription.updated ─────────────────────────
     if (event.type === 'customer.subscription.updated') {
       const sub = event.data.object;
       const existing = await base44.asServiceRole.entities.Subscription.filter({
         stripe_subscription_id: sub.id
       });
       if (existing.length > 0) {
-        const newStatus = sub.status === 'active' ? 'active' : sub.status;
+        const newStatus = ['active', 'past_due', 'canceled'].includes(sub.status) ? sub.status : sub.status;
         const periodEnd = sub.current_period_end
           ? new Date(sub.current_period_end * 1000).toISOString()
           : null;
@@ -114,12 +146,12 @@ Deno.serve(async (req) => {
         console.log('Subscription updated:', sub.id, newStatus);
 
         if (newStatus !== 'active') {
-          await updateProfilePlan(base44, existing[0].customer_email, 'free');
+          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
         }
       }
     }
 
-    // ── customer.subscription.deleted ──────────────────────────
+    // ── customer.subscription.deleted ─────────────────────────
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object;
       const existing = await base44.asServiceRole.entities.Subscription.filter({
@@ -130,12 +162,12 @@ Deno.serve(async (req) => {
           status: 'canceled',
           cancel_at_period_end: false,
         });
-        await updateProfilePlan(base44, existing[0].customer_email, 'free');
+        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
         console.log('Subscription canceled:', sub.id);
       }
     }
 
-    // ── invoice.payment_failed ──────────────────────────────────
+    // ── invoice.payment_failed ─────────────────────────────────
     if (event.type === 'invoice.payment_failed') {
       const invoice = event.data.object;
       const existing = await base44.asServiceRole.entities.Subscription.filter({
@@ -145,7 +177,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
           status: 'past_due',
         });
-        await updateProfilePlan(base44, existing[0].customer_email, 'free');
+        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
         console.log('Subscription past_due:', invoice.subscription);
       }
     }

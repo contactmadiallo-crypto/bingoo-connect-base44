@@ -101,6 +101,7 @@ export default function SubscriptionPricing() {
   const [currentPlan, setCurrentPlan] = useState('free');
   const [successMsg, setSuccessMsg] = useState('');
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
 
   // Load admin-configured pricing
@@ -290,7 +291,7 @@ export default function SubscriptionPricing() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
           {PLAN_DEFS.map((plan, i) => {
             const current = isCurrent(plan.id);
-            const isHighlight = plan.highlight;
+            const isHighlight = plan.highlight || (highlightPlan && plan.id === highlightPlan.toLowerCase());
             const displayPrice = getPlanPrice(plan.id);
 
             return (
