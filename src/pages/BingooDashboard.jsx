@@ -205,6 +205,12 @@ export default function BingooDashboard() {
   const totalViews = analytics.filter(a => a.event_type === "profile_view").length;
   const totalClicks = analytics.filter(a => a.event_type !== "profile_view").length;
 
+  // This-month counts
+  const thisMonthStart = new Date(); thisMonthStart.setDate(1); thisMonthStart.setHours(0,0,0,0);
+  const leadsThisMonth = leads.filter(l => l.created_date && new Date(l.created_date) >= thisMonthStart).length;
+  const apptsThisMonth = appointments.filter(a => a.created_date && new Date(a.created_date) >= thisMonthStart).length;
+  const monthLabel = new Date().toLocaleString("en", { month: "long" });
+
   // Theme-aware tokens
   const bg = isDark ? "rgba(255,255,255,0.04)" : "#ffffff";
   const border = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
@@ -418,6 +424,31 @@ export default function BingooDashboard() {
           {/* ── Overview Tab ── */}
           {tab === "overview" && (
           <div className="space-y-5">
+
+            {/* This Month Summary */}
+            {profile && (
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => setTab("leads")}
+                  className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.3)" }}>
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,255,255,0.15)" }} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
+                  <p className="text-3xl font-black text-white">{leadsThisMonth}</p>
+                  <p className="text-sm font-semibold text-white/80 mt-0.5">New Leads</p>
+                  <p className="text-[11px] text-white/50 mt-1">{leads.length} total → View all</p>
+                </button>
+                <button onClick={() => setTab("appointments")}
+                  className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", boxShadow: "0 4px 20px rgba(11,46,107,0.35)", border: "1px solid rgba(255,122,0,0.2)" }}>
+                  <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,122,0,0.12)" }} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
+                  <p className="text-3xl font-black text-white">{apptsThisMonth}</p>
+                  <p className="text-sm font-semibold text-white/80 mt-0.5">Appointments</p>
+                  <p className="text-[11px] text-white/40 mt-1">{appointments.filter(a => a.status === "pending").length} pending → View all</p>
+                </button>
+              </div>
+            )}
+
             {/* Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
               {STAT_CONFIGS.map(s => (
