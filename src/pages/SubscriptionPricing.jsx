@@ -4,6 +4,7 @@ import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Sci
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFeatures } from '@/hooks/useFeatures';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
 import { useQuery } from '@tanstack/react-query';
 
@@ -89,6 +90,7 @@ export default function SubscriptionPricing() {
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
+  const { features, plan: featurePlan } = useFeatures();
 
   // Load admin-configured pricing
   const { data: pricingConfigs = [] } = useQuery({

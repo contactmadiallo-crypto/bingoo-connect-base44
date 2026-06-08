@@ -4,6 +4,7 @@ import { ArrowLeft, CreditCard, CheckCircle2, AlertTriangle, XCircle, Crown, Zap
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useFeatures } from '@/hooks/useFeatures';
 import { usePlan } from '@/hooks/usePlan';
 import { PLAN_LABELS } from '@/lib/planPermissions';
 import { format } from 'date-fns';
@@ -55,6 +56,7 @@ const STATUS_CONFIG = {
 
 export default function Billing() {
   const { plan, subscription, isLoading } = usePlan();
+  const { features, plan: featurePlan } = useFeatures();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
@@ -102,7 +104,7 @@ export default function Billing() {
     );
   }
 
-  const features = PLAN_FEATURES[plan] || PLAN_FEATURES.free;
+  const planFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.free;
   const normalizedPlan = plan === 'pro' ? 'professional' : plan === 'business' ? 'restaurant' : plan;
 
   return (
@@ -173,7 +175,7 @@ export default function Billing() {
         <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
           <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>Your Plan Includes</h2>
           <ul className="space-y-2">
-            {features.map((f, i) => (
+            {planFeatures.map((f, i) => (
               <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
                 <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: B.orange }} />
                 {f}

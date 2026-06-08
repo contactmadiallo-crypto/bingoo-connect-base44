@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useFeatures, hasFeature } from "@/hooks/useFeatures";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,7 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [tab, setTab] = useState("users");
+  const { features } = useFeatures();
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [showDeviceForm, setShowDeviceForm] = useState(false);
@@ -165,11 +167,11 @@ export default function AdminDashboard() {
     { id: "nfc_manager",  label: t.tabs.nfc_manager,  icon: RotateCcw,    count: allNfcDevices.length },
     { id: "devices",      label: t.tabs.devices,      icon: Smartphone,   count: devices.length },
     { id: "activations",  label: t.tabs.activations,  icon: Clock,        count: recentActivations.length },
-    { id: "leads",        label: t.tabs.leads,        icon: Star,         count: leads.length },
-    { id: "appointments", label: t.tabs.appointments, icon: CheckCircle2, count: allAppointments.length },
+    ...(hasFeature(features, "lead_collection") ? [{ id: "leads",        label: t.tabs.leads,        icon: Star,         count: leads.length }] : []),
+    ...(hasFeature(features, "appointments") ? [{ id: "appointments", label: t.tabs.appointments, icon: CheckCircle2, count: allAppointments.length }] : []),
     { id: "prospects",    label: t.tabs.prospects,    icon: UserPlus2,    count: prospectLeads.length },
     { id: "new_users",    label: t.tabs.new_users,    icon: UserPlus2,    count: undefined },
-    { id: "analytics",    label: t.tabs.analytics,    icon: BarChart3 },
+    ...(hasFeature(features, "analytics") ? [{ id: "analytics",    label: t.tabs.analytics,    icon: BarChart3 }] : []),
     { id: "security",     label: "Security Audit",    icon: Shield },
     { id: "pricing",      label: "Pricing / Currency", icon: Globe },
   ];
