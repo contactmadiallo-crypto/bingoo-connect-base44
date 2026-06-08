@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
-import ProfilePreview from "./ProfilePreview";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
 
@@ -272,8 +271,14 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
         {/* Photos */}
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          {/* Cover */}
-          <div className="relative h-40 group" style={{ background: form.cover_photo ? undefined : "linear-gradient(135deg,#3b82f6,#2563eb)", backgroundImage: form.cover_photo ? `url(${form.cover_photo})` : undefined, backgroundSize: "cover", backgroundPosition: "center" }}>
+          {/* Cover — live preview updates instantly */}
+          <div className="relative h-40 group" style={{
+            backgroundColor: !form.cover_photo ? form.cover_color : undefined,
+            backgroundImage: form.cover_photo ? `url(${form.cover_photo})` : undefined,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transition: "background-color 0.3s ease"
+          }}>
             <label className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/0 group-hover:bg-black/30 transition-all">
               <span className={`flex items-center gap-2 bg-white/90 text-slate-800 px-3 py-1.5 rounded-lg text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all ${coverUploading ? "opacity-100" : ""}`}>
                 {coverUploading ? <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" /> : <Image className="w-4 h-4" />}
@@ -295,13 +300,13 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
                   ? <img src={form.profile_photo} className="w-20 h-20 rounded-2xl border-4 border-white shadow-lg object-cover" alt="" />
                   : <div className="w-20 h-20 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-3xl font-black text-white" style={{ background: form.cover_color }}>{form.display_name?.charAt(0) || "?"}</div>
                 }
-                <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center cursor-pointer shadow">
+                <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#E8671A] hover:bg-[#d45c14] rounded-full flex items-center justify-center cursor-pointer shadow">
                   {uploading ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Camera className="w-3.5 h-3.5 text-white" />}
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                 </label>
               </div>
               <div className="flex gap-2 pb-1">
-                <label className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg">
+                <label className="cursor-pointer text-xs font-semibold text-[#E8671A] hover:text-[#d45c14] bg-orange-50 px-3 py-1.5 rounded-lg">
                   {uploading ? "Uploading..." : "Change Photo"}
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                 </label>
@@ -320,8 +325,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
                 : <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 text-2xl bg-slate-50">🏢</div>
               }
               <div className="flex flex-col gap-2">
-                <label className="cursor-pointer text-xs font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
-                  {logoUploading ? <><div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><Image className="w-3.5 h-3.5" />{form.company_logo ? "Change Logo" : "Upload Logo"}</>}
+                <label className="cursor-pointer text-xs font-semibold text-[#E8671A] hover:text-[#d45c14] bg-orange-50 px-3 py-1.5 rounded-lg inline-flex items-center gap-2">
+                  {logoUploading ? <><div className="w-3.5 h-3.5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />Uploading...</> : <><Image className="w-3.5 h-3.5" />{form.company_logo ? "Change Logo" : "Upload Logo"}</>}
                   <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={logoUploading} />
                 </label>
                 {form.company_logo && (
@@ -372,9 +377,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             <div className="grid grid-cols-2 gap-2">
               {[{v:"clean",label:"Clean White",desc:"Simple & neutral"},{v:"gradient",label:"Soft Gradient",desc:"Colour wash"},{v:"mesh",label:"Mesh",desc:"Dual tone blend"},{v:"night",label:"Night",desc:"Dark atmosphere"}].map(o => (
                 <button key={o.v} onClick={() => setForm(f => ({ ...f, bg_style: o.v }))}
-                  className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${form.bg_style === o.v ? "border-blue-500 bg-blue-50" : "border-slate-100 hover:border-slate-300"}`}>
+                  className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${form.bg_style === o.v ? "border-[#E8671A] bg-orange-50" : "border-slate-100 hover:border-slate-300"}`}>
                   <div>
-                    <p className={`text-xs font-bold ${form.bg_style === o.v ? "text-blue-600" : "text-slate-700"}`}>{o.label}</p>
+                    <p className={`text-xs font-bold ${form.bg_style === o.v ? "text-[#E8671A]" : "text-slate-700"}`}>{o.label}</p>
                     <p className="text-[11px] text-slate-400">{o.desc}</p>
                   </div>
                 </button>
@@ -387,7 +392,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             <div className="flex gap-2">
               {[{v:"pill",label:"Pill"},{v:"rounded",label:"Rounded"},{v:"sharp",label:"Sharp"}].map(o => (
                 <button key={o.v} onClick={() => setForm(f => ({ ...f, button_style: o.v }))}
-                  className={`flex-1 py-2.5 text-xs font-bold border-2 transition-all ${form.button_style === o.v ? "border-blue-500 bg-blue-50 text-blue-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
+                  className={`flex-1 py-2.5 text-xs font-bold border-2 transition-all ${form.button_style === o.v ? "border-[#E8671A] bg-orange-50 text-[#E8671A]" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
                   style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
                   {o.label}
                 </button>
@@ -398,7 +403,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
         {/* Contact */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6">
-          <h3 className="font-bold text-slate-900 mb-4">Contact Information</h3>
+          <h3 className="font-bold text-[#0B2E6B] mb-4">Contact Information</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {field("phone", "Phone", "+221 77 000 0000")}
             {field("whatsapp_number", "WhatsApp", "+221 77 000 0000")}
@@ -410,7 +415,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
                 <Input className={`flex-1 border-slate-200 ${errors.location ? 'border-red-400' : ''}`} placeholder="123 Avenue, City" value={form.location} onChange={set("location")} />
                 <button type="button" title={form.show_location ? "Hide on profile" : "Show on profile"}
                   onClick={() => setForm(f => ({ ...f, show_location: !f.show_location }))}
-                  className={`px-3 rounded-xl border text-sm font-semibold transition-colors ${form.show_location ? "border-blue-200 bg-blue-50 text-blue-600" : "border-slate-200 bg-slate-100 text-slate-400"}`}>
+                  className={`px-3 rounded-xl border text-sm font-semibold transition-colors ${form.show_location ? "border-orange-200 bg-orange-50 text-[#E8671A]" : "border-slate-200 bg-slate-100 text-slate-400"}`}>
                   {form.show_location ? "👁 Visible" : "🙈 Hidden"}
                 </button>
               </div>
@@ -418,7 +423,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             </div>
             {field("payment_link", "Payment Link", "https://paypal.me/...")}
             </div>
-            <h3 className="font-bold text-slate-900 mt-4 mb-3">Money Transfer Links</h3>
+            <h3 className="font-bold text-[#0B2E6B] mt-4 mb-3">Money Transfer Links</h3>
             <div className="grid md:grid-cols-2 gap-4">
             {/* Zelle: QR upload + optional link */}
             <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
@@ -540,7 +545,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             {/* Custom Payment Methods */}
             <div className="mt-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-slate-900">Other Payment Methods</h3>
+                <h3 className="font-bold text-[#0B2E6B]">Other Payment Methods</h3>
                 <button type="button" onClick={addCustomPayment} className="flex items-center gap-1.5 text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors">
                   <Plus className="w-3.5 h-3.5" /> Add Method
                 </button>
@@ -584,11 +589,11 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900">Appointment Booking</h3>
+              <h3 className="font-bold text-[#0B2E6B]">Appointment Booking</h3>
               <p className="text-xs text-slate-400 mt-0.5">Let visitors book time with you directly from your profile</p>
             </div>
             <button type="button" onClick={() => setForm(f => ({ ...f, booking_enabled: !f.booking_enabled }))}
-              className={`w-12 h-7 rounded-full transition-colors relative flex-shrink-0 ${form.booking_enabled ? "bg-blue-600" : "bg-slate-200"}`}>
+              className={`w-12 h-7 rounded-full transition-colors relative flex-shrink-0 ${form.booking_enabled ? "bg-[#E8671A]" : "bg-slate-200"}`}>
               <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-all ${form.booking_enabled ? "left-6" : "left-1"}`} />
             </button>
           </div>
@@ -644,7 +649,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
         {/* Social */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6">
-          <h3 className="font-bold text-slate-900 mb-4">Social Media</h3>
+          <h3 className="font-bold text-[#0B2E6B] mb-4">Social Media</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {field("instagram_url", "📸 Instagram", "https://instagram.com/...")}
             {field("facebook_url", "👤 Facebook", "https://facebook.com/...")}
@@ -654,36 +659,18 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
           </div>
         </div>
 
-        <div className="pb-6">
-          <Button onClick={() => saveProfile.mutate()} disabled={saveProfile.isPending} className="bg-blue-600 hover:bg-blue-700 px-10 h-12 text-base shadow-lg shadow-blue-200">
-            {saveProfile.isPending ? "Saving..." : "Save Profile"}
+        <div className="pb-6 flex items-center gap-4 flex-wrap">
+          <Button onClick={() => saveProfile.mutate()} disabled={saveProfile.isPending} className="bg-[#E8671A] hover:bg-[#d45c14] text-white px-10 h-12 text-base font-bold shadow-lg shadow-orange-200 rounded-xl">
+            {saveProfile.isPending ? "Saving..." : "💾 Save Profile"}
           </Button>
           {profile && (
-            <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer" className="ml-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:underline">
+            <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0B2E6B] hover:text-[#E8671A] transition-colors">
               <Eye className="w-4 h-4" /> View Live Profile
             </a>
           )}
         </div>
       </div>
 
-      {/* Live Preview — below form */}
-      <div className="w-full">
-        <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
-          <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] text-white/50 font-semibold">Real-time</span>
-          </div>
-        </div>
-        <div className="rounded-b-2xl border border-slate-100 shadow-xl overflow-hidden bg-white">
-          <div style={{ width: "375px", transform: "scale(0.88)", transformOrigin: "top left", marginBottom: "-48px" }}>
-            <ProfilePreview profile={form} key={`${form.layout}-${form.cover_color}-${form.bg_style}-${form.button_style}`} />
-          </div>
-        </div>
-        <p className="text-center text-[11px] text-slate-400 mt-2 font-medium">
-          Layout: <span className="text-slate-600 font-bold capitalize">{form.layout}</span>
-        </p>
-      </div>
     </div>
   );
 }
