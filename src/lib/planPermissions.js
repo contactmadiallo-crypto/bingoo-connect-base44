@@ -81,8 +81,8 @@ export const FEATURE_REQUIREMENTS = {
   online_ordering:      { exactPlans: ['restaurant', 'business'] },
   digital_menu:         { exactPlans: ['restaurant', 'business'] },
 
-  // ── Shared Tier 2+ (salon OR restaurant) ──
-  service_menu:         { exactPlans: ['salon', 'restaurant', 'business'] },
+  // ── Shared Tier 2+ (salon OR restaurant OR lawfirm) ──
+  service_menu:         { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
   team_members:         { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
   staff_profiles:       { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate'] },
   google_review_link:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },

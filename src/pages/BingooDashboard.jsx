@@ -26,7 +26,7 @@ import LegalLeadsDashboard from "@/components/bingoo/LegalLeadsDashboard";
 import AttendancePanel from "@/components/bingoo/AttendancePanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -244,10 +244,10 @@ export default function BingooDashboard() {
   const TABS = [
     ...BASE_TABS.slice(0, 5),
     ...(hasServiceMenu || isLawFirm ? [
-      { id: "services", label: isLawFirm ? "Practice Areas" : "Services", icon: Scissors,    color: isLawFirm ? "#0B2E6B" : "#db2777" },
+      { id: "services", label: isLawFirm ? "Practice Areas" : "Services", icon: isLawFirm ? Scale : Scissors,    color: isLawFirm ? "#0B2E6B" : "#db2777" },
       { id: "hours",    label: tr.hours,   icon: Clock,       color: "#0891b2" },
     ] : []),
-    ...BASE_TABS.slice(5),
+    ...(hasServiceMenu && !isLawFirm ? BASE_TABS.slice(5) : BASE_TABS.slice(5).filter(t => t.id !== "resumes")),
     ...(hasTeam      ? [{ id: "team",       label: isLawFirm ? "Attorneys" : "Team",    icon: Users,      color: "#0B2E6B" }] : []),
     ...(hasCRM       ? [{ id: "crm",        label: "CRM",                               icon: GitBranch,  color: "#6366f1" }] : []),
     ...(hasAttendance? [{ id: "attendance", label: "Attendance",                        icon: UserCheck,  color: "#10b981" }] : []),
