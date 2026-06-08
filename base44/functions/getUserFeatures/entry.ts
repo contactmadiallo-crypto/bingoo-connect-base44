@@ -16,11 +16,7 @@ Deno.serve(async (req) => {
     });
 
     if (!subscriptions.length) {
-      // Default to free plan
-      const freePlan = await base44.asServiceRole.entities.Plan.filter({ name: 'free' });
-      if (!freePlan.length) {
-        return Response.json({ features: [], plan: 'free' });
-      }
+      return Response.json({ features: getInheritedFeatures('free'), plan: 'free' });
     }
 
     const subscription = subscriptions[0];

@@ -52,3 +52,12 @@ export function useHasFeature(featureKey) {
   const { features, loading, error } = useFeatures();
   return hasFeature(features, featureKey) && !loading;
 }
+
+/**
+ * Returns true only when features are loaded AND the feature is NOT present.
+ * Use this instead of !hasFeature() to avoid false gate screens during loading.
+ */
+export function isFeatureGated(features, loading, featureKey) {
+  if (loading) return false; // don't gate while loading
+  return !hasFeature(features, featureKey);
+}
