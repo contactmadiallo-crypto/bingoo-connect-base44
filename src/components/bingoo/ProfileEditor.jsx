@@ -666,39 +666,23 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
-      {/* Live Preview — scrolls with the page */}
+      {/* Live Preview — flows naturally with page */}
       <div className="hidden lg:block lg:w-[340px] flex-shrink-0">
-        <div>
-          {/* Header */}
-          <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
-            <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] text-white/50 font-semibold">Real-time</span>
-            </div>
+        <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
+          <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] text-white/50 font-semibold">Real-time</span>
           </div>
-          {/* Phone frame */}
-          <div className="bg-white rounded-b-2xl border border-slate-100 shadow-xl overflow-hidden">
-            {/* Notch bar */}
-            <div className="flex justify-center pt-2 pb-1 bg-slate-800">
-              <div className="w-20 h-1.5 bg-slate-600 rounded-full" />
-            </div>
-            {/* Scrollable preview content */}
-            <div className="overflow-y-auto bg-white" style={{ height: "calc(100vh - 180px)", maxHeight: "620px" }}>
-              <div style={{ width: "375px", transform: "scale(0.88)", transformOrigin: "top left", minHeight: "100%" }}>
-                <ProfilePreview profile={form} key={`${form.layout}-${form.cover_color}-${form.bg_style}-${form.button_style}`} />
-              </div>
-            </div>
-            {/* Bottom bar */}
-            <div className="flex justify-center py-2 bg-slate-800">
-              <div className="w-28 h-1 bg-slate-600 rounded-full" />
-            </div>
-          </div>
-          {/* Layout hint */}
-          <p className="text-center text-[11px] text-slate-400 mt-2 font-medium">
-            Layout: <span className="text-slate-600 font-bold capitalize">{form.layout}</span>
-          </p>
         </div>
+        <div className="rounded-b-2xl border border-slate-100 shadow-xl overflow-hidden bg-white">
+          <div style={{ width: "375px", transform: "scale(0.88)", transformOrigin: "top left", marginBottom: "-48px" }}>
+            <ProfilePreview profile={form} key={`${form.layout}-${form.cover_color}-${form.bg_style}-${form.button_style}`} />
+          </div>
+        </div>
+        <p className="text-center text-[11px] text-slate-400 mt-2 font-medium">
+          Layout: <span className="text-slate-600 font-bold capitalize">{form.layout}</span>
+        </p>
       </div>
     </div>
   );
