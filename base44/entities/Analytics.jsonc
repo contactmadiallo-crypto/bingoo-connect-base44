@@ -24,7 +24,11 @@
         "website_click",
         "payment_click",
         "location_click",
-        "save_contact_click"
+        "save_contact_click",
+        "lead_submitted",
+        "appointment_booked",
+        "qr_scan",
+        "nfc_tap"
       ],
       "default": "profile_view"
     },

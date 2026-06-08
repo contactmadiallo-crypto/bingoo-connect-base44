@@ -101,6 +101,13 @@ export default function AppointmentBooking({ profile, onClose }) {
       setError(res.data.error);
       return;
     }
+    // Track appointment booking in analytics
+    base44.entities.Analytics.create({
+      profile_id: profile.id,
+      event_type: "appointment_booked",
+      visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+      created_at: new Date().toISOString(),
+    }).catch(() => {});
     setStep(3);
   };
 

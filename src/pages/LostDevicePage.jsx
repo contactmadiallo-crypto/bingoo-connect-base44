@@ -36,6 +36,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
   });
 
   const device = deviceProp || deviceData?.data?.device;
+  // getDeviceByCode now returns profile directly in its response
   const profile = profileProp || deviceData?.data?.profile;
 
   const handleSubmit = async (e) => {

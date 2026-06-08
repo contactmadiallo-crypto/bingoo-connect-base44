@@ -16,16 +16,10 @@ export default function NFCRedirect() {
   });
 
   const device = deviceData?.data?.device;
+  // Profile is now returned directly by getDeviceByCode — no second call needed
+  const profile = deviceData?.data?.profile;
 
-  const { data: profileData, isLoading: profileLoading } = useQuery({
-    queryKey: ["bingoo-nfc-profile", device?.assigned_profile],
-    queryFn: () => base44.functions.invoke("getProfileById", { profile_id: device.assigned_profile }),
-    enabled: !!device?.assigned_profile,
-  });
-
-  const profile = profileData?.data?.profile;
-
-  const deviceIsLost = device?.description === "lost";
+  const deviceIsLost = device?.activation_status === "inactive" && device?.description === "lost";
 
   useEffect(() => {
     if (deviceIsLost) return; // Don't redirect, show lost page
@@ -46,7 +40,7 @@ export default function NFCRedirect() {
     return <LostDevicePage deviceCodeProp={normalizedCode} deviceProp={device} profileProp={profile} />;
   }
 
-  if (deviceLoading || (device?.assigned_profile && profileLoading)) {
+  if (deviceLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">

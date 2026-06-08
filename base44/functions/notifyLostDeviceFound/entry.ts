@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: owner_email,
       subject,
-      html,
+      body: html,
     });
 
     console.log(`Lost device notification sent to ${owner_email} for device ${device_code}`);

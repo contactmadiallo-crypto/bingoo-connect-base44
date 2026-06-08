@@ -93,6 +93,8 @@ export default function AnalyticsPanel({ profileId }) {
     { key: "email_click",       label: "Email Clicks",   color: isDark ? "bg-orange-500/20 text-orange-300": "bg-orange-100 text-orange-700",icon: "📧" },
     { key: "save_contact_click",label: "Saves",          color: isDark ? "bg-white/10 text-white/60"       : "bg-slate-100 text-slate-700",  icon: "💾" },
     { key: "website_click",     label: "Website",        color: isDark ? "bg-indigo-500/20 text-indigo-300": "bg-indigo-100 text-indigo-700",icon: "🌐" },
+    { key: "lead_submitted",    label: "Leads",          color: isDark ? "bg-amber-500/20 text-amber-300"  : "bg-amber-100 text-amber-700",  icon: "⭐" },
+    { key: "appointment_booked",label: "Bookings",       color: isDark ? "bg-teal-500/20 text-teal-300"    : "bg-teal-100 text-teal-700",    icon: "📅" },
   ];
 
   const filteredTaps = tapEvents.filter(e => {
