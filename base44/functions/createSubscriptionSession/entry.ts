@@ -7,13 +7,11 @@ import Stripe from 'npm:stripe@14.21.0';
  * amount: cents in USD
  */
 const PLAN_MAP = {
-  professional: { productId: 'prod_UdL2W8XwDY3Bmq', amount: 499,  productName: 'Bingoo Professional Plan' },
-  pro:          { productId: 'prod_UdL2W8XwDY3Bmq', amount: 499,  productName: 'Bingoo Professional Plan' },
-  salon:        { productId: 'prod_UfF46myS8RxwKE', amount: 1999, productName: 'Bingoo Salon Plan' },
-  restaurant:   { productId: null, amount: 2999, productName: 'Bingoo Restaurant Plan' },
-  lawfirm:      { productId: 'prod_UfFHNuhuWhyGVZ', amount: 4900, productName: 'Bingoo Law Firm Plan' },
-  business:     { productId: 'prod_UdL2NqVtcHwKb2', amount: 1499, productName: 'Bingoo Business Plan' },
-  corporate:    { productId: null, amount: 9900, productName: 'Bingoo Corporate Team Plan' },
+   professional: { productId: 'prod_UdL2W8XwDY3Bmq', amount: 499,  productName: 'Bingoo Professional Plan' },
+   pro:          { productId: 'prod_UdL2W8XwDY3Bmq', amount: 499,  productName: 'Bingoo Professional Plan' },
+   salon:        { productId: 'prod_UfF46myS8RxwKE', amount: 1999, productName: 'Bingoo Salon Plan' },
+   lawfirm:      { productId: 'prod_UfFHNuhuWhyGVZ', amount: 4900, productName: 'Bingoo Law Firm Plan' },
+   business:     { productId: 'prod_UdL2NqVtcHwKb2', amount: 1499, productName: 'Bingoo Business Plan' },
 };
 
 const STRIPE_SUPPORTED_CURRENCIES = ['usd', 'eur', 'gbp', 'cad'];

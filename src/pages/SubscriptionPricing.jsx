@@ -50,18 +50,18 @@ const PLAN_DEFS = [
     cta: 'Get Salon Plan',
   },
   {
-    id: 'restaurant',
-    name: 'Restaurant',
-    priceUSD: 29.99,
-    tagline: 'Food, drinks & hospitality',
-    icon: <UtensilsCrossed className="w-5 h-5" />,
-    color: '#c2410c',
+    id: 'business',
+    name: 'Business',
+    priceUSD: 14.99,
+    tagline: 'Small business essentials',
+    icon: <Building2 className="w-5 h-5" />,
+    color: '#7c3aed',
     features: [
-      'Restaurant business profile', 'Digital menu', 'Food ordering link',
-      'Delivery link integration', 'WhatsApp order button', 'Google review link',
-      'NFC table stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
+      'Business profile', 'Appointment booking', 'Lead collection & CRM', 
+      'Team management (up to 5)', 'Up to 10 NFC devices', 'Analytics dashboard',
+      'WhatsApp contact button', 'Custom branding', 'QR code downloads',
     ],
-    cta: 'Get Restaurant Plan',
+    cta: 'Get Business Plan',
   },
   {
     id: 'lawfirm',
@@ -78,23 +78,9 @@ const PLAN_DEFS = [
     ],
     cta: 'Get Law Firm Plan',
   },
-  {
-    id: 'corporate',
-    name: 'Corporate Team',
-    priceUSD: 99,
-    tagline: 'Teams, enterprises & orgs',
-    icon: <Building2 className="w-5 h-5" />,
-    color: '#6d28d9',
-    features: [
-      'Employee profiles', 'Team NFC cards (up to 50)', 'Clock in / clock out',
-      'Attendance dashboard', 'Team analytics', 'Admin role management',
-      'CRM pipeline', 'Lead export', 'Advanced analytics', 'Priority support',
-    ],
-    cta: 'Get Corporate Plan',
-  },
-];
+  ];
 
-const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 2, lawfirm: 3, business: 2, corporate: 4 };
+const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, business: 2, salon: 2, lawfirm: 3 };
 
 export default function SubscriptionPricing() {
   const [loading, setLoading] = useState(null);
