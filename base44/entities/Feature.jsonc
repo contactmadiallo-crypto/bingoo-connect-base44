@@ -1,0 +1,55 @@
+{
+  "name": "Feature",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Unique feature identifier (e.g., appointments, analytics, crm_pipeline)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable feature name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Feature description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "core",
+        "salon",
+        "restaurant",
+        "law_firm",
+        "corporate"
+      ],
+      "description": "Feature category"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "key",
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

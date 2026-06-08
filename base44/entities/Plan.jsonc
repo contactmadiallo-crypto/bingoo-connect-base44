@@ -1,0 +1,67 @@
+{
+  "name": "Plan",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "enum": [
+        "free",
+        "professional",
+        "pro",
+        "salon",
+        "restaurant",
+        "lawfirm",
+        "business",
+        "corporate"
+      ],
+      "description": "Plan identifier"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Human-readable plan name"
+    },
+    "price": {
+      "type": "number",
+      "description": "Monthly price in USD cents"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "stripe_product_id": {
+      "type": "string",
+      "description": "Stripe product ID"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order in pricing"
+    }
+  },
+  "required": [
+    "name",
+    "display_name"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

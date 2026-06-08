@@ -1,0 +1,44 @@
+{
+  "name": "PlanFeature",
+  "type": "object",
+  "properties": {
+    "plan_id": {
+      "type": "string",
+      "description": "Plan entity ID"
+    },
+    "feature_id": {
+      "type": "string",
+      "description": "Feature entity ID"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Denormalized plan name for querying"
+    },
+    "feature_key": {
+      "type": "string",
+      "description": "Denormalized feature key for querying"
+    }
+  },
+  "required": [
+    "plan_id",
+    "feature_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
