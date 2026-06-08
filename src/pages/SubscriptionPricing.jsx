@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -26,7 +26,7 @@ const PLAN_DEFS = [
     id: 'professional',
     name: 'Professional',
     priceUSD: 4.99,
-    tagline: 'For individuals & freelancers',
+    tagline: 'For individuals and freelancers',
     icon: <Star className="w-5 h-5" />,
     color: B.orange,
     highlight: true,
@@ -36,7 +36,7 @@ const PLAN_DEFS = [
     id: 'salon',
     name: 'Salon',
     priceUSD: 19.99,
-    tagline: 'Hair, beauty & wellness',
+    tagline: 'Hair, beauty and wellness',
     icon: <Scissors className="w-5 h-5" />,
     color: '#be185d',
     cta: 'Get Salon Plan',
@@ -54,7 +54,7 @@ const PLAN_DEFS = [
     id: 'lawfirm',
     name: 'Law Firm',
     priceUSD: 49,
-    tagline: 'Legal services & attorneys',
+    tagline: 'Legal services and attorneys',
     icon: <Shield className="w-5 h-5" />,
     color: '#0369a1',
     cta: 'Get Law Firm Plan',
@@ -164,9 +164,9 @@ export default function SubscriptionPricing() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: 'rgba(11,46,107,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/bingoo" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
+          <button onClick={() => window.history.back()} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
             <ArrowLeft className="w-4 h-4" /> Back
-          </Link>
+          </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
           <div className="ml-auto flex items-center gap-3">
             {/* Currency Selector */}
@@ -238,7 +238,7 @@ export default function SubscriptionPricing() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + '20', color: '#b45309', border: `1px solid ${B.gold}40` }}>
-            Industry Plans & Pricing
+            Industry Plans and Pricing
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-3" style={{ color: B.navy }}>
             Choose Your Industry Plan

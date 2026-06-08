@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, CheckCircle2, AlertTriangle, XCircle, Crown, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, UtensilsCrossed, Building2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -22,8 +22,6 @@ const PLAN_ICONS = {
   business:     <Shield className="w-5 h-5" />,
   corporate:    <Building2 className="w-5 h-5" />,
 };
-
-
 
 const ALL_PLANS = [
   { id: 'professional', name: 'Professional', price: '$4.99/mo' },
@@ -48,6 +46,7 @@ const STATUS_CONFIG = {
 
 export default function Billing() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { plan, subscription, isLoading } = usePlan();
   const { features, plan: featurePlan } = useFeatures();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
@@ -106,9 +105,9 @@ export default function Billing() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: 'rgba(11,46,107,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/bingoo" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
             <ArrowLeft className="w-4 h-4" /> Back
-          </Link>
+          </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
           <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
             alt="Bingoo Connect" className="h-8 w-auto object-contain" />
@@ -117,7 +116,7 @@ export default function Billing() {
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
         <div>
-          <h1 className="text-3xl font-black mb-1" style={{ color: B.navy }}>Billing & Subscription</h1>
+          <h1 className="text-3xl font-black mb-1" style={{ color: B.navy }}>Billing</h1>
           <p className="text-slate-500">Manage your plan and payment details.</p>
         </div>
 
@@ -158,7 +157,7 @@ export default function Billing() {
               <Button variant="outline" onClick={handleManageBilling} disabled={portalLoading}
                 className="font-semibold flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
-                {portalLoading ? 'Opening...' : 'Manage Payment & Cancel'}
+                {portalLoading ? 'Opening...' : 'Manage Payment'}
               </Button>
             </div>
           )}
@@ -177,7 +176,7 @@ export default function Billing() {
           </ul>
         </div>
 
-        {/* Upgrade options — show all higher-tier plans */}
+        {/* Upgrade options */}
         {ALL_PLANS.filter(p => (BILLING_HIERARCHY[p.id] ?? 0) > (BILLING_HIERARCHY[normalizedPlan] ?? 0)).length > 0 && (
           <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
             <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>
@@ -211,7 +210,7 @@ export default function Billing() {
         {/* View all plans link */}
         <div className="text-center">
           <Link to="/plans" className="text-sm font-bold hover:underline" style={{ color: B.navy }}>
-            View all plans & feature comparison →
+            View all plans
           </Link>
         </div>
 
