@@ -23,7 +23,6 @@ export default function LeadsPanel({ profileId }) {
     enabled: !!profileId,
   });
 
-  // Real-time: refresh when a new lead is created for this profile
   useEffect(() => {
     if (!profileId) return;
     const unsub = base44.entities.Lead.subscribe((event) => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Clock, User, Phone, Mail, Check, X, CheckCircle, Inbox, MessageSquare, Download, Filter } from "lucide-react";
+import { CalendarDays, Clock, User, Phone, Mail, Check, X, CheckCircle, Inbox, MessageSquare, Download } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS_STYLE = {
@@ -20,8 +20,12 @@ export default function AppointmentsPanel({ profileId }) {
   const qc = useQueryClient();
   const [addNote, setAddNote] = useState({});
   const [showNoteFor, setShowNoteFor] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterDate, setFilterDate] = useState("");
+  const [rescheduleId, setRescheduleId] = useState(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
 
-  // Real-time: push update when a new appointment is booked
   useEffect(() => {
     if (!profileId) return;
     const unsub = base44.entities.Appointment.subscribe((event) => {
@@ -31,11 +35,6 @@ export default function AppointmentsPanel({ profileId }) {
     });
     return () => unsub();
   }, [profileId]);
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterDate, setFilterDate] = useState("");
-  const [rescheduleId, setRescheduleId] = useState(null);
-  const [rescheduleDate, setRescheduleDate] = useState("");
-  const [rescheduleTime, setRescheduleTime] = useState("");
 
   const { data: appointments = [], isLoading } = useQuery({
     queryKey: ["appointments", profileId],
@@ -119,7 +118,6 @@ export default function AppointmentsPanel({ profileId }) {
 
       {a.notes && <p className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 italic">"{a.notes}"</p>}
 
-      {/* Owner note */}
       {showNoteFor === a.id ? (
         <div className="space-y-2">
           <textarea
@@ -142,7 +140,6 @@ export default function AppointmentsPanel({ profileId }) {
       )}
       {a.description && <p className="text-xs text-blue-600 bg-blue-50 rounded-xl p-3">📝 {a.description}</p>}
 
-      {/* Reschedule form */}
       {rescheduleId === a.id && (
         <div className="space-y-2 mt-1">
           <div className="flex gap-2">

@@ -19,7 +19,6 @@ const EVENT_LABELS = {
   save_contact_click: "Save Contact",
 };
 
-// NFC tap / QR scan event types
 const TAP_EVENT_LABELS = {
   tap: "NFC Taps",
   link_click: "Link Clicks",
@@ -53,7 +52,6 @@ export default function AnalyticsPanel({ profileId }) {
     refetchInterval: 15000,
   });
 
-  // Real-time updates for NFC taps, QR scans and analytics clicks
   useEffect(() => {
     if (!profileId) return;
     const unsubAnalytics = base44.entities.Analytics.subscribe((event) => {
@@ -85,7 +83,6 @@ export default function AnalyticsPanel({ profileId }) {
     { key: "website_click", label: "Website", color: "bg-indigo-100 text-indigo-700", icon: "🌐" },
   ];
 
-  const totalTaps = tapEvents.filter(e => e.event_type === "tap").length;
   const filteredTaps = tapEvents.filter(e => {
     if (period === null) return true;
     if (period === 0) return new Date(e.tapped_at).toDateString() === new Date().toDateString();
@@ -93,7 +90,6 @@ export default function AnalyticsPanel({ profileId }) {
     return new Date(e.tapped_at) >= cutoff;
   });
 
-  // Group by day for chart (last 7 days)
   const last7 = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -110,7 +106,6 @@ export default function AnalyticsPanel({ profileId }) {
 
   return (
     <div className="space-y-6">
-      {/* Period selector */}
       <div className="flex gap-2 flex-wrap">
         {PERIODS.map(p => (
           <button
@@ -126,7 +121,6 @@ export default function AnalyticsPanel({ profileId }) {
         </span>
       </div>
 
-      {/* NFC / QR Tap Stats — highlighted */}
       <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-3">📡 NFC Taps & QR Scans</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -145,7 +139,6 @@ export default function AnalyticsPanel({ profileId }) {
         </div>
       </div>
 
-      {/* Profile interaction stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {stats.map(s => (
           <div key={s.key} className={`rounded-2xl p-4 ${s.color}`}>
@@ -158,7 +151,6 @@ export default function AnalyticsPanel({ profileId }) {
         ))}
       </div>
 
-      {/* Social breakdown */}
       {(counts.instagram_click || counts.facebook_click || counts.tiktok_click || counts.linkedin_click) ? (
         <div className="bg-white rounded-2xl border p-5">
           <h3 className="font-bold text-slate-800 mb-3 text-sm">Social Media Clicks</h3>
@@ -173,7 +165,6 @@ export default function AnalyticsPanel({ profileId }) {
         </div>
       ) : null}
 
-      {/* Chart */}
       <div className="bg-white rounded-2xl border p-5">
         <h3 className="font-bold text-slate-800 mb-4 text-sm">Last 7 Days Activity</h3>
         <ResponsiveContainer width="100%" height={180}>
@@ -187,7 +178,6 @@ export default function AnalyticsPanel({ profileId }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Recent NFC activity feed */}
       {tapEvents.length > 0 && (
         <div className="bg-white rounded-2xl border p-5">
           <h3 className="font-bold text-slate-800 mb-3 text-sm flex items-center gap-2">
