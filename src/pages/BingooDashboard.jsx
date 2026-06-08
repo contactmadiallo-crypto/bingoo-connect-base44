@@ -60,9 +60,7 @@ export default function BingooDashboard() {
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(undefined); // undefined=first, null=new, string=specific
   const [profileSearch, setProfileSearch] = useState("");
-  const [showOnboarding, setShowOnboarding] = useState(
-    !localStorage.getItem("bingoo_onboarding_done")
-  );
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
   const { features, plan: userPlan, loading: featuresLoading } = useFeatures();
@@ -84,6 +82,14 @@ export default function BingooDashboard() {
     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
     enabled: !!user?.id,
   });
+
+  // Show onboarding AI only for new users with no profiles
+  useEffect(() => {
+    if (!user) return;
+    if (profiles.length === 0 && !localStorage.getItem("bingoo_onboarding_done")) {
+      setShowOnboarding(true);
+    }
+  }, [user, profiles]);
 
   // Auto-backfill owned_profile_ids so RLS works for appointments/leads
   const [backfilled, setBackfilled] = useState(false);
