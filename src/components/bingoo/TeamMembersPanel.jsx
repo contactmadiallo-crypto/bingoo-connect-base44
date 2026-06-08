@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, Check, User, Phone, Mail, Upload } from "lucide-react";
 import { LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
@@ -47,7 +48,13 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
       editing === "new"
         ? base44.entities.TeamMember.create({ ...data, profile_id: profileId })
         : base44.entities.TeamMember.update(editing, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["team-members", profileId] }); setEditing(null); setForm(EMPTY); },
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["team-members", profileId] }); 
+      setEditing(null); 
+      setForm(EMPTY);
+      toast.success(editing === "new" ? "Attorney added" : "Attorney updated");
+    },
+    onError: (err) => toast.error(`Failed to save: ${err.message}`),
   });
 
   const deleteMutation = useMutation({
