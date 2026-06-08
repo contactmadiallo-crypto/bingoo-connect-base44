@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,17 @@ export default function AppointmentsPanel({ profileId }) {
   const qc = useQueryClient();
   const [addNote, setAddNote] = useState({});
   const [showNoteFor, setShowNoteFor] = useState(null);
+
+  // Real-time: push update when a new appointment is booked
+  useEffect(() => {
+    if (!profileId) return;
+    const unsub = base44.entities.Appointment.subscribe((event) => {
+      if (event.data?.profile_id === profileId) {
+        qc.invalidateQueries({ queryKey: ["appointments", profileId] });
+      }
+    });
+    return () => unsub();
+  }, [profileId]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterDate, setFilterDate] = useState("");
   const [rescheduleId, setRescheduleId] = useState(null);

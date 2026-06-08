@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
@@ -43,6 +43,7 @@ const TABS_CONFIG = [
 ];
 
 export default function BingooDashboard() {
+  const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "overview";
   const setTab = (t) => setSearchParams(t === "overview" ? {} : { tab: t });
@@ -80,6 +81,10 @@ export default function BingooDashboard() {
       base44.auth.updateMe({ owned_profile_ids: [...existing, ...missing] }).then(() => {
         refetchUser();
         setBackfilled(true);
+        // Invalidate all user-data queries after RLS is updated
+        qc.invalidateQueries({ queryKey: ["leads"] });
+        qc.invalidateQueries({ queryKey: ["appointments"] });
+        qc.invalidateQueries({ queryKey: ["analytics"] });
       }).catch(() => {});
     } else {
       setBackfilled(true);
@@ -93,19 +98,35 @@ export default function BingooDashboard() {
     : profiles[0];
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", profile?.id],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }),
-    enabled: !!profile?.id,
+    queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }, "-created_date"),
+    enabled: !!profile?.id && backfilled,
   });
   const { data: analytics = [] } = useQuery({
     queryKey: ["analytics-all", profile?.id],
     queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }),
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && backfilled,
+    refetchInterval: 15000,
   });
   const { data: appointments = [] } = useQuery({
     queryKey: ["appointments", profile?.id],
-    queryFn: () => base44.entities.Appointment.filter({ profile_id: profile.id }),
-    enabled: !!profile?.id,
+    queryFn: () => base44.entities.Appointment.filter({ profile_id: profile.id }, "-created_date"),
+    enabled: !!profile?.id && backfilled,
   });
+
+  // Real-time subscriptions for dashboard overview
+  useEffect(() => {
+    if (!profile?.id) return;
+    const unsubLeads = base44.entities.Lead.subscribe((event) => {
+      if (event.data?.profile_id === profile.id) qc.invalidateQueries({ queryKey: ["leads", profile.id] });
+    });
+    const unsubAppts = base44.entities.Appointment.subscribe((event) => {
+      if (event.data?.profile_id === profile.id) qc.invalidateQueries({ queryKey: ["appointments", profile.id] });
+    });
+    const unsubAnalytics = base44.entities.Analytics.subscribe((event) => {
+      if (event.data?.profile_id === profile.id) qc.invalidateQueries({ queryKey: ["analytics-all", profile.id] });
+    });
+    return () => { unsubLeads(); unsubAppts(); unsubAnalytics(); };
+  }, [profile?.id]);
 
   const profileUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : null;
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,17 @@ export default function LeadsPanel({ profileId }) {
     queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
     enabled: !!profileId,
   });
+
+  // Real-time: refresh when a new lead is created for this profile
+  useEffect(() => {
+    if (!profileId) return;
+    const unsub = base44.entities.Lead.subscribe((event) => {
+      if (event.data?.profile_id === profileId) {
+        qc.invalidateQueries({ queryKey: ["leads", profileId] });
+      }
+    });
+    return () => unsub();
+  }, [profileId]);
 
   const updateStatus = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Lead.update(id, { status }),
