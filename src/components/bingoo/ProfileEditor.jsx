@@ -666,8 +666,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
-      {/* Live Preview — flows naturally with page */}
-      <div className="hidden lg:block lg:w-[340px] flex-shrink-0 self-start">
+      {/* Live Preview — sticky sidebar */}
+      <div className="hidden lg:block lg:w-[340px] flex-shrink-0 self-start sticky top-6">
         <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
           <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
           <div className="flex items-center gap-1.5">
