@@ -32,7 +32,7 @@ export default function Login() {
           timestamp: new Date().toISOString(),
         }).catch(() => {});
       }
-      window.location.href = "/bingoo";
+      window.location.replace("/bingoo");
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
