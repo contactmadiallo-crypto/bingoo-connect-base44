@@ -4,9 +4,10 @@ import { ArrowLeft, CreditCard, CheckCircle2, AlertTriangle, XCircle, Crown, Zap
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, normalizePlan } from '@/lib/planPermissions';
 import { format } from 'date-fns';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
@@ -22,16 +23,7 @@ const PLAN_ICONS = {
   corporate:    <Building2 className="w-5 h-5" />,
 };
 
-const PLAN_FEATURES = {
-  free: ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
-  professional: ['Everything in Free', 'Appointment booking', 'Lead collection CRM', 'Gallery & portfolio', 'Full analytics', 'Custom branding', 'QR code download', 'Up to 5 NFC devices'],
-  pro: ['Everything in Free', 'Appointment booking', 'Lead collection CRM', 'Full analytics', 'Custom branding', 'Up to 5 NFC devices'],
-  salon: ['Salon profile', 'Staff profiles', 'Service menu', 'Appointment booking', 'WhatsApp booking', 'Instagram showcase', 'Google review link', 'NFC counter stand', '10 NFC devices', 'Advanced analytics'],
-  restaurant: ['Restaurant profile', 'Digital menu', 'Food ordering link', 'Delivery link', 'WhatsApp orders', 'Google review link', 'NFC table stand', '10 NFC devices', 'Advanced analytics'],
-  lawfirm: ['Law firm profile', 'Attorney profiles', 'Practice areas', 'Legal consultation form', 'Appointment booking', 'CRM pipeline', 'Team management', '25 NFC devices', 'Analytics'],
-  business: ['Business profile', 'Appointment booking', 'Lead management', 'Analytics', 'Up to 25 NFC devices'],
-  corporate: ['Employee profiles', 'Team NFC cards (50)', 'Clock in/out', 'Attendance dashboard', 'Team analytics', 'Admin roles', 'CRM pipeline', 'Lead export'],
-};
+
 
 const ALL_PLANS = [
   { id: 'professional', name: 'Professional', price: '$4.99/mo' },
@@ -55,6 +47,7 @@ const STATUS_CONFIG = {
 };
 
 export default function Billing() {
+  const { toast } = useToast();
   const { plan, subscription, isLoading } = usePlan();
   const { features, plan: featurePlan } = useFeatures();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
@@ -66,7 +59,7 @@ export default function Billing() {
 
   const handleUpgrade = async (planId) => {
     if (window.self !== window.top) {
-      alert('Checkout is only available from the published app.');
+      toast({ title: 'Info', description: 'Checkout is only available from the published app.', variant: 'destructive' });
       return;
     }
     setCheckoutLoading(planId);
@@ -74,7 +67,7 @@ export default function Billing() {
       const res = await base44.functions.invoke('createSubscriptionSession', { plan: planId });
       if (res.data?.url) window.location.href = res.data.url;
     } catch (err) {
-      alert('Checkout failed: ' + err.message);
+      toast({ title: 'Checkout Failed', description: err.message, variant: 'destructive' });
     } finally {
       setCheckoutLoading(null);
     }
@@ -82,7 +75,7 @@ export default function Billing() {
 
   const handleManageBilling = async () => {
     if (window.self !== window.top) {
-      alert('Billing management is only available from the published app.');
+      toast({ title: 'Info', description: 'Billing management is only available from the published app.', variant: 'destructive' });
       return;
     }
     setPortalLoading(true);
@@ -90,7 +83,7 @@ export default function Billing() {
       const res = await base44.functions.invoke('createBillingPortalSession', {});
       if (res.data?.url) window.location.href = res.data.url;
     } catch (err) {
-      alert('Could not open billing portal: ' + err.message);
+      toast({ title: 'Portal Error', description: err.message, variant: 'destructive' });
     } finally {
       setPortalLoading(false);
     }
@@ -104,8 +97,8 @@ export default function Billing() {
     );
   }
 
-  const planFeatures = PLAN_FEATURES[plan] || PLAN_FEATURES.free;
-  const normalizedPlan = plan === 'pro' ? 'professional' : plan === 'business' ? 'restaurant' : plan;
+  const normalizedPlan = normalizePlan(plan);
+  const planFeatures = PLAN_FEATURES[normalizedPlan] || PLAN_FEATURES.free;
 
   return (
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>

@@ -39,6 +39,17 @@ export const PLAN_PRICES_USD = {
    lawfirm:      49,
 };
 
+/**
+ * Plan features — single source of truth
+ */
+export const PLAN_FEATURES = {
+   free: ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
+   professional: ['Everything in Free', 'Unlimited profiles', 'Appointment booking', 'Lead collection & CRM', 'Portfolio & gallery', 'Full analytics dashboard', 'Custom branding & colors', 'QR code downloads', 'Up to 5 NFC devices', 'Save contact button'],
+   business: ['Business profile', 'Appointment booking', 'Lead collection & CRM', 'Team management (up to 5)', 'Up to 10 NFC devices', 'Analytics dashboard', 'WhatsApp contact button', 'Custom branding', 'QR code downloads'],
+   salon: ['Salon business profile', 'Staff profiles', 'Service menu', 'Appointment booking', 'WhatsApp booking button', 'Instagram showcase', 'Google review link', 'NFC counter stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export'],
+   lawfirm: ['Law firm business profile', 'Attorney profiles', 'Practice areas display', 'Legal consultation form', 'Appointment booking', 'Lead dashboard & CRM pipeline', 'Team management (up to 20)', 'Up to 25 NFC devices', 'WhatsApp contact button', 'Analytics', 'Admin role management'],
+};
+
 // Stripe product IDs (existing from catalog)
 export const PLAN_STRIPE_PRODUCTS = {
    professional: 'prod_UdL2W8XwDY3Bmq',  // $4.99/mo

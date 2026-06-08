@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown } from 'lucide-react';
+import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
+import { PLAN_HIERARCHY, PLAN_FEATURES, normalizePlan } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
@@ -18,7 +20,6 @@ const PLAN_DEFS = [
     tagline: 'Get started today',
     icon: <Zap className="w-5 h-5" />,
     color: '#64748b',
-    features: ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
     cta: 'Current Plan',
   },
   {
@@ -29,11 +30,6 @@ const PLAN_DEFS = [
     icon: <Star className="w-5 h-5" />,
     color: B.orange,
     highlight: true,
-    features: [
-      'Everything in Free', 'Unlimited profiles', 'Appointment booking',
-      'Lead collection & CRM', 'Portfolio & gallery', 'Full analytics dashboard',
-      'Custom branding & colors', 'QR code downloads', 'Up to 5 NFC devices', 'Save contact button',
-    ],
     cta: 'Get Professional',
   },
   {
@@ -43,11 +39,6 @@ const PLAN_DEFS = [
     tagline: 'Hair, beauty & wellness',
     icon: <Scissors className="w-5 h-5" />,
     color: '#be185d',
-    features: [
-      'Salon business profile', 'Staff profiles', 'Service menu', 'Appointment booking',
-      'WhatsApp booking button', 'Instagram showcase', 'Google review link',
-      'NFC counter stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
-    ],
     cta: 'Get Salon Plan',
   },
   {
@@ -57,11 +48,6 @@ const PLAN_DEFS = [
     tagline: 'Small business essentials',
     icon: <Building2 className="w-5 h-5" />,
     color: '#7c3aed',
-    features: [
-      'Business profile', 'Appointment booking', 'Lead collection & CRM', 
-      'Team management (up to 5)', 'Up to 10 NFC devices', 'Analytics dashboard',
-      'WhatsApp contact button', 'Custom branding', 'QR code downloads',
-    ],
     cta: 'Get Business Plan',
   },
   {
@@ -71,19 +57,12 @@ const PLAN_DEFS = [
     tagline: 'Legal services & attorneys',
     icon: <Shield className="w-5 h-5" />,
     color: '#0369a1',
-    features: [
-      'Law firm business profile', 'Attorney profiles', 'Practice areas display',
-      'Legal consultation form', 'Appointment booking', 'Lead dashboard & CRM pipeline',
-      'Team management (up to 20)', 'Up to 25 NFC devices', 'WhatsApp contact button',
-      'Analytics', 'Admin role management',
-    ],
     cta: 'Get Law Firm Plan',
   },
-  ];
-
-const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, business: 2, salon: 2, lawfirm: 3 };
+];
 
 export default function SubscriptionPricing() {
+  const { toast } = useToast();
   const [loading, setLoading] = useState(null);
   const [currentPlan, setCurrentPlan] = useState('free');
   const [successMsg, setSuccessMsg] = useState('');
@@ -151,7 +130,7 @@ export default function SubscriptionPricing() {
   const handleSubscribe = async (plan) => {
     if (plan.id === 'free') return;
     if (window.self !== window.top) {
-      alert('Checkout is only available from the published app. Please open the app directly.');
+      toast({ title: 'Info', description: 'Checkout is only available from the published app.', variant: 'destructive' });
       return;
     }
     setLoading(plan.id);
@@ -168,11 +147,11 @@ export default function SubscriptionPricing() {
       if (res.data?.url) {
         window.location.href = res.data.url;
       } else {
-        alert('Could not start checkout. Please try again.');
+        toast({ title: 'Checkout Failed', description: 'Could not start checkout. Please try again.', variant: 'destructive' });
         setLoading(null);
       }
     } catch (err) {
-      alert('Checkout failed: ' + (err.message || 'Unknown error'));
+      toast({ title: 'Checkout Failed', description: err.message || 'Unknown error', variant: 'destructive' });
       setLoading(null);
     }
   };
@@ -281,6 +260,7 @@ export default function SubscriptionPricing() {
             const current = isCurrent(plan.id);
             const isHighlight = plan.highlight || (highlightPlan && plan.id === highlightPlan.toLowerCase());
             const displayPrice = getPlanPrice(plan.id);
+            const planFeatures = PLAN_FEATURES[plan.id] || PLAN_FEATURES.free;
 
             return (
               <motion.div
@@ -335,7 +315,7 @@ export default function SubscriptionPricing() {
 
                 {/* Features */}
                 <ul className="space-y-2 mb-7 flex-1">
-                  {plan.features.map((f, fi) => (
+                  {planFeatures.map((f, fi) => (
                     <li key={fi} className="flex items-start gap-2 text-sm"
                       style={{ color: isHighlight ? 'rgba(255,255,255,0.78)' : '#475569' }}>
                       <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: isHighlight ? B.gold : plan.color }} />
