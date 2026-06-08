@@ -266,7 +266,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col gap-6">
       {/* Form */}
       <div className="flex-1 space-y-6 min-w-0">
 
@@ -666,8 +666,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
-      {/* Live Preview — sticky sidebar */}
-      <div className="hidden lg:block lg:w-[340px] flex-shrink-0 self-start sticky top-6">
+      {/* Live Preview — below form */}
+      <div className="w-full">
         <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
           <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
           <div className="flex items-center gap-1.5">
