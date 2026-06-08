@@ -22,6 +22,7 @@ import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
 import TeamMembersPanel from "@/components/bingoo/TeamMembersPanel";
 import CRMPipelinePanel from "@/components/bingoo/CRMPipelinePanel";
+import LegalLeadsDashboard from "@/components/bingoo/LegalLeadsDashboard";
 import AttendancePanel from "@/components/bingoo/AttendancePanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
@@ -635,7 +636,7 @@ export default function BingooDashboard() {
           {tab === "services"    && (canAccess("service_menu") ? <SalonServicesPanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
           {tab === "hours"       && (canAccess("service_menu") ? <BusinessHoursTab profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
           {tab === "team"        && (canAccess("team_members") ? <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} /> : <PlanGateScreen feature="team_members" isDark={isDark} />)}
-          {tab === "crm"         && (canAccess("crm_pipeline") ? <CRMPipelinePanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="crm_pipeline" isDark={isDark} />)}
+          {tab === "crm"         && (canAccess("crm_pipeline") ? (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} />) : <PlanGateScreen feature="crm_pipeline" isDark={isDark} />)}
           {tab === "attendance"  && (canAccess("attendance_dashboard") ? <AttendancePanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="attendance_dashboard" isDark={isDark} />)}
 
         </div>

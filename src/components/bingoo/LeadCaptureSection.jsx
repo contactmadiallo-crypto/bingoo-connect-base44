@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import LegalIntakeForm from "@/components/bingoo/LegalIntakeForm";
 
 const hexRgb = (hex, a = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${a})`;
@@ -14,7 +15,7 @@ const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
 const RATE_LIMIT_KEY = "bingoo_lead_last_submit";
 const RATE_LIMIT_MS = 60_000; // 60 seconds
 
-export default function LeadCaptureSection({ profileId, color = "#0B2E6B" }) {
+export default function LeadCaptureSection({ profileId, color = "#0B2E6B", isLawFirm = false }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "", preferred_contact: "WhatsApp" });
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,8 @@ export default function LeadCaptureSection({ profileId, color = "#0B2E6B" }) {
   const [rateLimited, setRateLimited] = useState(false);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
+
+  if (isLawFirm) return <LegalIntakeForm profileId={profileId} color={color} isLawFirm={true} />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

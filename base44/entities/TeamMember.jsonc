@@ -3,20 +3,22 @@
   "type": "object",
   "properties": {
     "profile_id": {
-      "type": "string",
-      "description": "Owner profile ID"
+      "type": "string"
     },
     "name": {
       "type": "string"
     },
     "role": {
       "type": "string",
-      "description": "Job title / role e.g. Attorney, Hair Stylist, Manager"
+      "description": "e.g. Partner, Associate, Managing Attorney"
     },
     "email": {
       "type": "string"
     },
     "phone": {
+      "type": "string"
+    },
+    "whatsapp": {
       "type": "string"
     },
     "photo": {
@@ -25,9 +27,47 @@
     "bio": {
       "type": "string"
     },
+    "education": {
+      "type": "string"
+    },
+    "experience": {
+      "type": "string"
+    },
+    "awards": {
+      "type": "string"
+    },
+    "bar_states": {
+      "type": "string",
+      "description": "Bar admitted states, comma-separated"
+    },
+    "languages": {
+      "type": "string",
+      "description": "Languages spoken, comma-separated"
+    },
+    "practice_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Immigration",
+          "Civil",
+          "Criminal"
+        ]
+      },
+      "description": "Law practice categories"
+    },
     "practice_areas": {
       "type": "string",
-      "description": "Comma-separated practice areas (law firm) or specialties"
+      "description": "Specific services, comma-separated"
+    },
+    "consultation_fee": {
+      "type": "string"
+    },
+    "availability": {
+      "type": "string"
+    },
+    "office_address": {
+      "type": "string"
     },
     "status": {
       "type": "string",
@@ -63,22 +103,7 @@
         }
       ]
     },
-    "read": {
-      "$or": [
-        {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "read": {},
     "update": {
       "$or": [
         {

@@ -9,6 +9,7 @@ import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
+import AttorneysSectionPublic from "@/components/bingoo/AttorneysSectionPublic";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
@@ -270,6 +271,7 @@ export default function PublicProfile() {
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
+  const isLawFirmProfile = profile.plan === "lawfirm";
   const waBookingHref = profile.whatsapp_number
     ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
     : null;
@@ -558,9 +560,14 @@ export default function PublicProfile() {
                   <PortfolioSection profileId={profile.id} color={color} />
                 </div>
 
+                {/* Attorney profiles — Law Firm plan */}
+                {isLawFirmProfile && (
+                  <AttorneysSectionPublic profileId={profile.id} color={color} />
+                )}
+
                 {/* Lead capture */}
                 <Divider />
-                <LeadCaptureSection profileId={profile.id} color={color} />
+                <LeadCaptureSection profileId={profile.id} color={color} isLawFirm={isLawFirmProfile} />
 
                 {/* Powered by + Footer */}
                 <div style={{ textAlign: "center", marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(0,0,0,0.05)" }}>
