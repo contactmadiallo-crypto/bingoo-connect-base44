@@ -31,6 +31,12 @@ export default function PublicLawFirmProfile() {
     enabled: !!profile?.id && profile?.plan === "lawfirm",
   });
 
+  const { data: legalServices = [] } = useQuery({
+    queryKey: ["legal-services", profile?.id],
+    queryFn: () => base44.entities.LegalService.filter({ profile_id: profile?.id }, "order"),
+    enabled: !!profile?.id && profile?.plan === "lawfirm",
+  });
+
   if (profileLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!profile || profile.plan !== "lawfirm") return <div className="min-h-screen flex items-center justify-center text-slate-500">Profile not found</div>;
 
@@ -80,24 +86,40 @@ export default function PublicLawFirmProfile() {
         </div>
 
         {/* Practice Areas */}
-        {practiceAreas.length > 0 && (
-          <div className="mb-12">
-            <h2 className="text-2xl font-black text-slate-900 mb-4">⚖️ Practice Areas</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              {practiceAreas.filter(a => a.is_active).map(area => (
-                <div key={area.id} className="bg-white rounded-2xl p-6 border border-slate-200">
-                  <div className="flex items-start gap-3">
-                    <span className="text-3xl">{area.icon || "⚖️"}</span>
-                    <div>
-                      <h3 className="font-bold text-slate-900">{area.name}</h3>
-                      {area.description && <p className="text-sm text-slate-600 mt-1">{area.description}</p>}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+         {practiceAreas.length > 0 && (
+           <div className="mb-12">
+             <h2 className="text-2xl font-black text-slate-900 mb-4">⚖️ Practice Areas</h2>
+             <div className="grid md:grid-cols-2 gap-4">
+               {practiceAreas.filter(a => a.is_active).map(area => (
+                 <div key={area.id} className="bg-white rounded-2xl p-6 border border-slate-200">
+                   <div className="flex items-start gap-3">
+                     <span className="text-3xl">{area.icon || "⚖️"}</span>
+                     <div>
+                       <h3 className="font-bold text-slate-900">{area.name}</h3>
+                       {area.description && <p className="text-sm text-slate-600 mt-1">{area.description}</p>}
+                     </div>
+                   </div>
+                 </div>
+               ))}
+             </div>
+           </div>
+         )}
+
+         {/* Legal Services */}
+         {legalServices.length > 0 && (
+           <div className="mb-12">
+             <h2 className="text-2xl font-black text-slate-900 mb-4">⚖️ Legal Services</h2>
+             <div className="space-y-3">
+               {legalServices.filter(s => s.is_active).map(service => (
+                 <div key={service.id} className="bg-white rounded-2xl p-4 border border-slate-200">
+                   <h3 className="font-bold text-slate-900">{service.name}</h3>
+                   {service.description && <p className="text-sm text-slate-600 mt-1">{service.description}</p>}
+                   {service.legal_category && <p className="text-xs text-slate-500 mt-2">Category: {service.legal_category}</p>}
+                 </div>
+               ))}
+             </div>
+           </div>
+         )}
 
         {/* Attorneys */}
         {attorneys.length > 0 && (
