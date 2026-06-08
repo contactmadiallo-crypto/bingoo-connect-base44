@@ -4,7 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { profile_id, name, phone, email, message, preferred_contact_method } = body;
+    const { profile_id, ...formData } = body;
 
     if (!profile_id) {
       return Response.json({ error: 'profile_id is required' }, { status: 400 });
@@ -13,11 +13,8 @@ Deno.serve(async (req) => {
     // Use service role so unauthenticated visitors can submit leads
     const lead = await base44.asServiceRole.entities.Lead.create({
       profile_id,
-      name: name || '',
-      phone: phone || '',
-      email: email || '',
-      message: message || '',
-      preferred_contact_method: preferred_contact_method || 'WhatsApp',
+      ...formData,
+      preferred_contact_method: formData.preferred_contact_method || 'WhatsApp',
     });
 
     // Look up the profile owner to notify them

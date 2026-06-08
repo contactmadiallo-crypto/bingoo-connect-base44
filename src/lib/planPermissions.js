@@ -184,7 +184,9 @@ export function maxNFCDevices(userPlan) {
 
 export function maxTeamMembers(userPlan) {
   const normalized = normalizePlan(userPlan);
-  return FEATURE_REQUIREMENTS.team_members.maxMembers?.[normalized] ?? 0;
+  // Team members limits: salon/restaurant/lawfirm/corporate only (unlimited for now)
+  const hasTeam = ['salon', 'restaurant', 'lawfirm', 'corporate'].includes(normalized);
+  return hasTeam ? 999 : 0;
 }
 
 export function resolveActivePlan(subscription) {

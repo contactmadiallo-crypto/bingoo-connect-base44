@@ -90,7 +90,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
     setLoading(true);
     localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
 
-    await base44.functions.invoke("createPublicLead", { profile_id: profileId, ...form });
+    await base44.functions.invoke("createPublicLead", { profile_id: profileId, legal_category: form.legal_category, ...form });
 
     base44.entities.Analytics.create({
       profile_id: profileId,
