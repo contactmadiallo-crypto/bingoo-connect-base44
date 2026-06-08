@@ -30,7 +30,12 @@
       "type": "string",
       "enum": [
         "new",
+        "reviewed",
         "contacted",
+        "consultation_scheduled",
+        "documents_requested",
+        "retained",
+        "declined",
         "closed"
       ],
       "default": "new"
@@ -38,7 +43,185 @@
     "description": {
       "type": "string",
       "description": "Lead description or notes",
-      "maxLength": 1000
+      "maxLength": 5000
+    },
+    "legal_category": {
+      "type": "string",
+      "enum": [
+        "Immigration",
+        "Civil",
+        "Criminal"
+      ],
+      "description": "Law practice category"
+    },
+    "legal_service": {
+      "type": "string",
+      "description": "Specific service needed"
+    },
+    "urgency": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "emergency"
+      ],
+      "description": "Case urgency level"
+    },
+    "preferred_language": {
+      "type": "string"
+    },
+    "preferred_consult_date": {
+      "type": "string"
+    },
+    "assigned_attorney_id": {
+      "type": "string",
+      "description": "TeamMember ID of assigned attorney"
+    },
+    "assigned_attorney_name": {
+      "type": "string"
+    },
+    "document_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Uploaded document URLs"
+    },
+    "immigration_a_number": {
+      "type": "string"
+    },
+    "immigration_uscis_account": {
+      "type": "string"
+    },
+    "immigration_receipt_number": {
+      "type": "string"
+    },
+    "immigration_case_number": {
+      "type": "string"
+    },
+    "immigration_court_date": {
+      "type": "string"
+    },
+    "immigration_court_location": {
+      "type": "string"
+    },
+    "immigration_current_status": {
+      "type": "string"
+    },
+    "immigration_process_type": {
+      "type": "string"
+    },
+    "immigration_country_of_origin": {
+      "type": "string"
+    },
+    "immigration_date_of_entry": {
+      "type": "string"
+    },
+    "immigration_manner_of_entry": {
+      "type": "string"
+    },
+    "immigration_prior_asylum": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
+    },
+    "immigration_work_permit_status": {
+      "type": "string"
+    },
+    "immigration_detained": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
+    },
+    "immigration_prior_removal": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
+    },
+    "immigration_family_petition": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
+    },
+    "immigration_deadlines": {
+      "type": "string"
+    },
+    "immigration_notes": {
+      "type": "string"
+    },
+    "civil_matter_type": {
+      "type": "string"
+    },
+    "civil_incident_date": {
+      "type": "string"
+    },
+    "civil_incident_location": {
+      "type": "string"
+    },
+    "civil_opposing_party": {
+      "type": "string"
+    },
+    "civil_case_number": {
+      "type": "string"
+    },
+    "civil_insurance_claim": {
+      "type": "string"
+    },
+    "civil_damages_description": {
+      "type": "string"
+    },
+    "civil_court_date": {
+      "type": "string"
+    },
+    "criminal_charge": {
+      "type": "string"
+    },
+    "criminal_arrest_date": {
+      "type": "string"
+    },
+    "criminal_court_date": {
+      "type": "string"
+    },
+    "criminal_court_location": {
+      "type": "string"
+    },
+    "criminal_docket_number": {
+      "type": "string"
+    },
+    "criminal_precinct": {
+      "type": "string"
+    },
+    "criminal_bail_status": {
+      "type": "string"
+    },
+    "criminal_prior_history": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
+    },
+    "criminal_detained": {
+      "type": "string",
+      "enum": [
+        "yes",
+        "no",
+        ""
+      ]
     }
   },
   "required": [
