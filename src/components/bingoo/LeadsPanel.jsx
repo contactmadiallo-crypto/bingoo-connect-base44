@@ -21,6 +21,7 @@ export default function LeadsPanel({ profileId }) {
     queryKey: ["leads", profileId],
     queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
     enabled: !!profileId,
+    refetchOnMount: "always",
   });
 
   useEffect(() => {

@@ -99,18 +99,21 @@ export default function BingooDashboard() {
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", profile?.id],
     queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }, "-created_date"),
-    enabled: !!profile?.id && backfilled,
+    enabled: !!profile?.id,
+    refetchOnMount: true,
   });
   const { data: analytics = [] } = useQuery({
     queryKey: ["analytics-all", profile?.id],
     queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }),
-    enabled: !!profile?.id && backfilled,
+    enabled: !!profile?.id,
     refetchInterval: 15000,
+    refetchOnMount: true,
   });
   const { data: appointments = [] } = useQuery({
     queryKey: ["appointments", profile?.id],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: profile.id }, "-created_date"),
-    enabled: !!profile?.id && backfilled,
+    enabled: !!profile?.id,
+    refetchOnMount: true,
   });
 
   // Real-time subscriptions for dashboard overview

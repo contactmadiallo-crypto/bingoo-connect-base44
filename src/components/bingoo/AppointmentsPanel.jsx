@@ -40,6 +40,7 @@ export default function AppointmentsPanel({ profileId }) {
     queryKey: ["appointments", profileId],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: profileId }, "-created_date"),
     enabled: !!profileId,
+    refetchOnMount: "always",
   });
 
   const update = useMutation({
