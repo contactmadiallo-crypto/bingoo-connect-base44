@@ -1,143 +1,113 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight } from 'lucide-react';
+import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
+import { useQuery } from '@tanstack/react-query';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
 
-const PLANS = [
+const PLAN_DEFS = [
   {
     id: 'free',
     name: 'Free',
-    price: 0,
+    priceUSD: 0,
     tagline: 'Get started today',
     icon: <Zap className="w-5 h-5" />,
     color: '#64748b',
-    bg: '#f8fafc',
     features: ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
     cta: 'Current Plan',
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: 4.99,
+    priceUSD: 4.99,
     tagline: 'For individuals & freelancers',
     icon: <Star className="w-5 h-5" />,
     color: B.orange,
-    bg: `linear-gradient(145deg, ${B.navy}, #1a4a9e)`,
     highlight: true,
     features: [
-      'Everything in Free',
-      'Unlimited profiles',
-      'Appointment booking',
-      'Lead collection & CRM',
-      'Portfolio & gallery',
-      'Full analytics dashboard',
-      'Custom branding & colors',
-      'QR code downloads',
-      'Up to 5 NFC devices',
-      'Save contact button',
+      'Everything in Free', 'Unlimited profiles', 'Appointment booking',
+      'Lead collection & CRM', 'Portfolio & gallery', 'Full analytics dashboard',
+      'Custom branding & colors', 'QR code downloads', 'Up to 5 NFC devices', 'Save contact button',
     ],
     cta: 'Get Professional',
   },
   {
     id: 'salon',
     name: 'Salon',
-    price: 19.99,
+    priceUSD: 19.99,
     tagline: 'Hair, beauty & wellness',
     icon: <Scissors className="w-5 h-5" />,
     color: '#be185d',
-    bg: '#fff',
     features: [
-      'Salon business profile',
-      'Staff profiles',
-      'Service menu',
-      'Appointment booking',
-      'WhatsApp booking button',
-      'Instagram showcase',
-      'Google review link',
-      'NFC counter stand support',
-      'Up to 10 NFC devices',
-      'Advanced analytics',
-      'Lead export',
+      'Salon business profile', 'Staff profiles', 'Service menu', 'Appointment booking',
+      'WhatsApp booking button', 'Instagram showcase', 'Google review link',
+      'NFC counter stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
     ],
     cta: 'Get Salon Plan',
   },
   {
     id: 'restaurant',
     name: 'Restaurant',
-    price: 29.99,
+    priceUSD: 29.99,
     tagline: 'Food, drinks & hospitality',
     icon: <UtensilsCrossed className="w-5 h-5" />,
     color: '#c2410c',
-    bg: '#fff',
     features: [
-      'Restaurant business profile',
-      'Digital menu',
-      'Food ordering link',
-      'Delivery link integration',
-      'WhatsApp order button',
-      'Google review link',
-      'NFC table stand support',
-      'Up to 10 NFC devices',
-      'Advanced analytics',
-      'Lead export',
+      'Restaurant business profile', 'Digital menu', 'Food ordering link',
+      'Delivery link integration', 'WhatsApp order button', 'Google review link',
+      'NFC table stand support', 'Up to 10 NFC devices', 'Advanced analytics', 'Lead export',
     ],
     cta: 'Get Restaurant Plan',
   },
   {
     id: 'lawfirm',
     name: 'Law Firm',
-    price: 49,
+    priceUSD: 49,
     tagline: 'Legal services & attorneys',
     icon: <Shield className="w-5 h-5" />,
     color: '#0369a1',
-    bg: '#fff',
     features: [
-      'Law firm business profile',
-      'Attorney profiles',
-      'Practice areas display',
-      'Legal consultation form',
-      'Appointment booking',
-      'Lead dashboard & CRM pipeline',
-      'Team management (up to 20)',
-      'Up to 25 NFC devices',
-      'WhatsApp contact button',
-      'Analytics',
-      'Admin role management',
+      'Law firm business profile', 'Attorney profiles', 'Practice areas display',
+      'Legal consultation form', 'Appointment booking', 'Lead dashboard & CRM pipeline',
+      'Team management (up to 20)', 'Up to 25 NFC devices', 'WhatsApp contact button',
+      'Analytics', 'Admin role management',
     ],
     cta: 'Get Law Firm Plan',
   },
   {
     id: 'corporate',
     name: 'Corporate Team',
-    price: 99,
+    priceUSD: 99,
     tagline: 'Teams, enterprises & orgs',
     icon: <Building2 className="w-5 h-5" />,
     color: '#6d28d9',
-    bg: '#fff',
     features: [
-      'Employee profiles',
-      'Team NFC cards (up to 50)',
-      'Clock in / clock out',
-      'Attendance dashboard',
-      'Team analytics',
-      'Admin role management',
-      'CRM pipeline',
-      'Lead export',
-      'Advanced analytics',
-      'Priority support',
+      'Employee profiles', 'Team NFC cards (up to 50)', 'Clock in / clock out',
+      'Attendance dashboard', 'Team analytics', 'Admin role management',
+      'CRM pipeline', 'Lead export', 'Advanced analytics', 'Priority support',
     ],
     cta: 'Get Corporate Plan',
   },
 ];
 
+const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 3, lawfirm: 4, business: 4, corporate: 5 };
+
 export default function SubscriptionPricing() {
   const [loading, setLoading] = useState(null);
   const [currentPlan, setCurrentPlan] = useState('free');
   const [successMsg, setSuccessMsg] = useState('');
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
+
+  // Load admin-configured pricing
+  const { data: pricingConfigs = [] } = useQuery({
+    queryKey: ['pricing-configs-public'],
+    queryFn: () => base44.entities.PricingConfig.filter({ active: true }),
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -146,8 +116,6 @@ export default function SubscriptionPricing() {
 
     base44.auth.me().then(user => {
       if (!user?.id) return;
-
-      // Load both profile plan AND subscription to determine true active plan
       Promise.all([
         base44.entities.Profile.filter({ created_by_id: user.id }).catch(() => []),
         base44.entities.Subscription.filter({ customer_email: user.email }).catch(() => []),
@@ -155,13 +123,10 @@ export default function SubscriptionPricing() {
         const profilePlan = profiles?.[0]?.plan || 'free';
         const sub = subscriptions?.[0];
         const subPlan = (sub?.status === 'active' || sub?.status === 'free') ? (sub.plan || 'free') : 'free';
-
-        // Pick the higher plan between subscription and profile
-        const HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 3, lawfirm: 4, business: 4, corporate: 5 };
-        const activePlan = (HIERARCHY[subPlan] || 0) >= (HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
+        const activePlan = (PLAN_HIERARCHY[subPlan] || 0) >= (PLAN_HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
 
         if (isSuccess && successPlan) {
-          setSuccessMsg(`🎉 You're now on the ${PLANS.find(p => p.id === successPlan)?.name || successPlan} plan! Welcome aboard.`);
+          setSuccessMsg(`🎉 You're now on the ${PLAN_DEFS.find(p => p.id === successPlan)?.name || successPlan} plan! Welcome aboard.`);
           if (profiles?.[0]?.id) base44.entities.Profile.update(profiles[0].id, { plan: successPlan });
           setCurrentPlan(successPlan);
         } else {
@@ -171,6 +136,29 @@ export default function SubscriptionPricing() {
     }).catch(() => {});
   }, []);
 
+  // Resolve display price for a plan in current currency
+  const getPlanPrice = (planId) => {
+    const plan = PLAN_DEFS.find(p => p.id === planId);
+    if (!plan || plan.priceUSD === 0) return 0;
+
+    // Check DB config first
+    const dbConfig = pricingConfigs.find(c => c.plan_name === planId && c.currency === currency);
+    if (dbConfig) return dbConfig.amount;
+
+    // Fallback: convert from USD
+    return convertPrice(plan.priceUSD, currency);
+  };
+
+  const getStripePriceId = (planId) => {
+    const dbConfig = pricingConfigs.find(c => c.plan_name === planId && c.currency === currency);
+    return dbConfig?.stripe_price_id || null;
+  };
+
+  const isCurrent = (planId) => {
+    const normalized = currentPlan === 'pro' ? 'professional' : currentPlan;
+    return normalized === planId || currentPlan === planId;
+  };
+
   const handleSubscribe = async (plan) => {
     if (plan.id === 'free') return;
     if (window.self !== window.top) {
@@ -179,7 +167,15 @@ export default function SubscriptionPricing() {
     }
     setLoading(plan.id);
     try {
-      const res = await base44.functions.invoke('createSubscriptionSession', { plan: plan.id });
+      const stripePriceId = getStripePriceId(plan.id);
+      const amount = getPlanPrice(plan.id);
+      const res = await base44.functions.invoke('createSubscriptionSession', {
+        plan: plan.id,
+        currency: stripeCheckoutCurrency,
+        amount_cents: Math.round(amount * (currency === 'XOF' ? 1 : 100)),
+        stripe_price_id: stripePriceId || undefined,
+        display_currency: currency,
+      });
       if (res.data?.url) {
         window.location.href = res.data.url;
       } else {
@@ -192,10 +188,7 @@ export default function SubscriptionPricing() {
     }
   };
 
-  const isCurrent = (planId) => {
-    const normalized = currentPlan === 'pro' ? 'professional' : currentPlan;
-    return normalized === planId || currentPlan === planId;
-  };
+  const cfg = CURRENCY_CONFIG[currency];
 
   return (
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
@@ -207,7 +200,48 @@ export default function SubscriptionPricing() {
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
           <div className="h-5 w-px bg-white/10 mx-1" />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
+            {/* Currency Selector */}
+            <div className="relative">
+              <button
+                onClick={() => setShowCurrencyPicker(p => !p)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-bold transition-all hover:bg-white/10"
+                style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)' }}
+              >
+                <span>{cfg.flag}</span>
+                <span>{currency}</span>
+                {isManualOverride && <span className="text-[10px] text-yellow-300 font-black">MANUAL</span>}
+                <ChevronDown className="w-3.5 h-3.5 text-white/50" />
+              </button>
+              <AnimatePresence>
+                {showCurrencyPicker && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+                    className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden shadow-2xl z-50 min-w-[200px]"
+                    style={{ background: '#0B2E6B', border: '1px solid rgba(255,255,255,0.15)' }}
+                  >
+                    {SUPPORTED_CURRENCIES.map(c => {
+                      const cc = CURRENCY_CONFIG[c];
+                      const isDetected = c === detectedCurrency;
+                      const isSelected = c === currency;
+                      return (
+                        <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold transition-colors hover:bg-white/10"
+                          style={{ color: isSelected ? B.orange : 'rgba(255,255,255,0.75)' }}>
+                          <span className="text-base">{cc.flag}</span>
+                          <div className="flex-1">
+                            <span>{c}</span>
+                            <span className="font-normal text-white/40 text-xs ml-2">{cc.name}</span>
+                          </div>
+                          {isDetected && <span className="text-[10px] text-green-400 font-black">AUTO</span>}
+                          {isSelected && <Check className="w-3.5 h-3.5" style={{ color: B.orange }} />}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
             <Link to="/billing" className="text-white/60 hover:text-white text-sm font-semibold transition-colors">
               Manage Billing →
             </Link>
@@ -224,6 +258,15 @@ export default function SubscriptionPricing() {
           </motion.div>
         )}
 
+        {/* XOF notice */}
+        {currency === 'XOF' && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 rounded-2xl text-sm font-medium"
+            style={{ background: 'rgba(253,186,33,0.12)', border: '1px solid rgba(253,186,33,0.3)', color: '#b45309' }}>
+            🌍 Prices displayed in CFA Francs for your convenience. Stripe charges are processed in USD at the current exchange rate.
+          </motion.div>
+        )}
+
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + '20', color: '#b45309', border: `1px solid ${B.gold}40` }}>
@@ -235,13 +278,21 @@ export default function SubscriptionPricing() {
           <p className="text-slate-500 max-w-lg mx-auto text-lg">
             Tailored features for your profession. Billed monthly. Cancel anytime.
           </p>
+          {/* Currency pill */}
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm"
+            style={{ background: 'rgba(11,46,107,0.06)', color: '#0B2E6B' }}>
+            <span>{cfg.flag}</span>
+            <span>Showing prices in <strong>{cfg.name} ({currency})</strong></span>
+          </div>
         </div>
 
-        {/* Plans grid — 3+3 layout */}
+        {/* Plans grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          {PLANS.map((plan, i) => {
+          {PLAN_DEFS.map((plan, i) => {
             const current = isCurrent(plan.id);
             const isHighlight = plan.highlight;
+            const displayPrice = getPlanPrice(plan.id);
+
             return (
               <motion.div
                 key={plan.id}
@@ -284,9 +335,11 @@ export default function SubscriptionPricing() {
                 {/* Price */}
                 <div className="mb-5">
                   <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
-                    {plan.price === 0 ? 'Free' : `$${plan.price}`}
+                    {plan.priceUSD === 0 ? 'Free' : formatPrice(displayPrice, currency)}
                   </span>
-                  {plan.price > 0 && <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>/mo</span>}
+                  {plan.priceUSD > 0 && (
+                    <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>/mo</span>
+                  )}
                 </div>
 
                 <div className="h-px mb-5" style={{ background: isHighlight ? 'rgba(255,255,255,0.1)' : '#f1f5f9' }} />
@@ -318,7 +371,6 @@ export default function SubscriptionPricing() {
                       : plan.id === 'free' ? '#94a3b8'
                       : '#fff',
                     border: 'none',
-                    opacity: (plan.id === 'free' || current) ? 1 : 1,
                   }}
                 >
                   {loading === plan.id ? 'Redirecting...' : current ? '✓ Current Plan' : (

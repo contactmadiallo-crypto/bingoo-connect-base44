@@ -1,0 +1,67 @@
+{
+  "name": "PricingConfig",
+  "type": "object",
+  "properties": {
+    "plan_name": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "salon",
+        "restaurant",
+        "lawfirm",
+        "corporate"
+      ],
+      "description": "Plan identifier"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "USD",
+        "EUR",
+        "XOF",
+        "GBP",
+        "CAD"
+      ],
+      "description": "Currency code"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Price amount in this currency"
+    },
+    "stripe_price_id": {
+      "type": "string",
+      "description": "Stripe Price ID for this plan+currency combination (leave empty to use dynamic price_data)"
+    },
+    "country_codes": {
+      "type": "string",
+      "description": "Comma-separated ISO country codes this config applies to, e.g. FR,BE,DE"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "plan_name",
+    "currency",
+    "amount"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {},
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

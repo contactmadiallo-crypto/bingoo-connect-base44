@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2 } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2, Globe } from "lucide-react";
 import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
+import AdminPricingTab from "@/components/bingoo/AdminPricingTab";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
 const T = {
@@ -170,6 +171,7 @@ export default function AdminDashboard() {
     { id: "new_users",    label: t.tabs.new_users,    icon: UserPlus2,    count: undefined },
     { id: "analytics",    label: t.tabs.analytics,    icon: BarChart3 },
     { id: "security",     label: "Security Audit",    icon: Shield },
+    { id: "pricing",      label: "Pricing / Currency", icon: Globe },
   ];
 
   // Bingoo brand colors for admin
@@ -941,6 +943,9 @@ export default function AdminDashboard() {
 
         {/* Security Audit */}
         {tab === "security" && <SecurityAuditTab />}
+
+        {/* Pricing / Currency */}
+        {tab === "pricing" && <AdminPricingTab />}
 
         {/* Analytics */}
         {tab === "analytics" && (
