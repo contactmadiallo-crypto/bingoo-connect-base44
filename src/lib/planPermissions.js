@@ -81,17 +81,19 @@ export const FEATURE_REQUIREMENTS = {
   online_ordering:      { exactPlans: ['restaurant', 'business'] },
   digital_menu:         { exactPlans: ['restaurant', 'business'] },
 
-  // ── Shared Tier 2+ (salon OR restaurant OR lawfirm) ──
-  service_menu:         { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
+  // ── Shared Tier 2+ (salon OR restaurant, NOT lawfirm) ──
+  service_menu:         { exactPlans: ['salon', 'restaurant', 'business'] },
+  menu_services:        { exactPlans: ['salon', 'restaurant', 'business'] },
   team_members:         { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
   staff_profiles:       { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate'] },
   google_review_link:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
   whatsapp_booking:     { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
   advanced_analytics:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
   lead_export:          { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
-  menu_services:        { exactPlans: ['salon', 'restaurant', 'business'] },
 
-  // ── Tier 3: Law Firm ──
+  // ── Tier 3: Law Firm (practice areas, legal services, attorneys) ──
+  practice_areas:       { exactPlans: ['lawfirm', 'corporate'] },
+  legal_services:       { exactPlans: ['lawfirm', 'corporate'] },
   consultation_form:    { exactPlans: ['lawfirm', 'corporate'] },
   crm_pipeline:         { exactPlans: ['lawfirm', 'corporate'] },
   attorney_profiles:    { exactPlans: ['lawfirm', 'corporate'] },
@@ -122,6 +124,8 @@ export const FEATURE_DESCRIPTIONS = {
   advanced_analytics:   { title: 'Advanced Analytics',       upgradeTarget: 'Salon',        message: 'Upgrade for advanced analytics and customer insights.' },
   lead_export:          { title: 'Lead Export',              upgradeTarget: 'Salon',        message: 'Upgrade to export your customer leads as CSV.' },
   menu_services:        { title: 'Menu / Services Section',  upgradeTarget: 'Salon',        message: 'Upgrade to showcase your full menu or services.' },
+  practice_areas:       { title: 'Practice Areas',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to manage your practice areas and services.' },
+  legal_services:       { title: 'Legal Services',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to list your legal services.' },
   restaurant_profile:   { title: 'Restaurant Business Profile', upgradeTarget: 'Restaurant', message: 'Upgrade to the Restaurant plan for a full restaurant profile.' },
   online_ordering:      { title: 'Online Ordering',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for online ordering.' },
   digital_menu:         { title: 'Digital Menu',             upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add a digital menu.' },
@@ -133,6 +137,7 @@ export const FEATURE_DESCRIPTIONS = {
   team_members:         { title: 'Team Members',             upgradeTarget: 'Law Firm',     message: 'Upgrade to Law Firm or Corporate to manage team cards and staff profiles.' },
   attorney_profiles:    { title: 'Attorney Profiles',        upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to add attorney profiles.' },
   admin_roles:          { title: 'Admin Role Management',    upgradeTarget: 'Law Firm',     message: 'Upgrade to Law Firm or Corporate to manage admin roles.' },
+  staff_profiles:       { title: 'Staff / Attorney Profiles', upgradeTarget: 'Salon',       message: 'Upgrade your plan to manage staff profiles.' },
   clock_in_out:         { title: 'Clock In / Clock Out',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for time tracking.' },
   attendance_dashboard: { title: 'Attendance Dashboard',     upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for attendance management.' },
   employee_profiles:    { title: 'Employee Profiles',        upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for employee profile management.' },
