@@ -94,7 +94,7 @@ const PLAN_DEFS = [
   },
 ];
 
-const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 3, lawfirm: 4, business: 4, corporate: 5 };
+const PLAN_HIERARCHY = { free: 0, pro: 1, professional: 1, salon: 2, restaurant: 2, lawfirm: 3, business: 2, corporate: 4 };
 
 export default function SubscriptionPricing() {
   const [loading, setLoading] = useState(null);
