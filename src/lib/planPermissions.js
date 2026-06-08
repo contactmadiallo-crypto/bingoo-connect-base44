@@ -186,7 +186,8 @@ export function maxTeamMembers(userPlan) {
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
-  if (status === 'canceled' || status === 'past_due') return 'free';
+  // Only hard-lock on canceled. past_due gets a grace period (Stripe retries 3-7 days).
+  if (status === 'canceled') return 'free';
   if (plan && plan !== 'free') return plan;
   return 'free';
 }

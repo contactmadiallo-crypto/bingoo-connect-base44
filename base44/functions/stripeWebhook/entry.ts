@@ -168,6 +168,8 @@ Deno.serve(async (req) => {
     }
 
     // ── invoice.payment_failed ─────────────────────────────────
+    // Mark as past_due but do NOT immediately downgrade the profile plan.
+    // Stripe will retry automatically; only downgrade on subscription.deleted/updated(canceled).
     if (event.type === 'invoice.payment_failed') {
       const invoice = event.data.object;
       const existing = await base44.asServiceRole.entities.Subscription.filter({
@@ -177,8 +179,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
           status: 'past_due',
         });
-        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
-        console.log('Subscription past_due:', invoice.subscription);
+        // No plan downgrade yet — allow Stripe's retry window (3-7 days) before losing access
+        console.log('Subscription past_due (grace period active):', invoice.subscription);
       }
     }
 

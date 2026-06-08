@@ -12,7 +12,7 @@ const PLAN_MAP = {
   salon:        { productId: null, amount: 1999, productName: 'Bingoo Salon Plan' },
   restaurant:   { productId: null, amount: 2999, productName: 'Bingoo Restaurant Plan' },
   lawfirm:      { productId: null, amount: 4900, productName: 'Bingoo Law Firm Plan' },
-  business:     { productId: null, amount: 4900, productName: 'Bingoo Law Firm Plan' },
+  business:     { productId: null, amount: 2999, productName: 'Bingoo Restaurant Plan' },
   corporate:    { productId: null, amount: 9900, productName: 'Bingoo Corporate Team Plan' },
 };
 
