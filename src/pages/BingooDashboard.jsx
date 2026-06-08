@@ -12,7 +12,7 @@ import DesignTab from "@/components/bingoo/DesignTab";
 import CalendarView from "@/components/bingoo/CalendarView";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
-import FeatureGate from "@/components/bingoo/FeatureGate";
+
 import ResumePanel from "@/components/bingoo/ResumePanel";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
@@ -570,27 +570,10 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
-          {tab === "appointments" && (
-            <FeatureGate feature="appointment_booking">
-              <AppointmentsPanel profileId={profile?.id} />
-            </FeatureGate>
-          )}
-          {tab === "calendar"     && (
-            <FeatureGate feature="appointment_booking">
-              <CalendarView profileId={profile?.id} />
-            </FeatureGate>
-          )}
-          {tab === "leads"        && (
-            <FeatureGate feature="lead_collection">
-              <LeadsPanel profileId={profile?.id} />
-            </FeatureGate>
-          )}
-
-          {tab === "analytics"    && (
-            <FeatureGate feature="analytics">
-              <AnalyticsPanel profileId={profile?.id} />
-            </FeatureGate>
-          )}
+          {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
+          {tab === "calendar"     && <CalendarView profileId={profile?.id} />}
+          {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
+          {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}
           {tab === "portfolio"    && <PortfolioPanel profileId={profile?.id} user={user} />}
           {tab === "design"       && <DesignTab profile={profile} user={user} />}
           {tab === "appt_settings" && <AppointmentSettings profileId={profile?.id} />}
