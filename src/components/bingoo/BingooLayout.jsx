@@ -46,60 +46,50 @@ export default function BingooLayout({ children }) {
     return location.pathname === href && !location.search;
   };
 
-  const t = isDark ? {
-    bg: "#0f1117",
-    sidebar: "linear-gradient(180deg, #13161f 0%, #0d1018 100%)",
-    sidebarBorder: "rgba(255,255,255,0.06)",
-    headerBg: "#13161f",
-    headerBorder: "rgba(255,255,255,0.06)",
+  // Sidebar is always Bingoo navy regardless of dark/light mode
+  const t = {
+    bg: isDark ? "#0f1117" : "#f8fafc",
+    sidebar: "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)",
+    sidebarBorder: "rgba(255,255,255,0.07)",
+    headerBg: isDark ? "#0B2E6B" : "#0B2E6B",
+    headerBorder: "rgba(255,255,255,0.1)",
     text: "text-white",
-    textMuted: "text-white/30",
-    activeLink: "rgba(255,255,255,0.12)",
-    activeBorder: "rgba(255,255,255,0.3)",
-    inactiveLink: "text-white/40 hover:text-white hover:bg-white/5",
-    userBg: "bg-white/5",
+    textMuted: "text-white/40",
+    activeLink: "rgba(255,122,0,0.18)",
+    activeBorder: "#FF7A00",
+    inactiveLink: "text-white/50 hover:text-white hover:bg-white/8",
+    userBg: "bg-white/8",
     logoutHover: "hover:bg-white/10",
     mobileDrawer: "bg-black/60",
-    drawerBg: "linear-gradient(180deg, #13161f 0%, #0d1018 100%)",
-  } : {
-    bg: "#f8fafc",
-    sidebar: "linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)",
-    sidebarBorder: "rgba(0,0,0,0.08)",
-    headerBg: "#ffffff",
-    headerBorder: "rgba(0,0,0,0.06)",
-    text: "text-slate-900",
-    textMuted: "text-slate-400",
-    activeLink: "rgba(37,99,235,0.08)",
-    activeBorder: "#2563eb",
-    inactiveLink: "text-slate-500 hover:text-slate-800 hover:bg-slate-100",
-    userBg: "bg-slate-100",
-    logoutHover: "hover:bg-red-50",
-    mobileDrawer: "bg-black/40",
-    drawerBg: "linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)",
+    drawerBg: "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)",
   };
 
   const NavLink = ({ item, onNav }) => {
     const active = isActive(item.href);
     return (
       <Link to={item.href} onClick={onNav}
-        className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${active ? (isDark ? "text-white" : "text-blue-700") : t.inactiveLink}`}
+        className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${active ? "text-white" : t.inactiveLink}`}
         style={active ? { background: t.activeLink, borderLeft: `3px solid ${t.activeBorder}` } : {}}>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${active ? `bg-gradient-to-br ${item.color} shadow-md` : (isDark ? "bg-white/5 group-hover:bg-white/10" : "bg-slate-100 group-hover:bg-slate-200")}`}>
-          <item.icon className={`w-4 h-4 ${active ? "text-white" : (isDark ? "text-white/50" : "text-slate-500")}`} />
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all`}
+          style={active ? { background: "#FF7A00", boxShadow: "0 4px 12px rgba(255,122,0,0.35)" } : { background: "rgba(255,255,255,0.08)" }}>
+          <item.icon className={`w-4 h-4 ${active ? "text-white" : "text-white/50"}`} />
         </div>
         {item.label}
-        {active && <span className="ml-auto w-2 h-2 rounded-full" style={{ background: isDark ? "rgba(255,255,255,0.4)" : "#2563eb" }} />}
+        {active && <span className="ml-auto w-2 h-2 rounded-full" style={{ background: "#FF7A00" }} />}
       </Link>
     );
   };
 
   const SidebarContent = ({ onNav }) => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="px-5 py-5 flex-shrink-0" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
-        <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-          alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-        <div className={`text-[10px] uppercase tracking-widest mt-2 font-bold ${t.textMuted}`}>CONNECT • SHARE • GROW</div>
+      {/* Logo + orange accent */}
+      <div className="flex-shrink-0">
+        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
+        <div className="px-5 py-5" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
+          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
+            alt="Bingoo Connect" className="h-10 w-auto object-contain" />
+          <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">CONNECT • SHARE • GROW</div>
+        </div>
       </div>
 
       {/* Nav links - scrollable */}
@@ -107,9 +97,15 @@ export default function BingooLayout({ children }) {
         {navItems.map(item => <NavLink key={item.label} item={item} onNav={onNav} />)}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${location.pathname === "/admin" ? "text-purple-600 bg-purple-50" : "text-purple-500 hover:bg-purple-50"}`}>
-            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-purple-500" />
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+              location.pathname === "/admin"
+                ? "text-white"
+                : "text-white/50 hover:text-white hover:bg-white/8"
+            }`}
+            style={location.pathname === "/admin" ? { background: "rgba(255,122,0,0.18)", borderLeft: "3px solid #FF7A00" } : {}}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={location.pathname === "/admin" ? { background: "#FF7A00", boxShadow: "0 4px 12px rgba(255,122,0,0.35)" } : { background: "rgba(255,255,255,0.08)" }}>
+              <Shield className={`w-4 h-4 ${location.pathname === "/admin" ? "text-white" : "text-white/50"}`} />
             </div>
             Admin Panel
           </Link>
@@ -119,20 +115,21 @@ export default function BingooLayout({ children }) {
       {/* User + actions */}
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${t.sidebarBorder}` }}>
         <button onClick={toggle}
-          className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all ${isDark ? "bg-white/8 text-white hover:bg-white/15 border border-white/10" : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"}`}>
-          {isDark ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</> : <><Moon className="w-4 h-4 text-slate-500" /> Dark Mode</>}
+          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all bg-white/8 text-white hover:bg-white/14 border border-white/10">
+          {isDark ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</> : <><Moon className="w-4 h-4 text-blue-300" /> Dark Mode</>}
         </button>
-        <div className={`flex items-center gap-3 px-3 py-3 rounded-xl ${t.userBg}`}>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md">
+        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/8">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
+            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
             {user?.full_name?.charAt(0) || "U"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-bold truncate ${t.text}`}>{user?.full_name}</p>
-            <p className={`text-xs truncate ${t.textMuted}`}>{user?.email}</p>
+            <p className="text-sm font-bold truncate text-white">{user?.full_name}</p>
+            <p className="text-xs truncate text-white/40">{user?.email}</p>
           </div>
           <button onClick={() => base44.auth.logout()} title="Logout"
-            className={`p-2 rounded-lg transition-colors ${t.logoutHover}`}>
-            <LogOut className="w-4 h-4 text-red-400 hover:text-red-500 transition-colors" />
+            className="p-2 rounded-lg transition-colors hover:bg-white/10">
+            <LogOut className="w-4 h-4 text-red-400" />
           </button>
         </div>
       </div>
@@ -149,12 +146,11 @@ export default function BingooLayout({ children }) {
       </aside>
 
       {/* ── MOBILE TOP HEADER ── */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4 h-14"
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4"
         style={{
-          background: t.headerBg,
-          borderBottom: `1px solid ${t.headerBorder}`,
+          background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 100%)",
+          borderBottom: "2px solid #FF7A00",
           paddingTop: "env(safe-area-inset-top)",
-          marginTop: 0,
           height: "calc(56px + env(safe-area-inset-top))",
         }}>
         <img
@@ -162,12 +158,12 @@ export default function BingooLayout({ children }) {
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
           <button onClick={toggle}
-            className={`p-2.5 rounded-xl transition-colors ${isDark ? "bg-white/10 text-yellow-300 hover:bg-white/15" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            className="p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white">
+            {isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}
           </button>
           <button onClick={() => setMobileOpen(!mobileOpen)}
-            className={`p-2.5 rounded-xl transition-colors ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
-            {mobileOpen ? <X className={`w-5 h-5 ${t.text}`} /> : <Menu className={`w-5 h-5 ${t.text}`} />}
+            className="p-2.5 rounded-xl transition-colors hover:bg-white/10 text-white">
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </header>
@@ -193,8 +189,8 @@ export default function BingooLayout({ children }) {
       {/* ── MOBILE BOTTOM TAB BAR ── */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center"
         style={{
-          background: t.headerBg,
-          borderTop: `1px solid ${t.headerBorder}`,
+          background: "linear-gradient(180deg, #0a2558 0%, #071b47 100%)",
+          borderTop: "1px solid rgba(255,122,0,0.4)",
           paddingBottom: "env(safe-area-inset-bottom)",
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
@@ -214,10 +210,10 @@ export default function BingooLayout({ children }) {
             return (
               <button key="more" onClick={() => setMobileOpen(true)}
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
-                  <item.icon className="w-5 h-5" style={{ color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8" }} />
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
+                  <item.icon className="w-5 h-5 text-white/40" />
                 </div>
-                <span className="text-[10px] font-semibold" style={{ color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8" }}>More</span>
+                <span className="text-[10px] font-semibold text-white/40">More</span>
               </button>
             );
           }
@@ -226,11 +222,11 @@ export default function BingooLayout({ children }) {
             <Link key={item.label} to={item.href}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-                style={{ background: active ? `${item.color}20` : (isDark ? "rgba(255,255,255,0.05)" : "#f1f5f9") }}>
-                <item.icon className="w-5 h-5 transition-all" style={{ color: active ? item.color : (isDark ? "rgba(255,255,255,0.3)" : "#94a3b8") }} />
+                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+                <item.icon className="w-5 h-5 transition-all" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
               <span className="text-[10px] font-semibold transition-all"
-                style={{ color: active ? item.color : (isDark ? "rgba(255,255,255,0.3)" : "#94a3b8") }}>
+                style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
                 {item.label}
               </span>
             </Link>
