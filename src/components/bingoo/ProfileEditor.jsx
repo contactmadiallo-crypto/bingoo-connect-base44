@@ -266,7 +266,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   );
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
       {/* Form */}
       <div className="flex-1 space-y-6 min-w-0">
 
@@ -666,15 +666,38 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
-      {/* Live Preview */}
-      <div className="lg:w-80 lg:sticky lg:top-8 lg:self-start">
-        <div className="bg-white rounded-2xl border border-slate-100 p-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 text-center">Live Preview</p>
-          <div className="rounded-xl overflow-hidden border border-slate-100 shadow-sm" style={{ transform: "scale(0.85)", transformOrigin: "top center", height: "580px" }}>
-            <div className="w-full h-full overflow-y-auto" style={{ width: "375px", marginLeft: "-28px" }}>
-              <ProfilePreview profile={form} />
+      {/* Live Preview — sticky sidebar that scrolls with the page */}
+      <div className="hidden lg:block lg:w-[340px] flex-shrink-0">
+        <div className="sticky top-6" style={{ maxHeight: "calc(100vh - 48px)" }}>
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] rounded-t-2xl px-4 py-3 flex items-center justify-between">
+            <p className="text-xs font-bold text-white/70 uppercase tracking-widest">Live Preview</p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] text-white/50 font-semibold">Real-time</span>
             </div>
           </div>
+          {/* Phone frame */}
+          <div className="bg-white rounded-b-2xl border border-slate-100 shadow-xl overflow-hidden">
+            {/* Notch bar */}
+            <div className="flex justify-center pt-2 pb-1 bg-slate-800">
+              <div className="w-20 h-1.5 bg-slate-600 rounded-full" />
+            </div>
+            {/* Scrollable preview content */}
+            <div className="overflow-y-auto bg-white" style={{ height: "calc(100vh - 180px)", maxHeight: "620px" }}>
+              <div style={{ width: "375px", transform: "scale(0.88)", transformOrigin: "top left", minHeight: "100%" }}>
+                <ProfilePreview profile={form} key={`${form.layout}-${form.cover_color}-${form.bg_style}-${form.button_style}`} />
+              </div>
+            </div>
+            {/* Bottom bar */}
+            <div className="flex justify-center py-2 bg-slate-800">
+              <div className="w-28 h-1 bg-slate-600 rounded-full" />
+            </div>
+          </div>
+          {/* Layout hint */}
+          <p className="text-center text-[11px] text-slate-400 mt-2 font-medium">
+            Layout: <span className="text-slate-600 font-bold capitalize">{form.layout}</span>
+          </p>
         </div>
       </div>
     </div>
