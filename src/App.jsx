@@ -14,6 +14,7 @@ import AppHub from './pages/AppHub';
 import PublicProfile from './pages/PublicProfile';
 import BingooDashboard from './pages/BingooDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import SubscriberMonitoring from './pages/SubscriberMonitoring';
 import Pricing from './pages/Pricing';
 // Shop/Commerce pages are imported below ActivateDevice
 import NFCRedirect from './pages/NFCRedirect';
@@ -100,6 +101,7 @@ const AuthenticatedApp = () => {
         <Route path="/bingoo-home" element={<Landing />} />
         <Route path="/bingoo" element={<BingooDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/monitor" element={<SubscriberMonitoring />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/activate-device" element={<ActivateDevice />} />
         <Route path="/my-nfc-devices" element={<MyNFCDevices />} />

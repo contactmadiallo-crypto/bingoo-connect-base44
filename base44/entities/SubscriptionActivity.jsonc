@@ -1,0 +1,94 @@
+{
+  "name": "SubscriptionActivity",
+  "type": "object",
+  "properties": {
+    "customer_email": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "plan": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "upgraded",
+        "downgraded",
+        "canceled",
+        "past_due",
+        "renewed"
+      ],
+      "description": "Type of subscription change"
+    },
+    "old_plan": {
+      "type": "string",
+      "description": "Previous plan (for upgrades/downgrades)"
+    },
+    "old_status": {
+      "type": "string",
+      "description": "Previous status"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "past_due",
+        "canceled",
+        "free"
+      ]
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount charged in cents"
+    },
+    "stripe_subscription_id": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string",
+      "description": "Additional notes or details",
+      "maxLength": 1000
+    },
+    "activity_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "customer_email",
+    "action",
+    "activity_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": null
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
