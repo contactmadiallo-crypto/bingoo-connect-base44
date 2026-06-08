@@ -16,7 +16,7 @@ const STATUS_STYLE = {
   rescheduled: "bg-purple-50 text-purple-700 border-purple-200",
 };
 
-export default function AppointmentsPanel({ profileId }) {
+export default function AppointmentsPanel({ profileId, userId }) {
   const qc = useQueryClient();
   const [addNote, setAddNote] = useState({});
   const [showNoteFor, setShowNoteFor] = useState(null);
@@ -36,11 +36,27 @@ export default function AppointmentsPanel({ profileId }) {
     return () => unsub();
   }, [profileId]);
 
-  const { data: appointments = [], isLoading } = useQuery({
+  const { data: byProfile = [] } = useQuery({
     queryKey: ["appointments", profileId],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: profileId }, "-created_date"),
     enabled: !!profileId,
     refetchOnMount: "always",
+  });
+
+  const { data: byOwner = [] } = useQuery({
+    queryKey: ["appointments-owner", userId],
+    queryFn: () => base44.entities.Appointment.filter({ owner_user_id: userId }, "-created_date"),
+    enabled: !!userId && !profileId,
+    refetchOnMount: "always",
+  });
+
+  const isLoading = false;
+  // Merge and deduplicate by id, preferring byProfile when profileId is set
+  const seen = new Set();
+  const appointments = [...byProfile, ...byOwner].filter(a => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
   });
 
   const update = useMutation({

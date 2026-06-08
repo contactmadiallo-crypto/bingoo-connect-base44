@@ -10,9 +10,21 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'profile_id, visitor_name, and visitor_email are required' }, { status: 400 });
     }
 
+    // Look up the profile owner before creating so we can attach owner_user_id
+    let ownerUserId = null;
+    let profile = null;
+    try {
+      const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
+      profile = profiles?.[0];
+      ownerUserId = profile?.created_by_id || null;
+    } catch (e) {
+      console.error('Profile lookup failed (non-blocking):', e.message);
+    }
+
     // Use service role so unauthenticated visitors can book appointments
     const appointment = await base44.asServiceRole.entities.Appointment.create({
       profile_id,
+      owner_user_id: ownerUserId,
       visitor_name,
       visitor_email,
       visitor_phone: visitor_phone || '',
@@ -24,8 +36,10 @@ Deno.serve(async (req) => {
 
     // Look up the profile owner to notify them
     try {
-      const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
-      const profile = profiles?.[0];
+      if (!profile) {
+        const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
+        profile = profiles?.[0];
+      }
 
       // Send push notification to profile owner
       if (profile?.created_by_id) {

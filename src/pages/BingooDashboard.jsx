@@ -573,7 +573,7 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
-          {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} />}
+          {tab === "appointments" && <AppointmentsPanel profileId={profile?.id} userId={user?.id} />}
           {tab === "calendar"     && <CalendarView profileId={profile?.id} />}
           {tab === "leads"        && <LeadsPanel profileId={profile?.id} />}
           {tab === "analytics"    && <AnalyticsPanel profileId={profile?.id} />}

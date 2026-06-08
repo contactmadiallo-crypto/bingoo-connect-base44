@@ -5,6 +5,10 @@
     "profile_id": {
       "type": "string"
     },
+    "owner_user_id": {
+      "type": "string",
+      "description": "User ID of the profile owner"
+    },
     "visitor_name": {
       "type": "string"
     },
@@ -30,7 +34,12 @@
       "enum": [
         "pending",
         "confirmed",
-        "cancelled"
+        "accepted",
+        "declined",
+        "rescheduled",
+        "completed",
+        "cancelled",
+        "canceled"
       ],
       "default": "pending"
     }
@@ -65,7 +74,15 @@
           }
         },
         {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
           "data.visitor_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
         }
       ]
     },
@@ -77,6 +94,9 @@
               "{{user.data.owned_profile_ids}}"
             ]
           }
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -93,6 +113,9 @@
               "{{user.data.owned_profile_ids}}"
             ]
           }
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
         },
         {
           "user_condition": {
