@@ -20,9 +20,12 @@ import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
+import TeamMembersPanel from "@/components/bingoo/TeamMembersPanel";
+import CRMPipelinePanel from "@/components/bingoo/CRMPipelinePanel";
+import AttendancePanel from "@/components/bingoo/AttendancePanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -58,7 +61,12 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
   const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: userPlan } = usePlan();
-  const hasServiceMenu = isSalon || isRestaurant; // only salon and restaurant get services + hours tabs
+  const hasServiceMenu = isSalon || isRestaurant;
+  const isLawFirm = userPlan === "lawfirm";
+  const isCorporate = userPlan === "corporate";
+  const hasTeam = canAccess("team_members");      // salon/restaurant/lawfirm/corporate
+  const hasCRM = canAccess("crm_pipeline");       // lawfirm/corporate
+  const hasAttendance = canAccess("attendance_dashboard"); // corporate only
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -232,14 +240,17 @@ export default function BingooDashboard() {
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
   const BASE_TABS = TABS_CONFIG.map(t => t.id === "hours" ? null : ({ ...t, label: tr[t.labelKey] })).filter(Boolean);
-  const TABS = hasServiceMenu
-    ? [
-        ...BASE_TABS.slice(0, 5),
-        { id: "services", label: "Services", icon: Scissors, color: "#db2777" },
-        { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
-        ...BASE_TABS.slice(5),
-      ]
-    : BASE_TABS;
+  const TABS = [
+    ...BASE_TABS.slice(0, 5),
+    ...(hasServiceMenu ? [
+      { id: "services", label: "Services", icon: Scissors,    color: "#db2777" },
+      { id: "hours",    label: tr.hours,   icon: Clock,       color: "#0891b2" },
+    ] : []),
+    ...BASE_TABS.slice(5),
+    ...(hasTeam      ? [{ id: "team",       label: isLawFirm ? "Attorneys" : "Team",    icon: Users,      color: "#0B2E6B" }] : []),
+    ...(hasCRM       ? [{ id: "crm",        label: "CRM",                               icon: GitBranch,  color: "#6366f1" }] : []),
+    ...(hasAttendance? [{ id: "attendance", label: "Attendance",                        icon: UserCheck,  color: "#10b981" }] : []),
+  ];
 
   const STAT_CONFIGS = [
     { label: tr.profileViews,  value: totalViews,   icon: Eye,       gradient: "from-blue-500 to-blue-600",   shadow: isDark ? "shadow-blue-900/40" : "shadow-blue-200" },
@@ -623,6 +634,9 @@ export default function BingooDashboard() {
           {tab === "lost_mode"   && (canAccess("lost_mode") ? <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} /> : <PlanGateScreen feature="lost_mode" isDark={isDark} />)}
           {tab === "services"    && (canAccess("service_menu") ? <SalonServicesPanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
           {tab === "hours"       && (canAccess("service_menu") ? <BusinessHoursTab profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="service_menu" isDark={isDark} />)}
+          {tab === "team"        && (canAccess("team_members") ? <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} /> : <PlanGateScreen feature="team_members" isDark={isDark} />)}
+          {tab === "crm"         && (canAccess("crm_pipeline") ? <CRMPipelinePanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="crm_pipeline" isDark={isDark} />)}
+          {tab === "attendance"  && (canAccess("attendance_dashboard") ? <AttendancePanel profileId={profile?.id} isDark={isDark} /> : <PlanGateScreen feature="attendance_dashboard" isDark={isDark} />)}
 
         </div>
       </div>

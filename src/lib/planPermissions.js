@@ -83,6 +83,7 @@ export const FEATURE_REQUIREMENTS = {
 
   // ── Shared Tier 2+ (salon OR restaurant) ──
   service_menu:         { exactPlans: ['salon', 'restaurant', 'business'] },
+  team_members:         { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate', 'business'] },
   staff_profiles:       { exactPlans: ['salon', 'restaurant', 'lawfirm', 'corporate'] },
   google_review_link:   { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
   whatsapp_booking:     { exactPlans: ['salon', 'restaurant', 'lawfirm', 'business'] },
@@ -93,7 +94,6 @@ export const FEATURE_REQUIREMENTS = {
   // ── Tier 3: Law Firm ──
   consultation_form:    { exactPlans: ['lawfirm', 'corporate'] },
   crm_pipeline:         { exactPlans: ['lawfirm', 'corporate'] },
-  team_members:         { exactPlans: ['lawfirm', 'corporate'], maxMembers: { lawfirm: 20, corporate: 100 } },
   attorney_profiles:    { exactPlans: ['lawfirm', 'corporate'] },
   admin_roles:          { exactPlans: ['lawfirm', 'corporate'] },
 
