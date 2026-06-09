@@ -182,10 +182,9 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const createService = useMutation({
     mutationFn: (data) => dbOp("SalonService", "create", profileId,
       () => base44.entities.SalonService.create({ ...data, profile_id: profileId })),
-    onSuccess: () => {
-      console.log("[SalonServicesPanel] INVALIDATE FIRED → salon-services", profileId);
+    onSuccess: (newRecord) => {
+      qc.setQueryData(["salon-services", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
-      refetchServices();
       toast.success("Saved Successfully");
       setEditingId(null);
       setForm(EMPTY_SERVICE);
@@ -196,10 +195,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const updateService = useMutation({
     mutationFn: ({ id, data }) => dbOp("SalonService", "update", profileId,
       () => base44.entities.SalonService.update(id, data)),
-    onSuccess: () => {
-      console.log("[SalonServicesPanel] INVALIDATE FIRED → salon-services", profileId);
+    onSuccess: (updatedRecord) => {
+      qc.setQueryData(["salon-services", profileId], (old = []) =>
+        old.map(s => s.id === updatedRecord.id ? updatedRecord : s));
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
-      refetchServices();
       toast.success("Saved Successfully");
       setEditingId(null);
     },
@@ -209,10 +208,9 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const deleteService = useMutation({
     mutationFn: (id) => dbOp("SalonService", "delete", profileId,
       () => base44.entities.SalonService.delete(id)),
-    onSuccess: () => {
-      console.log("[SalonServicesPanel] INVALIDATE FIRED → delete → salon-services", profileId);
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData(["salon-services", profileId], (old = []) => old.filter(s => s.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
-      refetchServices();
       toast.success("Service removed");
     },
   });

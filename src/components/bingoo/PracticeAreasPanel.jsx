@@ -36,10 +36,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("PracticeArea", "create", profileId,
       () => base44.entities.PracticeArea.create({ profile_id: profileId, ...data })),
-    onSuccess: () => {
-      console.log("[PracticeAreasPanel] INVALIDATE FIRED → practice-areas", profileId);
+    onSuccess: (newRecord) => {
+      // Immediately inject into cache so the list updates without waiting for refetch
+      qc.setQueryData(["practice-areas", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
-      refetchAreas();
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
       toast.success("Saved Successfully");
@@ -53,10 +53,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("PracticeArea", "update", profileId,
       () => base44.entities.PracticeArea.update(editId, data)),
-    onSuccess: () => {
-      console.log("[PracticeAreasPanel] INVALIDATE FIRED → practice-areas", profileId);
+    onSuccess: (updatedRecord) => {
+      qc.setQueryData(["practice-areas", profileId], (old = []) =>
+        old.map(a => a.id === updatedRecord.id ? updatedRecord : a));
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
-      refetchAreas();
       setForm({ name: "", description: "", icon: "⚖️" });
       setEditId(null);
       setShowForm(false);
@@ -71,10 +71,9 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("PracticeArea", "delete", profileId,
       () => base44.entities.PracticeArea.delete(id)),
-    onSuccess: () => {
-      console.log("[PracticeAreasPanel] INVALIDATE FIRED → delete → practice-areas", profileId);
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData(["practice-areas", profileId], (old = []) => old.filter(a => a.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
-      refetchAreas();
       toast.success("Practice area deleted");
     },
   });

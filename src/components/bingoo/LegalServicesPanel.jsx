@@ -35,10 +35,9 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "create", profileId,
       () => base44.entities.LegalService.create({ profile_id: profileId, ...data })),
-    onSuccess: () => {
-      console.log("[LegalServicesPanel] INVALIDATE FIRED → legal-services", profileId);
+    onSuccess: (newRecord) => {
+      qc.setQueryData(["legal-services", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
-      refetchServices();
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setShowForm(false);
       toast.success("Saved Successfully");
@@ -52,10 +51,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "update", profileId,
       () => base44.entities.LegalService.update(editId, data)),
-    onSuccess: () => {
-      console.log("[LegalServicesPanel] INVALIDATE FIRED → legal-services", profileId);
+    onSuccess: (updatedRecord) => {
+      qc.setQueryData(["legal-services", profileId], (old = []) =>
+        old.map(s => s.id === updatedRecord.id ? updatedRecord : s));
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
-      refetchServices();
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setEditId(null);
       setShowForm(false);
@@ -70,10 +69,9 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("LegalService", "delete", profileId,
       () => base44.entities.LegalService.delete(id)),
-    onSuccess: () => {
-      console.log("[LegalServicesPanel] INVALIDATE FIRED → delete → legal-services", profileId);
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData(["legal-services", profileId], (old = []) => old.filter(s => s.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
-      refetchServices();
       toast.success("Service deleted");
     },
   });

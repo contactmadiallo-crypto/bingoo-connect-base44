@@ -32,10 +32,9 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "create", profileId,
       () => base44.entities.OfficeLocation.create({ profile_id: profileId, ...data })),
-    onSuccess: () => {
-      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → office-locations", profileId);
+    onSuccess: (newRecord) => {
+      qc.setQueryData(["office-locations", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
-      refetchLocations();
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setShowForm(false);
       toast.success("Saved Successfully");
@@ -49,10 +48,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "update", profileId,
       () => base44.entities.OfficeLocation.update(editId, data)),
-    onSuccess: () => {
-      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → office-locations", profileId);
+    onSuccess: (updatedRecord) => {
+      qc.setQueryData(["office-locations", profileId], (old = []) =>
+        old.map(l => l.id === updatedRecord.id ? updatedRecord : l));
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
-      refetchLocations();
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setEditId(null);
       setShowForm(false);
@@ -67,10 +66,9 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("OfficeLocation", "delete", profileId,
       () => base44.entities.OfficeLocation.delete(id)),
-    onSuccess: () => {
-      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → delete → office-locations", profileId);
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData(["office-locations", profileId], (old = []) => old.filter(l => l.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
-      refetchLocations();
       toast.success("Location deleted");
     },
   });

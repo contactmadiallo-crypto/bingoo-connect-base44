@@ -60,10 +60,13 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
       editing === "new"
         ? dbOp("TeamMember", "create", profileId, () => base44.entities.TeamMember.create({ ...data, profile_id: profileId }))
         : dbOp("TeamMember", "update", profileId, () => base44.entities.TeamMember.update(editing, data)),
-    onSuccess: () => {
-      console.log("[TeamMembersPanel] INVALIDATE FIRED → team-members", profileId);
+    onSuccess: (savedRecord, _vars, _ctx) => {
+      // savedRecord.id will be new for creates, existing for updates
+      qc.setQueryData(["team-members", profileId], (old = []) => {
+        const exists = old.some(m => m.id === savedRecord.id);
+        return exists ? old.map(m => m.id === savedRecord.id ? savedRecord : m) : [...old, savedRecord];
+      });
       qc.invalidateQueries({ queryKey: ["team-members", profileId] });
-      refetchMembers();
       setEditing(null);
       setForm(EMPTY);
       toast.success("Saved Successfully");
@@ -76,10 +79,9 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
 
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("TeamMember", "delete", profileId, () => base44.entities.TeamMember.delete(id)),
-    onSuccess: () => {
-      console.log("[TeamMembersPanel] INVALIDATE FIRED → delete → team-members", profileId);
+    onSuccess: (_, deletedId) => {
+      qc.setQueryData(["team-members", profileId], (old = []) => old.filter(m => m.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["team-members", profileId] });
-      refetchMembers();
     },
   });
 
