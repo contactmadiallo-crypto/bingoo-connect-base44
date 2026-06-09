@@ -4,15 +4,25 @@ import App from '@/App.jsx'
 import '@/index.css'
 import { registerServiceWorker } from '@/lib/registerSW'
 
-// In dev: eagerly unregister any stale service workers AND purge their caches
-// before React mounts to prevent null-hook errors from stale JS chunks.
-if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+console.log("React loaded", React.version);
+
+// Always unregister stale service workers and purge caches before React mounts.
+// This prevents duplicate-React / null-hook crashes from cached stale chunks.
+if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(r => r.unregister());
+    if (regs.length > 0) {
+      console.log(`[SW] Unregistering ${regs.length} service worker(s) to prevent stale cache issues`);
+      regs.forEach(r => r.unregister());
+    }
   });
-  if ('caches' in window) {
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-  }
+}
+if ('caches' in window) {
+  caches.keys().then(keys => {
+    if (keys.length > 0) {
+      console.log(`[SW] Purging ${keys.length} cache(s)`, keys);
+      keys.forEach(k => caches.delete(k));
+    }
+  });
 }
 
 // Register service worker for PWA / offline support (no-op in dev)
