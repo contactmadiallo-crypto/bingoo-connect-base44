@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
-import { useFeatures } from '@/hooks/useFeatures';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, normalizePlan } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
 import { format } from 'date-fns';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
@@ -31,11 +30,7 @@ const ALL_PLANS = [
   { id: 'corporate',    name: 'Corporate',    price: '$99/mo' },
 ];
 
-const BILLING_HIERARCHY = {
-  free: 0, professional: 1, pro: 1,
-  salon: 2, restaurant: 2, business: 2,
-  lawfirm: 3, corporate: 4,
-};
+// Use canonical hierarchy from planPermissions (PLAN_HIERARCHY)
 
 const STATUS_CONFIG = {
   active:   { label: 'Active',    icon: CheckCircle2,  color: '#16a34a', bg: '#dcfce7' },
@@ -48,7 +43,6 @@ export default function Billing() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { plan, subscription, isLoading } = usePlan();
-  const { features, plan: featurePlan } = useFeatures();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
 
@@ -177,13 +171,13 @@ export default function Billing() {
         </div>
 
         {/* Upgrade options */}
-        {ALL_PLANS.filter(p => (BILLING_HIERARCHY[p.id] ?? 0) > (BILLING_HIERARCHY[normalizedPlan] ?? 0)).length > 0 && (
+        {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[normalizedPlan] ?? 0)).length > 0 && (
           <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
             <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>
               {normalizedPlan === 'free' ? 'Upgrade Your Plan' : 'Upgrade to a Higher Plan'}
             </h2>
             <div className="space-y-3">
-              {ALL_PLANS.filter(p => (BILLING_HIERARCHY[p.id] ?? 0) > (BILLING_HIERARCHY[normalizedPlan] ?? 0)).map(p => (
+              {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[normalizedPlan] ?? 0)).map(p => (
                 <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl border-2 transition-all"
                   style={{ borderColor: p.id === 'professional' ? B.orange : '#e2e8f0', background: p.id === 'professional' ? `${B.orange}06` : '#fafafa' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
