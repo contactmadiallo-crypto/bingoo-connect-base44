@@ -38,6 +38,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
+      console.log("PA-RLS-CHECK VERSION 2");
       const payload = { profile_id: profileId, ...data };
 
       // ── LIVE SESSION COMPARISON ──
