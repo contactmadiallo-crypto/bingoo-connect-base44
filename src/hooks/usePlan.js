@@ -5,6 +5,9 @@ import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, PLAN_HIERA
 /**
  * Returns the current user's active plan, subscription info,
  * and a helper to check feature access.
+ *
+ * CRITICAL: While loading, canAccess() returns true (open) to prevent
+ * premature gate screens. Gates only close once data is confirmed.
  */
 export function usePlan() {
   const { data: user, isLoading: loadingUser } = useQuery({
@@ -24,23 +27,31 @@ export function usePlan() {
     enabled: !!user?.id,
   });
 
+  const isLoading = loadingUser || loadingSub || loadingProfile;
+
   const subscription = subscriptions?.[0] || null;
-  // Use subscription plan first, fall back to profile plan
+
+  // Always pick the highest plan between subscription and profile
   const subPlan = resolveActivePlan(subscription);
   const profilePlan = profiles?.[0]?.plan || 'free';
   const activePlan = (PLAN_HIERARCHY[subPlan] ?? 0) >= (PLAN_HIERARCHY[profilePlan] ?? 0) ? subPlan : profilePlan;
 
-  // Normalize legacy plan names
   const normalizedPlan = normalizePlan(activePlan);
   const isPaid = normalizedPlan !== 'free';
+
+  // While loading, return open (true) so no gate screens flash prematurely
+  const canAccessFn = (featureKey) => {
+    if (isLoading) return true;
+    return canAccess(normalizedPlan, featureKey);
+  };
 
   return {
     user,
     subscription,
     plan: normalizedPlan,
     rawPlan: activePlan,
-    isLoading: loadingUser || loadingSub || loadingProfile,
-    canAccess: (featureKey) => canAccess(normalizedPlan, featureKey),
+    isLoading,
+    canAccess: canAccessFn,
     maxNFCDevices: maxNFCDevices(normalizedPlan),
     maxTeamMembers: maxTeamMembers(normalizedPlan),
     isPro: normalizedPlan === 'professional',
