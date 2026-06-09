@@ -30,22 +30,7 @@
     "name"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
-    },
+    "create": {},
     "read": {},
     "update": {
       "$or": [
