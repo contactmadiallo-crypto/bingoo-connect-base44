@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { X, Phone, Mail, MessageSquare, FileText, User, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { toast } from "sonner";
 import { LEGAL_LEAD_STAGES, URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
 
 const LEGAL_CRM_STAGES = [
@@ -218,7 +219,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
   );
 }
 
-export default function LegalLeadsDashboard({ profileId, isDark: propDark }) {
+export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSaved }) {
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
@@ -240,7 +241,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark }) {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
@@ -290,7 +291,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark }) {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className={`text-lg font-black ${head}`}>Legal Leads & CRM</h2>
+          <h2 className={`text-lg font-black ${head}`}>Legal Leads &amp; CRM</h2>
           <p className={`text-xs mt-0.5 ${sub}`}>{leads.length} total leads · {attorneys.length} attorneys</p>
         </div>
         <button onClick={handleExportCSV}

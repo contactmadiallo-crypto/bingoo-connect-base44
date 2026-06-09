@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, ChevronDown, Phone, Mail, MessageSquare, ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 
 const STAGES = [
   { id: "new",       label: "New",        color: "#6366f1" },
@@ -16,7 +17,7 @@ const STAGES = [
 
 const MATTER_TYPES = ["Corporate", "Criminal", "Family", "Immigration", "IP", "Personal Injury", "Real Estate", "Tax", "Other"];
 
-export default function CRMPipelinePanel({ profileId, isDark: propDark }) {
+export default function CRMPipelinePanel({ profileId, isDark: propDark, onSaved }) {
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
@@ -32,7 +33,7 @@ export default function CRMPipelinePanel({ profileId, isDark: propDark }) {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }); setEditing(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
