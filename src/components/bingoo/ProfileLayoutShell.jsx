@@ -11,6 +11,8 @@
 
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
+import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
@@ -336,6 +338,16 @@ export default function ProfileLayoutShell({ profile, color, isDark, children })
         </div>
       </motion.div>
     </div>
+  );
+
+  // ── NEW YORK CHAMPIONSHIP ──
+  if (layout === "ny_championship") return (
+    <NewYorkChampionshipLayout profile={profile} color={color}>{children}</NewYorkChampionshipLayout>
+  );
+
+  // ── LIONS OF TERANGA ──
+  if (layout === "lions_teranga") return (
+    <LionsOfTerangaLayout profile={profile} color={color}>{children}</LionsOfTerangaLayout>
   );
 
   // ── CLASSIC (default) ──

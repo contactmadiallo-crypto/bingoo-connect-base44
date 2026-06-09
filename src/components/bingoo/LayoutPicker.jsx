@@ -524,6 +524,59 @@ const layouts = [
       </div>
     ),
   },
+  // ── CHAMPIONSHIP PREMIUM LAYOUTS ─────────────────────────────
+  {
+    id: "ny_championship",
+    name: "🏀 NY Champ",
+    desc: "NBA Finals Edition",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#020818,#0B2E6B)" }}>
+        <div className="h-1" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
+        <div className="flex flex-col items-center gap-1 p-2">
+          <div className="text-xs mb-0.5">🏀</div>
+          <div className="w-7 h-7 rounded-full border-2" style={{ borderColor: "#FF7A00", background: color }} />
+          <div className="w-12 h-1.5 bg-white/60 rounded" />
+          <div className="w-10 h-1 rounded" style={{ background: "#FF7A00", opacity: 0.8 }} />
+        </div>
+        <div className="mx-2 space-y-1 pb-1">
+          <div className="w-full h-2 rounded-full" style={{ background: "rgba(255,122,0,0.25)" }} />
+          <div className="w-full h-2 rounded-full bg-white/10" />
+        </div>
+        <div className="mx-2 mb-1.5 rounded border py-0.5 text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,122,0,0.3)" }}>
+          <span className="text-[8px] font-black" style={{ color: "#FF7A00" }}>CHAMPIONSHIP</span>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "lions_teranga",
+    name: "🦁 Lions",
+    desc: "World Cup Edition",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#020f06,#004d1a)" }}>
+        <div className="h-1 flex">
+          <div className="flex-1" style={{ background: "#00853F" }} />
+          <div className="flex-1" style={{ background: "#FDEF42" }} />
+          <div className="flex-1" style={{ background: "#E31B23" }} />
+        </div>
+        <div className="flex flex-col items-center gap-1 p-2">
+          <div className="text-xs mb-0.5">⚽</div>
+          <div className="w-7 h-7 rounded-full border-2" style={{ borderColor: "#D4AF37", background: color }} />
+          <div className="w-12 h-1.5 bg-white/60 rounded" />
+          <div className="w-10 h-1 rounded" style={{ background: "#D4AF37", opacity: 0.8 }} />
+        </div>
+        <div className="mx-2 space-y-1 pb-1">
+          <div className="w-full h-2 rounded-full" style={{ background: "rgba(212,175,55,0.25)" }} />
+          <div className="w-full h-2 rounded-full bg-white/10" />
+        </div>
+        <div className="mx-2 mb-1.5 rounded border py-0.5 text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(212,175,55,0.3)" }}>
+          <span className="text-[8px] font-black" style={{ color: "#FDEF42" }}>LIONS TERANGA</span>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export { layouts };
@@ -579,7 +632,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
         <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
           <span className="text-base">✨</span>
           <p className="text-xs text-amber-700 font-semibold flex-1">
-            Upgrade to <strong>Pro</strong> to unlock 26+ premium layout styles including Neon, Sunset, Luxury, Cyberpunk & more.
+            Upgrade to <strong>Pro</strong> to unlock 28+ premium layout styles including NY Championship, Lions of Teranga, Neon, Luxury &amp; more.
           </p>
           <Link to="/pricing" className="text-xs font-black text-amber-600 hover:text-amber-700 whitespace-nowrap">
             Upgrade →

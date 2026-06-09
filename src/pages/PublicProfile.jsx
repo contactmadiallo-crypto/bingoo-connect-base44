@@ -302,7 +302,7 @@ export default function PublicProfile() {
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);
 
-  const darkLayouts = ["dark", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk", "forest", "ocean"];
+  const darkLayouts = ["dark", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk", "forest", "ocean", "ny_championship", "lions_teranga"];
   const isDark = profile.bg_style === "night" || darkLayouts.includes(profile.layout);
 
   return (

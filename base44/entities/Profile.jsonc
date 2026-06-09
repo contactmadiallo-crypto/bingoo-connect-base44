@@ -60,7 +60,9 @@
         "cyberpunk",
         "frosted",
         "paper",
-        "wave"
+        "wave",
+        "ny_championship",
+        "lions_teranga"
       ],
       "default": "classic"
     },
