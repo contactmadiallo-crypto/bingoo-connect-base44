@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Clock, Check } from "lucide-react";
 import { toast } from "sonner";
 
-export default function BusinessHoursTab({ profileId, isDark }) {
+export default function BusinessHoursTab({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
@@ -28,7 +28,8 @@ export default function BusinessHoursTab({ profileId, isDark }) {
     mutationFn: () => base44.entities.Profile.update(profileId, { business_hours: resolvedHours }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profile-for-hours", profileId] });
-      toast.success("Business hours saved!");
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: () => toast.error("Failed to save hours"),
   });
@@ -55,7 +56,7 @@ export default function BusinessHoursTab({ profileId, isDark }) {
             <Clock className="w-5 h-5" /> Business Hours
           </h2>
           <p className={`text-xs mt-0.5 ${mutedText}`}>
-            Set your opening & closing hours — visitors will see them on your public profile
+            Set your opening &amp; closing hours — visitors will see them on your public profile
           </p>
         </div>
       </div>

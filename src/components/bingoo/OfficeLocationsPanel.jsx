@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, MapPin, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 
-export default function OfficeLocationsPanel({ profileId, isDark }) {
+export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
@@ -27,8 +25,8 @@ export default function OfficeLocationsPanel({ profileId, isDark }) {
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setShowForm(false);
-      toast.success("Office location added");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Create error:", err);
@@ -43,8 +41,8 @@ export default function OfficeLocationsPanel({ profileId, isDark }) {
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setEditId(null);
       setShowForm(false);
-      toast.success("Location updated");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Update error:", err);

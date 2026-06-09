@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -26,11 +25,10 @@ function CategoryCheckbox({ cat, checked, onChange, dark }) {
   );
 }
 
-export default function TeamMembersPanel({ profileId, isDark: propDark, planLabel = "" }) {
+export default function TeamMembersPanel({ profileId, isDark: propDark, planLabel = "", onSaved }) {
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [uploading, setUploading] = useState(false);
@@ -54,8 +52,8 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
       qc.invalidateQueries({ queryKey: ["team-members", profileId] }); 
       setEditing(null); 
       setForm(EMPTY);
-      toast.success(editing === "new" ? "Attorney added" : "Attorney updated");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Save error:", err);

@@ -151,7 +151,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
 }
 
 // ── Main panel
-export default function SalonServicesPanel({ profileId, isDark }) {
+export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_SERVICE);
@@ -177,9 +177,10 @@ export default function SalonServicesPanel({ profileId, isDark }) {
     mutationFn: (data) => base44.entities.SalonService.create({ ...data, profile_id: profileId }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
-      toast.success("Service added!");
+      toast.success("Saved Successfully");
       setEditingId(null);
       setForm(EMPTY_SERVICE);
+      onSaved?.();
     },
     onError: (err) => toast.error("Failed to save: " + (err?.message || "Permission denied")),
   });
@@ -188,8 +189,9 @@ export default function SalonServicesPanel({ profileId, isDark }) {
     mutationFn: ({ id, data }) => base44.entities.SalonService.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
-      toast.success("Service updated!");
+      toast.success("Saved Successfully");
       setEditingId(null);
+      onSaved?.();
     },
     onError: (err) => toast.error("Failed to update: " + (err?.message || "Permission denied")),
   });

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -9,9 +8,8 @@ import { LEGAL_CATEGORIES } from "@/lib/legalData";
 
 const CATEGORY_COLORS = { Immigration: "#0369a1", Civil: "#7c3aed", Criminal: "#dc2626" };
 
-export default function LegalServicesPanel({ profileId, isDark }) {
+export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", legal_category: "Immigration" });
@@ -30,8 +28,8 @@ export default function LegalServicesPanel({ profileId, isDark }) {
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setShowForm(false);
-      toast.success("Service added");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Create error:", err);
@@ -46,8 +44,8 @@ export default function LegalServicesPanel({ profileId, isDark }) {
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setEditId(null);
       setShowForm(false);
-      toast.success("Service updated");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Update error:", err);

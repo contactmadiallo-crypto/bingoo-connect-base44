@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plus, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 
 const PRACTICE_AREA_EMOJIS = ["⚖️", "🌎", "🔒", "👨‍👩‍👧‍👦", "🏠", "💼", "💰", "📋", "🚗", "📄"];
 
-export default function PracticeAreasPanel({ profileId, isDark }) {
+export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
-  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
@@ -29,8 +27,8 @@ export default function PracticeAreasPanel({ profileId, isDark }) {
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
-      toast.success("Practice area added");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Create error:", err);
@@ -45,8 +43,8 @@ export default function PracticeAreasPanel({ profileId, isDark }) {
       setForm({ name: "", description: "", icon: "⚖️" });
       setEditId(null);
       setShowForm(false);
-      toast.success("Practice area updated");
-      setTimeout(() => navigate(-1), 500);
+      toast.success("Saved Successfully");
+      onSaved?.();
     },
     onError: (err) => {
       console.error("Update error:", err);

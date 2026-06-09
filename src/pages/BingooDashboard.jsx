@@ -279,6 +279,11 @@ export default function BingooDashboard() {
     { label: tr.appointments,  value: appointments.filter(a=>a.status==="pending").length, icon: CalendarDays, gradient: "from-emerald-500 to-emerald-600", shadow: isDark ? "shadow-emerald-900/40" : "shadow-emerald-200" },
   ];
 
+  const goToOverview = () => {
+    refetchProfiles();
+    setTab("overview");
+  };
+
   const launchAI = () => {
     localStorage.removeItem("bingoo_onboarding_done");
     setShowOnboarding(true);
@@ -641,23 +646,24 @@ export default function BingooDashboard() {
           </div>
         )}
 
-          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
-           {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} />)}
+          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); goToOverview(); }} />}
+           {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} onSaved={goToOverview} />)}
            {tab === "calendar"      && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <CalendarView profileId={profile?.id} />)}
-           {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} />)}
+           {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "analytics"     && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
-           {tab === "portfolio"     && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} />)}
-           {tab === "design"        && <DesignTab profile={profile} user={user} />}
-           {tab === "appt_settings" && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} />)}
+           {tab === "portfolio"     && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} onSaved={goToOverview} />)}
+           {tab === "design"        && <DesignTab profile={profile} user={user} onSaved={goToOverview} />}
+           {tab === "appt_settings" && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "resumes"       && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"   && <ConnectionsPanel isDark={isDark} />}
-           {tab === "lost_mode"     && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
-           {tab === "services"      && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />))}
-           {tab === "legal_services"&& (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} />)}
-           {tab === "offices"       && (!planLoading && !canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={profile?.id} isDark={isDark} />)}
-           {tab === "team"          && (!planLoading && !hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} />)}
-           {tab === "crm"           && (!planLoading && !canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} />))}
+           {tab === "lost_mode"     && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
+           {tab === "services"      && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />))}
+           {tab === "legal_services"&& (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />)}
+           {tab === "offices"       && (!planLoading && !canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />)}
+           {tab === "team"          && (!planLoading && !hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} onSaved={goToOverview} />)}
+           {tab === "crm"           && (!planLoading && !canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} onSaved={goToOverview} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />))}
            {tab === "attendance"    && (!planLoading && !canAccess("attendance") ? <PlanGateScreen feature="attendance" isDark={isDark} /> : <AttendancePanel profileId={profile?.id} isDark={isDark} />)}
+           {tab === "hours"         && <BusinessHoursTab profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />}
 
         </div>
       </div>
