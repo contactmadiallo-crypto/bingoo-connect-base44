@@ -162,28 +162,33 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const cardBg = isDark ? "bg-white/5 border-white/8" : "bg-white border-slate-100";
 
+  console.log("[SalonServicesPanel] PANEL LOAD — profileId:", profileId);
+
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["salon-services", profileId],
     queryFn: async () => {
-      if (!profileId) return [];
+      console.log("[SalonServicesPanel] QUERY EXECUTED — profileId:", profileId);
       const result = await base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100);
-      console.log(`[SalonServicesPanel] Fetched ${result?.length || 0} services for profile ${profileId}`, result);
+      console.log("[SalonServicesPanel] ROWS RETURNED:", result?.length || 0);
       return result || [];
     },
     enabled: !!profileId,
-    staleTime: 0, // Always fetch fresh
+    staleTime: 0,
+    gcTime: 0,
   });
+
+  const refetchServices = () => qc.refetchQueries({ queryKey: ["salon-services", profileId] });
 
   const createService = useMutation({
     mutationFn: (data) => dbOp("SalonService", "create", profileId,
       () => base44.entities.SalonService.create({ ...data, profile_id: profileId })),
     onSuccess: () => {
-      logInvalidate(["salon-services", profileId]);
+      console.log("[SalonServicesPanel] INVALIDATE FIRED → salon-services", profileId);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      refetchServices();
       toast.success("Saved Successfully");
       setEditingId(null);
       setForm(EMPTY_SERVICE);
-      onSaved?.();
     },
     onError: (err) => toast.error("Failed to save: " + (err?.message || "Permission denied")),
   });
@@ -192,11 +197,11 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
     mutationFn: ({ id, data }) => dbOp("SalonService", "update", profileId,
       () => base44.entities.SalonService.update(id, data)),
     onSuccess: () => {
-      logInvalidate(["salon-services", profileId]);
+      console.log("[SalonServicesPanel] INVALIDATE FIRED → salon-services", profileId);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      refetchServices();
       toast.success("Saved Successfully");
       setEditingId(null);
-      onSaved?.();
     },
     onError: (err) => toast.error("Failed to update: " + (err?.message || "Permission denied")),
   });
@@ -205,8 +210,9 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
     mutationFn: (id) => dbOp("SalonService", "delete", profileId,
       () => base44.entities.SalonService.delete(id)),
     onSuccess: () => {
-      logInvalidate(["salon-services", profileId]);
+      console.log("[SalonServicesPanel] INVALIDATE FIRED → delete → salon-services", profileId);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
+      refetchServices();
       toast.success("Service removed");
     },
   });

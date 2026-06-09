@@ -15,27 +15,36 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", legal_category: "Immigration" });
 
+  console.log("[LegalServicesPanel] PANEL LOAD — profileId:", profileId);
+
   const { data: services = [] } = useQuery({
     queryKey: ["legal-services", profileId],
-    queryFn: () => base44.entities.LegalService.filter({ profile_id: profileId }, "order"),
+    queryFn: async () => {
+      console.log("[LegalServicesPanel] QUERY EXECUTED — profileId:", profileId);
+      const result = await base44.entities.LegalService.filter({ profile_id: profileId }, "order");
+      console.log("[LegalServicesPanel] ROWS RETURNED:", result.length);
+      return result;
+    },
     enabled: !!profileId,
     staleTime: 0,
     gcTime: 0,
   });
 
+  const refetchServices = () => qc.refetchQueries({ queryKey: ["legal-services", profileId] });
+
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "create", profileId,
       () => base44.entities.LegalService.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
-      logInvalidate(["legal-services", profileId]);
+      console.log("[LegalServicesPanel] INVALIDATE FIRED → legal-services", profileId);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
+      refetchServices();
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Create error:", err);
+      console.error("[LegalServicesPanel] Create error:", err);
       toast.error(`Failed to create: ${err.message}`);
     },
   });
@@ -44,16 +53,16 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
     mutationFn: (data) => dbOp("LegalService", "update", profileId,
       () => base44.entities.LegalService.update(editId, data)),
     onSuccess: () => {
-      logInvalidate(["legal-services", profileId]);
+      console.log("[LegalServicesPanel] INVALIDATE FIRED → legal-services", profileId);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
+      refetchServices();
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setEditId(null);
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Update error:", err);
+      console.error("[LegalServicesPanel] Update error:", err);
       toast.error(`Failed to update: ${err.message}`);
     },
   });
@@ -62,8 +71,9 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
     mutationFn: (id) => dbOp("LegalService", "delete", profileId,
       () => base44.entities.LegalService.delete(id)),
     onSuccess: () => {
-      logInvalidate(["legal-services", profileId]);
+      console.log("[LegalServicesPanel] INVALIDATE FIRED → delete → legal-services", profileId);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
+      refetchServices();
       toast.success("Service deleted");
     },
   });

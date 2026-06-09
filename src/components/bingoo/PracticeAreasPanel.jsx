@@ -14,27 +14,38 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
 
-  const { data: areas = [] } = useQuery({
+  console.log("[PracticeAreasPanel] PANEL LOAD — profileId:", profileId);
+
+  const { data: areas = [], isFetching } = useQuery({
     queryKey: ["practice-areas", profileId],
-    queryFn: () => base44.entities.PracticeArea.filter({ profile_id: profileId }, "order"),
+    queryFn: async () => {
+      console.log("[PracticeAreasPanel] QUERY EXECUTED — profileId:", profileId);
+      const result = await base44.entities.PracticeArea.filter({ profile_id: profileId }, "order");
+      console.log("[PracticeAreasPanel] ROWS RETURNED:", result.length, result.map(a => a.id));
+      return result;
+    },
     enabled: !!profileId,
     staleTime: 0,
     gcTime: 0,
   });
 
+  if (!profileId) console.warn("[PracticeAreasPanel] QUERY DISABLED — no profileId");
+
+  const refetchAreas = () => qc.refetchQueries({ queryKey: ["practice-areas", profileId] });
+
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("PracticeArea", "create", profileId,
       () => base44.entities.PracticeArea.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
-      logInvalidate(["practice-areas", profileId]);
+      console.log("[PracticeAreasPanel] INVALIDATE FIRED → practice-areas", profileId);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
+      refetchAreas();
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Create error:", err);
+      console.error("[PracticeAreasPanel] Create error:", err);
       toast.error(`Failed to add: ${err.message}`);
     },
   });
@@ -43,16 +54,16 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     mutationFn: (data) => dbOp("PracticeArea", "update", profileId,
       () => base44.entities.PracticeArea.update(editId, data)),
     onSuccess: () => {
-      logInvalidate(["practice-areas", profileId]);
+      console.log("[PracticeAreasPanel] INVALIDATE FIRED → practice-areas", profileId);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
+      refetchAreas();
       setForm({ name: "", description: "", icon: "⚖️" });
       setEditId(null);
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Update error:", err);
+      console.error("[PracticeAreasPanel] Update error:", err);
       toast.error(`Failed to update: ${err.message}`);
     },
   });
@@ -61,8 +72,9 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     mutationFn: (id) => dbOp("PracticeArea", "delete", profileId,
       () => base44.entities.PracticeArea.delete(id)),
     onSuccess: () => {
-      logInvalidate(["practice-areas", profileId]);
+      console.log("[PracticeAreasPanel] INVALIDATE FIRED → delete → practice-areas", profileId);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
+      refetchAreas();
       toast.success("Practice area deleted");
     },
   });

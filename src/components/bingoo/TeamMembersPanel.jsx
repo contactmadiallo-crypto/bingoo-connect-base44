@@ -38,11 +38,22 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
   const isLawFirm = planLabel?.toLowerCase().includes("law") || planLabel?.toLowerCase().includes("firm");
   const memberLabel = isLawFirm ? "Attorney" : "Team Member";
 
+  console.log("[TeamMembersPanel] PANEL LOAD — profileId:", profileId);
+
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["team-members", profileId],
-    queryFn: () => base44.entities.TeamMember.filter({ profile_id: profileId }, "order"),
+    queryFn: async () => {
+      console.log("[TeamMembersPanel] QUERY EXECUTED — profileId:", profileId);
+      const result = await base44.entities.TeamMember.filter({ profile_id: profileId }, "order");
+      console.log("[TeamMembersPanel] ROWS RETURNED:", result.length);
+      return result;
+    },
     enabled: !!profileId,
+    staleTime: 0,
+    gcTime: 0,
   });
+
+  const refetchMembers = () => qc.refetchQueries({ queryKey: ["team-members", profileId] });
 
   const saveMutation = useMutation({
     mutationFn: (data) =>
@@ -50,22 +61,26 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
         ? dbOp("TeamMember", "create", profileId, () => base44.entities.TeamMember.create({ ...data, profile_id: profileId }))
         : dbOp("TeamMember", "update", profileId, () => base44.entities.TeamMember.update(editing, data)),
     onSuccess: () => {
-      logInvalidate(["team-members", profileId]);
-      qc.invalidateQueries({ queryKey: ["team-members", profileId] }); 
-      setEditing(null); 
+      console.log("[TeamMembersPanel] INVALIDATE FIRED → team-members", profileId);
+      qc.invalidateQueries({ queryKey: ["team-members", profileId] });
+      refetchMembers();
+      setEditing(null);
       setForm(EMPTY);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Save error:", err);
+      console.error("[TeamMembersPanel] Save error:", err);
       toast.error(`Failed to save: ${err.message}`);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("TeamMember", "delete", profileId, () => base44.entities.TeamMember.delete(id)),
-    onSuccess: () => { logInvalidate(["team-members", profileId]); qc.invalidateQueries({ queryKey: ["team-members", profileId] }); },
+    onSuccess: () => {
+      console.log("[TeamMembersPanel] INVALIDATE FIRED → delete → team-members", profileId);
+      qc.invalidateQueries({ queryKey: ["team-members", profileId] });
+      refetchMembers();
+    },
   });
 
   const openNew = () => { setForm(EMPTY); setEditing("new"); };

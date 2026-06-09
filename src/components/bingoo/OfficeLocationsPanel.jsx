@@ -12,24 +12,33 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
 
+  console.log("[OfficeLocationsPanel] PANEL LOAD — profileId:", profileId);
+
   const { data: locations = [] } = useQuery({
     queryKey: ["office-locations", profileId],
-    queryFn: () => base44.entities.OfficeLocation.filter({ profile_id: profileId }, "order"),
+    queryFn: async () => {
+      console.log("[OfficeLocationsPanel] QUERY EXECUTED — profileId:", profileId);
+      const result = await base44.entities.OfficeLocation.filter({ profile_id: profileId }, "order");
+      console.log("[OfficeLocationsPanel] ROWS RETURNED:", result.length);
+      return result;
+    },
     enabled: !!profileId,
     staleTime: 0,
     gcTime: 0,
   });
 
+  const refetchLocations = () => qc.refetchQueries({ queryKey: ["office-locations", profileId] });
+
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "create", profileId,
       () => base44.entities.OfficeLocation.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
-      logInvalidate(["office-locations", profileId]);
+      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → office-locations", profileId);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
+      refetchLocations();
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
       console.error("Create error:", err);
@@ -41,16 +50,16 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
     mutationFn: (data) => dbOp("OfficeLocation", "update", profileId,
       () => base44.entities.OfficeLocation.update(editId, data)),
     onSuccess: () => {
-      logInvalidate(["office-locations", profileId]);
+      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → office-locations", profileId);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
+      refetchLocations();
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setEditId(null);
       setShowForm(false);
       toast.success("Saved Successfully");
-      onSaved?.();
     },
     onError: (err) => {
-      console.error("Update error:", err);
+      console.error("[OfficeLocationsPanel] Update error:", err);
       toast.error(`Failed to update: ${err.message}`);
     },
   });
@@ -59,8 +68,9 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
     mutationFn: (id) => dbOp("OfficeLocation", "delete", profileId,
       () => base44.entities.OfficeLocation.delete(id)),
     onSuccess: () => {
-      logInvalidate(["office-locations", profileId]);
+      console.log("[OfficeLocationsPanel] INVALIDATE FIRED → delete → office-locations", profileId);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
+      refetchLocations();
       toast.success("Location deleted");
     },
   });
