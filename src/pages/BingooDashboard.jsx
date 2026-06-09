@@ -65,7 +65,7 @@ export default function BingooDashboard() {
   const { isDark } = useBingooTheme();
   const { features, plan: userPlan, loading: featuresLoading } = useFeatures();
   const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: legacyPlan } = usePlan();
-  const hasServiceMenu = hasFeature(features, "service_menu") || hasFeature(features, "digital_menu");
+  const hasServiceMenu = hasFeature(features, "service_menu") || hasFeature(features, "digital_menu") || canAccess("service_menu");
   const isLawFirm = hasFeature(features, "attorney_profiles") || hasFeature(features, "law_firm_profile");
   const isCorporate = hasFeature(features, "employee_profiles");
   const hasTeam = hasFeature(features, "staff_profiles") || hasFeature(features, "attorney_profiles") || hasFeature(features, "employee_profiles");
@@ -654,8 +654,8 @@ export default function BingooDashboard() {
            {tab === "appt_settings" && (isFeatureGated(features, featuresLoading, "appointments") ? <PlanGateScreen feature="appointments" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} />)}
            {tab === "resumes"      && !isLawFirm && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
-           {tab === "lost_mode"   && (isFeatureGated(features, featuresLoading, "lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
-           {tab === "services"    && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} /> : (isFeatureGated(features, featuresLoading, "service_menu") && isFeatureGated(features, featuresLoading, "digital_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />))}
+           {tab === "lost_mode"   && (!featuresLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
+           {tab === "services"    && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} /> : (!canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />))}
            {tab === "legal_services" && (isFeatureGated(features, featuresLoading, "practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} />)}
            {tab === "offices"     && (isFeatureGated(features, featuresLoading, "practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={profile?.id} isDark={isDark} />)}
            {tab === "team"        && (!featuresLoading && !hasFeature(features, "attorney_profiles") && !hasFeature(features, "staff_profiles") && !hasFeature(features, "employee_profiles") ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} />)}
