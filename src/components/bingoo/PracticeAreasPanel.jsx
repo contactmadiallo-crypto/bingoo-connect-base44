@@ -14,14 +14,15 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
 
-  console.log("[PracticeAreasPanel] PANEL LOAD — profileId:", profileId);
+  const RENDER_KEY = ["practice-areas", profileId];
+  console.log(`%c[PA-RENDER] ── RENDER ── profileId=${JSON.stringify(profileId)} type=${typeof profileId} key=${JSON.stringify(RENDER_KEY)}`, "color:purple;font-weight:bold");
 
   const { data: areas = [], isFetching } = useQuery({
     queryKey: ["practice-areas", profileId],
     queryFn: async () => {
-      console.log("[PracticeAreasPanel] QUERY EXECUTED — profileId:", profileId);
+      console.log(`%c[PA-QUERY] FETCH EXECUTING — profileId=${JSON.stringify(profileId)}`, "color:blue;font-weight:bold");
       const result = await base44.entities.PracticeArea.filter({ profile_id: profileId }, "order");
-      console.log("[PracticeAreasPanel] ROWS RETURNED:", result.length, result.map(a => a.id));
+      console.log(`%c[PA-QUERY] DB RETURNED ${result.length} rows:`, "color:blue", result.map(a => ({ id: a.id, name: a.name })));
       return result;
     },
     enabled: !!profileId,
@@ -29,23 +30,43 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     gcTime: 0,
   });
 
-  if (!profileId) console.warn("[PracticeAreasPanel] QUERY DISABLED — no profileId");
+  console.log(`%c[PA-RENDER] areas.length=${areas.length} | isFetching=${isFetching}`, "color:purple");
+
+  if (!profileId) console.warn("%c[PA-WARN] QUERY DISABLED — no profileId passed as prop", "color:red;font-weight:bold");
 
   const refetchAreas = () => qc.refetchQueries({ queryKey: ["practice-areas", profileId] });
 
   const createMutation = useMutation({
-    mutationFn: (data) => dbOp("PracticeArea", "create", profileId,
-      () => base44.entities.PracticeArea.create({ profile_id: profileId, ...data })),
+    mutationFn: (data) => {
+      const MUTATION_KEY = ["practice-areas", profileId];
+      console.log(`%c[PA-MUTATION] ── MUTATION START ── profileId=${JSON.stringify(profileId)} | will write to cache key: ${JSON.stringify(MUTATION_KEY)}`, "color:green;font-weight:bold");
+      console.log("[PA-MUTATION] payload:", data);
+      return base44.entities.PracticeArea.create({ profile_id: profileId, ...data });
+    },
     onSuccess: (newRecord) => {
-      // Immediately inject into cache so the list updates without waiting for refetch
-      qc.setQueryData(["practice-areas", profileId], (old = []) => [...old, newRecord]);
-      qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
+      const WRITE_KEY = ["practice-areas", profileId];
+      console.log(`%c[PA-SUCCESS] ── MUTATION SUCCESS ──`, "color:green;font-weight:bold");
+      console.log("[PA-SUCCESS] newRecord:", newRecord);
+      console.log(`[PA-SUCCESS] writing to cache key: ${JSON.stringify(WRITE_KEY)}`);
+      const before = qc.getQueryData(WRITE_KEY);
+      console.log(`[PA-SUCCESS] cache BEFORE setQueryData:`, before, "length:", before?.length ?? "undefined/null");
+      qc.setQueryData(WRITE_KEY, (old = []) => {
+        const updated = [...old, newRecord];
+        console.log(`%c[PA-CACHE] setQueryData called — old.length=${old.length} → new.length=${updated.length}`, "color:orange;font-weight:bold");
+        return updated;
+      });
+      const after = qc.getQueryData(WRITE_KEY);
+      console.log(`[PA-SUCCESS] cache AFTER setQueryData:`, after, "length:", after?.length ?? "undefined/null");
+      console.log(`[PA-SUCCESS] RENDER_KEY used at render time was: ${JSON.stringify(RENDER_KEY)}`);
+      console.log(`[PA-SUCCESS] WRITE_KEY used now: ${JSON.stringify(WRITE_KEY)}`);
+      console.log(`[PA-SUCCESS] Keys match: ${JSON.stringify(RENDER_KEY) === JSON.stringify(WRITE_KEY)}`);
+      qc.invalidateQueries({ queryKey: WRITE_KEY });
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
       toast.success("Saved Successfully");
     },
     onError: (err) => {
-      console.error("[PracticeAreasPanel] Create error:", err);
+      console.error("%c[PA-ERROR] ── MUTATION FAILED ──", "color:red;font-weight:bold", err);
       toast.error(`Failed to add: ${err.message}`);
     },
   });
@@ -80,10 +101,17 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return toast.error("Name required");
+    console.log(`%c[PA-CLICK] ── SAVE CLICKED ── name="${form.name}" profileId=${JSON.stringify(profileId)} editId=${editId}`, "color:darkgreen;font-weight:bold;font-size:14px");
+    if (!form.name.trim()) {
+      console.warn("[PA-CLICK] VALIDATION FAILED — name is empty");
+      return toast.error("Name required");
+    }
+    console.log("[PA-CLICK] VALIDATION PASSED");
     if (editId) {
+      console.log("[PA-CLICK] → calling updateMutation");
       updateMutation.mutate(form);
     } else {
+      console.log("[PA-CLICK] → calling createMutation");
       createMutation.mutate(form);
     }
   };
@@ -158,6 +186,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       )}
 
       <div className="space-y-2">
+        {console.log(`%c[PA-LIST] ── LIST RENDER ── areas.length=${areas.length} | ids=${JSON.stringify(areas.map(a=>a.id))}`, "color:darkorange;font-weight:bold")}
         {areas.map(area => (
           <div key={area.id} className={`rounded-2xl border p-4 flex items-center gap-3 ${card}`}>
             <GripVertical className={`w-4 h-4 flex-shrink-0 ${sub}`} />
