@@ -5,6 +5,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { X, Phone, Mail, MessageSquare, FileText, User, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 import { LEGAL_LEAD_STAGES, URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
 
 const LEGAL_CRM_STAGES = [
@@ -240,13 +241,15 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); toast.success("Saved Successfully"); onSaved?.(); },
+    mutationFn: ({ id, data }) => dbOp("Lead[LegalCRM]", "update", profileId,
+      () => base44.entities.Lead.update(id, data)),
+    onSuccess: () => { logInvalidate(["legal-leads", profileId]); qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Lead.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }),
+    mutationFn: (id) => dbOp("Lead[LegalCRM]", "delete", profileId,
+      () => base44.entities.Lead.delete(id)),
+    onSuccess: () => { logInvalidate(["legal-leads", profileId]); qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); },
   });
 
   const filtered = leads.filter(l => {

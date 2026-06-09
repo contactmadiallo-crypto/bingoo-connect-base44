@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const PRACTICE_AREA_EMOJIS = ["⚖️", "🌎", "🔒", "👨‍👩‍👧‍👦", "🏠", "💼", "💰", "📋", "🚗", "📄"];
 
@@ -22,8 +23,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.PracticeArea.create({ profile_id: profileId, ...data }),
+    mutationFn: (data) => dbOp("PracticeArea", "create", profileId,
+      () => base44.entities.PracticeArea.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
+      logInvalidate(["practice-areas", profileId]);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
@@ -37,8 +40,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.PracticeArea.update(editId, data),
+    mutationFn: (data) => dbOp("PracticeArea", "update", profileId,
+      () => base44.entities.PracticeArea.update(editId, data)),
     onSuccess: () => {
+      logInvalidate(["practice-areas", profileId]);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
       setForm({ name: "", description: "", icon: "⚖️" });
       setEditId(null);
@@ -53,8 +58,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.PracticeArea.delete(id),
+    mutationFn: (id) => dbOp("PracticeArea", "delete", profileId,
+      () => base44.entities.PracticeArea.delete(id)),
     onSuccess: () => {
+      logInvalidate(["practice-areas", profileId]);
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
       toast.success("Practice area deleted");
     },

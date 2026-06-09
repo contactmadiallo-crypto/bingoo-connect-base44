@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Edit2, X, Check, Image, Scissors, Clock, Tag } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const EMPTY_SERVICE = {
   name: "", category: "", description: "",
@@ -174,8 +175,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const createService = useMutation({
-    mutationFn: (data) => base44.entities.SalonService.create({ ...data, profile_id: profileId }),
+    mutationFn: (data) => dbOp("SalonService", "create", profileId,
+      () => base44.entities.SalonService.create({ ...data, profile_id: profileId })),
     onSuccess: () => {
+      logInvalidate(["salon-services", profileId]);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
       toast.success("Saved Successfully");
       setEditingId(null);
@@ -186,8 +189,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const updateService = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.SalonService.update(id, data),
+    mutationFn: ({ id, data }) => dbOp("SalonService", "update", profileId,
+      () => base44.entities.SalonService.update(id, data)),
     onSuccess: () => {
+      logInvalidate(["salon-services", profileId]);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
       toast.success("Saved Successfully");
       setEditingId(null);
@@ -197,8 +202,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const deleteService = useMutation({
-    mutationFn: (id) => base44.entities.SalonService.delete(id),
+    mutationFn: (id) => dbOp("SalonService", "delete", profileId,
+      () => base44.entities.SalonService.delete(id)),
     onSuccess: () => {
+      logInvalidate(["salon-services", profileId]);
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
       toast.success("Service removed");
     },

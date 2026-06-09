@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, Check, User, Phone, Mail, Upload } from "lucide-react";
 import { LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
@@ -46,9 +47,10 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
   const saveMutation = useMutation({
     mutationFn: (data) =>
       editing === "new"
-        ? base44.entities.TeamMember.create({ ...data, profile_id: profileId })
-        : base44.entities.TeamMember.update(editing, data),
-    onSuccess: () => { 
+        ? dbOp("TeamMember", "create", profileId, () => base44.entities.TeamMember.create({ ...data, profile_id: profileId }))
+        : dbOp("TeamMember", "update", profileId, () => base44.entities.TeamMember.update(editing, data)),
+    onSuccess: () => {
+      logInvalidate(["team-members", profileId]);
       qc.invalidateQueries({ queryKey: ["team-members", profileId] }); 
       setEditing(null); 
       setForm(EMPTY);
@@ -62,8 +64,8 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.TeamMember.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["team-members", profileId] }),
+    mutationFn: (id) => dbOp("TeamMember", "delete", profileId, () => base44.entities.TeamMember.delete(id)),
+    onSuccess: () => { logInvalidate(["team-members", profileId]); qc.invalidateQueries({ queryKey: ["team-members", profileId] }); },
   });
 
   const openNew = () => { setForm(EMPTY); setEditing("new"); };

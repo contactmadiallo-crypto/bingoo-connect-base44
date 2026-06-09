@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { LEGAL_CATEGORIES } from "@/lib/legalData";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const CATEGORY_COLORS = { Immigration: "#0369a1", Civil: "#7c3aed", Criminal: "#dc2626" };
 
@@ -23,8 +24,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.LegalService.create({ profile_id: profileId, ...data }),
+    mutationFn: (data) => dbOp("LegalService", "create", profileId,
+      () => base44.entities.LegalService.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
+      logInvalidate(["legal-services", profileId]);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setShowForm(false);
@@ -38,8 +41,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.LegalService.update(editId, data),
+    mutationFn: (data) => dbOp("LegalService", "update", profileId,
+      () => base44.entities.LegalService.update(editId, data)),
     onSuccess: () => {
+      logInvalidate(["legal-services", profileId]);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setEditId(null);
@@ -54,8 +59,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.LegalService.delete(id),
+    mutationFn: (id) => dbOp("LegalService", "delete", profileId,
+      () => base44.entities.LegalService.delete(id)),
     onSuccess: () => {
+      logInvalidate(["legal-services", profileId]);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
       toast.success("Service deleted");
     },

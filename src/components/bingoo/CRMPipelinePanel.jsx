@@ -5,6 +5,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, ChevronDown, Phone, Mail, MessageSquare, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const STAGES = [
   { id: "new",       label: "New",        color: "#6366f1" },
@@ -32,13 +33,15 @@ export default function CRMPipelinePanel({ profileId, isDark: propDark, onSaved 
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
+    mutationFn: ({ id, data }) => dbOp("Lead[CRM]", "update", profileId,
+      () => base44.entities.Lead.update(id, data)),
+    onSuccess: () => { logInvalidate(["crm-leads", profileId]); qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Lead.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }),
+    mutationFn: (id) => dbOp("Lead[CRM]", "delete", profileId,
+      () => base44.entities.Lead.delete(id)),
+    onSuccess: () => { logInvalidate(["crm-leads", profileId]); qc.invalidateQueries({ queryKey: ["crm-leads", profileId] }); },
   });
 
   const openEdit = (l) => {

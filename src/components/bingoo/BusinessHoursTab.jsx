@@ -5,6 +5,7 @@ import BusinessHoursEditor from "./BusinessHoursEditor";
 import { Button } from "@/components/ui/button";
 import { Clock, Check } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 export default function BusinessHoursTab({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
@@ -25,8 +26,10 @@ export default function BusinessHoursTab({ profileId, isDark, onSaved }) {
   const resolvedHours = hours !== null ? hours : (profile?.business_hours || {});
 
   const save = useMutation({
-    mutationFn: () => base44.entities.Profile.update(profileId, { business_hours: resolvedHours }),
+    mutationFn: () => dbOp("Profile[BusinessHours]", "update", profileId,
+      () => base44.entities.Profile.update(profileId, { business_hours: resolvedHours })),
     onSuccess: () => {
+      logInvalidate(["profile-for-hours", profileId]);
       qc.invalidateQueries({ queryKey: ["profile-for-hours", profileId] });
       toast.success("Saved Successfully");
       onSaved?.();

@@ -29,6 +29,7 @@ import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
+import { auditUserContext } from "@/lib/dbDebug";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,11 @@ export default function BingooDashboard() {
       setShowOnboarding(true);
     }
   }, [user, profiles]);
+
+  // DB AUDIT: Run user context audit on load
+  useEffect(() => {
+    auditUserContext(base44);
+  }, []);
 
   // Auto-backfill owned_profile_ids so RLS works for appointments/leads
   const [backfilled, setBackfilled] = useState(false);

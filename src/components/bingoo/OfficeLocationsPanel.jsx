@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, MapPin, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const qc = useQueryClient();
@@ -20,8 +21,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.OfficeLocation.create({ profile_id: profileId, ...data }),
+    mutationFn: (data) => dbOp("OfficeLocation", "create", profileId,
+      () => base44.entities.OfficeLocation.create({ profile_id: profileId, ...data })),
     onSuccess: () => {
+      logInvalidate(["office-locations", profileId]);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setShowForm(false);
@@ -35,8 +38,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.OfficeLocation.update(editId, data),
+    mutationFn: (data) => dbOp("OfficeLocation", "update", profileId,
+      () => base44.entities.OfficeLocation.update(editId, data)),
     onSuccess: () => {
+      logInvalidate(["office-locations", profileId]);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setEditId(null);
@@ -51,8 +56,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.OfficeLocation.delete(id),
+    mutationFn: (id) => dbOp("OfficeLocation", "delete", profileId,
+      () => base44.entities.OfficeLocation.delete(id)),
     onSuccess: () => {
+      logInvalidate(["office-locations", profileId]);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
       toast.success("Location deleted");
     },
