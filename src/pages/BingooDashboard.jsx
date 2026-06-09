@@ -89,31 +89,24 @@ export default function BingooDashboard() {
     }
   }, [user, profiles]);
 
-  // DB AUDIT: Run user context audit on load
+  // Ownership repair — run on load, gate entity queries until confirmed
+  const [ownershipReady, setOwnershipReady] = useState(false);
   useEffect(() => {
-    auditUserContext(base44);
-  }, []);
-
-  // Auto-backfill owned_profile_ids so RLS works for appointments/leads
-  const [backfilled, setBackfilled] = useState(false);
-  useEffect(() => {
-    if (!user || !profiles.length || backfilled) return;
-    const profileIds = profiles.map(p => p.id);
-    const existing = user.owned_profile_ids || [];
-    const missing = profileIds.filter(id => !existing.includes(id));
-    if (missing.length > 0) {
-      base44.auth.updateMe({ owned_profile_ids: [...existing, ...missing] }).then(() => {
+    if (!user) return;
+    auditUserContext(base44).then((report) => {
+      // After repair (or confirmation it's fine), invalidate RLS-gated queries
+      if (report?.repaired) {
         refetchUser();
-        setBackfilled(true);
-        // Invalidate all user-data queries after RLS is updated
         qc.invalidateQueries({ queryKey: ["leads"] });
         qc.invalidateQueries({ queryKey: ["appointments"] });
         qc.invalidateQueries({ queryKey: ["analytics"] });
-      }).catch(() => {});
-    } else {
-      setBackfilled(true);
-    }
-  }, [user, profiles, backfilled]);
+      }
+      setOwnershipReady(true);
+    }).catch(() => {
+      // Don't block the UI if repair call fails
+      setOwnershipReady(true);
+    });
+  }, [user?.id]);
   // Derive active profile
   const profile = selectedProfileId === null
     ? null
@@ -123,20 +116,20 @@ export default function BingooDashboard() {
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", profile?.id],
     queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }, "-created_date"),
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && ownershipReady,
     refetchOnMount: true,
   });
   const { data: analytics = [] } = useQuery({
     queryKey: ["analytics-all", profile?.id],
     queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }),
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && ownershipReady,
     refetchInterval: 15000,
     refetchOnMount: true,
   });
   const { data: appointments = [] } = useQuery({
     queryKey: ["appointments", profile?.id],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: profile.id }, "-created_date"),
-    enabled: !!profile?.id,
+    enabled: !!profile?.id && ownershipReady,
     refetchOnMount: true,
   });
 

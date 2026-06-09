@@ -63,6 +63,7 @@ export function logInvalidate(queryKey) {
 
 /**
  * Run once on page load to print the RLS / user context.
+ * Also calls repairProfileOwnership backend function to auto-fix missing mappings.
  */
 export async function auditUserContext(base44) {
   console.group(`${LOG_PREFIX} 👤 USER CONTEXT AUDIT`);
@@ -71,9 +72,36 @@ export async function auditUserContext(base44) {
     console.log("User ID          :", user?.id);
     console.log("User Email       :", user?.email);
     console.log("User Role        :", user?.role);
-    console.log("owned_profile_ids:", user?.owned_profile_ids ?? "⚠️ NOT SET — RLS will block reads/writes");
+    console.log("owned_profile_ids (before repair):", user?.owned_profile_ids ?? "⚠️ NOT SET");
+
     if (!user?.owned_profile_ids?.length) {
-      console.warn("⚠️ owned_profile_ids is empty. Leads, Appointments, Analytics, and entity panels may be blocked by RLS until this is populated.");
+      console.warn("⚠️ owned_profile_ids is empty — triggering ownership repair...");
+    }
+
+    // Call backend repair function for full diagnostic + auto-fix
+    try {
+      const res = await base44.functions.invoke('repairProfileOwnership', {});
+      const report = res?.data ?? res;
+      console.group(`${LOG_PREFIX} 🔧 OWNERSHIP REPAIR REPORT`);
+      console.log("Profiles found   :", report.profile_count);
+      console.log("Profiles         :", report.profiles_found?.map(p => `${p.username} (${p.id})`).join(", ") || "none");
+      console.log("owned_profile_ids before:", JSON.stringify(report.owned_profile_ids_before));
+      console.log("owned_profile_ids after :", JSON.stringify(report.owned_profile_ids_after));
+      console.log("Missing IDs      :", JSON.stringify(report.missing_ids));
+      console.log("Stale IDs        :", JSON.stringify(report.stale_ids));
+      console.log("Repaired?        :", report.repaired ? `✅ YES — ${report.repair_action}` : "✅ No repair needed");
+      if (report.rls_status?.warning) {
+        console.warn("⚠️ RLS Warning   :", report.rls_status.warning);
+      }
+      if (!report.rls_status?.owned_profile_ids_populated) {
+        console.error("❌ owned_profile_ids is STILL empty after repair — user has no profiles yet.");
+      } else {
+        console.log("✅ RLS OK        : owned_profile_ids is populated");
+      }
+      console.groupEnd();
+      return report;
+    } catch (repairErr) {
+      console.error("❌ Repair function failed:", repairErr?.message);
     }
   } catch (e) {
     console.error("Could not load user:", e?.message);
