@@ -236,147 +236,22 @@ export default function LionsOfTerangaLayout({ profile, color, children }) {
 
           {/* Content */}
           <div style={{ padding: mobile ? "20px 16px 32px" : "20px 24px 40px", position: "relative" }}>
-            {/* Action buttons */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 20, justifyContent: "center" }}>
-              {[
-                { icon: "📞", label: "Call", action: () => window.location.href = `tel:${profile.phone}` },
-                { icon: "📅", label: "Book Appointment", action: () => {} },
-                { icon: "💬", label: "WhatsApp", action: () => window.location.href = `https://wa.me/${profile.whatsapp_number}` }
-              ].map((btn, i) => (
-                <motion.button
-                  key={i}
-                  onClick={btn.action}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  style={{
-                    flex: 1,
-                    padding: "10px 14px",
-                    borderRadius: 12,
-                    background: i === 0 ? "linear-gradient(135deg, #00853F, #0BB875)" : i === 1 ? "linear-gradient(135deg, #D4AF37, #FDEF42)" : "linear-gradient(135deg, #E31B23, #FF5555)",
-                    border: "none",
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 4,
-                    boxShadow: "0 4px 12px rgba(212,175,55,0.3)"
-                  }}
-                >
-                  <span style={{ fontSize: 16 }}>{btn.icon}</span>
-                  {btn.label}
-                </motion.button>
-              ))}
-            </div>
-
-            {/* Stats row */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
-              {[
-                { label: "Connections", value: "128" },
-                { label: "Projects", value: "47" },
-                { label: "Profile Views", value: "2.3K" },
-                { label: "NFC Scans", value: "89" }
-              ].map((stat, i) => (
-                <div key={i} style={{
-                  textAlign: "center",
-                  padding: "12px 8px",
-                  borderRadius: 12,
-                  background: "rgba(212,175,55,0.08)",
-                  border: "1px solid rgba(212,175,55,0.2)"
-                }}>
-                  <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: "#D4AF37" }}>{stat.value}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 10, color: "rgba(255,255,255,0.6)" }}>{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* About section */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <span style={{ fontSize: 16, color: "#D4AF37" }}>▸</span>
-                <h3 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#D4AF37" }}>À Propos</h3>
-              </div>
-              <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: "rgba(255,255,255,0.7)" }}>
-                {profile.bio || "Committed to excellence and integrity. Passionate about helping others succeed. Excellence. Integrity. Résultats."}
-              </p>
-            </div>
-
-            {/* Services grid */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 16, color: "#D4AF37" }}>▸</span>
-                  <h3 style={{ margin: 0, fontSize: 14, fontWeight: 900, color: "#D4AF37" }}>Mes Services</h3>
-                </div>
-                <a href="#" style={{ fontSize: 10, color: "#D4AF37", textDecoration: "none", fontWeight: 700 }}>Voir Tous</a>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
-                {[
-                  { icon: "⚖️", label: "Conseil" },
-                  { icon: "📋", label: "Consultation" },
-                  { icon: "🏢", label: "Corporate" },
-                  { icon: "✈️", label: "Immigration" },
-                  { icon: "👨‍⚖️", label: "Défense" }
-                ].map((svc, i) => (
-                  <div key={i} style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: 10,
-                    borderRadius: 12,
-                    background: "rgba(212,175,55,0.05)",
-                    border: "1px solid rgba(212,175,55,0.15)"
-                  }}>
-                    <span style={{ fontSize: 20 }}>{svc.icon}</span>
-                    <p style={{ margin: 0, fontSize: 9, textAlign: "center", color: "rgba(255,255,255,0.6)" }}>{svc.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {children}
           </div>
 
-          {/* Bottom navigation */}
+          {/* Footer banner */}
           <div style={{
-            background: "linear-gradient(90deg, rgba(0,77,26,0.95), rgba(212,175,55,0.12), rgba(0,77,26,0.95))",
+            background: "linear-gradient(90deg, rgba(0,77,26,0.9), rgba(212,175,55,0.15), rgba(0,77,26,0.9))",
             borderTop: "1px solid rgba(212,175,55,0.3)",
-            padding: "16px 20px",
-            display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
-            gap: 8,
+            padding: "12px 20px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
           }}>
-            {[
-              { icon: "🏠", label: "Home" },
-              { icon: "📱", label: "Portfolio" },
-              { icon: "📊", label: "Leads" },
-              { icon: "🖼️", label: "Gallery" },
-              { icon: "📞", label: "Contact" }
-            ].map((nav, i) => (
-              <button
-                key={i}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 4,
-                  padding: "8px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: "rgba(212,175,55,0.08)",
-                  color: "#fff",
-                  cursor: "pointer",
-                  fontSize: 10,
-                  fontWeight: 700
-                }}
-              >
-                <span style={{ fontSize: 18 }}>{nav.icon}</span>
-                {nav.label}
-              </button>
-            ))}
+            <span style={{ fontSize: 20 }}>🏆</span>
+            <div style={{ textAlign: "center" }}>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 900, color: "#FDEF42", letterSpacing: "0.15em", textTransform: "uppercase" }}>LIONS DE LA TERANGA</p>
+              <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Un Peuple, Un But, Une Victoire ⭐</p>
+            </div>
+            <span style={{ fontSize: 20 }}>🦁</span>
           </div>
         </div>
 
