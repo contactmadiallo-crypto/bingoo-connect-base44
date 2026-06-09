@@ -37,11 +37,33 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const refetchAreas = () => qc.refetchQueries({ queryKey: ["practice-areas", profileId] });
 
   const createMutation = useMutation({
-    mutationFn: (data) => {
-      const MUTATION_KEY = ["practice-areas", profileId];
-      console.log(`%c[PA-MUTATION] ── MUTATION START ── profileId=${JSON.stringify(profileId)} | will write to cache key: ${JSON.stringify(MUTATION_KEY)}`, "color:green;font-weight:bold");
-      console.log("[PA-MUTATION] payload:", data);
-      return base44.entities.PracticeArea.create({ profile_id: profileId, ...data });
+    mutationFn: async (data) => {
+      const payload = { profile_id: profileId, ...data };
+
+      // ── LIVE SESSION COMPARISON ──
+      let me = null;
+      try { me = await base44.auth.me(); } catch(e) { console.error("[PA-AUTH] Failed to fetch me():", e); }
+
+      const ownedIds = me?.owned_profile_ids ?? null;
+      const payloadProfileId = payload.profile_id;
+      const includesResult = Array.isArray(ownedIds) ? ownedIds.includes(payloadProfileId) : false;
+
+      console.log("%c[PA-RLS-CHECK] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "color:red;font-weight:bold;font-size:13px");
+      console.log("%cowned_profile_ids:", "font-weight:bold", JSON.stringify(ownedIds));
+      console.log("%cpayload.profile_id:", "font-weight:bold", JSON.stringify(payloadProfileId));
+      console.log("%ctypeof payload.profile_id:", "font-weight:bold", typeof payloadProfileId);
+      console.log("%cincludes() result:", "font-weight:bold", includesResult);
+      console.log("%cuser.id:", "font-weight:bold", me?.id);
+      console.log("%cuser.role:", "font-weight:bold", me?.role);
+      if (Array.isArray(ownedIds)) {
+        ownedIds.forEach((id, i) => {
+          const match = id === payloadProfileId;
+          console.log(`  [${i}] "${id}" (${typeof id}) === "${payloadProfileId}" (${typeof payloadProfileId}) → ${match}`);
+        });
+      }
+      console.log("%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "color:red;font-weight:bold");
+
+      return base44.entities.PracticeArea.create(payload);
     },
     onSuccess: (newRecord) => {
       const WRITE_KEY = ["practice-areas", profileId];
