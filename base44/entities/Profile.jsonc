@@ -60,11 +60,19 @@
         "cyberpunk",
         "frosted",
         "paper",
-        "wave",
+        "wave"
+      ],
+      "default": "classic"
+    },
+    "profile_layout": {
+      "type": "string",
+      "enum": [
+        "default",
         "ny_championship",
         "lions_teranga"
       ],
-      "default": "classic"
+      "default": "default",
+      "description": "Public profile page layout"
     },
     "profile_theme": {
       "type": "string",

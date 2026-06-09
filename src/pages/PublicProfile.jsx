@@ -16,6 +16,8 @@ import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
 import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
+import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
+import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import {
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
   XIcon, WhatsAppIcon, SnapchatIcon, WebsiteIcon, MapPinIcon,
@@ -266,6 +268,15 @@ export default function PublicProfile() {
   const color = profile.cover_color || B.navy;
   const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
+
+  // ── Render premium layouts
+  const profileLayout = profile.profile_layout || "default";
+  if (profileLayout === "ny_championship") {
+    return <NewYorkChampionshipLayout profile={profile} onTrack={track} />;
+  }
+  if (profileLayout === "lions_teranga") {
+    return <LionsOfTerangaLayout profile={profile} onTrack={track} />;
+  }
 
   // Build link lists
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
