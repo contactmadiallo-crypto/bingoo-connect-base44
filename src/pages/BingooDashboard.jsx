@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useFeatures, hasFeature, isFeatureGated } from "@/hooks/useFeatures";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
@@ -63,14 +62,11 @@ export default function BingooDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const { isDark } = useBingooTheme();
-  const { features, plan: userPlan, loading: featuresLoading } = useFeatures();
-  const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: legacyPlan } = usePlan();
-  const hasServiceMenu = hasFeature(features, "service_menu") || hasFeature(features, "digital_menu") || canAccess("service_menu");
-  const isLawFirm = hasFeature(features, "attorney_profiles") || hasFeature(features, "law_firm_profile");
-  const isCorporate = hasFeature(features, "employee_profiles");
-  const hasTeam = hasFeature(features, "staff_profiles") || hasFeature(features, "attorney_profiles") || hasFeature(features, "employee_profiles");
-  const hasCRM = hasFeature(features, "crm_pipeline");
-  const hasAttendance = hasFeature(features, "attendance_dashboard");
+  const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: userPlan, isLawFirm, isCorporate } = usePlan();
+  const hasServiceMenu = canAccess("service_menu");
+  const hasTeam = canAccess("staff_profiles") || canAccess("attorney_profiles") || canAccess("employee_profiles");
+  const hasCRM = canAccess("crm_pipeline");
+  const hasAttendance = canAccess("attendance");
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -645,22 +641,22 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"      && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); refetchProfiles(); setTab("overview"); }} />}
-           {tab === "appointments" && (isFeatureGated(features, featuresLoading, "appointments") ? <PlanGateScreen feature="appointments" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} />)}
-           {tab === "calendar"     && (isFeatureGated(features, featuresLoading, "appointments") ? <PlanGateScreen feature="appointments" isDark={isDark} /> : <CalendarView profileId={profile?.id} />)}
-           {tab === "leads"        && (isFeatureGated(features, featuresLoading, "lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} />)}
-           {tab === "analytics"    && (isFeatureGated(features, featuresLoading, "analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
-           {tab === "portfolio"    && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} />)}
+           {tab === "appointments" && (!canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} />)}
+           {tab === "calendar"     && (!canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <CalendarView profileId={profile?.id} />)}
+           {tab === "leads"        && (!canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} />)}
+           {tab === "analytics"    && (!canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
+           {tab === "portfolio"    && (!canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} />)}
            {tab === "design"       && <DesignTab profile={profile} user={user} />}
-           {tab === "appt_settings" && (isFeatureGated(features, featuresLoading, "appointments") ? <PlanGateScreen feature="appointments" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} />)}
-           {tab === "resumes"      && !isLawFirm && !isSalon && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
+           {tab === "appt_settings" && (!canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} />)}
+           {tab === "resumes"      && !isLawFirm && !isSalon && (!canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
-           {tab === "lost_mode"   && (!featuresLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
+           {tab === "lost_mode"   && (!canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
            {tab === "services"    && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} /> : (!canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />))}
-           {tab === "legal_services" && (isFeatureGated(features, featuresLoading, "practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} />)}
-           {tab === "offices"     && (isFeatureGated(features, featuresLoading, "practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={profile?.id} isDark={isDark} />)}
-           {tab === "team"        && (!featuresLoading && !hasFeature(features, "attorney_profiles") && !hasFeature(features, "staff_profiles") && !hasFeature(features, "employee_profiles") ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} />)}
-           {tab === "crm"         && (isFeatureGated(features, featuresLoading, "crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} />))}
-           {tab === "attendance"  && (isFeatureGated(features, featuresLoading, "attendance_dashboard") ? <PlanGateScreen feature="attendance_dashboard" isDark={isDark} /> : <AttendancePanel profileId={profile?.id} isDark={isDark} />)}
+           {tab === "legal_services" && (!canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} />)}
+           {tab === "offices"     && (!canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={profile?.id} isDark={isDark} />)}
+           {tab === "team"        && (!hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={profile?.id} isDark={isDark} planLabel={userPlan} />)}
+           {tab === "crm"         && (!canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={profile?.id} isDark={isDark} /> : <CRMPipelinePanel profileId={profile?.id} isDark={isDark} />))}
+           {tab === "attendance"  && (!canAccess("attendance") ? <PlanGateScreen feature="attendance" isDark={isDark} /> : <AttendancePanel profileId={profile?.id} isDark={isDark} />)}
 
         </div>
       </div>
