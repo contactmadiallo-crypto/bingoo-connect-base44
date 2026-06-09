@@ -15,6 +15,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
 
   const RENDER_KEY = ["practice-areas", profileId];
+  console.log(">>> PA-FILE-VERSION-3 <<<");
   console.log(`%c[PA-RENDER] ── RENDER ── profileId=${JSON.stringify(profileId)} type=${typeof profileId} key=${JSON.stringify(RENDER_KEY)}`, "color:purple;font-weight:bold");
 
   const { data: areas = [], isFetching } = useQuery({
