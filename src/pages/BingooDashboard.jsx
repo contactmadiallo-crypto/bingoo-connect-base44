@@ -265,8 +265,8 @@ export default function BingooDashboard() {
       { id: "services",    label: "Services",        icon: Scissors,      color: "#db2777" },
       { id: "hours",       label: tr.hours,          icon: Clock,         color: "#0891b2" },
     ] : []),
-    // Hide resumes for law firms
-    ...(hasServiceMenu && !isLawFirm ? BASE_TABS.slice(5) : BASE_TABS.slice(5).filter(t => t.id !== "resumes")),
+    // Hide resumes for law firms and salon
+    ...(hasServiceMenu && !isLawFirm ? BASE_TABS.slice(5).filter(t => t.id !== "resumes") : BASE_TABS.slice(5).filter(t => (isLawFirm || isSalon) ? t.id !== "resumes" : true)),
     // Team/Attorneys
     ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0B2E6B" }] : []),
     // CRM (Law Firm shows as CRM Pipeline)
@@ -652,7 +652,7 @@ export default function BingooDashboard() {
            {tab === "portfolio"    && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} />)}
            {tab === "design"       && <DesignTab profile={profile} user={user} />}
            {tab === "appt_settings" && (isFeatureGated(features, featuresLoading, "appointments") ? <PlanGateScreen feature="appointments" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} />)}
-           {tab === "resumes"      && !isLawFirm && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
+           {tab === "resumes"      && !isLawFirm && !isSalon && (isFeatureGated(features, featuresLoading, "portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"  && <ConnectionsPanel isDark={isDark} />}
            {tab === "lost_mode"   && (!featuresLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} />)}
            {tab === "services"    && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} /> : (!canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} />))}
