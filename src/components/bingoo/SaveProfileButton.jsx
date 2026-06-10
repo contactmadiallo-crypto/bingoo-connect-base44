@@ -25,7 +25,7 @@ export default function SaveProfileButton({ profile, source = "manual", color = 
   const handleSave = async () => {
     const isAuthed = await base44.auth.isAuthenticated();
     if (!isAuthed) {
-      base44.auth.redirectToLogin(window.location.href);
+      window.location.href = `/login?next=${encodeURIComponent(window.location.href)}`;
       return;
     }
     if (saved || saving) return;
