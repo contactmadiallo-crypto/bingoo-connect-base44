@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
+import LivePreviewPanel from "./LivePreviewPanel";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
 
@@ -271,7 +272,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex gap-8 items-start">
       {/* Form */}
       <div className="flex-1 space-y-6 min-w-0">
 
@@ -677,6 +678,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         </div>
       </div>
 
+      {/* Live Preview Panel — sticky on desktop */}
+      <LivePreviewPanel form={form} profile={profile} />
     </div>
   );
 }
