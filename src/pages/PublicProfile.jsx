@@ -228,6 +228,7 @@ export default function PublicProfile() {
       const res = await base44.functions.invoke("getPublicProfile", { username });
       return res.data?.profile ? [res.data.profile] : [];
     },
+    staleTime: 0,
   });
 
   const profile = profiles[0];
@@ -269,12 +270,13 @@ export default function PublicProfile() {
   const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
 
-  // ── Render premium layouts
-  const profileLayout = profile.profile_layout || "default";
-  if (profileLayout === "ny_championship") {
+  // ── Render championship full-page layouts
+  // Check both profile_layout AND layout fields (DesignTab saves to layout, legacy uses profile_layout)
+  const effectiveLayout = profile.layout || profile.profile_layout || "default";
+  if (effectiveLayout === "ny_championship" || profile.profile_layout === "ny_championship") {
     return <NewYorkChampionshipLayout profile={profile} onTrack={track} />;
   }
-  if (profileLayout === "lions_teranga") {
+  if (effectiveLayout === "lions_teranga" || profile.profile_layout === "lions_teranga") {
     return <LionsOfTerangaLayout profile={profile} onTrack={track} />;
   }
 
@@ -313,7 +315,7 @@ export default function PublicProfile() {
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);
 
-  const darkLayouts = ["dark", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk", "forest", "ocean", "ny_championship", "lions_teranga"];
+  const darkLayouts = ["dark", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk", "forest", "ocean", "ny_championship", "lions_teranga", "luxury_gold", "executive_corp", "neon_tech", "modern_law", "premium_salon", "video_bg", "parallax", "animated_gradient"];
   const isDark = profile.bg_style === "night" || darkLayouts.includes(profile.layout);
 
   return (

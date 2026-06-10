@@ -102,11 +102,30 @@ export default function DesignTab({ profile, user }) {
   const handleSave = async () => {
     if (!profile || !hasChanges) return;
     setSaving("saving");
-    await base44.entities.Profile.update(profile.id, pendingChanges);
+
+    // Build the update payload — keep layout and profile_layout in sync
+    // ny_championship and lions_teranga use profile_layout; everything else uses layout
+    const PROFILE_LAYOUT_IDS = new Set(["ny_championship", "lions_teranga"]);
+    const update = { ...pendingChanges };
+    if (update.layout) {
+      if (PROFILE_LAYOUT_IDS.has(update.layout)) {
+        update.profile_layout = update.layout;
+      } else {
+        // Reset profile_layout back to "default" when switching away from championship layouts
+        if (PROFILE_LAYOUT_IDS.has(profile.profile_layout)) {
+          update.profile_layout = "default";
+        }
+      }
+    }
+
+    await base44.entities.Profile.update(profile.id, update);
+    // Invalidate all possible query key forms used across the app
     queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+    queryClient.invalidateQueries({ queryKey: ["public-profile", profile.username] });
+    queryClient.invalidateQueries({ queryKey: ["current-user"] });
     setPendingChanges({});
     setSaving(null);
-    toast.success("Design saved!");
+    toast.success("Design saved! Open your profile link to see it live.");
   };
 
   const handleCoverPhotoUpload = async (e) => {

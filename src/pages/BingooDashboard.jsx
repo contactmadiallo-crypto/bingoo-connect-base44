@@ -684,7 +684,15 @@ export default function BingooDashboard() {
               <LayoutPicker
                 value={profile.layout || "classic"}
                 onChange={async (newLayout) => {
-                  await base44.entities.Profile.update(profile.id, { layout: newLayout });
+                  const CHAMPIONSHIP = new Set(["ny_championship", "lions_teranga"]);
+                  const update = { layout: newLayout };
+                  if (CHAMPIONSHIP.has(newLayout)) {
+                    update.profile_layout = newLayout;
+                  } else if (CHAMPIONSHIP.has(profile.profile_layout)) {
+                    update.profile_layout = "default";
+                  }
+                  await base44.entities.Profile.update(profile.id, update);
+                  qc.invalidateQueries({ queryKey: ["public-profile", profile.username] });
                   refetchProfiles();
                   setShowLayoutPicker(false);
                 }}

@@ -340,6 +340,121 @@ export default function ProfileLayoutShell({ profile, color, isDark, children })
     </div>
   );
 
+  // ── GLASS 3D ──
+  if (layout === "glass_3d") return (
+    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${hexRgb(color, 0.12)} 0%, #e0e7ff 50%, #f8fafc 100%)`, padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(20px)", borderRadius: mobile ? 0 : 28, boxShadow: "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.8)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── LUXURY GOLD ──
+  if (layout === "luxury_gold") return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #1a0a00, #2d1a00, #1a0a00)", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ height: 1, background: "linear-gradient(90deg, transparent, #D4AF37, #FFD700, #D4AF37, transparent)", marginBottom: 0 }} />
+        <div style={{ background: "rgba(26,10,0,0.95)", borderRadius: mobile ? 0 : 24, border: "1px solid rgba(212,175,55,0.3)", boxShadow: "0 40px 80px rgba(0,0,0,0.8)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── EXECUTIVE CORP ──
+  if (layout === "executive_corp") return (
+    <div style={{ minHeight: "100vh", background: "#060b14", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "#0d1117", borderRadius: mobile ? 0 : 12, border: `1px solid ${hexRgb(color, 0.25)}`, boxShadow: "0 40px 80px rgba(0,0,0,0.6)", overflow: "hidden" }}>
+          <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.4)}, transparent)` }} />
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── NEON TECH ──
+  if (layout === "neon_tech") return (
+    <div style={{ minHeight: "100vh", background: "#050510", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "rgba(5,5,16,0.98)", borderRadius: mobile ? 0 : 8, border: `1px solid ${hexRgb(color, 0.35)}`, boxShadow: `0 0 40px ${hexRgb(color, 0.2)}, 0 40px 80px rgba(0,0,0,0.8)` }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── MODERN LAW ──
+  if (layout === "modern_law") return (
+    <div style={{ minHeight: "100vh", background: "#f1f5f9", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "#fff", borderRadius: mobile ? 0 : 0, boxShadow: "0 4px 40px rgba(0,0,0,0.12)", overflow: "hidden", borderLeft: `4px solid ${color}` }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── PREMIUM SALON ──
+  if (layout === "premium_salon") return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #1a0a14, #2d1020, #1a0a14)", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ height: 1, background: `linear-gradient(90deg, transparent, #f9a8d4, ${color}, #f9a8d4, transparent)` }} />
+        <div style={{ background: "rgba(26,10,20,0.96)", borderRadius: mobile ? 0 : 24, border: `1px solid ${hexRgb(color, 0.25)}`, boxShadow: "0 40px 80px rgba(0,0,0,0.8)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── REALTOR LUXURY ──
+  if (layout === "realtor_luxury") return (
+    <div style={{ minHeight: "100vh", background: "#fff", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "#fff", borderRadius: mobile ? 0 : 16, boxShadow: "0 20px 60px rgba(0,0,0,0.12)", border: "1px solid #e2e8f0", overflow: "hidden" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── ANIMATED GRADIENT ──
+  if (layout === "animated_gradient") return (
+    <div style={{ minHeight: "100vh", background: `linear-gradient(135deg, ${color}, #a855f7, #06b6d4, ${color})`, backgroundSize: "300% 300%", animation: "gradientShift 6s ease infinite", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <style>{`@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }`}</style>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "rgba(0,0,0,0.15)", backdropFilter: "blur(12px)", borderRadius: mobile ? 0 : 28, border: "1px solid rgba(255,255,255,0.2)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── VIDEO BG ──
+  if (layout === "video_bg") return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0f0f0f, #1a1a2e)", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center", position: "relative" }}>
+      <div style={{ position: "fixed", inset: 0, opacity: 0.06, backgroundImage: "linear-gradient(45deg,#333 25%,transparent 25%),linear-gradient(-45deg,#333 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#333 75%),linear-gradient(-45deg,transparent 75%,#333 75%)", backgroundSize: "8px 8px", pointerEvents: "none", zIndex: 0 }} />
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440, position: "relative", zIndex: 1 }}>
+        <div style={{ background: "rgba(15,15,15,0.9)", backdropFilter: "blur(20px)", borderRadius: mobile ? 0 : 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // ── PARALLAX ──
+  if (layout === "parallax") return (
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", padding: mobile ? "0 0 140px" : "32px 16px 100px", display: "flex", justifyContent: "center" }}>
+      <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.22,1,0.36,1] }} style={{ width: "100%", maxWidth: mobile ? "100%" : 440 }}>
+        <div style={{ background: "#0a0a0a", borderRadius: mobile ? 0 : 16, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+
   // ── NEW YORK CHAMPIONSHIP ──
   if (layout === "ny_championship") return (
     <NewYorkChampionshipLayout profile={profile} color={color}>{children}</NewYorkChampionshipLayout>
