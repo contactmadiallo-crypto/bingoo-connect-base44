@@ -60,7 +60,19 @@
         "cyberpunk",
         "frosted",
         "paper",
-        "wave"
+        "wave",
+        "glass_3d",
+        "luxury_gold",
+        "executive_corp",
+        "neon_tech",
+        "modern_law",
+        "premium_salon",
+        "realtor_luxury",
+        "animated_gradient",
+        "video_bg",
+        "parallax",
+        "ny_championship",
+        "lions_teranga"
       ],
       "default": "classic"
     },

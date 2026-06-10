@@ -524,6 +524,233 @@ const layouts = [
       </div>
     ),
   },
+  // ── PREMIUM THEMES ────────────────────────────────────────────
+  {
+    id: "glass_3d",
+    name: "3D Glass",
+    desc: "Depth & glass layers",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-1.5 gap-1" style={{ background: `linear-gradient(135deg, ${color}33 0%, ${color}11 50%, #fff8 100%)`, backdropFilter: "blur(10px)" }}>
+        <div className="rounded-lg p-1.5 flex items-center gap-1.5" style={{ background: "rgba(255,255,255,0.55)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.8)" }}>
+          <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: `linear-gradient(135deg, ${color}, ${color}99)`, boxShadow: `0 2px 8px ${color}66` }} />
+          <div className="flex flex-col gap-0.5 flex-1">
+            <div className="w-full h-1.5 rounded" style={{ background: "rgba(0,0,0,0.15)" }} />
+            <div className="w-2/3 h-1 rounded" style={{ background: "rgba(0,0,0,0.08)" }} />
+          </div>
+        </div>
+        <div className="rounded-lg p-1.5 space-y-1 flex-1" style={{ background: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
+          <div className="w-full h-1.5 rounded-full" style={{ background: `${color}44` }} />
+          <div className="w-full h-1.5 rounded-full bg-white/60" />
+          <div className="w-3/4 h-1.5 rounded-full bg-white/40" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "luxury_gold",
+    name: "Luxury Gold",
+    desc: "Premium gold prestige",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg, #1a0a00, #2d1a00, #1a0a00)" }}>
+        <div className="h-0.5" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, #FFD700, #D4AF37, transparent)" }} />
+        <div className="flex flex-col items-center gap-1 p-2">
+          <div className="w-6 h-6 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #FFD700, #B8860B)`, boxShadow: "0 2px 8px rgba(212,175,55,0.5)" }} />
+          <div className="w-10 h-1.5 rounded" style={{ background: "linear-gradient(90deg, #B8860B, #FFD700, #B8860B)" }} />
+          <div className="w-8 h-1 rounded" style={{ background: "rgba(212,175,55,0.4)" }} />
+        </div>
+        <div className="mx-1.5 space-y-1 pb-2 flex-1">
+          <div className="w-full h-2 rounded" style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }} />
+          <div className="w-full h-2 rounded" style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)" }} />
+        </div>
+        <div className="h-0.5 mx-4 mb-1" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, transparent)" }} />
+      </div>
+    ),
+  },
+  {
+    id: "executive_corp",
+    name: "Executive",
+    desc: "C-suite prestige",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-950">
+        <div className="flex items-center gap-1 px-2 py-1.5 border-b" style={{ borderColor: `${color}33` }}>
+          <div className="w-4 h-4 rounded flex-shrink-0 bg-slate-700" />
+          <div className="flex flex-col gap-0.5 flex-1">
+            <div className="w-10 h-1.5 rounded bg-slate-400" />
+            <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.7 }} />
+          </div>
+          <div className="w-1 h-6 rounded" style={{ background: color }} />
+        </div>
+        <div className="flex-1 p-1.5 space-y-1">
+          <div className="w-full h-1.5 rounded bg-slate-800" />
+          <div className="w-4/5 h-1.5 rounded bg-slate-800" />
+          <div className="mt-1 w-full h-2 rounded" style={{ background: `${color}22`, border: `1px solid ${color}44` }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "neon_tech",
+    name: "Neon Tech",
+    desc: "Cybernetic glow",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: "#050510" }}>
+        <div className="flex items-center gap-1.5 pb-1" style={{ borderBottom: `1px solid ${color}44` }}>
+          <div className="w-5 h-5 rounded" style={{ background: `${color}22`, border: `1px solid ${color}`, boxShadow: `0 0 6px ${color}` }} />
+          <div className="flex-1 space-y-0.5">
+            <div className="w-full h-1.5 rounded" style={{ background: `${color}66` }} />
+            <div className="w-2/3 h-1 rounded bg-cyan-900/60" />
+          </div>
+        </div>
+        <div className="space-y-1 flex-1">
+          <div className="w-full h-2 rounded" style={{ border: `1px solid ${color}55`, background: `${color}11` }} />
+          <div className="w-full h-2 rounded border border-cyan-900/50 bg-cyan-950/30" />
+        </div>
+        <div className="w-full h-1.5 rounded" style={{ background: `linear-gradient(90deg, ${color}, #06b6d4)`, opacity: 0.7 }} />
+      </div>
+    ),
+  },
+  {
+    id: "modern_law",
+    name: "Modern Law",
+    desc: "Prestigious legal",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-50 border border-slate-200">
+        <div className="flex items-stretch" style={{ height: "40%" }}>
+          <div className="w-1" style={{ background: color }} />
+          <div className="flex-1 bg-slate-900 flex flex-col justify-center px-2 gap-1">
+            <div className="w-10 h-1.5 bg-white/70 rounded-sm" />
+            <div className="w-7 h-1 rounded-sm" style={{ background: color, opacity: 0.8 }} />
+          </div>
+          <div className="w-8 h-full bg-slate-700 flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full bg-slate-500" />
+          </div>
+        </div>
+        <div className="flex-1 p-1.5 space-y-1">
+          <div className="flex gap-1">
+            <div className="w-1.5 h-1.5 rounded-full mt-0.5 flex-shrink-0" style={{ background: color }} />
+            <div className="flex-1 h-1.5 bg-slate-200 rounded" />
+          </div>
+          <div className="flex gap-1">
+            <div className="w-1.5 h-1.5 rounded-full mt-0.5 flex-shrink-0" style={{ background: color }} />
+            <div className="flex-1 h-1.5 bg-slate-200 rounded" />
+          </div>
+          <div className="w-full h-2 rounded" style={{ background: `${color}22` }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "premium_salon",
+    name: "Premium Salon",
+    desc: "Chic & elegant",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg, #1a0a14, #2d1020)" }}>
+        <div className="h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${color}, #f9a8d4, ${color}, transparent)` }} />
+        <div className="flex flex-col items-center gap-1 pt-2 pb-1">
+          <div className="w-7 h-7 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #f9a8d4, ${color})`, boxShadow: `0 2px 10px ${color}66` }} />
+          <div className="w-10 h-1.5 rounded-full" style={{ background: "rgba(249,168,212,0.6)" }} />
+          <div className="w-7 h-1 rounded-full" style={{ background: `${color}88` }} />
+        </div>
+        <div className="mx-1.5 pb-2 space-y-1">
+          <div className="grid grid-cols-2 gap-1">
+            <div className="h-4 rounded-lg" style={{ background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
+            <div className="h-4 rounded-lg" style={{ background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "realtor_luxury",
+    name: "Realtor",
+    desc: "Property prestige",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white">
+        <div className="relative flex-1" style={{ background: "linear-gradient(160deg, #0f2027, #203a43, #2c5364)" }}>
+          <div className="absolute inset-x-0 bottom-0 h-4" style={{ background: "linear-gradient(to top, white, transparent)" }} />
+          <div className="p-2 flex flex-col justify-between h-full">
+            <div className="text-right">
+              <div className="inline-block w-6 h-1 rounded" style={{ background: color }} />
+            </div>
+            <div>
+              <div className="w-10 h-1.5 bg-white/80 rounded mb-0.5" />
+              <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.8 }} />
+            </div>
+          </div>
+        </div>
+        <div className="p-1.5 space-y-1 bg-white">
+          <div className="w-full h-2 rounded bg-slate-100" />
+          <div className="w-3/4 h-1.5 rounded" style={{ background: `${color}33` }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "animated_gradient",
+    name: "Animated",
+    desc: "Living gradient",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: `conic-gradient(from 0deg at 50% 50%, ${color}, #a855f7, #06b6d4, ${color})`, animation: "spin 4s linear infinite" }}>
+        <div className="flex flex-col items-center gap-1 bg-black/20 rounded-lg p-1.5">
+          <div className="w-6 h-6 rounded-full bg-white/80" />
+          <div className="w-10 h-1.5 bg-white/70 rounded" />
+        </div>
+        <div className="space-y-1 bg-black/15 rounded-lg p-1.5">
+          <div className="w-full h-1.5 bg-white/50 rounded-full" />
+          <div className="w-full h-1.5 bg-white/35 rounded-full" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "video_bg",
+    name: "Video BG",
+    desc: "Dynamic video backdrop",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden relative" style={{ background: "linear-gradient(135deg, #0f0f0f, #1a1a2e)" }}>
+        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%)", backgroundSize: "4px 4px" }} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full border-2 border-white/40 flex items-center justify-center">
+            <div className="w-0 h-0" style={{ borderLeft: "6px solid rgba(255,255,255,0.6)", borderTop: "4px solid transparent", borderBottom: "4px solid transparent", marginLeft: "2px" }} />
+          </div>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 p-1.5" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }}>
+          <div className="w-10 h-1.5 bg-white/70 rounded mb-0.5" />
+          <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.8 }} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "parallax",
+    name: "Parallax",
+    desc: "Depth scroll layers",
+    pro: true,
+    preview: (color) => (
+      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "#0a0a0a" }}>
+        <div className="relative" style={{ height: "45%", background: `linear-gradient(160deg, ${color}33, ${color}11)` }}>
+          <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at 50% 100%, ${color}88 0%, transparent 70%)` }} />
+          <div className="absolute bottom-1 left-0 right-0 flex justify-center">
+            <div className="w-7 h-7 rounded-full border-2 border-white/30" style={{ background: color, boxShadow: `0 4px 16px ${color}66` }} />
+          </div>
+        </div>
+        <div className="flex-1 p-1.5 pt-4 space-y-1">
+          <div className="w-12 h-1.5 bg-white/50 rounded mx-auto" />
+          <div className="w-8 h-1 rounded mx-auto" style={{ background: color, opacity: 0.7 }} />
+          <div className="w-full h-2 rounded mt-1" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${color}44` }} />
+        </div>
+      </div>
+    ),
+  },
   // ── CHAMPIONSHIP PREMIUM LAYOUTS ─────────────────────────────
   {
     id: "ny_championship",

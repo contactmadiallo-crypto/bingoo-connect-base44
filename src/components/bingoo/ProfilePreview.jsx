@@ -253,6 +253,231 @@ export default function ProfilePreview({ profile }) {
     </div>
   );
 
+  if (layout === "glass_3d") return (
+    <div className="min-h-screen p-4" style={{ background: `linear-gradient(135deg, ${color}22 0%, #e0e7ff 50%, #f8fafc 100%)` }}>
+      <div className="rounded-3xl p-5 mb-3 text-center" style={{ background: "rgba(255,255,255,0.65)", backdropFilter: "blur(20px)", boxShadow: "0 8px 32px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.8)" }}>
+        <div className="flex justify-center mb-3">
+          <div style={{ filter: `drop-shadow(0 8px 24px ${color}55)` }}>{avatar}</div>
+        </div>
+        <h1 className="font-black text-slate-900 text-xl">{profile?.display_name || "Your Name"}</h1>
+        {profile?.job_title && <p className="text-sm font-semibold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+        {profile?.bio && <p className="text-slate-600 text-xs mt-2 leading-relaxed">{profile.bio}</p>}
+      </div>
+      <div className="rounded-2xl p-3 space-y-2" style={{ background: "rgba(255,255,255,0.5)", backdropFilter: "blur(12px)", boxShadow: "0 4px 16px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.7)" }}>
+        {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-slate-700 text-xs font-semibold text-center transition-all" style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>{l}</div>)}
+        <div className="w-full py-2.5 rounded-xl text-xs font-semibold text-white text-center" style={{ background: `linear-gradient(135deg, ${color}, ${color}bb)`, boxShadow: `0 4px 16px ${color}44` }}>💾 Save Contact</div>
+      </div>
+    </div>
+  );
+
+  if (layout === "luxury_gold") return (
+    <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #1a0a00, #2d1a00, #1a0a00)" }}>
+      <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, #FFD700, #D4AF37, transparent)" }} />
+      <div className="px-5 py-8 text-center">
+        <div className="flex justify-center mb-4">
+          <div className="w-20 h-20 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #FFD700, #B8860B)`, boxShadow: "0 4px 24px rgba(212,175,55,0.5), inset 0 1px 0 rgba(255,255,255,0.3)" }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-amber-900">{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+        </div>
+        <h1 className="font-black text-amber-100 text-2xl tracking-wide">{profile?.display_name || "Your Name"}</h1>
+        <div className="w-16 h-px mx-auto my-2" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, transparent)" }} />
+        {profile?.job_title && <p className="text-sm font-semibold" style={{ color: "#D4AF37" }}>{profile.job_title}</p>}
+        {profile?.bio && <p className="text-amber-200/60 text-xs mt-3 leading-relaxed">{profile.bio}</p>}
+      </div>
+      <div className="px-5 pb-8 space-y-2">
+        {links.map(l => <div key={l} className="w-full py-3 rounded-lg text-amber-200 text-xs font-semibold text-center" style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)" }}>{l}</div>)}
+        <div className="w-full py-3 rounded-lg text-xs font-black text-black text-center" style={{ background: "linear-gradient(90deg, #B8860B, #FFD700, #B8860B)", boxShadow: "0 4px 16px rgba(212,175,55,0.4)" }}>💾 Save Contact</div>
+      </div>
+      <div className="h-px mx-8" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, transparent)" }} />
+    </div>
+  );
+
+  if (layout === "executive_corp") return (
+    <div className="min-h-screen bg-slate-950">
+      <div className="flex items-stretch" style={{ minHeight: "180px" }}>
+        <div className="w-1.5 flex-shrink-0" style={{ background: color }} />
+        <div className="flex-1 bg-slate-900 flex flex-col justify-center px-5 py-6">
+          <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color }}>{profile?.company_name || "COMPANY"}</p>
+          <h1 className="font-black text-white text-2xl leading-tight">{profile?.display_name || "Your Name"}</h1>
+          {profile?.job_title && <p className="text-slate-400 text-sm mt-1">{profile.job_title}</p>}
+        </div>
+        <div className="w-20 flex-shrink-0 bg-slate-800 flex items-center justify-center">
+          {profile?.profile_photo ? <img src={profile.profile_photo} className="w-16 h-16 rounded-full object-cover" alt="" /> : <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black text-white" style={{ background: `linear-gradient(135deg, ${color}, ${color}88)` }}>{profile?.display_name?.charAt(0) || "?"}</div>}
+        </div>
+      </div>
+      <div className="h-px" style={{ background: `linear-gradient(90deg, ${color}, transparent)` }} />
+      <div className="px-5 py-5 space-y-2">
+        {profile?.bio && <p className="text-slate-400 text-xs leading-relaxed mb-4 border-l-2 pl-3" style={{ borderColor: color }}>{profile.bio}</p>}
+        {links.map(l => <div key={l} className="w-full py-2.5 bg-slate-800/60 border border-slate-700 rounded text-slate-300 text-xs font-semibold text-center">{l}</div>)}
+        <div className="w-full py-2.5 rounded text-xs font-bold text-white text-center" style={{ background: color }}>💾 Save Contact</div>
+      </div>
+    </div>
+  );
+
+  if (layout === "neon_tech") return (
+    <div className="min-h-screen p-4" style={{ background: "#050510" }}>
+      <div className="pb-4 mb-4" style={{ borderBottom: `1px solid ${color}44` }}>
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-16 rounded flex-shrink-0" style={{ background: `${color}22`, border: `1px solid ${color}`, boxShadow: `0 0 20px ${color}55` }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-black" style={{ color }}>{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+          <div>
+            <h1 className="font-black text-white text-lg" style={{ textShadow: `0 0 20px ${color}88` }}>{profile?.display_name || "Your Name"}</h1>
+            {profile?.job_title && <p className="text-xs font-semibold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+            {profile?.company_name && <p className="text-cyan-500/60 text-xs">{profile.company_name}</p>}
+          </div>
+        </div>
+      </div>
+      {profile?.bio && <p className="text-slate-400 text-xs leading-relaxed mb-4" style={{ borderLeft: `2px solid ${color}`, paddingLeft: "12px" }}>{profile.bio}</p>}
+      <div className="space-y-2">
+        {links.map(l => <div key={l} className="w-full py-2.5 rounded text-xs font-semibold text-white text-center" style={{ background: `${color}11`, border: `1px solid ${color}44`, boxShadow: `inset 0 0 8px ${color}11` }}>{l}</div>)}
+        <div className="w-full py-2.5 rounded text-xs font-black text-black text-center" style={{ background: `linear-gradient(90deg, ${color}, #06b6d4)`, boxShadow: `0 0 20px ${color}66` }}>💾 Save Contact</div>
+      </div>
+      <div className="mt-4 flex justify-center gap-1">
+        {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-1 rounded-full" style={{ background: i === 1 ? color : `${color}44` }} />)}
+      </div>
+    </div>
+  );
+
+  if (layout === "modern_law") return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="flex items-stretch bg-slate-900" style={{ minHeight: "160px" }}>
+        <div className="w-1.5 flex-shrink-0" style={{ background: color }} />
+        <div className="flex-1 flex flex-col justify-center px-5 py-6">
+          <h1 className="font-black text-white text-xl leading-tight">{profile?.display_name || "Your Name"}</h1>
+          {profile?.job_title && <p className="text-sm font-semibold mt-1" style={{ color }}>{profile.job_title}</p>}
+          {profile?.company_name && <p className="text-slate-400 text-xs mt-0.5 uppercase tracking-wider">{profile.company_name}</p>}
+        </div>
+        <div className="w-24 bg-slate-800 flex items-center justify-center">
+          {profile?.profile_photo ? <img src={profile.profile_photo} className="w-16 h-16 rounded object-cover" alt="" /> : <div className="w-16 h-16 rounded flex items-center justify-center text-xl font-black text-white" style={{ background: `${color}44` }}>{profile?.display_name?.charAt(0) || "?"}</div>}
+        </div>
+      </div>
+      <div className="px-5 py-5 space-y-2">
+        {profile?.bio && <p className="text-slate-600 text-xs leading-relaxed mb-4">{profile.bio}</p>}
+        {links.map(l => <div key={l} className="w-full py-2.5 bg-white border-l-4 border-slate-200 text-slate-700 text-xs font-semibold pl-3 rounded-r-lg flex items-center gap-2" style={{}}><span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />{l}</div>)}
+        <div className="w-full py-2.5 text-xs font-bold text-white text-center rounded" style={{ background: color }}>💾 Save Contact</div>
+      </div>
+    </div>
+  );
+
+  if (layout === "premium_salon") return (
+    <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #1a0a14, #2d1020, #1a0a14)" }}>
+      <div className="h-px" style={{ background: `linear-gradient(90deg, transparent, #f9a8d4, ${color}, #f9a8d4, transparent)` }} />
+      <div className="px-5 py-8 text-center">
+        <div className="flex justify-center mb-4">
+          <div className="w-20 h-20 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #f9a8d4, ${color})`, boxShadow: `0 4px 24px ${color}66` }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white">{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+        </div>
+        <h1 className="font-black text-pink-100 text-xl tracking-wide">{profile?.display_name || "Your Name"}</h1>
+        {profile?.job_title && <p className="text-sm font-semibold mt-0.5 text-pink-300">{profile.job_title}</p>}
+        {profile?.bio && <p className="text-pink-200/50 text-xs mt-2 leading-relaxed">{profile.bio}</p>}
+      </div>
+      <div className="px-5 pb-8 space-y-2">
+        {links.map(l => <div key={l} className="w-full py-2.5 rounded-2xl text-pink-200 text-xs font-semibold text-center" style={{ background: "rgba(249,168,212,0.1)", border: "1px solid rgba(249,168,212,0.2)" }}>{l}</div>)}
+        <div className="w-full py-2.5 rounded-2xl text-xs font-bold text-white text-center" style={{ background: `linear-gradient(135deg, ${color}, #f9a8d4)`, boxShadow: `0 4px 16px ${color}44` }}>💾 Save Contact</div>
+      </div>
+    </div>
+  );
+
+  if (layout === "realtor_luxury") return (
+    <div className="min-h-screen bg-white">
+      <div className="relative" style={{ height: "200px", background: "linear-gradient(160deg, #0f2027, #203a43, #2c5364)" }}>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/20" />
+        <div className="absolute top-4 right-4">
+          <div className="w-8 h-1 rounded" style={{ background: color }} />
+          <div className="w-5 h-0.5 mt-0.5 rounded ml-auto" style={{ background: `${color}88` }} />
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-white" style={{ borderRadius: "24px 24px 0 0" }} />
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <div className="w-16 h-16 rounded-full border-4 border-white" style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.2)" }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full rounded-full flex items-center justify-center text-xl font-black text-white" style={{ background: `linear-gradient(135deg, ${color}, #2c5364)` }}>{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+        </div>
+      </div>
+      <div className="px-5 pt-2 pb-6 text-center">
+        <h1 className="font-black text-slate-900 text-xl">{profile?.display_name || "Your Name"}</h1>
+        {profile?.job_title && <p className="text-sm font-semibold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+        {profile?.company_name && <p className="text-slate-400 text-xs mt-0.5 uppercase tracking-wider">{profile.company_name}</p>}
+        {profile?.bio && <p className="text-slate-500 text-xs mt-3 leading-relaxed">{profile.bio}</p>}
+        <div className="mt-4 space-y-2">
+          {links.map(l => <div key={l} className="w-full py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 text-xs font-semibold">{l}</div>)}
+          <div className="w-full py-2.5 rounded-lg text-xs font-bold text-white text-center" style={{ background: `linear-gradient(135deg, ${color}, #2c5364)` }}>💾 Save Contact</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (layout === "animated_gradient") return (
+    <div className="min-h-screen p-4 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}, #a855f7, #06b6d4, ${color})`, backgroundSize: "300% 300%", animation: "gradientShift 6s ease infinite" }}>
+      <style>{`@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }`}</style>
+      <div className="text-center py-4 relative z-10">
+        <div className="flex justify-center mb-3">
+          <div className="w-20 h-20 rounded-full border-4 border-white/40" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.2)" }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full rounded-full flex items-center justify-center text-2xl font-black text-white bg-white/20">{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+        </div>
+        <h1 className="font-black text-white text-2xl drop-shadow-lg">{profile?.display_name || "Your Name"}</h1>
+        {profile?.job_title && <p className="text-white/80 text-sm font-semibold mt-0.5">{profile.job_title}</p>}
+        {profile?.bio && <p className="text-white/70 text-xs mt-2 leading-relaxed">{profile.bio}</p>}
+      </div>
+      <div className="rounded-2xl p-3 space-y-2 relative z-10" style={{ background: "rgba(0,0,0,0.2)", backdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.2)" }}>
+        {links.map(l => <div key={l} className="w-full py-2.5 bg-white/20 rounded-xl text-white text-xs font-semibold text-center">{l}</div>)}
+        <div className="w-full py-2.5 bg-white rounded-xl text-xs font-bold text-slate-800 text-center">💾 Save Contact</div>
+      </div>
+    </div>
+  );
+
+  if (layout === "video_bg") return (
+    <div className="min-h-screen relative" style={{ background: "linear-gradient(135deg, #0f0f0f, #1a1a2e)" }}>
+      <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%)", backgroundSize: "8px 8px" }} />
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+        <div className="w-16 h-16 rounded-full border-2 border-white/30 flex items-center justify-center mb-4 cursor-pointer" style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(4px)" }}>
+          <div className="w-0 h-0 ml-1" style={{ borderLeft: `16px solid rgba(255,255,255,0.8)`, borderTop: "10px solid transparent", borderBottom: "10px solid transparent" }} />
+        </div>
+        <p className="text-white/50 text-xs">Video Background</p>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 p-5 z-20" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent)" }}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-12 h-12 rounded-full flex-shrink-0" style={{ background: color }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-lg font-black text-white">{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+          <div>
+            <h1 className="font-black text-white text-base">{profile?.display_name || "Your Name"}</h1>
+            {profile?.job_title && <p className="text-white/60 text-xs">{profile.job_title}</p>}
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          {links.slice(0,3).map(l => <div key={l} className="w-full py-2 rounded-lg text-white text-xs font-semibold text-center" style={{ background: `${color}44`, border: `1px solid ${color}66` }}>{l}</div>)}
+          <div className="w-full py-2 rounded-lg text-xs font-bold text-white text-center" style={{ background: color }}>💾 Save Contact</div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (layout === "parallax") return (
+    <div className="min-h-screen overflow-hidden" style={{ background: "#0a0a0a" }}>
+      <div className="relative overflow-hidden" style={{ height: "220px" }}>
+        <div className="absolute inset-0" style={{ background: `linear-gradient(160deg, ${color}44, ${color}11)`, transform: "scale(1.1)" }} />
+        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at 50% 100%, ${color}66 0%, transparent 70%)` }} />
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-6">
+          <div className="w-20 h-20 rounded-full border-4 border-white/20" style={{ background: color, boxShadow: `0 8px 32px ${color}66` }}>
+            {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white">{profile?.display_name?.charAt(0) || "?"}</div>}
+          </div>
+        </div>
+      </div>
+      <div className="px-5 py-5 text-center">
+        <h1 className="font-black text-white text-xl">{profile?.display_name || "Your Name"}</h1>
+        {profile?.job_title && <p className="text-sm font-semibold mt-0.5" style={{ color }}>{profile.job_title}</p>}
+        {profile?.bio && <p className="text-white/50 text-xs mt-2 leading-relaxed">{profile.bio}</p>}
+        <div className="mt-5 space-y-2">
+          {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-white text-xs font-semibold text-center" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${color}44` }}>{l}</div>)}
+          <div className="w-full py-2.5 rounded-xl text-xs font-bold text-white text-center" style={{ background: `linear-gradient(135deg, ${color}, ${color}88)`, boxShadow: `0 4px 20px ${color}44` }}>💾 Save Contact</div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (layout === "glassmorphic") return (
     <div className="min-h-screen p-4" style={{ background: `linear-gradient(135deg, ${color}44, #e0e7ff)` }}>
       <div className="bg-white/40 backdrop-blur-xl rounded-3xl p-5 text-center border border-white/60 shadow-xl">
