@@ -272,10 +272,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   );
 
   return (
-    <div className="relative">
-      <LivePreviewPanel form={form} profile={profile} />
+    <div className="flex gap-8 items-start">
       {/* Form */}
-      <div className="space-y-6">
+      <div className="flex-1 space-y-6 min-w-0">
 
         {/* Photos */}
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
@@ -678,6 +677,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
           )}
         </div>
       </div>
+
+      {/* Live Preview Panel — scrolls with page, sticks in viewport */}
+      <LivePreviewPanel form={form} profile={profile} />
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function LivePreviewPanel({ form, profile }) {
 
   return (
     <div
-      className="hidden lg:block fixed right-6 top-20 z-40"
+      className="hidden lg:block sticky top-6 z-40 self-start"
       style={{ width: "260px" }}
     >
       {/* Header bar */}
