@@ -115,19 +115,16 @@ export const AuthProvider = ({ children }) => {
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
-    
+    // Always use the SDK logout for token cleanup, then redirect to our own login
+    base44.auth.logout();
     if (shouldRedirect) {
-      // Use the SDK's logout method which handles token cleanup and redirect
-      base44.auth.logout(window.location.href);
-    } else {
-      // Just remove the token without redirect
-      base44.auth.logout();
+      window.location.href = "/login";
     }
   };
 
   const navigateToLogin = () => {
-    // Redirect back to the current page after login
-    base44.auth.redirectToLogin(window.location.href);
+    // Redirect to Bingoo's own login page with ?next= so user returns to current page
+    window.location.href = `/login?next=${encodeURIComponent(window.location.href)}`;
   };
 
   return (

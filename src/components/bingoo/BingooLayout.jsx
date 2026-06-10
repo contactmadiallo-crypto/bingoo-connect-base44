@@ -127,7 +127,7 @@ export default function BingooLayout({ children }) {
             <p className="text-sm font-bold truncate text-white">{user?.full_name}</p>
             <p className="text-xs truncate text-white/40">{user?.email}</p>
           </div>
-          <button onClick={() => base44.auth.logout()} title="Logout"
+          <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }} title="Logout"
             className="p-2 rounded-lg transition-colors hover:bg-white/10">
             <LogOut className="w-4 h-4 text-red-400" />
           </button>
@@ -197,7 +197,7 @@ export default function BingooLayout({ children }) {
         {bottomTabs.map((item) => {
           if (item.href === "logout") {
             return (
-              <button key="logout" onClick={() => base44.auth.logout()}
+              <button key="logout" onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(239,68,68,0.1)" }}>
                   <item.icon className="w-5 h-5" style={{ color: item.color }} />
