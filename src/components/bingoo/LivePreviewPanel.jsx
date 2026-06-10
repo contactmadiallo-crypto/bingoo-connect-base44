@@ -8,11 +8,9 @@ export default function LivePreviewPanel({ form, profile }) {
   const [visible, setVisible] = useState(true);
   const screenRef = useRef(null);
 
-  // Build a merged preview object: saved profile data overridden by live form values
   const previewProfile = { ...(profile || {}), ...form };
   const profileUrl = profile?.username ? `/p/${profile.username}` : null;
 
-  // Scroll the preview screen to top whenever layout changes
   useEffect(() => {
     if (screenRef.current) screenRef.current.scrollTop = 0;
   }, [form.layout]);
@@ -21,7 +19,7 @@ export default function LivePreviewPanel({ form, profile }) {
     return (
       <button
         onClick={() => setVisible(true)}
-        className="hidden lg:flex fixed right-6 bottom-24 z-40 items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-full shadow-2xl text-sm font-bold hover:bg-slate-700 transition-colors"
+        className="hidden lg:flex fixed right-6 bottom-24 z-50 items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-full shadow-2xl text-sm font-bold hover:bg-slate-700 transition-colors"
       >
         <Smartphone className="w-4 h-4 text-[#E8671A]" />
         Show Preview
@@ -31,8 +29,8 @@ export default function LivePreviewPanel({ form, profile }) {
 
   return (
     <div
-      className="hidden lg:block sticky top-6 z-40 self-start"
-      style={{ width: "260px" }}
+      className="hidden lg:block fixed z-50"
+      style={{ right: "24px", top: "80px", width: "260px" }}
     >
       {/* Header bar */}
       <div className="flex items-center justify-between mb-2 px-1">
