@@ -71,7 +71,7 @@ function LayoutCard({ layout, isActive, color, saving, isDark, headText, subText
   );
 }
 
-export default function DesignTab({ profile, user }) {
+export default function DesignTab({ profile, user, onSaved }) {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(null);
@@ -125,7 +125,8 @@ export default function DesignTab({ profile, user }) {
     queryClient.invalidateQueries({ queryKey: ["current-user"] });
     setPendingChanges({});
     setSaving(null);
-    toast.success("Design saved! Open your profile link to see it live.");
+    toast.success("Design saved!");
+    onSaved?.();
   };
 
   const handleCoverPhotoUpload = async (e) => {

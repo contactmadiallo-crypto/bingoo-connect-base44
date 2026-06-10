@@ -148,16 +148,17 @@ export default function BingooDashboard() {
     return () => { unsubLeads(); unsubAppts(); unsubAnalytics(); };
   }, [profile?.id]);
 
-  const profileUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : null;
+  const profileUrl = profile ? `/p/${profile.username}` : null;
 
   const copyLink = () => {
-    navigator.clipboard.writeText(profileUrl);
+    navigator.clipboard.writeText(profileAbsoluteUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const qrUrl = profileUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileUrl)}&color=ffffff&bgcolor=1e293b`
+  const profileAbsoluteUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
+  const qrUrl = profileAbsoluteUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileAbsoluteUrl)}&color=ffffff&bgcolor=1e293b`
     : null;
 
   // Language toggle (persisted in localStorage)
@@ -357,6 +358,7 @@ export default function BingooDashboard() {
                         <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
                     </a>
+
                     <Link to="/account-settings">
                       <Button size="sm" variant="ghost" className="rounded-full gap-1.5 text-xs font-bold text-white/50 hover:text-white hover:bg-white/10">
                         <Shield className="w-3.5 h-3.5" />
@@ -535,6 +537,7 @@ export default function BingooDashboard() {
                           <Eye className="w-3.5 h-3.5" /> {tr.viewLive}
                         </Button>
                       </a>
+
                       <Button size="sm" onClick={() => setTab("profile")}
                         className={`rounded-xl gap-1.5 font-bold text-xs ${isDark ? "bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-900/40" : "bg-slate-800 hover:bg-slate-700 text-white shadow-md"}`}>
                         <Settings className="w-3.5 h-3.5" /> {tr.edit}
@@ -565,7 +568,7 @@ export default function BingooDashboard() {
                 {qrUrl ? (
                   <div className="text-center px-4 pb-4">
                     <div className={`rounded-2xl p-3 inline-block ${isDark ? "bg-slate-800/70" : "bg-slate-100"}`}>
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`}
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileAbsoluteUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`}
                         alt="QR Code" className="w-36 h-36 mx-auto rounded-lg" />
                     </div>
                     <p className={`text-xs mt-2.5 ${mutedText}`}>{tr.scanQr}</p>
