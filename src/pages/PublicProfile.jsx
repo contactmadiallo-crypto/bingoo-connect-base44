@@ -225,7 +225,9 @@ export default function PublicProfile() {
     queryKey: ["public-profile", username],
     queryFn: async () => {
       if (isDemo) return [DEMO_PROFILE];
+      console.log(`[PublicProfile] fetching username="${username}" url=${window.location.href}`);
       const res = await base44.functions.invoke("getPublicProfile", { username });
+      console.log(`[PublicProfile] getPublicProfile result:`, res.data);
       return res.data?.profile ? [res.data.profile] : [];
     },
     staleTime: 0,
