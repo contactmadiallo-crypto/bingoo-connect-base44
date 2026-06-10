@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
-import LivePreviewPanel from "./LivePreviewPanel";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
 
@@ -273,7 +272,6 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
   return (
     <div>
-      <LivePreviewPanel form={form} profile={profile} />
       {/* Form */}
       <div className="space-y-6">
 
