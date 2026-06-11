@@ -601,9 +601,6 @@ export default function BingooDashboard() {
               </div>
             )}
 
-            {/* ── Quick Access Modules ── */}
-            {profile && <QuickAccessGrid setTab={setTab} isLawFirm={isLawFirm} hasTeam={hasTeam} isSalon={isSalon} isDark={isDark} mutedText={mutedText} />}
-
             {/* Push Notifications */}
             {profile && (
               <div className={`rounded-2xl p-4 flex items-center justify-between gap-4 ${isDark ? "bg-white/5" : "bg-white"}`}

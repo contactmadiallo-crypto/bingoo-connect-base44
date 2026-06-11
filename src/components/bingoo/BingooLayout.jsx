@@ -1,20 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Briefcase, Sun, Moon, Home } from "lucide-react";
+import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Briefcase, Sun, Moon, Home, Link2 } from "lucide-react";
 import { useState } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
 const navItems = [
-  { label: "Home",         icon: Home,            href: "/",                        color: "from-slate-500 to-slate-600" },
-  { label: "Dashboard",    icon: LayoutDashboard, href: "/bingoo",                  color: "from-blue-500 to-blue-600" },
-  { label: "My Profile",   icon: User,            href: "/bingoo?tab=profile",      color: "from-violet-500 to-violet-600" },
-  { label: "Appointments", icon: CalendarDays,    href: "/bingoo?tab=appointments", color: "from-emerald-500 to-emerald-600" },
-  { label: "Leads",        icon: Star,            href: "/bingoo?tab=leads",        color: "from-amber-500 to-amber-600" },
-  { label: "My NFC Devices", icon: Smartphone,    href: "/my-nfc-devices",          color: "from-cyan-500 to-cyan-600" },
-  { label: "Analytics",    icon: BarChart3,       href: "/bingoo?tab=analytics",    color: "from-pink-500 to-pink-600" },
-  { label: "Portfolio",    icon: Briefcase,       href: "/bingoo?tab=portfolio",    color: "from-violet-500 to-violet-600" },
-  { label: "Billing",      icon: CreditCard,      href: "/billing",                 color: "from-orange-500 to-orange-600" },
+  { label: "Home",           icon: Home,            href: "/",                        iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
+  { label: "Dashboard",      icon: LayoutDashboard, href: "/bingoo",                  iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)"  },
+  { label: "My Profile",     icon: User,            href: "/bingoo?tab=profile",      iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
+  { label: "Appointments",   icon: CalendarDays,    href: "/bingoo?tab=appointments", iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)"  },
+  { label: "Leads",          icon: Star,            href: "/bingoo?tab=leads",        iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)"  },
+  { label: "My NFC Devices", icon: Smartphone,      href: "/my-nfc-devices",          iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)"  },
+  { label: "Analytics",      icon: BarChart3,       href: "/bingoo?tab=analytics",    iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)"   },
+  { label: "Connections",    icon: Link2,           href: "/bingoo?tab=connections",  iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)"   },
+  { label: "Portfolio",      icon: Briefcase,       href: "/bingoo?tab=portfolio",    iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
+  { label: "Billing",        icon: CreditCard,      href: "/billing",                 iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)"   },
 ];
 
 // Bottom tab bar items (most used)
@@ -69,14 +70,18 @@ export default function BingooLayout({ children }) {
     const active = isActive(item.href);
     return (
       <Link to={item.href} onClick={onNav}
-        className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${active ? "text-white" : t.inactiveLink}`}
-        style={active ? { background: t.activeLink, borderLeft: `3px solid ${t.activeBorder}` } : {}}>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all`}
-          style={active ? { background: "#FF7A00", boxShadow: "0 4px 12px rgba(255,122,0,0.35)" } : { background: "rgba(255,255,255,0.08)" }}>
-          <item.icon className={`w-4 h-4 ${active ? "text-white" : "text-white/50"}`} />
+        className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+        style={{
+          background: active ? "rgba(255,255,255,0.10)" : "transparent",
+          border: active ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
+        }}>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+          style={{ background: active ? item.iconBg.replace("0.18", "0.32") : item.iconBg }}>
+          <item.icon className="w-4 h-4" style={{ color: item.iconColor }} />
         </div>
-        {item.label}
-        {active && <span className="ml-auto w-2 h-2 rounded-full" style={{ background: "#FF7A00" }} />}
+        <span style={{ color: active ? "#fff" : "rgba(255,255,255,0.60)" }}
+          className="group-hover:text-white transition-colors">{item.label}</span>
+        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.iconColor }} />}
       </Link>
     );
   };
@@ -98,17 +103,18 @@ export default function BingooLayout({ children }) {
         {navItems.map(item => <NavLink key={item.label} item={item} onNav={onNav} />)}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
-              location.pathname === "/admin"
-                ? "text-white"
-                : "text-white/50 hover:text-white hover:bg-white/8"
-            }`}
-            style={location.pathname === "/admin" ? { background: "rgba(255,122,0,0.18)", borderLeft: "3px solid #FF7A00" } : {}}>
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={location.pathname === "/admin" ? { background: "#FF7A00", boxShadow: "0 4px 12px rgba(255,122,0,0.35)" } : { background: "rgba(255,255,255,0.08)" }}>
-              <Shield className={`w-4 h-4 ${location.pathname === "/admin" ? "text-white" : "text-white/50"}`} />
+            className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
+            style={{
+              background: location.pathname === "/admin" ? "rgba(255,255,255,0.10)" : "transparent",
+              border: location.pathname === "/admin" ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
+            }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: location.pathname === "/admin" ? "rgba(239,68,68,0.32)" : "rgba(239,68,68,0.18)" }}>
+              <Shield className="w-4 h-4" style={{ color: "#ef4444" }} />
             </div>
-            Admin Panel
+            <span style={{ color: location.pathname === "/admin" ? "#fff" : "rgba(255,255,255,0.60)" }}
+              className="group-hover:text-white transition-colors">Admin Panel</span>
+            {location.pathname === "/admin" && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 bg-red-400" />}
           </Link>
         )}
       </nav>
