@@ -7,7 +7,7 @@ import { Eye, Check, Upload, Palette, CheckCircle, Lock, Sparkles } from "lucide
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import ProfilePreview from "./ProfilePreview";
+import LivePreviewPanel from "./LivePreviewPanel";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -155,29 +155,19 @@ export default function DesignTab({ profile, user, onSaved }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 min-w-0">
-          <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>
-          <p className={`text-sm mt-1 ${subText}`}>
-            Choose a layout for <span className="font-bold">/p/{profile.username}</span>. Select a layout to preview it live.
-          </p>
-        </div>
-        {/* Live Preview Panel — sticky so it scrolls with the page */}
-        <div className="lg:w-64 flex-shrink-0">
-          <div className={`sticky top-4 rounded-2xl overflow-hidden border ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
-            <div className={`px-4 py-2.5 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}>Live Preview</p>
-              {hasChanges && (
-                <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">Unsaved</span>
-              )}
-            </div>
-            <div className="relative overflow-hidden" style={{ height: "520px" }}>
-              <div style={{ width: "375px", transformOrigin: "top left", transform: "scale(0.68)", pointerEvents: "none" }}>
-                <ProfilePreview profile={previewProfile} />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Sticky draggable live preview — desktop fixed panel + mobile FAB */}
+      <LivePreviewPanel
+        profile={profile}
+        pendingProfile={previewProfile}
+        hasChanges={hasChanges}
+        isDark={isDark}
+      />
+
+      <div>
+        <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>
+        <p className={`text-sm mt-1 ${subText}`}>
+          Choose a layout for <span className="font-bold">/p/{profile.username}</span>. Changes preview instantly on the right →
+        </p>
       </div>
 
       {/* ── Standard Layouts ── */}
