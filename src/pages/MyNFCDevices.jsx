@@ -183,7 +183,12 @@ export default function MyNFCDevices() {
               </div>
               <div>
                 <h1 className={`text-2xl font-black ${headText}`}>My NFC Devices</h1>
-                <p className={`text-sm mt-0.5 ${mutedText}`}>Manage your Bingoo NFC cards, keychains, and more</p>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className={`text-sm font-bold ${myDevices.filter(d => d.activation_status === "active").length > 0 ? "text-emerald-500" : mutedText}`}>
+                    {myDevices.filter(d => d.activation_status === "active").length} Active {myDevices.filter(d => d.activation_status === "active").length === 1 ? "Device" : "Devices"}
+                  </span>
+                  {myDevices.length > 0 && <span className={`text-xs ${mutedText}`}>· {myDevices.length} total</span>}
+                </div>
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0">
@@ -192,7 +197,7 @@ export default function MyNFCDevices() {
                 variant="outline"
                 className={`font-bold gap-2 ${isDark ? "bg-white/10 border-white/30 text-white hover:bg-white/20" : "bg-white border-slate-300 text-slate-700 hover:bg-slate-50"}`}
               >
-                🔑 Activate Code
+                🔑 Activate New Device
               </Button>
               <Button
                 onClick={() => { setShowAdd(v => !v); setShowActivate(false); }}
@@ -216,26 +221,31 @@ export default function MyNFCDevices() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className={`font-black text-lg ${headText}`}>Activate Device by Code</h2>
-                  <p className={`text-xs mt-0.5 ${mutedText}`}>Enter the code printed on your Bingoo device (e.g. BG-10001)</p>
+                  <h2 className={`font-black text-lg ${headText}`}>Activate New Device</h2>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>Enter the activation code printed on your NFC card, keychain, or bracelet.</p>
                 </div>
                 <button onClick={() => setShowActivate(false)} className={`${mutedText} hover:text-red-400 transition-colors`}>
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="flex gap-3">
-                <input
-                  className={`${inputCls} flex-1`}
-                  placeholder="e.g. BG-10001"
-                  value={activateCode}
-                  onChange={e => setActivateCode(e.target.value.toUpperCase())}
-                  onKeyDown={e => e.key === "Enter" && handleActivateCode()}
-                />
-                <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
-                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6">
-                  {activating ? "Checking…" : "Activate"}
-                </Button>
+              {/* Helper tip */}
+              <div className={`flex items-start gap-2.5 p-3 rounded-xl text-xs font-medium ${isDark ? "bg-blue-500/10 border border-blue-500/20 text-blue-300" : "bg-blue-50 border border-blue-100 text-blue-700"}`}>
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Need a code? Scan the QR code or use the activation code included with your NFC card, keychain, or bracelet.</span>
               </div>
+              <div className="flex gap-3">
+                 <input
+                   className={`${inputCls} flex-1`}
+                   placeholder="e.g. BG-10001"
+                   value={activateCode}
+                   onChange={e => setActivateCode(e.target.value.toUpperCase())}
+                   onKeyDown={e => e.key === "Enter" && handleActivateCode()}
+                 />
+                 <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
+                   className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6">
+                   {activating ? "Checking…" : "Activate"}
+                 </Button>
+               </div>
               {activateMsg && (
                 <div className={`flex items-start gap-3 p-4 rounded-xl ${activateMsg.type === "success" ? "bg-emerald-50 border border-emerald-200" : activateMsg.type === "error" ? "bg-red-50 border border-red-200" : "bg-blue-50 border border-blue-200"}`}>
                   {activateMsg.type === "success" ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : activateMsg.type === "error" ? <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /> : <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />}
@@ -329,7 +339,7 @@ export default function MyNFCDevices() {
           <div className="rounded-2xl p-12 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
             <Smartphone className={`w-16 h-16 mx-auto mb-4 ${isDark ? "text-white/10" : "text-slate-200"}`} />
             <p className={`font-bold text-base ${headText}`}>No devices yet</p>
-            <p className={`text-sm mt-1 ${mutedText}`}>Click "Add Device" to create your first NFC device</p>
+            <p className={`text-sm mt-1 mb-4 ${mutedText}`}>Tap <strong>"Activate New Device"</strong> to link an existing NFC card using the code printed on it, or click <strong>"New Device"</strong> to create one digitally.</p>
           </div>
         ) : (
           <div className="space-y-4">

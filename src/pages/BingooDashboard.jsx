@@ -616,6 +616,32 @@ export default function BingooDashboard() {
               </div>
             )}
 
+            {/* ── Quick Access Modules (color-coded) ── */}
+            {profile && (
+              <div>
+                <p className={`text-xs font-black uppercase tracking-widest mb-3 ${mutedText}`}>Quick Access</p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                  {[
+                    { id: "profile",       label: "Edit Profile",    emoji: "✏️", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)" },
+                    { id: "design",        label: "Design",          emoji: "🎨", color: "#f97316", bg: "rgba(249,115,22,0.08)" },
+                    { id: "services",      label: isLawFirm ? "Practice Areas" : "Services", emoji: isLawFirm ? "⚖️" : "✂️", color: isLawFirm ? "#6366f1" : "#10b981", bg: isLawFirm ? "rgba(99,102,241,0.08)" : "rgba(16,185,129,0.08)" },
+                    { id: "team",          label: isLawFirm ? "Attorneys" : "Team",          emoji: isLawFirm ? "👨‍⚖️" : "👥", color: "#0d9488", bg: "rgba(13,148,136,0.08)", hidden: !hasTeam },
+                    { id: "offices",       label: "Locations",       emoji: "📍", color: "#ef4444", bg: "rgba(239,68,68,0.08)", hidden: !isLawFirm },
+                    { id: "analytics",     label: "Analytics",       emoji: "📊", color: "#d97706", bg: "rgba(217,119,6,0.08)" },
+                    { id: "connections",   label: "Connections",     emoji: "🔗", color: "#e11d48", bg: "rgba(225,29,72,0.08)" },
+                    { id: "portfolio",     label: "Portfolio",       emoji: "💼", color: "#8b5cf6", bg: "rgba(139,92,246,0.08)", hidden: isLawFirm || isSalon },
+                  ].filter(m => !m.hidden).map(m => (
+                    <button key={m.id} onClick={() => setTab(m.id)}
+                      className="flex flex-col items-center gap-1.5 p-3 rounded-2xl text-center transition-all hover:scale-[1.03] active:scale-[0.97]"
+                      style={{ background: m.bg, border: `1px solid ${m.color}22` }}>
+                      <span className="text-xl">{m.emoji}</span>
+                      <span className="text-[10px] font-black leading-tight" style={{ color: m.color }}>{m.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Push Notifications */}
             {profile && (
               <div className={`rounded-2xl p-4 flex items-center justify-between gap-4 ${isDark ? "bg-white/5" : "bg-white"}`}
@@ -672,13 +698,15 @@ export default function BingooDashboard() {
         </div>
       </div>
 
-      {/* ── Global Live Preview Panel ── shown on all profile-building tabs */}
-      {profile && ["profile", "team", "services", "legal_services", "offices", "portfolio"].includes(tab) && (
+      {/* ── Global Live Preview Panel ── section-specific per tab ── */}
+      {profile && ["profile", "team", "services", "legal_services", "offices"].includes(tab) && (
         <LivePreviewPanel
           profile={profile}
           pendingProfile={liveFormOverride ? { ...profile, ...liveFormOverride } : profile}
           hasChanges={tab === "profile" && !!liveFormOverride}
           isDark={isDark}
+          previewMode={tab}
+          isLawFirm={isLawFirm}
         />
       )}
 

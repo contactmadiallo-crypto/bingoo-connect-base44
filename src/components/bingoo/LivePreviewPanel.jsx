@@ -7,15 +7,38 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import ProfilePreview from "./ProfilePreview";
+import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
 import { Link } from "react-router-dom";
 
 const PANEL_WIDTH = 272;
 const PANEL_HEIGHT = 580;
 const PHONE_CONTENT_HEIGHT = 500;
 
-export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, isDark }) {
+// Map tab → preview label
+const PREVIEW_LABELS = {
+  profile: "Header Preview",
+  design: "Design Preview",
+  team: "Team Section",
+  services: "Services Section",
+  legal_services: "Practice Areas",
+  offices: "Locations Section",
+};
+
+function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
+  if (previewMode === "profile") return <ProfileHeaderPreview profile={previewProfile} />;
+  if (previewMode === "design") return <DesignPreview profile={previewProfile} />;
+  if (previewMode === "team") return <TeamPreview profileId={previewProfile?.id} isDark={isDark} />;
+  if (previewMode === "services") return <ServicesPreview profileId={previewProfile?.id} isDark={isDark} isLawFirm={isLawFirm} />;
+  if (previewMode === "legal_services") return <PracticeAreasPreview profileId={previewProfile?.id} isDark={isDark} />;
+  if (previewMode === "offices") return <OfficeLocationsPreview profileId={previewProfile?.id} isDark={isDark} />;
+  // fallback: full profile
+  return <ProfilePreview profile={previewProfile} />;
+}
+
+export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, isDark, previewMode, isLawFirm }) {
   const previewProfile = pendingProfile || profile;
   const profileUrl = profile?.username ? `/p/${profile.username}` : null;
+  const label = PREVIEW_LABELS[previewMode] || "Live Preview";
 
   // Desktop: draggable panel state
   const [pos, setPos] = useState({ x: null, y: null }); // null = default positioning via CSS
@@ -114,7 +137,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
             <GripVertical size={14} color={mutedText} />
             <Smartphone size={13} color={mutedText} />
             <span style={{ fontSize: 11, fontWeight: 800, color: mutedText, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-              Live Preview
+              {label}
             </span>
             {hasChanges && (
               <span style={{ fontSize: 9, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.15)", padding: "2px 7px", borderRadius: 999 }}>
@@ -184,7 +207,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                   >
                     {/* Scale down the 375px-wide profile to fit 220px screen */}
                     <div style={{ width: 375, transform: "scale(0.587)", transformOrigin: "top left", height: Math.round(PHONE_CONTENT_HEIGHT / 0.587) }}>
-                      <ProfilePreview profile={previewProfile} />
+                       <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                     </div>
                   </div>
 
@@ -248,7 +271,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
               <Smartphone size={16} color="rgba(255,255,255,0.7)" />
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>Live Preview</span>
+              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
               {hasChanges && <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.2)", padding: "2px 8px", borderRadius: 999 }}>UNSAVED</span>}
             </div>
 
@@ -270,7 +293,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
               </div>
               <div style={{ borderRadius: 26, height: 560, overflowY: "auto", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
                 <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(560 / 0.747) }}>
-                  <ProfilePreview profile={previewProfile} />
+                  <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
               <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>

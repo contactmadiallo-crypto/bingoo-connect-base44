@@ -18,12 +18,13 @@ const navItems = [
 ];
 
 // Bottom tab bar items (most used)
+// "Profile" navigates to the Overview dashboard (which then lets users go to Edit Profile)
 const bottomTabs = [
-  { label: "Home",     icon: Home,          href: "/bingoo",             color: "#3b82f6" },
-  { label: "Profile",  icon: User,          href: "/bingoo?tab=profile", color: "#8b5cf6" },
-  { label: "NFC",      icon: Smartphone,    href: "/my-nfc-devices",     color: "#06b6d4" },
-  { label: "More",     icon: Menu,          href: null,                  color: "#64748b" },
-  { label: "Logout",   icon: LogOut,        href: "logout",              color: "#ef4444" },
+  { label: "Home",     icon: Home,          href: "/bingoo",         color: "#3b82f6" },
+  { label: "Profile",  icon: User,          href: "/bingoo",         color: "#8b5cf6" },
+  { label: "NFC",      icon: Smartphone,    href: "/my-nfc-devices", color: "#06b6d4" },
+  { label: "More",     icon: Menu,          href: null,              color: "#64748b" },
+  { label: "Logout",   icon: LogOut,        href: "logout",          color: "#ef4444" },
 ];
 
 export default function BingooLayout({ children }) {

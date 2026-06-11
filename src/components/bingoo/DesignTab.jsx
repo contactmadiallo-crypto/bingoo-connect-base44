@@ -161,6 +161,7 @@ export default function DesignTab({ profile, user, onSaved }) {
         pendingProfile={previewProfile}
         hasChanges={hasChanges}
         isDark={isDark}
+        previewMode="design"
       />
 
       <div>
