@@ -47,6 +47,7 @@ import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import AccountSettings from '@/pages/AccountSettings';
+import MySavedProfiles from '@/pages/MySavedProfiles';
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
@@ -117,6 +118,7 @@ const AuthenticatedApp = () => {
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/saved-profiles" element={<MySavedProfiles />} />
         <Route path="/pricing" element={<Pricing />} />
 
         {/* ── FOODHUB (original project) ── */}

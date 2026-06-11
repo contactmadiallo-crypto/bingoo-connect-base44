@@ -1,0 +1,59 @@
+{
+  "name": "FavoriteProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID of the user who saved this profile"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "ID of the saved profile"
+    },
+    "profile_username": {
+      "type": "string"
+    },
+    "profile_display_name": {
+      "type": "string"
+    },
+    "profile_job_title": {
+      "type": "string"
+    },
+    "profile_company": {
+      "type": "string"
+    },
+    "profile_photo": {
+      "type": "string"
+    },
+    "profile_cover_color": {
+      "type": "string"
+    },
+    "profile_phone": {
+      "type": "string"
+    },
+    "profile_email": {
+      "type": "string"
+    },
+    "profile_whatsapp": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "profile_id"
+  ],
+  "rls": {
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

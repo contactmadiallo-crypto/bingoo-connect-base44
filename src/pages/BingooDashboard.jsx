@@ -16,6 +16,7 @@ import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
 import ResumePanel from "@/components/bingoo/ResumePanel";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
+import SavedProfilesPanel from "@/components/bingoo/SavedProfilesPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
@@ -30,7 +31,7 @@ import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2 } from "lucide-react";
+import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2, Heart } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -49,6 +50,7 @@ const TABS_CONFIG = [
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
   { id: "lost_mode",    labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
   { id: "hours",        labelKey: "hours",         icon: Clock,        color: "#0891b2" },
+  { id: "saved",        labelKey: "saved",         icon: Heart,        color: "#ef4444" },
 ];
 
 export default function BingooDashboard() {
@@ -179,7 +181,7 @@ export default function BingooDashboard() {
       overview: "Overview", editProfile: "Edit Profile", appointments: "Appointments",
       calendar: "Calendar", leads: "Leads", myDevices: "My Devices", analytics: "Analytics",
       portfolio: "Portfolio", design: "Design", bookingSetup: "Booking Setup",
-      resumes: "Resumes", connections: "Connections",
+      resumes: "Resumes", connections: "Connections", saved: "Saved",
       profileViews: "Profile Views", linkClicks: "Link Clicks", leadsCaptured: "Leads Captured",
       yourProfile: "Your Profile", style: "Style", viewLive: "View Live", edit: "Edit",
       noProfile: "No profile yet", createCard: "Create your digital card to get started.",
@@ -200,7 +202,7 @@ export default function BingooDashboard() {
       overview: "Aperçu", editProfile: "Modifier le Profil", appointments: "Rendez-vous",
       calendar: "Calendrier", leads: "Prospects", myDevices: "Mes Appareils", analytics: "Analytiques",
       portfolio: "Portfolio", design: "Design", bookingSetup: "Config. Réservation",
-      resumes: "CV", connections: "Connexions",
+      resumes: "CV", connections: "Connexions", saved: "Sauvegardés",
       profileViews: "Vues du Profil", linkClicks: "Clics sur Liens", leadsCaptured: "Prospects Capturés",
       yourProfile: "Votre Profil", style: "Style", viewLive: "Voir en Direct", edit: "Modifier",
       noProfile: "Pas encore de profil", createCard: "Créez votre carte numérique pour commencer.",
@@ -658,6 +660,7 @@ export default function BingooDashboard() {
            {tab === "appt_settings" && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "resumes"       && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"   && <ConnectionsPanel isDark={isDark} />}
+           {tab === "saved"          && <SavedProfilesPanel user={user} isDark={isDark} />}
            {tab === "lost_mode"     && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
            {tab === "services"      && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />))}
            {tab === "legal_services"&& (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />)}
