@@ -6,33 +6,35 @@ import { registerServiceWorker } from '@/lib/registerSW'
 
 console.log("React loaded", React.version);
 
-// Always unregister stale service workers and purge caches before React mounts.
-// This prevents duplicate-React / null-hook crashes from cached stale chunks.
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
+async function mount() {
+  // Unregister stale service workers and purge caches BEFORE React mounts.
+  // This prevents duplicate-React / null-hook crashes from cached stale chunks.
+  if ('serviceWorker' in navigator) {
+    const regs = await navigator.serviceWorker.getRegistrations();
     if (regs.length > 0) {
-      console.log(`[SW] Unregistering ${regs.length} service worker(s) to prevent stale cache issues`);
-      regs.forEach(r => r.unregister());
+      console.log(`[SW] Unregistering ${regs.length} service worker(s)`);
+      await Promise.all(regs.map(r => r.unregister()));
     }
-  });
-}
-if ('caches' in window) {
-  caches.keys().then(keys => {
+  }
+  if ('caches' in window) {
+    const keys = await caches.keys();
     if (keys.length > 0) {
       console.log(`[SW] Purging ${keys.length} cache(s)`, keys);
-      keys.forEach(k => caches.delete(k));
+      await Promise.all(keys.map(k => caches.delete(k)));
     }
-  });
+  }
+
+  // Register service worker for PWA / offline support (no-op in dev)
+  registerServiceWorker();
+
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    // <React.StrictMode>
+    <App />
+    // </React.StrictMode>,
+  );
 }
 
-// Register service worker for PWA / offline support (no-op in dev)
-registerServiceWorker();
-
-ReactDOM.createRoot(document.getElementById('root')).render(
-  // <React.StrictMode>
-  <App />
-  // </React.StrictMode>,
-)
+mount();
 
 if (import.meta.hot) {
   import.meta.hot.on('vite:beforeUpdate', () => {
