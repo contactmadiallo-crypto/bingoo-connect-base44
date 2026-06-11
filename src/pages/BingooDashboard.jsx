@@ -29,6 +29,7 @@ import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import QuickAccessGrid from "@/components/bingoo/QuickAccessGrid";
+import DashboardNav from "@/components/bingoo/DashboardNav";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
@@ -435,32 +436,15 @@ export default function BingooDashboard() {
             </div>
           )}
 
-          {/* ── iOS Tab Bar ── */}
-          <div className={`relative flex gap-0.5 rounded-2xl p-1 mb-4 sm:mb-6 overflow-x-auto scrollbar-none`}
-            style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)", boxShadow: isDark ? "inset 0 1px 0 rgba(255,255,255,0.04)" : "inset 0 1px 0 rgba(0,0,0,0.04)" }}>
-            {TABS.map(t => {
-              const isActive = tab === t.id;
-              const leadBadge = t.id === "leads" && leads.length > 0 ? leads.length : null;
-              const apptBadge = t.id === "appointments" ? appointments.filter(a => a.status === "pending").length : 0;
-              return (
-                <button key={t.id} onClick={() => setTab(t.id)}
-                  className={`relative flex items-center gap-1 px-2.5 sm:px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
-                    isActive
-                      ? (isDark ? "text-white" : "text-slate-900")
-                      : (isDark ? "text-white/35 hover:text-white/65 hover:bg-white/5" : "text-slate-400 hover:text-slate-600 hover:bg-black/4")
-                  }`}
-                  style={isActive ? {
-                    background: isDark ? "rgba(255,255,255,0.1)" : "#fff",
-                    boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.3)" : "0 1px 3px rgba(0,0,0,0.1), 0 4px 16px rgba(0,0,0,0.06)",
-                  } : {}}>
-                  <t.icon className="w-3.5 h-3.5 flex-shrink-0" style={isActive ? { color: t.color } : {}} />
-                  <span style={isActive ? { color: t.color } : {}}>{t.label}</span>
-                  {leadBadge && <span className="ml-0.5 min-w-[18px] h-[18px] rounded-full bg-amber-500 text-white text-[10px] font-black flex items-center justify-center px-1">{leadBadge}</span>}
-                  {apptBadge > 0 && <span className="ml-0.5 min-w-[18px] h-[18px] rounded-full bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center px-1">{apptBadge}</span>}
-                </button>
-              );
-            })}
-          </div>
+          {/* ── App Launcher Nav ── */}
+          <DashboardNav
+            tabs={TABS}
+            activeTab={tab}
+            setTab={setTab}
+            leads={leads}
+            appointments={appointments}
+            isDark={isDark}
+          />
 
           {/* ── Overview Tab ── */}
           {tab === "overview" && (
