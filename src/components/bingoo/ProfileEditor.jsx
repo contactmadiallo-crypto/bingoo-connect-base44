@@ -16,7 +16,7 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user, onSaved, editProfileId, prefillData }) {
+export default function ProfileEditor({ user, onSaved, editProfileId, prefillData, onFormChange }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -254,6 +254,9 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
   const addCustomPayment = () => {
     setForm(f => ({ ...f, custom_payments: [...(f.custom_payments || []), { label: "", emoji: "💵", link: "", qr: "" }] }));
   };
+
+  // Bubble form state up for live preview
+  useEffect(() => { onFormChange?.(form); }, [form]);
 
   const set = (k) => (e) => { setForm(f => ({ ...f, [k]: e.target.value })); setErrors(er => ({ ...er, [k]: undefined })); };
   const field = (k, label, placeholder, type = "text") => (

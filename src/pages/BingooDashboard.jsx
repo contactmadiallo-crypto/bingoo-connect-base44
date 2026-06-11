@@ -28,6 +28,7 @@ import PracticeAreasPanel from "@/components/bingoo/PracticeAreasPanel";
 import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2 } from "lucide-react";
@@ -55,13 +56,14 @@ export default function BingooDashboard() {
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "overview";
-  const setTab = (t) => setSearchParams(t === "overview" ? {} : { tab: t });
+  const setTab = (t) => { if (t !== "profile") setLiveFormOverride(null); setSearchParams(t === "overview" ? {} : { tab: t }); };
   const [copied, setCopied] = useState(false);
   const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(undefined); // undefined=first, null=new, string=specific
   const [profileSearch, setProfileSearch] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
+  const [liveFormOverride, setLiveFormOverride] = useState(null); // live form state from ProfileEditor
   const { isDark } = useBingooTheme();
   const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
   // Only compute flags once plan data is loaded to avoid premature gate screens
@@ -648,7 +650,7 @@ export default function BingooDashboard() {
           </div>
         )}
 
-          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); goToOverview(); }} />}
+          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} />}
            {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} onSaved={goToOverview} />)}
            {tab === "calendar"      && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <CalendarView profileId={profile?.id} />)}
            {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} onSaved={goToOverview} />)}
@@ -669,6 +671,16 @@ export default function BingooDashboard() {
 
         </div>
       </div>
+
+      {/* ── Global Live Preview Panel ── shown on all profile-building tabs */}
+      {profile && ["profile", "team", "services", "legal_services", "offices", "portfolio"].includes(tab) && (
+        <LivePreviewPanel
+          profile={profile}
+          pendingProfile={liveFormOverride ? { ...profile, ...liveFormOverride } : profile}
+          hasChanges={tab === "profile" && !!liveFormOverride}
+          isDark={isDark}
+        />
+      )}
 
       {/* Layout Picker Modal */}
       {showLayoutPicker && profile && (
