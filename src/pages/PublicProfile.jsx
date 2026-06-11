@@ -88,6 +88,7 @@ export default function PublicProfile() {
   const isDemo = username === "demo";
   const urlParams = new URLSearchParams(window.location.search);
   const deviceCodeParam = urlParams.get("device") || urlParams.get("d") || null;
+  const sourceParam = urlParams.get("source") || null; // "nfc" | "qr" | null
   const topRef = useRef(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
@@ -113,7 +114,12 @@ export default function PublicProfile() {
   const profile = profiles[0];
 
   useEffect(() => {
-    if (profile?.id && !isDemo) trackEvent(profile.id, "profile_view");
+    if (!profile?.id || isDemo) return;
+    // Always track a profile view
+    trackEvent(profile.id, "profile_view");
+    // Also track source-specific events
+    if (sourceParam === "qr") trackEvent(profile.id, "qr_scan");
+    // NFC taps are tracked in NFCRedirect before redirecting here
   }, [profile?.id]);
 
 

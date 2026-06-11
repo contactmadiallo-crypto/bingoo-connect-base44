@@ -24,14 +24,15 @@ export default function NFCRedirect() {
   useEffect(() => {
     if (deviceIsLost) return; // Don't redirect, show lost page
     if (profile?.username) {
+      // Track the NFC tap event
       base44.entities.Analytics.create({
         profile_id: profile.id,
         device_id: device?.id,
-        event_type: "profile_view",
+        event_type: "nfc_tap",
         visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
         created_at: new Date().toISOString(),
       }).catch(() => {});
-      window.location.replace(`/p/${profile.username}`);
+      window.location.replace(`/p/${profile.username}?source=nfc`);
     }
   }, [profile?.username, deviceIsLost]);
 

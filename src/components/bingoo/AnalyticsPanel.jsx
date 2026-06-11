@@ -7,6 +7,8 @@ import { Activity } from "lucide-react";
 
 const EVENT_LABELS = {
   profile_view: "Profile Views",
+  nfc_tap: "NFC Taps",
+  qr_scan: "QR Scans",
   whatsapp_click: "WhatsApp",
   phone_click: "Phone Calls",
   email_click: "Email",
@@ -88,6 +90,8 @@ export default function AnalyticsPanel({ profileId }) {
 
   const stats = [
     { key: "profile_view",      label: "Profile Views",  color: isDark ? "bg-blue-500/20 text-blue-300"    : "bg-blue-100 text-blue-700",    icon: "👁️" },
+    { key: "nfc_tap",           label: "NFC Taps",       color: isDark ? "bg-violet-500/20 text-violet-300": "bg-violet-100 text-violet-700", icon: "📲" },
+    { key: "qr_scan",           label: "QR Scans",       color: isDark ? "bg-cyan-500/20 text-cyan-300"    : "bg-cyan-100 text-cyan-700",    icon: "🔲" },
     { key: "whatsapp_click",    label: "WhatsApp",       color: isDark ? "bg-green-500/20 text-green-300"  : "bg-green-100 text-green-700",  icon: "💬" },
     { key: "phone_click",       label: "Phone Clicks",   color: isDark ? "bg-purple-500/20 text-purple-300": "bg-purple-100 text-purple-700",icon: "📞" },
     { key: "email_click",       label: "Email Clicks",   color: isDark ? "bg-orange-500/20 text-orange-300": "bg-orange-100 text-orange-700",icon: "📧" },
