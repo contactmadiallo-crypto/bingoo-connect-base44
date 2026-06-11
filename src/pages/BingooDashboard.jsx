@@ -329,10 +329,10 @@ export default function BingooDashboard() {
                   </h1>
                   {profile ? (
                     <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                      <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+                      <Link to={profileUrl}
                         className="text-blue-300 text-sm font-bold hover:text-white hover:underline flex items-center gap-1">
-                        /p/{profile.username} <ExternalLink className="w-3 h-3" />
-                      </a>
+                        /p/{profile.username}
+                      </Link>
                       <button onClick={copyLink}
                         className="flex items-center gap-1.5 text-xs rounded-full px-3 py-1 transition-all font-semibold bg-white/10 hover:bg-white/20 text-white/70 hover:text-white border border-white/15">
                         {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
@@ -353,11 +353,11 @@ export default function BingooDashboard() {
                       className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all bg-white/10 border border-white/15 text-white/60 hover:text-white hover:bg-white/20">
                       {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
                     </button>
-                    <a href={profileUrl} target="_blank" rel="noopener noreferrer">
+                    <Link to={profileUrl}>
                       <Button size="sm" className="rounded-full font-bold gap-1.5 text-xs text-white border-0 shadow-md" style={{ background: "#FF7A00" }}>
                         <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
-                    </a>
+                    </Link>
 
                     <Link to="/account-settings">
                       <Button size="sm" variant="ghost" className="rounded-full gap-1.5 text-xs font-bold text-white/50 hover:text-white hover:bg-white/10">
@@ -532,7 +532,7 @@ export default function BingooDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-3">
-                      <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+                      <a href={profileAbsoluteUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
                         <Button className="w-full rounded-xl bg-blue-600 hover:bg-blue-500 gap-1.5 text-xs text-white font-bold shadow-md shadow-blue-500/20" size="sm">
                           <Eye className="w-3.5 h-3.5" /> {tr.viewLive}
                         </Button>
