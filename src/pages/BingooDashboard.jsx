@@ -42,12 +42,12 @@ const TABS_CONFIG = [
   { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
   { id: "calendar",      labelKey: "calendar",      icon: Calendar,     color: "#06b6d4" },
   { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
-  { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#ec4899" },
+  { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#d97706" },
   { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
-  { id: "design",        labelKey: "design",        icon: Palette,      color: "#ec4899" },
+  { id: "design",        labelKey: "design",        icon: Palette,      color: "#f97316" },
   { id: "appt_settings", labelKey: "bookingSetup",  icon: Settings,     color: "#0d9488" },
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
-  { id: "connections",   labelKey: "connections",   icon: Users,        color: "#0d9488" },
+  { id: "connections",   labelKey: "connections",   icon: Users,        color: "#e11d48" },
   { id: "lost_mode",    labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
   { id: "hours",        labelKey: "hours",         icon: Clock,        color: "#0891b2" },
 ];
@@ -255,19 +255,19 @@ export default function BingooDashboard() {
     ...BASE_TABS.slice(0, 5),
     // Law Firm: Practice Areas, Legal Services, Attorneys, Office Locations
     ...(isLawFirm ? [
-      { id: "services",    label: "Practice Areas",  icon: Scale,         color: "#0B2E6B" },
-      { id: "legal_services", label: "Legal Services", icon: Scale,       color: "#0B2E6B" },
-      { id: "offices",     label: "Office Locations", icon: Building2,    color: "#0B2E6B" },
+      { id: "services",    label: "Practice Areas",  icon: Scale,         color: "#6366f1" },
+      { id: "legal_services", label: "Legal Services", icon: Scale,       color: "#6366f1" },
+      { id: "offices",     label: "Office Locations", icon: Building2,    color: "#ef4444" },
     ] : []),
     // Salon/Restaurant: Services + Hours
     ...(hasServiceMenu && !isLawFirm ? [
-      { id: "services",    label: "Services",        icon: Scissors,      color: "#db2777" },
+      { id: "services",    label: "Services",        icon: Scissors,      color: "#10b981" },
       { id: "hours",       label: tr.hours,          icon: Clock,         color: "#0891b2" },
     ] : []),
     // Hide resumes for law firms and salon
     ...(hasServiceMenu && !isLawFirm ? BASE_TABS.slice(5).filter(t => t.id !== "resumes") : BASE_TABS.slice(5).filter(t => (isLawFirm || isSalon) ? t.id !== "resumes" : true)),
     // Team/Attorneys
-    ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0B2E6B" }] : []),
+    ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
     // CRM (Law Firm shows as CRM Pipeline)
     ...(hasCRM ? [{ id: "crm", label: isLawFirm ? "CRM Pipeline" : "CRM", icon: GitBranch, color: "#6366f1" }] : []),
     // Attendance
