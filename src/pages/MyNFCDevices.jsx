@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
 import { motion, AnimatePresence } from "framer-motion";
-import { Smartphone, Plus, Trash2, Copy, ExternalLink, X, ChevronDown, ChevronUp, CheckCircle, AlertCircle, Info, Wifi } from "lucide-react";
+import { Smartphone, Plus, Trash2, Copy, ExternalLink, X, ChevronDown, ChevronUp, CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
@@ -116,6 +116,24 @@ export default function MyNFCDevices() {
     enabled: !!user?.id,
   });
 
+  // Analytics for NFC tap stats
+  const { data: nfcAnalytics = [] } = useQuery({
+    queryKey: ["nfc-analytics", user?.id],
+    queryFn: async () => {
+      const profileIds = profiles.map(p => p.id);
+      if (!profileIds.length) return [];
+      const all = await Promise.all(profileIds.map(id => base44.entities.Analytics.filter({ profile_id: id, event_type: "nfc_tap" })));
+      return all.flat();
+    },
+    enabled: !!profiles.length,
+  });
+
+  const activeCount = myDevices.filter(d => d.activation_status === "active").length;
+  const lastScan = nfcAnalytics.length > 0
+    ? new Date(Math.max(...nfcAnalytics.map(e => new Date(e.created_at)))).toLocaleDateString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "No scans yet";
+  const totalScans = nfcAnalytics.length;
+
   const addDevice = useMutation({
     mutationFn: async () => {
       const allDevices = await base44.entities.Device.list();
@@ -183,7 +201,8 @@ export default function MyNFCDevices() {
               </div>
               <div>
                 <h1 className={`text-2xl font-black ${headText}`}>My NFC Devices</h1>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <p className={`text-xs mt-0.5 max-w-xs ${mutedText}`}>Use the activation code included with your NFC card, keychain, bracelet, sticker, or package.</p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <span className={`text-sm font-bold ${myDevices.filter(d => d.activation_status === "active").length > 0 ? "text-emerald-500" : mutedText}`}>
                     {myDevices.filter(d => d.activation_status === "active").length} Active {myDevices.filter(d => d.activation_status === "active").length === 1 ? "Device" : "Devices"}
                   </span>
@@ -208,6 +227,24 @@ export default function MyNFCDevices() {
             </div>
           </div>
         </div>
+
+        {/* Stats bar */}
+        {myDevices.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { icon: <Smartphone className="w-4 h-4" />, label: "Active Devices", value: activeCount, color: "#10b981" },
+              { icon: <Zap className="w-4 h-4" />,        label: "Total NFC Taps",  value: totalScans, color: "#8b5cf6" },
+              { icon: <Clock className="w-4 h-4" />,      label: "Last Scan",       value: lastScan,   color: "#06b6d4", small: true },
+            ].map(s => (
+              <div key={s.label} className={`rounded-2xl p-3 ${isDark ? "bg-white/5 border border-white/8" : "bg-white border border-slate-100"}`}
+                style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                <div className="flex items-center gap-1.5 mb-1" style={{ color: s.color }}>{s.icon}</div>
+                <p className={`${s.small ? "text-xs" : "text-xl"} font-black`} style={{ color: s.color }}>{s.value}</p>
+                <p className={`text-[10px] font-bold uppercase tracking-wide mt-0.5 ${mutedText}`}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Activate by Code */}
         <AnimatePresence>

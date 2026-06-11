@@ -28,8 +28,8 @@ import PracticeAreasPanel from "@/components/bingoo/PracticeAreasPanel";
 import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import QuickAccessGrid from "@/components/bingoo/QuickAccessGrid";
 import DashboardNav from "@/components/bingoo/DashboardNav";
+import ProfileCompletionWidget from "@/components/bingoo/ProfileCompletionWidget";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
@@ -136,6 +136,21 @@ export default function BingooDashboard() {
     enabled: !!profile?.id && ownershipReady,
     refetchOnMount: true,
   });
+  const { data: myNfcDevices = [] } = useQuery({
+    queryKey: ["my-nfc-devices", user?.id],
+    queryFn: () => base44.entities.Device.filter({ assigned_user: user.id }),
+    enabled: !!user?.id,
+  });
+  const { data: salonServices = [] } = useQuery({
+    queryKey: ["salon-services-count", profile?.id],
+    queryFn: () => base44.entities.SalonService.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id && hasServiceMenu,
+  });
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ["team-count", profile?.id],
+    queryFn: () => base44.entities.TeamMember.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id && hasTeam,
+  });
 
   // Real-time subscriptions for dashboard overview
   useEffect(() => {
@@ -161,8 +176,10 @@ export default function BingooDashboard() {
   };
 
   const profileAbsoluteUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
-  const qrUrl = profileAbsoluteUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileAbsoluteUrl)}&color=ffffff&bgcolor=1e293b`
+  // QR codes append ?source=qr so scans are tracked as qr_scan events
+  const profileQrUrl = profileAbsoluteUrl ? `${profileAbsoluteUrl}?source=qr` : null;
+  const qrUrl = profileQrUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=ffffff&bgcolor=1e293b`
     : null;
 
   // Language toggle (persisted in localStorage)
@@ -226,6 +243,9 @@ export default function BingooDashboard() {
 
   const totalViews = analytics.filter(a => a.event_type === "profile_view").length;
   const totalClicks = analytics.filter(a => a.event_type !== "profile_view").length;
+  const totalNfcTaps = analytics.filter(a => a.event_type === "nfc_tap").length;
+  const totalQrScans = analytics.filter(a => a.event_type === "qr_scan").length;
+  const totalWhatsApp = analytics.filter(a => a.event_type === "whatsapp_click").length;
 
   // This-month counts
   const thisMonthStart = new Date(); thisMonthStart.setDate(1); thisMonthStart.setHours(0,0,0,0);
@@ -489,6 +509,41 @@ export default function BingooDashboard() {
               ))}
             </div>
 
+            {/* Analytics mini-cards: today's key metrics */}
+            {profile && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {[
+                  { icon: "👁️", label: "Profile Views",  value: totalViews,    color: "#3b82f6", bg: isDark ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)" },
+                  { icon: "📲", label: "NFC Taps",        value: totalNfcTaps,  color: "#8b5cf6", bg: isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.08)" },
+                  { icon: "🔲", label: "QR Scans",        value: totalQrScans,  color: "#06b6d4", bg: isDark ? "rgba(6,182,212,0.12)"  : "rgba(6,182,212,0.08)"  },
+                  { icon: "💬", label: "WhatsApp Clicks", value: totalWhatsApp, color: "#25D366", bg: isDark ? "rgba(37,211,102,0.12)" : "rgba(37,211,102,0.08)" },
+                ].map(s => (
+                  <div key={s.label}
+                    className="rounded-2xl p-3 flex flex-col gap-1 cursor-pointer transition-all hover:scale-[1.02]"
+                    style={{ background: s.bg, border: `1px solid ${s.color}25` }}
+                    onClick={() => setTab("analytics")}
+                  >
+                    <span className="text-lg">{s.icon}</span>
+                    <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
+                    <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Profile Completion */}
+            {profile && (
+              <ProfileCompletionWidget
+                profile={profile}
+                extraData={{
+                  hasServices: salonServices.length > 0,
+                  hasTeam: teamMembers.length > 0,
+                  hasNfc: myNfcDevices.some(d => d.activation_status === "active"),
+                }}
+                onEdit={() => setTab("profile")}
+              />
+            )}
+
             {/* Profile + QR row */}
             <div className="grid md:grid-cols-2 gap-4">
               {/* Profile Card */}
@@ -555,7 +610,7 @@ export default function BingooDashboard() {
                 {qrUrl ? (
                   <div className="text-center px-4 pb-4">
                     <div className={`rounded-2xl p-3 inline-block ${isDark ? "bg-slate-800/70" : "bg-slate-100"}`}>
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileAbsoluteUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`}
+                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(profileQrUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`}
                         alt="QR Code" className="w-36 h-36 mx-auto rounded-lg" />
                     </div>
                     <p className={`text-xs mt-2.5 ${mutedText}`}>{tr.scanQr}</p>
