@@ -196,7 +196,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
                 {editId ? "Update" : "Create"}
               </Button>
               <Button type="button" onClick={() => { setShowForm(false); setEditId(null); }}
-                variant="outline" className="flex-1 rounded-xl">Cancel</Button>
+                variant="outline" className={`flex-1 rounded-xl ${isDark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>Cancel</Button>
             </div>
           </form>
         </div>

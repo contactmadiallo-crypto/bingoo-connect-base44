@@ -188,7 +188,7 @@ export default function DesignTab({ profile, user, onSaved }) {
             <Sparkles className="w-5 h-5 text-amber-500" />
             <h3 className={`text-base font-black ${headText}`}>Premium Themes</h3>
           </div>
-          <span className="text-[10px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">NEW</span>
+          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDark ? "text-amber-300 bg-amber-500/20" : "text-amber-600 bg-amber-100"}`}>NEW</span>
           <p className={`text-xs ml-auto ${subText}`}>Exclusive animated & luxury designs</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -249,14 +249,14 @@ export default function DesignTab({ profile, user, onSaved }) {
                 onClick={() => updateProfile({ cover_color: c })}
                 className={`w-12 h-12 rounded-xl border-2 transition-all ${
                   color === c 
-                    ? `border-slate-900 shadow-lg shadow-[${c}]/40` 
-                    : "border-slate-200 hover:border-slate-400"
+                    ? isDark ? "border-white shadow-lg" : "border-slate-900 shadow-lg"
+                    : isDark ? "border-white/20 hover:border-white/50" : "border-slate-200 hover:border-slate-400"
                 }`}
                 style={{ background: c }}
                 title={c}
               />
             ))}
-            <div className="w-12 h-12 rounded-xl border-2 border-slate-300 flex items-center justify-center">
+            <div className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center ${isDark ? "border-white/20" : "border-slate-300"}`}>
               <input
                 type="color"
                 value={color}

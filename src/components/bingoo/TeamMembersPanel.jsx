@@ -233,7 +233,7 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
               className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0B2E6B" }}>
               <Check className="w-3.5 h-3.5" /> {saveMutation.isPending ? "Saving…" : "Save"}
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setEditing(null)} className="rounded-xl">Cancel</Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(null)} className={`rounded-xl ${dark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>Cancel</Button>
           </div>
         </div>
       )}

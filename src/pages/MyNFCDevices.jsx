@@ -30,9 +30,9 @@ function generateCode(existingCodes) {
   return code;
 }
 
-function QRImage({ url }) {
+function QRImage({ url, isDark }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
-  return <img src={qrUrl} alt="QR Code" className="w-40 h-40 rounded-xl border border-slate-200 shadow" />;
+  return <img src={qrUrl} alt="QR Code" className={`w-40 h-40 rounded-xl shadow ${isDark ? "border border-white/10" : "border border-slate-200"}`} />;
 }
 
 export default function MyNFCDevices() {
@@ -395,7 +395,7 @@ export default function MyNFCDevices() {
                 🔑 Activate Device
               </Button>
               <a href="/shop" target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className={`w-full sm:w-auto font-bold gap-2 ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>
+                <Button variant="outline" className={`w-full sm:w-auto font-bold gap-2 ${isDark ? "border-white/20 text-white/70 hover:bg-white/10 bg-transparent" : ""}`}>
                   🛍️ Order NFC Card
                 </Button>
               </a>
@@ -503,7 +503,7 @@ export default function MyNFCDevices() {
                           <div>
                             <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>QR Code</p>
                             <div className="flex flex-col sm:flex-row gap-4 items-start">
-                              <QRImage url={deviceUrl} />
+                              <QRImage url={deviceUrl} isDark={isDark} />
                               <div className="space-y-2 text-sm">
                                 <p className={`font-semibold ${headText}`}>Use this QR code to share your device link</p>
                                 <p className={`${mutedText} text-xs`}>Right-click the QR code to save it as an image.</p>
