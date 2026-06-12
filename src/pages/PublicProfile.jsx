@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
@@ -81,6 +82,59 @@ const DEMO_PROFILE = {
   booking_enabled: true,
 };
 
+// ── Build structured data for a profile
+function buildStructuredData(profile) {
+  const baseUrl = "https://bingooconnect.com";
+  const profileUrl = `${baseUrl}/p/${profile.username}`;
+  const isLawFirm = profile.plan === "lawfirm";
+  const isBusiness = ["business", "corporate", "salon", "restaurant"].includes(profile.plan);
+
+  const person = {
+    "@type": "Person",
+    name: profile.display_name,
+    url: profileUrl,
+    ...(profile.job_title && { jobTitle: profile.job_title }),
+    ...(profile.company_name && { worksFor: { "@type": "Organization", name: profile.company_name } }),
+    ...(profile.email && { email: profile.email }),
+    ...(profile.phone && { telephone: profile.phone }),
+    ...(profile.location && profile.show_location !== false && { address: { "@type": "PostalAddress", streetAddress: profile.location } }),
+    ...(profile.profile_photo && { image: profile.profile_photo }),
+    ...(profile.website && { sameAs: [profile.website, profile.linkedin_url, profile.instagram_url].filter(Boolean) }),
+  };
+
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+      { "@type": "ListItem", position: 2, name: "Profiles", item: `${baseUrl}/p/` },
+      { "@type": "ListItem", position: 3, name: profile.display_name, item: profileUrl },
+    ],
+  };
+
+  const entities = [
+    { "@context": "https://schema.org", ...person },
+    { "@context": "https://schema.org", ...breadcrumb },
+  ];
+
+  if (isBusiness || isLawFirm) {
+    entities.push({
+      "@context": "https://schema.org",
+      "@type": isLawFirm ? "LegalService" : "LocalBusiness",
+      name: profile.company_name || profile.display_name,
+      url: profileUrl,
+      ...(profile.email && { email: profile.email }),
+      ...(profile.phone && { telephone: profile.phone }),
+      ...(profile.website && { sameAs: profile.website }),
+      ...(profile.location && profile.show_location !== false && {
+        address: { "@type": "PostalAddress", streetAddress: profile.location },
+      }),
+      ...(profile.profile_photo && { image: profile.profile_photo }),
+    });
+  }
+
+  return entities;
+}
+
 // ── Main component
 export default function PublicProfile() {
   const { username } = useParams();
@@ -112,6 +166,28 @@ export default function PublicProfile() {
   });
 
   const profile = profiles[0];
+
+  // ── Dynamic SEO
+  const seoTitle = profile
+    ? [profile.display_name, [profile.job_title, profile.company_name].filter(Boolean).join(" @ "), "Bingoo Connect"]
+        .filter(Boolean).join(" | ")
+    : "Bingoo Connect";
+  const seoDesc = profile
+    ? profile.bio
+      ? `${profile.bio.slice(0, 140)}...`
+      : `Contact ${profile.display_name}${profile.job_title ? `, ${profile.job_title}` : ""}${profile.company_name ? ` at ${profile.company_name}` : ""}. Connect via NFC on Bingoo Connect.`
+    : "NFC-powered digital profiles for every professional.";
+  const seoImage = profile?.profile_photo || profile?.cover_photo || undefined;
+  const seoUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : undefined;
+
+  useSEO({
+    title: profile && !isDemo ? seoTitle : undefined,
+    description: profile && !isDemo ? seoDesc : undefined,
+    image: !isDemo ? seoImage : undefined,
+    url: !isDemo ? seoUrl : undefined,
+    type: "profile",
+    structuredData: profile && !isDemo ? buildStructuredData(profile) : undefined,
+  });
 
   useEffect(() => {
     if (!profile?.id || isDemo) return;

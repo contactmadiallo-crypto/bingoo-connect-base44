@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Public profiles - allow full crawl
+Allow: /p/
+Allow: /firm/
+Allow: /pricing
+Allow: /about
+Allow: /contact
+Allow: /shop
+
+# Block dashboard and private pages
+Disallow: /bingoo
+Disallow: /admin
+Disallow: /billing
+Disallow: /monitor
+Disallow: /account-settings
+Disallow: /checkout
+Disallow: /cart
+Disallow: /my-orders
+Disallow: /shop-admin
+Disallow: /activate-device
+Disallow: /my-nfc-devices
+
+# Sitemap
+Sitemap: https://bingooconnect.com/sitemap.xml

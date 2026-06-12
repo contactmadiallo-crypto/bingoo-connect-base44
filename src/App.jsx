@@ -1,4 +1,5 @@
 import './App.css'
+import { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -51,6 +52,12 @@ import AccountSettings from '@/pages/AccountSettings';
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 
+// Redirect /sitemap.xml to the backend function
+function SitemapRedirect() {
+  useEffect(() => { window.location.replace('/api/functions/sitemapXml'); }, []);
+  return null;
+}
+
 const { Pages, Layout } = pagesConfig;
 const LayoutWrapper = ({ children, currentPageName }) => Layout
   ? <Layout currentPageName={currentPageName}>{children}</Layout>
@@ -92,6 +99,7 @@ const AuthenticatedApp = () => {
       <Route path="/r/:resumeId" element={<PublicResume />} />
       <Route path="/firm/:username" element={<PublicLawFirmProfile />} />
       <Route path="/lost/:deviceCode" element={<LostDevicePage />} />
+      <Route path="/sitemap.xml" element={<SitemapRedirect />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/data-deletion" element={<DataDeletion />} />
