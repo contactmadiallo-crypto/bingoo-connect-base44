@@ -122,16 +122,16 @@ export default function AppointmentBooking({ profile, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: color + "20" }}>
               <CalendarDays className="w-5 h-5" style={{ color }} />
             </div>
             <div>
-              <h2 className="font-black text-slate-900">Book an Appointment</h2>
-              <p className="text-xs text-slate-500">with {profile.display_name}</p>
+              <h2 className="font-black text-slate-900 dark:text-white">Book an Appointment</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">with {profile.display_name}</p>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
@@ -167,7 +167,7 @@ export default function AppointmentBooking({ profile, onClose }) {
                   return (
                     <button key={ds} disabled={!available || isPast}
                       onClick={() => { setSelectedDate(ds); setSelectedSlot(null); }}
-                      className={`flex flex-col items-center py-2 rounded-xl text-xs font-semibold transition-all ${selected ? "text-white shadow-md" : available && !isPast ? "bg-slate-50 hover:bg-slate-100 text-slate-700" : "bg-slate-50 text-slate-300 cursor-not-allowed"}`}
+                      className={`flex flex-col items-center py-2 rounded-xl text-xs font-semibold transition-all ${selected ? "text-white shadow-md" : available && !isPast ? "bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" : "bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"}`}
                       style={selected ? { background: color } : {}}>
                       <span className="text-[10px] font-bold uppercase opacity-60">{d.toLocaleDateString("en", { weekday: "short" })}</span>
                       <span>{d.getDate()}</span>
@@ -179,14 +179,14 @@ export default function AppointmentBooking({ profile, onClose }) {
               {/* Time slots */}
               {selectedDate && (
                 <div>
-                  <p className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><Clock className="w-4 h-4" />Available slots</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2"><Clock className="w-4 h-4" />Available slots</p>
                   {slots.length === 0 ? (
                     <p className="text-slate-400 text-sm text-center py-4">No slots available this day.</p>
                   ) : (
                     <div className="grid grid-cols-4 gap-2">
                       {slots.map(s => (
                         <button key={s} onClick={() => setSelectedSlot(s)}
-                          className={`py-2 rounded-xl text-sm font-semibold transition-all border ${selectedSlot === s ? "text-white border-transparent shadow" : "border-slate-200 text-slate-700 hover:border-blue-300 bg-white"}`}
+                          className={`py-2 rounded-xl text-sm font-semibold transition-all border ${selectedSlot === s ? "text-white border-transparent shadow" : "border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:border-blue-300 bg-white dark:bg-slate-800"}`}
                           style={selectedSlot === s ? { background: color, borderColor: color } : {}}>
                           {s}
                         </button>
@@ -205,9 +205,9 @@ export default function AppointmentBooking({ profile, onClose }) {
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-slate-50 rounded-2xl p-4 text-sm flex items-center gap-3 mb-2">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 text-sm flex items-center gap-3 mb-2">
                 <CalendarDays className="w-4 h-4 flex-shrink-0" style={{ color }} />
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
                 </span>
               </div>
@@ -241,8 +241,8 @@ export default function AppointmentBooking({ profile, onClose }) {
           {step === 3 && (
             <div className="text-center py-6">
               <div className="text-5xl mb-4">🎉</div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">Appointment Requested!</h3>
-              <p className="text-slate-500 text-sm mb-1">
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Appointment Requested!</h3>
+              <p className="text-slate-500 dark:text-slate-300 text-sm mb-1">
                 {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
               </p>
               <p className="text-slate-400 text-sm mb-6">You'll be notified once your appointment is confirmed.</p>
