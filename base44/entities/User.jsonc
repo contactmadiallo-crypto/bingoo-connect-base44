@@ -1,7 +1,16 @@
 {
-  "name": "User",
   "type": "object",
+  "name": "User",
+  "title": "User",
   "properties": {
+    "email": {
+      "type": "string",
+      "description": "The email of the user"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "The full name of the user"
+    },
     "role": {
       "type": "string",
       "enum": [
@@ -24,5 +33,15 @@
       "type": "string",
       "description": "For team_member: the business profile ID they are assigned to"
     }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ],
+  "rls": {
+    "create": null,
+    "read": null,
+    "update": null,
+    "delete": null
   }
 }
