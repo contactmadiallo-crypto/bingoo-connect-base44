@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Clock, Calendar, Save, CheckCircle, Plus, Trash2, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import TimeWheelPicker from "@/components/ui/TimeWheelPicker";
 
 const DAYS = [
   { key: "monday",    label: "Mon" },
@@ -209,13 +210,17 @@ export default function AppointmentSettings({ profileId }) {
                   </button>
                   {hours[key]?.enabled ? (
                     <div className="flex items-center gap-2 flex-1">
-                      <input type="time" value={hours[key]?.start || "09:00"}
-                        onChange={e => setDayTime(key, "start", e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                      <TimeWheelPicker
+                        value={hours[key]?.start || "09:00"}
+                        onChange={val => setDayTime(key, "start", val)}
+                        isDark={isDark}
+                      />
                       <span className={`text-sm font-medium ${mutedCls}`}>to</span>
-                      <input type="time" value={hours[key]?.end || "17:00"}
-                        onChange={e => setDayTime(key, "end", e.target.value)}
-                        className={inputCls} style={inputStyle} />
+                      <TimeWheelPicker
+                        value={hours[key]?.end || "17:00"}
+                        onChange={val => setDayTime(key, "end", val)}
+                        isDark={isDark}
+                      />
                     </div>
                   ) : (
                     <span className={`text-sm ${mutedCls}`}>Closed</span>
