@@ -71,7 +71,9 @@ export default function ProfileCompletionWidget({ profile, extraData = {}, onNav
             onClick={() => handleItemClick(r)}
             disabled={r.done}
             className={`w-full flex items-center gap-2.5 text-left transition-all rounded-lg px-1 py-0.5 ${
-              !r.done ? "hover:bg-black/5 cursor-pointer" : "cursor-default"
+              !r.done
+                ? isDark ? "hover:bg-white/8 cursor-pointer" : "hover:bg-black/5 cursor-pointer"
+                : "cursor-default"
             }`}
           >
             {r.done

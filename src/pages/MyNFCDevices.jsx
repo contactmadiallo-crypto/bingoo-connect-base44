@@ -284,9 +284,15 @@ export default function MyNFCDevices() {
                  </Button>
                </div>
               {activateMsg && (
-                <div className={`flex items-start gap-3 p-4 rounded-xl ${activateMsg.type === "success" ? "bg-emerald-50 border border-emerald-200" : activateMsg.type === "error" ? "bg-red-50 border border-red-200" : "bg-blue-50 border border-blue-200"}`}>
-                  {activateMsg.type === "success" ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" /> : activateMsg.type === "error" ? <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /> : <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />}
-                  <p className={`text-sm font-semibold ${activateMsg.type === "success" ? "text-emerald-700" : activateMsg.type === "error" ? "text-red-600" : "text-blue-600"}`}>{activateMsg.text}</p>
+                <div className={`flex items-start gap-3 p-4 rounded-xl ${
+                  activateMsg.type === "success"
+                    ? (isDark ? "bg-emerald-500/10 border border-emerald-500/30" : "bg-emerald-50 border border-emerald-200")
+                    : activateMsg.type === "error"
+                    ? (isDark ? "bg-red-500/10 border border-red-500/30" : "bg-red-50 border border-red-200")
+                    : (isDark ? "bg-blue-500/10 border border-blue-500/30" : "bg-blue-50 border border-blue-200")
+                }`}>
+                  {activateMsg.type === "success" ? <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} /> : activateMsg.type === "error" ? <AlertCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-red-400" : "text-red-500"}`} /> : <Info className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-blue-400" : "text-blue-500"}`} />}
+                  <p className={`text-sm font-semibold ${activateMsg.type === "success" ? (isDark ? "text-emerald-300" : "text-emerald-700") : activateMsg.type === "error" ? (isDark ? "text-red-300" : "text-red-600") : (isDark ? "text-blue-300" : "text-blue-600")}`}>{activateMsg.text}</p>
                 </div>
               )}
             </motion.div>
@@ -320,9 +326,9 @@ export default function MyNFCDevices() {
                       onClick={() => setNewType(t.value)}
                       className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-bold transition-all ${
                         newType === t.value
-                          ? "border-blue-500 bg-blue-50 text-blue-700 shadow"
+                          ? (isDark ? "border-blue-500 bg-blue-500/15 text-blue-400 shadow" : "border-blue-500 bg-blue-50 text-blue-700 shadow")
                           : isDark
-                          ? "border-white/10 text-white/50 hover:border-white/20"
+                          ? "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
                           : "border-slate-200 text-slate-500 hover:border-slate-300"
                       }`}
                     >
@@ -423,7 +429,7 @@ export default function MyNFCDevices() {
                         {device.nickname && (
                           <span className={`font-mono text-xs ${mutedText}`}>{device.device_code}</span>
                         )}
-                        <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700">
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-700"}`}>
                           {device.activation_status}
                         </span>
                       </div>
@@ -525,7 +531,13 @@ export default function MyNFCDevices() {
                               {nfcWriting === device.id ? "Hold your NFC tag near phone…" : "Write NFC Tag"}
                             </button>
                             {nfcMsg?.id === device.id && (
-                              <p className={`mt-2 text-xs font-medium p-3 rounded-xl ${nfcMsg.type === "success" ? "bg-emerald-50 text-emerald-700" : nfcMsg.type === "error" ? "bg-red-50 text-red-600" : "bg-blue-50 text-blue-700"}`}>
+                              <p className={`mt-2 text-xs font-medium p-3 rounded-xl ${
+                                nfcMsg.type === "success"
+                                  ? (isDark ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700")
+                                  : nfcMsg.type === "error"
+                                  ? (isDark ? "bg-red-500/10 text-red-300" : "bg-red-50 text-red-600")
+                                  : (isDark ? "bg-blue-500/10 text-blue-300" : "bg-blue-50 text-blue-700")
+                              }`}>
                                 {nfcMsg.text}
                               </p>
                             )}

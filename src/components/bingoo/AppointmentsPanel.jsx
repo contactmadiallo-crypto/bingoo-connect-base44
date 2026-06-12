@@ -114,7 +114,7 @@ export default function AppointmentsPanel({ profileId, userId }) {
   const noteBg = isDark ? "rgba(255,255,255,0.04)" : "#f8fafc";
   const noteText = isDark ? "text-white/40" : "text-slate-500";
   const selectClass = isDark
-    ? "border-white/10 bg-transparent text-white/60 outline-none"
+    ? "border-white/10 bg-white/5 text-white/70 outline-none rounded-xl px-3 py-1.5 text-xs font-semibold"
     : "border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-700 outline-none bg-white";
   const inputClass = isDark
     ? "bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400"

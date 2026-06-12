@@ -146,7 +146,7 @@ export default function AnalyticsPanel({ profileId }) {
             {p.label}
           </button>
         ))}
-        <span className="ml-auto flex items-center gap-1.5 text-xs font-semibold text-green-600 bg-green-50 px-3 py-2 rounded-xl border border-green-200">
+        <span className={`ml-auto flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border ${isDark ? "text-green-400 bg-green-500/10 border-green-500/20" : "text-green-600 bg-green-50 border-green-200"}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live
         </span>
       </div>

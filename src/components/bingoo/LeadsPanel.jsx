@@ -139,7 +139,7 @@ export default function LeadsPanel({ profileId }) {
                   value={lead.status || "new"}
                   onChange={e => updateStatus.mutate({ id: lead.id, status: e.target.value })}
                   className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer outline-none ${statusStyle[lead.status || "new"]}`}
-                  style={isDark ? { background: "transparent" } : {}}
+                  style={isDark ? { background: "rgba(30,41,59,0.9)" } : {}}
                 >
                   {STATUS_OPTS.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
                 </select>

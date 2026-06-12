@@ -656,28 +656,107 @@ export default function BingooDashboard() {
               </div>
             </div>
 
-            {/* Recent Leads */}
-            {leads.length > 0 && (
-              <div className={`rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`}
-                style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
-                <div className="flex items-center justify-between p-4 pb-3">
-                  <p className={`font-bold text-sm ${headText}`}>{tr.recentLeads}</p>
-                  <button onClick={() => setTab("leads")} className="text-xs text-blue-500 font-semibold hover:text-blue-400 flex items-center gap-1">
-                    {tr.viewAll} <ArrowRight className="w-3 h-3" />
-                  </button>
+            {/* Recent Leads + Recent Appointments */}
+            <div className="grid md:grid-cols-2 gap-4">
+              {leads.length > 0 && (
+                <div className={`rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`}
+                  style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
+                  <div className="flex items-center justify-between p-4 pb-3">
+                    <p className={`font-bold text-sm ${headText}`}>{tr.recentLeads}</p>
+                    <button onClick={() => setTab("leads")} className="text-xs text-blue-500 font-semibold hover:text-blue-400 flex items-center gap-1">
+                      {tr.viewAll} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="px-4 pb-4 space-y-1.5">
+                    {leads.slice(0, 4).map(l => (
+                      <div key={l.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isDark ? "bg-white/[0.04] hover:bg-white/[0.07]" : "bg-slate-50 hover:bg-slate-100"}`}>
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
+                          {l.name?.charAt(0) || "?"}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`font-semibold text-xs ${headText}`}>{l.name || "Anonymous"}</p>
+                          <p className={`text-[10px] truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
+                        </div>
+                        <p className={`text-[10px] flex-shrink-0 ${mutedText}`}>{l.created_date?.slice(0, 10)}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="px-4 pb-4 space-y-1.5">
-                  {leads.slice(0, 3).map(l => (
-                    <div key={l.id} className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? "bg-white/4 hover:bg-white/7" : "bg-slate-50 hover:bg-slate-100"} transition-colors`}>
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 text-white font-black flex items-center justify-center text-sm flex-shrink-0">
-                        {l.name?.charAt(0) || "?"}
+              )}
+              {appointments.length > 0 && (
+                <div className={`rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`}
+                  style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
+                  <div className="flex items-center justify-between p-4 pb-3">
+                    <p className={`font-bold text-sm ${headText}`}>Recent Appointments</p>
+                    <button onClick={() => setTab("appointments")} className="text-xs text-emerald-500 font-semibold hover:text-emerald-400 flex items-center gap-1">
+                      {tr.viewAll} <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="px-4 pb-4 space-y-1.5">
+                    {appointments.slice(0, 4).map(a => (
+                      <div key={a.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${isDark ? "bg-white/[0.04] hover:bg-white/[0.07]" : "bg-slate-50 hover:bg-slate-100"}`}>
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
+                          {a.visitor_name?.charAt(0) || "?"}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`font-semibold text-xs ${headText}`}>{a.visitor_name || "Guest"}</p>
+                          <p className={`text-[10px] truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
+                        </div>
+                        <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
+                          a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
+                          a.status === "pending" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
+                          (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
+                        }`}>{a.status}</span>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className={`font-semibold text-sm ${headText}`}>{l.name || "Anonymous"}</p>
-                        <p className={`text-xs truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
-                      </div>
-                      <p className={`text-xs flex-shrink-0 ${mutedText}`}>{l.created_date?.slice(0, 10)}</p>
-                    </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* NFC Empty State CTA — shown if user has a profile but no activated NFC devices */}
+            {profile && myNfcDevices.filter(d => d.activation_status === "active").length === 0 && (
+              <div className="rounded-2xl p-4 flex items-center gap-4"
+                style={{ background: isDark ? "rgba(139,92,246,0.08)" : "rgba(139,92,246,0.05)", border: `1px solid ${isDark ? "rgba(139,92,246,0.2)" : "rgba(139,92,246,0.15)"}` }}>
+                <div className="w-10 h-10 rounded-xl bg-violet-500/20 flex items-center justify-center flex-shrink-0 text-lg">📲</div>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-bold text-sm ${headText}`}>No NFC Device Activated</p>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>Tap to share your profile instantly with any smartphone.</p>
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Link to="/my-nfc-devices">
+                    <button className="text-xs font-bold px-3 py-1.5 rounded-xl transition-all" style={{ background: "#8b5cf6", color: "#fff" }}>
+                      Activate
+                    </button>
+                  </Link>
+                  <Link to="/shop">
+                    <button className={`text-xs font-bold px-3 py-1.5 rounded-xl transition-all border ${isDark ? "border-violet-400/30 text-violet-400 hover:bg-violet-400/10" : "border-violet-300 text-violet-600 hover:bg-violet-50"}`}>
+                      Order
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Actions */}
+            {profile && (
+              <div className={`rounded-2xl p-4 ${isDark ? "bg-white/5" : "bg-white"}`}
+                style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.04)" : "0 1px 3px rgba(0,0,0,0.06)" }}>
+                <p className={`font-bold text-sm mb-3 ${headText}`}>Quick Actions</p>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {[
+                    { label: "Edit Profile", emoji: "✏️", action: () => setTab("profile") },
+                    { label: "Analytics",    emoji: "📊", action: () => setTab("analytics") },
+                    { label: "Leads",        emoji: "⭐", action: () => setTab("leads") },
+                    { label: "Appointments", emoji: "📅", action: () => setTab("appointments") },
+                    { label: "Design",       emoji: "🎨", action: () => setTab("design") },
+                    { label: "NFC Devices",  emoji: "📲", action: () => window.location.href = "/my-nfc-devices" },
+                  ].map(q => (
+                    <button key={q.label} onClick={q.action}
+                      className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl text-center transition-all hover:scale-[1.03] active:scale-[0.97] ${isDark ? "bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.07]" : "bg-slate-50 hover:bg-slate-100 border border-slate-100"}`}>
+                      <span className="text-xl">{q.emoji}</span>
+                      <span className={`text-[10px] font-bold ${mutedText}`}>{q.label}</span>
+                    </button>
                   ))}
                 </div>
               </div>
