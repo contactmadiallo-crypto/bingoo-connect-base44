@@ -16,7 +16,7 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user, onSaved, editProfileId, prefillData, onFormChange }) {
+export default function ProfileEditor({ user, onSaved, editProfileId, prefillData, onFormChange, userPlan }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
@@ -372,7 +372,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
           <div>
             <Label className="font-semibold block mb-3">Profile Layout</Label>
-            <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color} plan={profile?.plan || "free"} />
+            <LayoutPicker value={form.layout || "classic"} onChange={v => setForm(f => ({ ...f, layout: v }))} color={form.cover_color} plan={userPlan || profile?.plan || "free"} isAdmin={user?.role === 'admin'} />
           </div>
 
           <div>

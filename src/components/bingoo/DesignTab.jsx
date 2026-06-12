@@ -79,7 +79,8 @@ export default function DesignTab({ profile, user, onSaved }) {
   const [pendingChanges, setPendingChanges] = useState({});
 
   const isAdmin = user?.role === 'admin';
-  const isPro = isAdmin || profile?.plan === "pro" || profile?.plan === "business";
+  const paidPlans = ["pro", "professional", "business", "salon", "restaurant", "lawfirm", "corporate"];
+  const isPro = isAdmin || paidPlans.includes(profile?.plan);
   const currentLayout = profile?.layout || "classic";
   const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;

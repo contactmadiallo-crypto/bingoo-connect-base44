@@ -5,8 +5,8 @@ const MINUTES = ["00", "15", "30", "45"];
 
 function WheelColumn({ items, value, onChange, isDark }) {
   const ref = useRef(null);
-  const itemH = 40;
-  const visibleCount = 5;
+  const itemH = 28;
+  const visibleCount = 3;
   const paddingItems = Math.floor(visibleCount / 2);
 
   const padded = [
@@ -118,7 +118,7 @@ export default function TimeWheelPicker({ value = "09:00", onChange, isDark }) {
       style={{
         background: isDark ? "#1e293b" : "#ffffff",
         border: `1.5px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}`,
-        width: 110,
+        width: 90,
       }}
     >
       <WheelColumn items={HOURS} value={hour} onChange={handleHour} isDark={isDark} />

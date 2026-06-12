@@ -521,7 +521,7 @@ export default function BingooDashboard() {
             />
           )}
 
-          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} />}
+          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} userPlan={userPlan} />}
            {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={profile?.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
            {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "analytics"     && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
