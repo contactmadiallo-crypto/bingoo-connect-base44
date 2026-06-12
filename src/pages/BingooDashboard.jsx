@@ -509,11 +509,10 @@ export default function BingooDashboard() {
               ))}
             </div>
 
-            {/* Analytics mini-cards: today's key metrics */}
+            {/* Engagement mini-cards (NFC/QR/WhatsApp — not in the Stats Row above) */}
             {profile && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-3 gap-2.5">
                 {[
-                  { icon: "👁️", label: "Profile Views",  value: totalViews,    color: "#3b82f6", bg: isDark ? "rgba(59,130,246,0.12)" : "rgba(59,130,246,0.08)" },
                   { icon: "📲", label: "NFC Taps",        value: totalNfcTaps,  color: "#8b5cf6", bg: isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.08)" },
                   { icon: "🔲", label: "QR Scans",        value: totalQrScans,  color: "#06b6d4", bg: isDark ? "rgba(6,182,212,0.12)"  : "rgba(6,182,212,0.08)"  },
                   { icon: "💬", label: "WhatsApp Clicks", value: totalWhatsApp, color: "#25D366", bg: isDark ? "rgba(37,211,102,0.12)" : "rgba(37,211,102,0.08)" },
@@ -540,7 +539,7 @@ export default function BingooDashboard() {
                   hasTeam: teamMembers.length > 0,
                   hasNfc: myNfcDevices.some(d => d.activation_status === "active"),
                 }}
-                onEdit={() => setTab("profile")}
+                onNavigate={setTab}
               />
             )}
 

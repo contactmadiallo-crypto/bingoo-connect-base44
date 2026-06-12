@@ -373,10 +373,32 @@ export default function MyNFCDevices() {
 
         {/* Device List */}
         {myDevices.length === 0 && !showAdd ? (
-          <div className="rounded-2xl p-12 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
-            <Smartphone className={`w-16 h-16 mx-auto mb-4 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-            <p className={`font-bold text-base ${headText}`}>No devices yet</p>
-            <p className={`text-sm mt-1 mb-4 ${mutedText}`}>Tap <strong>"Activate New Device"</strong> to link an existing NFC card using the code printed on it, or click <strong>"New Device"</strong> to create one digitally.</p>
+          <div className="rounded-2xl p-10 text-center space-y-5" style={{ background: bg, border: `1px solid ${border}` }}>
+            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-violet-500/20 flex items-center justify-center mx-auto">
+              <Smartphone className={`w-10 h-10 ${isDark ? "text-blue-400" : "text-blue-500"}`} />
+            </div>
+            <div>
+              <p className={`font-black text-lg mb-1 ${headText}`}>⚠️ No NFC Device Activated</p>
+              <p className={`text-sm ${mutedText}`}>Activate your first NFC card to start sharing your profile instantly — just tap to connect.</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => setShowActivate(true)}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold gap-2"
+              >
+                🔑 Activate Device
+              </Button>
+              <a href="/shop" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className={`w-full sm:w-auto font-bold gap-2 ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>
+                  🛍️ Order NFC Card
+                </Button>
+              </a>
+              <a href="/about" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" className={`w-full sm:w-auto font-semibold gap-1.5 ${isDark ? "text-white/50 hover:text-white hover:bg-white/10" : "text-slate-500"}`}>
+                  Learn More →
+                </Button>
+              </a>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
