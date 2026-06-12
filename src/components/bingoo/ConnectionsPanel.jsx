@@ -84,43 +84,47 @@ export default function ConnectionsPanel({ isDark }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
-            className={`rounded-2xl border p-4 flex items-center gap-3 group ${t.card}`}
-            style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.04)" : "0 1px 4px rgba(0,0,0,0.05)" }}
           >
-            {/* Avatar */}
-            <div className="flex-shrink-0">
-              {conn.profile_photo
-                ? <img src={conn.profile_photo} alt="" className="w-12 h-12 rounded-full object-cover" style={{ border: `2px solid ${conn.profile_cover_color || "#2563eb"}` }} />
-                : <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-white text-lg"
-                    style={{ background: `linear-gradient(135deg, ${conn.profile_cover_color || "#2563eb"}, ${conn.profile_cover_color || "#7c3aed"})` }}>
-                    {conn.profile_display_name?.charAt(0)}
-                  </div>
-              }
-            </div>
+            <a
+              href={`/p/${conn.profile_username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`rounded-2xl border p-4 flex items-center gap-3 group cursor-pointer transition-all hover:scale-[1.01] hover:shadow-md block ${t.card}`}
+              style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.04)" : "0 1px 4px rgba(0,0,0,0.05)", textDecoration: "none" }}
+            >
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                {conn.profile_photo
+                  ? <img src={conn.profile_photo} alt="" className="w-12 h-12 rounded-full object-cover" style={{ border: `2px solid ${conn.profile_cover_color || "#2563eb"}` }} />
+                  : <div className="w-12 h-12 rounded-full flex items-center justify-center font-black text-white text-lg"
+                      style={{ background: `linear-gradient(135deg, ${conn.profile_cover_color || "#2563eb"}, ${conn.profile_cover_color || "#7c3aed"})` }}>
+                      {conn.profile_display_name?.charAt(0)}
+                    </div>
+                }
+              </div>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className={`font-bold text-sm truncate ${t.text}`}>{conn.profile_display_name}</p>
-              {conn.profile_job_title && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_job_title}</p>}
-              {conn.profile_company && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_company}</p>}
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${t.badge}`}>
-                {sourceLabel[conn.source] || "👆 Manual"}
-              </span>
-            </div>
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className={`font-bold text-sm truncate ${t.text}`}>{conn.profile_display_name}</p>
+                {conn.profile_job_title && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_job_title}</p>}
+                {conn.profile_company && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_company}</p>}
+                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${t.badge}`}>
+                  {sourceLabel[conn.source] || "👆 Manual"}
+                </span>
+              </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <a href={`/p/${conn.profile_username}`} target="_blank" rel="noopener noreferrer">
-                <Button size="icon" variant="ghost" className={`w-8 h-8 rounded-xl ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
-                  <ExternalLink className="w-3.5 h-3.5" />
+              {/* Actions */}
+              <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                <span className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-colors ${isDark ? "bg-blue-500/15 text-blue-400 hover:bg-blue-500/25" : "bg-blue-50 text-blue-600 hover:bg-blue-100"}`}>
+                  <ExternalLink className="w-3 h-3" /> View
+                </span>
+                <Button size="icon" variant="ghost"
+                  onClick={(e) => { e.preventDefault(); deleteMut.mutate(conn.id); }}
+                  className={`w-8 h-8 rounded-xl ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
+                  <Trash2 className="w-3.5 h-3.5" />
                 </Button>
-              </a>
-              <Button size="icon" variant="ghost"
-                onClick={() => deleteMut.mutate(conn.id)}
-                className={`w-8 h-8 rounded-xl ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
-                <Trash2 className="w-3.5 h-3.5" />
-              </Button>
-            </div>
+              </div>
+            </a>
           </motion.div>
         ))}
       </div>

@@ -30,7 +30,16 @@ function addDays(date, n) {
 }
 
 function formatDate(d) {
-  return d.toISOString().slice(0, 10);
+  // Use local date parts to avoid UTC offset shifting the date
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Parse a YYYY-MM-DD string as LOCAL midnight (not UTC) to prevent date shifting
+function parseLocalDate(ds) {
+  return new Date(ds + "T00:00:00");
 }
 
 export default function AppointmentBooking({ profile, onClose }) {
@@ -64,7 +73,7 @@ export default function AppointmentBooking({ profile, onClose }) {
   };
 
   const slots = selectedDate ? (() => {
-    const d = new Date(selectedDate);
+    const d = parseLocalDate(selectedDate);
     const name = DAYS[d.getDay()];
     const cfg = hours[name];
     if (!cfg || !cfg.enabled || !cfg.start || !cfg.end) return [];
@@ -151,7 +160,8 @@ export default function AppointmentBooking({ profile, onClose }) {
                 {days.map(d => {
                   const cfg = dayConfig(d);
                   const available = cfg.enabled && cfg.start && cfg.end && !holidaySet.has(formatDate(d));
-                  const isPast = d < today;
+                  // Compare date strings so no timezone shifting occurs
+                  const isPast = formatDate(d) < formatDate(today);
                   const ds = formatDate(d);
                   const selected = selectedDate === ds;
                   return (
@@ -198,7 +208,7 @@ export default function AppointmentBooking({ profile, onClose }) {
               <div className="bg-slate-50 rounded-2xl p-4 text-sm flex items-center gap-3 mb-2">
                 <CalendarDays className="w-4 h-4 flex-shrink-0" style={{ color }} />
                 <span className="font-semibold text-slate-700">
-                  {new Date(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
+                  {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
                 </span>
               </div>
               <div>
@@ -233,7 +243,7 @@ export default function AppointmentBooking({ profile, onClose }) {
               <div className="text-5xl mb-4">🎉</div>
               <h3 className="text-xl font-black text-slate-900 mb-2">Appointment Requested!</h3>
               <p className="text-slate-500 text-sm mb-1">
-                {new Date(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
+                {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
               </p>
               <p className="text-slate-400 text-sm mb-6">You'll be notified once your appointment is confirmed.</p>
               <Button onClick={onClose} className="font-bold px-8" style={{ background: color }}>Done</Button>
