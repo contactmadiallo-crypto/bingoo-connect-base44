@@ -134,9 +134,9 @@ export default function BingooDashboard() {
     refetchOnMount: true,
   });
   const { data: myNfcDevices = [] } = useQuery({
-    queryKey: ["my-nfc-devices", user?.id],
-    queryFn: () => base44.entities.Device.filter({ assigned_user: user.id }),
-    enabled: !!user?.id,
+    queryKey: ["my-nfc-devices", profile?.id],
+    queryFn: () => base44.entities.NFCDevice.filter({ profile_id: profile.id }),
+    enabled: !!profile?.id,
   });
   const { data: salonServices = [] } = useQuery({
     queryKey: ["salon-services-count", profile?.id],
