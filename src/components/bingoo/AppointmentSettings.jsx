@@ -54,8 +54,9 @@ export default function AppointmentSettings({ profileId }) {
   const labelCls = `font-bold text-sm mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`;
   const mutedCls = isDark ? "text-white/40" : "text-slate-500";
   const inputCls = `border rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-blue-400 ${
-    isDark ? "bg-white/8 border-white/15 text-white" : "bg-white border-slate-200 text-slate-700"
+    isDark ? "bg-slate-800 border-white/15 text-white" : "bg-white border-slate-200 text-slate-700"
   }`;
+  const inputStyle = isDark ? { colorScheme: "dark" } : {};
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-appt-settings", profileId],
@@ -210,11 +211,11 @@ export default function AppointmentSettings({ profileId }) {
                     <div className="flex items-center gap-2 flex-1">
                       <input type="time" value={hours[key]?.start || "09:00"}
                         onChange={e => setDayTime(key, "start", e.target.value)}
-                        className={inputCls} />
+                        className={inputCls} style={inputStyle} />
                       <span className={`text-sm font-medium ${mutedCls}`}>to</span>
                       <input type="time" value={hours[key]?.end || "17:00"}
                         onChange={e => setDayTime(key, "end", e.target.value)}
-                        className={inputCls} />
+                        className={inputCls} style={inputStyle} />
                     </div>
                   ) : (
                     <span className={`text-sm ${mutedCls}`}>Closed</span>
@@ -229,7 +230,7 @@ export default function AppointmentSettings({ profileId }) {
             <p className={labelCls}>Holiday / Closed Days</p>
             <div className="flex gap-2 mb-3">
               <input type="date" value={holidayInput} onChange={e => setHolidayInput(e.target.value)}
-                className={`flex-1 ${inputCls}`} />
+                className={`flex-1 ${inputCls}`} style={inputStyle} />
               <Button onClick={addHoliday} disabled={!holidayInput} size="sm" className="bg-blue-600 hover:bg-blue-500 gap-1">
                 <Plus className="w-4 h-4" /> Add
               </Button>
