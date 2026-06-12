@@ -9,9 +9,8 @@ import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
-import CalendarView from "@/components/bingoo/CalendarView";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
-import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
+import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 
 import ResumePanel from "@/components/bingoo/ResumePanel";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
@@ -42,16 +41,14 @@ const TABS_CONFIG = [
   { id: "overview",      labelKey: "overview",      icon: TrendingUp,   color: "#3b82f6" },
   { id: "profile",       labelKey: "editProfile",   icon: Settings,     color: "#8b5cf6" },
   { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
-  { id: "calendar",      labelKey: "calendar",      icon: Calendar,     color: "#06b6d4" },
   { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
   { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#d97706" },
   { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
   { id: "design",        labelKey: "design",        icon: Palette,      color: "#f97316" },
-  { id: "appt_settings", labelKey: "bookingSetup",  icon: Settings,     color: "#0d9488" },
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#e11d48" },
-  { id: "lost_mode",    labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
-  { id: "hours",        labelKey: "hours",         icon: Clock,        color: "#0891b2" },
+  { id: "lost_mode",     labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
+  { id: "hours",         labelKey: "hours",         icon: Clock,        color: "#0891b2" },
 ];
 
 export default function BingooDashboard() {
@@ -182,6 +179,33 @@ export default function BingooDashboard() {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=ffffff&bgcolor=1e293b`
     : null;
 
+  // Download QR with BingooConnect branding using canvas
+  const downloadBrandedQR = async () => {
+    if (!profileQrUrl) return;
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=1e293b&bgcolor=ffffff`;
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 400; canvas.height = 460;
+      const ctx = canvas.getContext("2d");
+      // white background
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
+      // QR
+      ctx.drawImage(img, 0, 0, 400, 400);
+      // branding strip
+      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 400, 400, 60);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
+      ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
+      ctx.fillStyle = "#FF7A00"; ctx.font = "bold 13px system-ui,sans-serif";
+      ctx.fillText("Scan to connect", 200, 452);
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = `bingoo-qr-${profile?.username || "profile"}.png`;
+      a.click();
+    };
+    img.src = qrSrc;
+  };
+
   // Language toggle (persisted in localStorage)
   const [lang, setLang] = useState(() => {
     const saved = localStorage.getItem("bingoo_lang");
@@ -272,25 +296,30 @@ export default function BingooDashboard() {
     : "linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #f3e8ff 100%)";
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
-  const BASE_TABS = TABS_CONFIG.map(t => t.id === "hours" ? null : ({ ...t, label: tr[t.labelKey] })).filter(Boolean);
+  const BASE_TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
+  // Build tab list — Calendar and Booking Setup are now merged into Appointments
   const TABS = [
-    ...BASE_TABS.slice(0, 5),
-    // Law Firm: Practice Areas, Legal Services, Attorneys, Office Locations
+    ...BASE_TABS.slice(0, 4), // overview, profile, appointments, leads
+    // Law Firm extras
     ...(isLawFirm ? [
-      { id: "services",    label: "Practice Areas",  icon: Scale,         color: "#6366f1" },
-      { id: "legal_services", label: "Legal Services", icon: Scale,       color: "#6366f1" },
-      { id: "offices",     label: "Office Locations", icon: Building2,    color: "#ef4444" },
+      { id: "services",       label: "Practice Areas",  icon: Scale,     color: "#6366f1" },
+      { id: "legal_services", label: "Legal Services",  icon: Scale,     color: "#6366f1" },
+      { id: "offices",        label: "Office Locations", icon: Building2, color: "#ef4444" },
     ] : []),
-    // Salon/Restaurant: Services + Hours
+    // Salon/Restaurant extras
     ...(hasServiceMenu && !isLawFirm ? [
-      { id: "services",    label: "Services",        icon: Scissors,      color: "#10b981" },
-      { id: "hours",       label: tr.hours,          icon: Clock,         color: "#0891b2" },
+      { id: "services", label: "Services", icon: Scissors, color: "#10b981" },
+      { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
     ] : []),
-    // Hide resumes for law firms and salon
-    ...(hasServiceMenu && !isLawFirm ? BASE_TABS.slice(5).filter(t => t.id !== "resumes") : BASE_TABS.slice(5).filter(t => (isLawFirm || isSalon) ? t.id !== "resumes" : true)),
+    // analytics, portfolio, design
+    ...BASE_TABS.slice(4, 7),
+    // Resumes — hide for law firms and salons
+    ...(!isLawFirm && !isSalon ? BASE_TABS.slice(7, 8) : []),
+    // connections, lost_mode
+    ...BASE_TABS.slice(8, 10),
     // Team/Attorneys
     ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
-    // CRM (Law Firm shows as CRM Pipeline)
+    // CRM
     ...(hasCRM ? [{ id: "crm", label: isLawFirm ? "CRM Pipeline" : "CRM", icon: GitBranch, color: "#6366f1" }] : []),
     // Attendance
     ...(hasAttendance ? [{ id: "attendance", label: "Attendance", icon: UserCheck, color: "#10b981" }] : []),
@@ -613,11 +642,10 @@ export default function BingooDashboard() {
                         alt="QR Code" className="w-36 h-36 mx-auto rounded-lg" />
                     </div>
                     <p className={`text-xs mt-2.5 ${mutedText}`}>{tr.scanQr}</p>
-                    <a href={qrUrl} download="bingoo-qr.png" target="_blank" rel="noopener noreferrer" className="inline-block mt-2.5">
-                      <Button size="sm" className={`rounded-xl gap-1.5 text-xs font-bold ${isDark ? "bg-cyan-500 hover:bg-cyan-400 text-white shadow-md shadow-cyan-900/30" : "bg-slate-800 hover:bg-slate-700 text-white"}`}>
-                        <Download className="w-3.5 h-3.5" /> {tr.download}
-                      </Button>
-                    </a>
+                    <Button onClick={downloadBrandedQR} size="sm"
+                      className={`rounded-xl gap-1.5 text-xs font-bold mt-2.5 ${isDark ? "bg-cyan-500 hover:bg-cyan-400 text-white shadow-md shadow-cyan-900/30" : "bg-slate-800 hover:bg-slate-700 text-white"}`}>
+                      <Download className="w-3.5 h-3.5" /> {tr.download}
+                    </Button>
                   </div>
                 ) : (
                   <div className="text-center py-10 px-4">
@@ -690,13 +718,11 @@ export default function BingooDashboard() {
         )}
 
           {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} />}
-           {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsPanel profileId={profile?.id} userId={user?.id} onSaved={goToOverview} />)}
-           {tab === "calendar"      && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <CalendarView profileId={profile?.id} />)}
+           {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={profile?.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
            {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "analytics"     && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
            {tab === "portfolio"     && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} onSaved={goToOverview} />)}
            {tab === "design"        && <DesignTab profile={profile} user={user} onSaved={goToOverview} />}
-           {tab === "appt_settings" && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentSettings profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "resumes"       && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
            {tab === "connections"   && <ConnectionsPanel isDark={isDark} />}
            {tab === "lost_mode"     && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
@@ -711,9 +737,10 @@ export default function BingooDashboard() {
         </div>
       </div>
 
-      {/* ── Global Live Preview Panel ── section-specific per tab ── */}
+      {/* ── Global Live Preview Panel ── always uses activeProfile.id as key to prevent stale renders ── */}
       {profile && ["profile", "team", "services", "legal_services", "offices"].includes(tab) && (
         <LivePreviewPanel
+          key={profile.id}
           profile={profile}
           pendingProfile={liveFormOverride ? { ...profile, ...liveFormOverride } : profile}
           hasChanges={tab === "profile" && !!liveFormOverride}

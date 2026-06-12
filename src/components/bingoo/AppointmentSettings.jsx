@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Clock, Calendar, Save, CheckCircle, Plus, Trash2 } from "lucide-react";
+import { Clock, Calendar, Save, CheckCircle, Plus, Trash2, Timer } from "lucide-react";
 import { toast } from "sonner";
+import { useBingooTheme } from "@/hooks/useBingooTheme";
 
 const DAYS = [
   { key: "monday",    label: "Mon" },
@@ -15,13 +16,14 @@ const DAYS = [
   { key: "sunday",    label: "Sun" },
 ];
 
-const DURATIONS = [15, 30, 45, 60];
+const DURATIONS = [15, 30, 45, 60, 90, 120];
+const BUFFERS   = [0, 5, 10, 15, 30];
 
 const APPT_TYPES = [
-  { value: "in_person",   label: "In-Person",    emoji: "🤝" },
-  { value: "phone_call",  label: "Phone Call",   emoji: "📞" },
-  { value: "whatsapp",    label: "WhatsApp Call", emoji: "💬" },
-  { value: "video_call",  label: "Video Call",   emoji: "📹" },
+  { value: "in_person",  label: "In-Person",    emoji: "🤝" },
+  { value: "phone_call", label: "Phone Call",   emoji: "📞" },
+  { value: "whatsapp",   label: "WhatsApp",     emoji: "💬" },
+  { value: "video_call", label: "Video Call",   emoji: "📹" },
 ];
 
 const DEFAULT_HOURS = {
@@ -36,13 +38,24 @@ const DEFAULT_HOURS = {
 
 export default function AppointmentSettings({ profileId }) {
   const qc = useQueryClient();
-  const [hours, setHours] = useState(DEFAULT_HOURS);
-  const [duration, setDuration] = useState(30);
+  const { isDark } = useBingooTheme();
+  const [hours, setHours]               = useState(DEFAULT_HOURS);
+  const [duration, setDuration]         = useState(30);
+  const [buffer, setBuffer]             = useState(0);
   const [bookingEnabled, setBookingEnabled] = useState(false);
-  const [apptType, setApptType] = useState("in_person");
+  const [apptType, setApptType]         = useState("in_person");
   const [holidayInput, setHolidayInput] = useState("");
-  const [holidays, setHolidays] = useState([]);
-  const [saved, setSaved] = useState(false);
+  const [holidays, setHolidays]         = useState([]);
+  const [saved, setSaved]               = useState(false);
+
+  const cardCls = isDark
+    ? "bg-white/5 border border-white/8 rounded-2xl p-5"
+    : "bg-white border border-slate-100 rounded-2xl p-5";
+  const labelCls = `font-bold text-sm mb-3 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`;
+  const mutedCls = isDark ? "text-white/40" : "text-slate-500";
+  const inputCls = `border rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-blue-400 ${
+    isDark ? "bg-white/8 border-white/15 text-white" : "bg-white border-slate-200 text-slate-700"
+  }`;
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["profiles-appt-settings", profileId],
@@ -61,15 +74,16 @@ export default function AppointmentSettings({ profileId }) {
     if (profile.description) {
       try {
         const meta = JSON.parse(profile.description);
-        if (meta.appt_type) setApptType(meta.appt_type);
-        if (meta.holidays) setHolidays(meta.holidays);
+        if (meta.appt_type)  setApptType(meta.appt_type);
+        if (meta.holidays)   setHolidays(meta.holidays);
+        if (meta.buffer != null) setBuffer(meta.buffer);
       } catch {}
     }
   }, [profile]);
 
   const save = useMutation({
     mutationFn: () => {
-      const meta = JSON.stringify({ appt_type: apptType, holidays });
+      const meta = JSON.stringify({ appt_type: apptType, holidays, buffer });
       return base44.entities.Profile.update(profileId, {
         business_hours: hours,
         booking_slot_duration: duration,
@@ -85,46 +99,38 @@ export default function AppointmentSettings({ profileId }) {
     },
   });
 
-  const toggleDay = (day) => {
-    setHours(h => ({ ...h, [day]: { ...h[day], enabled: !h[day].enabled } }));
-  };
-
-  const setDayTime = (day, field, val) => {
-    setHours(h => ({ ...h, [day]: { ...h[day], [field]: val } }));
-  };
-
-  const addHoliday = () => {
-    if (!holidayInput) return;
-    setHolidays(hs => [...new Set([...hs, holidayInput])]);
-    setHolidayInput("");
-  };
-
+  const toggleDay    = (day) => setHours(h => ({ ...h, [day]: { ...h[day], enabled: !h[day].enabled } }));
+  const setDayTime   = (day, field, val) => setHours(h => ({ ...h, [day]: { ...h[day], [field]: val } }));
+  const addHoliday   = () => { if (!holidayInput) return; setHolidays(hs => [...new Set([...hs, holidayInput])]); setHolidayInput(""); };
   const removeHoliday = (d) => setHolidays(hs => hs.filter(h => h !== d));
 
-  if (!profileId) return <div className="text-slate-400 text-center py-8">Select a profile first.</div>;
+  if (!profileId) return <div className={`text-center py-8 ${mutedCls}`}>Select a profile first.</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 pb-10">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-slate-900">Appointment Settings</h2>
+        <h2 className={`text-xl font-black ${isDark ? "text-white" : "text-slate-900"}`}>Booking Setup</h2>
         <Button
           onClick={() => save.mutate()}
           disabled={save.isPending}
           className={`gap-2 font-bold ${saved ? "bg-green-600 hover:bg-green-600" : "bg-blue-600 hover:bg-blue-500"}`}
         >
-          {saved ? <><CheckCircle className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" />{save.isPending ? "Saving…" : "Save Settings"}</>}
+          {saved
+            ? <><CheckCircle className="w-4 h-4" /> Saved!</>
+            : <><Save className="w-4 h-4" />{save.isPending ? "Saving…" : "Save Settings"}</>}
         </Button>
       </div>
 
       {/* Enable Toggle */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-5 flex items-center justify-between">
+      <div className={cardCls + " flex items-center justify-between"}>
         <div>
-          <p className="font-bold text-slate-900">Enable Appointment Booking</p>
-          <p className="text-sm text-slate-500 mt-0.5">Allow visitors to book time with you from your public profile</p>
+          <p className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Enable Appointment Booking</p>
+          <p className={`text-sm mt-0.5 ${mutedCls}`}>Allow visitors to book time from your public profile</p>
         </div>
         <button
           onClick={() => setBookingEnabled(v => !v)}
-          className={`relative w-12 h-6 rounded-full transition-colors ${bookingEnabled ? "bg-blue-600" : "bg-slate-200"}`}
+          className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${bookingEnabled ? "bg-blue-600" : isDark ? "bg-white/20" : "bg-slate-200"}`}
         >
           <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${bookingEnabled ? "translate-x-6" : ""}`} />
         </button>
@@ -133,12 +139,16 @@ export default function AppointmentSettings({ profileId }) {
       {bookingEnabled && (
         <>
           {/* Appointment Type */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <p className="font-bold text-slate-900 mb-3 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-500" /> Appointment Type</p>
+          <div className={cardCls}>
+            <p className={labelCls}><Calendar className="w-4 h-4 text-blue-500" /> Appointment Type</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {APPT_TYPES.map(t => (
                 <button key={t.value} onClick={() => setApptType(t.value)}
-                  className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-bold transition-all ${apptType === t.value ? "border-blue-500 bg-blue-50 text-blue-700 shadow" : "border-slate-200 text-slate-500 hover:border-slate-300"}`}>
+                  className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-bold transition-all ${
+                    apptType === t.value
+                      ? "border-blue-500 bg-blue-50 text-blue-700 shadow"
+                      : isDark ? "border-white/15 text-white/50 hover:border-white/25" : "border-slate-200 text-slate-500 hover:border-slate-300"
+                  }`}>
                   <span className="text-xl">{t.emoji}</span>
                   <span>{t.label}</span>
                 </button>
@@ -146,41 +156,68 @@ export default function AppointmentSettings({ profileId }) {
             </div>
           </div>
 
-          {/* Slot Duration */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <p className="font-bold text-slate-900 mb-3 flex items-center gap-2"><Clock className="w-4 h-4 text-blue-500" /> Slot Duration</p>
-            <div className="flex gap-2 flex-wrap">
-              {DURATIONS.map(d => (
-                <button key={d} onClick={() => setDuration(d)}
-                  className={`px-5 py-2.5 rounded-xl border text-sm font-bold transition-all ${duration === d ? "border-blue-500 bg-blue-600 text-white shadow" : "border-slate-200 text-slate-600 hover:border-slate-300"}`}>
-                  {d} min
-                </button>
-              ))}
+          {/* Slot Duration + Buffer */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className={cardCls}>
+              <p className={labelCls}><Clock className="w-4 h-4 text-blue-500" /> Slot Duration</p>
+              <div className="flex gap-2 flex-wrap">
+                {DURATIONS.map(d => (
+                  <button key={d} onClick={() => setDuration(d)}
+                    className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all ${
+                      duration === d
+                        ? "border-blue-500 bg-blue-600 text-white shadow"
+                        : isDark ? "border-white/15 text-white/60 hover:border-white/25" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}>
+                    {d} min
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={cardCls}>
+              <p className={labelCls}><Timer className="w-4 h-4 text-teal-500" /> Buffer Between Slots</p>
+              <div className="flex gap-2 flex-wrap">
+                {BUFFERS.map(b => (
+                  <button key={b} onClick={() => setBuffer(b)}
+                    className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all ${
+                      buffer === b
+                        ? "border-teal-500 bg-teal-600 text-white shadow"
+                        : isDark ? "border-white/15 text-white/60 hover:border-white/25" : "border-slate-200 text-slate-600 hover:border-slate-300"
+                    }`}>
+                    {b === 0 ? "None" : `${b} min`}
+                  </button>
+                ))}
+              </div>
+              <p className={`text-xs mt-2 ${mutedCls}`}>Break added after each appointment</p>
             </div>
           </div>
 
           {/* Weekly Availability */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <p className="font-bold text-slate-900 mb-4">Weekly Availability</p>
+          <div className={cardCls}>
+            <p className={labelCls}>Weekly Availability</p>
             <div className="space-y-3">
               {DAYS.map(({ key, label }) => (
                 <div key={key} className="flex items-center gap-3">
                   <button onClick={() => toggleDay(key)}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border transition-all flex-shrink-0 ${hours[key]?.enabled ? "bg-blue-600 text-white border-blue-600" : "bg-slate-50 text-slate-400 border-slate-200"}`}>
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border transition-all flex-shrink-0 ${
+                      hours[key]?.enabled
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : isDark ? "bg-white/5 text-white/30 border-white/15" : "bg-slate-50 text-slate-400 border-slate-200"
+                    }`}>
                     {label}
                   </button>
                   {hours[key]?.enabled ? (
                     <div className="flex items-center gap-2 flex-1">
                       <input type="time" value={hours[key]?.start || "09:00"}
                         onChange={e => setDayTime(key, "start", e.target.value)}
-                        className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-400" />
-                      <span className="text-slate-400 text-sm font-medium">to</span>
+                        className={inputCls} />
+                      <span className={`text-sm font-medium ${mutedCls}`}>to</span>
                       <input type="time" value={hours[key]?.end || "17:00"}
                         onChange={e => setDayTime(key, "end", e.target.value)}
-                        className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-400" />
+                        className={inputCls} />
                     </div>
                   ) : (
-                    <span className="text-slate-400 text-sm">Closed</span>
+                    <span className={`text-sm ${mutedCls}`}>Closed</span>
                   )}
                 </div>
               ))}
@@ -188,16 +225,16 @@ export default function AppointmentSettings({ profileId }) {
           </div>
 
           {/* Holidays / Closed Days */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-5">
-            <p className="font-bold text-slate-900 mb-3">Holiday / Closed Days</p>
+          <div className={cardCls}>
+            <p className={labelCls}>Holiday / Closed Days</p>
             <div className="flex gap-2 mb-3">
               <input type="date" value={holidayInput} onChange={e => setHolidayInput(e.target.value)}
-                className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-400" />
+                className={`flex-1 ${inputCls}`} />
               <Button onClick={addHoliday} disabled={!holidayInput} size="sm" className="bg-blue-600 hover:bg-blue-500 gap-1">
                 <Plus className="w-4 h-4" /> Add
               </Button>
             </div>
-            {holidays.length > 0 && (
+            {holidays.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {holidays.map(d => (
                   <div key={d} className="flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-3 py-1.5 text-xs font-semibold">
@@ -208,8 +245,9 @@ export default function AppointmentSettings({ profileId }) {
                   </div>
                 ))}
               </div>
+            ) : (
+              <p className={`text-sm ${mutedCls}`}>No closed days added.</p>
             )}
-            {holidays.length === 0 && <p className="text-slate-400 text-sm">No closed days added.</p>}
           </div>
         </>
       )}

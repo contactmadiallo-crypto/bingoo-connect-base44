@@ -18,7 +18,7 @@ const TAB_COLORS = {
   hours:         { color: "#0891b2", bg: "rgba(8,145,178,0.12)"   },
   crm:           { color: "#6366f1", bg: "rgba(99,102,241,0.12)"  },
   attendance:    { color: "#10b981", bg: "rgba(16,185,129,0.12)"  },
-  appt_settings: { color: "#0d9488", bg: "rgba(13,148,136,0.12)"  },
+  // appt_settings merged into appointments sub-tab
 };
 
 export default function DashboardNav({ tabs, activeTab, setTab, leads, appointments, isDark }) {
