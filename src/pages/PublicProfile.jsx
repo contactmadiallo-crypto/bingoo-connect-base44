@@ -83,38 +83,60 @@ const DEMO_PROFILE = {
 };
 
 // ── Build structured data for a profile
+const BASE_URL = "https://bingooconnect.com";
+const OG_IMAGE_BASE = `${BASE_URL}/api/functions/ogImage`;
+
+// Organisation schema for Bingoo Connect itself (appears on every profile page)
+const BINGOO_ORGANIZATION = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Bingoo Connect",
+  url: BASE_URL,
+  logo: "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+  sameAs: [
+    "https://instagram.com/bingooconnect",
+    "https://www.linkedin.com/company/bingooconnect",
+    "https://twitter.com/bingooconnect",
+  ],
+  description: "NFC-powered digital business cards and profiles for every professional.",
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    url: `${BASE_URL}/contact-support`,
+  },
+};
+
 function buildStructuredData(profile) {
-  const baseUrl = "https://bingooconnect.com";
-  const profileUrl = `${baseUrl}/p/${profile.username}`;
+  const profileUrl = `${BASE_URL}/p/${profile.username}`;
   const isLawFirm = profile.plan === "lawfirm";
   const isBusiness = ["business", "corporate", "salon", "restaurant"].includes(profile.plan);
+  const ogImageUrl = `${OG_IMAGE_BASE}?username=${encodeURIComponent(profile.username)}`;
 
   const person = {
+    "@context": "https://schema.org",
     "@type": "Person",
     name: profile.display_name,
     url: profileUrl,
+    image: profile.profile_photo || ogImageUrl,
     ...(profile.job_title && { jobTitle: profile.job_title }),
     ...(profile.company_name && { worksFor: { "@type": "Organization", name: profile.company_name } }),
     ...(profile.email && { email: profile.email }),
     ...(profile.phone && { telephone: profile.phone }),
     ...(profile.location && profile.show_location !== false && { address: { "@type": "PostalAddress", streetAddress: profile.location } }),
-    ...(profile.profile_photo && { image: profile.profile_photo }),
     ...(profile.website && { sameAs: [profile.website, profile.linkedin_url, profile.instagram_url].filter(Boolean) }),
   };
 
   const breadcrumb = {
+    "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
-      { "@type": "ListItem", position: 2, name: "Profiles", item: `${baseUrl}/p/` },
+      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+      { "@type": "ListItem", position: 2, name: "Profiles", item: `${BASE_URL}/p/` },
       { "@type": "ListItem", position: 3, name: profile.display_name, item: profileUrl },
     ],
   };
 
-  const entities = [
-    { "@context": "https://schema.org", ...person },
-    { "@context": "https://schema.org", ...breadcrumb },
-  ];
+  const entities = [person, breadcrumb, BINGOO_ORGANIZATION];
 
   if (isBusiness || isLawFirm) {
     entities.push({
@@ -122,13 +144,13 @@ function buildStructuredData(profile) {
       "@type": isLawFirm ? "LegalService" : "LocalBusiness",
       name: profile.company_name || profile.display_name,
       url: profileUrl,
+      image: profile.profile_photo || ogImageUrl,
       ...(profile.email && { email: profile.email }),
       ...(profile.phone && { telephone: profile.phone }),
       ...(profile.website && { sameAs: profile.website }),
       ...(profile.location && profile.show_location !== false && {
         address: { "@type": "PostalAddress", streetAddress: profile.location },
       }),
-      ...(profile.profile_photo && { image: profile.profile_photo }),
     });
   }
 
@@ -177,7 +199,11 @@ export default function PublicProfile() {
       ? `${profile.bio.slice(0, 140)}...`
       : `Contact ${profile.display_name}${profile.job_title ? `, ${profile.job_title}` : ""}${profile.company_name ? ` at ${profile.company_name}` : ""}. Connect via NFC on Bingoo Connect.`
     : "NFC-powered digital profiles for every professional.";
-  const seoImage = profile?.profile_photo || profile?.cover_photo || undefined;
+  // Use dynamic OG image — falls back to profile photo if available, but ogImage function
+  // always renders branded card so social shares look great even without a profile photo
+  const seoImage = profile
+    ? `https://bingooconnect.com/api/functions/ogImage?username=${encodeURIComponent(profile.username)}`
+    : undefined;
   const seoUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : undefined;
 
   useSEO({
