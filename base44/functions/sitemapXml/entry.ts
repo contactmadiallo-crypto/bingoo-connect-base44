@@ -3,55 +3,62 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const baseUrl = "https://bingooconnect.com";
 
-    // Fetch all active profiles using service role
+    // Fetch active public profiles
     const profiles = await base44.asServiceRole.entities.Profile.filter(
       { is_active: true },
-      "-updated_date",
+      '-updated_date',
       500
     );
 
+    const BASE_URL = 'https://bingooconnect.com';
+    const now = new Date().toISOString().split('T')[0];
+
+    // ONLY truly public marketing/legal pages — NO authenticated or dashboard routes
     const staticPages = [
-      { loc: baseUrl,                    priority: "1.0", changefreq: "weekly" },
-      { loc: `${baseUrl}/pricing`,       priority: "0.9", changefreq: "monthly" },
-      { loc: `${baseUrl}/about`,         priority: "0.8", changefreq: "monthly" },
-      { loc: `${baseUrl}/contact`,       priority: "0.7", changefreq: "monthly" },
-      { loc: `${baseUrl}/privacy`,       priority: "0.5", changefreq: "yearly" },
-      { loc: `${baseUrl}/terms`,         priority: "0.5", changefreq: "yearly" },
+      { url: '/',               changefreq: 'weekly', priority: '1.0' },
+      { url: '/about',          changefreq: 'monthly', priority: '0.7' },
+      { url: '/contact',        changefreq: 'monthly', priority: '0.7' },
+      { url: '/shop',           changefreq: 'weekly',  priority: '0.8' },
+      { url: '/pricing',        changefreq: 'weekly',  priority: '0.8' },
+      { url: '/privacy',        changefreq: 'yearly',  priority: '0.4' },
+      { url: '/terms',          changefreq: 'yearly',  priority: '0.4' },
+      { url: '/data-deletion',  changefreq: 'yearly',  priority: '0.3' },
+      { url: '/contact-support',changefreq: 'monthly', priority: '0.5' },
     ];
 
-    const profileUrls = profiles.map(p => ({
-      loc: `${baseUrl}/p/${p.username}`,
-      priority: "0.8",
-      changefreq: "weekly",
-      lastmod: p.updated_date ? new Date(p.updated_date).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+    // Active public profile pages
+    const profileUrls = (profiles || []).map(p => ({
+      url: `/p/${p.username}`,
+      changefreq: 'weekly',
+      priority: '0.9',
+      lastmod: p.updated_date ? p.updated_date.split('T')[0] : now,
     }));
 
     const allUrls = [...staticPages, ...profileUrls];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allUrls.map(u => `  <url>
-    <loc>${u.loc}</loc>
+    <loc>${BASE_URL}${u.url}</loc>
+    <lastmod>${u.lastmod || now}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>${u.lastmod ? `\n    <lastmod>${u.lastmod}</lastmod>` : ""}
-  </url>`).join("\n")}
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
 </urlset>`;
 
     return new Response(xml, {
       status: 200,
       headers: {
-        "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=3600",
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600',
       },
     });
-  } catch (error) {
-    console.error("Sitemap error:", error.message);
-    return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`, {
-      status: 200,
-      headers: { "Content-Type": "application/xml; charset=utf-8" },
-    });
+  } catch (err) {
+    console.error('[sitemapXml] error:', err.message);
+    return new Response(
+      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`,
+      { status: 200, headers: { 'Content-Type': 'application/xml; charset=utf-8' } }
+    );
   }
 });
