@@ -13,11 +13,12 @@ Deno.serve(async (req) => {
     );
 
     const staticPages = [
-      { loc: baseUrl, priority: "1.0", changefreq: "weekly" },
-      { loc: `${baseUrl}/pricing`, priority: "0.9", changefreq: "monthly" },
-      { loc: `${baseUrl}/about`, priority: "0.7", changefreq: "monthly" },
-      { loc: `${baseUrl}/contact`, priority: "0.6", changefreq: "monthly" },
-      { loc: `${baseUrl}/shop`, priority: "0.8", changefreq: "weekly" },
+      { loc: baseUrl,                    priority: "1.0", changefreq: "weekly" },
+      { loc: `${baseUrl}/pricing`,       priority: "0.9", changefreq: "monthly" },
+      { loc: `${baseUrl}/about`,         priority: "0.8", changefreq: "monthly" },
+      { loc: `${baseUrl}/contact`,       priority: "0.7", changefreq: "monthly" },
+      { loc: `${baseUrl}/privacy`,       priority: "0.5", changefreq: "yearly" },
+      { loc: `${baseUrl}/terms`,         priority: "0.5", changefreq: "yearly" },
     ];
 
     const profileUrls = profiles.map(p => ({
