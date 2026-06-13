@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Ban, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Scissors, UtensilsCrossed, Building2, UserPlus2, Globe } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Trash2, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Building2, UserPlus2, Globe } from "lucide-react";
 import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
 import AdminPricingTab from "@/components/bingoo/AdminPricingTab";
 import { PLAN_LABELS } from "@/lib/planPermissions";
