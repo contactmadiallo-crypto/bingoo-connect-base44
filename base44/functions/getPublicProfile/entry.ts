@@ -10,8 +10,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username is required' }, { status: 400 });
     }
 
-    // Use service role so unauthenticated (public) visitors can load profiles
-    // First try with is_active: true
+    // Try active profiles first
     let profiles = await base44.asServiceRole.entities.Profile.filter({
       username: username,
       is_active: true,
@@ -19,25 +18,27 @@ Deno.serve(async (req) => {
 
     console.log(`[getPublicProfile] username="${username}" is_active:true → found ${profiles?.length ?? 0} profiles`);
 
-    // If not found, try without is_active filter (profile may have is_active=false or null/undefined)
+    // Fallback: try without is_active filter (handles null/undefined is_active)
     if (!profiles || profiles.length === 0) {
-      profiles = await base44.asServiceRole.entities.Profile.filter({
-        username: username,
-      }, '-updated_date', 1);
-      console.log(`[getPublicProfile] username="${username}" no is_active filter → found ${profiles?.length ?? 0} profiles`);
-      if (profiles?.length > 0) {
-        console.log(`[getPublicProfile] profile found but is_active=${profiles[0]?.is_active} — returning it anyway`);
-      }
+      profiles = await base44.asServiceRole.entities.Profile.filter(
+        { username },
+        '-updated_date',
+        1
+      );
+      console.log(`[getPublicProfile] fallback (no is_active filter) → found ${profiles?.length ?? 0}`);
     }
 
     if (!profiles || profiles.length === 0) {
-      console.log(`[getPublicProfile] profile NOT found for username="${username}"`);
-      return Response.json({ profile: null });
+      console.log(`[getPublicProfile] NOT FOUND for username="${username}" — returning 404`);
+      // Return true 404 so the frontend can detect "not found" vs "error"
+      return Response.json({ profile: null, not_found: true }, { status: 404 });
     }
 
-    console.log(`[getPublicProfile] returning profile id=${profiles[0]?.id} username=${profiles[0]?.username} is_active=${profiles[0]?.is_active}`);
-    return Response.json({ profile: profiles[0] });
+    const profile = profiles[0];
+    console.log(`[getPublicProfile] returning profile id=${profile?.id} username=${profile?.username} is_active=${profile?.is_active}`);
+    return Response.json({ profile });
   } catch (error) {
+    console.error(`[getPublicProfile] error:`, error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

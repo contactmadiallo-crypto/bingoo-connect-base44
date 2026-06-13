@@ -175,19 +175,31 @@ export default function PublicProfile() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const { data: profiles = [], isLoading } = useQuery({
+  const { data: queryResult, isLoading } = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async () => {
-      if (isDemo) return [DEMO_PROFILE];
-      console.log(`[PublicProfile] fetching username="${username}" url=${window.location.href}`);
-      const res = await base44.functions.invoke("getPublicProfile", { username });
-      console.log(`[PublicProfile] getPublicProfile result:`, res.data);
-      return res.data?.profile ? [res.data.profile] : [];
+      if (isDemo) return { profile: DEMO_PROFILE, not_found: false };
+      try {
+        const res = await base44.functions.invoke("getPublicProfile", { username });
+        // 404 from backend → profile doesn't exist
+        if (res.status === 404 || res.data?.not_found) {
+          return { profile: null, not_found: true };
+        }
+        return { profile: res.data?.profile || null, not_found: false };
+      } catch (err) {
+        // axios throws on 4xx — check if it's a 404
+        if (err?.response?.status === 404) {
+          return { profile: null, not_found: true };
+        }
+        throw err;
+      }
     },
     staleTime: 0,
+    retry: false, // don't retry 404s
   });
 
-  const profile = profiles[0];
+  const profile = queryResult?.profile;
+  const isNotFound = !isLoading && queryResult?.not_found === true;
 
   // ── Dynamic SEO
   const seoTitle = profile
@@ -207,12 +219,13 @@ export default function PublicProfile() {
   const seoUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : undefined;
 
   useSEO({
-    title: profile && !isDemo ? seoTitle : undefined,
+    title: profile && !isDemo ? seoTitle : isNotFound ? "Profile Not Found | Bingoo Connect" : undefined,
     description: profile && !isDemo ? seoDesc : undefined,
     image: !isDemo ? seoImage : undefined,
     url: !isDemo ? seoUrl : undefined,
     type: "profile",
     structuredData: profile && !isDemo ? buildStructuredData(profile) : undefined,
+    noindex: isNotFound, // tell search engines not to index 404 pages
   });
 
   useEffect(() => {
@@ -226,20 +239,32 @@ export default function PublicProfile() {
 
 
 
+  // Skeleton shown only to real users — Googlebot won't index this state
+  // because getPublicProfile now returns 404 for missing profiles and
+  // the noindex meta tag is set on the not-found render below.
   if (isLoading) return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f8fafc", gap: 16 }}>
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        style={{ width: 40, height: 40, borderRadius: "50%", border: `3px solid ${B.navy}20`, borderTopColor: B.navy }} />
-      <p style={{ color: "#94a3b8", fontSize: 13, fontWeight: 600 }}>Loading profile…</p>
+    <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+      {/* Skeleton header */}
+      <div style={{ height: 190, background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)" }} />
+      <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 24px" }}>
+        <div style={{ width: 110, height: 110, borderRadius: "50%", background: "#e2e8f0", margin: "-55px auto 16px", border: "4px solid #fff" }} />
+        <div style={{ height: 28, background: "#e2e8f0", borderRadius: 8, marginBottom: 12, width: "60%", margin: "0 auto 12px" }} />
+        <div style={{ height: 16, background: "#f1f5f9", borderRadius: 6, width: "45%", margin: "0 auto 8px" }} />
+        <div style={{ height: 14, background: "#f1f5f9", borderRadius: 6, width: "35%", margin: "0 auto 24px" }} />
+        <div style={{ height: 60, background: "#f1f5f9", borderRadius: 12, marginBottom: 12 }} />
+        <div style={{ height: 60, background: "#f1f5f9", borderRadius: 12, marginBottom: 12 }} />
+        <div style={{ height: 60, background: "#f1f5f9", borderRadius: 12 }} />
+      </div>
     </div>
   );
 
-  if (!profile) return (
+  // True 404 — noindex is already set via useSEO above
+  if (isNotFound || !profile) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: 24 }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 64, marginBottom: 16 }}>😕</div>
-        <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>Profile not found</h2>
-        <p style={{ color: "#64748b", fontSize: 14 }}>This link may be inactive.</p>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>Profile not found</h1>
+        <p style={{ color: "#64748b", fontSize: 14 }}>This link may be inactive or the username doesn't exist.</p>
         <a href="/" style={{ display: "inline-block", marginTop: 20, padding: "12px 28px", borderRadius: 999, background: B.navy, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Go Home</a>
       </div>
     </div>

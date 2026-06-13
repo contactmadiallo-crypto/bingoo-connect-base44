@@ -4,7 +4,7 @@ import { useEffect } from "react";
  * Dynamically sets <head> meta tags for SEO and social sharing.
  * Restores defaults on unmount.
  */
-export function useSEO({ title, description, image, url, type = "profile", structuredData } = {}) {
+export function useSEO({ title, description, image, url, type = "profile", structuredData, noindex = false } = {}) {
   useEffect(() => {
     const defaultTitle = "Bingoo Connect — NFC Business Cards & Digital Profiles";
     const defaultDesc = "One tap to share your entire business world. NFC-powered digital profiles for professionals.";
@@ -55,6 +55,19 @@ export function useSEO({ title, description, image, url, type = "profile", struc
     }
     canonical.setAttribute("href", finalUrl);
 
+    // Robots — noindex for 404/not-found pages
+    let robotsMeta = document.querySelector('meta[name="robots"]');
+    if (noindex) {
+      if (!robotsMeta) {
+        robotsMeta = document.createElement("meta");
+        robotsMeta.setAttribute("name", "robots");
+        document.head.appendChild(robotsMeta);
+      }
+      robotsMeta.setAttribute("content", "noindex, nofollow");
+    } else if (robotsMeta) {
+      robotsMeta.setAttribute("content", "index, follow");
+    }
+
     // Structured data
     let ldScript = document.getElementById("ld-json-seo");
     if (structuredData) {
@@ -81,6 +94,9 @@ export function useSEO({ title, description, image, url, type = "profile", struc
       setMeta('meta[name="twitter:image"]', "content", defaultImage);
       if (canonical) canonical.setAttribute("href", "https://bingooconnect.com");
       if (ldScript) ldScript.remove();
+      // Remove noindex on unmount
+      const robots = document.querySelector('meta[name="robots"]');
+      if (robots) robots.setAttribute("content", "index, follow");
     };
-  }, [title, description, image, url, structuredData]);
+  }, [title, description, image, url, structuredData, noindex]);
 }
