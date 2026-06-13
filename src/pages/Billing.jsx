@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, CheckCircle2, AlertTriangle, XCircle, Crown, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, UtensilsCrossed, Building2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,14 @@ const STATUS_CONFIG = {
 export default function Billing() {
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Prevent Google from indexing this authenticated page
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
   const { plan, subscription, isLoading } = usePlan();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
