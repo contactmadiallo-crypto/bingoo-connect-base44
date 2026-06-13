@@ -86,6 +86,8 @@ export default function AdminDashboard() {
   const [planFilter, setPlanFilter] = useState("all");
   const [showDeviceForm, setShowDeviceForm] = useState(false);
   const [deviceForm, setDeviceForm] = useState({ profile_id: "", device_type: "card", device_code: "", status: "active" });
+  const [editingDevice, setEditingDevice] = useState(null); // device being edited
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // device to delete
   const [resetConfirm, setResetConfirm] = useState(null); // device to reset
   const [resetting, setResetting] = useState(false);
   const [lang, setLang] = useState(() => {
@@ -120,13 +122,24 @@ export default function AdminDashboard() {
 
   const createDevice = useMutation({
     mutationFn: async (data) => {
-      // Uniqueness check: reject if device_code already exists in NFCDevice or Device
-      const existingNfc = devices.find(d => d.device_code?.toUpperCase() === data.device_code?.toUpperCase());
+      const existingNfc = devices.find(d => d.device_code?.toUpperCase() === data.device_code?.toUpperCase() && d.id !== editingDevice?.id);
       const existingDev = allNfcDevices.find(d => d.device_code?.toUpperCase() === data.device_code?.toUpperCase());
       if (existingNfc || existingDev) throw new Error(`Device code "${data.device_code}" already exists. Use a unique code.`);
       return base44.entities.NFCDevice.create({ ...data, assigned_at: new Date().toISOString() });
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-devices"] }); setShowDeviceForm(false); setDeviceForm({ profile_id: "", device_type: "card", device_code: "", status: "active" }); toast.success("Device created!"); },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const updateDevice = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.NFCDevice.update(id, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-devices"] }); setEditingDevice(null); toast.success("Device updated!"); },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const deleteDevice = useMutation({
+    mutationFn: (id) => base44.entities.NFCDevice.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-devices"] }); setDeleteConfirm(null); toast.success("Device deleted!"); },
     onError: (err) => toast.error(err.message),
   });
 
@@ -564,80 +577,115 @@ export default function AdminDashboard() {
         {tab === "devices" && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <p className="text-slate-500 text-sm">{devices.length} devices total</p>
-              <Button onClick={() => setShowDeviceForm(true)} className="bg-blue-600 hover:bg-blue-700 gap-2">
+              <p className="text-white/40 text-sm">{devices.length} devices total</p>
+              <Button onClick={() => { setShowDeviceForm(true); setEditingDevice(null); setDeviceForm({ profile_id: "", device_type: "card", device_code: "", status: "active" }); }}
+                className="gap-2" style={{ background: orange, color: "#fff" }}>
                 <Plus className="w-4 h-4" /> {t.addDevice}
               </Button>
             </div>
 
-            {showDeviceForm && (
-              <div className="bg-white rounded-2xl border border-blue-200 p-6">
+            {/* Create / Edit Form */}
+            {(showDeviceForm || editingDevice) && (
+              <div className="rounded-2xl border p-6" style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.15)" }}>
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-slate-900">Create NFC Device</h3>
-                  <button onClick={() => setShowDeviceForm(false)}><X className="w-5 h-5 text-slate-400 hover:text-slate-600" /></button>
+                  <h3 className="font-bold text-white">{editingDevice ? "Edit Device" : "Create NFC Device"}</h3>
+                  <button onClick={() => { setShowDeviceForm(false); setEditingDevice(null); }}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <Label>Profile ID (to assign)</Label>
-                    <Input className="mt-1 border-slate-200" placeholder="profile_id" value={deviceForm.profile_id} onChange={e => setDeviceForm(f => ({ ...f, profile_id: e.target.value }))} />
-                    <p className="text-xs text-slate-400 mt-1">Find the profile ID from the table above</p>
+                    <Label className="text-white/60 text-xs">Profile ID (to assign)</Label>
+                    <Input className="mt-1" placeholder="profile_id"
+                      value={editingDevice ? editingDevice.profile_id : deviceForm.profile_id}
+                      onChange={e => editingDevice ? setEditingDevice(d => ({ ...d, profile_id: e.target.value })) : setDeviceForm(f => ({ ...f, profile_id: e.target.value }))}
+                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }} />
+                    <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.3)" }}>Copy the profile ID from the Users tab</p>
                   </div>
                   <div>
-                    <Label>Device Code (unique)</Label>
-                    <Input className="mt-1 border-slate-200" placeholder="BNG-001" value={deviceForm.device_code} onChange={e => setDeviceForm(f => ({ ...f, device_code: e.target.value.toUpperCase() }))} />
+                    <Label className="text-white/60 text-xs">Device Code (unique)</Label>
+                    <Input className="mt-1" placeholder="BNG-001"
+                      value={editingDevice ? editingDevice.device_code : deviceForm.device_code}
+                      onChange={e => editingDevice ? setEditingDevice(d => ({ ...d, device_code: e.target.value.toUpperCase() })) : setDeviceForm(f => ({ ...f, device_code: e.target.value.toUpperCase() }))}
+                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }} />
                   </div>
                   <div>
-                    <Label>Device Type</Label>
-                    <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" value={deviceForm.device_type} onChange={e => setDeviceForm(f => ({ ...f, device_type: e.target.value }))}>
-                      {["card","keychain","bracelet","stand","badge"].map(t => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+                    <Label className="text-white/60 text-xs">Device Type</Label>
+                    <select className="mt-1 w-full rounded-xl px-3 py-2 text-sm font-medium"
+                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+                      value={editingDevice ? editingDevice.device_type : deviceForm.device_type}
+                      onChange={e => editingDevice ? setEditingDevice(d => ({ ...d, device_type: e.target.value })) : setDeviceForm(f => ({ ...f, device_type: e.target.value }))}>
+                      {["card","keychain","bracelet","stand","badge","sticker"].map(tp => <option key={tp} value={tp} style={{ background: "#0B2E6B" }}>{tp.charAt(0).toUpperCase() + tp.slice(1)}</option>)}
                     </select>
                   </div>
                   <div>
-                    <Label>Status</Label>
-                    <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm" value={deviceForm.status} onChange={e => setDeviceForm(f => ({ ...f, status: e.target.value }))}>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
+                    <Label className="text-white/60 text-xs">Status</Label>
+                    <select className="mt-1 w-full rounded-xl px-3 py-2 text-sm font-medium"
+                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+                      value={editingDevice ? editingDevice.status : deviceForm.status}
+                      onChange={e => editingDevice ? setEditingDevice(d => ({ ...d, status: e.target.value })) : setDeviceForm(f => ({ ...f, status: e.target.value }))}>
+                      <option value="active" style={{ background: "#0B2E6B" }}>Active</option>
+                      <option value="inactive" style={{ background: "#0B2E6B" }}>Inactive</option>
+                      <option value="lost" style={{ background: "#0B2E6B" }}>Lost</option>
                     </select>
                   </div>
                 </div>
-                <Button onClick={() => createDevice.mutate(deviceForm)} disabled={createDevice.isPending || !deviceForm.device_code} className="bg-blue-600 hover:bg-blue-700">
-                  {createDevice.isPending ? "Creating..." : "Create Device"}
+                <Button
+                  onClick={() => editingDevice
+                    ? updateDevice.mutate({ id: editingDevice.id, data: { profile_id: editingDevice.profile_id, device_type: editingDevice.device_type, device_code: editingDevice.device_code, status: editingDevice.status } })
+                    : createDevice.mutate(deviceForm)
+                  }
+                  disabled={createDevice.isPending || updateDevice.isPending || !(editingDevice ? editingDevice.device_code : deviceForm.device_code)}
+                  style={{ background: orange, color: "#fff" }}>
+                  {createDevice.isPending || updateDevice.isPending ? "Saving..." : editingDevice ? "Save Changes" : "Create Device"}
                 </Button>
               </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+            <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      {[t.code, t.type, t.status, t.profileCol, "Tap URL", t.activated].map(h => (
-                        <th key={h} className="text-left px-5 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{h}</th>
+                    <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                      {[t.code, t.type, t.status, t.profileCol, "Tap URL", t.activated, t.actions].map(h => (
+                        <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50">
+                  <tbody>
                     {devices.map(d => {
                       const linkedProfile = profiles.find(p => p.id === d.profile_id);
                       return (
-                        <tr key={d.id} className="hover:bg-slate-50">
-                          <td className="px-5 py-4 font-mono text-sm font-bold text-slate-900">{d.device_code}</td>
-                          <td className="px-5 py-4 text-sm text-slate-600 capitalize">{d.device_type}</td>
+                        <tr key={d.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                          onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                          <td className="px-5 py-4 font-mono text-sm font-bold text-white">{d.device_code}</td>
+                          <td className="px-5 py-4 text-sm capitalize" style={{ color: "rgba(255,255,255,0.6)" }}>{d.device_type}</td>
                           <td className="px-5 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${d.status === "active" ? "bg-green-100 text-green-700" : d.status === "lost" ? "bg-red-100 text-red-600" : "bg-slate-100 text-slate-500"}`}>{d.status}</span>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${d.status === "active" ? "bg-green-500/20 text-green-400" : d.status === "lost" ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/40"}`}>{d.status}</span>
                           </td>
-                          <td className="px-5 py-4 text-sm text-slate-600">{linkedProfile?.display_name || d.profile_id?.slice(0,8) || "—"}</td>
+                          <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{linkedProfile?.display_name || d.profile_id?.slice(0,8) || "—"}</td>
                           <td className="px-5 py-4">
-                            <a href={`/n/${d.device_code}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 text-xs font-mono hover:underline">/n/{d.device_code}</a>
+                            <a href={`/n/${d.device_code}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: orange }}>/n/{d.device_code}</a>
                           </td>
-                          <td className="px-5 py-4 text-xs text-slate-400">{d.assigned_at?.slice(0,10) || "—"}</td>
+                          <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{d.assigned_at?.slice(0,10) || "—"}</td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-2">
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
+                                onClick={() => { setEditingDevice({ ...d }); setShowDeviceForm(false); }}>
+                                <Edit className="w-3.5 h-3.5 text-blue-400" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
+                                onClick={() => setDeleteConfirm(d)}>
+                                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                              </Button>
+                            </div>
+                          </td>
                         </tr>
                       );
                     })}
                   </tbody>
                 </table>
                 {devices.length === 0 && (
-                  <div className="text-center py-12 text-slate-400">
+                  <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Smartphone className="w-10 h-10 mx-auto mb-2 opacity-20" />
                     <p>{t.noDevices}</p>
                   </div>
@@ -991,6 +1039,31 @@ export default function AdminDashboard() {
         )}
       </div>
       </div>
+
+      {/* Delete Device Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-red-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="font-black text-slate-900">Delete Device</h3>
+                <p className="text-xs text-slate-400 font-mono">{deleteConfirm.device_code}</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-600 mb-5">This will permanently delete this NFC device. This action cannot be undone.</p>
+            <div className="flex gap-2">
+              <Button onClick={() => deleteDevice.mutate(deleteConfirm.id)} disabled={deleteDevice.isPending}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold">
+                {deleteDevice.isPending ? "Deleting..." : "Yes, Delete"}
+              </Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Force Reset Confirmation Modal */}
       {resetConfirm && (
