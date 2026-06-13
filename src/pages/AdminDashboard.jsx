@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Trash2, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Building2, UserPlus2, Globe } from "lucide-react";
+import { Users, Smartphone, BarChart3, Star, Shield, Search, Plus, X, Edit, Trash2, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, Building2, UserPlus2, Globe, QrCode } from "lucide-react";
 import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
 import AdminPricingTab from "@/components/bingoo/AdminPricingTab";
+import AdminNFCManager from "@/components/bingoo/AdminNFCManager";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
 const T = {
@@ -177,7 +178,8 @@ export default function AdminDashboard() {
   const TABS = [
     { id: "users",        label: t.tabs.users,        icon: Users,        count: profiles.length },
     { id: "subscriptions",label: t.tabs.subscriptions,icon: CreditCard,   count: subscriptions.length },
-    { id: "nfc_manager",  label: t.tabs.nfc_manager,  icon: RotateCcw,    count: allNfcDevices.length },
+    { id: "nfc_manager",  label: "NFC Manager",       icon: QrCode,       count: undefined },
+    { id: "legacy_nfc",   label: t.tabs.nfc_manager,  icon: RotateCcw,    count: allNfcDevices.length },
     { id: "devices",      label: t.tabs.devices,      icon: Smartphone,   count: devices.length },
     { id: "activations",  label: t.tabs.activations,  icon: Clock,        count: recentActivations.length },
     ...(hasFeature(features, "lead_collection") ? [{ id: "leads",        label: t.tabs.leads,        icon: Star,         count: leads.length }] : []),
@@ -506,8 +508,13 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* NFC Manager — force reset */}
+        {/* NEW NFC Manager */}
         {tab === "nfc_manager" && (
+          <AdminNFCManager profiles={profiles} />
+        )}
+
+        {/* Legacy NFC Manager — force reset */}
+        {tab === "legacy_nfc" && (
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3 items-start">
               <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
