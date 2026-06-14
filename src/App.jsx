@@ -52,9 +52,9 @@ import AccountSettings from '@/pages/AccountSettings';
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 
-// Redirect /sitemap.xml to the backend function
+// Redirect /sitemap.xml to the backend function (hard redirect, no React dependency)
 function SitemapRedirect() {
-  useEffect(() => { window.location.replace('/api/functions/sitemapXml'); }, []);
+  window.location.replace('/api/functions/sitemapXml');
   return null;
 }
 

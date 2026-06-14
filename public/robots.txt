@@ -1,65 +1,16 @@
 User-agent: *
 
-# Allow public pages
-Allow: /$
-Allow: /p/
-Allow: /about
-Allow: /pricing
-Allow: /contact
-Allow: /privacy
-Allow: /terms
-Allow: /shop
-Allow: /firm/
-Allow: /lost/
-Allow: /n/
-
-# Block all authenticated / dashboard / internal routes
-Disallow: /bingoo
 Disallow: /admin
-Disallow: /monitor
+Disallow: /bingoo
 Disallow: /billing
 Disallow: /checkout
 Disallow: /cart
 Disallow: /account-settings
-Disallow: /activate-device
 Disallow: /my-nfc-devices
-Disallow: /my-orders
 Disallow: /shop-admin
-Disallow: /order-confirmation
-Disallow: /plans
 Disallow: /login
 Disallow: /register
 Disallow: /forgot-password
 Disallow: /reset-password
-Disallow: /bingoo-home
 
-# Block FoodHub / internal app routes
-Disallow: /CustomerApp
-Disallow: /OrderTracking
-Disallow: /RestaurantMenu
-Disallow: /KitchenView
-Disallow: /RestaurantAdmin
-Disallow: /RestaurantAnalytics
-Disallow: /RestaurantManagement
-Disallow: /RestaurantOnboarding
-Disallow: /MarketplaceOnboarding
-Disallow: /DriverSignup
-Disallow: /DriverApp
-Disallow: /DriverEarnings
-Disallow: /DriverTracking
-Disallow: /DeliveryManagement
-Disallow: /DeliveryPartnerDashboard
-Disallow: /PlatformFinance
-Disallow: /OrderManagement
-Disallow: /Dashboard
-Disallow: /Calendar
-Disallow: /Projects
-Disallow: /Reports
-Disallow: /Finance
-Disallow: /Files
-Disallow: /Team
-Disallow: /AddWork
-Disallow: /AppHub
-
-# Sitemap
 Sitemap: https://bingooconnect.com/sitemap.xml
