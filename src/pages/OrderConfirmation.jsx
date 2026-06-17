@@ -10,10 +10,13 @@ export default function OrderConfirmation() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
-    if (sessionId) {
-      base44.functions.invoke('verifyStripeSession', { session_id: sessionId })
-        .then(res => { setOrder(res.data?.order || null); })
+    const orderId = params.get('order_id');
+
+    if (orderId) {
+      // Load the ShopOrder record directly — no extra backend function needed
+      base44.entities.ShopOrder.get(orderId)
+        .then(orderRecord => { setOrder(orderRecord || null); })
+        .catch(() => setOrder(null))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);

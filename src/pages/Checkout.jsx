@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,40 +20,100 @@ export default function Checkout() {
     address: '', city: '', state: '', zip: '', country: 'US', notes: '',
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+
+    // Guard: must be from published app (not iframe preview)
     if (window.self !== window.top) {
       alert('Checkout is only available from the published app.');
       return;
     }
+
+    // Guard: cart must not be empty
+    if (cart.length === 0) {
+      setError('Your cart is empty.');
+      return;
+    }
+
     setLoading(true);
-    const res = await base44.functions.invoke('createCheckoutSession', {
-      items: cart.map(item => ({
-        product_id: item.id,
-        product_name: item.name,
-        quantity: item.quantity,
-        unit_price: item.price,
-      })),
-      customer_name: form.name,
-      customer_email: form.email,
-      customer_phone: form.phone,
-      shipping_address: form.address,
-      city: form.city,
-      state: form.state,
-      zip_code: form.zip,
-      country: form.country,
-      order_notes: form.notes,
-      subtotal,
-      shipping_cost: SHIPPING_COST,
-      total,
-    });
-    setLoading(false);
-    if (res.data?.url) {
+
+    // Timeout safety — if checkout hangs > 20s, show an error instead of spinning forever
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      setError('Checkout is taking too long. Please try again.');
+    }, 20000);
+
+    try {
+      // Step 1: Create a ShopOrder record BEFORE starting Stripe session.
+      // This gives us a stable order_id that survives the redirect to Stripe.
+      const orderData = {
+        customer_name: form.name,
+        customer_email: form.email,
+        customer_phone: form.phone,
+        shipping_address: form.address,
+        city: form.city,
+        state: form.state,
+        zip_code: form.zip,
+        country: form.country,
+        order_notes: form.notes,
+        items: cart.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+        })),
+        subtotal,
+        shipping_cost: SHIPPING_COST,
+        total,
+        payment_status: 'unpaid',
+        fulfillment_status: 'processing',
+      };
+
+      const order = await base44.entities.ShopOrder.create(orderData);
+      if (!order?.id) throw new Error('Failed to create order. Please try again.');
+
+      // Step 2: Create Stripe Checkout session via backend function
+      // Function name: createShopCheckout (NOT createCheckoutSession)
+      const res = await base44.functions.invoke('createShopCheckout', {
+        order_id: order.id,
+        customer_email: form.email,
+        shipping_cost: SHIPPING_COST,
+        items: cart.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+        })),
+      });
+
+      clearTimeout(timeoutId);
+
+      // Step 3: Extract the Stripe redirect URL
+      // base44.functions.invoke returns an Axios response: { data: { url, error } }
+      const stripeUrl = res?.data?.url;
+      const serverError = res?.data?.error;
+
+      if (serverError) {
+        throw new Error(serverError);
+      }
+      if (!stripeUrl) {
+        throw new Error('No checkout URL returned from server. Please try again.');
+      }
+
+      // Step 4: Clear cart and redirect to Stripe
       clearCart();
-      window.location.href = res.data.url;
+      window.location.href = stripeUrl;
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.error('Checkout error:', err);
+      setLoading(false);
+      setError(err.message || 'Checkout failed. Please try again.');
     }
   };
 
@@ -82,6 +142,17 @@ export default function Checkout() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-sm">Checkout failed</p>
+              <p className="text-sm mt-0.5">{error}</p>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Shipping Info */}
           <div className="space-y-4">
@@ -145,11 +216,26 @@ export default function Checkout() {
                 <span>Total</span><span>${total.toFixed(2)}</span>
               </div>
             </div>
-            <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 gap-2 h-12 text-base">
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 gap-2 h-12 text-base disabled:opacity-70"
+            >
               <Lock className="w-4 h-4" />
-              {loading ? 'Redirecting to payment...' : `Pay $${total.toFixed(2)} securely`}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                  Redirecting to payment…
+                </span>
+              ) : (
+                `Pay $${total.toFixed(2)} securely`
+              )}
             </Button>
-            <p className="text-xs text-slate-500 text-center mt-2">You'll be redirected to Stripe for secure payment.</p>
+
+            <p className="text-xs text-slate-500 text-center mt-2">
+              You'll be redirected to Stripe for secure payment.
+            </p>
           </div>
         </form>
       </div>
