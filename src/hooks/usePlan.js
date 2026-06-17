@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, normalizePlan, PLAN_HIERARCHY } from '@/lib/planPermissions';
+import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, normalizePlan, PLAN_CAPABILITIES } from '@/lib/planPermissions';
 
 /**
  * Returns the current user's active plan and a capability-based canAccess() helper.
@@ -57,9 +57,9 @@ export function usePlan() {
     // Manual/legacy subscription record or no subscription at all.
     // Take the higher of subscription.plan and Profile.plan — never downgrade manually set plans.
     const subPlan = subscription ? normalizePlan(subscription.plan || 'free') : 'free';
-    const subLevel = PLAN_HIERARCHY[subPlan] ?? 0;
-    const profileLevel = PLAN_HIERARCHY[profilePlan] ?? 0;
-    activePlan = profileLevel >= subLevel ? profilePlan : subPlan;
+    const subScore = PLAN_CAPABILITIES[subPlan]?.size ?? 0;
+    const profileScore = PLAN_CAPABILITIES[profilePlan]?.size ?? 0;
+    activePlan = profileScore >= subScore ? profilePlan : subPlan;
   }
 
   const normalizedPlan = normalizePlan(activePlan || 'free');
