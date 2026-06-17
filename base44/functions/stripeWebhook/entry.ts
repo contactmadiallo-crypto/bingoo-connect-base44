@@ -79,11 +79,25 @@ Deno.serve(async (req) => {
       const { order_id, plan, user_id, user_email } = session.metadata || {};
 
       if (session.mode === 'payment' && order_id) {
-        await base44.asServiceRole.entities.ShopOrder.update(order_id, {
-          payment_status: 'paid',
-          stripe_payment_intent: session.payment_intent || '',
-        });
-        console.log('Order marked as paid:', order_id);
+        // Idempotency: fetch before update — skip if already paid to avoid double-processing
+        let shopOrder;
+        try {
+          shopOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
+        } catch (e) {
+          console.error('Could not fetch ShopOrder for webhook:', order_id, e.message);
+        }
+        if (!shopOrder) {
+          console.error('Webhook: ShopOrder not found for order_id:', order_id);
+        } else if (shopOrder.payment_status === 'paid') {
+          console.log('Webhook: order already paid, skipping update:', order_id);
+        } else {
+          await base44.asServiceRole.entities.ShopOrder.update(order_id, {
+            payment_status: 'paid',
+            stripe_session_id: session.id,
+            stripe_payment_intent: session.payment_intent || '',
+          });
+          console.log('Order marked as paid:', order_id, '| session:', session.id);
+        }
 
       } else if (session.mode === 'subscription' && plan) {
         const customerEmail = session.customer_email || user_email;

@@ -77,17 +77,15 @@ export default function Checkout() {
       const order = await base44.entities.ShopOrder.create(orderData);
       if (!order?.id) throw new Error('Failed to create order. Please try again.');
 
-      // Step 2: Create Stripe Checkout session via backend function
-      // Function name: createShopCheckout (NOT createCheckoutSession)
+      // Step 2: Create Stripe Checkout session via backend function.
+      // Only send product_id, quantity, and customer_email for UX pre-fill.
+      // Backend calculates all prices from its own catalog — frontend prices are ignored.
       const res = await base44.functions.invoke('createShopCheckout', {
         order_id: order.id,
         customer_email: form.email,
-        shipping_cost: SHIPPING_COST,
         items: cart.map(item => ({
           product_id: item.id,
-          product_name: item.name,
           quantity: item.quantity,
-          unit_price: item.price,
         })),
       });
 
@@ -105,8 +103,9 @@ export default function Checkout() {
         throw new Error('No checkout URL returned from server. Please try again.');
       }
 
-      // Step 4: Clear cart and redirect to Stripe
-      clearCart();
+      // Step 4: Redirect to Stripe. Cart is cleared in OrderConfirmation
+      // after the user lands on the success page — so canceling Stripe checkout
+      // brings them back to /cart with their items still intact.
       window.location.href = stripeUrl;
 
     } catch (err) {
