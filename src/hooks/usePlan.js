@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
+import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, normalizePlan, PLAN_CAPABILITIES } from '@/lib/planPermissions';
 
 /**
- * Returns the current user's active plan, subscription info,
- * and a helper to check feature access.
+ * Returns the current user's active plan and a capability-based canAccess() helper.
  *
- * CRITICAL: While loading, canAccess() returns true (open) to prevent
- * premature gate screens. Gates only close once data is confirmed.
+ * Plan resolution: picks the highest plan between the user's Subscription record
+ * and their Profile.plan field (handles cases where one lags the other).
+ *
+ * While loading, canAccess() returns true to prevent premature gate screens.
  */
 export function usePlan() {
   const { data: user, isLoading: loadingUser } = useQuery({
@@ -31,10 +32,14 @@ export function usePlan() {
 
   const subscription = subscriptions?.[0] || null;
 
-  // Always pick the highest plan between subscription and profile
-  const subPlan = resolveActivePlan(subscription);
-  const profilePlan = profiles?.[0]?.plan || 'free';
-  const activePlan = (PLAN_HIERARCHY[subPlan] ?? 0) >= (PLAN_HIERARCHY[profilePlan] ?? 0) ? subPlan : profilePlan;
+  // Resolve plan: pick highest between subscription plan and profile plan
+  const subPlan = normalizePlan(resolveActivePlan(subscription));
+  const profilePlan = normalizePlan(profiles?.[0]?.plan || 'free');
+
+  // Use PLAN_CAPABILITIES to determine which has more features (larger set = higher plan)
+  const subCaps = PLAN_CAPABILITIES[subPlan]?.size ?? 0;
+  const profileCaps = PLAN_CAPABILITIES[profilePlan]?.size ?? 0;
+  const activePlan = subCaps >= profileCaps ? subPlan : profilePlan;
 
   const normalizedPlan = normalizePlan(activePlan);
   const isPaid = normalizedPlan !== 'free';
@@ -54,12 +59,14 @@ export function usePlan() {
     canAccess: canAccessFn,
     maxNFCDevices: maxNFCDevices(normalizedPlan),
     maxTeamMembers: maxTeamMembers(normalizedPlan),
+    // Convenience booleans
     isPro: normalizedPlan === 'professional',
     isSalon: normalizedPlan === 'salon',
     isRestaurant: normalizedPlan === 'restaurant',
     isLawFirm: normalizedPlan === 'lawfirm',
     isCorporate: normalizedPlan === 'corporate',
-    isBusiness: isPaid,
+    isBusiness: normalizedPlan === 'business',
+    isPaid,
     isFree: normalizedPlan === 'free',
   };
 }

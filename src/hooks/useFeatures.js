@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
 /**
- * Hook to load and cache user features
+ * Hook to load and cache user features from the backend.
  * Returns { features: string[], plan: string, loading: boolean, error: null|string }
  */
 export function useFeatures() {
@@ -37,7 +37,7 @@ export function useFeatures() {
 }
 
 /**
- * Helper to check if user has a specific feature
+ * Check if a feature array includes a specific feature key.
  * Usage: hasFeature(features, "appointments")
  */
 export function hasFeature(features, featureKey) {
@@ -45,17 +45,18 @@ export function hasFeature(features, featureKey) {
 }
 
 /**
- * Hook version: useHasFeature(featureKey)
- * Loads features and checks for the key
+ * Hook: loads features and checks for a single key.
+ * Returns false while loading (avoid false gates).
  */
 export function useHasFeature(featureKey) {
-  const { features, loading, error } = useFeatures();
-  return hasFeature(features, featureKey) && !loading;
+  const { features, loading } = useFeatures();
+  if (loading) return true; // open while loading
+  return hasFeature(features, featureKey);
 }
 
 /**
  * Returns true only when features are loaded AND the feature is NOT present.
- * Use this instead of !hasFeature() to avoid false gate screens during loading.
+ * Use instead of !hasFeature() to avoid false gate screens during loading.
  */
 export function isFeatureGated(features, loading, featureKey) {
   if (loading) return false; // don't gate while loading
