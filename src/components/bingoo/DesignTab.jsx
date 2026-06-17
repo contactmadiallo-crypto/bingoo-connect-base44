@@ -79,8 +79,8 @@ export default function DesignTab({ profile, user, onSaved }) {
   const [pendingChanges, setPendingChanges] = useState({});
 
   const isAdmin = user?.role === 'admin';
-  const paidPlans = ["pro", "professional", "business", "salon", "restaurant", "lawfirm", "corporate"];
-  const isPro = isAdmin || paidPlans.includes(profile?.plan);
+  // isPro: true for any paid plan — used only to show/hide design options (not feature gates)
+  const isPro = isAdmin || (profile?.plan && profile.plan !== 'free');
   const currentLayout = profile?.layout || "classic";
   const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;

@@ -633,18 +633,18 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
           )}
         </div>
 
-        {/* Salon / Restaurant extras */}
-        {["salon", "restaurant"].includes(profile?.plan) && (
+        {/* Salon / Restaurant / Business extras — shown for any plan that supports google_reviews */}
+        {["salon", "restaurant", "business"].includes(profile?.plan) && (
           <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-lg">{profile?.plan === "salon" ? "✂️" : "🍽️"}</span>
-              <h3 className="font-bold text-slate-900">{profile?.plan === "salon" ? "Salon" : "Restaurant"} Extras</h3>
+              <span className="text-lg">{profile?.plan === "salon" ? "✂️" : profile?.plan === "restaurant" ? "🍽️" : "🏢"}</span>
+              <h3 className="font-bold text-slate-900">{profile?.plan === "salon" ? "Salon" : profile?.plan === "restaurant" ? "Restaurant" : "Business"} Extras</h3>
             </div>
             {field("google_review_url", "⭐ Google Review Link", "https://g.page/r/...")}
             <p className="text-xs text-slate-400 -mt-2">Paste your Google Maps review link — visitors will see a "Leave a Review" button on your profile.</p>
             <div>
               <Label>💬 WhatsApp Booking Message</Label>
-              <Input className="mt-1 border-slate-200" placeholder={`Hi, I'd like to book an appointment at your ${profile?.plan === "salon" ? "salon" : "restaurant"}...`} value={form.whatsapp_booking_message} onChange={set("whatsapp_booking_message")} />
+              <Input className="mt-1 border-slate-200" placeholder={`Hi, I'd like to book an appointment at your ${profile?.plan === "salon" ? "salon" : profile?.plan === "restaurant" ? "restaurant" : "business"}...`} value={form.whatsapp_booking_message} onChange={set("whatsapp_booking_message")} />
               <p className="text-xs text-slate-400 mt-1">Pre-filled message when visitors tap the WhatsApp booking button.</p>
             </div>
           </div>

@@ -2,7 +2,7 @@
  * Bingoo Connect — Plan Permissions (Capability-Based Model)
  *
  * ARCHITECTURE:
- * Each plan defines exactly which features it includes.
+ * Each plan defines exactly which features it includes via explicit Sets.
  * Industry plans (salon, restaurant, lawfirm) inherit Professional features
  * but do NOT inherit each other.
  *
@@ -15,8 +15,10 @@
  *   business     → free + professional + business features
  *   corporate    → free + professional + lawfirm + corporate features
  *
- * canAccess(plan, featureKey) looks up PLAN_CAPABILITIES[plan] set — O(1).
- * No numeric levels. No cross-industry inheritance.
+ * canAccess(plan, featureKey):
+ *   - Unknown plan → resolves to FREE (closed, not open)
+ *   - Unknown feature key → returns false (closed, not open)
+ *   - All features must be explicitly declared in ALL_KNOWN_FEATURES
  */
 
 // ── Feature Sets ──────────────────────────────────────────────────────────────
@@ -42,8 +44,7 @@ const PROFESSIONAL_FEATURES = new Set([
   'save_contact',
   // Profile customization
   'portfolio',
-  'custom_colors',
-  'custom_branding',
+  'custom_branding',      // canonical key (replaces custom_colors / custom_design)
   'qr_download',
   'digital_resume',
   'instagram_integration',
@@ -58,11 +59,10 @@ const SALON_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
   'salon_profile',
   'staff_profiles',
-  'service_menu',
-  'menu_services',
-  'instagram_showcase',
-  'google_review_link',
-  'whatsapp_booking',
+  'services',             // canonical key (replaces service_menu / menu_services)
+  'instagram_gallery',    // canonical key (replaces instagram_showcase)
+  'google_reviews',       // canonical key (replaces google_review_link)
+  'whatsapp_booking',     // canonical (same in restaurant)
   'nfc_counter_stand',
   'team_members',
   'advanced_analytics',
@@ -73,12 +73,14 @@ const RESTAURANT_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
   'restaurant_profile',
   'digital_menu',
-  'food_order_link',
-  'delivery_link',
-  'google_review_link',
-  'whatsapp_booking',
-  'nfc_counter_stand',
+  'delivery_links',       // canonical key (replaces delivery_link)
+  'food_ordering',        // canonical key (replaces food_order_link)
+  'google_reviews',
+  'reservations',
+  'whatsapp_ordering',    // canonical key (distinct from whatsapp_booking)
+  'whatsapp_booking',     // keep for backward compat — same intent in restaurant context
   'nfc_table_stand',
+  'nfc_counter_stand',    // keep — stands used in restaurants too
   'team_members',
   'advanced_analytics',
   'lead_export',
@@ -93,9 +95,9 @@ const LAWFIRM_FEATURES = new Set([
   'legal_services',
   'office_locations',
   'team_members',
-  'consultation_form',
-  'client_intake',
+  'lead_intake_forms',    // canonical key (replaces consultation_form / client_intake)
   'crm_pipeline',
+  'case_dashboard',
   'admin_roles',
   'advanced_analytics',
   'lead_export',
@@ -108,10 +110,9 @@ const LAWFIRM_FEATURES = new Set([
 
 const BUSINESS_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
-  'service_menu',
-  'menu_services',
+  'services',
   'nfc_counter_stand',
-  'google_review_link',
+  'google_reviews',
   'whatsapp_booking',
   'team_members',
   'advanced_analytics',
@@ -136,6 +137,48 @@ export const PLAN_CAPABILITIES = {
   lawfirm:      LAWFIRM_FEATURES,
   business:     BUSINESS_FEATURES,
   corporate:    CORPORATE_FEATURES,
+};
+
+// ── Complete registry of all known feature keys ───────────────────────────────
+// canAccess() returns false for ANY key not in this set (closed by default).
+const ALL_KNOWN_FEATURES = new Set([
+  ...FREE_FEATURES,
+  ...PROFESSIONAL_FEATURES,
+  ...SALON_FEATURES,
+  ...RESTAURANT_FEATURES,
+  ...LAWFIRM_FEATURES,
+  ...BUSINESS_FEATURES,
+  ...CORPORATE_FEATURES,
+  // Aliases kept for backward-compat checks elsewhere in the app
+  'custom_colors',          // alias → custom_branding
+  'custom_design',          // alias → custom_branding
+  'service_menu',           // alias → services
+  'menu_services',          // alias → services
+  'instagram_showcase',     // alias → instagram_gallery
+  'google_review_link',     // alias → google_reviews
+  'food_order_link',        // alias → food_ordering
+  'delivery_link',          // alias → delivery_links
+  'consultation_form',      // alias → lead_intake_forms
+  'client_intake',          // alias → lead_intake_forms
+  'whatsapp_ordering',      // canonical for restaurant (also in set above)
+  'nfc_table_stand',
+  'reservations',
+  'case_dashboard',
+  'family_forms',
+]);
+
+// Alias map: old key → canonical key that actually lives in the Sets
+const FEATURE_ALIASES = {
+  custom_colors:       'custom_branding',
+  custom_design:       'custom_branding',
+  service_menu:        'services',
+  menu_services:       'services',
+  instagram_showcase:  'instagram_gallery',
+  google_review_link:  'google_reviews',
+  food_order_link:     'food_ordering',
+  delivery_link:       'delivery_links',
+  consultation_form:   'lead_intake_forms',
+  client_intake:       'lead_intake_forms',
 };
 
 // ── Plan Metadata ─────────────────────────────────────────────────────────────
@@ -174,23 +217,19 @@ export const PLAN_PRICES_USD = {
 
 // Stripe product IDs
 export const PLAN_STRIPE_PRODUCTS = {
-  professional: 'prod_UdL2W8XwDY3Bmq',  // $4.99/mo
-  business:     'prod_UdL2NqVtcHwKb2',  // $14.99/mo
-  salon:        'prod_UfF46myS8RxwKE',  // $19.99/mo
-  lawfirm:      'prod_UfFHNuhuWhyGVZ',  // $49.00/mo
+  professional: 'prod_UdL2W8XwDY3Bmq',
+  business:     'prod_UdL2NqVtcHwKb2',
+  salon:        'prod_UfF46myS8RxwKE',
+  lawfirm:      'prod_UfFHNuhuWhyGVZ',
 };
 
-/**
- * Plan features — human-readable list for display (marketing copy).
- * Each list shows additions for that plan on top of Professional.
- */
 export const PLAN_FEATURES = {
   free:         ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Design & Colors', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass', 'Business Hours', 'Digital Resume'],
-  business:     ['Everything in Professional', 'Team Management', 'Service / Menu Section', 'Google Review Link', 'WhatsApp Booking Button', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
+  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass', 'Business Hours', 'Digital Resume'],
+  business:     ['Everything in Professional', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
-  restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
-  lawfirm:      ['Everything in Professional', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
+  restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
+  lawfirm:      ['Everything in Professional', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
   corporate:    ['Everything in Law Firm', 'Employee Profiles', 'Attendance Dashboard (Clock In/Out)'],
 };
 
@@ -198,33 +237,37 @@ export const PLAN_FEATURES = {
 
 /**
  * Normalize legacy plan names to canonical values.
+ * Unknown plans resolve to 'free' (closed/safe default).
  */
 export function normalizePlan(plan) {
+  if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
-  return plan || 'free';
+  if (PLAN_CAPABILITIES[plan]) return plan;
+  return 'free'; // unknown plan → free (not open)
 }
 
 /**
  * Returns true if the given plan includes the feature.
- * Uses capability set lookup — O(1), no numeric levels.
- * Unknown features: returns true (open by default).
+ *
+ * Security rules:
+ * - Unknown plan → resolves to 'free' (never opens paid features)
+ * - Unknown feature key → returns false (never opens unregistered features)
+ * - Alias keys → resolved to canonical key before lookup
  */
 export function canAccess(userPlan, featureKey) {
-  const normalized = normalizePlan(userPlan);
-  const caps = PLAN_CAPABILITIES[normalized];
-  if (!caps) return true; // unknown plan → open
-  // Unknown feature key → open (don't gate things we haven't defined)
-  if (!isKnownFeature(featureKey)) return true;
-  return caps.has(featureKey);
-}
+  if (!featureKey) return false;
 
-/**
- * Returns true if the featureKey is defined in any plan's capability set.
- */
-function isKnownFeature(featureKey) {
-  return PLAN_CAPABILITIES.corporate.has(featureKey) ||
-    PLAN_CAPABILITIES.salon.has(featureKey) ||
-    PLAN_CAPABILITIES.restaurant.has(featureKey);
+  // Resolve alias to canonical key
+  const canonical = FEATURE_ALIASES[featureKey] || featureKey;
+
+  // If the key is unknown to the system entirely, deny
+  if (!ALL_KNOWN_FEATURES.has(canonical) && !ALL_KNOWN_FEATURES.has(featureKey)) {
+    return false;
+  }
+
+  const normalized = normalizePlan(userPlan);
+  const caps = PLAN_CAPABILITIES[normalized] || FREE_FEATURES;
+  return caps.has(canonical) || caps.has(featureKey);
 }
 
 /**
@@ -255,23 +298,28 @@ export function maxTeamMembers(userPlan) {
 
 /**
  * Resolves active plan from a subscription record.
- * Canceled subscriptions → free.
+ * - No subscription → free
+ * - canceled → free
+ * - past_due → keep current plan (grace period, Stripe retries)
+ * - active → use plan field
  */
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
   if (status === 'canceled') return 'free';
-  if (plan && plan !== 'free') return plan;
+  // past_due: keep access during grace period
+  if (status === 'past_due') return normalizePlan(plan);
+  if (plan && plan !== 'free') return normalizePlan(plan);
   return 'free';
 }
 
-// ── Feature Descriptions (for FeatureGate / UpgradeModal / PlanGateScreen) ───
+// ── Feature Descriptions ──────────────────────────────────────────────────────
+// upgradeTarget is shown in UpgradeModal / PlanGateScreen.
+// Industry plans that include Professional features should NEVER see
+// "Upgrade to Professional" — those features are already included in their plan.
+// The upgradeTarget here is the MINIMUM plan that unlocks this feature.
+// Components consuming this must only show the gate if canAccess() returns false.
 
-/**
- * upgradeTarget: the plan name shown in "Upgrade to X" prompts.
- * For features shared by salon/restaurant/lawfirm, we show the generic industry label.
- * For professional-only features, we always say "Professional".
- */
 export const FEATURE_DESCRIPTIONS = {
   // ── Professional tier ──
   nfc_devices:          { title: 'NFC Device Activation',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to activate NFC devices and tap-to-share your profile.' },
@@ -279,8 +327,7 @@ export const FEATURE_DESCRIPTIONS = {
   lead_collection:      { title: 'Lead Collection',            upgradeTarget: 'Professional', message: 'Upgrade to Professional to collect and manage leads from your profile.' },
   appointment_booking:  { title: 'Appointment Booking',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to let clients book appointments directly.' },
   save_contact:         { title: 'Save Contact Button',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to let visitors save your contact to their phone.' },
-  custom_colors:        { title: 'Custom Profile Colors',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile colors and branding.' },
-  custom_branding:      { title: 'Custom Branding',            upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding.' },
+  custom_branding:      { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
   qr_download:          { title: 'QR Code Download',           upgradeTarget: 'Professional', message: 'Upgrade to Professional to download and print your profile QR code.' },
   digital_resume:       { title: 'Digital Resume',             upgradeTarget: 'Professional', message: 'Upgrade to Professional to create a full digital resume profile.' },
   portfolio:            { title: 'Portfolio / Gallery',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to showcase your portfolio and projects.' },
@@ -290,36 +337,48 @@ export const FEATURE_DESCRIPTIONS = {
   apple_wallet_pass:    { title: 'Apple Wallet Pass',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate an Apple Wallet digital card.' },
   business_hours:       { title: 'Business Hours',             upgradeTarget: 'Professional', message: 'Upgrade to Professional to display your business hours.' },
   calendar:             { title: 'Calendar View',              upgradeTarget: 'Professional', message: 'Upgrade to Professional to access the calendar view.' },
+  // Aliases for backward compat — same gate as canonical
+  custom_colors:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
+  custom_design:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
 
-  // ── Business tier (shared by business/salon/restaurant) ──
+  // ── Business / Industry shared tier ──
   team_members:         { title: 'Team Members',               upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, Restaurant, or Law Firm plan to manage team members.' },
+  google_reviews:       { title: 'Google Review Link',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a Google review link.' },
   google_review_link:   { title: 'Google Review Link',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a Google review link.' },
   whatsapp_booking:     { title: 'WhatsApp Booking Button',    upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a WhatsApp booking button.' },
   advanced_analytics:   { title: 'Advanced Analytics',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan for advanced analytics.' },
   lead_export:          { title: 'Lead Export',                upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to export leads as CSV.' },
-  service_menu:         { title: 'Service / Menu Section',     upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
-  menu_services:        { title: 'Menu / Services Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
+  services:             { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
+  service_menu:         { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
+  menu_services:        { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
   nfc_counter_stand:    { title: 'NFC Counter Stand',          upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan for NFC counter stand support.' },
 
   // ── Salon-specific ──
   salon_profile:        { title: 'Salon Business Profile',     upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full salon business profile.' },
   staff_profiles:       { title: 'Staff Profiles',             upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to manage staff profiles.' },
+  instagram_gallery:    { title: 'Instagram Gallery',          upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full Instagram gallery showcase.' },
   instagram_showcase:   { title: 'Instagram Gallery',          upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full Instagram gallery showcase.' },
 
   // ── Restaurant-specific ──
   restaurant_profile:   { title: 'Restaurant Business Profile', upgradeTarget: 'Restaurant',  message: 'Upgrade to the Restaurant plan for a full restaurant business profile.' },
   digital_menu:         { title: 'Digital Menu',               upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to display your digital menu.' },
+  food_ordering:        { title: 'Food Ordering',              upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add food ordering links.' },
   food_order_link:      { title: 'Food Ordering',              upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add food ordering links.' },
+  delivery_links:       { title: 'Delivery Links',             upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add delivery links.' },
   delivery_link:        { title: 'Delivery Links',             upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to add delivery links.' },
+  reservations:         { title: 'Reservations',               upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan to enable table reservations.' },
+  whatsapp_ordering:    { title: 'WhatsApp Ordering',          upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for WhatsApp ordering.' },
   nfc_table_stand:      { title: 'NFC Table Stand',            upgradeTarget: 'Restaurant',   message: 'Upgrade to the Restaurant plan for NFC table stand support.' },
 
   // ── Law Firm-specific ──
   law_firm_profile:     { title: 'Law Firm Profile',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for a full law firm business profile.' },
   practice_areas:       { title: 'Practice Areas',             upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to manage your practice areas.' },
   legal_services:       { title: 'Legal Services',             upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to list your legal services.' },
-  consultation_form:    { title: 'Legal Consultation Form',    upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for legal intake forms.' },
+  lead_intake_forms:    { title: 'Legal Intake Forms',         upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for legal intake forms.' },
+  consultation_form:    { title: 'Legal Intake Forms',         upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for legal intake forms.' },
   client_intake:        { title: 'Client Intake',              upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for client intake workflows.' },
   crm_pipeline:         { title: 'CRM Pipeline',               upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for a full CRM pipeline.' },
+  case_dashboard:       { title: 'Case Dashboard',             upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for the case management dashboard.' },
   attorney_profiles:    { title: 'Attorney Profiles',          upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to add attorney profiles.' },
   office_locations:     { title: 'Office Locations',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to manage office locations.' },
   admin_roles:          { title: 'Admin Role Management',      upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan to manage admin roles.' },
@@ -334,9 +393,10 @@ export const FEATURE_DESCRIPTIONS = {
   employee_profiles:    { title: 'Employee Profiles',          upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan to manage employee profiles.' },
 };
 
-// ── Legacy compatibility shim ─────────────────────────────────────────────────
-// The old FEATURE_REQUIREMENTS was used by some components for maxDevices.
-// Kept as a thin shim so any import doesn't break.
+// ── Legacy compatibility shims ─────────────────────────────────────────────────
+// These are kept so any file that imports them doesn't hard-crash.
+// canAccess() no longer uses PLAN_HIERARCHY or FEATURE_REQUIREMENTS internally.
+
 export const FEATURE_REQUIREMENTS = {
   nfc_devices: {
     maxDevices: {
@@ -347,8 +407,6 @@ export const FEATURE_REQUIREMENTS = {
   }
 };
 
-// Legacy numeric hierarchy — kept for any external code that reads it, but
-// canAccess() no longer uses this.
 export const PLAN_HIERARCHY = {
   free:         0,
   professional: 1,
