@@ -1,21 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, normalizePlan } from '@/lib/planPermissions';
+import { resolveActivePlan, canAccess, maxNFCDevices, maxTeamMembers, normalizePlan, PLAN_HIERARCHY } from '@/lib/planPermissions';
 
 /**
  * Returns the current user's active plan and a capability-based canAccess() helper.
  *
  * PLAN AUTHORITY (in order of precedence):
- * 1. Subscription record (billing authority):
- *    - status=active → use subscription.plan
- *    - status=past_due → use subscription.plan (grace period, keep access)
- *    - status=canceled → downgrade to free
- *    - no subscription record → fall through to profile
- * 2. Profile.plan (legacy fallback, used only when no subscription exists):
- *    - Handles users who were manually assigned a plan before subscriptions existed
+ * 1. Real Stripe-backed subscription (has stripe_subscription_id OR stripe_customer_id):
+ *    - status=active    → use subscription.plan
+ *    - status=past_due  → use subscription.plan (grace period)
+ *    - status=canceled  → downgrade to free
+ * 2. Manual/legacy subscription (no stripe IDs) OR no subscription at all:
+ *    - Use whichever is higher: subscription.plan OR Profile.plan
+ *    - A canceled manual record does NOT override a valid Profile.plan
+ * 3. Free (default when nothing higher resolves)
  *
  * While loading, canAccess() returns true to prevent premature gate screens.
  */
+
+/** Returns true only if this subscription record was created by a real Stripe event. */
+function isStripeBacked(sub) {
+  return !!(sub?.stripe_subscription_id || sub?.stripe_customer_id);
+}
+
 export function usePlan() {
   const { data: user, isLoading: loadingUser } = useQuery({
     queryKey: ['me'],
@@ -37,24 +44,25 @@ export function usePlan() {
   const isLoading = loadingUser || loadingSub || loadingProfile;
 
   const subscription = subscriptions?.[0] || null;
+  const profilePlan = normalizePlan(profiles?.[0]?.plan || 'free');
 
   /**
-   * Resolve activePlan:
-   * - If a subscription exists, it is the sole billing authority.
-   *   resolveActivePlan() handles canceled→free and past_due→keep plan.
-   * - If no subscription exists, use Profile.plan as a legacy fallback.
-   *   This covers manually-assigned plans and legacy users.
+   * Resolve activePlan using the precedence rules above.
    */
   let activePlan;
-  if (subscription) {
-    // Subscription exists — it is the authority
+  if (subscription && isStripeBacked(subscription)) {
+    // Real Stripe subscription — it is the sole authority (can downgrade on cancel)
     activePlan = resolveActivePlan(subscription);
   } else {
-    // No subscription — fall back to profile.plan (legacy users)
-    activePlan = normalizePlan(profiles?.[0]?.plan || 'free');
+    // Manual/legacy subscription record or no subscription at all.
+    // Take the higher of subscription.plan and Profile.plan — never downgrade manually set plans.
+    const subPlan = subscription ? normalizePlan(subscription.plan || 'free') : 'free';
+    const subLevel = PLAN_HIERARCHY[subPlan] ?? 0;
+    const profileLevel = PLAN_HIERARCHY[profilePlan] ?? 0;
+    activePlan = profileLevel >= subLevel ? profilePlan : subPlan;
   }
 
-  const normalizedPlan = normalizePlan(activePlan);
+  const normalizedPlan = normalizePlan(activePlan || 'free');
   const isPaid = normalizedPlan !== 'free';
 
   // While loading, return open (true) so no gate screens flash prematurely
