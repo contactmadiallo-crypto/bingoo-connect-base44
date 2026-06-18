@@ -60,7 +60,16 @@
   ],
   "rls": {
     "create": {
-      "created_by_id": null
+      "$or": [
+        {
+          "created_by_id": null
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "read": {
       "$or": [
