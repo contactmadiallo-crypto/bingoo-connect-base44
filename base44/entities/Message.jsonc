@@ -80,13 +80,6 @@
           "created_by_id": "{{user.id}}"
         },
         {
-          "data.conversation_id": {
-            "$in": [
-              "{{user.data.participant_conversation_ids}}"
-            ]
-          }
-        },
-        {
           "user_condition": {
             "role": "admin"
           }
