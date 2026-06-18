@@ -54,7 +54,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "CustomerApp",
+    mainPage: null,
     Pages: PAGES,
     Layout: __Layout,
 };
