@@ -7,7 +7,6 @@ import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { NavigationStackProvider } from '@/components/mobile/NavigationStack'
 import RouteTransition from '@/components/mobile/RouteTransition'
-import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import Landing from './pages/Landing';
@@ -57,12 +56,6 @@ function SitemapRedirect() {
   window.location.replace('/api/functions/sitemapXml');
   return null;
 }
-
-const { Pages, Layout } = pagesConfig;
-const LayoutWrapper = ({ children, currentPageName }) => Layout
-  ? <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
-
 
 
 const AuthenticatedApp = () => {
@@ -127,19 +120,7 @@ const AuthenticatedApp = () => {
         <Route path="/account-settings" element={<AccountSettings />} />
         <Route path="/pricing" element={<Pricing />} />
 
-        {/* ── FOODHUB (original project) ── */}
-        {Object.entries(Pages).map(([path, Page]) => (
-          <Route
-            key={path}
-            path={`/${path}`}
-            element={
-              <LayoutWrapper currentPageName={path}>
-                <Page />
-              </LayoutWrapper>
-            }
-          />
-        ))}
-      </Route>
+        {/* ── FOODHUB legacy routes disabled (files preserved for rollback) ── */}      </Route>
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
