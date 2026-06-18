@@ -14,6 +14,13 @@ export default function AccountSettings() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
+
+  useEffect(() => {
     base44.auth.me().then(u => {
       setUser(u);
       setLoading(false);

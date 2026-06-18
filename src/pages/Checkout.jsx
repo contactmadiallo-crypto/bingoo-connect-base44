@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,13 @@ const SHIPPING_COST = 5;
 export default function Checkout() {
   const navigate = useNavigate();
   const cart = getCart();
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = subtotal + SHIPPING_COST;
 

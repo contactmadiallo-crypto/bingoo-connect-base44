@@ -7,6 +7,13 @@ import { clearCart } from '@/lib/cartStore';
 
 export default function OrderConfirmation() {
   const [order, setOrder] = useState(null);
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
   const [loading, setLoading] = useState(true);
   // Poll once after a short delay to give the webhook time to mark the order paid
   const [polled, setPolled] = useState(false);

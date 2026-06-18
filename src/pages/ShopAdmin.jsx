@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Package, Truck, CheckCircle2, Clock, Search, RefreshCw } from 'lucide-react';
@@ -18,6 +18,13 @@ const STATUS_COLORS = {
 export default function ShopAdmin() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
   const [editingId, setEditingId] = useState(null);
   const [trackingInput, setTrackingInput] = useState('');
 

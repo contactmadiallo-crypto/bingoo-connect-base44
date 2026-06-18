@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Package, Truck, CheckCircle2, Clock, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,13 @@ const STATUS_CONFIG = {
 
 export default function MyOrders() {
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
   const [submitted, setSubmitted] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);

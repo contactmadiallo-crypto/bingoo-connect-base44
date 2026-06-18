@@ -11,6 +11,13 @@ export default function Cart() {
   const navigate = useNavigate();
   const [cart, setCart] = useState(getCart());
 
+  useEffect(() => {
+    let meta = document.querySelector('meta[name="robots"]');
+    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
+    meta.setAttribute("content", "noindex, nofollow");
+    return () => { meta.setAttribute("content", "index, follow"); };
+  }, []);
+
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const total = subtotal + (cart.length > 0 ? SHIPPING : 0);
 
