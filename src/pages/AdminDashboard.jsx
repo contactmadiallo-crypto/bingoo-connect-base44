@@ -139,9 +139,72 @@ export default function AdminDashboard() {
 
   if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
 
-  const filteredProfiles = profiles
-    .filter(p => planFilter === "all" || p.plan === planFilter)
-    .filter(p => [p.username, p.display_name, p.company_name, p.email].some(v => v?.toLowerCase().includes(search.toLowerCase())));
+  // Build a merged user+profile roster for the Users tab
+  const userProfileRows = allUsers.map(u => {
+    const profile = profiles.find(p =>
+      p.created_by_id === u.id ||
+      (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id)) ||
+      (p.email && p.email === u.email)
+    ) || null;
+    return { user: u, profile };
+  });
+
+  const filteredUserRows = userProfileRows
+    .filter(row => {
+      const planMatch = planFilter === "all"
+        || (planFilter === "no_profile" ? !row.profile : (row.profile?.plan || "free") === planFilter);
+      const term = search.toLowerCase();
+      const searchMatch = !term || [
+        row.user.full_name, row.user.email,
+        row.profile?.username, row.profile?.display_name, row.profile?.company_name, row.profile?.email
+      ].some(v => v?.toLowerCase().includes(term));
+      return planMatch && searchMatch;
+    });
+
+  // Combined subscription view: real Stripe records + manual paid profiles
+  const stripeSubs = subscriptions; // from Subscription entity
+  const manualPaidProfiles = profiles.filter(p => p.plan && p.plan !== "free");
+  // Avoid double-counting: if a profile's email already has a real Stripe sub, skip it from manual list
+  const stripeEmails = new Set(stripeSubs.map(s => s.customer_email?.toLowerCase()));
+  const manualRows = manualPaidProfiles
+    .filter(p => !stripeEmails.has((p.email || "").toLowerCase()))
+    .map(p => {
+      const owner = allUsers.find(u =>
+        u.id === p.created_by_id ||
+        (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id))
+      );
+      return {
+        id: p.id,
+        customer_name: p.display_name || owner?.full_name || "—",
+        customer_email: p.email || owner?.email || "—",
+        username: p.username,
+        plan: p.plan,
+        status: "active",
+        source: "Manual/Profile Plan",
+        stripe_subscription_id: "",
+        stripe_customer_id: "",
+        created_date: p.created_date,
+      };
+    });
+  const allSubRows = [
+    ...stripeSubs.map(s => ({
+      ...s,
+      username: profiles.find(p => p.email === s.customer_email || p.created_by_id === allUsers.find(u => u.email === s.customer_email)?.id)?.username || null,
+      source: (s.stripe_subscription_id || s.stripe_customer_id) ? "Stripe" : "Manual/Profile Plan",
+    })),
+    ...manualRows,
+  ];
+
+  const filteredSubRows = allSubRows
+    .filter(s => subSearch ? s.customer_email?.toLowerCase().includes(subSearch.toLowerCase()) || s.customer_name?.toLowerCase().includes(subSearch.toLowerCase()) : true)
+    .filter(s => subStatusFilter === "all" || s.status === subStatusFilter);
+
+  // Counters
+  const usersWithoutProfile = userProfileRows.filter(r => !r.profile).length;
+  const paidProfiles = profiles.filter(p => p.plan && p.plan !== "free").length;
+  const activeStripeSubs = stripeSubs.filter(s => s.status === "active").length;
+  const manualPaidCount = manualRows.length;
+  const totalPaidAccess = allSubRows.filter(s => s.status === "active" || s.status === "past_due").length;
 
   const recentActivations = devices
     .filter(d => d.assigned_at)
@@ -149,8 +212,8 @@ export default function AdminDashboard() {
     .slice(0, 20);
 
   const TABS = [
-    { id: "users",        label: t.tabs.users,        icon: Users,        count: profiles.length },
-    { id: "subscriptions",label: t.tabs.subscriptions,icon: CreditCard,   count: subscriptions.length },
+    { id: "users",        label: t.tabs.users,        icon: Users,        count: allUsers.length },
+    { id: "subscriptions",label: t.tabs.subscriptions,icon: CreditCard,   count: allSubRows.length },
     { id: "nfc_manager",  label: "NFC Device Manager", icon: QrCode,      count: devices.length },
     { id: "activations",  label: t.tabs.activations,   icon: Clock,       count: recentActivations.length },
     ...(hasFeature(features, "lead_collection") ? [{ id: "leads",        label: t.tabs.leads,        icon: Star,         count: leads.length }] : []),
@@ -198,9 +261,9 @@ export default function AdminDashboard() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { label: t.stats.profiles, value: profiles.length, icon: Users, accent: orange },
-            { label: t.stats.devices, value: devices.length, icon: QrCode, accent: gold },
-            { label: t.stats.leads, value: leads.length, icon: Star, accent: "#22c55e" },
+            { label: "Total Users", value: allUsers.length, icon: Users, accent: orange },
+            { label: "Total Profiles", value: profiles.length, icon: QrCode, accent: gold },
+            { label: "Paid Access", value: totalPaidAccess, icon: Star, accent: "#22c55e" },
             { label: t.stats.analytics, value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-5 border"
@@ -239,6 +302,21 @@ export default function AdminDashboard() {
         {/* Users & Profiles */}
         {tab === "users" && (
           <div className="space-y-4">
+            {/* Mini counters */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Total Users", value: allUsers.length, color: orange },
+                { label: "Total Profiles", value: profiles.length, color: gold },
+                { label: "No Profile Yet", value: usersWithoutProfile, color: "#94a3b8" },
+                { label: "Paid Profiles", value: paidProfiles, color: "#22c55e" },
+              ].map(s => (
+                <div key={s.label} className="rounded-xl p-4 border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.08)" }}>
+                  <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
@@ -247,7 +325,7 @@ export default function AdminDashboard() {
                   style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
               </div>
               <div className="flex gap-2 flex-wrap">
-                {["all","free","professional","salon","restaurant","lawfirm","corporate"].map(p => (
+                {["all","no_profile","free","professional","business","salon","restaurant","lawfirm","corporate"].map(p => (
                   <button key={p} onClick={() => setPlanFilter(p)}
                     className="px-3 py-2 rounded-xl text-sm font-bold transition-all"
                     style={{
@@ -255,7 +333,7 @@ export default function AdminDashboard() {
                       color: planFilter === p ? "#fff" : "rgba(255,255,255,0.5)",
                       border: "1px solid rgba(255,255,255,0.08)"
                     }}>
-                    {PLAN_LABELS[p] || p.charAt(0).toUpperCase() + p.slice(1)}
+                    {p === "no_profile" ? "No Profile" : (PLAN_LABELS[p] || p.charAt(0).toUpperCase() + p.slice(1))}
                   </button>
                 ))}
               </div>
@@ -267,61 +345,77 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {[t.profileCol, t.username, t.plan, t.company, t.actions].map(h => (
+                      {["User / Profile", "Username", "Plan", "Role", "Joined", "Actions"].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProfiles.map(p => (
-                      <tr key={p.id} className="transition-colors"
+                    {filteredUserRows.map(({ user: u, profile: p }) => (
+                      <tr key={u.id} className="transition-colors"
                         style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
                         onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
-                            {p.profile_photo
+                            {p?.profile_photo
                               ? <img src={p.profile_photo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" alt="" />
-                              : <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0" style={{ background: p.cover_color || "#0B2E6B" }}>{p.display_name?.charAt(0)}</div>
+                              : <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0" style={{ background: p?.cover_color || "#334155" }}>{(p?.display_name || u.full_name || "?").charAt(0)}</div>
                             }
                             <div>
-                              <p className="font-bold text-white text-sm">{p.display_name}</p>
-                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{p.job_title}</p>
+                              <p className="font-bold text-white text-sm">{p?.display_name || u.full_name || "—"}</p>
+                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{u.email}</p>
+                              {!p && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block" style={{ background: "rgba(148,163,184,0.15)", color: "#94a3b8" }}>No profile yet</span>}
                             </div>
                           </div>
                         </td>
                         <td className="px-5 py-4">
-                          <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{p.username}</a>
+                          {p ? (
+                            <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{p.username}</a>
+                          ) : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
                         <td className="px-5 py-4">
-                          <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
-                            className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
-                            style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
-                            <option value="free">Free</option>
-                            <option value="professional">Professional</option>
-                            <option value="salon">Salon</option>
-                            <option value="restaurant">Restaurant</option>
-                            <option value="lawfirm">Law Firm</option>
-                            <option value="corporate">Corporate</option>
-                          </select>
+                          {p ? (
+                            <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
+                              className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
+                              style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
+                              <option value="free">Free</option>
+                              <option value="professional">Professional</option>
+                              <option value="business">Business</option>
+                              <option value="salon">Salon</option>
+                              <option value="restaurant">Restaurant</option>
+                              <option value="lawfirm">Law Firm</option>
+                              <option value="corporate">Corporate</option>
+                            </select>
+                          ) : <span className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
-                        <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>{p.company_name || "—"}</td>
                         <td className="px-5 py-4">
-                          <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer">
-                            <Button size="sm" className="text-xs h-7 px-3 font-bold"
-                              style={{ background: "rgba(255,122,0,0.15)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
-                              View
-                            </Button>
-                          </a>
+                          <span className="px-2.5 py-1 rounded-full text-xs font-bold capitalize"
+                            style={{ background: u.role === "admin" ? "rgba(253,186,33,0.15)" : "rgba(255,255,255,0.07)", color: u.role === "admin" ? gold : "rgba(255,255,255,0.4)", border: `1px solid ${u.role === "admin" ? "rgba(253,186,33,0.3)" : "rgba(255,255,255,0.1)"}` }}>
+                            {u.role || "user"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                          {u.created_date ? new Date(u.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                        </td>
+                        <td className="px-5 py-4">
+                          {p ? (
+                            <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer">
+                              <Button size="sm" className="text-xs h-7 px-3 font-bold"
+                                style={{ background: "rgba(255,122,0,0.15)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                                View
+                              </Button>
+                            </a>
+                          ) : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                {filteredProfiles.length === 0 && (
+                {filteredUserRows.length === 0 && (
                   <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                     <Users className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                    <p>{t.noProfiles}</p>
+                    <p>No users found</p>
                   </div>
                 )}
               </div>
@@ -333,12 +427,14 @@ export default function AdminDashboard() {
         {tab === "subscriptions" && (
           <div className="space-y-6">
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
-                { label: t.totalSubs, value: subscriptions.filter(s => s.status === "active").length, color: "#22c55e" },
-                { label: t.freeUsers, value: subscriptions.filter(s => s.status === "free").length, color: "rgba(255,255,255,0.4)" },
-                { label: t.pastDue, value: subscriptions.filter(s => s.status === "past_due").length, color: "#f59e0b" },
-                { label: t.canceled, value: subscriptions.filter(s => s.status === "canceled").length, color: "#ef4444" },
+                { label: "Total Paid Access", value: totalPaidAccess, color: "#22c55e" },
+                { label: "Stripe Active", value: activeStripeSubs, color: "#06b6d4" },
+                { label: "Manual/Profile Plan", value: manualPaidCount, color: gold },
+                { label: t.pastDue, value: allSubRows.filter(s => s.status === "past_due").length, color: "#f59e0b" },
+                { label: t.canceled, value: allSubRows.filter(s => s.status === "canceled").length, color: "#ef4444" },
+                { label: "Free Users", value: allUsers.length - totalPaidAccess, color: "rgba(255,255,255,0.4)" },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-4 border"
                   style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
@@ -348,60 +444,14 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {/* ACTIVE SUBSCRIBERS - Card Layout */}
-            <div className="rounded-2xl border p-6" style={{ background: "rgba(34, 197, 94, 0.08)", borderColor: "rgba(34, 197, 94, 0.2)" }}>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(34, 197, 94, 0.2)" }}>
-                  <CheckCircle2 className="w-5 h-5" style={{ color: "#22c55e" }} />
-                </div>
-                <div>
-                  <h3 className="font-black text-white text-lg">Active Subscribers ({subscriptions.filter(s => s.status === "active").length})</h3>
-                  <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>Currently paying customers</p>
-                </div>
-              </div>
-              
-              {subscriptions.filter(s => s.status === "active").length === 0 ? (
-                <div className="text-center py-8" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No active subscribers yet</p>
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {subscriptions.filter(s => s.status === "active").map(s => {
-                    const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
-                    return (
-                      <div key={s.id} className="p-4 rounded-xl border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
-                        <div className="flex items-center justify-between gap-4 flex-wrap">
-                          <div className="flex-1 min-w-48">
-                            <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
-                            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{s.customer_email}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold"
-                              style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
-                              {planDisplay}
-                            </span>
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5" style={{ background: "rgba(34, 197, 94, 0.15)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.3)" }}>
-                              <CheckCircle2 className="w-3 h-3" /> Active
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-white/60">Renews:</p>
-                            <p className="text-sm font-mono text-white">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+            {/* Source legend */}
+            <div className="flex items-center gap-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ background: "#06b6d4" }} />Stripe — real Stripe subscription record</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full inline-block" style={{ background: gold }} />Manual/Profile Plan — access granted directly on profile, no Stripe record</span>
             </div>
 
-            {/* All Subscriptions - Searchable Table */}
+            {/* Combined table */}
             <div>
-              <h3 className="font-bold text-white text-sm mb-4">All Subscriptions</h3>
-              
-              {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
@@ -411,7 +461,7 @@ export default function AdminDashboard() {
                     style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {["all","active","free","past_due","canceled"].map(s => (
+                  {["all","active","past_due","canceled"].map(s => (
                     <button key={s} onClick={() => setSubStatusFilter(s)}
                       className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
                       style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071d47" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -421,56 +471,66 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Table */}
               <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                        {[t.customer, t.plan, t.status, t.periodEnd].map(h => (
-                          <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
+                        {["Customer", "Profile", "Plan", "Status", "Source", "Stripe ID", "Since"].map(h => (
+                          <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {subscriptions
-                        .filter(s => subSearch ? s.customer_email?.toLowerCase().includes(subSearch.toLowerCase()) || s.customer_name?.toLowerCase().includes(subSearch.toLowerCase()) : true)
-                        .filter(s => subStatusFilter === "all" || s.status === subStatusFilter)
-                        .map(s => {
-                          const statusColors = { active: "#22c55e", free: "rgba(255,255,255,0.3)", past_due: "#f59e0b", canceled: "#ef4444" };
-                          const planDisplay = PLAN_LABELS[s.plan] || s.plan || "Free";
-                          return (
-                            <tr key={s.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-                              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-                              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-                              <td className="px-5 py-4">
-                                <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
-                                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
-                              </td>
-                              <td className="px-5 py-4">
-                                <span className="px-2.5 py-1 rounded-full text-xs font-bold"
-                                  style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
-                                  {planDisplay}
-                                </span>
-                              </td>
-                              <td className="px-5 py-4">
-                                <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>
-                                  {s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
-                                  {s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1) || "Free"}
-                                </span>
-                              </td>
-                              <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
-                                {s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : "—"}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                      {filteredSubRows.map((s, i) => {
+                        const statusColors = { active: "#22c55e", past_due: "#f59e0b", canceled: "#ef4444" };
+                        const isStripe = s.source === "Stripe";
+                        return (
+                          <tr key={s.id || i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                            onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                            <td className="px-4 py-4">
+                              <p className="font-bold text-white text-sm">{s.customer_name || s.customer_email?.split("@")[0]}</p>
+                              <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
+                            </td>
+                            <td className="px-4 py-4">
+                              {s.username
+                                ? <a href={`/p/${s.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{s.username}</a>
+                                : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="px-2.5 py-1 rounded-full text-xs font-bold"
+                                style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>
+                                {PLAN_LABELS[s.plan] || s.plan || "—"}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>
+                                {s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+                                {s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                                style={{ background: isStripe ? "rgba(6,182,212,0.15)" : "rgba(253,186,33,0.1)", color: isStripe ? "#06b6d4" : gold, border: `1px solid ${isStripe ? "rgba(6,182,212,0.3)" : "rgba(253,186,33,0.2)"}` }}>
+                                {s.source}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>
+                              {s.stripe_subscription_id ? s.stripe_subscription_id.slice(0, 14) + "…" : "—"}
+                            </td>
+                            <td className="px-4 py-4 text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                              {s.created_date ? new Date(s.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
-                  {subscriptions.length === 0 && (
+                  {filteredSubRows.length === 0 && (
                     <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                       <CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                      <p>{t.noSubs}</p>
+                      <p>No records match your filters</p>
                     </div>
                   )}
                 </div>
