@@ -64,12 +64,17 @@ Deno.serve(async (req) => {
     const sig = req.headers.get('stripe-signature');
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
-    let event;
-    if (webhookSecret && sig) {
-      event = await stripe.webhooks.constructEventAsync(body, sig, webhookSecret);
-    } else {
-      event = JSON.parse(body);
+    if (!webhookSecret) {
+      console.error('STRIPE_WEBHOOK_SECRET is not set');
+      return Response.json({ error: 'Webhook secret not configured' }, { status: 400 });
     }
+    if (!sig) {
+      console.error('Missing stripe-signature header');
+      return Response.json({ error: 'Missing stripe-signature header' }, { status: 400 });
+    }
+
+    let event;
+    event = await stripe.webhooks.constructEventAsync(body, sig, webhookSecret);
 
     console.log('Stripe webhook event:', event.type);
 
