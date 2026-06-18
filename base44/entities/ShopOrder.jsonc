@@ -112,9 +112,7 @@
     "items"
   ],
   "rls": {
-    "create": {
-      "created_by_id": null
-    },
+    "create": {},
     "read": {
       "$or": [
         {
