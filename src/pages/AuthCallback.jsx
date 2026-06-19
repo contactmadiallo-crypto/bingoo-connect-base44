@@ -17,16 +17,13 @@ export default function AuthCallback() {
     if (isLoadingAuth) return; // wait for auth check to finish
 
     if (isAuthenticated) {
-      // Check if the user has any profiles — new users go to /bingoo (which shows onboarding)
-      // Existing users also go to /bingoo (overview). Both cases land on /bingoo.
-      const fromUrl = new URLSearchParams(window.location.search).get("from_url");
-      if (fromUrl && fromUrl.startsWith("/") && fromUrl !== "/auth") {
-        navigate(fromUrl, { replace: true });
-      } else {
-        navigate("/bingoo", { replace: true });
-      }
+      // Respect the `next` param encoded into the callback URL by Login.jsx.
+      // Fall back to /bingoo (overview + onboarding) for both new and existing users.
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next");
+      const destination = (next && next.startsWith("/") && next !== "/auth") ? next : "/bingoo";
+      navigate(destination, { replace: true });
     } else {
-      // Auth failed — send back to login
       navigate("/login", { replace: true });
     }
   }, [isAuthenticated, isLoadingAuth]);

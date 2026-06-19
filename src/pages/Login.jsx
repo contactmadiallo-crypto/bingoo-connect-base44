@@ -46,7 +46,13 @@ export default function Login() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", getNextUrl());
+    // fromUrl must be a full absolute URL pointing to our /auth callback handler.
+    // The platform appends ?access_token=... to this URL after OAuth completes.
+    // We encode the intended post-auth destination as a `next` param so AuthCallback
+    // can forward the user there after the session is established.
+    const nextUrl = getNextUrl();
+    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    base44.auth.loginWithProvider("google", callbackUrl);
   };
 
   const nextParam = new URLSearchParams(window.location.search).get("next");
