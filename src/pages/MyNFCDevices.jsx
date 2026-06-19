@@ -389,8 +389,7 @@ export default function MyNFCDevices() {
                       ) : !isDisabled && (
                         <button onClick={() => reportLost.mutate(device)}
                           title="Report Lost" className="p-2 rounded-lg transition-colors"
-                          style={{ color: "rgba(239,68,68,0.6)" }}
-                          title="Report Lost">
+                          style={{ color: "rgba(239,68,68,0.6)" }}>
                           <AlertTriangle className="w-4 h-4" />
                         </button>
                       )}

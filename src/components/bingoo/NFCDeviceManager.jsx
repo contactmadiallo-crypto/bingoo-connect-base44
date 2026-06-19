@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
-  BarChart3, Wifi, AlertTriangle, CheckCircle2, Activity, Package, MapPin,
-  ArrowRightLeft, FileText, Settings, RotateCcw, Clock, Layers,
-  RefreshCw, History, ShieldAlert
+  BarChart3, Wifi, AlertTriangle, Activity, Package, MapPin,
+  ArrowRightLeft, RotateCcw, Clock, Layers,
+  RefreshCw, History
 } from "lucide-react";
 
 const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker"];
