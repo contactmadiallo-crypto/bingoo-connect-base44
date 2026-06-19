@@ -100,7 +100,7 @@ export default function AdminDashboard() {
     base44.auth.me().then(u => {
       setUser(u);
       setAuthChecked(true);
-      if (u.role !== "admin" && u.role !== "super_admin") window.location.href = "/dashboard";
+      if (u.role !== "admin" && u.role !== "super_admin") window.location.href = "/bingoo";
     }).catch(() => base44.auth.redirectToLogin());
   }, []);
 
