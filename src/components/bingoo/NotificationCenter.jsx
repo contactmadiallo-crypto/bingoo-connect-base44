@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Bell, X, CalendarDays, Star, Check } from "lucide-react";
+import { Bell, X, CalendarDays, Star } from "lucide-react";
 
 const NOTIF_SEEN_KEY = "bingoo_notif_seen_ids";
 
@@ -91,7 +91,6 @@ export default function NotificationCenter({ profileId, isDark }) {
   const panelBorder = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const itemBg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)";
 
   return (
     <div className="relative">

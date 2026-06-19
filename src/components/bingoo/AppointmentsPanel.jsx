@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
   CalendarDays, Clock, User, Phone, Mail, Check, X, CheckCircle,
-  Inbox, MessageSquare, Download, AlertTriangle, Search, Filter
+  Inbox, MessageSquare, Download, AlertTriangle, Search
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
