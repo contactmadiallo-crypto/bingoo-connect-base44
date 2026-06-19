@@ -18,6 +18,30 @@
     "visitor_phone": {
       "type": "string"
     },
+    "service_name": {
+      "type": "string",
+      "description": "Service or appointment type requested"
+    },
+    "stylist_name": {
+      "type": "string",
+      "description": "Preferred stylist (salon)"
+    },
+    "guest_count": {
+      "type": "number",
+      "description": "Number of guests (restaurant)"
+    },
+    "case_type": {
+      "type": "string",
+      "description": "Case type (law firm)"
+    },
+    "a_number": {
+      "type": "string",
+      "description": "A-Number (law firm immigration)"
+    },
+    "case_number": {
+      "type": "string",
+      "description": "Case number (law firm)"
+    },
     "date": {
       "type": "string",
       "format": "date"
@@ -26,8 +50,28 @@
       "type": "string",
       "description": "e.g. 09:00"
     },
+    "duration": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
     "notes": {
       "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "description": "Internal owner notes",
+      "maxLength": 2000
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "profile",
+        "nfc",
+        "qr",
+        "direct",
+        "referral"
+      ],
+      "default": "profile"
     },
     "status": {
       "type": "string",
@@ -35,11 +79,12 @@
         "pending",
         "confirmed",
         "accepted",
-        "declined",
-        "rescheduled",
         "completed",
         "cancelled",
-        "canceled"
+        "canceled",
+        "declined",
+        "rescheduled",
+        "no_show"
       ],
       "default": "pending"
     }
