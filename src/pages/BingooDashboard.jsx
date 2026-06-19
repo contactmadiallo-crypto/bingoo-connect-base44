@@ -542,7 +542,7 @@ export default function BingooDashboard() {
       </div>
 
       {/* ── Global Live Preview Panel ── always uses activeProfile.id as key to prevent stale renders ── */}
-      {profile && ["profile", "team", "services", "legal_services", "offices"].includes(tab) && (
+      {profile && tab === "profile" && (
         <LivePreviewPanel
           key={profile.id}
           profile={profile}

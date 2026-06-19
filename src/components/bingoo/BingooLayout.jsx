@@ -8,7 +8,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 const navItems = [
   { label: "Home",           icon: Home,            href: "/",                        iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
   { label: "Dashboard",      icon: LayoutDashboard, href: "/bingoo",                  iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)"  },
-  { label: "My Profile",     icon: User,            href: "/bingoo?tab=profile",      iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
+  { label: "My Profile",     icon: User,            href: "/bingoo",                  iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
   { label: "Appointments",   icon: CalendarDays,    href: "/bingoo?tab=appointments", iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)"  },
   { label: "Leads",          icon: Star,            href: "/bingoo?tab=leads",        iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)"  },
   { label: "My NFC Devices", icon: Smartphone,      href: "/my-nfc-devices",          iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)"  },
