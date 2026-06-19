@@ -1,25 +1,40 @@
 import { CheckCircle, AlertCircle, ArrowRight } from "lucide-react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 
-// Each check knows where to navigate when it's missing
-const CHECKS = [
-  { key: "photo",    label: "Profile Photo",       tab: "profile",   check: (p) => !!p?.profile_photo },
-  { key: "bio",      label: "Bio",                  tab: "profile",   check: (p) => !!p?.bio },
-  { key: "phone",    label: "Phone Number",          tab: "profile",   check: (p) => !!p?.phone },
-  { key: "services", label: "Services Added",        tab: "services",  check: (_, d) => d?.hasServices },
-  { key: "team",     label: "Team Members",          tab: "team",      check: (_, d) => d?.hasTeam },
-  { key: "nfc",      label: "NFC Device Activated",  tab: "nfc",       check: (_, d) => d?.hasNfc },
+// Core checks required for all plans
+const CORE_CHECKS = [
+  { key: "photo", label: "Profile Photo", tab: "profile", check: (p) => !!p?.profile_photo },
+  { key: "bio",   label: "Bio",           tab: "profile", check: (p) => !!p?.bio },
+  { key: "phone", label: "Phone Number",  tab: "profile", check: (p) => !!p?.phone },
 ];
+
+// Plan-specific checks — only shown for relevant plans
+const PLAN_CHECKS = [
+  { key: "services", label: "Services Added",  tab: "services", plans: ["salon", "restaurant", "business", "corporate"], check: (_, d) => d?.hasServices },
+  { key: "team",     label: "Team Members",    tab: "team",     plans: ["lawfirm", "corporate", "business"],              check: (_, d) => d?.hasTeam },
+];
+
+// NFC is a bonus/optional item — shown but never blocks 100%
+const NFC_BONUS = { key: "nfc", label: "NFC Device Activated", tab: "nfc", check: (_, d) => d?.hasNfc };
+
+function getChecks(plan) {
+  const planKey = (plan || "free").toLowerCase();
+  const planSpecific = PLAN_CHECKS.filter(c => c.plans.includes(planKey));
+  return [...CORE_CHECKS, ...planSpecific];
+}
 
 export default function ProfileCompletionWidget({ profile, extraData = {}, onNavigate }) {
   const { isDark } = useBingooTheme();
 
   if (!profile) return null;
 
-  const results = CHECKS.map(c => ({ ...c, done: c.check(profile, extraData) }));
+  const checks = getChecks(profile.plan);
+  const results = checks.map(c => ({ ...c, done: c.check(profile, extraData) }));
+  const nfcBonus = { ...NFC_BONUS, done: NFC_BONUS.check(profile, extraData) };
+
   const done = results.filter(r => r.done).length;
 
-  // Auto-hide when all required fields are complete
+  // Auto-hide when all required (non-bonus) fields are complete
   if (done === results.length) return null;
   const pct = Math.round((done / results.length) * 100);
 
@@ -91,6 +106,31 @@ export default function ProfileCompletionWidget({ profile, extraData = {}, onNav
             {!r.done && <ArrowRight className="w-3 h-3 opacity-30 flex-shrink-0" />}
           </button>
         ))}
+        {/* NFC bonus item — always shown but never counts toward 100% */}
+        <button
+          onClick={() => handleItemClick(nfcBonus)}
+          disabled={nfcBonus.done}
+          className={`w-full flex items-center gap-2.5 text-left transition-all rounded-lg px-1 py-0.5 ${
+            !nfcBonus.done
+              ? isDark ? "hover:bg-white/8 cursor-pointer" : "hover:bg-black/5 cursor-pointer"
+              : "cursor-default"
+          }`}
+        >
+          {nfcBonus.done
+            ? <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+            : <AlertCircle className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+          }
+          <span className={`text-xs font-medium flex-1 ${nfcBonus.done
+            ? (isDark ? "text-white/50 line-through" : "text-slate-400 line-through")
+            : (isDark ? "text-white/75" : "text-slate-700")}`}>
+            {nfcBonus.label}
+          </span>
+          {!nfcBonus.done && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-500"}`}>
+              Bonus
+            </span>
+          )}
+        </button>
       </div>
 
       {pct < 100 && firstMissing && (

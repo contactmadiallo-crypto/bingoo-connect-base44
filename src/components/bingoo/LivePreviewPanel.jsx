@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import ProfilePreview from "./ProfilePreview";
 import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
-import { Link } from "react-router-dom";
 
 const PANEL_WIDTH = 272;
 const PANEL_HEIGHT = 580;
@@ -37,7 +36,7 @@ function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
 
 export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, isDark, previewMode, isLawFirm }) {
   const previewProfile = pendingProfile || profile;
-  const profileUrl = profile?.username ? `/p/${profile.username}` : null;
+  const profileUrl = profile?.username ? `https://bingooconnect.com/p/${profile.username}` : null;
   const label = PREVIEW_LABELS[previewMode] || "Live Preview";
 
   // Desktop: draggable panel state
@@ -147,14 +146,16 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             {profileUrl && (
-              <Link
-                to={profileUrl}
+              <a
+                href={profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 title="Open live profile"
                 style={{ display: "flex", padding: 4, borderRadius: 8, color: mutedText, textDecoration: "none" }}
                 onMouseDown={e => e.stopPropagation()}
               >
                 <ExternalLink size={12} />
-              </Link>
+              </a>
             )}
             <button
               onMouseDown={e => e.stopPropagation()}
@@ -302,9 +303,9 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
             </motion.div>
 
             {profileUrl && (
-              <Link to={profileUrl} style={{ marginTop: 16, color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>
+              <a href={profileUrl} target="_blank" rel="noopener noreferrer" style={{ marginTop: 16, color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 5 }}>
                 <ExternalLink size={12} /> Open live profile
-              </Link>
+              </a>
             )}
           </motion.div>
         )}
