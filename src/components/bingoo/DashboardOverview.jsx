@@ -149,7 +149,7 @@ export default function DashboardOverview({
                 </a>
                 <Button size="sm" onClick={() => setTab("profile")}
                   className={`rounded-xl gap-1.5 font-bold text-xs ${isDark ? "bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-900/40" : "bg-slate-800 hover:bg-slate-700 text-white shadow-md"}`}>
-                  <Settings className="w-3.5 h-3.5" /> {tr.edit}
+                  <Settings className="w-3.5 h-3.5" /> Profile Studio
                 </Button>
               </div>
             </div>

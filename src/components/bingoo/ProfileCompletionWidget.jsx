@@ -18,6 +18,9 @@ export default function ProfileCompletionWidget({ profile, extraData = {}, onNav
 
   const results = CHECKS.map(c => ({ ...c, done: c.check(profile, extraData) }));
   const done = results.filter(r => r.done).length;
+
+  // Auto-hide when all required fields are complete
+  if (done === results.length) return null;
   const pct = Math.round((done / results.length) * 100);
 
   // Find the first incomplete item to smart-navigate to

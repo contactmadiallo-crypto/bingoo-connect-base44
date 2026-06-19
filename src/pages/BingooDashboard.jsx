@@ -43,8 +43,8 @@ const TABS_CONFIG = [
   { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
   { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
   { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#d97706" },
-  { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
-  { id: "design",        labelKey: "design",        icon: Palette,      color: "#f97316" },
+  { id: "portfolio",     labelKey: "portfolio",      icon: Briefcase,    color: "#8b5cf6" },
+  // Design is now embedded inside Profile Studio — no standalone tab
   { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
   { id: "connections",   labelKey: "connections",   icon: Users,        color: "#e11d48" },
   { id: "lost_mode",     labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
@@ -221,7 +221,7 @@ export default function BingooDashboard() {
   });
   const TR = {
     en: {
-      overview: "Overview", editProfile: "Edit Profile", appointments: "Appointments",
+      overview: "Overview", editProfile: "Profile Studio", appointments: "Appointments",
       calendar: "Calendar", leads: "Leads", myDevices: "My Devices", analytics: "Analytics",
       portfolio: "Portfolio", design: "Design", bookingSetup: "Booking Setup",
       resumes: "Resumes", connections: "Connections",
@@ -242,7 +242,7 @@ export default function BingooDashboard() {
       hours: "Hours",
     },
     fr: {
-      overview: "Aperçu", editProfile: "Modifier le Profil", appointments: "Rendez-vous",
+      overview: "Aperçu", editProfile: "Studio Profil", appointments: "Rendez-vous",
       calendar: "Calendrier", leads: "Prospects", myDevices: "Mes Appareils", analytics: "Analytiques",
       portfolio: "Portfolio", design: "Design", bookingSetup: "Config. Réservation",
       resumes: "CV", connections: "Connexions",
@@ -296,7 +296,7 @@ export default function BingooDashboard() {
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
   const BASE_TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
-  // Build tab list — Calendar and Booking Setup are now merged into Appointments
+  // Build tab list — Design is embedded in Profile Studio; Calendar/Booking merged into Appointments
   const TABS = [
     ...BASE_TABS.slice(0, 4), // overview, profile, appointments, leads
     // Law Firm extras
@@ -310,12 +310,12 @@ export default function BingooDashboard() {
       { id: "services", label: "Services", icon: Scissors, color: "#10b981" },
       { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
     ] : []),
-    // analytics, portfolio, design
-    ...BASE_TABS.slice(4, 7),
+    // analytics, portfolio (no standalone design tab)
+    ...BASE_TABS.slice(4, 6),
     // Resumes — hide for law firms and salons
-    ...(!isLawFirm && !isSalon ? BASE_TABS.slice(7, 8) : []),
+    ...(!isLawFirm && !isSalon ? BASE_TABS.slice(6, 7) : []),
     // connections, lost_mode
-    ...BASE_TABS.slice(8, 10),
+    ...BASE_TABS.slice(7, 9),
     // Team/Attorneys
     ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
     // CRM
@@ -398,11 +398,11 @@ export default function BingooDashboard() {
                       className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all bg-white/10 border border-white/15 text-white/60 hover:text-white hover:bg-white/20">
                       {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
                     </button>
-                    <Link to={profileUrl}>
+                    <a href={profileAbsoluteUrl} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" className="rounded-full font-bold gap-1.5 text-xs text-white border-0 shadow-md" style={{ background: "#FF7A00" }}>
                         <Eye className="w-3.5 h-3.5" /> {tr.preview}
                       </Button>
-                    </Link>
+                    </a>
 
                     <Link to="/account-settings">
                       <Button size="sm" variant="ghost" className="rounded-full gap-1.5 text-xs font-bold text-white/50 hover:text-white hover:bg-white/10">
@@ -521,13 +521,24 @@ export default function BingooDashboard() {
             />
           )}
 
-          {tab === "profile"        && <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} userPlan={userPlan} />}
+          {tab === "profile"        && (
+            <div className="space-y-6">
+              <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} userPlan={userPlan} />
+              <div className={`rounded-2xl overflow-hidden ${isDark ? "border border-white/8" : "border border-slate-200"}`}>
+                <div className={`flex items-center gap-2 px-5 py-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                  <Palette className="w-4 h-4" style={{ color: "#f97316" }} />
+                  <span className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>Design & Style</span>
+                </div>
+                <DesignTab profile={profile} user={user} onSaved={goToOverview} />
+              </div>
+            </div>
+          )}
            {tab === "appointments"  && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={profile?.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
            {tab === "leads"         && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={profile?.id} onSaved={goToOverview} />)}
            {tab === "analytics"     && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={profile?.id} />)}
            {tab === "portfolio"     && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={profile?.id} user={user} onSaved={goToOverview} />)}
-           {tab === "design"        && <DesignTab profile={profile} user={user} onSaved={goToOverview} />}
            {tab === "resumes"       && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={profile?.id} />)}
+           {tab === "design"        && <DesignTab profile={profile} user={user} onSaved={goToOverview} />}
            {tab === "connections"   && <ConnectionsPanel isDark={isDark} />}
            {tab === "lost_mode"     && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={profile?.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
            {tab === "services"      && (isLawFirm ? <PracticeAreasPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={profile?.id} isDark={isDark} onSaved={goToOverview} />))}
