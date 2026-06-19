@@ -4,7 +4,7 @@ export const PRODUCTS = [
     name: 'NFC Business Card',
     description: 'Premium PVC NFC card — tap to share your digital profile instantly.',
     price: 14.99,
-    emoji: '💳',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/8c89ae343_generated_image.png',
     category: 'card',
     badge: 'Best Seller',
     features: [
@@ -19,7 +19,7 @@ export const PRODUCTS = [
     name: 'NFC Keychain',
     description: 'Durable keychain tag — always with you, always ready to share.',
     price: 12.99,
-    emoji: '🔑',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/182144db6_generated_image.png',
     category: 'accessory',
     badge: null,
     features: [
@@ -34,7 +34,7 @@ export const PRODUCTS = [
     name: 'NFC Sticker',
     description: 'Versatile NFC sticker — stick it anywhere for instant sharing.',
     price: 9.99,
-    emoji: '🏷️',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/6c32b14b9_generated_image.png',
     category: 'accessory',
     badge: null,
     features: [
@@ -49,7 +49,7 @@ export const PRODUCTS = [
     name: 'NFC Desk Stand',
     description: 'Elegant desk stand for your workspace — let clients tap to connect.',
     price: 24.99,
-    emoji: '🖥️',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e27a73a42_generated_image.png',
     category: 'stand',
     badge: 'New',
     features: [
@@ -64,7 +64,7 @@ export const PRODUCTS = [
     name: 'Starter Bundle',
     description: '1 Card + 1 Keychain + 1 Sticker — everything you need to get started.',
     price: 29.99,
-    emoji: '📦',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7a85c0e20_generated_image.png',
     category: 'bundle',
     badge: 'Save $8',
     features: [
@@ -79,7 +79,7 @@ export const PRODUCTS = [
     name: '10-Pack Cards',
     description: 'Bulk NFC cards for your team — great for corporate rollouts.',
     price: 99.99,
-    emoji: '🗂️',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/dcdb28f39_generated_image.png',
     category: 'bulk',
     badge: 'Corporate',
     features: [

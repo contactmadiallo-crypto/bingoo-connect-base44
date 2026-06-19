@@ -104,10 +104,10 @@ export default function Shop() {
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-blue-200 transition-all group"
             >
               {/* Product Image Area */}
-              <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-8 text-center relative">
-                <div className="text-6xl mb-2">{product.emoji}</div>
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50 p-4 relative aspect-square flex items-center justify-center overflow-hidden">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl" />
                 {product.badge && (
-                  <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+                  <span className="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
                     {product.badge}
                   </span>
                 )}

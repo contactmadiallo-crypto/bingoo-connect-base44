@@ -66,11 +66,11 @@ export default function ProductDetail() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-2xl border border-slate-200 p-12 flex flex-col items-center justify-center"
+            className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center overflow-hidden"
           >
-            <div className="text-9xl mb-4">{product.emoji}</div>
+            <img src={product.image} alt={product.name} className="w-full h-auto rounded-xl object-cover" />
             {product.badge && (
-              <span className="bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+              <span className="bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full mt-3">
                 {product.badge}
               </span>
             )}
