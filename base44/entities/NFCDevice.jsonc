@@ -3,7 +3,8 @@
   "type": "object",
   "properties": {
     "profile_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Assigned profile ID (optional until activated)"
     },
     "device_type": {
       "type": "string",
@@ -53,7 +54,6 @@
     }
   },
   "required": [
-    "profile_id",
     "device_type",
     "device_code"
   ],
