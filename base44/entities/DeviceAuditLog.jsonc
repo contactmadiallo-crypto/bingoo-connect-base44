@@ -1,0 +1,85 @@
+{
+  "name": "DeviceAuditLog",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "description": "NFCDevice entity ID"
+    },
+    "device_code": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "generated",
+        "assigned",
+        "unassigned",
+        "activated",
+        "lost_reported",
+        "recovered",
+        "disabled",
+        "replaced",
+        "deleted"
+      ],
+      "description": "Action performed"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "User ID who performed the action"
+    },
+    "performed_by_name": {
+      "type": "string"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Profile involved in this action"
+    },
+    "profile_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "old_status": {
+      "type": "string"
+    },
+    "new_status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "device_code",
+    "action"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": null
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

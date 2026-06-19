@@ -19,16 +19,19 @@
     },
     "device_code": {
       "type": "string",
-      "description": "Unique identifier printed on device"
+      "description": "Unique identifier printed on device e.g. BG-000001"
     },
     "status": {
       "type": "string",
       "enum": [
+        "available",
+        "assigned",
         "active",
-        "inactive",
-        "lost"
+        "lost",
+        "disabled",
+        "replaced"
       ],
-      "default": "active"
+      "default": "available"
     },
     "assigned_at": {
       "type": "string",
@@ -38,6 +41,10 @@
       "type": "boolean",
       "default": true,
       "description": "Show owner phone number on lost item page"
+    },
+    "replaced_by_code": {
+      "type": "string",
+      "description": "Device code of the replacement device"
     },
     "description": {
       "type": "string",

@@ -4,13 +4,14 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { device_code } = body;
+    const { device_code, code } = body;
+    const rawCode = device_code || code;
 
-    if (!device_code) {
-      return Response.json({ error: 'device_code is required' }, { status: 400 });
+    if (!rawCode) {
+      return Response.json({ error: 'device_code or code is required' }, { status: 400 });
     }
 
-    const normalizedCode = device_code.toUpperCase().trim();
+    const normalizedCode = rawCode.toUpperCase().trim();
 
     // Check NFCDevice first (new system)
     const nfcDevices = await base44.asServiceRole.entities.NFCDevice.filter({ device_code: normalizedCode });

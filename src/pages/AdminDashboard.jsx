@@ -541,7 +541,7 @@ export default function AdminDashboard() {
 
         {/* Unified NFC Device Manager */}
         {tab === "nfc_manager" && (
-          <NFCDeviceManager profiles={profiles} allNfcDevices={allNfcDevices} />
+          <NFCDeviceManager profiles={profiles} allNfcDevices={allNfcDevices} currentUser={user} />
         )}
 
         {/* All Leads */}
