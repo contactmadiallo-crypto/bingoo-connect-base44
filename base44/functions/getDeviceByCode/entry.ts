@@ -1,5 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SOURCE OF TRUTH: NFCDevice entity (checked first, always)
+// LEGACY FALLBACK: Device entity (read-only, kept for rollback only)
+//   All 4 active legacy Device records were migrated to NFCDevice on 2026-06-20.
+//   The Device fallback below should never be hit in production.
+//   Do NOT write new records to Device. Do NOT remove this fallback until
+//   the Device entity is formally archived/deleted.
+// ─────────────────────────────────────────────────────────────────────────────
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -37,7 +46,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fallback: legacy Device entity
+    // LEGACY FALLBACK (read-only — do not write here): Device entity
+    // All active records migrated to NFCDevice on 2026-06-20. Remove after Device entity is archived.
     const legacyDevices = await base44.asServiceRole.entities.Device.filter({ device_code: normalizedCode });
     const legacyDevice = legacyDevices[0] || null;
 
