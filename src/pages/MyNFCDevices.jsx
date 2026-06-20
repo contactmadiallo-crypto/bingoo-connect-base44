@@ -54,22 +54,42 @@ export default function MyNFCDevices() {
    const [nfcWriting, setNfcWriting] = useState(null);
    const [nfcMsg, setNfcMsg] = useState(null);
 
-   const { data: user, refetch: refetchUser } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
+   const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
+
+   // Profile IDs come from user.owned_profile_ids (the authoritative RLS field).
+   // We also fetch profile records for display names, but devices don't depend on that query succeeding.
+   const ownedProfileIds = user?.owned_profile_ids || [];
+
    const { data: profiles = [] } = useQuery({
      queryKey: ["my-profiles", user?.id],
      queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
      enabled: !!user?.id,
    });
 
+   // Derive the definitive set of profile IDs: union of owned_profile_ids + profiles returned by filter
+   const profileIds = [...new Set([
+     ...ownedProfileIds,
+     ...profiles.map(p => p.id),
+   ])];
+
+   console.log("[MyNFCDevices] user.id:", user?.id);
+   console.log("[MyNFCDevices] user.email:", user?.email);
+   console.log("[MyNFCDevices] user.owned_profile_ids:", ownedProfileIds);
+   console.log("[MyNFCDevices] profiles from filter:", profiles.map(p => p.id));
+   console.log("[MyNFCDevices] final profileIds:", profileIds);
+
    const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
-     queryKey: ["my-nfc-devices-page", user?.id, profiles.map(p => p.id).join(",")],
+     queryKey: ["my-nfc-devices-page", user?.id, profileIds.join(",")],
      queryFn: async () => {
+       console.log("[MyNFCDevices] querying NFCDevice for profileIds:", profileIds);
        const all = await Promise.all(
-         profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
+         profileIds.map(pid => base44.entities.NFCDevice.filter({ profile_id: pid }))
        );
-       return all.flat();
+       const flat = all.flat();
+       console.log("[MyNFCDevices] devices returned:", flat.length, flat.map(d => d.device_code));
+       return flat;
      },
-     enabled: !!user?.id && profiles.length > 0,
+     enabled: !!user?.id && profileIds.length > 0,
      staleTime: 0,
      refetchOnMount: true,
    });
@@ -77,13 +97,12 @@ export default function MyNFCDevices() {
   const { data: nfcAnalytics = [] } = useQuery({
     queryKey: ["nfc-analytics-page", user?.id],
     queryFn: async () => {
-      if (!profiles.length) return [];
       const all = await Promise.all(
-        profiles.map(p => base44.entities.Analytics.filter({ profile_id: p.id, event_type: "nfc_tap" }))
+        profileIds.map(pid => base44.entities.Analytics.filter({ profile_id: pid, event_type: "nfc_tap" }))
       );
       return all.flat();
     },
-    enabled: !!user?.id && profiles.length > 0,
+    enabled: !!user?.id && profileIds.length > 0,
   });
 
   const handleActivateCode = async () => {
@@ -216,7 +235,7 @@ export default function MyNFCDevices() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const getProfile = (id) => profiles.find(p => p.id === id);
+  const getProfile = (id) => profiles.find(p => p.id === id) || { display_name: id?.slice(0, 8) + "…" };
   const activeCount = myDevices.filter(d => d.status === "active").length;
   const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
@@ -325,7 +344,7 @@ export default function MyNFCDevices() {
         </AnimatePresence>
 
         {/* Loading state */}
-        {devicesLoading && (
+        {(!user || devicesLoading) && (
           <div className="rounded-2xl p-10 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
             <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-3" />
             <p className={`text-sm font-medium ${mutedText}`}>Loading your devices…</p>
@@ -333,7 +352,7 @@ export default function MyNFCDevices() {
         )}
 
         {/* Empty state */}
-        {!devicesLoading && myDevices.length === 0 && (
+        {user && !devicesLoading && myDevices.length === 0 && (
           <div className="rounded-2xl p-10 text-center space-y-5" style={{ background: bg, border: `1px solid ${border}` }}>
             <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
               style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
@@ -357,7 +376,7 @@ export default function MyNFCDevices() {
         )}
 
         {/* Device List */}
-        {!devicesLoading && myDevices.length > 0 && (
+        {user && !devicesLoading && myDevices.length > 0 && (
           <div className="space-y-4">
             {myDevices.map(device => {
               const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
