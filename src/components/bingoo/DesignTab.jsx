@@ -156,7 +156,8 @@ export default function DesignTab({ profile, user, onSaved }) {
 
   return (
     <div className="space-y-8">
-      {/* Sticky draggable live preview — desktop fixed panel + mobile FAB */}
+      {/* HIDDEN: LivePreviewPanel moved to backlog as Preview V2 — blocking editor on desktop */}
+      {/* 
       <LivePreviewPanel
         profile={profile}
         pendingProfile={previewProfile}
@@ -164,6 +165,7 @@ export default function DesignTab({ profile, user, onSaved }) {
         isDark={isDark}
         previewMode="design"
       />
+      */}
 
       <div>
         <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>

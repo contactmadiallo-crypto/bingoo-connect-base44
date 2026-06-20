@@ -42,24 +42,30 @@ function StatusBadge({ status, isDark }) {
 }
 
 export default function MyNFCDevices() {
-  const { isDark } = useBingooTheme();
-  const qc = useQueryClient();
+   const { isDark } = useBingooTheme();
+   const qc = useQueryClient();
 
-  const [showActivate, setShowActivate] = useState(false);
-  const [activateCode, setActivateCode] = useState("");
-  const [activating, setActivating] = useState(false);
-  const [activateMsg, setActivateMsg] = useState(null);
-  const [expandedId, setExpandedId] = useState(null);
-  const [copied, setCopied] = useState(null);
-  const [nfcWriting, setNfcWriting] = useState(null);
-  const [nfcMsg, setNfcMsg] = useState(null);
+   const [showActivate, setShowActivate] = useState(false);
+   const [activateCode, setActivateCode] = useState("");
+   const [activating, setActivating] = useState(false);
+   const [activateMsg, setActivateMsg] = useState(null);
+   const [expandedId, setExpandedId] = useState(null);
+   const [copied, setCopied] = useState(null);
+   const [nfcWriting, setNfcWriting] = useState(null);
+   const [nfcMsg, setNfcMsg] = useState(null);
 
-  const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
-  const { data: profiles = [] } = useQuery({
-    queryKey: ["my-profiles", user?.id],
-    queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
-    enabled: !!user?.id,
-  });
+   const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
+   const { data: profiles = [] } = useQuery({
+     queryKey: ["my-profiles", user?.id],
+     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
+     enabled: !!user?.id,
+   });
+
+   // DEBUG LOGS
+   if (typeof window !== 'undefined') {
+     console.log("[MyNFCDevices] user.id:", user?.id);
+     console.log("[MyNFCDevices] profiles loaded:", profiles.length, profiles.map(p => ({ id: p.id, name: p.display_name })));
+   }
 
   // Use NFCDevice entity — filter by profile_ids owned by user
   // NOTE: enabled only when profiles are loaded; staleTime:0 ensures fresh fetch after invalidation
@@ -69,7 +75,9 @@ export default function MyNFCDevices() {
       const all = await Promise.all(
         profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
       );
-      return all.flat();
+      const flat = all.flat();
+      console.log("[MyNFCDevices] devices returned:", flat.length, flat.map(d => ({ code: d.device_code, status: d.status, profile_id: d.profile_id })));
+      return flat;
     },
     enabled: !!user?.id && profiles.length > 0,
     staleTime: 0,
@@ -219,7 +227,13 @@ export default function MyNFCDevices() {
 
   const getProfile = (id) => profiles.find(p => p.id === id);
   const activeCount = myDevices.filter(d => d.status === "active").length;
+  const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
+
+  // DEBUG LOGS
+  if (typeof window !== 'undefined') {
+    console.log("[MyNFCDevices] activeCount:", activeCount, "totalCount:", totalCount, "totalScans:", totalScans);
+  }
 
   const bg = isDark ? "rgba(255,255,255,0.04)" : "#ffffff";
   const border = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
@@ -252,7 +266,7 @@ export default function MyNFCDevices() {
                 <div className="flex items-center gap-3 mt-2">
                   <span className="text-sm font-bold text-emerald-400">{activeCount} Active</span>
                   <span className="text-white/30 text-xs">·</span>
-                  <span className="text-sm font-bold text-white/50">{myDevices.length} Total</span>
+                  <span className="text-sm font-bold text-white/50">{totalCount} Total</span>
                   <span className="text-white/30 text-xs">·</span>
                   <span className="text-sm font-bold" style={{ color: "#FDBA21" }}>{totalScans} Taps</span>
                 </div>
