@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
@@ -54,34 +54,50 @@ export default function MyNFCDevices() {
    const [nfcWriting, setNfcWriting] = useState(null);
    const [nfcMsg, setNfcMsg] = useState(null);
 
-   const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
+   const { data: user, refetch: refetchUser } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
    const { data: profiles = [] } = useQuery({
      queryKey: ["my-profiles", user?.id],
      queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
      enabled: !!user?.id,
    });
 
-   // DEBUG LOGS
-   if (typeof window !== 'undefined') {
-     console.log("[MyNFCDevices] user.id:", user?.id);
-     console.log("[MyNFCDevices] profiles loaded:", profiles.length, profiles.map(p => ({ id: p.id, name: p.display_name })));
-   }
+   // CRITICAL FIX: NFCDevice RLS gates on user.data.owned_profile_ids, NOT created_by_id.
+   // If owned_profile_ids is empty (common after account creation or OAuth login),
+   // devices are invisible. Sync it from the user's owned profiles before querying.
+   const [rlsReady, setRlsReady] = useState(false);
+   useEffect(() => {
+     if (!user || profiles.length === 0) return;
+     const currentOwned = user.owned_profile_ids || [];
+     const myIds = profiles.map(p => p.id);
+     const missing = myIds.filter(id => !currentOwned.includes(id));
+     if (missing.length > 0) {
+       console.log("[MyNFCDevices] owned_profile_ids out of sync. Syncing:", myIds);
+       base44.auth.updateMe({ owned_profile_ids: [...new Set([...currentOwned, ...myIds])] })
+         .then(() => {
+           console.log("[MyNFCDevices] owned_profile_ids synced. Refetching devices.");
+           setRlsReady(true);
+         })
+         .catch(err => {
+           console.warn("[MyNFCDevices] sync failed:", err);
+           setRlsReady(true); // still try to fetch
+         });
+     } else {
+       console.log("[MyNFCDevices] owned_profile_ids OK:", currentOwned);
+       setRlsReady(true);
+     }
+   }, [user?.id, profiles.length]);
 
-  // Use NFCDevice entity — filter by profile_ids owned by user
-  // NOTE: enabled only when profiles are loaded; staleTime:0 ensures fresh fetch after invalidation
-  const { data: myDevices = [], refetch: refetchDevices } = useQuery({
-    queryKey: ["my-nfc-devices-page", user?.id, profiles.map(p => p.id).join(",")],
-    queryFn: async () => {
-      const all = await Promise.all(
-        profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
-      );
-      const flat = all.flat();
-      console.log("[MyNFCDevices] devices returned:", flat.length, flat.map(d => ({ code: d.device_code, status: d.status, profile_id: d.profile_id })));
-      return flat;
-    },
-    enabled: !!user?.id && profiles.length > 0,
-    staleTime: 0,
-  });
+   const { data: myDevices = [], refetch: refetchDevices } = useQuery({
+     queryKey: ["my-nfc-devices-page", user?.id, profiles.map(p => p.id).join(",")],
+     queryFn: async () => {
+       const all = await Promise.all(
+         profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
+       );
+       return all.flat();
+     },
+     enabled: !!user?.id && profiles.length > 0 && rlsReady,
+     staleTime: 0,
+   });
 
   const { data: nfcAnalytics = [] } = useQuery({
     queryKey: ["nfc-analytics-page", user?.id],
@@ -229,11 +245,6 @@ export default function MyNFCDevices() {
   const activeCount = myDevices.filter(d => d.status === "active").length;
   const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
-
-  // DEBUG LOGS
-  if (typeof window !== 'undefined') {
-    console.log("[MyNFCDevices] activeCount:", activeCount, "totalCount:", totalCount, "totalScans:", totalScans);
-  }
 
   const bg = isDark ? "rgba(255,255,255,0.04)" : "#ffffff";
   const border = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
