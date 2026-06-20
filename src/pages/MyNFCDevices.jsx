@@ -62,16 +62,17 @@ export default function MyNFCDevices() {
   });
 
   // Use NFCDevice entity — filter by profile_ids owned by user
+  // NOTE: enabled only when profiles are loaded; staleTime:0 ensures fresh fetch after invalidation
   const { data: myDevices = [], refetch: refetchDevices } = useQuery({
-    queryKey: ["my-nfc-devices-page", user?.id],
+    queryKey: ["my-nfc-devices-page", user?.id, profiles.map(p => p.id).join(",")],
     queryFn: async () => {
-      if (!profiles.length) return [];
       const all = await Promise.all(
         profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
       );
       return all.flat();
     },
     enabled: !!user?.id && profiles.length > 0,
+    staleTime: 0,
   });
 
   const { data: nfcAnalytics = [] } = useQuery({
