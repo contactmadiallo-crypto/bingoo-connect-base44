@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
@@ -61,33 +61,7 @@ export default function MyNFCDevices() {
      enabled: !!user?.id,
    });
 
-   // CRITICAL FIX: NFCDevice RLS gates on user.data.owned_profile_ids, NOT created_by_id.
-   // If owned_profile_ids is empty (common after account creation or OAuth login),
-   // devices are invisible. Sync it from the user's owned profiles before querying.
-   const [rlsReady, setRlsReady] = useState(false);
-   useEffect(() => {
-     if (!user || profiles.length === 0) return;
-     const currentOwned = user.owned_profile_ids || [];
-     const myIds = profiles.map(p => p.id);
-     const missing = myIds.filter(id => !currentOwned.includes(id));
-     if (missing.length > 0) {
-       console.log("[MyNFCDevices] owned_profile_ids out of sync. Syncing:", myIds);
-       base44.auth.updateMe({ owned_profile_ids: [...new Set([...currentOwned, ...myIds])] })
-         .then(() => {
-           console.log("[MyNFCDevices] owned_profile_ids synced. Refetching devices.");
-           setRlsReady(true);
-         })
-         .catch(err => {
-           console.warn("[MyNFCDevices] sync failed:", err);
-           setRlsReady(true); // still try to fetch
-         });
-     } else {
-       console.log("[MyNFCDevices] owned_profile_ids OK:", currentOwned);
-       setRlsReady(true);
-     }
-   }, [user?.id, profiles.length]);
-
-   const { data: myDevices = [], refetch: refetchDevices } = useQuery({
+   const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
      queryKey: ["my-nfc-devices-page", user?.id, profiles.map(p => p.id).join(",")],
      queryFn: async () => {
        const all = await Promise.all(
@@ -95,8 +69,9 @@ export default function MyNFCDevices() {
        );
        return all.flat();
      },
-     enabled: !!user?.id && profiles.length > 0 && rlsReady,
+     enabled: !!user?.id && profiles.length > 0,
      staleTime: 0,
+     refetchOnMount: true,
    });
 
   const { data: nfcAnalytics = [] } = useQuery({
@@ -349,8 +324,16 @@ export default function MyNFCDevices() {
           )}
         </AnimatePresence>
 
+        {/* Loading state */}
+        {devicesLoading && (
+          <div className="rounded-2xl p-10 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
+            <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-3" />
+            <p className={`text-sm font-medium ${mutedText}`}>Loading your devices…</p>
+          </div>
+        )}
+
         {/* Empty state */}
-        {myDevices.length === 0 && (
+        {!devicesLoading && myDevices.length === 0 && (
           <div className="rounded-2xl p-10 text-center space-y-5" style={{ background: bg, border: `1px solid ${border}` }}>
             <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
               style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
@@ -374,7 +357,7 @@ export default function MyNFCDevices() {
         )}
 
         {/* Device List */}
-        {myDevices.length > 0 && (
+        {!devicesLoading && myDevices.length > 0 && (
           <div className="space-y-4">
             {myDevices.map(device => {
               const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
