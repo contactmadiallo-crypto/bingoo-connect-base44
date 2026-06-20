@@ -37,13 +37,19 @@ export default function ActivateDevice() {
     enabled: !!user?.id,
   });
   const { data: myDevices = [], refetch: refetchDevices } = useQuery({
-    queryKey: ["my-devices", user?.id],
-    queryFn: () => base44.entities.Device.filter({ assigned_user: user.id }),
-    enabled: !!user?.id,
+    queryKey: ["my-nfc-devices-page", user?.id],
+    queryFn: async () => {
+      if (!profiles.length) return [];
+      const all = await Promise.all(
+        profiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
+      );
+      return all.flat();
+    },
+    enabled: !!user?.id && profiles.length > 0,
   });
   const { data: allDevices = [], refetch: refetchAll } = useQuery({
-    queryKey: ["all-devices-admin"],
-    queryFn: () => base44.entities.Device.list(),
+    queryKey: ["all-nfc-devices-admin"],
+    queryFn: () => base44.entities.NFCDevice.list(),
     enabled: user?.role === "admin",
   });
 
@@ -145,10 +151,10 @@ export default function ActivateDevice() {
   const handleCreateCode = async () => {
     if (!newCode.trim()) return;
     setCreatingCode(true);
-    await base44.entities.Device.create({
+    await base44.entities.NFCDevice.create({
       device_code: newCode.trim().toUpperCase(),
       device_type: newType,
-      activation_status: "available",
+      status: "available",
     });
     setNewCode("");
     refetchAll();
@@ -157,17 +163,13 @@ export default function ActivateDevice() {
 
   // Deactivate
   const handleDeactivate = async (device) => {
-    await base44.entities.Device.update(device.id, {
-      activation_status: "inactive",
-      assigned_user: "",
-      assigned_profile: "",
-    });
+    await base44.entities.NFCDevice.update(device.id, { status: "disabled" });
     refetchDevices();
   };
 
   // Save nickname
   const handleSaveNickname = async () => {
-    await base44.entities.Device.update(editingDevice.id, { nickname: editingDevice.nickname });
+    await base44.entities.NFCDevice.update(editingDevice.id, { description: editingDevice.nickname });
     setEditingDevice(null);
     refetchDevices();
   };
@@ -175,7 +177,7 @@ export default function ActivateDevice() {
   // Reassign
   const handleReassign = async () => {
     if (!reassignDevice?.newProfileId) return;
-    await base44.entities.Device.update(reassignDevice.device.id, { assigned_profile: reassignDevice.newProfileId });
+    await base44.entities.NFCDevice.update(reassignDevice.device.id, { profile_id: reassignDevice.newProfileId });
     setReassignDevice(null);
     refetchDevices();
   };
@@ -302,14 +304,14 @@ export default function ActivateDevice() {
                       ) : (
                         <>
                           <div className="flex items-center gap-2">
-                            <p className={`font-black text-sm ${headText}`}>{device.nickname || device.device_code}</p>
-                            {device.nickname && <span className={`text-xs ${mutedText}`}>{device.device_code}</span>}
-                            <span className={`ml-1 text-xs px-2 py-0.5 rounded-full font-bold ${device.activation_status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-                              {device.activation_status}
+                            <p className={`font-black text-sm ${headText}`}>{device.description || device.device_code}</p>
+                            {device.description && <span className={`text-xs ${mutedText}`}>{device.device_code}</span>}
+                            <span className={`ml-1 text-xs px-2 py-0.5 rounded-full font-bold ${device.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                              {device.status}
                             </span>
                           </div>
                           <p className={`text-xs mt-0.5 ${mutedText}`}>
-                            Profile: {getProfileName(device.assigned_profile)} · {device.device_type}
+                            Profile: {getProfileName(device.profile_id)} · {device.device_type}
                           </p>
                         </>
                       )}
@@ -386,12 +388,12 @@ export default function ActivateDevice() {
                       </div>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
-                      d.activation_status === "active"
+                      d.status === "active"
                         ? "bg-emerald-100 text-emerald-700"
-                        : d.activation_status === "inactive"
-                        ? "bg-slate-100 text-slate-500"
-                        : "bg-blue-100 text-blue-700"
-                    }`}>{d.activation_status}</span>
+                        : d.status === "available"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-slate-100 text-slate-500"
+                    }`}>{d.status}</span>
                   </div>
                 ))}
               </div>
@@ -413,7 +415,7 @@ export default function ActivateDevice() {
                 <p className={`text-sm mb-4 ${mutedText}`}>Choose which profile to link this device to</p>
                 <select
                   className={inputCls}
-                  value={reassignDevice.newProfileId}
+                  value={reassignDevice.newProfileId || reassignDevice.device.profile_id || ""}
                   onChange={e => setReassignDevice({ ...reassignDevice, newProfileId: e.target.value })}
                 >
                   {profiles.map(p => (
