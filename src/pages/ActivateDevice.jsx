@@ -60,40 +60,84 @@ export default function ActivateDevice() {
       : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
   }`;
 
-  // Activate device
+  // Activate device — uses getDeviceByCode (service role) then NFCDevice.update via service role
   const handleActivate = async () => {
     if (!code.trim()) return;
     setActivating(true);
     setActivateMsg(null);
     const trimmed = code.trim().toUpperCase();
 
-    const devices = await base44.entities.Device.filter({ device_code: trimmed });
-    if (!devices.length) {
-      setActivateMsg({ type: "error", text: "Device code not found. Please check and try again." });
-      setActivating(false);
-      return;
+    try {
+      // Step 1: Lookup via backend function (bypasses RLS, works for both NFCDevice and legacy Device)
+      const result = await base44.functions.invoke("getDeviceByCode", { code: trimmed });
+      const device = result?.data?.device;
+
+      if (!device) {
+        setActivateMsg({ type: "error", text: "Device code not found. Check the code on your device and try again." });
+        setActivating(false);
+        return;
+      }
+
+      if (device.status === "disabled") {
+        setActivateMsg({ type: "error", text: "This device has been disabled. Contact support." });
+        setActivating(false);
+        return;
+      }
+
+      if (device.status === "replaced") {
+        setActivateMsg({ type: "error", text: `This device was replaced. New code: ${device.replaced_by_code || "contact support"}.` });
+        setActivating(false);
+        return;
+      }
+
+      // Already claimed by this user's profile
+      if (device.profile_id && profiles.some(p => p.id === device.profile_id)) {
+        setActivateMsg({ type: "info", text: "✅ This device is already linked to your profile." });
+        setActivating(false);
+        return;
+      }
+
+      // Claimed by someone else
+      if (device.profile_id && !profiles.some(p => p.id === device.profile_id)) {
+        setActivateMsg({ type: "error", text: "This device is already activated by another account. Contact support if this is yours." });
+        setActivating(false);
+        return;
+      }
+
+      const targetProfile = profiles.find(p => p.id === selectedProfile) || profiles[0];
+      if (!targetProfile) {
+        setActivateMsg({ type: "error", text: "Please create a profile first before activating a device." });
+        setActivating(false);
+        return;
+      }
+
+      // Step 2: Update NFCDevice — must use the DeviceActivation page's backend function
+      // Direct update blocked by RLS (profile_id is null, user not yet owner).
+      // We invoke activateNfcDevice backend function which uses asServiceRole.
+      const activateResult = await base44.functions.invoke("activateNfcDevice", {
+        device_id: device.id,
+        profile_id: targetProfile.id,
+        user_id: user.id,
+        user_name: user.full_name,
+        profile_name: targetProfile.display_name,
+        old_status: device.status,
+      });
+
+      if (activateResult?.data?.error) {
+        setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+        setActivating(false);
+        return;
+      }
+
+      setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to: ${targetProfile.display_name}` });
+      setCode("");
+      setSelectedProfile("");
+      queryClient.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
+      queryClient.invalidateQueries({ queryKey: ["my-devices"] });
+    } catch (e) {
+      console.error("[ActivateDevice] handleActivate error:", e);
+      setActivateMsg({ type: "error", text: "Activation failed: " + e.message });
     }
-    const device = devices[0];
-    if (device.activation_status === "active" && device.assigned_user !== user.id) {
-      setActivateMsg({ type: "error", text: "This device is already activated by another account." });
-      setActivating(false);
-      return;
-    }
-    if (device.activation_status === "active" && device.assigned_user === user.id) {
-      setActivateMsg({ type: "error", text: "You already own this device. You can manage it below." });
-      setActivating(false);
-      return;
-    }
-    await base44.entities.Device.update(device.id, {
-      activation_status: "active",
-      assigned_user: user.id,
-      assigned_profile: selectedProfile || profiles[0]?.id || "",
-      activation_date: new Date().toISOString(),
-    });
-    setActivateMsg({ type: "success", text: "Device activated successfully! 🎉" });
-    setCode("");
-    setSelectedProfile("");
-    refetchDevices();
     setActivating(false);
   };
 
