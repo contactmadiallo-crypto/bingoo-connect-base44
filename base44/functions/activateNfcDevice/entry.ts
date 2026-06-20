@@ -17,8 +17,7 @@ Deno.serve(async (req) => {
     }
 
     // Verify the profile actually belongs to the requesting user
-    const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
-    const profile = profiles[0];
+    const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
     if (!profile) {
       return Response.json({ error: 'Profile not found' }, { status: 404 });
     }
@@ -27,8 +26,7 @@ Deno.serve(async (req) => {
     }
 
     // Re-check device is still unclaimed (race condition guard)
-    const devices = await base44.asServiceRole.entities.NFCDevice.filter({ id: device_id });
-    const device = devices[0];
+    const device = await base44.asServiceRole.entities.NFCDevice.get(device_id);
     if (!device) {
       return Response.json({ error: 'Device not found' }, { status: 404 });
     }
