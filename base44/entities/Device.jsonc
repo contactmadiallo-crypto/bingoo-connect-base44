@@ -1,4 +1,6 @@
 {
+  "_archived": true,
+  "_archive_note": "LEGACY ENTITY \u2014 DO NOT USE. NFCDevice is the source of truth as of 2026-06-20. All 4 active records were migrated to NFCDevice on 2026-06-20. This entity is kept READ-ONLY for rollback purposes only. No frontend code queries or writes to this entity. The only remaining reference is the read-only fallback in functions/getDeviceByCode.js. Delete this entity only after confirming NFCDevice is stable in production.",
   "name": "Device",
   "type": "object",
   "properties": {
@@ -54,40 +56,19 @@
   ],
   "rls": {
     "create": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "read": {
-      "$or": [
-        {
-          "data.assigned_user": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "update": {
-      "$or": [
-        {
-          "data.assigned_user": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "role": "admin"
+      }
     },
     "delete": {
       "user_condition": {
