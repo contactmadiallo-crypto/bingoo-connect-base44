@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 const DEVICE_ICONS = { card: CreditCard, keychain: Key, bracelet: Award, stand: Shield, badge: Wifi, sticker: Smartphone };
 
-const isLost = (device) => device.description === "lost";
+const isLost = (device) => device.status === "lost";
 
 export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }) {
   const qc = useQueryClient();
@@ -25,10 +25,23 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     : "bg-white border border-slate-100";
 
   // ── Data ──────────────────────────────────────────────────
-  const { data: devices = [], isLoading: devicesLoading } = useQuery({
-    queryKey: ["my-devices-lost", userId],
-    queryFn: () => base44.entities.Device.filter({ assigned_user: userId }),
+  // Fetch user's profiles first, then query NFCDevice by profile_id (same source as MyNFCDevices)
+  const { data: userProfiles = [] } = useQuery({
+    queryKey: ["user-profiles-lost", userId],
+    queryFn: () => base44.entities.Profile.filter({ created_by_id: userId }),
     enabled: !!userId,
+  });
+
+  const { data: devices = [], isLoading: devicesLoading } = useQuery({
+    queryKey: ["my-devices-lost", userId, userProfiles.map(p => p.id).join(",")],
+    queryFn: async () => {
+      if (!userProfiles.length) return [];
+      const all = await Promise.all(
+        userProfiles.map(p => base44.entities.NFCDevice.filter({ profile_id: p.id }))
+      );
+      return all.flat();
+    },
+    enabled: !!userId && userProfiles.length > 0,
   });
 
   const { data: reports = [], isLoading: reportsLoading } = useQuery({
@@ -40,11 +53,9 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   // ── Real-time subscription — instantly reflects lost/active toggle ──
   useEffect(() => {
     if (!userId) return;
-    const unsub = base44.entities.Device.subscribe((event) => {
-      if (event.type === "update" && event.data?.assigned_user === userId) {
-        qc.setQueryData(["my-devices-lost", userId], (old = []) =>
-          old.map(d => d.id === event.id ? { ...d, ...event.data } : d)
-        );
+    const unsub = base44.entities.NFCDevice.subscribe((event) => {
+      if (event.type === "update") {
+        qc.invalidateQueries({ queryKey: ["my-devices-lost", userId] });
       }
     });
     return unsub;
@@ -68,7 +79,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
 
   // ── Mutations with optimistic updates ────────────────────
   const updateDevice = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Device.update(id, data),
+    mutationFn: ({ id, data }) => base44.entities.NFCDevice.update(id, data),
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey: ["my-devices-lost", userId] });
       const prev = qc.getQueryData(["my-devices-lost", userId]);
@@ -82,7 +93,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
       toast.error("Update failed, please try again.");
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["my-devices", userId] });
+      qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
   });
 
@@ -102,12 +113,12 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   });
 
   const markLost = (device) => {
-    updateDevice.mutate({ id: device.id, data: { activation_status: "inactive", description: "lost" } });
+    updateDevice.mutate({ id: device.id, data: { status: "lost" } });
     toast.error(`🔴 ${device.device_code} marked as Lost`);
   };
 
   const markActive = (device) => {
-    updateDevice.mutate({ id: device.id, data: { activation_status: "active", description: "" } });
+    updateDevice.mutate({ id: device.id, data: { status: "active" } });
     toast.success(`✅ ${device.device_code} recovered — back to Active`);
   };
 
@@ -216,7 +227,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className={`font-bold text-sm ${headText}`}>
-                          {device.nickname || device.device_code}
+                          {device.device_code}
                         </p>
                         {/* ── STATUS LABEL ── */}
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black border ${
@@ -236,10 +247,10 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                         )}
                       </div>
                       <p className={`text-xs font-mono mt-0.5 ${subText}`}>
-                        {device.nickname ? device.device_code : device.device_type}
+                        {device.device_type}
                         {" · "}
-                        {device.activation_date
-                          ? `Since ${new Date(device.activation_date).toLocaleDateString()}`
+                        {device.assigned_at
+                          ? `Since ${new Date(device.assigned_at).toLocaleDateString()}`
                           : ""}
                       </p>
                     </div>
@@ -302,7 +313,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                           {(() => { const I = DEVICE_ICONS[device.device_type] || Smartphone; return <I className={`w-4 h-4 ${isLost(device) ? "text-red-500" : "text-blue-500"}`} />; })()}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className={`font-bold text-sm ${headText}`}>{device.nickname || device.device_code}</p>
+                          <p className={`font-bold text-sm ${headText}`}>{device.device_code}</p>
                           <p className={`text-xs ${subText}`}>{device.device_code} · {deviceReports.length} report{deviceReports.length > 1 ? "s" : ""}</p>
                         </div>
                         {newCount > 0 && (
