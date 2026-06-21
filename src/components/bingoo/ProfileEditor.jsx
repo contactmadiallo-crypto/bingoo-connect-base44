@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
+import { syncProfileToFirestore } from "@/hooks/useFirestoreProfileSync";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
 
@@ -155,6 +156,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
       } else {
         savedProfile = await base44.entities.Profile.create({ ...form, is_active: true, plan: "free" });
       }
+      // Shadow-copy to Firestore (fire-and-forget — flag-gated, never blocks Base44 save)
+      syncProfileToFirestore(savedProfile);
       // Ensure owned_profile_ids is set on the user so RLS works for appointments/leads
       if (savedProfile?.id) {
         const me = await base44.auth.me();
