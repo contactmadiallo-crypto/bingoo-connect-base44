@@ -77,13 +77,10 @@ export default function MyNFCDevices() {
    const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
      queryKey: ["my-nfc-devices-page", user?.id, profileIds.join(",")],
      queryFn: async () => {
-       console.log("[MyNFCDevices] querying NFCDevice for profileIds:", profileIds);
        const all = await Promise.all(
          profileIds.map(pid => base44.entities.NFCDevice.filter({ profile_id: pid }))
        );
-       const flat = all.flat();
-       console.log("[MyNFCDevices] devices returned:", flat.length, flat.map(d => d.device_code));
-       return flat;
+       return all.flat();
      },
      enabled: !!user?.id && profileIds.length > 0,
      staleTime: 0,
