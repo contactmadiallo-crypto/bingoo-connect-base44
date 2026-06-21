@@ -1,0 +1,106 @@
+{
+  "name": "BingooNotification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID to show this notification to"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Profile this notification is related to"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "new_lead",
+        "new_appointment",
+        "appointment_confirmed",
+        "appointment_cancelled",
+        "appointment_rescheduled",
+        "nfc_activated",
+        "lost_device_reported",
+        "new_review",
+        "new_contact"
+      ],
+      "description": "Type of notification event"
+    },
+    "title": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "action_url": {
+      "type": "string",
+      "description": "Dashboard tab/path to navigate when clicked"
+    },
+    "related_id": {
+      "type": "string",
+      "description": "ID of the related Lead, Appointment, or NFCDevice"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "Name of the person who triggered the event (lead name, visitor name)"
+    }
+  },
+  "required": [
+    "user_id",
+    "event_type",
+    "title"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": null
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

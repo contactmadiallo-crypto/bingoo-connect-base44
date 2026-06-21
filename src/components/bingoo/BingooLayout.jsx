@@ -177,7 +177,7 @@ export default function BingooLayout({ children }) {
           src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
-          <NotificationCenter profileId={user?.data?.owned_profile_ids?.[0]} isDark={true} />
+          <NotificationCenter userId={user?.id} isDark={true} />
           <button onClick={toggle}
             className="p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white">
             {isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}

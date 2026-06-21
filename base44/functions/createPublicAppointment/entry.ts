@@ -24,8 +24,7 @@ Deno.serve(async (req) => {
     let profile = null;
     let ownerUserId = null;
     try {
-      const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
-      profile = profiles?.[0];
+      profile = await base44.asServiceRole.entities.Profile.get(profile_id);
       ownerUserId = profile?.created_by_id || null;
     } catch (e) {
       console.error('Profile lookup failed:', e.message);
@@ -54,6 +53,25 @@ Deno.serve(async (req) => {
     if (case_number) appointmentData.case_number = case_number;
 
     const appointment = await base44.asServiceRole.entities.Appointment.create(appointmentData);
+
+    // Create in-app notification for profile owner
+    if (ownerUserId) {
+      try {
+        await base44.asServiceRole.entities.BingooNotification.create({
+          user_id: ownerUserId,
+          profile_id,
+          event_type: 'new_appointment',
+          title: `New booking from ${visitor_name}`,
+          message: `${date || ''} ${time_slot || ''}${service_name ? ` · ${service_name}` : ''}`.trim(),
+          is_read: false,
+          action_url: '/bingoo?tab=appointments',
+          related_id: appointment.id,
+          actor_name: visitor_name,
+        });
+      } catch (notifErr) {
+        console.error('Notification creation failed (non-blocking):', notifErr.message);
+      }
+    }
 
     // Notification email to profile owner
     try {

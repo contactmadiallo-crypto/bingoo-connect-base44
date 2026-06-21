@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'profile_id is required' }, { status: 400 });
     }
 
-    // Look up profile owner BEFORE creating the lead so we can set owner_user_id
+    // Look up profile to get owner
     let profile = null;
     try {
       profile = await base44.asServiceRole.entities.Profile.get(profile_id);
@@ -18,17 +18,41 @@ Deno.serve(async (req) => {
       console.error('Profile lookup failed:', e.message);
     }
 
-    // Use service role so unauthenticated visitors can submit leads
+    const ownerUserId = profile?.created_by_id || null;
+
+    // Create the lead (unauthenticated visitors allowed via service role)
     const lead = await base44.asServiceRole.entities.Lead.create({
       ...formData,
       profile_id,
-      owner_user_id: profile?.created_by_id || null,
+      owner_user_id: ownerUserId,
       status: 'new',
       source: formData.source || 'profile',
       preferred_contact_method: formData.preferred_contact_method || 'WhatsApp',
     });
 
-    // Look up the profile owner to notify them
+    console.log(`Lead created: ${lead.id} for profile ${profile_id}, owner: ${ownerUserId}`);
+
+    // Create in-app notification for the profile owner
+    if (ownerUserId) {
+      try {
+        await base44.asServiceRole.entities.BingooNotification.create({
+          user_id: ownerUserId,
+          profile_id,
+          event_type: 'new_lead',
+          title: `New lead from ${formData.name || 'Someone'}`,
+          message: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || ''),
+          is_read: false,
+          action_url: '/bingoo?tab=leads',
+          related_id: lead.id,
+          actor_name: formData.name || 'Anonymous',
+        });
+        console.log(`Notification created for user ${ownerUserId}`);
+      } catch (notifErr) {
+        console.error('Notification creation failed (non-blocking):', notifErr.message);
+      }
+    }
+
+    // Send email notification
     try {
       const { name, email, phone, message, preferred_contact_method } = formData;
 
@@ -75,8 +99,8 @@ Deno.serve(async (req) => {
           `,
         });
       }
-    } catch (notifErr) {
-      console.error('Lead notification email failed (non-blocking):', notifErr.message);
+    } catch (emailErr) {
+      console.error('Lead email notification failed (non-blocking):', emailErr.message);
     }
 
     return Response.json({ success: true, lead });

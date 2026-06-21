@@ -117,7 +117,8 @@ export default function BingooDashboard() {
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", profile?.id],
     queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }, "-created_date"),
-    enabled: !!profile?.id && ownershipReady,
+    enabled: !!profile?.id,
+    staleTime: 0,
     refetchOnMount: true,
   });
   const { data: analytics = [] } = useQuery({
