@@ -32,6 +32,7 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import DashboardOverview from "@/components/bingoo/DashboardOverview";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
+import { isBusinessAccount } from "@/lib/accountTypes";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -297,32 +298,44 @@ export default function BingooDashboard() {
   const heroBorder = isDark ? "rgba(255,255,255,0.07)" : "rgba(99,102,241,0.15)";
 
   const BASE_TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
+
+  // account_type guard:
+  // - undefined/null → legacy user, show full tab set (no hiding)
+  // - "individual"   → explicitly individual, hide business-only tabs
+  // - "business"     → show business tabs (controlled by plan/canAccess as before)
+  const explicitlyIndividual = user?.account_type === "individual";
+
   // Build tab list — Design is embedded in Profile Studio; Calendar/Booking merged into Appointments
   const TABS = [
-    ...BASE_TABS.slice(0, 4), // overview, profile, appointments, leads
-    // Law Firm extras
-    ...(isLawFirm ? [
+    BASE_TABS[0], // overview
+    BASE_TABS[1], // profile
+    // Appointments — hide for explicit individual accounts
+    ...(!explicitlyIndividual ? [BASE_TABS[2]] : []),
+    // Leads — hide for explicit individual accounts
+    ...(!explicitlyIndividual ? [BASE_TABS[3]] : []),
+    // Law Firm extras — only for business accounts (or legacy)
+    ...(isLawFirm && !explicitlyIndividual ? [
       { id: "services",       label: "Practice Areas",  icon: Scale,     color: "#6366f1" },
       { id: "legal_services", label: "Legal Services",  icon: Scale,     color: "#6366f1" },
       { id: "offices",        label: "Office Locations", icon: Building2, color: "#ef4444" },
     ] : []),
-    // Salon/Restaurant extras
-    ...(hasServiceMenu && !isLawFirm ? [
+    // Salon/Restaurant extras — only for business accounts (or legacy)
+    ...(hasServiceMenu && !isLawFirm && !explicitlyIndividual ? [
       { id: "services", label: "Services", icon: Scissors, color: "#10b981" },
       { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
     ] : []),
-    // analytics, portfolio (no standalone design tab)
+    // analytics, portfolio
     ...BASE_TABS.slice(4, 6),
     // Resumes — hide for law firms and salons
     ...(!isLawFirm && !isSalon ? BASE_TABS.slice(6, 7) : []),
     // connections, lost_mode
     ...BASE_TABS.slice(7, 9),
-    // Team/Attorneys
-    ...(hasTeam ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
-    // CRM
-    ...(hasCRM ? [{ id: "crm", label: isLawFirm ? "CRM Pipeline" : "CRM", icon: GitBranch, color: "#6366f1" }] : []),
+    // Team/Attorneys — only for business accounts (or legacy)
+    ...(hasTeam && !explicitlyIndividual ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
+    // CRM — only for business accounts (or legacy)
+    ...(hasCRM && !explicitlyIndividual ? [{ id: "crm", label: isLawFirm ? "CRM Pipeline" : "CRM", icon: GitBranch, color: "#6366f1" }] : []),
     // Attendance
-    ...(hasAttendance ? [{ id: "attendance", label: "Attendance", icon: UserCheck, color: "#10b981" }] : []),
+    ...(hasAttendance && !explicitlyIndividual ? [{ id: "attendance", label: "Attendance", icon: UserCheck, color: "#10b981" }] : []),
   ];
 
   const goToOverview = () => {
