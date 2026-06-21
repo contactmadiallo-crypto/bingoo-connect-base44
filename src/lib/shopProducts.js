@@ -1,18 +1,20 @@
-// VIP product uses nfc-bundle ID since no separate VIP ID is backend-supported yet.
-// Future: add nfc-vip-card to backend price map when ready.
+// Official Bingoo logo asset (used as reference for all product images)
+// Source: https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png
+
 export const PRODUCTS = [
   {
     id: 'nfc-card',
     name: 'NFC Business Card',
-    tagline: 'Tap to share your digital profile instantly.',
-    description: 'Premium matte PVC NFC card pre-programmed with your Bingoo profile. Works with all NFC-enabled smartphones — no app required.',
+    tagline: 'Tap to share your full profile instantly.',
+    description: 'Premium PVC NFC card with the official Bingoo branding, pre-programmed with your digital profile. Works with all NFC-enabled smartphones — no app required.',
     price: 19.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/dc503cd64_generated_image.png',
+    // Navy card from official Bingoo product collage
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png',
     category: 'card',
     badge: 'Best Seller',
     features: [
-      'Premium matte PVC finish',
-      'Pre-programmed with your profile URL',
+      'Premium PVC finish',
+      'Pre-programmed with your Bingoo profile',
       'Compatible with all NFC phones',
       'Waterproof & scratch-resistant',
     ],
@@ -21,13 +23,14 @@ export const PRODUCTS = [
     id: 'nfc-keychain',
     name: 'NFC Keychain',
     tagline: 'Always on you. Always ready to share.',
-    description: 'Compact NFC keychain tag that attaches to any key ring. Tap to share your full Bingoo profile in seconds.',
+    description: 'Compact round NFC keychain tag with official Bingoo branding. Attaches to any key ring and shares your full digital profile with a single tap.',
     price: 14.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/b9379d834_generated_image.png',
+    // Official Bingoo product collage — shows round keychains clearly
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png',
     category: 'keychain',
     badge: null,
     features: [
-      'Durable ABS casing',
+      'Durable round NFC tag',
       'Compact & lightweight',
       'Fits any standard key ring',
       'Works with all NFC phones',
@@ -37,14 +40,14 @@ export const PRODUCTS = [
     id: 'nfc-sticker',
     name: 'NFC Sticker',
     tagline: 'Stick it anywhere. Share everywhere.',
-    description: 'Ultra-thin NFC stickers with strong adhesive backing. Perfect for laptops, windows, packaging, or any flat surface.',
+    description: 'Round Bingoo NFC stickers with strong adhesive backing. Perfect for laptops, windows, storefronts, and any flat surface.',
     price: 7.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c5cc31522_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/9a265c1ff_generated_image.png',
     category: 'sticker',
     badge: null,
     features: [
       'Strong adhesive backing',
-      'Ultra-thin design',
+      'Ultra-thin round design',
       'Works on most flat surfaces',
       'Pack of 2',
     ],
@@ -53,13 +56,13 @@ export const PRODUCTS = [
     id: 'nfc-stand',
     name: 'NFC Desk Stand',
     tagline: 'Let clients tap and connect at your counter.',
-    description: 'Sleek acrylic desk stand for salons, offices, restaurants, and reception counters. NFC chip embedded — tap to connect.',
+    description: 'Sleek Bingoo NFC desk stand for salons, offices, restaurants, and reception counters. Place it on any surface and let clients tap to connect.',
     price: 34.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/13f7e892a_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/ed8be4bad_generated_image.png',
     category: 'stand',
     badge: 'New',
     features: [
-      'Acrylic & aluminum build',
+      'Acrylic display panel',
       'Stable weighted base',
       'Embedded NFC chip',
       'Ideal for countertops & desks',
@@ -69,25 +72,26 @@ export const PRODUCTS = [
     id: 'nfc-bracelet',
     name: 'NFC Bracelet',
     tagline: 'Wear your profile. Share with a tap.',
-    description: 'Comfortable silicone NFC wristband with an embedded chip. Share your Bingoo profile directly from your wrist.',
+    description: 'Comfortable silicone NFC wristband with the official Bingoo logo. Share your digital profile directly from your wrist with a single tap.',
     price: 24.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/cbccc08cd_generated_image.png',
+    // Official Bingoo product collage — shows navy/white bracelets clearly
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png',
     category: 'bracelet',
     badge: 'New',
     features: [
       'Soft silicone wristband',
       'Water-resistant design',
       'Works with all NFC phones',
-      'Adjustable sizing',
+      'Available in navy & white',
     ],
   },
   {
     id: 'nfc-bundle',
     name: 'Starter Bundle',
     tagline: 'Card + Keychain + Stickers. Everything you need.',
-    description: 'The complete Bingoo NFC starter kit. One card, one keychain, two stickers — everything to share your profile everywhere.',
+    description: 'The complete Bingoo NFC starter kit. One card, one keychain, two stickers — all with official Bingoo branding and pre-programmed to your profile.',
     price: 29.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/add0b8f00_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/3a8a19f21_generated_image.png',
     category: 'bundle',
     badge: 'Save $13',
     features: [
@@ -101,9 +105,9 @@ export const PRODUCTS = [
     id: 'nfc-bulk-10',
     name: '10-Pack Corporate Cards',
     tagline: 'Equip your entire team in one order.',
-    description: 'Bulk NFC business cards for teams and corporate rollouts. Ideal for events, staff onboarding, and enterprise deployment.',
+    description: 'Bulk Bingoo NFC business cards for teams, corporate rollouts, and events. All pre-programmed and ready to deploy.',
     price: 99.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c64d43b4a_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/bd567db9b_generated_image.png',
     category: 'bulk',
     badge: 'Corporate',
     features: [
@@ -111,24 +115,6 @@ export const PRODUCTS = [
       'Custom branding available',
       'Bulk discount applied',
       'Free express shipping',
-    ],
-  },
-  // VIP product uses nfc-bundle checkout ID until a dedicated nfc-vip-card backend price is added.
-  // To unlock as a separate SKU: add 'nfc-vip-card' to the backend price map in createShopCheckout.js.
-  {
-    id: 'nfc-bundle',  // mapped to bundle checkout until vip ID is supported
-    name: 'VIP Black Card',
-    tagline: 'Ultra-premium black card with gold finish.',
-    description: 'Exclusive matte-black NFC card with gold foil Bingoo branding. The premium card for executives, founders, and VIP clients.',
-    price: 29.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/5308234db_generated_image.png',
-    category: 'vip',
-    badge: 'VIP',
-    features: [
-      'Matte-black premium finish',
-      'Gold foil Bingoo branding',
-      'Same NFC functionality',
-      'Limited edition — exclusive feel',
     ],
   },
 ];
