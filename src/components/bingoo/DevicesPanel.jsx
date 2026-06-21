@@ -30,10 +30,15 @@ export default function DevicesPanel({ profileId }) {
       </div>
 
       {devices.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
+        <div className="text-center py-14 bg-white rounded-2xl border border-slate-100">
           <Smartphone className="w-12 h-12 mx-auto mb-3 text-slate-200" />
           <p className="font-bold text-slate-700">No devices yet</p>
-          <p className="text-slate-400 text-sm mt-1">Contact support to get your NFC card, keychain, or bracelet assigned.</p>
+          <p className="text-slate-400 text-sm mt-1 mb-5">Order a Bingoo NFC device and activate it to link it here.</p>
+          <a href="/shop?category=cards"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-colors"
+            style={{ background: '#FF7A00' }}>
+            Order a personal NFC card →
+          </a>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">

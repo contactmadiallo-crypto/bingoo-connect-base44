@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, Shield, Truck, RefreshCw } from 'lucide-react';
 import { PRODUCTS } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
@@ -15,6 +15,17 @@ const CATEGORIES = [
   { id: 'bulk',     label: 'Corporate' },
 ];
 
+// Map URL ?category= param values to internal category IDs
+const CATEGORY_PARAM_MAP = {
+  cards: 'card', card: 'card',
+  keychains: 'keychain', keychain: 'keychain',
+  stickers: 'sticker', sticker: 'sticker',
+  stands: 'stand', stand: 'stand',
+  bracelets: 'bracelet', bracelet: 'bracelet',
+  bundles: 'bundle', bundle: 'bundle',
+  corporate: 'bulk', bulk: 'bulk',
+};
+
 const BADGE_STYLES = {
   'Best Seller': { background: '#FF7A00', color: '#fff' },
   'New':         { background: '#0B2E6B', color: '#fff' },
@@ -23,9 +34,20 @@ const BADGE_STYLES = {
 };
 
 export default function Shop() {
+  const location = useLocation();
   const [cartCount, setCartCount] = useState(getCartCount());
   const [addedId, setAddedId] = useState(null);
-  const [filter, setFilter] = useState('all');
+
+  // Read ?category= from URL, map to internal ID, default 'all'
+  const paramCategory = new URLSearchParams(location.search).get('category')?.toLowerCase();
+  const initialFilter = CATEGORY_PARAM_MAP[paramCategory] || 'all';
+  const [filter, setFilter] = useState(initialFilter);
+
+  // Sync if URL changes (e.g. user clicks a dashboard link)
+  useEffect(() => {
+    const param = new URLSearchParams(location.search).get('category')?.toLowerCase();
+    setFilter(CATEGORY_PARAM_MAP[param] || 'all');
+  }, [location.search]);
 
   const filtered = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter);
 

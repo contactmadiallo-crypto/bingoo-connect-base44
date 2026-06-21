@@ -242,13 +242,21 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
       {isLoading ? (
         <div className={`text-center py-10 text-sm ${sub}`}>Loading…</div>
       ) : members.length === 0 ? (
-        <div className={`rounded-2xl border p-10 text-center ${card}`}>
-          <User className={`w-10 h-10 mx-auto mb-3 ${dark ? "text-white/10" : "text-slate-200"}`} />
-          <p className={`font-semibold text-sm ${sub}`}>No {memberLabel.toLowerCase()}s yet</p>
-          <p className={`text-xs mt-1 mb-4 ${dark ? "text-white/30" : "text-slate-400"}`}>Add your first {memberLabel.toLowerCase()} to get started.</p>
-          <Button size="sm" onClick={openNew} className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0B2E6B" }}>
-            <Plus className="w-3.5 h-3.5" /> Add {memberLabel}
-          </Button>
+        <div className="space-y-3">
+          <div className={`rounded-2xl border p-10 text-center ${card}`}>
+            <User className={`w-10 h-10 mx-auto mb-3 ${dark ? "text-white/10" : "text-slate-200"}`} />
+            <p className={`font-semibold text-sm ${sub}`}>No {memberLabel.toLowerCase()}s yet</p>
+            <p className={`text-xs mt-1 mb-4 ${dark ? "text-white/30" : "text-slate-400"}`}>Add your first {memberLabel.toLowerCase()} to get started.</p>
+            <Button size="sm" onClick={openNew} className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0B2E6B" }}>
+              <Plus className="w-3.5 h-3.5" /> Add {memberLabel}
+            </Button>
+          </div>
+          <a href="/shop?category=corporate"
+            className="flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors"
+            style={{ background: 'rgba(11,46,107,0.04)', borderColor: 'rgba(11,46,107,0.12)', color: '#0B2E6B' }}>
+            <span>🪪 Order team NFC cards for your members</span>
+            <span style={{ color: '#FF7A00' }}>Shop →</span>
+          </a>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
