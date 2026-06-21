@@ -13,6 +13,7 @@ const CATEGORIES = [
   { id: 'stand',    label: 'Stands' },
   { id: 'bracelet', label: 'Bracelets' },
   { id: 'bundle',   label: 'Bundles' },
+  { id: 'vip',      label: 'VIP' },
   { id: 'bulk',     label: 'Corporate' },
 ];
 
@@ -21,6 +22,7 @@ const BADGE_STYLES = {
   'New':         'bg-[#0B2E6B] text-white',
   'Save $13':    'bg-emerald-600 text-white',
   'Corporate':   'bg-slate-800 text-white',
+  'VIP':         'bg-gradient-to-r from-yellow-600 to-yellow-400 text-black',
 };
 
 export default function Shop() {
@@ -108,9 +110,9 @@ export default function Shop() {
 
         {/* ── Products Grid ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((product) => (
+          {filtered.map((product, idx) => (
             <div
-              key={product.id}
+              key={`${product.id}-${idx}`}
               className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex flex-col group transition-all hover:shadow-xl hover:-translate-y-0.5 duration-200"
             >
               {/* Image */}
