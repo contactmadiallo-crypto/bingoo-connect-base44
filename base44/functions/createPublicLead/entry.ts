@@ -10,36 +10,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'profile_id is required' }, { status: 400 });
     }
 
+    // Look up profile owner BEFORE creating the lead so we can set owner_user_id
+    let profile = null;
+    try {
+      profile = await base44.asServiceRole.entities.Profile.get(profile_id);
+    } catch (e) {
+      console.error('Profile lookup failed:', e.message);
+    }
+
     // Use service role so unauthenticated visitors can submit leads
     const lead = await base44.asServiceRole.entities.Lead.create({
-      profile_id,
       ...formData,
+      profile_id,
+      owner_user_id: profile?.created_by_id || null,
+      status: 'new',
+      source: formData.source || 'profile',
       preferred_contact_method: formData.preferred_contact_method || 'WhatsApp',
     });
 
     // Look up the profile owner to notify them
     try {
-      const profiles = await base44.asServiceRole.entities.Profile.filter({ id: profile_id });
-      const profile = profiles?.[0];
-
-      // Send push notification to profile owner
-      if (profile?.created_by_id) {
-        const owners = await base44.asServiceRole.entities.User.filter({ id: profile.created_by_id });
-        const owner = owners?.[0];
-        if (owner?.data?.push_subscriptions?.length) {
-          try {
-            await base44.asServiceRole.functions.invoke('sendPushNotification', {
-              user_id: profile.created_by_id,
-              profile_id,
-              title: `⭐ New Lead from ${name || 'Someone'}`,
-              body: `${email || phone || 'Check your dashboard'}`,
-              url: '/bingoo?tab=leads',
-            });
-          } catch (pushErr) {
-            console.error('Push notification failed (non-blocking):', pushErr.message);
-          }
-        }
-      }
+      const { name, email, phone, message, preferred_contact_method } = formData;
 
       if (profile?.email) {
         const contactIcon = preferred_contact_method === 'WhatsApp' ? '💬' : preferred_contact_method === 'Phone' ? '📞' : '📧';
