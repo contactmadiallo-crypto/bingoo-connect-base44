@@ -32,7 +32,6 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import DashboardOverview from "@/components/bingoo/DashboardOverview";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
-import { isBusinessAccount } from "@/lib/accountTypes";
 import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Smartphone, User, Settings, TrendingUp, CalendarDays, Calendar, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, Search, X, FileText, Users, AlertTriangle, Shield, Scissors, Clock, GitBranch, UserCheck, Scale, LayoutList, Briefcase as LegalBriefcase, FileCheck, Building2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
