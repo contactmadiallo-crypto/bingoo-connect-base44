@@ -69,8 +69,11 @@ export default function Cart() {
                 transition={{ delay: idx * 0.05 }}
                 className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-4"
               >
-                <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
-                  {item.emoji}
+                <div className="w-16 h-16 bg-slate-50 rounded-xl flex-shrink-0 overflow-hidden">
+                  {item.image
+                    ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    : <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+                  }
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-900 truncate">{item.name}</h3>
