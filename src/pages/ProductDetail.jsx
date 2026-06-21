@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ShoppingCart, Plus, Minus, ArrowLeft, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw } from 'lucide-react';
 import { PRODUCTS } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
+
+const BADGE_STYLES = {
+  'Best Seller': 'bg-[#FF7A00] text-white',
+  'New':         'bg-[#0B2E6B] text-white',
+  'Save $13':    'bg-emerald-600 text-white',
+  'Corporate':   'bg-slate-800 text-white',
+};
 
 export default function ProductDetail() {
   const { productId } = useParams();
@@ -17,10 +22,14 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <p className="text-slate-500 mb-4">Product not found</p>
-          <Link to="/shop"><Button>Back to Shop</Button></Link>
+          <p className="text-slate-500 mb-4 text-lg">Product not found</p>
+          <Link to="/shop">
+            <button className="px-6 py-2.5 rounded-xl font-bold text-white" style={{ background: '#0B2E6B' }}>
+              Back to Shop
+            </button>
+          </Link>
         </div>
       </div>
     );
@@ -39,64 +48,64 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
-      {/* Nav */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/shop" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
+    <div className="min-h-screen" style={{ background: '#f5f7fb' }}>
+
+      {/* ── Nav ── */}
+      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link to="/shop" className="flex items-center gap-1.5 text-sm font-semibold text-[#0B2E6B] hover:underline">
             <ArrowLeft className="w-4 h-4" /> Back to Shop
           </Link>
           <Link to="/cart">
-            <Button variant="outline" className="relative gap-2">
+            <button className="relative flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white hover:border-[#0B2E6B] transition-colors text-sm font-semibold text-slate-700">
               <ShoppingCart className="w-4 h-4" />
               Cart
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center" style={{ background: '#FF7A00' }}>
                   {cartCount}
                 </span>
               )}
-            </Button>
+            </button>
           </Link>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col items-center justify-center overflow-hidden"
-          >
-            <img src={product.image} alt={product.name} className="w-full h-auto rounded-xl object-cover" />
-            {product.badge && (
-              <span className="bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full mt-3">
-                {product.badge}
-              </span>
-            )}
-          </motion.div>
+      <div className="max-w-5xl mx-auto px-4 py-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
 
-          {/* Product Details */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col justify-center"
-          >
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">{product.name}</h1>
-            <p className="text-slate-600 mb-4">{product.description}</p>
+          {/* ── Product Image ── */}
+          <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="relative p-6 bg-gradient-to-br from-slate-50 to-blue-50/40">
+              <img src={product.image} alt={product.name} className="w-full h-auto rounded-2xl object-cover" />
+              {product.badge && (
+                <span className={`absolute top-5 left-5 text-xs font-bold px-3 py-1 rounded-full ${BADGE_STYLES[product.badge] || 'bg-slate-800 text-white'}`}>
+                  {product.badge}
+                </span>
+              )}
+            </div>
+          </div>
 
-            <div className="text-4xl font-bold text-slate-900 mb-6">
-              ${product.price}
-              <span className="text-base font-normal text-slate-500 ml-2">/ unit</span>
+          {/* ── Product Info ── */}
+          <div className="flex flex-col">
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#FF7A00' }}>Bingoo NFC</p>
+            <h1 className="text-3xl font-black text-slate-900 mb-2 leading-tight">{product.name}</h1>
+            <p className="text-slate-500 text-base mb-5 leading-relaxed">{product.description}</p>
+
+            {/* Price */}
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className="text-4xl font-black text-slate-900">${product.price.toFixed(2)}</span>
+              <span className="text-slate-400 text-sm">USD · per unit</span>
             </div>
 
             {/* Features */}
-            <div className="bg-slate-50 rounded-xl p-4 mb-6">
-              <h3 className="font-semibold text-slate-800 mb-3">What's Included</h3>
-              <ul className="space-y-2">
+            <div className="rounded-2xl border border-slate-200 p-5 mb-6 bg-white">
+              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">What's Included</p>
+              <ul className="space-y-2.5">
                 {product.features.map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-slate-600 text-sm">
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <li key={i} className="flex items-center gap-2.5 text-slate-700 text-sm">
+                    <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#0B2E6B' }}>
+                      <Check className="w-3 h-3 text-white" />
+                    </span>
                     {f}
                   </li>
                 ))}
@@ -105,47 +114,56 @@ export default function ProductDetail() {
 
             {/* Quantity */}
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-slate-700 font-medium">Quantity:</span>
-              <div className="flex items-center border border-slate-300 rounded-xl overflow-hidden">
+              <span className="text-sm font-bold text-slate-700">Quantity</span>
+              <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden bg-white">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 hover:bg-slate-100 transition-colors"
+                  className="px-4 py-2.5 hover:bg-slate-50 transition-colors"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-4 h-4 text-slate-600" />
                 </button>
-                <span className="px-5 py-2 font-bold text-slate-900">{quantity}</span>
+                <span className="px-5 py-2.5 font-black text-slate-900 text-base min-w-[3rem] text-center">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-2 hover:bg-slate-100 transition-colors"
+                  className="px-4 py-2.5 hover:bg-slate-50 transition-colors"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-slate-600" />
                 </button>
               </div>
-              <span className="text-slate-500 text-sm">Total: <span className="font-bold text-slate-900">${(product.price * quantity).toFixed(2)}</span></span>
+              <span className="text-slate-500 text-sm">
+                Total: <span className="font-bold text-slate-900">${(product.price * quantity).toFixed(2)}</span>
+              </span>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3">
-              <Button
+            <div className="flex gap-3 mb-5">
+              <button
                 onClick={handleAddToCart}
-                variant="outline"
-                className={`flex-1 gap-2 ${added ? 'border-green-500 text-green-600' : ''}`}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-bold transition-all"
+                style={added
+                  ? { borderColor: '#16a34a', color: '#16a34a', background: '#f0fdf4' }
+                  : { borderColor: '#0B2E6B', color: '#0B2E6B', background: '#fff' }
+                }
               >
                 <ShoppingCart className="w-4 h-4" />
                 {added ? '✓ Added to Cart' : 'Add to Cart'}
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={handleBuyNow}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 gap-2"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #FF7A00, #e06800)' }}
               >
                 Buy Now →
-              </Button>
+              </button>
             </div>
 
-            <p className="text-xs text-slate-500 text-center mt-3">
-              🔒 Secure payment via Stripe · Free returns within 30 days
-            </p>
-          </motion.div>
+            {/* Trust Signals */}
+            <div className="flex flex-wrap gap-4 text-xs text-slate-500">
+              <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-green-500" /> Secure Stripe Checkout</span>
+              <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5 text-blue-500" /> Fast Shipping</span>
+              <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5 text-orange-400" /> 30-Day Returns</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

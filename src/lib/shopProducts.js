@@ -2,6 +2,7 @@ export const PRODUCTS = [
   {
     id: 'nfc-card',
     name: 'NFC Business Card',
+    tagline: 'Tap to share your profile instantly.',
     description: 'Premium PVC NFC card — tap to share your digital profile instantly.',
     price: 19.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/8c89ae343_generated_image.png',
@@ -17,10 +18,11 @@ export const PRODUCTS = [
   {
     id: 'nfc-keychain',
     name: 'NFC Keychain',
+    tagline: 'Always with you, always ready.',
     description: 'Durable keychain tag — always with you, always ready to share.',
     price: 14.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/182144db6_generated_image.png',
-    category: 'accessory',
+    category: 'keychain',
     badge: null,
     features: [
       'Durable ABS plastic',
@@ -32,10 +34,11 @@ export const PRODUCTS = [
   {
     id: 'nfc-sticker',
     name: 'NFC Sticker',
+    tagline: 'Stick it anywhere, share everywhere.',
     description: 'Versatile NFC sticker — stick it anywhere for instant sharing.',
     price: 7.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/6c32b14b9_generated_image.png',
-    category: 'accessory',
+    category: 'sticker',
     badge: null,
     features: [
       'Strong adhesive backing',
@@ -47,6 +50,7 @@ export const PRODUCTS = [
   {
     id: 'nfc-stand',
     name: 'NFC Desk Stand',
+    tagline: 'Let clients tap to connect at your desk.',
     description: 'Elegant desk stand for your workspace — let clients tap to connect.',
     price: 34.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e27a73a42_generated_image.png',
@@ -62,10 +66,12 @@ export const PRODUCTS = [
   {
     id: 'nfc-bracelet',
     name: 'NFC Bracelet',
+    tagline: 'Share your profile from your wrist.',
     description: 'Stylish wearable NFC bracelet — share your profile with a simple tap of the wrist.',
     price: 24.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/dcdb28f39_generated_image.png',
-    category: 'accessory',
+    // ⚠️ Image needs a dedicated bracelet mockup asset — currently using a placeholder
+    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600&q=80',
+    category: 'bracelet',
     badge: 'New',
     features: [
       'Comfortable silicone band',
@@ -77,6 +83,7 @@ export const PRODUCTS = [
   {
     id: 'nfc-bundle',
     name: 'Starter Bundle',
+    tagline: 'Card + Keychain + Sticker. One tap away.',
     description: '1 Card + 1 Keychain + 1 Sticker — everything you need to get started.',
     price: 29.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7a85c0e20_generated_image.png',
@@ -91,8 +98,9 @@ export const PRODUCTS = [
   },
   {
     id: 'nfc-bulk-10',
-    name: '10-Pack Cards',
-    description: 'Bulk NFC cards for your team — great for corporate rollouts.',
+    name: '10-Pack NFC Cards',
+    tagline: 'Equip your entire team in one order.',
+    description: 'Bulk NFC cards for your team — ideal for corporate rollouts and events.',
     price: 99.99,
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/dcdb28f39_generated_image.png',
     category: 'bulk',
@@ -101,7 +109,7 @@ export const PRODUCTS = [
       '10× Premium NFC Cards',
       'Custom branding available',
       'Bulk discount applied',
-      'Free shipping',
+      'Free express shipping',
     ],
   },
 ];
