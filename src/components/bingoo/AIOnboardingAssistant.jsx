@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { X, Send, Upload, Sparkles, ArrowRight, CheckCircle, PenLine } from "lucide-react";
+import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
 
 // ── User types
 const USER_TYPES = [
@@ -237,8 +238,10 @@ function Bubble({ msg, isAI }) {
 }
 
 // ── Main component
-export default function AIOnboardingAssistant({ userName, onComplete, onDismiss }) {
-  const [phase, setPhase] = useState("welcome"); // welcome | type | chat | resume | generating | review | manual
+export default function AIOnboardingAssistant({ userName, user, onComplete, onDismiss }) {
+  const [phase, setPhase] = useState("welcome"); // welcome | account_type | type | chat | resume | generating | review | manual
+  const [selectedAccountType, setSelectedAccountType] = useState(null);
+  const [selectedBusinessType, setSelectedBusinessType] = useState(null);
   const [manualForm, setManualForm] = useState({ display_name: "", suggested_username: "", job_title: "", company_name: "", bio: "", phone: "", email: "", location: "", website: "", linkedin_url: "", instagram_url: "" });
   const [userType, setUserType] = useState(null);
   const [qIndex, setQIndex] = useState(0);
@@ -386,6 +389,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
             <p style={{ color: "#fff", fontWeight: 900, fontSize: 15, margin: 0 }}>Bingoo AI Assistant</p>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, margin: 0, fontWeight: 600 }}>
               {phase === "welcome" && "Let's build your digital profile"}
+              {phase === "account_type" && "Choose your account type"}
               {phase === "type" && "Select your profile type"}
               {(phase === "chat" || phase === "resume") && `${userType ? USER_TYPES.find(u => u.id === userType)?.label : ""} profile`}
               {phase === "generating" && "Generating your profile..."}
@@ -431,7 +435,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
                 ))}
               </div>
               <button
-                onClick={() => setPhase("type")}
+                onClick={() => setPhase("account_type")}
                 style={{ width: "100%", padding: "15px", borderRadius: 16, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: "pointer", boxShadow: "0 8px 24px rgba(11,46,107,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
               >
                 <Sparkles size={18} /> Get Started
@@ -439,6 +443,49 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               <button onClick={() => setPhase("manual")} style={{ marginTop: 10, background: "none", border: "none", color: "#94a3b8", fontSize: 12, cursor: "pointer", fontWeight: 600, textDecoration: "underline" }}>
                 Fill in manually instead
               </button>
+            </motion.div>
+          )}
+
+          {/* ACCOUNT TYPE SELECTION */}
+          {phase === "account_type" && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "24px 20px 8px" }}>
+              <p style={{ fontSize: 15, fontWeight: 800, color: "#0f172a", marginBottom: 6, textAlign: "center" }}>How will you use Bingoo?</p>
+              <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 18, textAlign: "center" }}>This helps us tailor your experience.</p>
+
+              {/* Individual / Business toggle */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 18 }}>
+                {ACCOUNT_TYPES.map(t => (
+                  <button key={t.id} onClick={() => { setSelectedAccountType(t.id); if (t.id === "individual") setSelectedBusinessType(null); }}
+                    style={{
+                      padding: "18px 12px", borderRadius: 18, border: `2px solid ${selectedAccountType === t.id ? "#0B2E6B" : "#e2e8f0"}`,
+                      background: selectedAccountType === t.id ? "rgba(11,46,107,0.06)" : "#f8fafc",
+                      cursor: "pointer", textAlign: "center", transition: "all 0.2s"
+                    }}>
+                    <div style={{ fontSize: 26, marginBottom: 6 }}>{t.icon}</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: selectedAccountType === t.id ? "#0B2E6B" : "#1e293b" }}>{t.label}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Business type — shown only when business selected */}
+              {selectedAccountType === "business" && (
+                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: "#475569", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>Business Type</p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 8 }}>
+                    {BUSINESS_TYPES.map(t => (
+                      <button key={t.id} onClick={() => setSelectedBusinessType(t.id)}
+                        style={{
+                          padding: "12px 8px", borderRadius: 14, border: `2px solid ${selectedBusinessType === t.id ? "#FF7A00" : "#e2e8f0"}`,
+                          background: selectedBusinessType === t.id ? "rgba(255,122,0,0.06)" : "#f8fafc",
+                          cursor: "pointer", textAlign: "center", transition: "all 0.2s"
+                        }}>
+                        <div style={{ fontSize: 18, marginBottom: 4 }}>{t.icon}</div>
+                        <div style={{ fontWeight: 700, fontSize: 11, color: selectedBusinessType === t.id ? "#c2410c" : "#475569" }}>{t.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
           )}
 
@@ -642,6 +689,34 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
               style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,46,107,0.4)", opacity: (!editedProfile?.display_name || !editedProfile?.suggested_username) ? 0.5 : 1 }}
             >
               <ArrowRight size={16} /> Publish My Profile
+            </button>
+          </div>
+        )}
+
+        {/* Account type footer */}
+        {phase === "account_type" && (
+          <div style={{ padding: "14px 20px", borderTop: "1px solid #f1f5f9", background: "#fff", flexShrink: 0, display: "flex", gap: 10 }}>
+            <button onClick={() => setPhase("welcome")} style={{ flex: 1, padding: "13px", borderRadius: 14, background: "#f1f5f9", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13, color: "#475569" }}>
+              ← Back
+            </button>
+            <button
+              disabled={!selectedAccountType || (selectedAccountType === "business" && !selectedBusinessType)}
+              onClick={async () => {
+                // Save account_type (and optionally business_type) to the user record non-blockingly
+                const updates = { account_type: selectedAccountType };
+                if (selectedAccountType === "business") updates.business_type = selectedBusinessType;
+                try { await base44.auth.updateMe(updates); } catch (e) { /* non-blocking */ }
+                setPhase("type");
+              }}
+              style={{
+                flex: 2, padding: "13px", borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 800,
+                fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)",
+                boxShadow: "0 8px 24px rgba(11,46,107,0.4)",
+                opacity: (!selectedAccountType || (selectedAccountType === "business" && !selectedBusinessType)) ? 0.45 : 1
+              }}
+            >
+              Continue <ArrowRight size={16} />
             </button>
           </div>
         )}

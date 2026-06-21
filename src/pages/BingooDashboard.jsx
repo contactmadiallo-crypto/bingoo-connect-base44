@@ -340,6 +340,7 @@ export default function BingooDashboard() {
       {showOnboarding && user && (
         <AIOnboardingAssistant
           userName={user.full_name}
+          user={user}
           onComplete={(generatedData) => {
             setShowOnboarding(false);
             setAiGeneratedProfile(generatedData);
