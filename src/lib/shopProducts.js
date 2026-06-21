@@ -8,8 +8,8 @@ export const PRODUCTS = [
     tagline: 'Tap to share your full profile instantly.',
     description: 'Premium PVC NFC card with the official Bingoo branding, pre-programmed with your digital profile. Works with all NFC-enabled smartphones — no app required.',
     price: 19.99,
-    // Navy card from official Bingoo product collage
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png',
+    // Single card only — generated from official Bingoo logo reference
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/579589e5c_generated_image.png',
     category: 'card',
     badge: 'Best Seller',
     features: [
@@ -25,8 +25,8 @@ export const PRODUCTS = [
     tagline: 'Always on you. Always ready to share.',
     description: 'Compact round NFC keychain tag with official Bingoo branding. Attaches to any key ring and shares your full digital profile with a single tap.',
     price: 14.99,
-    // Official Bingoo product collage — shows round keychains clearly
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png',
+    // Single round keychain only — generated from official Bingoo logo reference
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/490b649b9_generated_image.png',
     category: 'keychain',
     badge: null,
     features: [
@@ -42,7 +42,8 @@ export const PRODUCTS = [
     tagline: 'Stick it anywhere. Share everywhere.',
     description: 'Round Bingoo NFC stickers with strong adhesive backing. Perfect for laptops, windows, storefronts, and any flat surface.',
     price: 7.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/9a265c1ff_generated_image.png',
+    // Stickers only (2 round stickers) — generated from official Bingoo logo reference
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/41b35e638_generated_image.png',
     category: 'sticker',
     badge: null,
     features: [
@@ -58,7 +59,8 @@ export const PRODUCTS = [
     tagline: 'Let clients tap and connect at your counter.',
     description: 'Sleek Bingoo NFC desk stand for salons, offices, restaurants, and reception counters. Place it on any surface and let clients tap to connect.',
     price: 34.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/ed8be4bad_generated_image.png',
+    // Stand only — generated from official Bingoo logo reference
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/ba2752299_generated_image.png',
     category: 'stand',
     badge: 'New',
     features: [
@@ -74,8 +76,8 @@ export const PRODUCTS = [
     tagline: 'Wear your profile. Share with a tap.',
     description: 'Comfortable silicone NFC wristband with the official Bingoo logo. Share your digital profile directly from your wrist with a single tap.',
     price: 24.99,
-    // Official Bingoo product collage — shows navy/white bracelets clearly
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png',
+    // Single bracelet only — generated from official Bingoo logo reference
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/2dd53607e_generated_image.png',
     category: 'bracelet',
     badge: 'New',
     features: [
@@ -91,6 +93,7 @@ export const PRODUCTS = [
     tagline: 'Card + Keychain + Stickers. Everything you need.',
     description: 'The complete Bingoo NFC starter kit. One card, one keychain, two stickers — all with official Bingoo branding and pre-programmed to your profile.',
     price: 29.99,
+    // Multi-product intentional — bundle shows card + keychain + stickers together
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/3a8a19f21_generated_image.png',
     category: 'bundle',
     badge: 'Save $13',
@@ -107,6 +110,7 @@ export const PRODUCTS = [
     tagline: 'Equip your entire team in one order.',
     description: 'Bulk Bingoo NFC business cards for teams, corporate rollouts, and events. All pre-programmed and ready to deploy.',
     price: 99.99,
+    // Multiple cards only (fanned pack) — generated from official Bingoo logo reference
     image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/bd567db9b_generated_image.png',
     category: 'bulk',
     badge: 'Corporate',
