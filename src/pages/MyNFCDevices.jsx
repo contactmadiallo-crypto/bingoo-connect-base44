@@ -72,11 +72,7 @@ export default function MyNFCDevices() {
      ...profiles.map(p => p.id),
    ])];
 
-   console.log("[MyNFCDevices] user.id:", user?.id);
-   console.log("[MyNFCDevices] user.email:", user?.email);
-   console.log("[MyNFCDevices] user.owned_profile_ids:", ownedProfileIds);
-   console.log("[MyNFCDevices] profiles from filter:", profiles.map(p => p.id));
-   console.log("[MyNFCDevices] final profileIds:", profileIds);
+   // Debug logs removed — do not re-add (production data leak)
 
    const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
      queryKey: ["my-nfc-devices-page", user?.id, profileIds.join(",")],
@@ -153,25 +149,22 @@ export default function MyNFCDevices() {
         return;
       }
 
-      await base44.entities.NFCDevice.update(device.id, {
-        profile_id: firstProfile.id,
-        status: "active",
-        assigned_at: new Date().toISOString(),
-      });
-
-      // Log audit
-      await base44.entities.DeviceAuditLog.create({
+      // Route through activateNfcDevice backend function (uses service role to bypass RLS,
+      // enforces plan limits, and writes the audit log server-side).
+      const activateResult = await base44.functions.invoke("activateNfcDevice", {
         device_id: device.id,
-        device_code: trimmed,
-        action: "activated",
-        performed_by: user.id,
-        performed_by_name: user.full_name,
         profile_id: firstProfile.id,
+        user_id: user.id,
+        user_name: user.full_name,
         profile_name: firstProfile.display_name,
         old_status: device.status,
-        new_status: "active",
-        notes: "Activated by user via code entry",
-      }).catch(() => {}); // non-blocking
+      });
+
+      if (activateResult?.data?.error) {
+        setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+        setActivating(false);
+        return;
+      }
 
       setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated! It now links to your profile: ${firstProfile.display_name}.` });
       setActivateCode("");

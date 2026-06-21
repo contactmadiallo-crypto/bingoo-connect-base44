@@ -34,6 +34,47 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Device was just claimed by another account' }, { status: 409 });
     }
 
+    // ── Plan-based device limit enforcement ──────────────────────────────────
+    // Determine the user's plan from their Profile record (authoritative server-side source).
+    // The Subscription entity requires a separate query and may not reflect Stripe state
+    // in real time on the backend, so we rely on Profile.plan as the safe fallback.
+    //
+    // TODO (follow-up): Once a server-side plan resolver is available (e.g. a dedicated
+    // getUserPlan function that checks Stripe subscription status), replace the Profile.plan
+    // lookup below with that canonical source.
+    const DEVICE_LIMITS = {
+      free:         0,
+      professional: 5,
+      pro:          5,
+      business:     10,
+      salon:        10,
+      restaurant:   10,
+      lawfirm:      25,
+      corporate:    50,
+    };
+
+    const plan = (profile.plan || 'free').toLowerCase();
+    const limit = DEVICE_LIMITS[plan] ?? 0;
+
+    if (limit === 0) {
+      console.warn(`[activateNfcDevice] Blocked: plan "${plan}" has 0 device slots (user ${user.id})`);
+      return Response.json({
+        error: 'Your current plan does not include NFC device activation. Upgrade to Professional or higher to activate devices.',
+      }, { status: 403 });
+    }
+
+    // Count currently active/assigned devices for this profile to enforce the cap
+    const existingDevices = await base44.asServiceRole.entities.NFCDevice.filter({ profile_id: profile_id });
+    const activeCount = existingDevices.filter(d => d.status === 'active' || d.status === 'assigned').length;
+
+    if (activeCount >= limit) {
+      console.warn(`[activateNfcDevice] Blocked: profile ${profile_id} has ${activeCount}/${limit} devices (plan: ${plan})`);
+      return Response.json({
+        error: `You have reached the device limit for your ${plan} plan (${limit} device${limit !== 1 ? 's' : ''}). Upgrade your plan to activate more devices.`,
+      }, { status: 403 });
+    }
+    // ── End plan enforcement ──────────────────────────────────────────────────
+
     // Perform the update using service role (bypasses RLS)
     await base44.asServiceRole.entities.NFCDevice.update(device_id, {
       profile_id: profile_id,
