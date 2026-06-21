@@ -26,42 +26,25 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({});
 
-  // Build definitive profile ID list (same logic as LeadsPanel)
-  const ownedIds = user?.owned_profile_ids || [];
-  const profileIds = [...new Set([
-    ...ownedIds,
-    ...(propProfileIds || []),
-    ...(profileId ? [profileId] : []),
-  ])];
-
-  const queryKey = ["crm-leads", profileIds.join(",")];
+  // Query ONLY by the active profileId — same as the badge count in BingooDashboard.
+  const queryKey = ["crm-leads", profileId];
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      if (!profileIds.length) return [];
-      const all = await Promise.all(
-        profileIds.map(pid => base44.entities.Lead.filter({ profile_id: pid }, "-created_date"))
-      );
-      const map = new Map();
-      all.flat().forEach(l => map.set(l.id, l));
-      return [...map.values()].sort((a, b) => (b.created_date || "").localeCompare(a.created_date || ""));
-    },
-    enabled: profileIds.length > 0,
+    queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
+    enabled: !!profileId,
     staleTime: 0,
     refetchOnMount: true,
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => dbOp("Lead[CRM]", "update", profileIds[0],
-      () => base44.entities.Lead.update(id, data)),
-    onSuccess: () => { logInvalidate(queryKey); qc.invalidateQueries({ queryKey }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
+    mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => dbOp("Lead[CRM]", "delete", profileIds[0],
-      () => base44.entities.Lead.delete(id)),
-    onSuccess: () => { logInvalidate(queryKey); qc.invalidateQueries({ queryKey }); },
+    mutationFn: (id) => base44.entities.Lead.delete(id),
+    onSuccess: () => { qc.invalidateQueries({ queryKey }); },
   });
 
   const openEdit = (l) => {
@@ -78,7 +61,7 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
   const sub = dark ? "text-white/50" : "text-slate-500";
   const inp = dark ? "bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-white/30" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400";
 
-  if (!profileIds.length) return <div className={`text-center py-12 ${sub}`}>Select a profile first.</div>;
+  if (!profileId) return <div className={`text-center py-12 ${sub}`}>Select a profile first.</div>;
 
   return (
     <div className="space-y-4">

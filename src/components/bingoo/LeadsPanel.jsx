@@ -31,43 +31,27 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
 
-  // Build the definitive list of profile IDs to query:
-  // prefer propProfileIds if provided, else fall back to single profileId
-  const ownedIds = user?.owned_profile_ids || [];
-  const profileIds = [...new Set([
-    ...ownedIds,
-    ...(propProfileIds || []),
-    ...(profileId ? [profileId] : []),
-  ])];
-
-  const queryKey = ["leads", profileIds.join(",")];
+  // Query ONLY by the active profileId — same as the badge count in BingooDashboard.
+  // Querying all owned_profile_ids causes RLS failures for profiles owned by other users.
+  const queryKey = ["leads", profileId];
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey,
-    queryFn: async () => {
-      if (!profileIds.length) return [];
-      const all = await Promise.all(
-        profileIds.map(pid => base44.entities.Lead.filter({ profile_id: pid }, "-created_date"))
-      );
-      // deduplicate by id and sort by created_date desc
-      const map = new Map();
-      all.flat().forEach(l => map.set(l.id, l));
-      return [...map.values()].sort((a, b) => (b.created_date || "").localeCompare(a.created_date || ""));
-    },
-    enabled: profileIds.length > 0,
+    queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
+    enabled: !!profileId,
     staleTime: 0,
     refetchOnMount: true,
   });
 
   useEffect(() => {
-    if (!profileIds.length) return;
+    if (!profileId) return;
     const unsub = base44.entities.Lead.subscribe((event) => {
-      if (event.data?.profile_id && profileIds.includes(event.data.profile_id)) {
+      if (event.data?.profile_id === profileId) {
         qc.invalidateQueries({ queryKey });
       }
     });
     return () => unsub();
-  }, [profileIds.join(",")]);
+  }, [profileId]);
 
   const updateLead = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
@@ -112,7 +96,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     : "w-full border border-slate-200 rounded-xl px-3 py-2 text-sm resize-none outline-none focus:border-blue-400 placeholder:text-slate-400";
   const avatarBg = isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-600";
 
-  if (!profileIds.length) return (
+  if (!profileId) return (
     <div className="text-center py-20">
       <Inbox className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "opacity-30 text-slate-300"}`} />
       <p className={`font-semibold ${subText}`}>Set up your profile first to collect leads.</p>
