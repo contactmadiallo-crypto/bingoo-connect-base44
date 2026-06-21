@@ -1,10 +1,89 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Shield, Download, Trash2, Activity, CheckCircle2, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
+import { Shield, Download, Trash2, Activity, CheckCircle2, AlertTriangle, Loader2, ArrowLeft, User, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
+
+function AccountTypeSection({ user, onUpdated }) {
+  const [saving, setSaving] = useState(false);
+  const [accountType, setAccountType] = useState(user?.account_type || "");
+  const [businessType, setBusinessType] = useState(user?.business_type || "");
+
+  const isDirty = accountType !== (user?.account_type || "") || businessType !== (user?.business_type || "");
+
+  const handleSave = async () => {
+    setSaving(true);
+    const updates = { account_type: accountType || null };
+    if (accountType === "business") updates.business_type = businessType || null;
+    else updates.business_type = null;
+    const updated = await base44.auth.updateMe(updates);
+    onUpdated(updated);
+    toast.success("Account type saved.");
+    setSaving(false);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+      <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
+        <User className="w-5 h-5 text-blue-600" /> Account Type
+      </h2>
+      <p className="text-slate-500 text-sm mb-5">
+        Helps us tailor your dashboard experience. Optional — existing accounts default to Individual.
+      </p>
+
+      {/* Account type selector */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        {ACCOUNT_TYPES.map(t => (
+          <button key={t.id} onClick={() => setAccountType(t.id)}
+            className={`flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
+              accountType === t.id
+                ? "border-blue-600 bg-blue-50"
+                : "border-slate-200 hover:border-slate-300"
+            }`}>
+            <span className="text-2xl">{t.icon}</span>
+            <span className={`font-bold text-sm ${accountType === t.id ? "text-blue-700" : "text-slate-700"}`}>
+              {t.label}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Business type — only shown for business accounts */}
+      {accountType === "business" && (
+        <div className="mb-5">
+          <p className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <Building2 className="w-4 h-4" /> Business Type
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {BUSINESS_TYPES.map(t => (
+              <button key={t.id} onClick={() => setBusinessType(t.id)}
+                className={`flex items-center gap-2 p-3 rounded-xl border-2 text-left transition-all ${
+                  businessType === t.id
+                    ? "border-blue-600 bg-blue-50"
+                    : "border-slate-200 hover:border-slate-300"
+                }`}>
+                <span className="text-lg">{t.icon}</span>
+                <span className={`font-semibold text-xs ${businessType === t.id ? "text-blue-700" : "text-slate-600"}`}>
+                  {t.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isDirty && (
+        <Button onClick={handleSave} disabled={saving} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+          {saving ? "Saving…" : "Save Account Type"}
+        </Button>
+      )}
+    </div>
+  );
+}
 
 export default function AccountSettings() {
   const [user, setUser] = useState(null);
@@ -124,6 +203,9 @@ export default function AccountSettings() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+
+        {/* Account Type */}
+        <AccountTypeSection user={user} onUpdated={setUser} />
 
         {/* Account info */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">

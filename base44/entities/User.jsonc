@@ -3,14 +3,6 @@
   "name": "User",
   "title": "User",
   "properties": {
-    "email": {
-      "type": "string",
-      "description": "The email of the user"
-    },
-    "full_name": {
-      "type": "string",
-      "description": "The full name of the user"
-    },
     "role": {
       "type": "string",
       "enum": [
@@ -32,12 +24,28 @@
     "assigned_business_id": {
       "type": "string",
       "description": "For team_member: the business profile ID they are assigned to"
+    },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "individual",
+        "business"
+      ],
+      "description": "Whether this is an individual or business account. Null/missing = legacy individual."
+    },
+    "business_type": {
+      "type": "string",
+      "enum": [
+        "law_firm",
+        "salon",
+        "restaurant",
+        "agency",
+        "retail",
+        "corporate"
+      ],
+      "description": "Business category. Only meaningful when account_type = business."
     }
   },
-  "required": [
-    "full_name",
-    "email"
-  ],
   "rls": {
     "create": null,
     "read": null,
