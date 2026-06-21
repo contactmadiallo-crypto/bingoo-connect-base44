@@ -336,13 +336,18 @@ export default function PublicProfile() {
             {/* Bottom gradient */}
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.25))" }} />
 
-            {/* Pro badge */}
-            {profile.plan !== "free" && (
+            {/* Plan badge — shows actual plan name */}
+            {profile.plan && profile.plan !== "free" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: "spring" }}
                 style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.5)" }}
               >
-                ✦ VERIFIED PRO
+                ✦ {({
+                  pro: "PRO", professional: "PROFESSIONAL",
+                  business: "BUSINESS", salon: "SALON",
+                  restaurant: "RESTAURANT", lawfirm: "LAW FIRM",
+                  corporate: "CORPORATE",
+                }[profile.plan] || "VERIFIED")}
               </motion.div>
             )}
           </div>

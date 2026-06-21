@@ -339,13 +339,19 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-xs mb-2"
+              style={{ background: "rgba(253,186,33,0.08)", border: "1px solid rgba(253,186,33,0.2)", color: "rgba(253,186,33,0.8)" }}>
+              <span className="flex-shrink-0 mt-0.5">⚠️</span>
+              <span><strong>Manual app-plan override for testing/internal use.</strong> Changing the plan here updates <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Profile.plan</code> directly. This does <em>not</em> change Stripe billing, cancel subscriptions, or modify any subscription records.</span>
+            </div>
+
             <div className="rounded-2xl overflow-hidden border"
               style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                      {["User / Profile", "Username", "Plan", "Role", "Joined", "Actions"].map(h => (
+                      {["User / Profile", "Username", "Plan (Override)", "Role", "Joined", "Actions"].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
                       ))}
                     </tr>
@@ -376,17 +382,23 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-5 py-4">
                           {p ? (
-                            <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
-                              className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
-                              style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
-                              <option value="free">Free</option>
-                              <option value="professional">Professional</option>
-                              <option value="business">Business</option>
-                              <option value="salon">Salon</option>
-                              <option value="restaurant">Restaurant</option>
-                              <option value="lawfirm">Law Firm</option>
-                              <option value="corporate">Corporate</option>
-                            </select>
+                            <div className="flex flex-col gap-1">
+                              <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
+                                className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
+                                style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro (legacy)</option>
+                                <option value="professional">Professional</option>
+                                <option value="business">Business</option>
+                                <option value="salon">Salon</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="lawfirm">Law Firm</option>
+                                <option value="corporate">Corporate</option>
+                              </select>
+                              <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                App-plan override · no Stripe change
+                              </span>
+                            </div>
                           ) : <span className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
                         <td className="px-5 py-4">
