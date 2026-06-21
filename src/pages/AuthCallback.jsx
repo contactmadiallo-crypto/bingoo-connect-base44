@@ -22,8 +22,9 @@ export default function AuthCallback() {
     if (isAuthenticated) {
       // Sync owned_profile_ids immediately after OAuth login so RLS-gated entities work.
       const syncAndRedirect = async () => {
+        let user = null;
         try {
-          const user = await base44.auth.me();
+          user = await base44.auth.me();
           const currentOwned = user?.owned_profile_ids || [];
           if (currentOwned.length === 0) {
             // User has no owned_profile_ids — fetch their profiles and sync
@@ -31,16 +32,19 @@ export default function AuthCallback() {
             if (profiles.length > 0) {
               const ids = profiles.map(p => p.id);
               await base44.auth.updateMe({ owned_profile_ids: ids });
-              console.log("[AuthCallback] Synced owned_profile_ids:", ids);
             }
           }
         } catch (e) {
           console.warn("[AuthCallback] owned_profile_ids sync failed (non-critical):", e.message);
         }
 
+        // If the user has no account_type set yet, send them to onboarding
+        const needsOnboarding = !user?.account_type && !localStorage.getItem("bingoo_onboarding_done");
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
-        const destination = (next && next.startsWith("/") && next !== "/auth") ? next : "/bingoo";
+        const destination = needsOnboarding
+          ? "/bingoo?onboarding=1"
+          : (next && next.startsWith("/") && next !== "/auth") ? next : "/bingoo";
         navigate(destination, { replace: true });
       };
 

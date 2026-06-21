@@ -4,17 +4,25 @@ import { base44 } from "@/api/base44Client";
 import { X, Send, Upload, Sparkles, ArrowRight, CheckCircle, PenLine } from "lucide-react";
 import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
 
-// ── User types
-const USER_TYPES = [
-  { id: "individual",  label: "Individual",  emoji: "👤", desc: "Personal branding & networking" },
-  { id: "lawyer",      label: "Lawyer",       emoji: "⚖️", desc: "Law firm & legal services" },
-  { id: "salon",       label: "Salon",        emoji: "💇", desc: "Hair, beauty & wellness" },
-  { id: "restaurant",  label: "Restaurant",   emoji: "🍽️", desc: "Food, drinks & hospitality" },
+// ── User types — split by account group
+const INDIVIDUAL_TYPES = [
+  { id: "individual",  label: "Professional",  emoji: "👤", desc: "Personal branding & networking" },
   { id: "consultant",  label: "Consultant",   emoji: "💼", desc: "Business & professional services" },
   { id: "realtor",     label: "Realtor",       emoji: "🏠", desc: "Real estate & property" },
   { id: "student",     label: "Student",      emoji: "🎓", desc: "Academic & career profile" },
   { id: "job_seeker",  label: "Job Seeker",   emoji: "📄", desc: "Resume & career profile" },
 ];
+
+const BUSINESS_TYPES_LIST = [
+  { id: "lawyer",      label: "Law Firm",     emoji: "⚖️", desc: "Law firm & legal services" },
+  { id: "salon",       label: "Salon",        emoji: "💇", desc: "Hair, beauty & wellness" },
+  { id: "restaurant",  label: "Restaurant",   emoji: "🍽️", desc: "Food, drinks & hospitality" },
+  { id: "consultant",  label: "Agency",       emoji: "📣", desc: "Agency & professional services" },
+  { id: "individual",  label: "General Biz",  emoji: "🏢", desc: "Other business type" },
+];
+
+// Combined for legacy use
+const USER_TYPES = [...INDIVIDUAL_TYPES, ...BUSINESS_TYPES_LIST];
 
 // ── Questions per type
 const QUESTIONS = {
@@ -489,12 +497,12 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
             </motion.div>
           )}
 
-          {/* TYPE SELECTION */}
+          {/* TYPE SELECTION — filtered by selected account type */}
           {phase === "type" && (
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "20px 20px 8px" }}>
               <p style={{ fontSize: 14, fontWeight: 700, color: "#475569", marginBottom: 14, textAlign: "center" }}>What best describes you?</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {USER_TYPES.map((type) => (
+                {(selectedAccountType === "business" ? BUSINESS_TYPES_LIST : INDIVIDUAL_TYPES).map((type) => (
                   <motion.button
                     key={type.id}
                     whileHover={{ scale: 1.03, y: -2 }}
@@ -704,7 +712,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
               onClick={async () => {
                 // Save account_type (and optionally business_type) to the user record non-blockingly
                 const updates = { account_type: selectedAccountType };
-                if (selectedAccountType === "business") updates.business_type = selectedBusinessType;
+                if (selectedAccountType === "business" && selectedBusinessType) updates.business_type = selectedBusinessType;
                 try { await base44.auth.updateMe(updates); } catch (e) { /* non-blocking */ }
                 setPhase("type");
               }}

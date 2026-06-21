@@ -1,8 +1,12 @@
-import { Eye, Copy, Check, ExternalLink, BarChart3, Star, Settings, TrendingUp, CalendarDays, Zap, ArrowRight, Briefcase, Palette, Download, QrCode, User, Shield, AlertTriangle } from "lucide-react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProfileCompletionWidget from "@/components/bingoo/ProfileCompletionWidget";
 import PushNotificationToggle from "@/components/bingoo/PushNotificationToggle";
+import {
+  Eye, BarChart3, Star, CalendarDays, Palette, Settings, User, Zap,
+  Download, QrCode, ArrowRight,
+} from "lucide-react";
 
 export default function DashboardOverview({
   profile, user, isDark, analytics, leads, appointments, myNfcDevices,
@@ -10,7 +14,11 @@ export default function DashboardOverview({
   profileAbsoluteUrl, profileUrl, profileQrUrl, qrUrl, downloadBrandedQR,
   launchAI, setShowLayoutPicker, totalViews, totalClicks, totalNfcTaps,
   totalQrScans, totalWhatsApp, leadsThisMonth, apptsThisMonth, monthLabel,
+  isFreeIndividual,
 }) {
+  // Hide business/pro shortcuts for explicit Individual Free users
+  const showBusinessWidgets = !isFreeIndividual;
+
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const subText = isDark ? "text-white/60" : "text-slate-600";
@@ -25,16 +33,12 @@ export default function DashboardOverview({
     .filter(a => a.event_type === "nfc_tap")
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 4);
-  const recentQrEvents = analytics
-    .filter(a => a.event_type === "qr_scan")
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 3);
 
   return (
     <div className="space-y-5">
 
-      {/* ── This Month Hero Cards ── */}
-      {profile && (
+      {/* ── This Month Hero Cards — Business/Pro only ── */}
+      {profile && showBusinessWidgets && (
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => setTab("leads")}
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -57,14 +61,14 @@ export default function DashboardOverview({
         </div>
       )}
 
-      {/* ── 4 Core Metrics ── */}
+      {/* ── Core Metrics — filtered by plan ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         {[
-          { label: "Profile Views", value: totalViews,   icon: Eye,        gradient: "from-blue-500 to-blue-600",   shadow: isDark ? "shadow-blue-900/40" : "shadow-blue-200",    tab: "analytics" },
-          { label: "NFC Taps",      value: totalNfcTaps, icon: BarChart3,  gradient: "from-violet-500 to-violet-600", shadow: isDark ? "shadow-violet-900/40" : "shadow-violet-200", tab: "analytics" },
-          { label: "QR Scans",      value: totalQrScans, icon: Star,       gradient: "from-cyan-500 to-cyan-600",   shadow: isDark ? "shadow-cyan-900/40" : "shadow-cyan-200",     tab: "analytics" },
-          { label: "Total Leads",   value: leads.length, icon: CalendarDays,gradient: "from-amber-500 to-amber-600", shadow: isDark ? "shadow-amber-900/40" : "shadow-amber-200",   tab: "leads" },
-        ].map(s => (
+          { label: "Profile Views", value: totalViews,    icon: Eye,         gradient: "from-blue-500 to-blue-600",    shadow: isDark ? "shadow-blue-900/40" : "shadow-blue-200",    tab: "analytics", always: true  },
+          { label: "NFC Taps",      value: totalNfcTaps,  icon: BarChart3,   gradient: "from-violet-500 to-violet-600", shadow: isDark ? "shadow-violet-900/40" : "shadow-violet-200", tab: "analytics", always: false },
+          { label: "QR Scans",      value: totalQrScans,  icon: Star,        gradient: "from-cyan-500 to-cyan-600",    shadow: isDark ? "shadow-cyan-900/40" : "shadow-cyan-200",     tab: "analytics", always: false },
+          { label: "Total Leads",   value: leads.length,  icon: CalendarDays, gradient: "from-amber-500 to-amber-600", shadow: isDark ? "shadow-amber-900/40" : "shadow-amber-200",   tab: "leads",     always: false },
+        ].filter(s => s.always || showBusinessWidgets).map(s => (
           <button key={s.label} onClick={() => setTab(s.tab)}
             className={`relative rounded-2xl p-3 sm:p-4 overflow-hidden text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${isDark ? "bg-white/5 hover:bg-white/7" : "bg-white hover:shadow-md"}`}
             style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.2)" : "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)" }}>
@@ -77,13 +81,13 @@ export default function DashboardOverview({
         ))}
       </div>
 
-      {/* ── Engagement Row ── */}
-      {profile && (
+      {/* ── Engagement Row — Business/Pro only ── */}
+      {profile && showBusinessWidgets && (
         <div className="grid grid-cols-3 gap-2.5">
           {[
-            { icon: "📲", label: "Active NFC",      value: activeNfc.length,  color: "#8b5cf6", bg: isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.08)", tab: null, href: "/my-nfc-devices" },
-            { icon: "💬", label: "WhatsApp Clicks", value: totalWhatsApp,     color: "#25D366", bg: isDark ? "rgba(37,211,102,0.12)" : "rgba(37,211,102,0.08)", tab: "analytics" },
-            { icon: "📅", label: "Pending Appts",  value: appointments.filter(a=>a.status==="pending").length, color: "#f59e0b", bg: isDark ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)", tab: "appointments" },
+            { icon: "📲", label: "Active NFC",     value: activeNfc.length, color: "#8b5cf6", bg: isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.08)", tab: null, href: "/my-nfc-devices" },
+            { icon: "💬", label: "WhatsApp Clicks", value: totalWhatsApp,   color: "#25D366", bg: isDark ? "rgba(37,211,102,0.12)" : "rgba(37,211,102,0.08)", tab: "analytics" },
+            { icon: "📅", label: "Pending Appts",  value: appointments.filter(a => a.status === "pending").length, color: "#f59e0b", bg: isDark ? "rgba(245,158,11,0.12)" : "rgba(245,158,11,0.08)", tab: "appointments" },
           ].map(s => {
             const Tag = s.href ? "a" : "button";
             const extra = s.href ? { href: s.href } : { onClick: () => s.tab && setTab(s.tab) };
@@ -133,7 +137,7 @@ export default function DashboardOverview({
                 <div className={`px-4 pb-3 text-center ${isDark ? "bg-slate-800/60" : "bg-slate-50"}`}>
                   <div className="flex justify-center -mt-5 mb-1.5">
                     {profile.profile_photo
-                      ? <img src={profile.profile_photo} className={`w-10 h-10 rounded-full shadow object-cover ${isDark ? "border-slate-800" : "border-slate-50"}`} style={{ border: isDark ? "3px solid #1e293b" : "3px solid #f8fafc" }} alt="" />
+                      ? <img src={profile.profile_photo} className={`w-10 h-10 rounded-full shadow object-cover`} style={{ border: isDark ? "3px solid #1e293b" : "3px solid #f8fafc" }} alt="" />
                       : <div className="w-10 h-10 rounded-full shadow flex items-center justify-center font-black text-white text-base" style={{ background: profile.cover_color || "#2563eb", border: isDark ? "3px solid #1e293b" : "3px solid #f8fafc" }}>{profile.display_name?.charAt(0)}</div>
                     }
                   </div>
@@ -194,142 +198,145 @@ export default function DashboardOverview({
         </div>
       </div>
 
-      {/* ── Recent Activity: Leads + Appointments ── */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {/* Recent Leads */}
+      {/* ── Recent Leads + Appointments — Business/Pro only ── */}
+      {showBusinessWidgets && (
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Recent Leads */}
+          <div className={cardCls} style={cardShadow}>
+            <div className="flex items-center justify-between p-4 pb-3">
+              <p className={`font-bold text-sm ${headText}`}>{tr.recentLeads}</p>
+              <button onClick={() => setTab("leads")} className="text-xs text-amber-500 font-semibold hover:text-amber-400 flex items-center gap-1">
+                {tr.viewAll} <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            {leads.length > 0 ? (
+              <div className="px-4 pb-4 space-y-1.5">
+                {leads.slice(0, 4).map(l => (
+                  <div key={l.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${rowHover}`} onClick={() => setTab("leads")}>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
+                      {l.name?.charAt(0) || "?"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`font-semibold text-xs ${headText}`}>{l.name || "Anonymous"}</p>
+                      <p className={`text-[10px] truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
+                    </div>
+                    <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
+                      l.status === "new" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
+                      l.status === "retained" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
+                      (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
+                    }`}>{l.status || "new"}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`text-center py-8 px-4 ${mutedText}`}>
+                <Star className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
+                <p className="text-xs font-semibold">No leads yet</p>
+                <p className="text-[11px] mt-1">They'll appear here when visitors contact you</p>
+              </div>
+            )}
+          </div>
+
+          {/* Recent Appointments */}
+          <div className={cardCls} style={cardShadow}>
+            <div className="flex items-center justify-between p-4 pb-3">
+              <p className={`font-bold text-sm ${headText}`}>Recent Appointments</p>
+              <button onClick={() => setTab("appointments")} className="text-xs text-emerald-500 font-semibold hover:text-emerald-400 flex items-center gap-1">
+                {tr.viewAll} <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            {appointments.length > 0 ? (
+              <div className="px-4 pb-4 space-y-1.5">
+                {appointments.slice(0, 4).map(a => (
+                  <div key={a.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${rowHover}`} onClick={() => setTab("appointments")}>
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
+                      {a.visitor_name?.charAt(0) || "?"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className={`font-semibold text-xs ${headText}`}>{a.visitor_name || "Guest"}</p>
+                      <p className={`text-[10px] truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
+                    </div>
+                    <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
+                      a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
+                      a.status === "pending" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
+                      (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
+                    }`}>{a.status}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`text-center py-8 px-4 ${mutedText}`}>
+                <CalendarDays className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
+                <p className="text-xs font-semibold">No appointments yet</p>
+                <p className="text-[11px] mt-1">Enable booking in the Appointments tab</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Recent NFC Activity — Business/Pro only ── */}
+      {showBusinessWidgets && (
         <div className={cardCls} style={cardShadow}>
           <div className="flex items-center justify-between p-4 pb-3">
-            <p className={`font-bold text-sm ${headText}`}>{tr.recentLeads}</p>
-            <button onClick={() => setTab("leads")} className="text-xs text-amber-500 font-semibold hover:text-amber-400 flex items-center gap-1">
-              {tr.viewAll} <ArrowRight className="w-3 h-3" />
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-base">📲</span>
+              <p className={`font-bold text-sm ${headText}`}>Recent NFC Activity</p>
+            </div>
+            <a href="/my-nfc-devices" className={`text-xs font-semibold flex items-center gap-1 ${isDark ? "text-violet-400 hover:text-violet-300" : "text-violet-600 hover:text-violet-500"}`}>
+              Manage Devices <ArrowRight className="w-3 h-3" />
+            </a>
           </div>
-          {leads.length > 0 ? (
-            <div className="px-4 pb-4 space-y-1.5">
-              {leads.slice(0, 4).map(l => (
-                <div key={l.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${rowHover}`} onClick={() => setTab("leads")}>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
-                    {l.name?.charAt(0) || "?"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className={`font-semibold text-xs ${headText}`}>{l.name || "Anonymous"}</p>
-                    <p className={`text-[10px] truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
-                  </div>
-                  <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
-                    l.status === "new" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
-                    l.status === "retained" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
-                    (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
-                  }`}>{l.status || "new"}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={`text-center py-8 px-4 ${mutedText}`}>
-              <Star className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-              <p className="text-xs font-semibold">No leads yet</p>
-              <p className="text-[11px] mt-1">They'll appear here when visitors contact you</p>
-            </div>
-          )}
-        </div>
-
-        {/* Recent Appointments */}
-        <div className={cardCls} style={cardShadow}>
-          <div className="flex items-center justify-between p-4 pb-3">
-            <p className={`font-bold text-sm ${headText}`}>Recent Appointments</p>
-            <button onClick={() => setTab("appointments")} className="text-xs text-emerald-500 font-semibold hover:text-emerald-400 flex items-center gap-1">
-              {tr.viewAll} <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          {appointments.length > 0 ? (
-            <div className="px-4 pb-4 space-y-1.5">
-              {appointments.slice(0, 4).map(a => (
-                <div key={a.id} className={`flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer ${rowHover}`} onClick={() => setTab("appointments")}>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
-                    {a.visitor_name?.charAt(0) || "?"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className={`font-semibold text-xs ${headText}`}>{a.visitor_name || "Guest"}</p>
-                    <p className={`text-[10px] truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
-                  </div>
-                  <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
-                    a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
-                    a.status === "pending" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
-                    (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
-                  }`}>{a.status}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={`text-center py-8 px-4 ${mutedText}`}>
-              <CalendarDays className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-              <p className="text-xs font-semibold">No appointments yet</p>
-              <p className="text-[11px] mt-1">Enable booking in the Appointments tab</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Recent NFC Activity ── */}
-      <div className={cardCls} style={cardShadow}>
-        <div className="flex items-center justify-between p-4 pb-3">
-          <div className="flex items-center gap-2">
-            <span className="text-base">📲</span>
-            <p className={`font-bold text-sm ${headText}`}>Recent NFC Activity</p>
-          </div>
-          <a href="/my-nfc-devices" className={`text-xs font-semibold flex items-center gap-1 ${isDark ? "text-violet-400 hover:text-violet-300" : "text-violet-600 hover:text-violet-500"}`}>
-            Manage Devices <ArrowRight className="w-3 h-3" />
-          </a>
-        </div>
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-2.5 mb-3">
-            <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Active Devices</p>
-              <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{activeNfc.length}</p>
-            </div>
-            <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Total NFC Taps</p>
-              <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{totalNfcTaps}</p>
-            </div>
-          </div>
-          {recentNfcEvents.length > 0 ? (
-            <div className="space-y-1.5">
-              {recentNfcEvents.map((e, i) => (
-                <div key={i} className={`flex items-center gap-3 p-2.5 rounded-xl ${isDark ? "bg-white/[0.03]" : "bg-slate-50"}`}>
-                  <span className="text-base">📲</span>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold ${headText}`}>NFC Tap</p>
-                    <p className={`text-[10px] ${mutedText}`}>{e.visitor_device || "Unknown device"}</p>
-                  </div>
-                  <p className={`text-[10px] ${mutedText}`}>{e.created_at?.slice(0, 10)}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={`text-center py-4 rounded-xl ${isDark ? "bg-white/[0.03]" : "bg-slate-50"}`}>
-              <p className={`text-xs ${mutedText}`}>No NFC taps yet — share your device link to start tracking</p>
-            </div>
-          )}
-          {/* NFC Empty State CTA */}
-          {activeNfc.length === 0 && (
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-xl"
-              style={{ background: isDark ? "rgba(139,92,246,0.08)" : "rgba(139,92,246,0.05)", border: `1px solid ${isDark ? "rgba(139,92,246,0.2)" : "rgba(139,92,246,0.15)"}` }}>
-              <span className="text-lg flex-shrink-0">📦</span>
-              <div className="flex-1 min-w-0">
-                <p className={`font-bold text-xs ${headText}`}>No NFC Device Yet</p>
-                <p className={`text-[10px] ${mutedText}`}>Tap to share your profile instantly with any smartphone.</p>
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-2 gap-2.5 mb-3">
+              <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
+                <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Active Devices</p>
+                <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{activeNfc.length}</p>
               </div>
-              <div className="flex gap-1.5 flex-shrink-0">
-                <a href="/my-nfc-devices">
-                  <button className="text-xs font-bold px-2.5 py-1 rounded-lg transition-all text-white" style={{ background: "#8b5cf6" }}>Activate</button>
-                </a>
-                <Link to="/shop">
-                  <button className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-all border ${isDark ? "border-violet-400/30 text-violet-400 hover:bg-violet-400/10" : "border-violet-300 text-violet-600 hover:bg-violet-50"}`}>Order</button>
-                </Link>
+              <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
+                <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Total NFC Taps</p>
+                <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{totalNfcTaps}</p>
               </div>
             </div>
-          )}
+            {recentNfcEvents.length > 0 ? (
+              <div className="space-y-1.5">
+                {recentNfcEvents.map((e, i) => (
+                  <div key={i} className={`flex items-center gap-3 p-2.5 rounded-xl ${isDark ? "bg-white/[0.03]" : "bg-slate-50"}`}>
+                    <span className="text-base">📲</span>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-semibold ${headText}`}>NFC Tap</p>
+                      <p className={`text-[10px] ${mutedText}`}>{e.visitor_device || "Unknown device"}</p>
+                    </div>
+                    <p className={`text-[10px] ${mutedText}`}>{e.created_at?.slice(0, 10)}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={`text-center py-4 rounded-xl ${isDark ? "bg-white/[0.03]" : "bg-slate-50"}`}>
+                <p className={`text-xs ${mutedText}`}>No NFC taps yet — share your device link to start tracking</p>
+              </div>
+            )}
+            {activeNfc.length === 0 && (
+              <div className="mt-3 flex items-center gap-3 p-3 rounded-xl"
+                style={{ background: isDark ? "rgba(139,92,246,0.08)" : "rgba(139,92,246,0.05)", border: `1px solid ${isDark ? "rgba(139,92,246,0.2)" : "rgba(139,92,246,0.15)"}` }}>
+                <span className="text-lg flex-shrink-0">📦</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-bold text-xs ${headText}`}>No NFC Device Yet</p>
+                  <p className={`text-[10px] ${mutedText}`}>Tap to share your profile instantly with any smartphone.</p>
+                </div>
+                <div className="flex gap-1.5 flex-shrink-0">
+                  <a href="/my-nfc-devices">
+                    <button className="text-xs font-bold px-2.5 py-1 rounded-lg transition-all text-white" style={{ background: "#8b5cf6" }}>Activate</button>
+                  </a>
+                  <Link to="/shop">
+                    <button className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-all border ${isDark ? "border-violet-400/30 text-violet-400 hover:bg-violet-400/10" : "border-violet-300 text-violet-600 hover:bg-violet-50"}`}>Order</button>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Push Notifications ── */}
       {profile && (

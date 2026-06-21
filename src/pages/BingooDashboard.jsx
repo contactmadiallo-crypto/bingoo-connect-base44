@@ -82,10 +82,14 @@ export default function BingooDashboard() {
     enabled: !!user?.id,
   });
 
-  // Show onboarding AI only for new users with no profiles
+  // Show onboarding AI for new users with no profiles OR when explicitly triggered
+  const onboardingParam = new URLSearchParams(window.location.search).get("onboarding");
   useEffect(() => {
     if (!user) return;
-    if (profiles.length === 0 && !localStorage.getItem("bingoo_onboarding_done")) {
+    const forceOnboarding = onboardingParam === "1";
+    const noProfile = profiles.length === 0;
+    const notDone = !localStorage.getItem("bingoo_onboarding_done");
+    if ((noProfile && notDone) || (forceOnboarding && !user.account_type)) {
       setShowOnboarding(true);
     }
   }, [user, profiles]);
@@ -303,6 +307,8 @@ export default function BingooDashboard() {
   // - "individual"   → explicitly individual, hide business-only tabs
   // - "business"     → show business tabs (controlled by plan/canAccess as before)
   const explicitlyIndividual = user?.account_type === "individual";
+  // Explicit Individual Free = individual account_type + free plan
+  const isFreeIndividual = explicitlyIndividual && isFree;
 
   // Build tab list — Design is embedded in Profile Studio; Calendar/Booking merged into Appointments
   const TABS = [
@@ -534,6 +540,7 @@ export default function BingooDashboard() {
               leadsThisMonth={leadsThisMonth}
               apptsThisMonth={apptsThisMonth}
               monthLabel={monthLabel}
+              isFreeIndividual={isFreeIndividual}
             />
           )}
 

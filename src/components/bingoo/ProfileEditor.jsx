@@ -16,7 +16,9 @@ const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2
 const isValidUrl = (v) => { try { new URL(v); return true; } catch { return false; } };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export default function ProfileEditor({ user, onSaved, editProfileId, prefillData, onFormChange, userPlan }) {
+export default function ProfileEditor({ user, onSaved, editProfileId, prefillData, onFormChange, userPlan, isFreeIndividual }) {
+  // isFreeIndividual: hide business-only fields (Company Logo, Appointment Booking)
+  const showBusinessFields = !isFreeIndividual;
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [coverUploading, setCoverUploading] = useState(false);
