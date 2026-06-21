@@ -336,7 +336,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2 }}>
                 <span className="text-white/50 text-xs font-bold tracking-widest uppercase">Available as</span>
-                {["💳 Card", "🔑 Keychain", "⌚ Bracelet", "🏷️ Badge"].map((item, i) => (
+                {["Card", "Keychain", "Bracelet", "Sticker", "Stand", "Bundle"].map((item, i) => (
                   <motion.span key={item}
                     className="text-xs font-bold px-2.5 py-1 rounded-lg"
                     style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
@@ -465,7 +465,7 @@ export default function Landing() {
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
               Plans for every professional
             </h2>
-            <p className="text-slate-500 text-lg">NFC device sold separately for $20 one-time. No hidden fees.</p>
+            <p className="text-slate-500 text-lg">NFC devices from $7.99. No hidden fees.</p>
           </ScrollReveal>
           <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
             variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
@@ -532,54 +532,120 @@ export default function Landing() {
           <ScrollReveal className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
               style={{ background: B.navy + "10", color: B.navy, border: `1px solid ${B.navy}20` }}>
-              📦 Shop
+              Official NFC Products
             </div>
             <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
-              Get your Bingoo device
+              Get your Bingoo NFC device
             </h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">One-time purchase. Tap to share your profile instantly — forever.</p>
           </ScrollReveal>
           <motion.div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
             variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
             {[
-              { emoji: "💳", name: "NFC Card", price: "$20", desc: "Classic wallet-size card. Sleek, durable, reusable.", tag: "Most Popular" },
-              { emoji: "🔑", name: "NFC Keychain", price: "$20", desc: "Attach to your keys. Always ready to share.", tag: null },
-              { emoji: "⌚", name: "NFC Bracelet", price: "$25", desc: "Wear your digital identity on your wrist.", tag: "New" }
-            ].map((item, i) => (
-              <motion.div key={item.name} variants={fadeUp}
+              {
+                id: "nfc-card",
+                name: "NFC Business Card",
+                price: "$19.99",
+                desc: "Premium PVC card. Tap to share your full profile instantly.",
+                tag: "Best Seller",
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/579589e5c_generated_image.png"
+              },
+              {
+                id: "nfc-keychain",
+                name: "NFC Keychain",
+                price: "$14.99",
+                desc: "Compact round tag. Attaches to any key ring.",
+                tag: null,
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/490b649b9_generated_image.png"
+              },
+              {
+                id: "nfc-sticker",
+                name: "NFC Sticker",
+                price: "$7.99",
+                desc: "Stick anywhere — laptop, window, storefront. Pack of 2.",
+                tag: null,
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/41b35e638_generated_image.png"
+              },
+              {
+                id: "nfc-stand",
+                name: "NFC Desk Stand",
+                price: "$34.99",
+                desc: "Countertop stand for salons, offices, and front desks.",
+                tag: "New",
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/ba2752299_generated_image.png"
+              },
+              {
+                id: "nfc-bracelet",
+                name: "NFC Bracelet",
+                price: "$24.99",
+                desc: "Silicone NFC wristband. Wear your profile, share with a tap.",
+                tag: "New",
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/2dd53607e_generated_image.png"
+              },
+              {
+                id: "nfc-bundle",
+                name: "Starter Bundle",
+                price: "$29.99",
+                desc: "Card + Keychain + Stickers. Everything you need to start.",
+                tag: "Save $13",
+                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/3a8a19f21_generated_image.png"
+              },
+            ].map((item) => (
+              <motion.div key={item.id} variants={fadeUp}
                 whileHover={{ y: -6, borderColor: B.orange }}
-                className="relative bg-white rounded-3xl border-2 p-7 flex flex-col items-center text-center transition-all"
+                className="relative bg-white rounded-3xl border-2 overflow-hidden flex flex-col transition-all"
                 style={{ borderColor: "#e2e8f0" }}>
                 {item.tag && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs font-black px-3 py-1 rounded-full text-white"
-                    style={{ background: item.tag === "New" ? B.gold : B.orange }}>
+                  <span className="absolute top-3 left-3 z-10 text-xs font-black px-3 py-1 rounded-full text-white"
+                    style={{ background: item.tag === "Save $13" ? "#16a34a" : item.tag === "New" ? B.navy : B.orange }}>
                     {item.tag}
                   </span>
                 )}
-                <div className="text-6xl mb-4">{item.emoji}</div>
-                <h3 className="font-black text-xl mb-1" style={{ color: B.navy }}>{item.name}</h3>
-                <p className="text-slate-500 text-sm mb-4">{item.desc}</p>
-                <p className="text-3xl font-black mb-5" style={{ color: B.orange }}>{item.price}</p>
-                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="w-full">
-                  <Button className="w-full font-bold rounded-xl text-white"
-                    style={{ background: B.navy }}
-                    onClick={() => window.location.href = '/shop'}>
-                    Order Now →
-                  </Button>
-                </motion.div>
+                {/* Product image */}
+                <div className="bg-slate-50 flex items-center justify-center overflow-hidden" style={{ height: 180 }}>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-contain p-3"
+                  />
+                </div>
+                {/* Card body */}
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>{item.name}</h3>
+                  <p className="text-slate-500 text-sm mb-3 flex-1">{item.desc}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black" style={{ color: B.orange }}>{item.price}</span>
+                    <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+                      <Button className="font-bold rounded-xl text-white text-sm px-4"
+                        style={{ background: B.navy }}
+                        onClick={() => window.location.href = `/product/${item.id}`}>
+                        Details →
+                      </Button>
+                    </motion.div>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* Bulk order CTA */}
+          {/* Corporate / Bulk CTA */}
           <ScrollReveal delay={0.2}>
-            <div className="mt-10 rounded-3xl p-7 flex flex-col md:flex-row items-center justify-between gap-4"
+            <div className="mt-8 rounded-3xl p-7 flex flex-col md:flex-row items-center justify-between gap-6"
               style={{ background: `linear-gradient(135deg, ${B.navy} 0%, ${B.navyLight} 100%)` }}>
-              <div>
-                <p className="font-black text-white text-lg">Bulk order for your team or event?</p>
-                <p className="text-white/60 text-sm mt-1">Volume discounts for teams, companies, and event organizers.</p>
+              <div className="flex items-center gap-5">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-white/10">
+                  <img
+                    src="https://media.base44.com/images/public/692bd9007b93ba81de543346/bd567db9b_generated_image.png"
+                    alt="Corporate 10-Pack"
+                    className="w-full h-full object-contain p-1"
+                  />
+                </div>
+                <div>
+                  <p className="font-black text-white text-lg">10-Pack Corporate Cards — $99.99</p>
+                  <p className="text-white/60 text-sm mt-1">Equip your entire team in one order. Volume discount included.</p>
+                </div>
               </div>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="flex-shrink-0">
                 <Button onClick={() => window.location.href = '/shop'}
                   className="font-bold whitespace-nowrap"
                   style={{ background: B.orange, color: "#fff", border: "none" }}>
