@@ -254,7 +254,7 @@ export default function TeamMembersPanel({ profileId, isDark: propDark, planLabe
           <a href="/shop?category=corporate"
             className="flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-colors"
             style={{ background: 'rgba(11,46,107,0.04)', borderColor: 'rgba(11,46,107,0.12)', color: '#0B2E6B' }}>
-            <span>🪪 Order team NFC cards for your members</span>
+            <span>Order team NFC cards for your members</span>
             <span style={{ color: '#FF7A00' }}>Shop →</span>
           </a>
         </div>

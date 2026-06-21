@@ -549,7 +549,7 @@ export default function BingooDashboard() {
               <a href="/shop"
                 className={`flex items-center justify-between px-5 py-3.5 rounded-2xl border text-sm font-semibold transition-opacity hover:opacity-80 ${isDark ? "border-white/10 bg-white/4" : "border-slate-200 bg-white"}`}
                 style={{ color: isDark ? 'rgba(255,255,255,0.7)' : '#0B2E6B' }}>
-                <span>📲 Add a tap product to share this profile</span>
+                <span>Add a tap product to share this profile</span>
                 <span style={{ color: '#FF7A00' }}>Shop NFC →</span>
               </a>
             </div>

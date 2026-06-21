@@ -342,7 +342,7 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
       <a href="/shop?category=stands"
         className="flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-opacity hover:opacity-80"
         style={{ background: 'rgba(11,46,107,0.04)', borderColor: 'rgba(11,46,107,0.12)', color: '#0B2E6B' }}>
-        <span>🖥️ Order a countertop NFC stand for your salon</span>
+        <span>Order a countertop NFC stand for your salon</span>
         <span style={{ color: '#FF7A00' }}>Shop →</span>
       </a>
     </div>
