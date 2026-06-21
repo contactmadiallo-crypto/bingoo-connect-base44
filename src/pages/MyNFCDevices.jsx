@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
 
 const DEVICE_TYPES = [
@@ -43,6 +44,7 @@ function StatusBadge({ status, isDark }) {
 
 export default function MyNFCDevices() {
    const { isDark } = useBingooTheme();
+   const { maxNFCDevices, isLoading: planLoading } = usePlan();
    const qc = useQueryClient();
 
    const [showActivate, setShowActivate] = useState(false);
@@ -239,6 +241,36 @@ export default function MyNFCDevices() {
       ? "bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-blue-500/50"
       : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400"
   }`;
+
+  // Free-plan gate — show upgrade prompt instead of full device management UI
+  if (!planLoading && maxNFCDevices === 0) {
+    return (
+      <BingooLayout>
+        <div className="p-6 max-w-xl mx-auto mt-12 text-center space-y-5">
+          <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
+            style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
+            📲
+          </div>
+          <div>
+            <p className={`font-black text-xl mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>NFC Devices — Professional Feature</p>
+            <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>
+              Upgrade to the Professional plan to activate and manage NFC devices, enable Lost Mode, and track tap analytics.
+            </p>
+          </div>
+          <a href="/plans">
+            <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#FF7A00", color: "#fff" }}>
+              View Plans
+            </Button>
+          </a>
+          <a href="/shop" className="block">
+            <Button variant="outline" className={`w-full font-bold gap-2 ${isDark ? "border-white/20 text-white/60 bg-transparent hover:bg-white/10" : ""}`}>
+              🛍️ Order NFC Hardware
+            </Button>
+          </a>
+        </div>
+      </BingooLayout>
+    );
+  }
 
   return (
     <BingooLayout>

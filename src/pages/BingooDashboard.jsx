@@ -323,8 +323,10 @@ export default function BingooDashboard() {
       { id: "services", label: "Services", icon: Scissors, color: "#10b981" },
       { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
     ] : []),
-    // analytics, portfolio
-    ...BASE_TABS.slice(4, 6),
+    // analytics — hide for explicitly Individual Free users (plan = free + account_type = "individual")
+    ...(!explicitlyIndividual || canAccess("analytics") ? [BASE_TABS[4]] : []),
+    // portfolio — always shown (content-gated separately)
+    BASE_TABS[5],
     // Resumes — hide for law firms and salons
     ...(!isLawFirm && !isSalon ? BASE_TABS.slice(6, 7) : []),
     // connections, lost_mode

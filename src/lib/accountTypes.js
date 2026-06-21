@@ -178,11 +178,12 @@ const CAPABILITIES = {
  * @param {object} user - user object from base44.auth.me()
  * @returns {AccountGroup}
  */
-export function getAccountGroup(user) {
+export function getAccountGroup(user, profilePlan) {
   if (user?.account_type === "business") return ACCOUNT_GROUPS.BUSINESS;
 
-  // Check profile.plan as a proxy for paid tier (mirrors existing usePlan logic)
-  const plan = user?.plan || "";
+  // Use profilePlan (from Profile entity) — User has no plan field.
+  // Falls back gracefully when not supplied (legacy behavior = INDIVIDUAL_FREE).
+  const plan = profilePlan || "";
   const paidPlans = ["pro", "professional", "salon", "lawfirm", "business", "corporate", "restaurant"];
   if (paidPlans.includes(plan)) return ACCOUNT_GROUPS.INDIVIDUAL_PRO;
 
@@ -192,10 +193,11 @@ export function getAccountGroup(user) {
 /**
  * Returns the full capability Set for a user.
  * @param {object} user
+ * @param {string} [profilePlan] - optional plan from the user's Profile record
  * @returns {Set<string>}
  */
-export function getCapabilitiesForUser(user) {
-  const group = getAccountGroup(user);
+export function getCapabilitiesForUser(user, profilePlan) {
+  const group = getAccountGroup(user, profilePlan);
   return CAPABILITIES[group] ?? CAPABILITIES[ACCOUNT_GROUPS.INDIVIDUAL_FREE];
 }
 
@@ -204,10 +206,11 @@ export function getCapabilitiesForUser(user) {
  * Safe to call with null/undefined user — returns false.
  * @param {object} user
  * @param {string} capability - use CAP.* constants
+ * @param {string} [profilePlan] - optional plan from the user's Profile record
  * @returns {boolean}
  */
-export function hasCapability(user, capability) {
-  return getCapabilitiesForUser(user).has(capability);
+export function hasCapability(user, capability, profilePlan) {
+  return getCapabilitiesForUser(user, profilePlan).has(capability);
 }
 
 // ─── Existing helpers (unchanged) ────────────────────────────────────────────
