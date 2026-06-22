@@ -17,12 +17,16 @@ const TIER1_FIELDS = [
   "location", "show_location", "plan", "is_active", "updated_date",
 ];
 
-const localOverride =
-  typeof window !== "undefined" &&
-  window.localStorage.getItem("bingoo_firebase_profile_sync") === "true";
+// Evaluate localStorage at call-time (not module load time), so setting the key
+// in DevTools and re-saving the profile immediately picks it up without a page reload.
+function isSyncEnabled() {
+  const localOverride =
+    typeof window !== "undefined" &&
+    window.localStorage.getItem("bingoo_firebase_profile_sync") === "true";
+  return localOverride || import.meta.env.VITE_ENABLE_FIREBASE_PROFILE_SYNC === "true";
+}
 
-export const PROFILE_SYNC_ENABLED =
-  localOverride || import.meta.env.VITE_ENABLE_FIREBASE_PROFILE_SYNC === "true";
+export const PROFILE_SYNC_ENABLED = isSyncEnabled; // export for inspection
 
 /**
  * Silently syncs a saved Base44 profile to Firestore.
@@ -31,11 +35,12 @@ export const PROFILE_SYNC_ENABLED =
  * @param {object} savedProfile — the profile object returned by Base44 after save
  */
 export async function syncProfileToFirestore(savedProfile) {
-  if (!PROFILE_SYNC_ENABLED) return;
+  if (!isSyncEnabled()) return;
   if (!isConfigured || !db) return;
   if (!savedProfile?.id) return;
 
   try {
+    console.log("[FirestoreProfileSync] Syncing profile to Firestore:", savedProfile.id);
     // Dynamic import keeps firebase/firestore out of the main bundle when flag is off
     const { doc, setDoc } = await import("firebase/firestore");
 
