@@ -156,6 +156,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
       } else {
         savedProfile = await base44.entities.Profile.create({ ...form, is_active: true, plan: "free" });
       }
+      // [DEBUG] Step 1: confirm save handler ran and profile was returned
+      console.log("[ProfileEditor:DEBUG] Base44 profile save succeeded. savedProfile.id:", savedProfile?.id, "| calling syncProfileToFirestore now.");
       // Shadow-copy to Firestore (fire-and-forget — flag-gated, never blocks Base44 save)
       syncProfileToFirestore(savedProfile);
       // Ensure owned_profile_ids is set on the user so RLS works for appointments/leads

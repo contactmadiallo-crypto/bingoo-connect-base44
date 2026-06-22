@@ -35,13 +35,37 @@ export const PROFILE_SYNC_ENABLED = isSyncEnabled; // export for inspection
  * @param {object} savedProfile — the profile object returned by Base44 after save
  */
 export async function syncProfileToFirestore(savedProfile) {
-  if (!isSyncEnabled()) return;
-  if (!isConfigured || !db) return;
-  if (!savedProfile?.id) return;
+  // [DEBUG] Step 2: function was called
+  console.log("[FirestoreProfileSync:DEBUG] syncProfileToFirestore() called. savedProfile.id:", savedProfile?.id);
+
+  // [DEBUG] Step 4+5: flag state at call time
+  const lsValue = typeof window !== "undefined"
+    ? window.localStorage.getItem("bingoo_firebase_profile_sync")
+    : null;
+  const envValue = import.meta.env.VITE_ENABLE_FIREBASE_PROFILE_SYNC;
+  console.log("[FirestoreProfileSync:DEBUG] flag check — localStorage 'bingoo_firebase_profile_sync':", lsValue, "| VITE_ENABLE_FIREBASE_PROFILE_SYNC:", envValue, "| isSyncEnabled():", isSyncEnabled());
+
+  if (!isSyncEnabled()) {
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — isSyncEnabled() is false. Set localStorage key or env var.");
+    return;
+  }
+
+  // [DEBUG] Step 7+8: Firebase config state
+  console.log("[FirestoreProfileSync:DEBUG] isConfigured:", isConfigured, "| db exists:", !!db);
+
+  if (!isConfigured || !db) {
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — Firebase not configured or db is null. Check [Firebase:DEBUG] logs above.");
+    return;
+  }
+
+  if (!savedProfile?.id) {
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — savedProfile.id is missing:", savedProfile);
+    return;
+  }
 
   try {
-    console.log("[FirestoreProfileSync] Syncing profile to Firestore:", savedProfile.id);
-    // Dynamic import keeps firebase/firestore out of the main bundle when flag is off
+    // [DEBUG] Step 9: about to call setDoc
+    console.log("[FirestoreProfileSync:DEBUG] Reached setDoc. Writing to profiles/" + savedProfile.id);
     const { doc, setDoc } = await import("firebase/firestore");
 
     const payload = {};
@@ -50,7 +74,6 @@ export async function syncProfileToFirestore(savedProfile) {
         payload[field] = savedProfile[field];
       }
     }
-    // Always record when the Firestore copy was last written
     payload._synced_at = new Date().toISOString();
 
     await setDoc(
@@ -58,8 +81,9 @@ export async function syncProfileToFirestore(savedProfile) {
       payload,
       { merge: true }
     );
+    console.log("[FirestoreProfileSync:DEBUG] setDoc SUCCESS — profiles/" + savedProfile.id + " written.");
   } catch (err) {
-    // Silent — never surface to user, never block Base44 save
-    console.warn("[FirestoreProfileSync] Write failed (non-blocking):", err.message);
+    // [DEBUG] Step 10: exact Firestore error
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — setDoc FAILED:", err.code, err.message, err);
   }
 }
