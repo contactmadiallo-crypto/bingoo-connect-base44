@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, CheckCircle2, AlertTriangle, XCircle, Crown, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, UtensilsCrossed, Building2, Users } from 'lucide-react';
+import { CreditCard, CheckCircle2, AlertTriangle, XCircle, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, UtensilsCrossed, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
 import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
 import { format } from 'date-fns';
+import BingooLayout from '@/components/bingoo/BingooLayout';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
 
@@ -41,7 +41,6 @@ const STATUS_CONFIG = {
 
 export default function Billing() {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   // Prevent Google from indexing this authenticated page
   useEffect(() => {
@@ -90,32 +89,17 @@ export default function Billing() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#f8fafc' }}>
-        <RefreshCw className="w-6 h-6 animate-spin" style={{ color: B.navy }} />
-      </div>
-    );
-  }
-
   const normalizedPlan = normalizePlan(plan);
   const planFeatures = PLAN_FEATURES[normalizedPlan] || PLAN_FEATURES.free;
 
   return (
+    <BingooLayout>
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
-      {/* Header */}
-      <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
-        style={{ background: 'rgba(11,46,107,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
-          <div className="h-5 w-px bg-white/10 mx-1" />
-          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
-            alt="Bingoo Connect" className="h-8 w-auto object-contain" />
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <RefreshCw className="w-6 h-6 animate-spin" style={{ color: B.navy }} />
         </div>
-      </div>
-
+      ) : (
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
         <div>
           <h1 className="text-3xl font-black mb-1" style={{ color: B.navy }}>Billing</h1>
@@ -231,6 +215,8 @@ export default function Billing() {
           </div>
         )}
       </div>
+      )}
     </div>
+    </BingooLayout>
   );
 }

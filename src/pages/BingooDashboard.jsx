@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
-import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
-import DesignTab from "@/components/bingoo/DesignTab";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 import ResumePanel from "@/components/bingoo/ResumePanel";
@@ -22,9 +20,7 @@ import AttendancePanel from "@/components/bingoo/AttendancePanel";
 import PracticeAreasPanel from "@/components/bingoo/PracticeAreasPanel";
 import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
-import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import ProfilesHub from "@/components/bingoo/ProfilesHub";
 import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
@@ -36,8 +32,8 @@ import {
   Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft,
   AlertOctagon
 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
+import BingooLogo from "@/components/bingoo/BingooLogo";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -57,6 +53,105 @@ const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
 const VIEW_RESUME       = "resume";
 const VIEW_PORTFOLIO    = "portfolio";
+
+// ── NewProfileForm ──────────────────────────────────────────────────────────
+// Lightweight profile creation form — same modern style as ProfileWorkspace.
+// Creates the record then hands off to ProfileWorkspace for all editing.
+function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
+  const [form, setForm] = useState({
+    display_name: prefillData?.display_name || user?.full_name || "",
+    username: prefillData?.username || "",
+    job_title: prefillData?.job_title || "",
+    bio: prefillData?.bio || "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+  const panelBorder = isDark ? "border-white/8" : "border-slate-200";
+  const inputCls  = `w-full px-3 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-orange-400/40 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-white border-slate-200 text-slate-800"}`;
+
+  const setF = (k) => (e) => {
+    const v = k === "username"
+      ? e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "")
+      : e.target.value;
+    setForm(f => ({ ...f, [k]: v }));
+  };
+
+  const handleCreate = async () => {
+    setError("");
+    if (!form.display_name.trim()) { setError("Display name is required."); return; }
+    if (!form.username.trim()) { setError("Username (profile URL) is required."); return; }
+    setSaving(true);
+    try {
+      const created = await base44.entities.Profile.create({
+        display_name: form.display_name.trim(),
+        username: form.username.trim(),
+        job_title: form.job_title.trim(),
+        bio: form.bio.trim(),
+        cover_color: "#2563eb",
+        is_active: true,
+        plan: "free",
+      });
+      onCreated(created);
+    } catch (err) {
+      setError(err?.message || "Failed to create profile.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5 max-w-xl">
+      <div className="flex items-center gap-3">
+        <button onClick={onBack}
+          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+          <ChevronLeft className="w-4 h-4" /> Profiles
+        </button>
+        <p className={`font-bold text-sm ${headText}`}>New Profile</p>
+      </div>
+
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
+        <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>Profile Info</p>
+
+        <div>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Display Name *</label>
+          <input className={inputCls} value={form.display_name} onChange={setF("display_name")} placeholder="Your Name or Business" />
+        </div>
+
+        <div>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Username (Profile URL) *</label>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-3 py-2 rounded-xl flex-shrink-0 ${isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-500"}`}>/p/</span>
+            <input className={inputCls} value={form.username} onChange={setF("username")} placeholder="yourusername" />
+          </div>
+          <p className={`text-[11px] mt-1 ${mutedText}`}>Lowercase letters, numbers, hyphens and underscores only.</p>
+        </div>
+
+        <div>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Job Title / Role</label>
+          <input className={inputCls} value={form.job_title} onChange={setF("job_title")} placeholder="CEO · Consultant · Attorney" />
+        </div>
+
+        <div>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Bio</label>
+          <textarea className={inputCls} rows={3} value={form.bio} onChange={setF("bio")} placeholder="Short description about you or your business..." />
+        </div>
+
+        {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
+
+        <button onClick={handleCreate} disabled={saving}
+          className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
+          style={{ background: saving ? "#64748b" : "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          {saving ? "Creating…" : "Create Profile & Open Editor →"}
+        </button>
+        <p className={`text-[11px] text-center ${mutedText}`}>You can add photos, links, and more after creation.</p>
+      </div>
+    </div>
+  );
+}
 
 // "No profile selected" empty state
 const NoProfileState = ({ isDark, onGoToProfiles }) => (
@@ -219,10 +314,6 @@ export default function BingooDashboard() {
     setShowOnboarding(true);
   };
 
-  // Permission flags
-  const explicitlyIndividual = user?.account_type === "individual";
-  const isFreeIndividual = explicitlyIndividual && isFree;
-
   // Language
   const [lang, setLang] = useState(() => {
     const saved = localStorage.getItem("bingoo_lang");
@@ -292,10 +383,7 @@ export default function BingooDashboard() {
           {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)" }}>
-                <span className="text-white font-black text-sm">B</span>
-              </div>
+              <BingooLogo className="h-8 w-auto object-contain hidden sm:block" />
               <div>
                 <h1 className={`text-base font-black leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
                   {user?.full_name?.split(" ")[0] || "Dashboard"}
@@ -338,32 +426,20 @@ export default function BingooDashboard() {
           {view === VIEW_WORKSPACE && (
             <>
               {isNewProfile || !activeProfile ? (
-                /* New profile creation */
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3">
-                    <button onClick={openHub}
-                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                      <ChevronLeft className="w-4 h-4" /> Profiles
-                    </button>
-                    <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>New Profile</p>
-                  </div>
-                  <ProfileEditor
-                    user={user}
-                    editProfileId={null}
-                    prefillData={aiGeneratedProfile}
-                    onSaved={(savedProfile) => {
-                      setAiGeneratedProfile(null);
-                      setLiveFormOverride(null);
-                      if (savedProfile?.id) setSelectedProfileId(savedProfile.id);
-                      refetchProfiles();
-                      // Go to workspace for the new profile — stay in workspace, don't redirect to hub
-                      setSearchParams({ view: VIEW_WORKSPACE });
-                    }}
-                    onFormChange={setLiveFormOverride}
-                    userPlan={userPlan}
-                    isFreeIndividual={isFreeIndividual}
-                  />
-                </div>
+                /* New profile creation — uses the same modern workspace architecture */
+                <NewProfileForm
+                  user={user}
+                  isDark={isDark}
+                  prefillData={aiGeneratedProfile}
+                  onBack={openHub}
+                  onCreated={(savedProfile) => {
+                    setAiGeneratedProfile(null);
+                    setLiveFormOverride(null);
+                    setSelectedProfileId(savedProfile.id);
+                    refetchProfiles();
+                    setSearchParams({ view: VIEW_WORKSPACE });
+                  }}
+                />
               ) : (
                 /* Profile workspace with inner tabs — onBack goes to hub, save stays on same inner tab */
                 <ProfileWorkspace
