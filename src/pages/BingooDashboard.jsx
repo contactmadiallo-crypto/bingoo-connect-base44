@@ -39,14 +39,21 @@ import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 // ── View/page constants ──
-const VIEW_HUB        = "hub";
-const VIEW_WORKSPACE  = "workspace";
-const VIEW_APPTS      = "appointments";
-const VIEW_LEADS      = "leads";
-const VIEW_ANALYTICS  = "analytics";
-const VIEW_LOSTMODE   = "lostmode";
-const VIEW_CONNECTIONS = "connections";
-const VIEW_CRM        = "crm";
+const VIEW_HUB          = "hub";
+const VIEW_WORKSPACE    = "workspace";
+const VIEW_APPTS        = "appointments";
+const VIEW_LEADS        = "leads";
+const VIEW_ANALYTICS    = "analytics";
+const VIEW_LOSTMODE     = "lostmode";
+const VIEW_CONNECTIONS  = "connections";
+const VIEW_CRM          = "crm";
+const VIEW_SERVICES     = "services";
+const VIEW_HOURS        = "hours";
+const VIEW_PRACTICE     = "practiceareas";
+const VIEW_LEGAL_SVC    = "legalservices";
+const VIEW_OFFICES      = "offices";
+const VIEW_TEAM         = "team";
+const VIEW_ATTENDANCE   = "attendance";
 
 // "No profile selected" empty state
 const NoProfileState = ({ isDark, onGoToProfiles }) => (
@@ -477,6 +484,118 @@ export default function BingooDashboard() {
                   isDark={isDark}
                   onSaved={() => {}}
                 />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              SERVICES — Salon / Business
+          ════════════════════════════════════ */}
+          {view === VIEW_SERVICES && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("services") ? (
+                <PlanGateScreen feature="services" isDark={isDark} />
+              ) : (
+                <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              HOURS — Business Hours
+          ════════════════════════════════════ */}
+          {view === VIEW_HOURS && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("business_hours") ? (
+                <PlanGateScreen feature="business_hours" isDark={isDark} />
+              ) : (
+                <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              PRACTICE AREAS — Law Firm
+          ════════════════════════════════════ */}
+          {view === VIEW_PRACTICE && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("practice_areas") ? (
+                <PlanGateScreen feature="practice_areas" isDark={isDark} />
+              ) : (
+                <PracticeAreasPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              LEGAL SERVICES — Law Firm
+          ════════════════════════════════════ */}
+          {view === VIEW_LEGAL_SVC && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("legal_services") ? (
+                <PlanGateScreen feature="legal_services" isDark={isDark} />
+              ) : (
+                <LegalServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              OFFICES — Law Firm
+          ════════════════════════════════════ */}
+          {view === VIEW_OFFICES && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("office_locations") ? (
+                <PlanGateScreen feature="office_locations" isDark={isDark} />
+              ) : (
+                <OfficeLocationsPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              TEAM — Business / Law Firm / Corporate
+          ════════════════════════════════════ */}
+          {view === VIEW_TEAM && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("team_members") ? (
+                <PlanGateScreen feature="team_members" isDark={isDark} />
+              ) : (
+                <TeamMembersPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              ATTENDANCE — Corporate
+          ════════════════════════════════════ */}
+          {view === VIEW_ATTENDANCE && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("attendance") ? (
+                <PlanGateScreen feature="attendance" isDark={isDark} />
+              ) : (
+                <AttendancePanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
               )}
             </div>
           )}

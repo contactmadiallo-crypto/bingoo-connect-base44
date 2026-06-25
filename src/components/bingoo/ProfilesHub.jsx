@@ -75,50 +75,62 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
               <div key={profile.id}
                 className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
                 style={{ boxShadow: cardShadow }}>
-                {/* Cover */}
-                <div className="h-20 relative"
-                  style={{ background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"}, ${profile.cover_color || "#2563eb"}bb)` }}>
-                  <div className="absolute inset-0 opacity-20"
-                    style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 60%)" }} />
-                  {/* Plan badge */}
-                  <div className="absolute top-3 right-3">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                      style={{ background: planStyle.bg, color: planStyle.text }}>
-                      {profile.plan || "free"}
-                    </span>
-                  </div>
-                  {/* Active indicator */}
-                  {profile.is_active && (
-                    <div className="absolute top-3 left-3 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[10px] font-semibold text-white/70">Live</span>
-                    </div>
-                  )}
+
+                {/* ── Cover band — purely decorative, no content inside ── */}
+                <div className="h-16 relative flex-shrink-0"
+                  style={{
+                    background: profile.cover_photo
+                      ? `url(${profile.cover_photo}) center/cover no-repeat`
+                      : `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}99 100%)`,
+                  }}>
+                  {/* Subtle gloss */}
+                  <div className="absolute inset-0 opacity-15"
+                    style={{ background: "radial-gradient(circle at 75% 25%, white, transparent 65%)" }} />
                 </div>
 
-                {/* Avatar + Info */}
-                <div className="px-4 pb-3">
-                  <div className="flex items-end gap-3 -mt-5 mb-3">
-                    {profile.profile_photo
-                      ? <img src={profile.profile_photo} className="w-12 h-12 rounded-2xl object-cover shadow-md flex-shrink-0"
-                          style={{ border: isDark ? "3px solid #1e293b" : "3px solid white" }} alt="" />
-                      : <div className="w-12 h-12 rounded-2xl shadow-md flex items-center justify-center font-black text-white text-base flex-shrink-0"
-                          style={{ background: profile.cover_color || "#2563eb", border: isDark ? "3px solid #1e293b" : "3px solid white" }}>
-                          {profile.display_name?.charAt(0) || "?"}
-                        </div>
-                    }
-                    <div className="flex-1 min-w-0 pb-1">
-                      <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
-                      <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
+                {/* ── Card body — avatar overlaps cover, all text is below ── */}
+                <div className="px-4 pt-0 pb-4">
+                  {/* Avatar row: overlaps cover by 50% of its height (24px = half of h-12) */}
+                  <div className="flex items-end justify-between -mt-6 mb-3">
+                    <div className="flex-shrink-0">
+                      {profile.profile_photo
+                        ? <img src={profile.profile_photo} className="w-12 h-12 rounded-2xl object-cover shadow-lg"
+                            style={{ border: isDark ? "3px solid #13162a" : "3px solid white" }} alt="" />
+                        : <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg"
+                            style={{ background: profile.cover_color || "#2563eb", border: isDark ? "3px solid #13162a" : "3px solid white" }}>
+                            {profile.display_name?.charAt(0) || "?"}
+                          </div>
+                      }
                     </div>
+                    {/* Plan badge — top-right of card body, never inside cover */}
+                    <div className="flex items-center gap-2 pb-0.5">
+                      {profile.is_active && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-[10px] font-semibold text-emerald-500">Live</span>
+                        </span>
+                      )}
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                        style={{ background: planStyle.bg, color: planStyle.text }}>
+                        {profile.plan || "free"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Name + username — clearly below avatar */}
+                  <div className="mb-1">
+                    <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
+                    <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
                   </div>
 
                   {profile.job_title && (
-                    <p className={`text-xs font-semibold truncate mb-3 ${subText}`}>{profile.job_title}{profile.company_name ? ` · ${profile.company_name}` : ""}</p>
+                    <p className={`text-xs font-semibold truncate mb-3 ${subText}`}>
+                      {profile.job_title}{profile.company_name ? ` · ${profile.company_name}` : ""}
+                    </p>
                   )}
 
                   {/* Quick Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => onSelectProfile(profile.id, "overview")}
                       className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"

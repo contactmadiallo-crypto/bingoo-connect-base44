@@ -1,24 +1,41 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { User, Smartphone, BarChart3, CreditCard, LogOut, Shield, Menu, X, CalendarDays, Sun, Moon, Link2, Users, GitBranch, HeadphonesIcon, AlertOctagon } from "lucide-react";
+import { User, Smartphone, BarChart3, CreditCard, LogOut, Shield, Menu, X, CalendarDays, Sun, Moon, Link2, Users, GitBranch, HeadphonesIcon, AlertOctagon, Scissors, Clock, MapPin, Scale, Briefcase, ClipboardList, UserCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import { usePlan } from "@/hooks/usePlan";
 
-// All possible nav items — visibility is controlled per-render based on plan
+// ── Sidebar item config — single source of truth ──────────────────────────────
+// requiredFeature: canAccess(plan, feature) must return true
+// accountTypes: array of allowed account_type values, or "any"
+// plans: convenience group — "all" | "pro" | "business" | "lawfirm" | "corporate"
+// requiresProfile: if true, shows NoProfileState when no profile selected
 const ALL_NAV = [
-  { id: "profiles",     label: "Profiles",     icon: User,           href: "/bingoo",                    iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",    plans: "all"        },
-  { id: "appointments", label: "Appointments", icon: CalendarDays,   href: "/bingoo?view=appointments",  iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   plans: "business"   },
-  { id: "leads",        label: "Leads",        icon: Users,          href: "/bingoo?view=leads",         iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)",   plans: "business"   },
-  { id: "analytics",    label: "Analytics",    icon: BarChart3,      href: "/bingoo?view=analytics",     iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)",    plans: "pro"        },
-  { id: "devices",      label: "NFC Devices",  icon: Smartphone,     href: "/my-nfc-devices",            iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",   plans: "pro"        },
-  { id: "lostmode",     label: "Lost Mode",    icon: AlertOctagon,   href: "/bingoo?view=lostmode",      iconColor: "#ef4444", iconBg: "rgba(239,68,68,0.18)",    plans: "pro"        },
-  { id: "connections",  label: "Connections",  icon: Link2,          href: "/bingoo?view=connections",   iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",    plans: "all"        },
-  { id: "crm",          label: "CRM",          icon: GitBranch,      href: "/bingoo?view=crm",           iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   plans: "business"   },
-  { id: "billing",      label: "Billing",      icon: CreditCard,     href: "/billing",                   iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    plans: "all"        },
-  { id: "support",      label: "Support",      icon: HeadphonesIcon, href: "/contact-support",           iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",  plans: "all"        },
+  // ── Always visible ────────────────────────────────────────────────────────
+  { id: "profiles",      label: "Profiles",       icon: User,           href: "/bingoo",                        iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",    requiredFeature: null,                  accountTypes: "any" },
+  // ── Pro Individual ────────────────────────────────────────────────────────
+  { id: "analytics",     label: "Analytics",      icon: BarChart3,      href: "/bingoo?view=analytics",         iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)",    requiredFeature: "analytics",           accountTypes: "any" },
+  { id: "devices",       label: "NFC Devices",    icon: Smartphone,     href: "/my-nfc-devices",                iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",   requiredFeature: "nfc_devices",         accountTypes: "any" },
+  { id: "lostmode",      label: "Lost Mode",      icon: AlertOctagon,   href: "/bingoo?view=lostmode",          iconColor: "#ef4444", iconBg: "rgba(239,68,68,0.18)",    requiredFeature: "lost_mode",           accountTypes: "any" },
+  // ── Business / Salon ─────────────────────────────────────────────────────
+  { id: "appointments",  label: "Appointments",   icon: CalendarDays,   href: "/bingoo?view=appointments",      iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   requiredFeature: "appointment_booking", accountTypes: ["business"] },
+  { id: "leads",         label: "Leads",          icon: Users,          href: "/bingoo?view=leads",             iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)",   requiredFeature: "lead_collection",     accountTypes: ["business"] },
+  { id: "services",      label: "Services",       icon: Scissors,       href: "/bingoo?view=services",          iconColor: "#ec4899", iconBg: "rgba(236,72,153,0.18)",   requiredFeature: "services",            accountTypes: ["business"] },
+  { id: "hours",         label: "Hours",          icon: Clock,          href: "/bingoo?view=hours",             iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)",   requiredFeature: "business_hours",      accountTypes: ["business"] },
+  // ── Law Firm specific ─────────────────────────────────────────────────────
+  { id: "practiceareas", label: "Practice Areas", icon: Scale,          href: "/bingoo?view=practiceareas",     iconColor: "#0369a1", iconBg: "rgba(3,105,161,0.18)",    requiredFeature: "practice_areas",      accountTypes: ["business"] },
+  { id: "legalservices", label: "Legal Services", icon: Briefcase,      href: "/bingoo?view=legalservices",     iconColor: "#1d4ed8", iconBg: "rgba(29,78,216,0.18)",    requiredFeature: "legal_services",      accountTypes: ["business"] },
+  { id: "offices",       label: "Offices",        icon: MapPin,         href: "/bingoo?view=offices",           iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    requiredFeature: "office_locations",    accountTypes: ["business"] },
+  // ── Shared business tools ─────────────────────────────────────────────────
+  { id: "team",          label: "Team",           icon: UserCheck,      href: "/bingoo?view=team",              iconColor: "#7c3aed", iconBg: "rgba(124,58,237,0.18)",   requiredFeature: "team_members",        accountTypes: ["business"] },
+  { id: "crm",           label: "CRM",            icon: GitBranch,      href: "/bingoo?view=crm",               iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   requiredFeature: "crm_pipeline",        accountTypes: ["business"] },
+  { id: "attendance",    label: "Attendance",     icon: ClipboardList,  href: "/bingoo?view=attendance",        iconColor: "#15803d", iconBg: "rgba(21,128,61,0.18)",    requiredFeature: "attendance",          accountTypes: ["business"] },
+  // ── Always visible ────────────────────────────────────────────────────────
+  { id: "connections",   label: "Connections",    icon: Link2,          href: "/bingoo?view=connections",       iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",    requiredFeature: null,                  accountTypes: "any" },
+  { id: "billing",       label: "Billing",        icon: CreditCard,     href: "/billing",                       iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    requiredFeature: null,                  accountTypes: "any" },
+  { id: "support",       label: "Support",        icon: HeadphonesIcon, href: "/contact-support",               iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",  requiredFeature: null,                  accountTypes: "any" },
 ];
 
 const bottomTabs = [
@@ -53,28 +70,18 @@ export default function BingooLayout({ children }) {
   });
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
-  const explicitlyIndividual = user?.account_type === "individual";
+  const userAccountType = user?.account_type || "individual";
 
-  // Determine which nav items to show based on plan
-  const navItems = ALL_NAV.filter(item => {
-    if (item.plans === "all") return true;
-    if (item.plans === "pro") {
-      // Show for Pro+ (non-free, or anyone with the specific capability)
-      if (item.id === "analytics") return canAccess("analytics");
-      if (item.id === "lostmode")  return canAccess("lost_mode");
-      if (item.id === "devices")   return true; // always visible for convenience
-      return !isFree;
-    }
-    if (item.plans === "business") {
-      // Show for Business/Salon/LawFirm/Corporate — hide for individual users
-      if (explicitlyIndividual) return false;
-      if (item.id === "appointments") return canAccess("appointment_booking");
-      if (item.id === "leads")        return canAccess("lead_collection");
-      if (item.id === "crm")          return canAccess("crm_pipeline");
-      return true;
-    }
-    return true;
-  });
+  // Build plan-driven sidebar from the single config source of truth
+  const navItems = isAdmin
+    ? ALL_NAV // admins see everything
+    : ALL_NAV.filter(item => {
+        // Account type gate
+        if (item.accountTypes !== "any" && !item.accountTypes.includes(userAccountType)) return false;
+        // Feature gate (while loading, keep open to avoid flicker)
+        if (item.requiredFeature && !planLoading && !canAccess(item.requiredFeature)) return false;
+        return true;
+      });
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
