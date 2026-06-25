@@ -43,16 +43,14 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
   // All sidebar items derived from selected profile — isAdmin unlocks everything
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang);
 
-  // Mobile bottom bar: Landing always first, Profiles second, then first plan-specific item, More, Logout
-  const planSpecificBottomItems = navItems.filter(
-    i => !["landing", "profiles", "connections", "billing", "support"].includes(i.id)
-  ).slice(0, 1);
+  const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
+  const sidebarBorder = "rgba(255,255,255,0.07)";
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
     const [hPath, hQuery] = href.split("?");
     if (hQuery) {
-      const sp = new URLSearchParams(location.search);
+      const sp  = new URLSearchParams(location.search);
       const hsp = new URLSearchParams(hQuery);
       const viewMatch = hsp.get("view");
       if (viewMatch) return location.pathname === hPath && sp.get("view") === viewMatch;
@@ -61,14 +59,11 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
     if (href === "/bingoo") {
       if (location.pathname !== "/bingoo") return false;
       const sp = new URLSearchParams(location.search);
-      const v = sp.get("view");
+      const v  = sp.get("view");
       return !v || v === "workspace" || v === "hub";
     }
     return location.pathname === href && !location.search;
   };
-
-  const sidebarBg = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
-  const sidebarBorder = "rgba(255,255,255,0.07)";
 
   const NavLink = ({ item, onNav }) => {
     const active = isActive(item.href);
@@ -94,7 +89,6 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
 
   const SidebarContent = ({ onNav }) => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
         <div className="px-5 py-5" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
@@ -106,12 +100,8 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
           </div>
         </div>
       </div>
-
-      {/* Nav links — scrollable, strictly from navItems */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(item => <NavLink key={item.id} item={item} onNav={onNav} />)}
-
-        {/* Admin Panel — ONLY when user.role === "admin", never from profile plan */}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -133,8 +123,6 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
           </Link>
         )}
       </nav>
-
-      {/* User footer */}
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
         <button onClick={toggle}
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all bg-white/8 text-white hover:bg-white/14 border border-white/10">
@@ -162,11 +150,17 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
     </div>
   );
 
-  // Mobile bottom tab: Landing + Profiles + 1 plan-specific item + More + Logout
+  // Mobile bottom bar 4th slot: prefer appointments, fall back to analytics
+  const fourthBottomItem =
+    navItems.find(i => i.id === "appointments") ||
+    navItems.find(i => i.id === "analytics") ||
+    null;
+
+  // Order: Landing → Profiles → 4th slot → Logout (More is a fixed button between Landing and Profiles)
   const bottomNavItems = [
     navItems.find(i => i.id === "landing"),
     navItems.find(i => i.id === "profiles"),
-    ...planSpecificBottomItems,
+    fourthBottomItem,
   ].filter(Boolean);
 
   return (
@@ -224,6 +218,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
       )}
 
       {/* ── MOBILE BOTTOM TAB BAR ── */}
+      {/* Order: Landing | More | Profiles | Appointments/Analytics | Logout */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center"
         style={{
           background: "linear-gradient(180deg, #0a2558 0%, #071b47 100%)",
@@ -231,35 +226,78 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
           paddingBottom: "env(safe-area-inset-bottom)",
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
-        {/* Plan-gated items */}
-        {bottomNavItems.map(item => {
+
+        {/* 1. Landing Page */}
+        {(() => {
+          const item = navItems.find(i => i.id === "landing");
+          if (!item) return null;
           const active = isActive(item.href);
           return (
-            <Link key={item.id} to={item.href}
+            <Link to={item.href}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
-              <span className="text-[10px] font-semibold"
-                style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
                 {item.label}
               </span>
             </Link>
           );
-        })}
+        })()}
 
-        {/* More — opens drawer with full plan-gated list */}
+        {/* 2. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-          <Menu className="w-5 h-5 text-white/40" />
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
+            <Menu className="w-5 h-5 text-white/40" />
+          </div>
           <span className="text-[10px] font-semibold text-white/40">{t("more", lang)}</span>
         </button>
 
-        {/* Logout */}
+        {/* 3. Profiles */}
+        {(() => {
+          const item = navItems.find(i => i.id === "profiles");
+          if (!item) return null;
+          const active = isActive(item.href);
+          return (
+            <Link to={item.href}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+              </div>
+              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })()}
+
+        {/* 4. Appointments (if available) or Analytics */}
+        {fourthBottomItem && (() => {
+          const item = fourthBottomItem;
+          const active = isActive(item.href);
+          return (
+            <Link to={item.href}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+              </div>
+              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })()}
+
+        {/* 5. Logout */}
         <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-          <LogOut className="w-5 h-5 text-red-400" />
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
+            <LogOut className="w-5 h-5 text-red-400" />
+          </div>
           <span className="text-[10px] font-semibold text-red-400">{t("logout", lang)}</span>
         </button>
       </nav>
