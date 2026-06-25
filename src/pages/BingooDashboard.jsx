@@ -30,12 +30,13 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import DashboardOverview from "@/components/bingoo/DashboardOverview";
 import ProfilesHub from "@/components/bingoo/ProfilesHub";
 import ProfileWorkspaceHeader from "@/components/bingoo/ProfileWorkspaceHeader";
+import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import {
   Eye, Copy, Check, BarChart3, Star, Settings, TrendingUp, CalendarDays,
   Zap, Briefcase, Palette, Download, QrCode, FileText, Users, AlertTriangle,
-  Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2
+  Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -399,131 +400,92 @@ export default function BingooDashboard() {
           {/* ── WORKSPACE: Selected Profile ── */}
           {isWorkspace && (
             <>
-              {/* Profile context header */}
-              {activeProfile ? (
-                <ProfileWorkspaceHeader
-                  profile={activeProfile}
-                  isDark={isDark}
-                  onBack={openHub}
-                  lang={lang}
-                />
-              ) : (
-                /* New profile — minimal back header */
-                <div className="rounded-2xl overflow-hidden mb-5"
-                  style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", boxShadow: "0 4px 24px rgba(11,46,107,0.3)" }}>
-                  <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
-                  <div className="px-4 py-3 flex items-center gap-3">
+              {/* ── Profile workspace (Info/Links/Design/Share/Settings with live preview) ── */}
+              {(tab === "overview" || tab === "profile") && (
+                activeProfile ? (
+                  <ProfileWorkspace
+                    profileId={activeProfile.id}
+                    user={user}
+                    onBack={openHub}
+                    isDark={isDark}
+                    isLawFirm={isLawFirm}
+                    isSalon={isSalon}
+                  />
+                ) : (
+                  /* New profile creation via legacy ProfileEditor */
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-3">
+                      <button onClick={openHub}
+                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                        <ChevronLeft className="w-4 h-4" /> Profiles
+                      </button>
+                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>New Profile</p>
+                    </div>
+                    <ProfileEditor
+                      user={user}
+                      editProfileId={null}
+                      prefillData={aiGeneratedProfile}
+                      onSaved={(savedProfile) => {
+                        setAiGeneratedProfile(null);
+                        setLiveFormOverride(null);
+                        if (savedProfile?.id) setSelectedProfileId(savedProfile.id);
+                        refetchProfiles();
+                        setSearchParams({ view: VIEW_WORKSPACE, tab: "overview" });
+                      }}
+                      onFormChange={setLiveFormOverride}
+                      userPlan={userPlan}
+                      isFreeIndividual={isFreeIndividual}
+                    />
+                  </div>
+                )
+              )}
+
+              {/* ── Feature tabs — scoped to activeProfile ── */}
+              {activeProfile && tab !== "overview" && tab !== "profile" && (
+                <>
+                  {/* Compact profile chip + back link */}
+                  <div className="flex items-center gap-3 mb-5">
                     <button onClick={openHub}
-                      className="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-white/15 text-white/60 hover:text-white transition-all">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                      className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                      <ChevronLeft className="w-4 h-4" /> Profiles
                     </button>
-                    <div>
-                      <p className="font-black text-sm text-white">New Profile</p>
-                      <p className="text-xs text-white/50">Fill in your details below</p>
+                    <div className="flex items-center gap-2">
+                      {activeProfile.profile_photo
+                        ? <img src={activeProfile.profile_photo} className="w-7 h-7 rounded-lg object-cover" alt="" />
+                        : <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-white text-xs"
+                            style={{ background: activeProfile.cover_color || "#2563eb" }}>{activeProfile.display_name?.charAt(0)}</div>
+                      }
+                      <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
+                    </div>
+                    {/* Tab nav for feature tabs */}
+                    <div className="flex-1">
+                      <DashboardNav tabs={TABS} activeTab={tab} setTab={setTab} leads={leads} appointments={appointments} isDark={isDark} />
                     </div>
                   </div>
+
+                  {tab === "appointments"   && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={activeProfile.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
+                  {tab === "leads"          && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} onSaved={goToOverview} />)}
+                  {tab === "analytics"      && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={activeProfile.id} />)}
+                  {tab === "portfolio"      && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={activeProfile.id} user={user} onSaved={goToOverview} />)}
+                  {tab === "resumes"        && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={activeProfile.id} />)}
+                  {tab === "connections"    && <ConnectionsPanel isDark={isDark} />}
+                  {tab === "lost_mode"      && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={activeProfile.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
+                  {tab === "services"       && (isLawFirm ? <PracticeAreasPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />))}
+                  {tab === "legal_services" && (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
+                  {tab === "offices"        && (!planLoading && !canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
+                  {tab === "team"           && (!planLoading && !hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={activeProfile.id} isDark={isDark} planLabel={userPlan} onSaved={goToOverview} />)}
+                  {tab === "crm"            && (!planLoading && !canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : <CRMPipelinePanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} isDark={isDark} onSaved={goToOverview} />))}
+                  {tab === "attendance"     && (!planLoading && !canAccess("attendance") ? <PlanGateScreen feature="attendance" isDark={isDark} /> : <AttendancePanel profileId={activeProfile.id} isDark={isDark} />)}
+                  {tab === "hours"          && <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />}
+                </>
+              )}
+
+              {/* No profile selected and not on profile/overview — go home */}
+              {!activeProfile && tab !== "overview" && tab !== "profile" && (
+                <div className="text-center py-20">
+                  <button onClick={openHub} className="text-blue-500 underline text-sm">← Back to Profiles</button>
                 </div>
               )}
-
-              {/* Tab nav — only show when there's an active profile */}
-              {activeProfile && (
-                <DashboardNav
-                  tabs={TABS}
-                  activeTab={tab}
-                  setTab={setTab}
-                  leads={leads}
-                  appointments={appointments}
-                  isDark={isDark}
-                />
-              )}
-
-              {/* ── Tab panels ── */}
-              {(tab === "overview" || !activeProfile) && activeProfile && (
-                <DashboardOverview
-                  profile={activeProfile}
-                  user={user}
-                  isDark={isDark}
-                  analytics={analytics}
-                  leads={leads}
-                  appointments={appointments}
-                  myNfcDevices={myNfcDevices}
-                  salonServices={salonServices}
-                  teamMembers={teamMembers}
-                  tr={tr}
-                  setTab={setTab}
-                  copied={false}
-                  copyLink={() => {}}
-                  profileAbsoluteUrl={profileAbsoluteUrl}
-                  profileUrl={profileUrl}
-                  profileQrUrl={profileQrUrl}
-                  qrUrl={qrUrl}
-                  downloadBrandedQR={downloadBrandedQR}
-                  launchAI={launchAI}
-                  setShowLayoutPicker={setShowLayoutPicker}
-                  totalViews={totalViews}
-                  totalClicks={totalClicks}
-                  totalNfcTaps={totalNfcTaps}
-                  totalQrScans={totalQrScans}
-                  totalWhatsApp={totalWhatsApp}
-                  leadsThisMonth={leadsThisMonth}
-                  apptsThisMonth={apptsThisMonth}
-                  monthLabel={monthLabel}
-                  isFreeIndividual={isFreeIndividual}
-                />
-              )}
-
-              {tab === "profile" && (
-                <div className="space-y-6">
-                  <ProfileEditor
-                    user={user}
-                    editProfileId={activeProfile ? activeProfile.id : null}
-                    prefillData={aiGeneratedProfile}
-                    onSaved={(savedProfile) => {
-                      setAiGeneratedProfile(null);
-                      setLiveFormOverride(null);
-                      if (savedProfile?.id && !selectedProfileId) {
-                        setSelectedProfileId(savedProfile.id);
-                      }
-                      refetchProfiles();
-                      goToOverview();
-                    }}
-                    onFormChange={setLiveFormOverride}
-                    userPlan={userPlan}
-                    isFreeIndividual={isFreeIndividual}
-                  />
-                  {activeProfile && (
-                    <div className={`rounded-2xl overflow-hidden ${isDark ? "border border-white/8" : "border border-slate-200"}`}>
-                      <div className={`flex items-center gap-2 px-5 py-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                        <Palette className="w-4 h-4" style={{ color: "#f97316" }} />
-                        <span className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>Design & Style</span>
-                      </div>
-                      <DesignTab profile={activeProfile} user={user} onSaved={goToOverview} />
-                    </div>
-                  )}
-                  <a href="/shop"
-                    className={`flex items-center justify-between px-5 py-3.5 rounded-2xl border text-sm font-semibold transition-opacity hover:opacity-80 ${isDark ? "border-white/10 bg-white/4" : "border-slate-200 bg-white"}`}
-                    style={{ color: isDark ? 'rgba(255,255,255,0.7)' : '#0B2E6B' }}>
-                    <span>Add a tap product to share this profile</span>
-                    <span style={{ color: '#FF7A00' }}>Shop NFC →</span>
-                  </a>
-                </div>
-              )}
-
-              {tab === "appointments"   && activeProfile && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={activeProfile.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
-              {tab === "leads"          && activeProfile && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} onSaved={goToOverview} />)}
-              {tab === "analytics"      && activeProfile && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={activeProfile.id} />)}
-              {tab === "portfolio"      && activeProfile && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={activeProfile.id} user={user} onSaved={goToOverview} />)}
-              {tab === "resumes"        && activeProfile && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={activeProfile.id} />)}
-              {tab === "design"         && activeProfile && <DesignTab profile={activeProfile} user={user} onSaved={goToOverview} />}
-              {tab === "connections"    && <ConnectionsPanel isDark={isDark} />}
-              {tab === "lost_mode"      && activeProfile && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={activeProfile.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
-              {tab === "services"       && activeProfile && (isLawFirm ? <PracticeAreasPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />))}
-              {tab === "legal_services" && activeProfile && (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
-              {tab === "offices"        && activeProfile && (!planLoading && !canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
-              {tab === "team"           && activeProfile && (!planLoading && !hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={activeProfile.id} isDark={isDark} planLabel={userPlan} onSaved={goToOverview} />)}
-              {tab === "crm"            && activeProfile && (!planLoading && !canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : <CRMPipelinePanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} isDark={isDark} onSaved={goToOverview} />))}
-              {tab === "attendance"     && activeProfile && (!planLoading && !canAccess("attendance") ? <PlanGateScreen feature="attendance" isDark={isDark} /> : <AttendancePanel profileId={activeProfile.id} isDark={isDark} />)}
-              {tab === "hours"          && activeProfile && <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />}
             </>
           )}
 

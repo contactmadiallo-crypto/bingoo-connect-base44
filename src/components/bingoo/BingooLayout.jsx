@@ -1,32 +1,30 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Briefcase, Sun, Moon, Home, Link2 } from "lucide-react";
+import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Briefcase, Sun, Moon, Home, Link2, Users, GitBranch, HeadphonesIcon, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 
 const navItems = [
-  { label: "Home",           icon: Home,            href: "/",                        iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
-  { label: "Dashboard",      icon: LayoutDashboard, href: "/bingoo",                  iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)"  },
-  { label: "Profile Studio", icon: User,            href: "/bingoo?tab=profile",       iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
-  { label: "Appointments",   icon: CalendarDays,    href: "/bingoo?tab=appointments", iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)"  },
-  { label: "Leads",          icon: Star,            href: "/bingoo?tab=leads",        iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)"  },
-  { label: "My NFC Devices", icon: Smartphone,      href: "/my-nfc-devices",          iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)"  },
-  { label: "Analytics",      icon: BarChart3,       href: "/bingoo?tab=analytics",    iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)"   },
-  { label: "Connections",    icon: Link2,           href: "/bingoo?tab=connections",  iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)"   },
-  { label: "Portfolio",      icon: Briefcase,       href: "/bingoo?tab=portfolio",    iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
+  { label: "Profiles",       icon: User,            href: "/bingoo",                  iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)"   },
+  { label: "Team",           icon: Users,           href: "/bingoo?view=workspace&tab=team",         iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
+  { label: "Connections",    icon: Link2,           href: "/bingoo?view=workspace&tab=connections",  iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)"   },
+  { label: "CRM",            icon: GitBranch,       href: "/bingoo?view=workspace&tab=crm",          iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)"  },
+  { label: "Analytics",      icon: BarChart3,       href: "/bingoo?view=workspace&tab=analytics",    iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)"   },
+  { label: "Devices",        icon: Smartphone,      href: "/my-nfc-devices",          iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)"  },
   { label: "Billing",        icon: CreditCard,      href: "/billing",                 iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)"   },
+  { label: "Support",        icon: HeadphonesIcon,  href: "/contact-support",         iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
 ];
 
 // Bottom tab bar items (most used)
 // "Profile" navigates to the Overview dashboard (which then lets users go to Edit Profile)
 const bottomTabs = [
-  { label: "Home",     icon: Home,          href: "/bingoo",         color: "#3b82f6" },
-  { label: "Profile",  icon: User,          href: "/bingoo",         color: "#8b5cf6" },
-  { label: "NFC",      icon: Smartphone,    href: "/my-nfc-devices", color: "#06b6d4" },
-  { label: "More",     icon: Menu,          href: null,              color: "#64748b" },
-  { label: "Logout",   icon: LogOut,        href: "logout",          color: "#ef4444" },
+  { label: "Profiles",  icon: User,       href: "/bingoo",         color: "#FF7A00" },
+  { label: "Analytics", icon: BarChart3,  href: "/bingoo?tab=analytics", color: "#d97706" },
+  { label: "Devices",   icon: Smartphone, href: "/my-nfc-devices", color: "#06b6d4" },
+  { label: "More",      icon: Menu,       href: null,              color: "#64748b" },
+  { label: "Logout",    icon: LogOut,     href: "logout",          color: "#ef4444" },
 ];
 
 export default function BingooLayout({ children }) {
@@ -55,8 +53,19 @@ export default function BingooLayout({ children }) {
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
-    if (href.includes("?")) {
-      return location.pathname === "/bingoo" && location.search === "?" + href.split("?")[1];
+    const [hPath, hQuery] = href.split("?");
+    if (hQuery) {
+      // Match tab param anywhere in the search string
+      const tabMatch = hQuery.match(/tab=([^&]+)/);
+      if (tabMatch) {
+        const sp = new URLSearchParams(location.search);
+        return location.pathname === hPath && sp.get("tab") === tabMatch[1];
+      }
+      return location.pathname === hPath && location.search === "?" + hQuery;
+    }
+    // "Profiles" root — active when on /bingoo with no tab or with view=workspace
+    if (href === "/bingoo") {
+      return location.pathname === "/bingoo";
     }
     return location.pathname === href && !location.search;
   };
