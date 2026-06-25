@@ -81,6 +81,27 @@ export const TRANSLATIONS = {
   profile_is_live:  { en: "Profile is Live",   fr: "Profil en ligne" },
   show_location:    { en: "Show Location",     fr: "Afficher le lieu" },
 
+  // ── Dark/Light mode ──
+  dark_mode:        { en: "Dark Mode",          fr: "Mode sombre" },
+  light_mode:       { en: "Light Mode",         fr: "Mode clair" },
+
+  // ── Empty states ──
+  no_profiles_yet:  { en: "No profiles yet",    fr: "Aucun profil" },
+  create_first:     { en: "Create your first profile to get started", fr: "Créez votre premier profil pour commencer" },
+  no_leads_yet:     { en: "No leads yet",       fr: "Aucun prospect" },
+  no_appointments:  { en: "No appointments yet", fr: "Aucun rendez-vous" },
+
+  // ── Action buttons ──
+  save:             { en: "Save",               fr: "Enregistrer" },
+  cancel:           { en: "Cancel",             fr: "Annuler" },
+  delete:           { en: "Delete",             fr: "Supprimer" },
+  edit:             { en: "Edit",               fr: "Modifier" },
+  add:              { en: "Add",                fr: "Ajouter" },
+  share:            { en: "Share",              fr: "Partager" },
+  download:         { en: "Download",           fr: "Télécharger" },
+  logout:           { en: "Logout",             fr: "Déconnexion" },
+  more:             { en: "More",               fr: "Plus" },
+
   // ── Landing page ──
   lp_features:      { en: "Features",          fr: "Fonctionnalités" },
   lp_industries:    { en: "Industries",        fr: "Secteurs" },
@@ -114,11 +135,15 @@ function detectBrowserLang() {
   return "en";
 }
 
-/** Get current language from localStorage, auto-detecting browser lang on first visit */
+/** Get current language from localStorage, auto-detecting browser lang on first visit only */
 export function getLang() {
   const saved = localStorage.getItem("bingoo_lang");
-  if (saved) return saved;
-  // First visit — auto-detect and persist
+  const userSet = localStorage.getItem("bingoo_lang_user_set");
+  // If user manually set it, always honour that — never override
+  if (saved && userSet === "true") return saved;
+  // If auto-detected previously, return it (but allow re-detection if browser lang changed)
+  if (saved && !userSet) return saved;
+  // First visit — auto-detect and persist without marking as user-set
   const detected = detectBrowserLang();
   localStorage.setItem("bingoo_lang", detected);
   return detected;

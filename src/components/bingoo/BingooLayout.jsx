@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
-import { t } from "@/lib/i18n";
+import { t, getLang } from "@/lib/i18n";
 
 /**
  * BingooLayout
@@ -43,10 +43,10 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
   // All sidebar items derived from selected profile — isAdmin unlocks everything
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang);
 
-  // Mobile bottom bar: fixed 4 slots — Profiles always, then first 2 plan-specific items, More, Logout
+  // Mobile bottom bar: Landing always first, Profiles second, then first plan-specific item, More, Logout
   const planSpecificBottomItems = navItems.filter(
-    i => !["profiles", "connections", "billing", "support"].includes(i.id)
-  ).slice(0, 2);
+    i => !["landing", "profiles", "connections", "billing", "support"].includes(i.id)
+  ).slice(0, 1);
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
@@ -139,8 +139,8 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
         <button onClick={toggle}
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all bg-white/8 text-white hover:bg-white/14 border border-white/10">
           {isDark
-            ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</>
-            : <><Moon className="w-4 h-4 text-blue-300" /> Dark Mode</>}
+            ? <><Sun className="w-4 h-4 text-yellow-400" /> {t("light_mode", lang)}</>
+            : <><Moon className="w-4 h-4 text-blue-300" /> {t("dark_mode", lang)}</>}
         </button>
         <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/8">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
@@ -162,8 +162,9 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
     </div>
   );
 
-  // Mobile bottom tab: Profiles + up to 2 plan items + More + Logout
+  // Mobile bottom tab: Landing + Profiles + 1 plan-specific item + More + Logout
   const bottomNavItems = [
+    navItems.find(i => i.id === "landing"),
     navItems.find(i => i.id === "profiles"),
     ...planSpecificBottomItems,
   ].filter(Boolean);
@@ -252,14 +253,14 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
         <button onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
           <Menu className="w-5 h-5 text-white/40" />
-          <span className="text-[10px] font-semibold text-white/40">More</span>
+          <span className="text-[10px] font-semibold text-white/40">{t("more", lang)}</span>
         </button>
 
         {/* Logout */}
         <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
           <LogOut className="w-5 h-5 text-red-400" />
-          <span className="text-[10px] font-semibold text-red-400">Logout</span>
+          <span className="text-[10px] font-semibold text-red-400">{t("logout", lang)}</span>
         </button>
       </nav>
 

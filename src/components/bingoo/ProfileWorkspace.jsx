@@ -585,25 +585,44 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     mutationFn: async () => {
       if (!profileId || !liveForm) throw new Error("No profile loaded");
       const payload = buildPayload(liveForm);
-      return base44.entities.Profile.update(profileId, payload);
+      // 1. Send the update
+      await base44.entities.Profile.update(profileId, payload);
+      // 2. Refetch from server to verify persistence
+      const fresh = await base44.entities.Profile.get(profileId);
+      // 3. Verify every submitted field matches the server value
+      const mismatch = Object.keys(payload).find(k => {
+        const submitted = JSON.stringify(payload[k]);
+        const server    = JSON.stringify(fresh[k]);
+        return submitted !== server;
+      });
+      if (mismatch) {
+        throw new Error(`Save verification failed: field "${mismatch}" did not persist.`);
+      }
+      return fresh;
     },
     onMutate: () => {
       setSaveStatus("pending");
       setSaveError("");
+      // Dismiss any previous save toast before showing a new one
+      toast.dismiss("bingoo-save");
     },
-    onSuccess: async () => {
-      await refetchProfile();
+    onSuccess: (fresh) => {
+      // Update query cache with verified server data
+      qc.setQueryData(["profile-ws", profileId], fresh);
       qc.invalidateQueries({ queryKey: ["my-profile"] });
-      const now = new Date().toLocaleTimeString();
+
+      const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       setSaveStatus("success");
       setSaveTime(now);
 
-      // Info tab → go back to My Profiles after confirmed save
       if (saveTabRef.current === "info") {
-        toast.success(lang === "fr" ? "Profil enregistré !" : "Profile saved!");
-        setTimeout(() => onBack(), 800);
+        // Info tab → redirect only after confirmed server persistence
+        toast.success(lang === "fr" ? "Profil enregistré !" : "Profile saved!", {
+          id: "bingoo-save", duration: 2500,
+        });
+        setTimeout(() => onBack(), 900);
       } else {
-        // All other tabs → stay, show inline status only
+        // All other tabs → stay on page, show inline status, no redirect
         setTimeout(() => setSaveStatus(null), 4000);
       }
     },
@@ -611,7 +630,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       const msg = err?.message || "Unknown error";
       setSaveStatus("error");
       setSaveError(msg);
-      // Stay on current tab regardless of which tab triggered the save
+      toast.error(msg, { id: "bingoo-save", duration: 4000 });
     },
   });
 
