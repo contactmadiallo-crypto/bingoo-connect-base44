@@ -5,25 +5,21 @@ import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
-import { getVisibleNavItems } from "@/lib/sidebarConfig";
-import { normalizePlan } from "@/lib/planPermissions";
+import { getVisibleNavItems, normalizeProfileType } from "@/lib/sidebarConfig";
 
 /**
  * BingooLayout
  *
- * Sidebar items are derived from the SELECTED PROFILE's plan.
- * Pass `selectedProfilePlan` (string) from BingooDashboard so the
- * sidebar updates whenever a different profile is selected.
- *
- * If no profile is selected (e.g. on the hub), fall back to the
- * user's highest plan so the sidebar isn't empty.
+ * Sidebar items are derived from the SELECTED PROFILE object.
+ * Pass `selectedProfile` from BingooDashboard — the full profile entity.
+ * When no profile is selected (hub view), selectedProfile is null → free sidebar.
+ * Admin users see all items + Admin Panel regardless of selected profile.
  */
-export default function BingooLayout({ children, selectedProfilePlan }) {
+export default function BingooLayout({ children, selectedProfile }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
 
-  // Prevent search engines from indexing authenticated dashboard pages
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
@@ -40,22 +36,16 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
     queryFn: () => base44.auth.me(),
   });
 
+  // Admin Panel is gated strictly on user.role — never on profile plan
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
-  // Resolve the plan to drive sidebar visibility
-  const resolvedPlan = normalizePlan(selectedProfilePlan || "free");
+  // All sidebar items derived from selected profile — isAdmin unlocks everything
+  const navItems = getVisibleNavItems(selectedProfile, isAdmin);
 
-  // Build sidebar items from selected profile's plan
-  const navItems = getVisibleNavItems(resolvedPlan, isAdmin);
-
-  // Bottom tab bar — always the same 5 core tabs (More opens the drawer for extras)
-  const bottomTabs = [
-    { label: "Profiles",  href: "/bingoo",                  id: "profiles" },
-    { label: "Analytics", href: "/bingoo?view=analytics",   id: "analytics" },
-    { label: "Devices",   href: "/my-nfc-devices",          id: "devices" },
-    { label: "More",      href: null,                       id: "more" },
-    { label: "Logout",    href: "logout",                   id: "logout" },
-  ];
+  // Mobile bottom bar: fixed 4 slots — Profiles always, then first 2 plan-specific items, More, Logout
+  const planSpecificBottomItems = navItems.filter(
+    i => !["profiles", "connections", "billing", "support"].includes(i.id)
+  ).slice(0, 2);
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
@@ -76,11 +66,8 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
     return location.pathname === href && !location.search;
   };
 
-  const t = {
-    bg: isDark ? "#0f1117" : "#f8fafc",
-    sidebar: "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)",
-    sidebarBorder: "rgba(255,255,255,0.07)",
-  };
+  const sidebarBg = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
+  const sidebarBorder = "rgba(255,255,255,0.07)";
 
   const NavLink = ({ item, onNav }) => {
     const active = isActive(item.href);
@@ -91,12 +78,14 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
           background: active ? "rgba(255,255,255,0.10)" : "transparent",
           border: active ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
         }}>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: active ? item.iconBg.replace("0.18", "0.32") : item.iconBg }}>
           <item.icon className="w-4 h-4" style={{ color: item.iconColor }} />
         </div>
-        <span style={{ color: active ? "#fff" : "rgba(255,255,255,0.60)" }}
-          className="group-hover:text-white transition-colors">{item.label}</span>
+        <span className="group-hover:text-white transition-colors"
+          style={{ color: active ? "#fff" : "rgba(255,255,255,0.60)" }}>
+          {item.label}
+        </span>
         {active && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.iconColor }} />}
       </Link>
     );
@@ -107,18 +96,21 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
       {/* Logo */}
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
-        <div className="px-5 py-5" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
-          <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
+        <div className="px-5 py-5" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
             alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-          <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">CONNECT • SHARE • GROW</div>
+          <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">
+            CONNECT • SHARE • GROW
+          </div>
         </div>
       </div>
 
-      {/* Nav links — scrollable */}
+      {/* Nav links — scrollable, strictly from navItems */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(item => <NavLink key={item.id} item={item} onNav={onNav} />)}
 
-        {/* Admin Panel link — only for admins */}
+        {/* Admin Panel — ONLY when user.role === "admin", never from profile plan */}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -128,20 +120,26 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
             }}>
             <div className="w-8 h-8 rounded-xl flex items-center justify-center"
               style={{ background: location.pathname === "/admin" ? "rgba(239,68,68,0.32)" : "rgba(239,68,68,0.18)" }}>
-              <Shield className="w-4 h-4" style={{ color: "#ef4444" }} />
+              <Shield className="w-4 h-4 text-red-400" />
             </div>
-            <span style={{ color: location.pathname === "/admin" ? "#fff" : "rgba(255,255,255,0.60)" }}
-              className="group-hover:text-white transition-colors">Admin Panel</span>
-            {location.pathname === "/admin" && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 bg-red-400" />}
+            <span className="group-hover:text-white transition-colors"
+              style={{ color: location.pathname === "/admin" ? "#fff" : "rgba(255,255,255,0.60)" }}>
+              Admin Panel
+            </span>
+            {location.pathname === "/admin" && (
+              <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 bg-red-400" />
+            )}
           </Link>
         )}
       </nav>
 
-      {/* User + actions */}
-      <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${t.sidebarBorder}` }}>
+      {/* User footer */}
+      <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
         <button onClick={toggle}
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all bg-white/8 text-white hover:bg-white/14 border border-white/10">
-          {isDark ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</> : <><Moon className="w-4 h-4 text-blue-300" /> Dark Mode</>}
+          {isDark
+            ? <><Sun className="w-4 h-4 text-yellow-400" /> Light Mode</>
+            : <><Moon className="w-4 h-4 text-blue-300" /> Dark Mode</>}
         </button>
         <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/8">
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
@@ -152,7 +150,9 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
             <p className="text-sm font-bold truncate text-white">{user?.full_name}</p>
             <p className="text-xs truncate text-white/40">{user?.email}</p>
           </div>
-          <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }} title="Logout"
+          <button
+            onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
+            title="Logout"
             className="p-2 rounded-lg transition-colors hover:bg-white/10">
             <LogOut className="w-4 h-4 text-red-400" />
           </button>
@@ -161,12 +161,18 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
     </div>
   );
 
+  // Mobile bottom tab: Profiles + up to 2 plan items + More + Logout
+  const bottomNavItems = [
+    navItems.find(i => i.id === "profiles"),
+    ...planSpecificBottomItems,
+  ].filter(Boolean);
+
   return (
-    <div className="min-h-screen flex" style={{ background: t.bg }}>
+    <div className="min-h-screen flex" style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
 
       {/* ── DESKTOP SIDEBAR ── */}
       <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-20"
-        style={{ background: t.sidebar, borderRight: `1px solid ${t.sidebarBorder}` }}>
+        style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}>
         <SidebarContent onNav={null} />
       </aside>
 
@@ -194,13 +200,13 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
         </div>
       </header>
 
-      {/* ── MOBILE SLIDE-OUT DRAWER ── */}
+      {/* ── MOBILE SLIDE-OUT DRAWER (same navItems, plan-gated) ── */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 backdrop-blur-sm bg-black/60"
           onClick={() => setMobileOpen(false)}>
           <div className="flex flex-col w-72 h-full shadow-2xl" onClick={e => e.stopPropagation()}
             style={{
-              background: t.sidebar,
+              background: sidebarBg,
               paddingTop: "env(safe-area-inset-top)",
               paddingBottom: "env(safe-area-inset-bottom)",
             }}>
@@ -223,51 +229,42 @@ export default function BingooLayout({ children, selectedProfilePlan }) {
           paddingBottom: "env(safe-area-inset-bottom)",
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
-        {bottomTabs.map((tab) => {
-          if (tab.id === "logout") {
-            return (
-              <button key="logout" onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-                <LogOut className="w-5 h-5 text-red-400" />
-                <span className="text-[10px] font-semibold text-red-400">Logout</span>
-              </button>
-            );
-          }
-          if (tab.id === "more") {
-            return (
-              <button key="more" onClick={() => setMobileOpen(true)}
-                className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-                <Menu className="w-5 h-5 text-white/40" />
-                <span className="text-[10px] font-semibold text-white/40">More</span>
-              </button>
-            );
-          }
-          // Find matching nav item for icon + color
-          const navItem = navItems.find(n => n.id === tab.id);
-          if (!navItem && tab.id !== "profiles") return null; // hide if plan doesn't include it
-          const active = isActive(tab.href);
-          const iconColor = active ? "#FF7A00" : "rgba(255,255,255,0.4)";
+        {/* Plan-gated items */}
+        {bottomNavItems.map(item => {
+          const active = isActive(item.href);
           return (
-            <Link key={tab.id} to={tab.href}
+            <Link key={item.id} to={item.href}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-                {navItem
-                  ? <navItem.icon className="w-5 h-5 transition-all" style={{ color: iconColor }} />
-                  : null
-                }
+                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
-              <span className="text-[10px] font-semibold transition-all" style={{ color: iconColor }}>
-                {tab.label}
+              <span className="text-[10px] font-semibold"
+                style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+                {item.label}
               </span>
             </Link>
           );
         })}
+
+        {/* More — opens drawer with full plan-gated list */}
+        <button onClick={() => setMobileOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+          <Menu className="w-5 h-5 text-white/40" />
+          <span className="text-[10px] font-semibold text-white/40">More</span>
+        </button>
+
+        {/* Logout */}
+        <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+          <LogOut className="w-5 h-5 text-red-400" />
+          <span className="text-[10px] font-semibold text-red-400">Logout</span>
+        </button>
       </nav>
 
       {/* ── MAIN CONTENT ── */}
       <main className="flex-1 md:ml-64 overflow-x-hidden overflow-y-auto"
-        style={{ background: t.bg, minHeight: "100vh" }}>
+        style={{ background: isDark ? "#0f1117" : "#f8fafc", minHeight: "100vh" }}>
         <div className="md:hidden" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         {children}
         <div className="md:hidden" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
