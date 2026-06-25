@@ -72,6 +72,8 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
   [TYPE_PRO]: [
     "landing",
     "profiles",
+    "appointments",
+    "leads",
     "analytics",
     "devices",
     "lostmode",

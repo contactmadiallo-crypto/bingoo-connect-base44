@@ -152,10 +152,12 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     </div>
   );
 
-  // Mobile bottom bar 4th slot: prefer appointments, fall back to analytics
+  // Mobile bottom bar 4th slot: prefer analytics for Pro individual; appointments for business verticals
+  // Order precedence: analytics > appointments > leads (analytics is always the dashboard primary)
   const fourthBottomItem =
-    navItems.find(i => i.id === "appointments") ||
     navItems.find(i => i.id === "analytics") ||
+    navItems.find(i => i.id === "appointments") ||
+    navItems.find(i => i.id === "connections") ||
     null;
 
   // Order: Landing → Profiles → 4th slot → Logout (More is a fixed button between Landing and Profiles)

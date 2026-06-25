@@ -210,6 +210,8 @@ function LinkRow({ fieldKey, label, placeholder, IconCmp, value, onChange, isDar
 }
 
 // ── LINKS PANEL ───────────────────────────────────────────────────────────
+// Each section uses LinkRow which is defined OUTSIDE to prevent remount on keystroke.
+// The `set` handler from ProfileWorkspace is stable (useCallback), so no focus loss.
 function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
   const [newLink, setNewLink] = useState({ label: "", url: "", enabled: true });
   const headText    = isDark ? "text-white" : "text-slate-900";
@@ -217,6 +219,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+  const sectionHead = `text-[10px] font-black uppercase tracking-[0.12em] px-1 mb-2 mt-5 first:mt-0 flex items-center gap-2 ${mutedText}`;
 
   const links = liveForm.custom_links || [];
   const addLink = () => {
@@ -227,38 +230,58 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
   const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
 
-  // Shared props object to keep LinkRow calls clean
   const rowProps = { isDark, panelBg, panelBorder, mutedText };
 
   return (
-    <div className="space-y-1">
-      <p className={`text-xs font-black uppercase tracking-widest mt-2 mb-2 ${mutedText}`}>Social</p>
+    <div className="space-y-2 pb-4">
+
+      {/* ── Contact ── */}
+      <p className={sectionHead}>
+        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
+        Contact
+        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
+      </p>
       <div className="space-y-2">
-        <LinkRow fieldKey="instagram_url"  label="Instagram"  placeholder="https://instagram.com/..."   IconCmp={Instagram} value={liveForm.instagram_url  || ""} onChange={set("instagram_url")}  {...rowProps} />
-        <LinkRow fieldKey="linkedin_url"   label="LinkedIn"   placeholder="https://linkedin.com/in/..."  IconCmp={Linkedin}  value={liveForm.linkedin_url   || ""} onChange={set("linkedin_url")}   {...rowProps} />
-        <LinkRow fieldKey="facebook_url"   label="Facebook"   placeholder="https://facebook.com/..."    IconCmp={Facebook}  value={liveForm.facebook_url   || ""} onChange={set("facebook_url")}   {...rowProps} />
+        <LinkRow fieldKey="phone"           label="Phone"           placeholder="+1 555 000 0000"   IconCmp={Phone}  value={liveForm.phone            || ""} onChange={set("phone")}            {...rowProps} />
+        <LinkRow fieldKey="whatsapp_number" label="WhatsApp"        placeholder="+1 555 000 0000"   IconCmp={Phone}  value={liveForm.whatsapp_number  || ""} onChange={set("whatsapp_number")}  {...rowProps} />
+        <LinkRow fieldKey="email"           label="Email"           placeholder="you@example.com"   IconCmp={Mail}   value={liveForm.email            || ""} onChange={set("email")}            {...rowProps} />
+        <LinkRow fieldKey="website"         label="Website"         placeholder="https://yoursite.com" IconCmp={Globe} value={liveForm.website         || ""} onChange={set("website")}          {...rowProps} />
+      </div>
+
+      {/* ── Social ── */}
+      <p className={sectionHead}>
+        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
+        Social
+        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
+      </p>
+      <div className="space-y-2">
+        <LinkRow fieldKey="instagram_url"  label="Instagram"  placeholder="https://instagram.com/..."    IconCmp={Instagram}  value={liveForm.instagram_url  || ""} onChange={set("instagram_url")}  {...rowProps} />
+        <LinkRow fieldKey="linkedin_url"   label="LinkedIn"   placeholder="https://linkedin.com/in/..."  IconCmp={Linkedin}   value={liveForm.linkedin_url   || ""} onChange={set("linkedin_url")}   {...rowProps} />
+        <LinkRow fieldKey="facebook_url"   label="Facebook"   placeholder="https://facebook.com/..."    IconCmp={Facebook}   value={liveForm.facebook_url   || ""} onChange={set("facebook_url")}   {...rowProps} />
         <LinkRow fieldKey="tiktok_url"     label="TikTok"     placeholder="https://tiktok.com/@..."     IconCmp={Smartphone} value={liveForm.tiktok_url    || ""} onChange={set("tiktok_url")}     {...rowProps} />
-        <LinkRow fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."    IconCmp={Youtube}   value={liveForm.youtube_url    || ""} onChange={set("youtube_url")}    {...rowProps} />
+        <LinkRow fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."    IconCmp={Youtube}    value={liveForm.youtube_url    || ""} onChange={set("youtube_url")}    {...rowProps} />
       </div>
 
-      <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>Contact</p>
+      {/* ── Payments ── */}
+      <p className={sectionHead}>
+        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
+        Payments
+        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
+      </p>
       <div className="space-y-2">
-        <LinkRow fieldKey="website"         label={t("website", lang)}  placeholder="https://yoursite.com"    IconCmp={Globe}  value={liveForm.website          || ""} onChange={set("website")}          {...rowProps} />
-        <LinkRow fieldKey="email"           label={t("email", lang)}    placeholder="you@example.com"         IconCmp={Mail}   value={liveForm.email            || ""} onChange={set("email")}            {...rowProps} />
-        <LinkRow fieldKey="phone"           label={t("phone", lang)}    placeholder="+1 555 000 0000"         IconCmp={Phone}  value={liveForm.phone            || ""} onChange={set("phone")}            {...rowProps} />
-        <LinkRow fieldKey="whatsapp_number" label={t("whatsapp", lang)} placeholder="+1 555 000 0000"         IconCmp={Phone}  value={liveForm.whatsapp_number  || ""} onChange={set("whatsapp_number")}  {...rowProps} />
-      </div>
-
-      <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>Payments</p>
-      <div className="space-y-2">
-        <LinkRow fieldKey="payment_link"     label="PayPal / Payment Link" placeholder="https://paypal.me/..."           IconCmp={CreditCard} value={liveForm.payment_link     || ""} onChange={set("payment_link")}     {...rowProps} />
+        <LinkRow fieldKey="payment_link"     label="PayPal / Payment Link" placeholder="https://paypal.me/..."            IconCmp={CreditCard} value={liveForm.payment_link     || ""} onChange={set("payment_link")}     {...rowProps} />
+        <LinkRow fieldKey="cashapp_link"     label="Cash App"              placeholder="https://cash.app/$..."            IconCmp={CreditCard} value={liveForm.cashapp_link     || ""} onChange={set("cashapp_link")}     {...rowProps} />
         <LinkRow fieldKey="zelle_link"       label="Zelle"                 placeholder="https://enroll.zellepay.com/..."  IconCmp={CreditCard} value={liveForm.zelle_link       || ""} onChange={set("zelle_link")}       {...rowProps} />
-        <LinkRow fieldKey="cashapp_link"     label="Cash App"              placeholder="https://cash.app/$..."           IconCmp={CreditCard} value={liveForm.cashapp_link     || ""} onChange={set("cashapp_link")}     {...rowProps} />
-        <LinkRow fieldKey="wave_link"        label="Wave"                  placeholder="https://wave.com/..."            IconCmp={CreditCard} value={liveForm.wave_link        || ""} onChange={set("wave_link")}        {...rowProps} />
-        <LinkRow fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                     IconCmp={CreditCard} value={liveForm.orangemoney_link || ""} onChange={set("orangemoney_link")} {...rowProps} />
+        <LinkRow fieldKey="wave_link"        label="Wave"                  placeholder="https://wave.com/..."             IconCmp={CreditCard} value={liveForm.wave_link        || ""} onChange={set("wave_link")}        {...rowProps} />
+        <LinkRow fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                      IconCmp={CreditCard} value={liveForm.orangemoney_link || ""} onChange={set("orangemoney_link")} {...rowProps} />
       </div>
 
-      <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>Booking</p>
+      {/* ── Booking ── */}
+      <p className={sectionHead}>
+        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
+        Booking
+        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
+      </p>
       <div className={`flex items-center justify-between p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
         <div>
           <p className={`text-sm font-semibold ${headText}`}>Booking / Contact Form</p>
@@ -266,36 +289,44 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         </div>
         <Toggle value={!!liveForm.booking_enabled} onChange={(v) => setVal("booking_enabled", v)} />
       </div>
-      <div className="mt-2">
-        <Label className={`text-xs font-semibold ${mutedText}`}>WhatsApp Booking Message</Label>
+      <div>
+        <Label className={`text-xs font-semibold ${mutedText} block mb-1`}>WhatsApp Booking Message</Label>
         <input
           type="text"
-          className={`mt-1 w-full px-3 py-2 rounded-xl text-sm border ${inputCls}`}
+          className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${inputCls}`}
           value={liveForm.whatsapp_booking_message || ""}
           onChange={set("whatsapp_booking_message")}
-          placeholder="Hi, I'd like to book..."
+          placeholder="Hi, I'd like to book an appointment..."
         />
       </div>
 
-      <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>Custom Links</p>
+      {/* ── Custom Links ── */}
+      <p className={sectionHead}>
+        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
+        Custom Links
+        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
+      </p>
       <div className={`p-3 rounded-xl border ${panelBorder} ${panelBg} space-y-2`}>
+        <p className={`text-[11px] font-semibold ${mutedText}`}>Add a link with a custom label</p>
         <div className="flex gap-2">
           <input
             type="text"
-            className={`flex-1 px-3 py-2 rounded-xl text-xs border ${inputCls}`}
-            placeholder="Label"
+            className={`flex-1 min-w-0 px-3 py-2 rounded-xl text-xs border outline-none ${inputCls}`}
+            placeholder="Label (e.g. Book Now)"
             value={newLink.label}
             onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))}
           />
           <input
             type="text"
-            className={`flex-1 px-3 py-2 rounded-xl text-xs border ${inputCls}`}
+            className={`flex-1 min-w-0 px-3 py-2 rounded-xl text-xs border outline-none ${inputCls}`}
             placeholder="https://..."
             value={newLink.url}
             onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))}
           />
-          <button type="button" onClick={addLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#0B2E6B" }}>
-            <Plus className="w-3.5 h-3.5" /> {t("add", lang)}
+          <button type="button" onClick={addLink}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0"
+            style={{ background: "#0B2E6B" }}>
+            <Plus className="w-3.5 h-3.5" /> Add
           </button>
         </div>
       </div>
@@ -303,22 +334,26 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
           <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
             {links.map((link, idx) => (
-              <div key={link.id || idx} className={`flex items-center gap-3 px-4 py-3 ${!link.enabled ? "opacity-50" : ""}`}>
-                <GripVertical className={`w-4 h-4 flex-shrink-0 ${mutedText}`} />
+              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-4 py-3 ${!link.enabled ? "opacity-50" : ""}`}>
+                <GripVertical className={`w-4 h-4 flex-shrink-0 ${mutedText} cursor-grab`} />
                 <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm ${headText}`}>{link.label}</p>
+                  <p className={`font-semibold text-sm truncate ${headText}`}>{link.label}</p>
                   <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
                 </div>
-                <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
-                <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {link.enabled && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                  <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
+                  <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
-      <div className="pt-2 flex items-center gap-4">
+
+      <div className="pt-3 flex items-center gap-4">
         <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>

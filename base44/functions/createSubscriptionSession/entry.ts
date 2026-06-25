@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { plan, currency, amount_cents, stripe_price_id, display_currency } = body;
+    const { plan, currency, amount_cents, stripe_price_id, display_currency, trial_days, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
 
     if (!plan || !PLAN_MAP[plan]) {
       return Response.json({ error: 'Invalid plan: ' + plan }, { status: 400 });
@@ -91,8 +91,8 @@ Deno.serve(async (req) => {
       payment_method_types: ['card'],
       mode: 'subscription',
       line_items: lineItems,
-      success_url: `${APP_URL}/plans?success=1&plan=${plan}`,
-      cancel_url: `${APP_URL}/plans?canceled=1`,
+      success_url: bodySuccessUrl || `${APP_URL}/plans?success=1&plan=${plan}`,
+      cancel_url: bodyCancelUrl || `${APP_URL}/plans?canceled=1`,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_id: user.id,
@@ -107,6 +107,11 @@ Deno.serve(async (req) => {
       sessionParams.customer = customerId;
     } else {
       sessionParams.customer_email = user.email;
+    }
+
+    // Add trial period if requested
+    if (trial_days && Number(trial_days) > 0) {
+      sessionParams.subscription_data = { trial_period_days: Number(trial_days) };
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);

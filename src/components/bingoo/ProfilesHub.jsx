@@ -1,21 +1,26 @@
 import React, { useState } from "react";
-import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, ExternalLink, MoreHorizontal, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { getEffectiveProfilePlan, PLAN_LABELS } from "@/lib/planPermissions";
+import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
+import { base44 } from "@/api/base44Client";
 
 export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, onSelectProfile, onCreateNew, onLaunchAI }) {
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
+  const [trialLoading, setTrialLoading] = useState(false);
 
-  const headText = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const subText = isDark ? "text-white/60" : "text-slate-600";
-  const cardBg = isDark ? "bg-white/[0.05]" : "bg-white";
+  const headText  = isDark ? "text-white"       : "text-slate-900";
+  const mutedText = isDark ? "text-white/40"    : "text-slate-400";
+  const subText   = isDark ? "text-white/60"    : "text-slate-600";
+  const cardBg    = isDark ? "bg-white/[0.05]"  : "bg-white";
   const cardBorder = isDark ? "border-white/[0.08]" : "border-slate-200/80";
   const cardShadow = isDark
     ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.3)"
     : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)";
+
+  // Effective account plan — used for entitlement decisions
+  const isFree = !accountPlan || accountPlan === "free";
+  const hasReachedFreeLimit = isFree && profiles.length >= 1;
 
   const copyLink = (profile) => {
     const url = `${window.location.origin}/p/${profile.username}`;
@@ -28,18 +33,44 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
     `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/p/${profile.username}?source=qr`)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
 
   const planColors = {
-    free: { bg: isDark ? "rgba(100,116,139,0.15)" : "#f1f5f9", text: isDark ? "#94a3b8" : "#64748b" },
-    pro: { bg: isDark ? "rgba(139,92,246,0.15)" : "#f5f3ff", text: isDark ? "#a78bfa" : "#7c3aed" },
-    professional: { bg: isDark ? "rgba(139,92,246,0.15)" : "#f5f3ff", text: isDark ? "#a78bfa" : "#7c3aed" },
-    salon: { bg: isDark ? "rgba(236,72,153,0.15)" : "#fdf2f8", text: isDark ? "#f472b6" : "#db2777" },
-    restaurant: { bg: isDark ? "rgba(249,115,22,0.15)" : "#fff7ed", text: isDark ? "#fb923c" : "#ea580c" },
-    lawfirm: { bg: isDark ? "rgba(30,58,138,0.25)" : "#eff6ff", text: isDark ? "#93c5fd" : "#1d4ed8" },
-    business: { bg: isDark ? "rgba(16,185,129,0.15)" : "#ecfdf5", text: isDark ? "#34d399" : "#059669" },
-    corporate: { bg: isDark ? "rgba(251,191,36,0.15)" : "#fffbeb", text: isDark ? "#fbbf24" : "#d97706" },
+    free:         { bg: isDark ? "rgba(100,116,139,0.15)" : "#f1f5f9",      text: isDark ? "#94a3b8" : "#64748b" },
+    professional: { bg: isDark ? "rgba(37,99,235,0.18)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#2563eb" },
+    pro:          { bg: isDark ? "rgba(37,99,235,0.18)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#2563eb" },
+    salon:        { bg: isDark ? "rgba(236,72,153,0.15)" : "#fdf2f8",       text: isDark ? "#f472b6" : "#db2777" },
+    restaurant:   { bg: isDark ? "rgba(249,115,22,0.15)" : "#fff7ed",       text: isDark ? "#fb923c" : "#ea580c" },
+    lawfirm:      { bg: isDark ? "rgba(30,58,138,0.25)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#1d4ed8" },
+    business:     { bg: isDark ? "rgba(16,185,129,0.15)" : "#ecfdf5",       text: isDark ? "#34d399" : "#059669" },
+    corporate:    { bg: isDark ? "rgba(251,191,36,0.15)" : "#fffbeb",       text: isDark ? "#fbbf24" : "#d97706" },
   };
 
-  const normPlan = (p) => { if (!p) return 'free'; if (p === 'pro') return 'professional'; return p; };
+  const normPlan = (p) => { if (!p) return "free"; if (p === "pro") return "professional"; return p; };
   const getPlanStyle = (plan) => planColors[normPlan(plan)] || planColors.free;
+
+  // Start 14-day Professional trial
+  const startTrial = async () => {
+    if (trialLoading) return;
+    // Check for iframe (checkout blocked in iframe)
+    if (window.self !== window.top) {
+      alert("Checkout is only available from the published app. Please open bingooconnect.com to subscribe.");
+      return;
+    }
+    setTrialLoading(true);
+    try {
+      const resp = await base44.functions.invoke("createSubscriptionSession", {
+        plan: "professional",
+        trial_days: 14,
+        success_url: `${window.location.origin}/bingoo`,
+        cancel_url: `${window.location.origin}/bingoo`,
+      });
+      if (resp?.data?.url) {
+        window.location.href = resp.data.url;
+      }
+    } catch (e) {
+      console.error("Trial checkout error:", e);
+    } finally {
+      setTrialLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -59,11 +90,14 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
             }}>
             <Zap className="w-3.5 h-3.5" /> AI Builder
           </button>
-          <button onClick={onCreateNew}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all"
-            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 12px rgba(255,122,0,0.3)" }}>
-            <Plus className="w-3.5 h-3.5" /> New Profile
-          </button>
+          {/* New Profile button — locked for free users who already have a profile */}
+          {!hasReachedFreeLimit && (
+            <button onClick={onCreateNew}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all"
+              style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 12px rgba(255,122,0,0.3)" }}>
+              <Plus className="w-3.5 h-3.5" /> New Profile
+            </button>
+          )}
         </div>
       </div>
 
@@ -73,41 +107,60 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
           {profiles.map(profile => {
             const effectivePlan = getEffectiveProfilePlan(accountPlan, profile);
             const planStyle = getPlanStyle(effectivePlan);
-            const planLabel = PLAN_LABELS[effectivePlan] || 'Free';
+            const planLabel = PLAN_LABELS[effectivePlan] || "Free";
             const profileUrl = `${window.location.origin}/p/${profile.username}`;
             return (
               <div key={profile.id}
-                className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden cursor-pointer group transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
+                className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
                 style={{ boxShadow: cardShadow }}>
 
-                {/* ── Cover band — purely decorative, no content inside ── */}
-                <div className="h-16 relative flex-shrink-0"
-                  style={{
-                    background: profile.cover_photo
-                      ? `url(${profile.cover_photo}) center/cover no-repeat`
-                      : `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}99 100%)`,
-                  }}>
-                  {/* Subtle gloss */}
-                  <div className="absolute inset-0 opacity-15"
-                    style={{ background: "radial-gradient(circle at 75% 25%, white, transparent 65%)" }} />
+                {/* ── Cover — full-width top layer with proper aspect ratio ── */}
+                <div className="w-full relative overflow-hidden" style={{ height: "96px" }}>
+                  {profile.cover_photo ? (
+                    <img
+                      src={profile.cover_photo}
+                      alt=""
+                      className="absolute inset-0 w-full h-full"
+                      style={{ objectFit: "cover", objectPosition: "center" }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0"
+                      style={{
+                        background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)`,
+                      }} />
+                  )}
+                  {/* subtle gloss overlay */}
+                  <div className="absolute inset-0 opacity-20"
+                    style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 65%)" }} />
                 </div>
 
-                {/* ── Card body — avatar overlaps cover, all text is below ── */}
-                <div className="px-4 pt-0 pb-4">
-                  {/* Avatar row: overlaps cover by 50% of its height (24px = half of h-12) */}
+                {/* ── Card body — avatar overlaps cover ── */}
+                <div className="px-4 pb-4">
+                  {/* Avatar row: -mt-6 = half of w-12 (h-12=48px → -24px = -6 in tailwind units) */}
                   <div className="flex items-end justify-between -mt-6 mb-3">
                     <div className="flex-shrink-0">
-                      {profile.profile_photo
-                        ? <img src={profile.profile_photo} alt=""
-                            className="w-12 h-12 rounded-2xl shadow-lg flex-shrink-0"
-                            style={{ objectFit: 'cover', objectPosition: 'center top', border: isDark ? "3px solid #13162a" : "3px solid white" }} />
-                        : <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg flex-shrink-0"
-                            style={{ background: profile.cover_color || "#2563eb", border: isDark ? "3px solid #13162a" : "3px solid white" }}>
-                            {profile.display_name?.charAt(0) || "?"}
-                          </div>
-                      }
+                      {profile.profile_photo ? (
+                        <img
+                          src={profile.profile_photo}
+                          alt=""
+                          className="w-12 h-12 rounded-2xl shadow-lg"
+                          style={{
+                            objectFit: "cover",
+                            objectPosition: "center top",
+                            border: isDark ? "3px solid #13162a" : "3px solid white",
+                          }}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg"
+                          style={{
+                            background: profile.cover_color || "#2563eb",
+                            border: isDark ? "3px solid #13162a" : "3px solid white",
+                          }}>
+                          {profile.display_name?.charAt(0) || "?"}
+                        </div>
+                      )}
                     </div>
-                    {/* Plan badge — top-right of card body, never inside cover */}
+                    {/* Plan badge + Live badge */}
                     <div className="flex items-center gap-2 pb-0.5">
                       {profile.is_active && (
                         <span className="flex items-center gap-1">
@@ -122,7 +175,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                     </div>
                   </div>
 
-                  {/* Name + username — clearly below avatar */}
+                  {/* Name + username */}
                   <div className="mb-1">
                     <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
                     <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
@@ -148,7 +201,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.07)",
                         borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(59,130,246,0.2)",
-                        color: isDark ? "#93c5fd" : "#2563eb"
+                        color: isDark ? "#93c5fd" : "#2563eb",
                       }}>
                       <Eye className="w-3.5 h-3.5" />
                     </a>
@@ -158,7 +211,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(99,102,241,0.07)",
                         borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(99,102,241,0.2)",
-                        color: isDark ? "#a78bfa" : "#6366f1"
+                        color: isDark ? "#a78bfa" : "#6366f1",
                       }}>
                       <QrCode className="w-3.5 h-3.5" />
                     </button>
@@ -168,7 +221,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(16,185,129,0.07)",
                         borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(16,185,129,0.2)",
-                        color: isDark ? "#34d399" : "#059669"
+                        color: isDark ? "#34d399" : "#059669",
                       }}>
                       {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
@@ -186,24 +239,53 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
             );
           })}
 
-          {/* Create New Card */}
-          <button onClick={onCreateNew}
-            className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center transition-all hover:scale-[1.01] ${
-              isDark ? "border-white/12 hover:border-white/20 hover:bg-white/[0.03]" : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
-            }`}
-            style={{ minHeight: "180px" }}>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: isDark ? "rgba(255,122,0,0.12)" : "rgba(255,122,0,0.08)", border: "1px solid rgba(255,122,0,0.2)" }}>
-              <Plus className="w-6 h-6" style={{ color: "#FF7A00" }} />
+          {/* ── New Profile card — locked for free users at 1 profile ── */}
+          {hasReachedFreeLimit ? (
+            /* Locked upgrade card */
+            <div className={`border-2 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center ${isDark ? "border-amber-400/25 bg-amber-400/5" : "border-amber-300/60 bg-amber-50/60"}`}
+              style={{ minHeight: "220px" }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: isDark ? "rgba(251,191,36,0.15)" : "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.35)" }}>
+                <Lock className="w-6 h-6 text-amber-500" />
+              </div>
+              <div>
+                <p className={`font-black text-sm ${headText}`}>Try Professional free for 14 days</p>
+                <p className={`text-xs mt-1.5 leading-relaxed ${mutedText}`}>
+                  Create more profiles, unlock leads, appointments, analytics, NFC tools, resume, portfolio, and premium layouts.
+                </p>
+              </div>
+              <div className="w-full space-y-2">
+                <button
+                  onClick={startTrial}
+                  disabled={trialLoading}
+                  className="w-full py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
+                  style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 12px rgba(255,122,0,0.3)" }}>
+                  <Star className="w-4 h-4" />
+                  {trialLoading ? "Loading…" : "Start Free 14-Day Trial"}
+                </button>
+                <p className={`text-[10px] ${mutedText}`}>$4.99/mo after trial · cancel anytime</p>
+              </div>
             </div>
-            <div>
-              <p className={`font-bold text-sm ${headText}`}>New Profile</p>
-              <p className={`text-xs mt-0.5 ${mutedText}`}>Add another digital card</p>
-            </div>
-          </button>
+          ) : (
+            /* Normal new profile card */
+            <button onClick={onCreateNew}
+              className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center transition-all hover:scale-[1.01] ${
+                isDark ? "border-white/12 hover:border-white/20 hover:bg-white/[0.03]" : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
+              }`}
+              style={{ minHeight: "180px" }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                style={{ background: isDark ? "rgba(255,122,0,0.12)" : "rgba(255,122,0,0.08)", border: "1px solid rgba(255,122,0,0.2)" }}>
+                <Plus className="w-6 h-6" style={{ color: "#FF7A00" }} />
+              </div>
+              <div>
+                <p className={`font-bold text-sm ${headText}`}>New Profile</p>
+                <p className={`text-xs mt-0.5 ${mutedText}`}>Add another digital card</p>
+              </div>
+            </button>
+          )}
         </div>
       ) : (
-        /* Empty state */
+        /* Empty state — first profile creation always allowed */
         <div className={`rounded-2xl border-2 border-dashed text-center p-10 ${isDark ? "border-white/12" : "border-slate-200"}`}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
             style={{ background: isDark ? "rgba(11,46,107,0.3)" : "rgba(11,46,107,0.06)", border: "1px solid rgba(11,46,107,0.15)" }}>
@@ -222,22 +304,6 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
               <Plus className="w-4 h-4" /> Manual Setup
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Upgrade nudge — only shown when account subscription is free */}
-      {profiles.length >= 1 && (!accountPlan || accountPlan === "free") && (
-        <div className="rounded-2xl p-4 flex items-center gap-4"
-          style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", border: "1px solid rgba(255,122,0,0.2)" }}>
-          <div className="flex-1">
-            <p className="text-sm font-black text-white">Unlock advanced features</p>
-            <p className="text-xs text-white/55 mt-0.5">Leads, appointments, analytics & more with a Pro or Business plan.</p>
-          </div>
-          <Link to="/plans" className="flex-shrink-0">
-            <button className="text-xs font-bold px-4 py-2 rounded-xl text-white" style={{ background: "#FF7A00" }}>
-              Upgrade
-            </button>
-          </Link>
         </div>
       )}
     </div>
