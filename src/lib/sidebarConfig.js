@@ -20,8 +20,9 @@
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
   Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
-  ClipboardList, Link2, CreditCard, HeadphonesIcon, FileText, Image,
+  ClipboardList, Link2, CreditCard, HeadphonesIcon, FileText, Image, Home,
 } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 // ── Normalized profile type constants ────────────────────────────────────────
 export const TYPE_FREE       = "free_individual";
@@ -62,12 +63,14 @@ export function normalizeProfileType(profile) {
 // ── Sidebar item ids visible per type ────────────────────────────────────────
 export const SIDEBAR_ITEMS_BY_TYPE = {
   [TYPE_FREE]: [
+    "landing",
     "profiles",
     "connections",
     "billing",
     "support",
   ],
   [TYPE_PRO]: [
+    "landing",
     "profiles",
     "analytics",
     "devices",
@@ -79,6 +82,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "support",
   ],
   [TYPE_BUSINESS]: [
+    "landing",
     "profiles",
     "appointments",
     "leads",
@@ -93,6 +97,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "support",
   ],
   [TYPE_SALON]: [
+    "landing",
     "profiles",
     "appointments",
     "leads",
@@ -107,6 +112,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "support",
   ],
   [TYPE_LAWFIRM]: [
+    "landing",
     "profiles",
     "appointments",
     "leads",
@@ -123,6 +129,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "support",
   ],
   [TYPE_CORPORATE]: [
+    "landing",
     "profiles",
     "appointments",
     "leads",
@@ -139,6 +146,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
 };
 
 export const ADMIN_SIDEBAR_ITEMS = [
+  "landing",
   "profiles",
   "appointments",
   "leads",
@@ -162,6 +170,11 @@ export const ADMIN_SIDEBAR_ITEMS = [
 
 // ── Full item definitions ─────────────────────────────────────────────────────
 export const SIDEBAR_NAV_MAP = {
+  landing: {
+    id: "landing", label: "Landing Page", labelFr: "Page d'accueil",
+    icon: Home, href: "/",
+    iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",
+  },
   profiles: {
     id: "profiles", label: "Profiles", labelFr: "Profils",
     icon: User, href: "/bingoo",

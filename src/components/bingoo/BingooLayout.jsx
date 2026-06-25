@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
+import { t } from "@/lib/i18n";
 
 /**
  * BingooLayout
@@ -124,7 +125,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
             </div>
             <span className="group-hover:text-white transition-colors"
               style={{ color: location.pathname === "/admin" ? "#fff" : "rgba(255,255,255,0.60)" }}>
-              Admin Panel
+              {t("admin_panel", lang)}
             </span>
             {location.pathname === "/admin" && (
               <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0 bg-red-400" />

@@ -373,6 +373,7 @@ export default function BingooDashboard() {
                   isDark={isDark}
                   isLawFirm={isLawFirm}
                   isSalon={isSalon}
+                  lang={lang}
                 />
               )}
             </>

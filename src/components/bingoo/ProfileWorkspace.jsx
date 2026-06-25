@@ -5,27 +5,38 @@ import {
   ChevronLeft, Eye, QrCode, Copy, Check, Download, Info, Link2,
   Palette, Share2, Settings, ExternalLink, Plus, Trash2, GripVertical,
   Save, Shield, AlertTriangle, Globe, Mail, Phone, Instagram, Linkedin,
-  Facebook, Youtube, Smartphone, CreditCard, Wifi, AlertOctagon, MapPin
+  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import DesignTab from "@/components/bingoo/DesignTab";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
+import { t, getLang } from "@/lib/i18n";
 
-const INNER_TABS = [
-  { id: "info",      label: "Info",       icon: Info },
-  { id: "links",     label: "Links",      icon: Link2 },
-  { id: "design",    label: "Design",     icon: Palette },
-  { id: "share",     label: "Share",      icon: Share2 },
-  { id: "lostmode",  label: "Lost Mode",  icon: AlertOctagon },
-  { id: "settings",  label: "Settings",   icon: Settings },
+// Only these fields are sent to the backend — no system fields (id, created_date, etc.)
+const EDITABLE_FIELDS = [
+  "display_name", "job_title", "company_name", "location", "phone",
+  "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
+  "profile_photo", "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
+  "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
+  "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links",
+  "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
 ];
+
+function buildPayload(liveForm) {
+  const payload = {};
+  for (const key of EDITABLE_FIELDS) {
+    if (liveForm[key] !== undefined) {
+      payload[key] = liveForm[key];
+    }
+  }
+  return payload;
+}
 
 const COVER_COLORS = [
   "#2563eb","#0B2E6B","#1a4a9e","#7c3aed",
@@ -40,23 +51,32 @@ const Toggle = ({ value, onChange }) => (
   </button>
 );
 
-// ─── SaveBtn — standalone stable component ────────────────────────────────
-function SaveBtn({ onSave, isPending, label = "Save" }) {
+// ── Save status line ──────────────────────────────────────────────────────
+function SaveStatus({ status, time, error, lang }) {
+  if (!status) return null;
+  if (status === "pending") return <p className="text-xs text-slate-400 mt-1">{t("saving", lang)}</p>;
+  if (status === "success") return <p className="text-xs text-emerald-600 mt-1">{t("saved_at", lang)} {time}</p>;
+  if (status === "error") return <p className="text-xs text-red-500 mt-1">{t("save_failed", lang)}: {error}</p>;
+  return null;
+}
+
+// ── SaveBtn ───────────────────────────────────────────────────────────────
+function SaveBtn({ onSave, isPending, label }) {
   return (
     <Button type="button" onClick={onSave} disabled={isPending}
       className="rounded-xl font-bold text-white px-8" style={{ background: "#FF7A00" }}>
-      {isPending ? "Saving…" : <><Save className="w-4 h-4 mr-1.5" />{label}</>}
+      {isPending ? <><Save className="w-4 h-4 mr-1.5 animate-pulse" />{label}…</> : <><Save className="w-4 h-4 mr-1.5" />{label}</>}
     </Button>
   );
 }
 
-// ─── INFO PANEL ───────────────────────────────────────────────────────────
-function InfoPanel({ liveForm, setVal, set, onSave, isPending, isDark, profile }) {
-  const headText  = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+// ── INFO PANEL ────────────────────────────────────────────────────────────
+function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, profile, lang }) {
+  const headText    = isDark ? "text-white" : "text-slate-900";
+  const mutedText   = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
-  const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+  const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
     <div className="space-y-5">
@@ -70,7 +90,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, isDark, profile }
           }}>
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
             <label className="cursor-pointer opacity-0 group-hover:opacity-100 transition-all bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
-              Change Cover
+              {t("change_cover", lang)}
               <input type="file" accept="image/*" className="hidden" onChange={async e => {
                 const file = e.target.files[0]; if (!file) return;
                 const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -88,7 +108,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, isDark, profile }
         </div>
 
         <div className="px-5 pb-5 pt-2">
-          {/* Avatar */}
           <div className="flex items-end gap-4 -mt-10 mb-5">
             <div className="relative flex-shrink-0">
               {liveForm.profile_photo
@@ -114,60 +133,62 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, isDark, profile }
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Display Name *</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("display_name", lang)} *</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.display_name || ""} onChange={set("display_name")} placeholder="Your Name" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Job Title</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("job_title", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.job_title || ""} onChange={set("job_title")} placeholder="CEO / Consultant" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Company</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("company", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.company_name || ""} onChange={set("company_name")} placeholder="Company Name" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Location</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("location", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.location || ""} onChange={set("location")} placeholder="City, State" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Phone</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("phone", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.phone || ""} onChange={set("phone")} placeholder="+1 555 000 0000" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>WhatsApp</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("whatsapp", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.whatsapp_number || ""} onChange={set("whatsapp_number")} placeholder="+1 555 000 0000" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Email</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("email", lang)}</Label>
               <Input type="email" className={`mt-1 ${inputCls}`} value={liveForm.email || ""} onChange={set("email")} placeholder="you@example.com" />
             </div>
             <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>Website</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("website", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.website || ""} onChange={set("website")} placeholder="https://yoursite.com" />
             </div>
             <div className="sm:col-span-2">
-              <Label className={`text-xs font-semibold ${mutedText}`}>Bio</Label>
+              <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
               <Textarea className={`mt-1 ${inputCls}`} rows={3} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
             </div>
           </div>
         </div>
       </div>
-      <SaveBtn onSave={onSave} isPending={isPending} label="Save Info" />
+      <div className="flex items-center gap-4">
+        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_info", lang)} />
+        <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
+      </div>
     </div>
   );
 }
 
-// ─── LINKS PANEL ──────────────────────────────────────────────────────────
-function LinksPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
+// ── LINKS PANEL ───────────────────────────────────────────────────────────
+function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
   const [newLink, setNewLink] = useState({ label: "", url: "", enabled: true });
-  const headText  = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+  const headText    = isDark ? "text-white" : "text-slate-900";
+  const mutedText   = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
-  const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+  const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   const links = liveForm.custom_links || [];
-
   const addLink = () => {
     if (!newLink.label || !newLink.url) return;
     setVal("custom_links", [...links, { ...newLink, id: Date.now().toString() }]);
@@ -206,24 +227,21 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
         <LinkField fieldKey="tiktok_url"     label="TikTok"     placeholder="https://tiktok.com/@..."    icon={Smartphone} />
         <LinkField fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."   icon={Youtube} />
       </div>
-
       <SectionHead title="Contact" />
       <div className="space-y-2">
-        <LinkField fieldKey="website"         label="Website"    placeholder="https://yoursite.com"   icon={Globe} />
-        <LinkField fieldKey="email"           label="Email"      placeholder="you@example.com"        icon={Mail} />
-        <LinkField fieldKey="phone"           label="Phone"      placeholder="+1 555 000 0000"        icon={Phone} />
-        <LinkField fieldKey="whatsapp_number" label="WhatsApp"   placeholder="+1 555 000 0000"        icon={Phone} />
+        <LinkField fieldKey="website"         label={t("website", lang)}  placeholder="https://yoursite.com"   icon={Globe} />
+        <LinkField fieldKey="email"           label={t("email", lang)}    placeholder="you@example.com"        icon={Mail} />
+        <LinkField fieldKey="phone"           label={t("phone", lang)}    placeholder="+1 555 000 0000"        icon={Phone} />
+        <LinkField fieldKey="whatsapp_number" label={t("whatsapp", lang)} placeholder="+1 555 000 0000"        icon={Phone} />
       </div>
-
       <SectionHead title="Payments" />
       <div className="space-y-2">
-        <LinkField fieldKey="payment_link"    label="PayPal / Payment Link"  placeholder="https://paypal.me/..."            icon={CreditCard} />
-        <LinkField fieldKey="zelle_link"      label="Zelle"                  placeholder="https://enroll.zellepay.com/..."   icon={CreditCard} />
-        <LinkField fieldKey="cashapp_link"    label="Cash App"               placeholder="https://cash.app/$..."             icon={CreditCard} />
-        <LinkField fieldKey="wave_link"       label="Wave"                   placeholder="https://wave.com/..."              icon={CreditCard} />
-        <LinkField fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                       icon={CreditCard} />
+        <LinkField fieldKey="payment_link"     label="PayPal / Payment Link" placeholder="https://paypal.me/..."          icon={CreditCard} />
+        <LinkField fieldKey="zelle_link"       label="Zelle"                 placeholder="https://enroll.zellepay.com/..." icon={CreditCard} />
+        <LinkField fieldKey="cashapp_link"     label="Cash App"              placeholder="https://cash.app/$..."          icon={CreditCard} />
+        <LinkField fieldKey="wave_link"        label="Wave"                  placeholder="https://wave.com/..."           icon={CreditCard} />
+        <LinkField fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                    icon={CreditCard} />
       </div>
-
       <SectionHead title="Booking" />
       <div className={`flex items-center justify-between p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
         <div>
@@ -236,22 +254,16 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
         <Label className={`text-xs font-semibold ${mutedText}`}>WhatsApp Booking Message</Label>
         <Input className={`mt-1 ${inputCls}`} value={liveForm.whatsapp_booking_message || ""} onChange={set("whatsapp_booking_message")} placeholder="Hi, I'd like to book..." />
       </div>
-
       <SectionHead title="Custom Links" />
       <div className={`p-3 rounded-xl border ${panelBorder} ${panelBg} space-y-2`}>
         <div className="flex gap-2">
-          <Input className={`flex-1 ${inputCls}`} placeholder="Label" value={newLink.label}
-            onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))} />
-          <Input className={`flex-1 ${inputCls}`} placeholder="https://..." value={newLink.url}
-            onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))} />
-          <button type="button" onClick={addLink}
-            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white"
-            style={{ background: "#0B2E6B" }}>
+          <Input className={`flex-1 ${inputCls}`} placeholder="Label" value={newLink.label} onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))} />
+          <Input className={`flex-1 ${inputCls}`} placeholder="https://..." value={newLink.url} onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))} />
+          <button type="button" onClick={addLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white" style={{ background: "#0B2E6B" }}>
             <Plus className="w-3.5 h-3.5" /> Add
           </button>
         </div>
       </div>
-
       {links.length > 0 && (
         <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
           <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
@@ -271,16 +283,16 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
           </div>
         </div>
       )}
-
-      <div className="pt-2">
-        <SaveBtn onSave={onSave} isPending={isPending} label="Save Links" />
+      <div className="pt-2 flex items-center gap-4">
+        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
+        <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
     </div>
   );
 }
 
-// ─── DESIGN PANEL ─────────────────────────────────────────────────────────
-function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, profile, user }) {
+// ── DESIGN PANEL ──────────────────────────────────────────────────────────
+function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang }) {
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const headText  = isDark ? "text-white" : "text-slate-900";
 
@@ -288,7 +300,7 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, pr
     <div className="space-y-5">
       <div className={`rounded-2xl border ${isDark ? "border-white/8 bg-[#13162a]" : "border-slate-200 bg-white"} p-5 space-y-5`}>
         <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Accent Color</Label>
+          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("accent_color", lang)}</Label>
           <div className="flex gap-2 flex-wrap">
             {COVER_COLORS.map(c => (
               <button type="button" key={c} onClick={() => setVal("cover_color", c)}
@@ -297,15 +309,14 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, pr
             ))}
           </div>
         </div>
-
         <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Background Style</Label>
+          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("bg_style", lang)}</Label>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { v: "clean",    label: "Clean White",  desc: "Simple & neutral" },
-              { v: "gradient", label: "Soft Gradient", desc: "Colour wash" },
-              { v: "mesh",     label: "Mesh",          desc: "Dual-tone blend" },
-              { v: "night",    label: "Night",         desc: "Dark atmosphere" },
+              { v: "clean",    label: "Clean White",   desc: "Simple & neutral" },
+              { v: "gradient", label: "Soft Gradient",  desc: "Colour wash" },
+              { v: "mesh",     label: "Mesh",           desc: "Dual-tone blend" },
+              { v: "night",    label: "Night",          desc: "Dark atmosphere" },
             ].map(o => (
               <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
                 className={`flex flex-col p-3 rounded-xl border-2 text-left transition-all ${liveForm.bg_style === o.v ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`}`}>
@@ -315,9 +326,8 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, pr
             ))}
           </div>
         </div>
-
         <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Button Style</Label>
+          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("button_style", lang)}</Label>
           <div className="flex gap-2">
             {[{ v: "pill", label: "Pill" }, { v: "rounded", label: "Rounded" }, { v: "sharp", label: "Sharp" }].map(o => (
               <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
@@ -328,26 +338,27 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, pr
             ))}
           </div>
         </div>
-
         <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Profile Layout</Label>
+          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("profile_layout", lang)}</Label>
           <LayoutPicker value={liveForm.layout || "classic"} onChange={v => setVal("layout", v)}
             color={liveForm.cover_color} plan={userPlan || profile?.plan || "free"}
             isAdmin={user?.role === "admin"} />
         </div>
       </div>
-      <SaveBtn onSave={onSave} isPending={isPending} label="Save Design" />
+      <div className="flex items-center gap-4">
+        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_design", lang)} />
+        <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
+      </div>
     </div>
   );
 }
 
-// ─── SHARE PANEL ──────────────────────────────────────────────────────────
-function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDownloadQR, profile }) {
-  const headText  = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+// ── SHARE PANEL ───────────────────────────────────────────────────────────
+function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDownloadQR, lang }) {
+  const headText    = isDark ? "text-white" : "text-slate-900";
+  const mutedText   = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
-
   const qrPreviewUrl = profileQrUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileQrUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`
     : null;
@@ -355,7 +366,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
   return (
     <div className="space-y-4">
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
-        <p className={`font-bold text-sm ${headText} mb-3`}>Profile Link</p>
+        <p className={`font-bold text-sm ${headText} mb-3`}>{t("profile_link", lang)}</p>
         <div className="flex gap-2">
           <input readOnly value={profileUrl || ""}
             className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
@@ -363,7 +374,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
             style={{ background: copiedUrl ? "#059669" : "#0B2E6B" }}>
             {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedUrl ? "Copied!" : "Copy"}
+            {copiedUrl ? t("copied", lang) : t("copy_link", lang)}
           </button>
           {profileUrl && (
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
@@ -373,9 +384,8 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
           )}
         </div>
       </div>
-
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 text-center`}>
-        <p className={`font-bold text-sm ${headText} mb-4`}>QR Code</p>
+        <p className={`font-bold text-sm ${headText} mb-4`}>{t("qr_code", lang)}</p>
         {qrPreviewUrl ? (
           <>
             <div className={`inline-block p-4 rounded-2xl mb-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
@@ -383,7 +393,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
             </div>
             <p className={`text-xs mb-3 ${mutedText}`}>Scan to open your profile</p>
             <Button type="button" onClick={onDownloadQR} className="rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
-              <Download className="w-4 h-4" /> Download QR
+              <Download className="w-4 h-4" /> {t("download_qr", lang)}
             </Button>
           </>
         ) : (
@@ -394,7 +404,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
   );
 }
 
-// ─── LOST MODE PANEL ──────────────────────────────────────────────────────
+// ── LOST MODE PANEL ───────────────────────────────────────────────────────
 function LostModePanel({ profileId, user, isDark }) {
   return (
     <div className="space-y-4">
@@ -402,35 +412,29 @@ function LostModePanel({ profileId, user, isDark }) {
         <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-bold text-sm text-amber-800">Lost Mode</p>
-          <p className="text-xs text-amber-700 mt-0.5">Enable Lost Mode on your NFC device so finders can contact you. Your personal info stays protected.</p>
+          <p className="text-xs text-amber-700 mt-0.5">Enable Lost Mode on your NFC device so finders can contact you.</p>
         </div>
       </div>
-      <LostDeviceManager
-        profileId={profileId}
-        userId={user?.id}
-        isDark={isDark}
-        tr={(k) => k}
-        onSaved={() => {}}
-      />
+      <LostDeviceManager profileId={profileId} userId={user?.id} isDark={isDark} tr={(k) => k} onSaved={() => {}} />
     </div>
   );
 }
 
-// ─── SETTINGS PANEL ───────────────────────────────────────────────────────
-function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
-  const headText  = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+// ── SETTINGS PANEL ────────────────────────────────────────────────────────
+function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
+  const headText    = isDark ? "text-white" : "text-slate-900";
+  const mutedText   = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
-  const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+  const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
     <div className="space-y-4">
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
-        <p className={`font-bold text-sm ${headText}`}>Profile URL</p>
+        <p className={`font-bold text-sm ${headText}`}>{t("profile_url", lang)}</p>
         <div className="flex items-center gap-2">
           <span className={`text-xs px-3 py-2 rounded-xl ${isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-500"}`}>/p/</span>
-          <Input className={`${inputCls}`}
+          <Input className={inputCls}
             value={liveForm.username || ""}
             onChange={e => setVal("username", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
             placeholder="yourusername" />
@@ -438,10 +442,10 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
       </div>
 
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
-        <p className={`font-bold text-sm ${headText}`}>Visibility</p>
+        <p className={`font-bold text-sm ${headText}`}>{t("visibility", lang)}</p>
         {[
-          { key: "is_active",      label: "Profile is Live",   desc: "Publicly accessible at your profile URL" },
-          { key: "show_location",  label: "Show Location",     desc: "Display your city/address on the profile" },
+          { key: "is_active",     label: t("profile_is_live", lang), desc: "Publicly accessible at your profile URL" },
+          { key: "show_location", label: t("show_location", lang),   desc: "Display your city/address on the profile" },
         ].map(({ key, label, desc }) => (
           <div key={key} className="flex items-center justify-between">
             <div>
@@ -454,7 +458,7 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
       </div>
 
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
-        <p className={`font-bold text-sm ${headText}`}>Language & Region</p>
+        <p className={`font-bold text-sm ${headText}`}>{t("language_region", lang)}</p>
         <div className="flex gap-2">
           {[{ v: "en", label: "English" }, { v: "fr", label: "Français" }].map(o => (
             <button type="button" key={o.v}
@@ -478,7 +482,10 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
         </button>
       </div>
 
-      <SaveBtn onSave={onSave} isPending={isPending} label="Save Settings" />
+      <div className="flex items-center gap-4">
+        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_settings", lang)} />
+        <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
+      </div>
     </div>
   );
 }
@@ -486,40 +493,50 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
 // ─────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────
-export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon }) {
+export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon, lang: langProp }) {
   const qc = useQueryClient();
   const { plan: userPlan } = usePlan();
+
+  const lang = langProp || getLang();
+
+  const INNER_TABS = [
+    { id: "info",      label: t("info", lang),      icon: Info },
+    { id: "links",     label: t("links", lang),     icon: Link2 },
+    { id: "design",    label: t("design", lang),    icon: Palette },
+    { id: "share",     label: t("share", lang),     icon: Share2 },
+    { id: "lostmode",  label: t("lost_mode", lang), icon: AlertOctagon },
+    { id: "settings",  label: t("settings", lang),  icon: Settings },
+  ];
+
   const [innerTab, setInnerTab] = useState("info");
   const [liveForm, setLiveForm] = useState(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [saveStatus, setSaveStatus] = useState(null); // null | "pending" | "success" | "error"
+  const [saveTime, setSaveTime] = useState("");
+  const [saveError, setSaveError] = useState("");
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading, refetch: refetchProfile } = useQuery({
     queryKey: ["profile-ws", profileId],
     queryFn: () => base44.entities.Profile.get(profileId),
     enabled: !!profileId,
-    // Don't refetch while user is editing — staleTime prevents background refetches
-    staleTime: 30000,
+    staleTime: 60000,        // Don't background-refetch while user is editing
+    refetchOnWindowFocus: false,
   });
 
-  // Only seed liveForm when profileId changes (not on every re-render or background refetch)
+  // Seed liveForm only when the profile ID changes (not on every re-render)
   useEffect(() => {
     if (profile && profile.id === profileId) {
       setLiveForm({ ...profile });
+      setSaveStatus(null);
     }
-  }, [profile?.id]);
+  }, [profile?.id, profileId]);
 
-  const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
-  const profileQrUrl = profileUrl ? `${profileUrl}?source=qr` : null;
+  const profileUrl    = profile ? `${window.location.origin}/p/${profile.username}` : null;
+  const profileQrUrl  = profileUrl ? `${profileUrl}?source=qr` : null;
 
-  // Stable setter callbacks — won't cause child remounts
-  const set = useCallback(
-    (k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })),
-    []
-  );
-  const setVal = useCallback(
-    (k, v) => setLiveForm(f => ({ ...f, [k]: v })),
-    []
-  );
+  // Stable setters — won't cause child remounts
+  const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
+  const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
 
   const copyUrl = useCallback(() => {
     if (!profileUrl) return;
@@ -553,17 +570,31 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!profileId || !liveForm) throw new Error("No profile selected");
-      return base44.entities.Profile.update(profileId, liveForm);
+      if (!profileId || !liveForm) throw new Error("No profile loaded");
+      // Build clean payload — only editable fields, no system fields
+      const payload = buildPayload(liveForm);
+      return base44.entities.Profile.update(profileId, payload);
     },
-    onSuccess: (updatedProfile) => {
-      // Update cache with returned data so UI stays consistent
-      qc.setQueryData(["profile-ws", profileId], updatedProfile);
+    onMutate: () => {
+      setSaveStatus("pending");
+      setSaveError("");
+    },
+    onSuccess: async () => {
+      // Refetch to confirm the server actually persisted the change
+      await refetchProfile();
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      const now = new Date().toLocaleTimeString();
+      setSaveStatus("success");
+      setSaveTime(now);
       toast.success("Profile saved!");
+      // Clear success status after 5s
+      setTimeout(() => setSaveStatus(null), 5000);
     },
     onError: (err) => {
-      toast.error(err?.message || "Failed to save profile. Please try again.");
+      const msg = err?.message || "Unknown error";
+      setSaveStatus("error");
+      setSaveError(msg);
+      toast.error(`Save failed: ${msg}`);
     },
   });
 
@@ -583,16 +614,25 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     );
   }
 
+  const sharedSaveProps = {
+    onSave: handleSave,
+    isPending: saveMutation.isPending,
+    saveStatus,
+    saveTime,
+    saveError,
+    isDark,
+    lang,
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <button type="button" onClick={onBack}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-          <ChevronLeft className="w-4 h-4" /> Profiles
+          <ChevronLeft className="w-4 h-4" /> {t("back_profiles", lang)}
         </button>
 
-        {/* Profile chip */}
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
           {profile.profile_photo
             ? <img src={profile.profile_photo} className="w-9 h-9 rounded-xl object-cover shadow flex-shrink-0" alt="" />
@@ -608,55 +648,52 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </span>
         </div>
 
-        {/* Quick actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <a href={profileUrl} target="_blank" rel="noopener noreferrer"
             className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-            <Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Preview</span>
+            <Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{t("preview", lang)}</span>
           </a>
           <button type="button" onClick={copyUrl}
             className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
             {copiedUrl ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{copiedUrl ? "Copied" : "Copy Link"}</span>
+            <span className="hidden sm:inline">{copiedUrl ? t("copied", lang) : t("copy_link", lang)}</span>
           </button>
           <button type="button" onClick={() => setInnerTab("share")}
             className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl text-white hover:opacity-90 transition-all"
             style={{ background: "#FF7A00" }}>
-            <QrCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Share</span>
+            <QrCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{t("share", lang)}</span>
           </button>
         </div>
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs ── */}
       <div className="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
-        {INNER_TABS.map(t => (
-          <button type="button" key={t.id} onClick={() => setInnerTab(t.id)}
+        {INNER_TABS.map(tab => (
+          <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
-              innerTab === t.id
-                ? "text-white shadow-sm"
-                : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
+              innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
             }`}
-            style={innerTab === t.id ? { background: "#0B2E6B" } : {}}>
-            <t.icon className="w-3.5 h-3.5 flex-shrink-0" />
-            {t.label}
+            style={innerTab === tab.id ? { background: "#0B2E6B" } : {}}>
+            <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
+            {tab.label}
           </button>
         ))}
       </div>
 
-      {/* ── Main layout: sidebar nav + panel + live preview ── */}
+      {/* ── Main layout ── */}
       <div className="flex gap-4 flex-1 min-h-0">
         {/* Desktop vertical nav */}
         <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
-          {INNER_TABS.map(t => (
-            <button type="button" key={t.id} onClick={() => setInnerTab(t.id)}
+          {INNER_TABS.map(tab => (
+            <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left w-full ${
-                innerTab === t.id
+                innerTab === tab.id
                   ? (isDark ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700")
                   : (isDark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800")
               }`}
-              style={innerTab === t.id ? { borderLeft: "3px solid #FF7A00", borderRadius: "0 12px 12px 0" } : {}}>
-              <t.icon className="w-4 h-4 flex-shrink-0" />
-              {t.label}
+              style={innerTab === tab.id ? { borderLeft: "3px solid #FF7A00", borderRadius: "0 12px 12px 0" } : {}}>
+              <tab.icon className="w-4 h-4 flex-shrink-0" />
+              {tab.label}
             </button>
           ))}
         </div>
@@ -665,42 +702,26 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         <div className="flex gap-4 flex-1 min-w-0">
           <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
             {innerTab === "info" && (
-              <InfoPanel
-                liveForm={liveForm} setVal={setVal} set={set}
-                onSave={handleSave} isPending={saveMutation.isPending}
-                isDark={isDark} profile={profile}
-              />
+              <InfoPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} profile={profile} />
             )}
             {innerTab === "links" && (
-              <LinksPanel
-                liveForm={liveForm} setVal={setVal} set={set}
-                onSave={handleSave} isPending={saveMutation.isPending}
-                isDark={isDark}
-              />
+              <LinksPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} />
             )}
             {innerTab === "design" && (
-              <DesignPanel
-                liveForm={liveForm} setVal={setVal}
-                onSave={handleSave} isPending={saveMutation.isPending}
-                isDark={isDark} userPlan={userPlan} profile={profile} user={user}
-              />
+              <DesignPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} />
             )}
             {innerTab === "share" && (
               <SharePanel
                 profileUrl={profileUrl} profileQrUrl={profileQrUrl}
                 isDark={isDark} copiedUrl={copiedUrl}
-                onCopy={copyUrl} onDownloadQR={downloadQR} profile={profile}
+                onCopy={copyUrl} onDownloadQR={downloadQR} lang={lang}
               />
             )}
             {innerTab === "lostmode" && (
               <LostModePanel profileId={profileId} user={user} isDark={isDark} />
             )}
             {innerTab === "settings" && (
-              <SettingsPanel
-                liveForm={liveForm} setVal={setVal} set={set}
-                onSave={handleSave} isPending={saveMutation.isPending}
-                isDark={isDark}
-              />
+              <SettingsPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} />
             )}
           </div>
 
