@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,7 +16,7 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { usePlan } from "@/hooks/usePlan";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const INNER_TABS = [
   { id: "info",      label: "Info",       icon: Info },
@@ -34,103 +34,31 @@ const COVER_COLORS = [
 ];
 
 const Toggle = ({ value, onChange }) => (
-  <button onClick={() => onChange(!value)}
+  <button type="button" onClick={() => onChange(!value)}
     className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${value ? "bg-orange-500" : "bg-slate-300"}`}>
     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${value ? "left-5" : "left-0.5"}`} />
   </button>
 );
 
-export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon }) {
-  const qc = useQueryClient();
-  const { toast } = useToast();
-  const { plan: userPlan } = usePlan();
-  const [innerTab, setInnerTab] = useState("info");
-  const [liveForm, setLiveForm] = useState(null);
-  const [copiedUrl, setCopiedUrl] = useState(false);
+// ─── SaveBtn — standalone stable component ────────────────────────────────
+function SaveBtn({ onSave, isPending, label = "Save" }) {
+  return (
+    <Button type="button" onClick={onSave} disabled={isPending}
+      className="rounded-xl font-bold text-white px-8" style={{ background: "#FF7A00" }}>
+      {isPending ? "Saving…" : <><Save className="w-4 h-4 mr-1.5" />{label}</>}
+    </Button>
+  );
+}
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile-ws", profileId],
-    queryFn: () => base44.entities.Profile.get(profileId),
-    enabled: !!profileId,
-  });
-
-  useEffect(() => {
-    if (profile) setLiveForm({ ...profile });
-  }, [profile?.id]);
-
-  const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
-  const profileQrUrl = profileUrl ? `${profileUrl}?source=qr` : null;
-
-  const copyUrl = () => {
-    if (!profileUrl) return;
-    navigator.clipboard.writeText(profileUrl);
-    setCopiedUrl(true);
-    setTimeout(() => setCopiedUrl(false), 2000);
-  };
-
-  const downloadQR = async () => {
-    if (!profileQrUrl) return;
-    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=1e293b&bgcolor=ffffff`;
-    const img = new Image(); img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 400; canvas.height = 460;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
-      ctx.drawImage(img, 0, 0, 400, 400);
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 400, 400, 60);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
-      ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
-      ctx.fillStyle = "#FF7A00"; ctx.font = "bold 13px system-ui,sans-serif";
-      ctx.fillText("Scan to connect", 200, 452);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = `bingoo-qr-${profile?.username}.png`;
-      a.click();
-    };
-    img.src = qrSrc;
-  };
-
-  // Single shared save — stays on the current innerTab
-  const saveMutation = useMutation({
-    mutationFn: () => base44.entities.Profile.update(profileId, liveForm),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["profile-ws", profileId] });
-      qc.invalidateQueries({ queryKey: ["my-profile"] });
-      toast({ title: "Saved", description: "Profile updated." });
-      // intentionally do NOT change innerTab — user stays put
-    },
-    onError: () => toast({ title: "Error", description: "Failed to save.", variant: "destructive" }),
-  });
-
-  const headText  = isDark ? "text-white"       : "text-slate-900";
-  const mutedText = isDark ? "text-white/40"    : "text-slate-400";
-  const panelBg   = isDark ? "bg-[#13162a]"     : "bg-white";
+// ─── INFO PANEL ───────────────────────────────────────────────────────────
+function InfoPanel({ liveForm, setVal, set, onSave, isPending, isDark, profile }) {
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
   const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
-  if (isLoading || !liveForm) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const set    = (k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value }));
-  const setVal = (k, v) => setLiveForm(f => ({ ...f, [k]: v }));
-
-  const SaveBtn = ({ label = "Save" }) => (
-    <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}
-      className="rounded-xl font-bold text-white px-8" style={{ background: "#FF7A00" }}>
-      {saveMutation.isPending ? "Saving…" : <><Save className="w-4 h-4 mr-1.5" />{label}</>}
-    </Button>
-  );
-
-  // ─────────────────────────────────────────────
-  // INFO PANEL
-  // ─────────────────────────────────────────────
-  const InfoPanel = () => (
+  return (
     <div className="space-y-5">
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
         {/* Cover */}
@@ -152,7 +80,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </div>
           <div className="absolute top-3 right-3 flex gap-1.5 flex-wrap">
             {COVER_COLORS.map(c => (
-              <button key={c} onClick={() => setVal("cover_color", c)}
+              <button type="button" key={c} onClick={() => setVal("cover_color", c)}
                 className={`w-4 h-4 rounded-full border-2 transition-transform hover:scale-125 ${liveForm.cover_color === c ? "border-white scale-125" : "border-white/40"}`}
                 style={{ background: c }} />
             ))}
@@ -179,7 +107,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             </div>
             <div className="pb-1">
               <span className="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide bg-blue-50 text-blue-700">
-                {profile.plan || "Free"}
+                {profile?.plan || "Free"}
               </span>
             </div>
           </div>
@@ -224,135 +152,146 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </div>
         </div>
       </div>
-      <SaveBtn label="Save Info" />
+      <SaveBtn onSave={onSave} isPending={isPending} label="Save Info" />
+    </div>
+  );
+}
+
+// ─── LINKS PANEL ──────────────────────────────────────────────────────────
+function LinksPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
+  const [newLink, setNewLink] = useState({ label: "", url: "", enabled: true });
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+  const panelBorder = isDark ? "border-white/8" : "border-slate-200";
+  const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+
+  const links = liveForm.custom_links || [];
+
+  const addLink = () => {
+    if (!newLink.label || !newLink.url) return;
+    setVal("custom_links", [...links, { ...newLink, id: Date.now().toString() }]);
+    setNewLink({ label: "", url: "", enabled: true });
+  };
+  const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
+  const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
+
+  const SectionHead = ({ title }) => (
+    <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>{title}</p>
+  );
+
+  const LinkField = ({ fieldKey, label, placeholder, icon: Icon }) => (
+    <div className={`flex items-center gap-3 p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
+      {Icon && <Icon className="w-4 h-4 flex-shrink-0 text-slate-400" />}
+      <div className="flex-1 min-w-0">
+        <Label className={`text-[10px] font-bold ${mutedText} block mb-0.5`}>{label}</Label>
+        <Input
+          className={`h-7 text-xs border-0 p-0 shadow-none bg-transparent ${isDark ? "text-white placeholder:text-white/20" : "text-slate-700"}`}
+          value={liveForm[fieldKey] || ""}
+          onChange={set(fieldKey)}
+          placeholder={placeholder}
+        />
+      </div>
+      <Toggle value={!!liveForm[fieldKey]} onChange={() => {}} />
     </div>
   );
 
-  // ─────────────────────────────────────────────
-  // LINKS PANEL (social + contact + payments + custom)
-  // ─────────────────────────────────────────────
-  const LinksPanel = () => {
-    const [newLink, setNewLink] = useState({ label: "", url: "", enabled: true });
-    const links = liveForm.custom_links || [];
-
-    const addLink = () => {
-      if (!newLink.label || !newLink.url) return;
-      setVal("custom_links", [...links, { ...newLink, id: Date.now().toString() }]);
-      setNewLink({ label: "", url: "", enabled: true });
-    };
-    const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
-    const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
-
-    const SectionHead = ({ title }) => (
-      <p className={`text-xs font-black uppercase tracking-widest mt-5 mb-2 ${mutedText}`}>{title}</p>
-    );
-
-    const LinkField = ({ fieldKey, label, placeholder, icon: Icon }) => (
-      <div className={`flex items-center gap-3 p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
-        {Icon && <Icon className="w-4 h-4 flex-shrink-0 text-slate-400" />}
-        <div className="flex-1 min-w-0">
-          <Label className={`text-[10px] font-bold ${mutedText} block mb-0.5`}>{label}</Label>
-          <Input className={`h-7 text-xs border-0 p-0 shadow-none bg-transparent ${isDark ? "text-white placeholder:text-white/20" : "text-slate-700"}`}
-            value={liveForm[fieldKey] || ""} onChange={set(fieldKey)} placeholder={placeholder} />
-        </div>
-        <Toggle value={!!liveForm[fieldKey]} onChange={() => {}} />
+  return (
+    <div className="space-y-1">
+      <SectionHead title="Social" />
+      <div className="space-y-2">
+        <LinkField fieldKey="instagram_url"  label="Instagram"  placeholder="https://instagram.com/..."  icon={Instagram} />
+        <LinkField fieldKey="linkedin_url"   label="LinkedIn"   placeholder="https://linkedin.com/in/..." icon={Linkedin} />
+        <LinkField fieldKey="facebook_url"   label="Facebook"   placeholder="https://facebook.com/..."   icon={Facebook} />
+        <LinkField fieldKey="tiktok_url"     label="TikTok"     placeholder="https://tiktok.com/@..."    icon={Smartphone} />
+        <LinkField fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."   icon={Youtube} />
       </div>
-    );
 
-    return (
-      <div className="space-y-1">
-        <SectionHead title="Social" />
-        <div className="space-y-2">
-          <LinkField fieldKey="instagram_url"  label="Instagram"  placeholder="https://instagram.com/..."  icon={Instagram} />
-          <LinkField fieldKey="linkedin_url"   label="LinkedIn"   placeholder="https://linkedin.com/in/..." icon={Linkedin} />
-          <LinkField fieldKey="facebook_url"   label="Facebook"   placeholder="https://facebook.com/..."   icon={Facebook} />
-          <LinkField fieldKey="tiktok_url"     label="TikTok"     placeholder="https://tiktok.com/@..."    icon={Smartphone} />
-          <LinkField fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."   icon={Youtube} />
-        </div>
+      <SectionHead title="Contact" />
+      <div className="space-y-2">
+        <LinkField fieldKey="website"         label="Website"    placeholder="https://yoursite.com"   icon={Globe} />
+        <LinkField fieldKey="email"           label="Email"      placeholder="you@example.com"        icon={Mail} />
+        <LinkField fieldKey="phone"           label="Phone"      placeholder="+1 555 000 0000"        icon={Phone} />
+        <LinkField fieldKey="whatsapp_number" label="WhatsApp"   placeholder="+1 555 000 0000"        icon={Phone} />
+      </div>
 
-        <SectionHead title="Contact" />
-        <div className="space-y-2">
-          <LinkField fieldKey="website"         label="Website"    placeholder="https://yoursite.com"   icon={Globe} />
-          <LinkField fieldKey="email"           label="Email"      placeholder="you@example.com"        icon={Mail} />
-          <LinkField fieldKey="phone"           label="Phone"      placeholder="+1 555 000 0000"        icon={Phone} />
-          <LinkField fieldKey="whatsapp_number" label="WhatsApp"   placeholder="+1 555 000 0000"        icon={Phone} />
-        </div>
+      <SectionHead title="Payments" />
+      <div className="space-y-2">
+        <LinkField fieldKey="payment_link"    label="PayPal / Payment Link"  placeholder="https://paypal.me/..."            icon={CreditCard} />
+        <LinkField fieldKey="zelle_link"      label="Zelle"                  placeholder="https://enroll.zellepay.com/..."   icon={CreditCard} />
+        <LinkField fieldKey="cashapp_link"    label="Cash App"               placeholder="https://cash.app/$..."             icon={CreditCard} />
+        <LinkField fieldKey="wave_link"       label="Wave"                   placeholder="https://wave.com/..."              icon={CreditCard} />
+        <LinkField fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                       icon={CreditCard} />
+      </div>
 
-        <SectionHead title="Payments" />
-        <div className="space-y-2">
-          <LinkField fieldKey="payment_link"    label="PayPal / Payment Link"  placeholder="https://paypal.me/..."            icon={CreditCard} />
-          <LinkField fieldKey="zelle_link"      label="Zelle"                  placeholder="https://enroll.zellepay.com/..."   icon={CreditCard} />
-          <LinkField fieldKey="cashapp_link"    label="Cash App"               placeholder="https://cash.app/$..."             icon={CreditCard} />
-          <LinkField fieldKey="wave_link"       label="Wave"                   placeholder="https://wave.com/..."              icon={CreditCard} />
-          <LinkField fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                       icon={CreditCard} />
-        </div>
-
-        <SectionHead title="Booking" />
-        <div className={`flex items-center justify-between p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
-          <div>
-            <p className={`text-sm font-semibold ${headText}`}>Booking / Contact Form</p>
-            <p className={`text-xs ${mutedText}`}>Show a contact/booking form on your profile</p>
-          </div>
-          <Toggle value={!!liveForm.booking_enabled} onChange={(v) => setVal("booking_enabled", v)} />
-        </div>
+      <SectionHead title="Booking" />
+      <div className={`flex items-center justify-between p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
         <div>
-          <Label className={`text-xs font-semibold ${mutedText}`}>WhatsApp Booking Message</Label>
-          <Input className={`mt-1 ${inputCls}`} value={liveForm.whatsapp_booking_message || ""} onChange={set("whatsapp_booking_message")} placeholder="Hi, I'd like to book..." />
+          <p className={`text-sm font-semibold ${headText}`}>Booking / Contact Form</p>
+          <p className={`text-xs ${mutedText}`}>Show a contact/booking form on your profile</p>
         </div>
+        <Toggle value={!!liveForm.booking_enabled} onChange={(v) => setVal("booking_enabled", v)} />
+      </div>
+      <div>
+        <Label className={`text-xs font-semibold ${mutedText}`}>WhatsApp Booking Message</Label>
+        <Input className={`mt-1 ${inputCls}`} value={liveForm.whatsapp_booking_message || ""} onChange={set("whatsapp_booking_message")} placeholder="Hi, I'd like to book..." />
+      </div>
 
-        <SectionHead title="Custom Links" />
-        <div className={`p-3 rounded-xl border ${panelBorder} ${panelBg} space-y-2`}>
-          <div className="flex gap-2">
-            <Input className={`flex-1 ${inputCls}`} placeholder="Label" value={newLink.label}
-              onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))} />
-            <Input className={`flex-1 ${inputCls}`} placeholder="https://..." value={newLink.url}
-              onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))} />
-            <button onClick={addLink}
-              className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white"
-              style={{ background: "#0B2E6B" }}>
-              <Plus className="w-3.5 h-3.5" /> Add
-            </button>
-          </div>
-        </div>
-
-        {links.length > 0 && (
-          <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
-            <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
-              {links.map((link, idx) => (
-                <div key={idx} className={`flex items-center gap-3 px-4 py-3 ${!link.enabled ? "opacity-50" : ""}`}>
-                  <GripVertical className={`w-4 h-4 flex-shrink-0 ${mutedText}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-sm ${headText}`}>{link.label}</p>
-                    <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
-                  </div>
-                  <Toggle value={link.enabled} onChange={() => toggleLink(idx)} />
-                  <button onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="pt-2">
-          <SaveBtn label="Save Links" />
+      <SectionHead title="Custom Links" />
+      <div className={`p-3 rounded-xl border ${panelBorder} ${panelBg} space-y-2`}>
+        <div className="flex gap-2">
+          <Input className={`flex-1 ${inputCls}`} placeholder="Label" value={newLink.label}
+            onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))} />
+          <Input className={`flex-1 ${inputCls}`} placeholder="https://..." value={newLink.url}
+            onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))} />
+          <button type="button" onClick={addLink}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white"
+            style={{ background: "#0B2E6B" }}>
+            <Plus className="w-3.5 h-3.5" /> Add
+          </button>
         </div>
       </div>
-    );
-  };
 
-  // ─────────────────────────────────────────────
-  // DESIGN PANEL
-  // ─────────────────────────────────────────────
-  const DesignPanel = () => (
+      {links.length > 0 && (
+        <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
+          <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
+            {links.map((link, idx) => (
+              <div key={idx} className={`flex items-center gap-3 px-4 py-3 ${!link.enabled ? "opacity-50" : ""}`}>
+                <GripVertical className={`w-4 h-4 flex-shrink-0 ${mutedText}`} />
+                <div className="flex-1 min-w-0">
+                  <p className={`font-semibold text-sm ${headText}`}>{link.label}</p>
+                  <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
+                </div>
+                <Toggle value={link.enabled} onChange={() => toggleLink(idx)} />
+                <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="pt-2">
+        <SaveBtn onSave={onSave} isPending={isPending} label="Save Links" />
+      </div>
+    </div>
+  );
+}
+
+// ─── DESIGN PANEL ─────────────────────────────────────────────────────────
+function DesignPanel({ liveForm, setVal, onSave, isPending, isDark, userPlan, profile, user }) {
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const headText  = isDark ? "text-white" : "text-slate-900";
+
+  return (
     <div className="space-y-5">
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-5`}>
+      <div className={`rounded-2xl border ${isDark ? "border-white/8 bg-[#13162a]" : "border-slate-200 bg-white"} p-5 space-y-5`}>
         <div>
           <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Accent Color</Label>
           <div className="flex gap-2 flex-wrap">
             {COVER_COLORS.map(c => (
-              <button key={c} onClick={() => setVal("cover_color", c)}
+              <button type="button" key={c} onClick={() => setVal("cover_color", c)}
                 className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${liveForm.cover_color === c ? "border-slate-900 scale-110" : "border-transparent"}`}
                 style={{ background: c }} />
             ))}
@@ -368,7 +307,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               { v: "mesh",     label: "Mesh",          desc: "Dual-tone blend" },
               { v: "night",    label: "Night",         desc: "Dark atmosphere" },
             ].map(o => (
-              <button key={o.v} onClick={() => setVal("bg_style", o.v)}
+              <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
                 className={`flex flex-col p-3 rounded-xl border-2 text-left transition-all ${liveForm.bg_style === o.v ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`}`}>
                 <p className={`text-xs font-bold ${liveForm.bg_style === o.v ? "text-orange-600" : headText}`}>{o.label}</p>
                 <p className={`text-[11px] ${mutedText}`}>{o.desc}</p>
@@ -381,7 +320,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>Button Style</Label>
           <div className="flex gap-2">
             {[{ v: "pill", label: "Pill" }, { v: "rounded", label: "Rounded" }, { v: "sharp", label: "Sharp" }].map(o => (
-              <button key={o.v} onClick={() => setVal("button_style", o.v)}
+              <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
                 className={`flex-1 py-2 text-xs font-bold border-2 transition-all ${liveForm.button_style === o.v ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
                 style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
                 {o.label}
@@ -397,65 +336,69 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             isAdmin={user?.role === "admin"} />
         </div>
       </div>
-      <SaveBtn label="Save Design" />
+      <SaveBtn onSave={onSave} isPending={isPending} label="Save Design" />
     </div>
   );
+}
 
-  // ─────────────────────────────────────────────
-  // SHARE PANEL
-  // ─────────────────────────────────────────────
-  const SharePanel = () => {
-    const qrPreviewUrl = profileQrUrl
-      ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileQrUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`
-      : null;
-    return (
-      <div className="space-y-4">
-        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
-          <p className={`font-bold text-sm ${headText} mb-3`}>Profile Link</p>
-          <div className="flex gap-2">
-            <input readOnly value={profileUrl || ""}
-              className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
-            <button onClick={copyUrl}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
-              style={{ background: copiedUrl ? "#059669" : "#0B2E6B" }}>
-              {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-              {copiedUrl ? "Copied!" : "Copy"}
-            </button>
-            {profileUrl && (
-              <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-                className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all ${isDark ? "border-white/10 bg-white/6 text-blue-400" : "bg-blue-50 border-blue-200 text-blue-600"}`}>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
-          </div>
-        </div>
+// ─── SHARE PANEL ──────────────────────────────────────────────────────────
+function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDownloadQR, profile }) {
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+  const panelBorder = isDark ? "border-white/8" : "border-slate-200";
 
-        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 text-center`}>
-          <p className={`font-bold text-sm ${headText} mb-4`}>QR Code</p>
-          {qrPreviewUrl ? (
-            <>
-              <div className={`inline-block p-4 rounded-2xl mb-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
-                <img src={qrPreviewUrl} alt="QR Code" className="w-36 h-36 rounded-xl mx-auto" />
-              </div>
-              <p className={`text-xs mb-3 ${mutedText}`}>Scan to open your profile</p>
-              <Button onClick={downloadQR} className="rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
-                <Download className="w-4 h-4" /> Download QR
-              </Button>
-            </>
-          ) : (
-            <p className={`text-sm ${mutedText}`}>Set a username to generate a QR code.</p>
+  const qrPreviewUrl = profileQrUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileQrUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`
+    : null;
+
+  return (
+    <div className="space-y-4">
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
+        <p className={`font-bold text-sm ${headText} mb-3`}>Profile Link</p>
+        <div className="flex gap-2">
+          <input readOnly value={profileUrl || ""}
+            className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
+          <button type="button" onClick={onCopy}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
+            style={{ background: copiedUrl ? "#059669" : "#0B2E6B" }}>
+            {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copiedUrl ? "Copied!" : "Copy"}
+          </button>
+          {profileUrl && (
+            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+              className={`flex items-center justify-center w-9 h-9 rounded-xl border transition-all ${isDark ? "border-white/10 bg-white/6 text-blue-400" : "bg-blue-50 border-blue-200 text-blue-600"}`}>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
           )}
         </div>
       </div>
-    );
-  };
 
-  // ─────────────────────────────────────────────
-  // LOST MODE PANEL
-  // ─────────────────────────────────────────────
-  const LostModePanel = () => (
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 text-center`}>
+        <p className={`font-bold text-sm ${headText} mb-4`}>QR Code</p>
+        {qrPreviewUrl ? (
+          <>
+            <div className={`inline-block p-4 rounded-2xl mb-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
+              <img src={qrPreviewUrl} alt="QR Code" className="w-36 h-36 rounded-xl mx-auto" />
+            </div>
+            <p className={`text-xs mb-3 ${mutedText}`}>Scan to open your profile</p>
+            <Button type="button" onClick={onDownloadQR} className="rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
+              <Download className="w-4 h-4" /> Download QR
+            </Button>
+          </>
+        ) : (
+          <p className={`text-sm ${mutedText}`}>Set a username to generate a QR code.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── LOST MODE PANEL ──────────────────────────────────────────────────────
+function LostModePanel({ profileId, user, isDark }) {
+  return (
     <div className="space-y-4">
-      <div className={`rounded-2xl border border-amber-200 bg-amber-50 p-4 flex gap-3`}>
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-bold text-sm text-amber-800">Lost Mode</p>
@@ -471,13 +414,18 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       />
     </div>
   );
+}
 
-  // ─────────────────────────────────────────────
-  // SETTINGS PANEL (no payment links here)
-  // ─────────────────────────────────────────────
-  const SettingsPanel = () => (
+// ─── SETTINGS PANEL ───────────────────────────────────────────────────────
+function SettingsPanel({ liveForm, setVal, set, onSave, isPending, isDark }) {
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
+  const panelBorder = isDark ? "border-white/8" : "border-slate-200";
+  const inputCls  = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+
+  return (
     <div className="space-y-4">
-      {/* Username / URL */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
         <p className={`font-bold text-sm ${headText}`}>Profile URL</p>
         <div className="flex items-center gap-2">
@@ -489,7 +437,6 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
       </div>
 
-      {/* Visibility toggles */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
         <p className={`font-bold text-sm ${headText}`}>Visibility</p>
         {[
@@ -506,12 +453,11 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         ))}
       </div>
 
-      {/* Language */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
         <p className={`font-bold text-sm ${headText}`}>Language & Region</p>
         <div className="flex gap-2">
           {[{ v: "en", label: "English" }, { v: "fr", label: "Français" }].map(o => (
-            <button key={o.v}
+            <button type="button" key={o.v}
               onClick={() => setVal("language", o.v)}
               className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition-all ${(liveForm.language || "en") === o.v ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-200 text-slate-500"}`}>
               {o.label}
@@ -520,31 +466,128 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
       </div>
 
-      {/* Danger zone */}
       <div className={`rounded-2xl border border-red-200 ${isDark ? "bg-red-900/10" : "bg-red-50"} p-5 space-y-3`}>
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-red-500" />
           <p className="font-bold text-sm text-red-600">Danger Zone</p>
         </div>
         <p className={`text-xs ${isDark ? "text-red-300" : "text-red-500"}`}>Disabling your profile hides it from public access instantly.</p>
-        <button onClick={() => setVal("is_active", false)}
+        <button type="button" onClick={() => setVal("is_active", false)}
           className="text-xs font-bold text-red-600 border border-red-300 px-4 py-2 rounded-xl hover:bg-red-100 transition-all">
           Deactivate Profile
         </button>
       </div>
 
-      <SaveBtn label="Save Settings" />
+      <SaveBtn onSave={onSave} isPending={isPending} label="Save Settings" />
     </div>
   );
+}
 
-  // ─────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────────────────
+export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon }) {
+  const qc = useQueryClient();
+  const { plan: userPlan } = usePlan();
+  const [innerTab, setInnerTab] = useState("info");
+  const [liveForm, setLiveForm] = useState(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
+
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile-ws", profileId],
+    queryFn: () => base44.entities.Profile.get(profileId),
+    enabled: !!profileId,
+    // Don't refetch while user is editing — staleTime prevents background refetches
+    staleTime: 30000,
+  });
+
+  // Only seed liveForm when profileId changes (not on every re-render or background refetch)
+  useEffect(() => {
+    if (profile && profile.id === profileId) {
+      setLiveForm({ ...profile });
+    }
+  }, [profile?.id]);
+
+  const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
+  const profileQrUrl = profileUrl ? `${profileUrl}?source=qr` : null;
+
+  // Stable setter callbacks — won't cause child remounts
+  const set = useCallback(
+    (k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })),
+    []
+  );
+  const setVal = useCallback(
+    (k, v) => setLiveForm(f => ({ ...f, [k]: v })),
+    []
+  );
+
+  const copyUrl = useCallback(() => {
+    if (!profileUrl) return;
+    navigator.clipboard.writeText(profileUrl);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  }, [profileUrl]);
+
+  const downloadQR = useCallback(async () => {
+    if (!profileQrUrl) return;
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=1e293b&bgcolor=ffffff`;
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 400; canvas.height = 460;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
+      ctx.drawImage(img, 0, 0, 400, 400);
+      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 400, 400, 60);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
+      ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
+      ctx.fillStyle = "#FF7A00"; ctx.font = "bold 13px system-ui,sans-serif";
+      ctx.fillText("Scan to connect", 200, 452);
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = `bingoo-qr-${profile?.username}.png`;
+      a.click();
+    };
+    img.src = qrSrc;
+  }, [profileQrUrl, profile?.username]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      if (!profileId || !liveForm) throw new Error("No profile selected");
+      return base44.entities.Profile.update(profileId, liveForm);
+    },
+    onSuccess: (updatedProfile) => {
+      // Update cache with returned data so UI stays consistent
+      qc.setQueryData(["profile-ws", profileId], updatedProfile);
+      qc.invalidateQueries({ queryKey: ["my-profile"] });
+      toast.success("Profile saved!");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Failed to save profile. Please try again.");
+    },
+  });
+
+  const handleSave = useCallback(() => {
+    if (saveMutation.isPending) return;
+    saveMutation.mutate();
+  }, [saveMutation]);
+
+  const headText  = isDark ? "text-white" : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+
+  if (isLoading || !liveForm) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <button onClick={onBack}
+        <button type="button" onClick={onBack}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
           <ChevronLeft className="w-4 h-4" /> Profiles
         </button>
@@ -571,12 +614,12 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
             <Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Preview</span>
           </a>
-          <button onClick={copyUrl}
+          <button type="button" onClick={copyUrl}
             className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
             {copiedUrl ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
             <span className="hidden sm:inline">{copiedUrl ? "Copied" : "Copy Link"}</span>
           </button>
-          <button onClick={() => setInnerTab("share")}
+          <button type="button" onClick={() => setInnerTab("share")}
             className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl text-white hover:opacity-90 transition-all"
             style={{ background: "#FF7A00" }}>
             <QrCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Share</span>
@@ -587,7 +630,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       {/* ── Mobile: horizontal scrollable pill tabs ── */}
       <div className="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
         {INNER_TABS.map(t => (
-          <button key={t.id} onClick={() => setInnerTab(t.id)}
+          <button type="button" key={t.id} onClick={() => setInnerTab(t.id)}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
               innerTab === t.id
                 ? "text-white shadow-sm"
@@ -605,7 +648,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         {/* Desktop vertical nav */}
         <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
           {INNER_TABS.map(t => (
-            <button key={t.id} onClick={() => setInnerTab(t.id)}
+            <button type="button" key={t.id} onClick={() => setInnerTab(t.id)}
               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left w-full ${
                 innerTab === t.id
                   ? (isDark ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700")
@@ -621,12 +664,44 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         {/* Editing panel */}
         <div className="flex gap-4 flex-1 min-w-0">
           <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
-            {innerTab === "info"     && <InfoPanel />}
-            {innerTab === "links"    && <LinksPanel />}
-            {innerTab === "design"   && <DesignPanel />}
-            {innerTab === "share"    && <SharePanel />}
-            {innerTab === "lostmode" && <LostModePanel />}
-            {innerTab === "settings" && <SettingsPanel />}
+            {innerTab === "info" && (
+              <InfoPanel
+                liveForm={liveForm} setVal={setVal} set={set}
+                onSave={handleSave} isPending={saveMutation.isPending}
+                isDark={isDark} profile={profile}
+              />
+            )}
+            {innerTab === "links" && (
+              <LinksPanel
+                liveForm={liveForm} setVal={setVal} set={set}
+                onSave={handleSave} isPending={saveMutation.isPending}
+                isDark={isDark}
+              />
+            )}
+            {innerTab === "design" && (
+              <DesignPanel
+                liveForm={liveForm} setVal={setVal}
+                onSave={handleSave} isPending={saveMutation.isPending}
+                isDark={isDark} userPlan={userPlan} profile={profile} user={user}
+              />
+            )}
+            {innerTab === "share" && (
+              <SharePanel
+                profileUrl={profileUrl} profileQrUrl={profileQrUrl}
+                isDark={isDark} copiedUrl={copiedUrl}
+                onCopy={copyUrl} onDownloadQR={downloadQR} profile={profile}
+              />
+            )}
+            {innerTab === "lostmode" && (
+              <LostModePanel profileId={profileId} user={user} isDark={isDark} />
+            )}
+            {innerTab === "settings" && (
+              <SettingsPanel
+                liveForm={liveForm} setVal={setVal} set={set}
+                onSave={handleSave} isPending={saveMutation.isPending}
+                isDark={isDark}
+              />
+            )}
           </div>
 
           {/* Live preview — desktop only */}
