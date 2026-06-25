@@ -5,7 +5,7 @@ import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
-import { getVisibleNavItems, normalizeProfileType } from "@/lib/sidebarConfig";
+import { getVisibleNavItems } from "@/lib/sidebarConfig";
 
 /**
  * BingooLayout
@@ -15,7 +15,7 @@ import { getVisibleNavItems, normalizeProfileType } from "@/lib/sidebarConfig";
  * When no profile is selected (hub view), selectedProfile is null → free sidebar.
  * Admin users see all items + Admin Panel regardless of selected profile.
  */
-export default function BingooLayout({ children, selectedProfile }) {
+export default function BingooLayout({ children, selectedProfile, lang = "en" }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
@@ -40,7 +40,7 @@ export default function BingooLayout({ children, selectedProfile }) {
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
   // All sidebar items derived from selected profile — isAdmin unlocks everything
-  const navItems = getVisibleNavItems(selectedProfile, isAdmin);
+  const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang);
 
   // Mobile bottom bar: fixed 4 slots — Profiles always, then first 2 plan-specific items, More, Logout
   const planSpecificBottomItems = navItems.filter(

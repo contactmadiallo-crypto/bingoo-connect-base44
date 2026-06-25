@@ -55,6 +55,8 @@ const VIEW_LEGAL_SVC    = "legalservices";
 const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
+const VIEW_RESUME       = "resume";
+const VIEW_PORTFOLIO    = "portfolio";
 
 // "No profile selected" empty state
 const NoProfileState = ({ isDark, onGoToProfiles }) => (
@@ -266,7 +268,7 @@ export default function BingooDashboard() {
   };
 
   return (
-    <BingooLayout selectedProfile={activeProfile ?? null}>
+    <BingooLayout selectedProfile={activeProfile ?? null} lang={lang}>
       {showOnboarding && user && (
         <AIOnboardingAssistant
           userName={user.full_name}
@@ -602,6 +604,36 @@ export default function BingooDashboard() {
                 <PlanGateScreen feature="attendance" isDark={isDark} />
               ) : (
                 <AttendancePanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              RESUME — Pro individual / Pro plans
+          ════════════════════════════════════ */}
+          {view === VIEW_RESUME && (
+            <div>
+              <ProfileChip />
+              {!planLoading && !canAccess("digital_resume") ? (
+                <PlanGateScreen feature="digital_resume" isDark={isDark} />
+              ) : (
+                <ResumePanel user={user} profileId={activeProfile?.id} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              PORTFOLIO — Pro individual / Pro plans
+          ════════════════════════════════════ */}
+          {view === VIEW_PORTFOLIO && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("portfolio") ? (
+                <PlanGateScreen feature="portfolio" isDark={isDark} />
+              ) : (
+                <PortfolioPanel profileId={activeProfile.id} user={user} />
               )}
             </div>
           )}
