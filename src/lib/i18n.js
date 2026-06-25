@@ -80,19 +80,54 @@ export const TRANSLATIONS = {
   download_qr:      { en: "Download QR",       fr: "Télécharger QR" },
   profile_is_live:  { en: "Profile is Live",   fr: "Profil en ligne" },
   show_location:    { en: "Show Location",     fr: "Afficher le lieu" },
+
+  // ── Landing page ──
+  lp_features:      { en: "Features",          fr: "Fonctionnalités" },
+  lp_industries:    { en: "Industries",        fr: "Secteurs" },
+  lp_pricing:       { en: "Pricing",           fr: "Tarifs" },
+  lp_shop:          { en: "Shop",              fr: "Boutique" },
+  lp_sign_in:       { en: "Sign In",           fr: "Se connecter" },
+  lp_get_started:   { en: "Get Started Free",  fr: "Commencer gratuitement" },
+  lp_dashboard:     { en: "My Dashboard",      fr: "Mon tableau de bord" },
+  lp_language:      { en: "Language",          fr: "Langue" },
 };
 
-/** Get current language from localStorage */
+/**
+ * Detect browser/device language on first visit only.
+ * Priority: saved pref → navigator.languages → navigator.language → Intl locale → "en"
+ * Writes to localStorage on first detection so it persists across pages.
+ */
+function detectBrowserLang() {
+  // Check all navigator.languages first (most reliable)
+  const langs = (typeof navigator !== "undefined" && navigator.languages) || [];
+  for (const l of langs) {
+    if (l.toLowerCase().startsWith("fr")) return "fr";
+  }
+  // Fallback to single navigator.language
+  const single = (typeof navigator !== "undefined" && navigator.language) || "";
+  if (single.toLowerCase().startsWith("fr")) return "fr";
+  // Fallback to Intl locale
+  try {
+    const intlLang = Intl.DateTimeFormat().resolvedOptions().locale || "";
+    if (intlLang.toLowerCase().startsWith("fr")) return "fr";
+  } catch (_) {}
+  return "en";
+}
+
+/** Get current language from localStorage, auto-detecting browser lang on first visit */
 export function getLang() {
   const saved = localStorage.getItem("bingoo_lang");
   if (saved) return saved;
-  const bl = (typeof navigator !== "undefined" && navigator.language) || "en";
-  return bl.toLowerCase().startsWith("fr") ? "fr" : "en";
+  // First visit — auto-detect and persist
+  const detected = detectBrowserLang();
+  localStorage.setItem("bingoo_lang", detected);
+  return detected;
 }
 
-/** Persist language to localStorage */
+/** Persist language to localStorage and mark as user-set (prevents auto-override) */
 export function setLang(lang) {
   localStorage.setItem("bingoo_lang", lang);
+  localStorage.setItem("bingoo_lang_user_set", "true");
 }
 
 /**

@@ -6,6 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
 import FeedbackSection from "../components/bingoo/FeedbackSection";
 import { base44 } from "@/api/base44Client";
+import { getLang, setLang, t } from "@/lib/i18n";
 
 // ── Bingoo Brand Colors
 const B = {
@@ -157,6 +158,14 @@ export default function Landing() {
   const [authed, setAuthed] = useState(false);
   useEffect(() => { base44.auth.isAuthenticated().then(setAuthed); }, []);
 
+  // Language state — reads from localStorage (auto-detects on first visit via getLang)
+  const [lang, setLangState] = useState(() => getLang());
+  const toggleLang = () => {
+    const next = lang === "en" ? "fr" : "en";
+    setLang(next);
+    setLangState(next);
+  };
+
   const [statsVisible, setStatsVisible] = useState(false);
   const [counts, setCounts] = useState([0, 0, 0, 0]);
 
@@ -196,21 +205,28 @@ export default function Landing() {
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70">
-            {[["features", "Features"], ["use-cases", "Industries"], ["pricing", "Pricing"], ["shop", "Shop"]].map(([id, label]) => (
+            {[["features", t("lp_features", lang)], ["use-cases", t("lp_industries", lang)], ["pricing", t("lp_pricing", lang)], ["shop", t("lp_shop", lang)]].map(([id, label]) => (
               <motion.a key={id} href={`#${id}`} className="hover:text-white transition-colors" whileHover={{ y: -1 }}>
                 {label}
               </motion.a>
             ))}
           </div>
 
-          {/* CTA */}
+          {/* CTA + Language */}
           <div className="flex gap-2 items-center">
+            {/* Language toggle */}
+            <button
+              onClick={toggleLang}
+              className="px-2.5 py-1 rounded-full text-[11px] font-bold border border-white/20 text-white/60 hover:text-white hover:border-white/40 transition-all"
+              title={t("lp_language", lang)}>
+              {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
+            </button>
             {authed ? (
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Button size="sm" onClick={() => window.location.href = '/bingoo'}
                   className="font-bold text-sm"
                   style={{ background: B.orange, color: "#fff", border: "none" }}>
-                  My Dashboard →
+                  {t("lp_dashboard", lang)} →
                 </Button>
               </motion.div>
             ) : (
@@ -218,14 +234,14 @@ export default function Landing() {
                 <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Button variant="ghost" size="sm" onClick={goSignIn}
                     className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:inline-flex font-semibold">
-                    Sign In
+                    {t("lp_sign_in", lang)}
                   </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                   <Button size="sm" onClick={goSignIn}
                     className="font-bold text-sm px-4"
                     style={{ background: B.orange, color: "#fff", border: "none" }}>
-                    Get Started Free
+                    {t("lp_get_started", lang)}
                   </Button>
                 </motion.div>
               </>
@@ -692,12 +708,15 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <span className="text-white/40 text-xs font-semibold tracking-wider">Connect • Share • Grow • Succeed</span>
           <div className="flex flex-wrap justify-center gap-5 text-white/40 text-xs">
-            <a href="/shop" className="hover:text-white/70 transition-colors">Shop</a>
-            <a href="/plans" className="hover:text-white/70 transition-colors">Pricing</a>
+            <a href="/shop" className="hover:text-white/70 transition-colors">{t("lp_shop", lang)}</a>
+            <a href="/plans" className="hover:text-white/70 transition-colors">{t("lp_pricing", lang)}</a>
             <a href="/privacy" className="hover:text-white/70 transition-colors">Privacy Policy</a>
             <a href="/terms" className="hover:text-white/70 transition-colors">Terms of Service</a>
             <a href="/data-deletion" className="hover:text-white/70 transition-colors">Data Deletion</a>
             <a href="/contact-support" className="hover:text-white/70 transition-colors">Contact</a>
+            <button onClick={toggleLang} className="hover:text-white/70 transition-colors font-semibold">
+              {lang === "en" ? "🇫🇷 Français" : "🇺🇸 English"}
+            </button>
           </div>
           <p className="text-white/30 text-xs">© {new Date().getFullYear()} Bingoo Connect · bingoo.africa</p>
         </div>

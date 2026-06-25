@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -304,8 +304,10 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime
           <div className="flex gap-2 flex-wrap">
             {COVER_COLORS.map(c => (
               <button type="button" key={c} onClick={() => setVal("cover_color", c)}
-                className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${liveForm.cover_color === c ? "border-slate-900 scale-110" : "border-transparent"}`}
-                style={{ background: c }} />
+                className="relative w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center"
+                style={{ background: c, borderColor: liveForm.cover_color === c ? "#fff" : "transparent", transform: liveForm.cover_color === c ? "scale(1.15)" : "scale(1)", boxShadow: liveForm.cover_color === c ? "0 0 0 2px #0B2E6B" : "none" }}>
+                {liveForm.cover_color === c && <Check className="w-3 h-3 text-white drop-shadow" />}
+              </button>
             ))}
           </div>
         </div>
@@ -317,25 +319,34 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime
               { v: "gradient", label: "Soft Gradient",  desc: "Colour wash" },
               { v: "mesh",     label: "Mesh",           desc: "Dual-tone blend" },
               { v: "night",    label: "Night",          desc: "Dark atmosphere" },
-            ].map(o => (
-              <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
-                className={`flex flex-col p-3 rounded-xl border-2 text-left transition-all ${liveForm.bg_style === o.v ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`}`}>
-                <p className={`text-xs font-bold ${liveForm.bg_style === o.v ? "text-orange-600" : headText}`}>{o.label}</p>
-                <p className={`text-[11px] ${mutedText}`}>{o.desc}</p>
-              </button>
-            ))}
+            ].map(o => {
+              const selected = liveForm.bg_style === o.v;
+              return (
+                <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
+                  className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${selected ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`}`}>
+                  <div className="flex-1">
+                    <p className={`text-xs font-bold ${selected ? "text-orange-600" : headText}`}>{o.label}</p>
+                    <p className={`text-[11px] ${mutedText}`}>{o.desc}</p>
+                  </div>
+                  {selected && <Check className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />}
+                </button>
+              );
+            })}
           </div>
         </div>
         <div>
           <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("button_style", lang)}</Label>
           <div className="flex gap-2">
-            {[{ v: "pill", label: "Pill" }, { v: "rounded", label: "Rounded" }, { v: "sharp", label: "Sharp" }].map(o => (
-              <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
-                className={`flex-1 py-2 text-xs font-bold border-2 transition-all ${liveForm.button_style === o.v ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
-                style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
-                {o.label}
-              </button>
-            ))}
+            {[{ v: "pill", label: "Pill" }, { v: "rounded", label: "Rounded" }, { v: "sharp", label: "Sharp" }].map(o => {
+              const selected = liveForm.button_style === o.v;
+              return (
+                <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
+                  className={`flex-1 py-2 text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${selected ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
+                  style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
+                  {selected && <Check className="w-3 h-3" />}{o.label}
+                </button>
+              );
+            })}
           </div>
         </div>
         <div>
@@ -509,6 +520,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   ];
 
   const [innerTab, setInnerTab] = useState("info");
+  // Track which tab triggered the current save (for post-save routing)
+  const saveTabRef = useRef("info");
   const [liveForm, setLiveForm] = useState(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // null | "pending" | "success" | "error"
@@ -571,7 +584,6 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!profileId || !liveForm) throw new Error("No profile loaded");
-      // Build clean payload — only editable fields, no system fields
       const payload = buildPayload(liveForm);
       return base44.entities.Profile.update(profileId, payload);
     },
@@ -580,28 +592,34 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       setSaveError("");
     },
     onSuccess: async () => {
-      // Refetch to confirm the server actually persisted the change
       await refetchProfile();
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       const now = new Date().toLocaleTimeString();
       setSaveStatus("success");
       setSaveTime(now);
-      toast.success("Profile saved!");
-      // Clear success status after 5s
-      setTimeout(() => setSaveStatus(null), 5000);
+
+      // Info tab → go back to My Profiles after confirmed save
+      if (saveTabRef.current === "info") {
+        toast.success(lang === "fr" ? "Profil enregistré !" : "Profile saved!");
+        setTimeout(() => onBack(), 800);
+      } else {
+        // All other tabs → stay, show inline status only
+        setTimeout(() => setSaveStatus(null), 4000);
+      }
     },
     onError: (err) => {
       const msg = err?.message || "Unknown error";
       setSaveStatus("error");
       setSaveError(msg);
-      toast.error(`Save failed: ${msg}`);
+      // Stay on current tab regardless of which tab triggered the save
     },
   });
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback((tab) => {
     if (saveMutation.isPending) return;
+    saveTabRef.current = tab || innerTab;
     saveMutation.mutate();
-  }, [saveMutation]);
+  }, [saveMutation, innerTab]);
 
   const headText  = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
@@ -614,15 +632,16 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     );
   }
 
-  const sharedSaveProps = {
-    onSave: handleSave,
+  // Each panel gets its own onSave so the tab id is captured correctly
+  const makeSaveProps = (tab) => ({
+    onSave: () => handleSave(tab),
     isPending: saveMutation.isPending,
-    saveStatus,
+    saveStatus: saveTabRef.current === tab ? saveStatus : null,
     saveTime,
     saveError,
     isDark,
     lang,
-  };
+  });
 
   return (
     <div className="flex flex-col h-full">
@@ -702,13 +721,13 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         <div className="flex gap-4 flex-1 min-w-0">
           <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
             {innerTab === "info" && (
-              <InfoPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} profile={profile} />
+              <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} />
             )}
             {innerTab === "links" && (
-              <LinksPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} />
+              <LinksPanel {...makeSaveProps("links")} liveForm={liveForm} setVal={setVal} set={set} />
             )}
             {innerTab === "design" && (
-              <DesignPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} />
+              <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} />
             )}
             {innerTab === "share" && (
               <SharePanel
@@ -721,7 +740,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <LostModePanel profileId={profileId} user={user} isDark={isDark} />
             )}
             {innerTab === "settings" && (
-              <SettingsPanel {...sharedSaveProps} liveForm={liveForm} setVal={setVal} set={set} />
+              <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set} />
             )}
           </div>
 
