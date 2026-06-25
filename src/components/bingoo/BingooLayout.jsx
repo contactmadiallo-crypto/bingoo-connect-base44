@@ -16,7 +16,7 @@ import { t, getLang } from "@/lib/i18n";
  * When no profile is selected (hub view), selectedProfile is null → free sidebar.
  * Admin users see all items + Admin Panel regardless of selected profile.
  */
-export default function BingooLayout({ children, selectedProfile, lang = "en" }) {
+export default function BingooLayout({ children, selectedProfile, accountPlan, lang = "en" }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
@@ -40,8 +40,8 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
   // Admin Panel is gated strictly on user.role — never on profile plan
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
 
-  // All sidebar items derived from selected profile — isAdmin unlocks everything
-  const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang);
+  // All sidebar items derived from selected profile + effective account plan — isAdmin unlocks everything
+  const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
 
   const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";

@@ -15,6 +15,7 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import { usePlan } from "@/hooks/usePlan";
+import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS } from "@/lib/planPermissions";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
 
@@ -71,7 +72,7 @@ function SaveBtn({ onSave, isPending, label }) {
 }
 
 // ── INFO PANEL ────────────────────────────────────────────────────────────
-function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, profile, lang }) {
+function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, profile, userPlan, lang }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
@@ -125,9 +126,16 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               </label>
             </div>
             <div className="pb-1">
-              <span className="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide bg-blue-50 text-blue-700">
-                {profile?.plan || "Free"}
-              </span>
+              {(() => {
+                const ep = getEffectiveProfilePlan(userPlan, profile);
+                const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
+                return (
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide"
+                    style={{ background: colors.bg, color: colors.text }}>
+                    {PLAN_LABELS[ep] || "Free"}
+                  </span>
+                );
+              })()}
             </div>
           </div>
 
@@ -379,7 +387,7 @@ function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime
         <div>
           <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("profile_layout", lang)}</Label>
           <LayoutPicker value={liveForm.layout || "classic"} onChange={v => setVal("layout", v)}
-            color={liveForm.cover_color} plan={userPlan || profile?.plan || "free"}
+            color={liveForm.cover_color} plan={getEffectiveProfilePlan(userPlan, profile)}
             isAdmin={user?.role === "admin"} />
         </div>
       </div>
@@ -712,9 +720,16 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
             <p className={`text-[11px] ${mutedText} truncate`}>/p/{profile.username}</p>
           </div>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide bg-blue-100 text-blue-700 flex-shrink-0">
-            {profile.plan || "free"}
-          </span>
+          {(() => {
+            const ep = getEffectiveProfilePlan(userPlan, profile);
+            const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
+            return (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
+                style={{ background: colors.bg, color: colors.text }}>
+                {PLAN_LABELS[ep] || "Free"}
+              </span>
+            );
+          })()}
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -771,7 +786,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         <div className="flex gap-4 flex-1 min-w-0">
           <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
             {innerTab === "info" && (
-              <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} />
+              <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
             {innerTab === "links" && (
               <LinksPanel {...makeSaveProps("links")} liveForm={liveForm} setVal={setVal} set={set} />

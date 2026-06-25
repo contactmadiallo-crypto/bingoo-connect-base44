@@ -26,6 +26,7 @@ import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
+import { getEffectiveProfilePlan, PLAN_LABELS } from "@/lib/planPermissions";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
   Zap, Briefcase, FileText, Users, AlertTriangle,
@@ -353,13 +354,15 @@ export default function BingooDashboard() {
               style={{ background: activeProfile.cover_color || "#2563eb" }}>{activeProfile.display_name?.charAt(0)}</div>
         }
         <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">{activeProfile.plan || "free"}</span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">
+          {PLAN_LABELS[getEffectiveProfilePlan(userPlan, activeProfile)] || "Free"}
+        </span>
       </div>
     );
   };
 
   return (
-    <BingooLayout selectedProfile={activeProfile ?? null} lang={lang}>
+    <BingooLayout selectedProfile={activeProfile ?? null} accountPlan={userPlan} lang={lang}>
       {showOnboarding && user && (
         <AIOnboardingAssistant
           userName={user.full_name}

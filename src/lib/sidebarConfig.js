@@ -277,12 +277,34 @@ export const SIDEBAR_NAV_MAP = {
  * @param {object|null} profile - The selected profile entity (or null)
  * @param {boolean} isAdmin - user.role === "admin"
  * @param {string} lang - "en" | "fr"
+ * @param {string|null} effectivePlan - Optional pre-computed effective plan (from getEffectiveProfilePlan).
+ *   When provided, this overrides the plan derived from profile fields alone.
+ *   Pass this from BingooLayout so account subscription is respected by sidebar gating.
  * @returns {Array} ordered sidebar items with localized labels
  */
-export function getVisibleNavItems(profile, isAdmin = false, lang = "en") {
+export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effectivePlan = null) {
+  let type;
+  if (isAdmin) {
+    type = null; // admin uses ADMIN_SIDEBAR_ITEMS directly
+  } else if (effectivePlan && effectivePlan !== "free") {
+    // Map the effective plan to a sidebar type — effective plan wins over stale profile.plan
+    const planToType = {
+      professional: TYPE_PRO,
+      pro: TYPE_PRO,
+      salon: TYPE_SALON,
+      restaurant: TYPE_BUSINESS,
+      business: TYPE_BUSINESS,
+      lawfirm: TYPE_LAWFIRM,
+      corporate: TYPE_CORPORATE,
+    };
+    type = planToType[effectivePlan] || normalizeProfileType(profile);
+  } else {
+    type = normalizeProfileType(profile);
+  }
+
   const ids = isAdmin
     ? ADMIN_SIDEBAR_ITEMS
-    : (SIDEBAR_ITEMS_BY_TYPE[normalizeProfileType(profile)] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE]);
+    : (SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE]);
 
   return ids.map(id => {
     const item = SIDEBAR_NAV_MAP[id];
