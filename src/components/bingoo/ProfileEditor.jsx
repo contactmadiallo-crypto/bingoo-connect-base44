@@ -326,7 +326,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
               </div>
             </div>
 
-            {/* Company Logo */}
+            {/* Company Logo — hidden for Individual Free users */}
+          {showBusinessFields && (
           <div className="mt-4">
             <Label className="font-semibold">Company / Business Logo</Label>
             <div className="flex items-center gap-4 mt-2">
@@ -345,6 +346,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
               </div>
             </div>
           </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-4">
               <div>
@@ -595,7 +597,8 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             </div>
             </div>
 
-        {/* Booking Settings */}
+        {/* Booking Settings — hidden for Individual Free users */}
+        {showBusinessFields && (
         <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
           <div className="flex items-center justify-between">
             <div>
@@ -639,6 +642,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             </div>
           )}
         </div>
+        )}
 
         {/* Salon / Restaurant / Business extras — shown for any plan that supports google_reviews */}
         {["salon", "restaurant", "business"].includes(profile?.plan) && (

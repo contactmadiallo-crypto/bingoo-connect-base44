@@ -393,6 +393,61 @@ export const FEATURE_DESCRIPTIONS = {
   employee_profiles:    { title: 'Employee Profiles',          upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan to manage employee profiles.' },
 };
 
+// ── Dashboard Tab Visibility Matrix ──────────────────────────────────────────
+//
+// Single source of truth for which tabs appear in BingooDashboard.
+// Each entry describes the conditions under which a tab is visible.
+//
+// account_type:
+//   "any"        → shown to all account types (including legacy null → treated as individual)
+//   "business"   → only shown when account_type === "business" (or legacy null)
+//   "!individual"→ hidden only for explicit account_type === "individual"
+//
+// planFeature (optional):
+//   canAccess(plan, planFeature) must return true
+//
+// Tab visibility rules (evaluated in BingooDashboard):
+//   - "any"         → always shown
+//   - "!individual" → shown unless explicitlyIndividual
+//   - "business"    → same as "!individual" (business accounts or legacy null)
+//
+// FEATURE PERMISSION MATRIX
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab               | free | pro | business | salon | lawfirm | corporate | admin
+// ─────────────────────────────────────────────────────────────────────────────
+// overview          |  ✓   |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// profile           |  ✓   |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// analytics         |  ✗*  |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// portfolio         |  ✓†  |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// resumes           |  ✓†  |  ✓  |    ✓     |   ✗   |    ✗    |     ✓     |  ✓
+// connections       |  ✓   |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// lost_mode         |  ✗   |  ✓  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// appointments      |  ✗   |  ✗  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// leads             |  ✗   |  ✗  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// services/hours    |  ✗   |  ✗  |    ✓†    |   ✓   |    ✗    |     ✗     |  ✓
+// practice_areas    |  ✗   |  ✗  |    ✗     |   ✗   |    ✓    |     ✓     |  ✓
+// legal_services    |  ✗   |  ✗  |    ✗     |   ✗   |    ✓    |     ✓     |  ✓
+// offices           |  ✗   |  ✗  |    ✗     |   ✗   |    ✓    |     ✓     |  ✓
+// team              |  ✗   |  ✗  |    ✓     |   ✓   |    ✓    |     ✓     |  ✓
+// crm               |  ✗   |  ✗  |    ✗     |   ✗   |    ✓    |     ✓     |  ✓
+// attendance        |  ✗   |  ✗  |    ✗     |   ✗   |    ✗    |     ✓     |  ✓
+// ─────────────────────────────────────────────────────────────────────────────
+// * analytics: hidden for explicitlyIndividual + free plan (canAccess check)
+// † portfolio/resumes/portfolio gate: content-gated via PlanGateScreen inside tab
+//
+// ProfileEditor field gating:
+//   Company Logo        → hidden when isFreeIndividual (individual + free)
+//   Booking Settings    → hidden when isFreeIndividual (individual + free)
+//   Business Extras     → only shown when profile.plan in [salon, restaurant, business]
+//
+// Stripe precedence (usePlan):
+//   1. Stripe-backed sub (has stripe_subscription_id or stripe_customer_id)
+//      - active    → use sub.plan
+//      - past_due  → use sub.plan (grace period)
+//      - canceled  → downgrade to free
+//   2. Manual/legacy: max(sub.plan, profile.plan) — no downgrade on manual cancel
+//   3. Default: free
+
 // ── Legacy compatibility shims ─────────────────────────────────────────────────
 // These are kept so any file that imports them doesn't hard-crash.
 // canAccess() no longer uses PLAN_HIERARCHY or FEATURE_REQUIREMENTS internally.

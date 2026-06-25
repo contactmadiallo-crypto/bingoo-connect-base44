@@ -546,7 +546,7 @@ export default function BingooDashboard() {
 
           {tab === "profile"        && (
             <div className="space-y-6">
-              <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} userPlan={userPlan} />
+              <ProfileEditor user={user} editProfileId={selectedProfileId} prefillData={aiGeneratedProfile} onSaved={() => { setAiGeneratedProfile(null); setLiveFormOverride(null); goToOverview(); }} onFormChange={setLiveFormOverride} userPlan={userPlan} isFreeIndividual={isFreeIndividual} />
               <div className={`rounded-2xl overflow-hidden ${isDark ? "border border-white/8" : "border border-slate-200"}`}>
                 <div className={`flex items-center gap-2 px-5 py-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                   <Palette className="w-4 h-4" style={{ color: "#f97316" }} />
