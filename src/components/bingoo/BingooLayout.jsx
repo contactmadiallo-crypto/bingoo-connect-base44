@@ -65,10 +65,11 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
     return location.pathname === href && !location.search;
   };
 
-  const NavLink = ({ item, onNav }) => {
+  // Render helpers (plain functions, not React components, so no remount risk)
+  const renderNavLink = (item, onNav) => {
     const active = isActive(item.href);
     return (
-      <Link to={item.href} onClick={onNav}
+      <Link key={item.id} to={item.href} onClick={onNav}
         className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
         style={{
           background: active ? "rgba(255,255,255,0.10)" : "transparent",
@@ -87,7 +88,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
     );
   };
 
-  const SidebarContent = ({ onNav }) => (
+  const renderSidebarContent = (onNav) => (
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
@@ -101,7 +102,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
         </div>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(item => <NavLink key={item.id} item={item} onNav={onNav} />)}
+        {navItems.map(item => renderNavLink(item, onNav))}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -125,12 +126,13 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
       </nav>
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
         <button onClick={toggle}
-          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all bg-white/8 text-white hover:bg-white/14 border border-white/10">
+          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all text-white border border-white/10"
+          style={{ background: "rgba(255,255,255,0.08)" }}>
           {isDark
             ? <><Sun className="w-4 h-4 text-yellow-400" /> {t("light_mode", lang)}</>
             : <><Moon className="w-4 h-4 text-blue-300" /> {t("dark_mode", lang)}</>}
         </button>
-        <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/8">
+        <div className="flex items-center gap-3 px-3 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
             style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
             {user?.full_name?.charAt(0) || "U"}
@@ -169,7 +171,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
       {/* ── DESKTOP SIDEBAR ── */}
       <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-20"
         style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}>
-        <SidebarContent onNav={null} />
+        {renderSidebarContent(null)}
       </aside>
 
       {/* ── MOBILE TOP HEADER ── */}
@@ -212,7 +214,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <SidebarContent onNav={() => setMobileOpen(false)} />
+            {renderSidebarContent(() => setMobileOpen(false))}
           </div>
         </div>
       )}
@@ -249,7 +251,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
         {/* 2. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <Menu className="w-5 h-5 text-white/40" />
           </div>
           <span className="text-[10px] font-semibold text-white/40">{t("more", lang)}</span>
@@ -295,7 +297,7 @@ export default function BingooLayout({ children, selectedProfile, lang = "en" })
         {/* 5. Logout */}
         <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <LogOut className="w-5 h-5 text-red-400" />
           </div>
           <span className="text-[10px] font-semibold text-red-400">{t("logout", lang)}</span>

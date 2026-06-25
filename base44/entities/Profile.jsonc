@@ -205,6 +205,36 @@
         }
       }
     },
+    "custom_links": {
+      "type": "array",
+      "description": "Custom links added by the user",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "fr"
+      ],
+      "default": "en",
+      "description": "Profile language preference"
+    },
     "google_review_url": {
       "type": "string",
       "description": "Google Maps/Business review link"
