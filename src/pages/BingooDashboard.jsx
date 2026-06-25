@@ -29,6 +29,7 @@ import ProfilesHub from "@/components/bingoo/ProfilesHub";
 import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
+import { normalizeProfileType } from "@/lib/sidebarConfig";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
   Zap, Briefcase, FileText, Users, AlertTriangle,
@@ -579,7 +580,12 @@ export default function BingooDashboard() {
               ) : !planLoading && !canAccess("team_members") ? (
                 <PlanGateScreen feature="team_members" isDark={isDark} />
               ) : (
-                <TeamMembersPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+                <TeamMembersPanel
+                    profileId={activeProfile.id}
+                    profileType={normalizeProfileType(activeProfile)}
+                    isDark={isDark}
+                    onSaved={() => {}}
+                  />
               )}
             </div>
           )}
