@@ -5,9 +5,7 @@ import BingooLayout from "@/components/bingoo/BingooLayout";
 import ProfileEditor from "@/components/bingoo/ProfileEditor";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
-import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
-import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import DesignTab from "@/components/bingoo/DesignTab";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
@@ -24,65 +22,68 @@ import AttendancePanel from "@/components/bingoo/AttendancePanel";
 import PracticeAreasPanel from "@/components/bingoo/PracticeAreasPanel";
 import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
 import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
+import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import DashboardNav from "@/components/bingoo/DashboardNav";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
-import DashboardOverview from "@/components/bingoo/DashboardOverview";
 import ProfilesHub from "@/components/bingoo/ProfilesHub";
-import ProfileWorkspaceHeader from "@/components/bingoo/ProfileWorkspaceHeader";
 import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import {
-  Eye, Copy, Check, BarChart3, Star, Settings, TrendingUp, CalendarDays,
-  Zap, Briefcase, Palette, Download, QrCode, FileText, Users, AlertTriangle,
-  Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft
+  BarChart3, Star, Settings, TrendingUp, CalendarDays,
+  Zap, Briefcase, FileText, Users, AlertTriangle,
+  Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft,
+  AlertOctagon
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-const TABS_CONFIG = [
-  { id: "overview",      labelKey: "overview",      icon: TrendingUp,   color: "#3b82f6" },
-  { id: "profile",       labelKey: "editProfile",   icon: Settings,     color: "#8b5cf6" },
-  { id: "appointments",  labelKey: "appointments",  icon: CalendarDays, color: "#10b981" },
-  { id: "leads",         labelKey: "leads",         icon: Star,         color: "#f59e0b" },
-  { id: "analytics",     labelKey: "analytics",     icon: BarChart3,    color: "#d97706" },
-  { id: "portfolio",     labelKey: "portfolio",     icon: Briefcase,    color: "#8b5cf6" },
-  { id: "resumes",       labelKey: "resumes",       icon: FileText,     color: "#6366f1" },
-  { id: "connections",   labelKey: "connections",   icon: Users,        color: "#e11d48" },
-  { id: "lost_mode",     labelKey: "lostMode",      icon: AlertTriangle, color: "#ef4444" },
-  { id: "hours",         labelKey: "hours",         icon: Clock,        color: "#0891b2" },
-];
+// ── View/page constants ──
+const VIEW_HUB        = "hub";
+const VIEW_WORKSPACE  = "workspace";
+const VIEW_APPTS      = "appointments";
+const VIEW_LEADS      = "leads";
+const VIEW_ANALYTICS  = "analytics";
+const VIEW_LOSTMODE   = "lostmode";
+const VIEW_CONNECTIONS = "connections";
+const VIEW_CRM        = "crm";
 
-// ── View states ──
-// "hub"       → My Profiles list (default when no profile selected)
-// "workspace" → Profile workspace for selectedProfileId
-const VIEW_HUB = "hub";
-const VIEW_WORKSPACE = "workspace";
+// "No profile selected" empty state
+const NoProfileState = ({ isDark, onGoToProfiles }) => (
+  <div className={`flex flex-col items-center justify-center py-24 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
+    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+      style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.08)" }}>
+      <span className="text-3xl">👤</span>
+    </div>
+    <p className={`font-bold text-base mb-1 ${isDark ? "text-white/60" : "text-slate-600"}`}>No profile selected</p>
+    <p className="text-sm mb-5">Select a profile first to access this section.</p>
+    <button onClick={onGoToProfiles}
+      className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+      style={{ background: "#FF7A00" }}>
+      Go to My Profiles
+    </button>
+  </div>
+);
 
 export default function BingooDashboard() {
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // "view" controls hub vs workspace
   const view = searchParams.get("view") || VIEW_HUB;
-  const tab = searchParams.get("tab") || "overview";
 
-  // selectedProfileId: string = specific profile open in workspace
+  // selectedProfileId is the single source of truth
   const [selectedProfileId, setSelectedProfileId] = useState(null);
 
-  const [showLayoutPicker, setShowLayoutPicker] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isRestaurant, isBusiness, isFree, canAccess, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
+  const { isSalon, isBusiness, isFree, canAccess, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
 
-  const hasServiceMenu = !planLoading && canAccess("service_menu");
-  const hasTeam = !planLoading && (canAccess("staff_profiles") || canAccess("attorney_profiles") || canAccess("employee_profiles"));
-  const hasCRM = !planLoading && canAccess("crm_pipeline");
-  const hasAttendance = !planLoading && canAccess("attendance");
+  const hasServiceMenu  = !planLoading && canAccess("service_menu");
+  const hasTeam         = !planLoading && (canAccess("staff_profiles") || canAccess("attorney_profiles") || canAccess("employee_profiles"));
+  const hasCRM          = !planLoading && canAccess("crm_pipeline");
+  const hasAttendance   = !planLoading && canAccess("attendance");
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -122,9 +123,9 @@ export default function BingooDashboard() {
     }).catch(() => setOwnershipReady(true));
   }, [user?.id]);
 
-  // Active profile in workspace — resolves from selectedProfileId, falling back to first profile
+  // Active profile — resolves from selectedProfileId
   const activeProfile = selectedProfileId
-    ? profiles.find(p => p.id === selectedProfileId) ?? profiles[0]
+    ? (profiles.find(p => p.id === selectedProfileId) ?? profiles[0])
     : profiles[0];
 
   // Queries scoped to activeProfile
@@ -180,31 +181,27 @@ export default function BingooDashboard() {
   }, [activeProfile?.id]);
 
   // ── Navigation helpers ──
+  // IMPORTANT: none of these change selectedProfileId unless explicitly navigating to a new profile
   const openHub = () => {
     setLiveFormOverride(null);
     setSearchParams({});
   };
 
-  const openWorkspace = (profileId, targetTab = "overview") => {
+  const openWorkspace = (profileId) => {
     setSelectedProfileId(profileId);
     setLiveFormOverride(null);
-    setSearchParams({ view: VIEW_WORKSPACE, tab: targetTab });
+    setSearchParams({ view: VIEW_WORKSPACE });
   };
 
   const openNewProfile = () => {
     setSelectedProfileId(null);
     setLiveFormOverride(null);
-    setSearchParams({ view: VIEW_WORKSPACE, tab: "profile" });
+    setSearchParams({ view: VIEW_WORKSPACE, newprofile: "1" });
   };
 
-  const setTab = (t) => {
-    if (t !== "profile") setLiveFormOverride(null);
-    setSearchParams({ view: VIEW_WORKSPACE, tab: t });
-  };
-
-  const goToOverview = () => {
-    refetchProfiles();
-    setTab("overview");
+  const openView = (v) => {
+    setLiveFormOverride(null);
+    setSearchParams({ view: v });
   };
 
   const launchAI = () => {
@@ -212,36 +209,9 @@ export default function BingooDashboard() {
     setShowOnboarding(true);
   };
 
-  // Computed profile URLs
-  const profileAbsoluteUrl = activeProfile ? `${window.location.origin}/p/${activeProfile.username}` : null;
-  const profileUrl = activeProfile ? `/p/${activeProfile.username}` : null;
-  const profileQrUrl = profileAbsoluteUrl ? `${profileAbsoluteUrl}?source=qr` : null;
-  const qrUrl = profileQrUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=ffffff&bgcolor=1e293b`
-    : null;
-
-  const downloadBrandedQR = async () => {
-    if (!profileQrUrl) return;
-    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=1e293b&bgcolor=ffffff`;
-    const img = new Image(); img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 400; canvas.height = 460;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
-      ctx.drawImage(img, 0, 0, 400, 400);
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 400, 400, 60);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
-      ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
-      ctx.fillStyle = "#FF7A00"; ctx.font = "bold 13px system-ui,sans-serif";
-      ctx.fillText("Scan to connect", 200, 452);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = `bingoo-qr-${activeProfile?.username || "profile"}.png`;
-      a.click();
-    };
-    img.src = qrSrc;
-  };
+  // Permission flags
+  const explicitlyIndividual = user?.account_type === "individual";
+  const isFreeIndividual = explicitlyIndividual && isFree;
 
   // Language
   const [lang, setLang] = useState(() => {
@@ -256,82 +226,36 @@ export default function BingooDashboard() {
     return next;
   });
   const TR = {
-    en: {
-      overview: "Overview", editProfile: "Profile Studio", appointments: "Appointments",
-      leads: "Leads", analytics: "Analytics", portfolio: "Portfolio",
-      resumes: "Resumes", connections: "Connections", lostMode: "Lost Mode", hours: "Hours",
-      profileViews: "Profile Views", yourProfile: "Your Profile",
-      noProfile: "No profile yet", createCard: "Create your digital card to get started.",
-      buildAI: "Build with AI", manual: "Manual",
-      qrCode: "QR Code", scanQr: "Scan to open your profile", download: "Download",
-      createFirst: "Create a profile first",
-      recentLeads: "Recent Leads", viewAll: "View all",
-      pushNotifs: "Push Notifications", pushDesc: "Get instant alerts for new leads & appointments",
-      unlockPower: "Unlock Full Power", unlockDesc: "Pro analytics, lead capture, booking & unlimited devices.",
-      viewPlans: "View Plans", copy: "Copy", copied: "Copied!",
-      preview: "Preview", setupFirst: "Select a profile to get started.",
-      activateDevice: "Activate Device",
-    },
-    fr: {
-      overview: "Aperçu", editProfile: "Studio Profil", appointments: "Rendez-vous",
-      leads: "Prospects", analytics: "Analytiques", portfolio: "Portfolio",
-      resumes: "CV", connections: "Connexions", lostMode: "Mode Perdu", hours: "Horaires",
-      profileViews: "Vues du Profil", yourProfile: "Votre Profil",
-      noProfile: "Pas encore de profil", createCard: "Créez votre carte numérique pour commencer.",
-      buildAI: "Créer avec l'IA", manual: "Manuel",
-      qrCode: "Code QR", scanQr: "Scannez pour ouvrir votre profil", download: "Télécharger",
-      createFirst: "Créez d'abord un profil",
-      recentLeads: "Prospects Récents", viewAll: "Voir tout",
-      pushNotifs: "Notifications Push", pushDesc: "Alertes instantanées pour les prospects & rendez-vous",
-      unlockPower: "Débloquez Tout le Pouvoir", unlockDesc: "Analytics pro, prospects, réservations & appareils illimités.",
-      viewPlans: "Voir les Forfaits", copy: "Copier", copied: "Copié!",
-      preview: "Aperçu", setupFirst: "Sélectionnez un profil pour commencer.",
-      activateDevice: "Activer l'Appareil",
-    }
+    en: { lostMode: "Lost Mode" },
+    fr: { lostMode: "Mode Perdu" }
   };
   const tr = TR[lang];
 
-  // Analytics computed
-  const totalViews = analytics.filter(a => a.event_type === "profile_view").length;
-  const totalClicks = analytics.filter(a => a.event_type !== "profile_view").length;
-  const totalNfcTaps = analytics.filter(a => a.event_type === "nfc_tap").length;
-  const totalQrScans = analytics.filter(a => a.event_type === "qr_scan").length;
-  const totalWhatsApp = analytics.filter(a => a.event_type === "whatsapp_click").length;
-  const thisMonthStart = new Date(); thisMonthStart.setDate(1); thisMonthStart.setHours(0,0,0,0);
-  const leadsThisMonth = leads.filter(l => l.created_date && new Date(l.created_date) >= thisMonthStart).length;
-  const apptsThisMonth = appointments.filter(a => a.created_date && new Date(a.created_date) >= thisMonthStart).length;
-  const monthLabel = new Date().toLocaleString("en", { month: "long" });
+  // Profile URL helpers
+  const profileAbsoluteUrl = activeProfile ? `${window.location.origin}/p/${activeProfile.username}` : null;
 
-  // Permission flags
-  const explicitlyIndividual = user?.account_type === "individual";
-  const isFreeIndividual = explicitlyIndividual && isFree;
+  // isNewProfile mode
+  const isNewProfile = searchParams.get("newprofile") === "1";
 
-  // Workspace tab list
-  const BASE_TABS = TABS_CONFIG.map(t => ({ ...t, label: tr[t.labelKey] }));
-  const TABS = [
-    BASE_TABS[0], BASE_TABS[1],
-    ...(!explicitlyIndividual ? [BASE_TABS[2]] : []),
-    ...(!explicitlyIndividual ? [BASE_TABS[3]] : []),
-    ...(isLawFirm && !explicitlyIndividual ? [
-      { id: "services",       label: "Practice Areas",   icon: Scale,     color: "#6366f1" },
-      { id: "legal_services", label: "Legal Services",   icon: Scale,     color: "#6366f1" },
-      { id: "offices",        label: "Office Locations", icon: Building2, color: "#ef4444" },
-    ] : []),
-    ...(hasServiceMenu && !isLawFirm && !explicitlyIndividual ? [
-      { id: "services", label: "Services", icon: Scissors, color: "#10b981" },
-      { id: "hours",    label: tr.hours,   icon: Clock,    color: "#0891b2" },
-    ] : []),
-    ...(!explicitlyIndividual || canAccess("analytics") ? [BASE_TABS[4]] : []),
-    BASE_TABS[5],
-    ...(!isLawFirm && !isSalon ? BASE_TABS.slice(6, 7) : []),
-    ...BASE_TABS.slice(7, 9),
-    ...(hasTeam && !explicitlyIndividual ? [{ id: "team", label: isLawFirm ? "Attorneys" : "Team", icon: isLawFirm ? Scale : Users, color: "#0d9488" }] : []),
-    ...(hasCRM && !explicitlyIndividual ? [{ id: "crm", label: isLawFirm ? "CRM Pipeline" : "CRM", icon: GitBranch, color: "#6366f1" }] : []),
-    ...(hasAttendance && !explicitlyIndividual ? [{ id: "attendance", label: "Attendance", icon: UserCheck, color: "#10b981" }] : []),
-  ];
-
-  // ── Render: Hub (My Profiles) ──
-  const isWorkspace = view === VIEW_WORKSPACE;
+  // ── Page-level context chip (for non-hub views) ──
+  const ProfileChip = () => {
+    if (!activeProfile) return null;
+    return (
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        <button onClick={openHub}
+          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
+          <ChevronLeft className="w-3.5 h-3.5" /> Profiles
+        </button>
+        {activeProfile.profile_photo
+          ? <img src={activeProfile.profile_photo} className="w-7 h-7 rounded-lg object-cover flex-shrink-0" alt="" />
+          : <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-white text-xs flex-shrink-0"
+              style={{ background: activeProfile.cover_color || "#2563eb" }}>{activeProfile.display_name?.charAt(0)}</div>
+        }
+        <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
+        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">{activeProfile.plan || "free"}</span>
+      </div>
+    );
+  };
 
   return (
     <BingooLayout>
@@ -355,10 +279,9 @@ export default function BingooDashboard() {
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
         <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-16 pt-3 sm:pt-6">
 
-          {/* ── Global top bar (always visible) ── */}
+          {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2.5">
-              {/* Bingoo wordmark */}
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)" }}>
                 <span className="text-white font-black text-sm">B</span>
@@ -368,7 +291,7 @@ export default function BingooDashboard() {
                   {user?.full_name?.split(" ")[0] || "Dashboard"}
                 </h1>
                 <p className={`text-[11px] font-semibold mt-0.5 ${isDark ? "text-white/35" : "text-slate-400"}`}>
-                  {isWorkspace && activeProfile ? activeProfile.display_name : "My Profiles"}
+                  {activeProfile ? activeProfile.display_name : "My Profiles"}
                 </p>
               </div>
             </div>
@@ -385,8 +308,10 @@ export default function BingooDashboard() {
             </div>
           </div>
 
-          {/* ── HUB: My Profiles ── */}
-          {!isWorkspace && (
+          {/* ════════════════════════════════════
+              HUB — My Profiles
+          ════════════════════════════════════ */}
+          {view === VIEW_HUB && (
             <ProfilesHub
               profiles={profiles}
               user={user}
@@ -397,147 +322,171 @@ export default function BingooDashboard() {
             />
           )}
 
-          {/* ── WORKSPACE: Selected Profile ── */}
-          {isWorkspace && (
+          {/* ════════════════════════════════════
+              WORKSPACE — Profile editor
+          ════════════════════════════════════ */}
+          {view === VIEW_WORKSPACE && (
             <>
-              {/* ── Profile workspace (Info/Links/Design/Share/Settings with live preview) ── */}
-              {(tab === "overview" || tab === "profile") && (
-                activeProfile ? (
-                  <ProfileWorkspace
-                    profileId={activeProfile.id}
-                    user={user}
-                    onBack={openHub}
-                    isDark={isDark}
-                    isLawFirm={isLawFirm}
-                    isSalon={isSalon}
-                  />
-                ) : (
-                  /* New profile creation via legacy ProfileEditor */
-                  <div className="space-y-5">
-                    <div className="flex items-center gap-3">
-                      <button onClick={openHub}
-                        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                        <ChevronLeft className="w-4 h-4" /> Profiles
-                      </button>
-                      <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>New Profile</p>
-                    </div>
-                    <ProfileEditor
-                      user={user}
-                      editProfileId={null}
-                      prefillData={aiGeneratedProfile}
-                      onSaved={(savedProfile) => {
-                        setAiGeneratedProfile(null);
-                        setLiveFormOverride(null);
-                        if (savedProfile?.id) setSelectedProfileId(savedProfile.id);
-                        refetchProfiles();
-                        setSearchParams({ view: VIEW_WORKSPACE, tab: "overview" });
-                      }}
-                      onFormChange={setLiveFormOverride}
-                      userPlan={userPlan}
-                      isFreeIndividual={isFreeIndividual}
-                    />
-                  </div>
-                )
-              )}
-
-              {/* ── Feature tabs — scoped to activeProfile ── */}
-              {activeProfile && tab !== "overview" && tab !== "profile" && (
-                <>
-                  {/* Compact profile chip + back link */}
-                  <div className="flex items-center gap-3 mb-5">
+              {isNewProfile || !activeProfile ? (
+                /* New profile creation */
+                <div className="space-y-5">
+                  <div className="flex items-center gap-3">
                     <button onClick={openHub}
                       className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
                       <ChevronLeft className="w-4 h-4" /> Profiles
                     </button>
-                    <div className="flex items-center gap-2">
-                      {activeProfile.profile_photo
-                        ? <img src={activeProfile.profile_photo} className="w-7 h-7 rounded-lg object-cover" alt="" />
-                        : <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-white text-xs"
-                            style={{ background: activeProfile.cover_color || "#2563eb" }}>{activeProfile.display_name?.charAt(0)}</div>
-                      }
-                      <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
-                    </div>
-                    {/* Tab nav for feature tabs */}
-                    <div className="flex-1">
-                      <DashboardNav tabs={TABS} activeTab={tab} setTab={setTab} leads={leads} appointments={appointments} isDark={isDark} />
-                    </div>
+                    <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>New Profile</p>
                   </div>
-
-                  {tab === "appointments"   && (!planLoading && !canAccess("appointment_booking") ? <PlanGateScreen feature="appointment_booking" isDark={isDark} /> : <AppointmentsTabMerged profileId={activeProfile.id} userId={user?.id} isDark={isDark} onSaved={goToOverview} />)}
-                  {tab === "leads"          && (!planLoading && !canAccess("lead_collection") ? <PlanGateScreen feature="lead_collection" isDark={isDark} /> : <LeadsPanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} onSaved={goToOverview} />)}
-                  {tab === "analytics"      && (!planLoading && !canAccess("analytics") ? <PlanGateScreen feature="analytics" isDark={isDark} /> : <AnalyticsPanel profileId={activeProfile.id} />)}
-                  {tab === "portfolio"      && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <PortfolioPanel profileId={activeProfile.id} user={user} onSaved={goToOverview} />)}
-                  {tab === "resumes"        && !isLawFirm && !isSalon && (!planLoading && !canAccess("portfolio") ? <PlanGateScreen feature="portfolio" isDark={isDark} /> : <ResumePanel user={user} profileId={activeProfile.id} />)}
-                  {tab === "connections"    && <ConnectionsPanel isDark={isDark} />}
-                  {tab === "lost_mode"      && (!planLoading && !canAccess("lost_mode") ? <PlanGateScreen feature="lost_mode" isDark={isDark} /> : <LostDeviceManager profileId={activeProfile.id} userId={user?.id} isDark={isDark} tr={tr} onSaved={goToOverview} />)}
-                  {tab === "services"       && (isLawFirm ? <PracticeAreasPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : (!planLoading && !canAccess("service_menu") ? <PlanGateScreen feature="service_menu" isDark={isDark} /> : <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />))}
-                  {tab === "legal_services" && (!planLoading && !canAccess("legal_services") ? <PlanGateScreen feature="legal_services" isDark={isDark} /> : <LegalServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
-                  {tab === "offices"        && (!planLoading && !canAccess("practice_areas") ? <PlanGateScreen feature="practice_areas" isDark={isDark} /> : <OfficeLocationsPanel profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />)}
-                  {tab === "team"           && (!planLoading && !hasTeam ? <PlanGateScreen feature="staff_profiles" isDark={isDark} /> : <TeamMembersPanel profileId={activeProfile.id} isDark={isDark} planLabel={userPlan} onSaved={goToOverview} />)}
-                  {tab === "crm"            && (!planLoading && !canAccess("crm_pipeline") ? <PlanGateScreen feature="crm_pipeline" isDark={isDark} /> : (isLawFirm ? <LegalLeadsDashboard profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} /> : <CRMPipelinePanel profileId={activeProfile.id} profileIds={profiles.map(p => p.id)} user={user} isDark={isDark} onSaved={goToOverview} />))}
-                  {tab === "attendance"     && (!planLoading && !canAccess("attendance") ? <PlanGateScreen feature="attendance" isDark={isDark} /> : <AttendancePanel profileId={activeProfile.id} isDark={isDark} />)}
-                  {tab === "hours"          && <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={goToOverview} />}
-                </>
-              )}
-
-              {/* No profile selected and not on profile/overview — go home */}
-              {!activeProfile && tab !== "overview" && tab !== "profile" && (
-                <div className="text-center py-20">
-                  <button onClick={openHub} className="text-blue-500 underline text-sm">← Back to Profiles</button>
+                  <ProfileEditor
+                    user={user}
+                    editProfileId={null}
+                    prefillData={aiGeneratedProfile}
+                    onSaved={(savedProfile) => {
+                      setAiGeneratedProfile(null);
+                      setLiveFormOverride(null);
+                      if (savedProfile?.id) setSelectedProfileId(savedProfile.id);
+                      refetchProfiles();
+                      // Go to workspace for the new profile — stay in workspace, don't redirect to hub
+                      setSearchParams({ view: VIEW_WORKSPACE });
+                    }}
+                    onFormChange={setLiveFormOverride}
+                    userPlan={userPlan}
+                    isFreeIndividual={isFreeIndividual}
+                  />
                 </div>
+              ) : (
+                /* Profile workspace with inner tabs — onBack goes to hub, save stays on same inner tab */
+                <ProfileWorkspace
+                  profileId={activeProfile.id}
+                  user={user}
+                  onBack={openHub}
+                  isDark={isDark}
+                  isLawFirm={isLawFirm}
+                  isSalon={isSalon}
+                />
               )}
             </>
+          )}
+
+          {/* ════════════════════════════════════
+              APPOINTMENTS — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_APPTS && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("appointment_booking") ? (
+                <PlanGateScreen feature="appointment_booking" isDark={isDark} />
+              ) : (
+                <AppointmentsTabMerged
+                  profileId={activeProfile.id}
+                  userId={user?.id}
+                  isDark={isDark}
+                  onSaved={() => { /* stay on this page — no redirect */ }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              LEADS — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_LEADS && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("lead_collection") ? (
+                <PlanGateScreen feature="lead_collection" isDark={isDark} />
+              ) : (
+                <LeadsPanel
+                  profileId={activeProfile.id}
+                  profileIds={profiles.map(p => p.id)}
+                  user={user}
+                  onSaved={() => { /* stay on this page */ }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              ANALYTICS — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_ANALYTICS && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("analytics") ? (
+                <PlanGateScreen feature="analytics" isDark={isDark} />
+              ) : (
+                <AnalyticsPanel profileId={activeProfile.id} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              LOST MODE — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_LOSTMODE && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("lost_mode") ? (
+                <PlanGateScreen feature="lost_mode" isDark={isDark} />
+              ) : (
+                <LostDeviceManager
+                  profileId={activeProfile.id}
+                  userId={user?.id}
+                  isDark={isDark}
+                  tr={tr}
+                  onSaved={() => { /* stay on this page */ }}
+                />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              CONNECTIONS — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_CONNECTIONS && (
+            <div>
+              <ConnectionsPanel isDark={isDark} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              CRM — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_CRM && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : !planLoading && !canAccess("crm_pipeline") ? (
+                <PlanGateScreen feature="crm_pipeline" isDark={isDark} />
+              ) : isLawFirm ? (
+                <LegalLeadsDashboard profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              ) : (
+                <CRMPipelinePanel
+                  profileId={activeProfile.id}
+                  profileIds={profiles.map(p => p.id)}
+                  user={user}
+                  isDark={isDark}
+                  onSaved={() => {}}
+                />
+              )}
+            </div>
           )}
 
         </div>
       </div>
 
-      {/* Live Preview Panel */}
-      {isWorkspace && activeProfile && tab === "profile" && (
-        <LivePreviewPanel
-          key={activeProfile.id}
-          profile={activeProfile}
-          pendingProfile={liveFormOverride ? { ...activeProfile, ...liveFormOverride } : activeProfile}
-          hasChanges={!!liveFormOverride}
-          isDark={isDark}
-          previewMode={tab}
-          isLawFirm={isLawFirm}
-        />
-      )}
-
       {/* Layout Picker Modal */}
-      {showLayoutPicker && activeProfile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden ${isDark ? "bg-[#13162a] border border-white/10" : "bg-white border border-slate-200"}`}>
-            <div className={`p-6 border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className={`text-xl font-black ${isDark ? "text-white" : "text-slate-900"}`}>Profile Style</h2>
-                  <p className={`text-sm mt-0.5 ${isDark ? "text-white/40" : "text-slate-400"}`}>Choose a layout for your public page</p>
-                </div>
-                <button onClick={() => setShowLayoutPicker(false)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-white/50" : "hover:bg-slate-100 text-slate-400"}`}>✕</button>
-              </div>
-            </div>
-            <div className="p-6 overflow-y-auto max-h-[65vh]">
-              <LayoutPicker
-                value={activeProfile.layout || "classic"}
-                onChange={async (newLayout) => {
-                  const CHAMPIONSHIP = new Set(["ny_championship", "lions_teranga"]);
-                  const update = { layout: newLayout };
-                  if (CHAMPIONSHIP.has(newLayout)) update.profile_layout = newLayout;
-                  else if (CHAMPIONSHIP.has(activeProfile.profile_layout)) update.profile_layout = "default";
-                  await base44.entities.Profile.update(activeProfile.id, update);
-                  qc.invalidateQueries({ queryKey: ["public-profile", activeProfile.username] });
-                  refetchProfiles();
-                  setShowLayoutPicker(false);
-                }}
-                plan={activeProfile?.plan || "free"}
-                isAdmin={user?.role === "admin"}
-              />
-            </div>
-          </div>
-        </div>
+      {activeProfile && (
+        <div id="layout-picker-portal" />
       )}
     </BingooLayout>
   );

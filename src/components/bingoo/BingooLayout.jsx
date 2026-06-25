@@ -1,36 +1,39 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, User, Smartphone, BarChart3, CreditCard, LogOut, Star, Shield, Menu, X, CalendarDays, Briefcase, Sun, Moon, Home, Link2, Users, GitBranch, HeadphonesIcon, Heart } from "lucide-react";
+import { User, Smartphone, BarChart3, CreditCard, LogOut, Shield, Menu, X, CalendarDays, Sun, Moon, Link2, Users, GitBranch, HeadphonesIcon, AlertOctagon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
+import { usePlan } from "@/hooks/usePlan";
 
-const navItems = [
-  { label: "Profiles",       icon: User,            href: "/bingoo",                  iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)"   },
-  { label: "Team",           icon: Users,           href: "/bingoo?view=workspace&tab=team",         iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)"  },
-  { label: "Connections",    icon: Link2,           href: "/bingoo?view=workspace&tab=connections",  iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)"   },
-  { label: "CRM",            icon: GitBranch,       href: "/bingoo?view=workspace&tab=crm",          iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)"  },
-  { label: "Analytics",      icon: BarChart3,       href: "/bingoo?view=workspace&tab=analytics",    iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)"   },
-  { label: "Devices",        icon: Smartphone,      href: "/my-nfc-devices",          iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)"  },
-  { label: "Billing",        icon: CreditCard,      href: "/billing",                 iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)"   },
-  { label: "Support",        icon: HeadphonesIcon,  href: "/contact-support",         iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
+// All possible nav items — visibility is controlled per-render based on plan
+const ALL_NAV = [
+  { id: "profiles",     label: "Profiles",     icon: User,           href: "/bingoo",                    iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",    plans: "all"        },
+  { id: "appointments", label: "Appointments", icon: CalendarDays,   href: "/bingoo?view=appointments",  iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   plans: "business"   },
+  { id: "leads",        label: "Leads",        icon: Users,          href: "/bingoo?view=leads",         iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)",   plans: "business"   },
+  { id: "analytics",    label: "Analytics",    icon: BarChart3,      href: "/bingoo?view=analytics",     iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)",    plans: "pro"        },
+  { id: "devices",      label: "NFC Devices",  icon: Smartphone,     href: "/my-nfc-devices",            iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",   plans: "pro"        },
+  { id: "lostmode",     label: "Lost Mode",    icon: AlertOctagon,   href: "/bingoo?view=lostmode",      iconColor: "#ef4444", iconBg: "rgba(239,68,68,0.18)",    plans: "pro"        },
+  { id: "connections",  label: "Connections",  icon: Link2,          href: "/bingoo?view=connections",   iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",    plans: "all"        },
+  { id: "crm",          label: "CRM",          icon: GitBranch,      href: "/bingoo?view=crm",           iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   plans: "business"   },
+  { id: "billing",      label: "Billing",      icon: CreditCard,     href: "/billing",                   iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    plans: "all"        },
+  { id: "support",      label: "Support",      icon: HeadphonesIcon, href: "/contact-support",           iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",  plans: "all"        },
 ];
 
-// Bottom tab bar items (most used)
-// "Profile" navigates to the Overview dashboard (which then lets users go to Edit Profile)
 const bottomTabs = [
-  { label: "Profiles",  icon: User,       href: "/bingoo",         color: "#FF7A00" },
-  { label: "Analytics", icon: BarChart3,  href: "/bingoo?tab=analytics", color: "#d97706" },
-  { label: "Devices",   icon: Smartphone, href: "/my-nfc-devices", color: "#06b6d4" },
-  { label: "More",      icon: Menu,       href: null,              color: "#64748b" },
-  { label: "Logout",    icon: LogOut,     href: "logout",          color: "#ef4444" },
+  { label: "Profiles",  icon: User,         href: "/bingoo",                   color: "#FF7A00" },
+  { label: "Analytics", icon: BarChart3,    href: "/bingoo?view=analytics",    color: "#d97706" },
+  { label: "Devices",   icon: Smartphone,   href: "/my-nfc-devices",           color: "#06b6d4" },
+  { label: "More",      icon: Menu,         href: null,                        color: "#64748b" },
+  { label: "Logout",    icon: LogOut,       href: "logout",                    color: "#ef4444" },
 ];
 
 export default function BingooLayout({ children }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
+  const { isFree, canAccess, isLoading: planLoading } = usePlan();
 
   // Prevent Google from indexing any authenticated dashboard page
   useEffect(() => {
@@ -50,22 +53,45 @@ export default function BingooLayout({ children }) {
   });
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const explicitlyIndividual = user?.account_type === "individual";
+
+  // Determine which nav items to show based on plan
+  const navItems = ALL_NAV.filter(item => {
+    if (item.plans === "all") return true;
+    if (item.plans === "pro") {
+      // Show for Pro+ (non-free, or anyone with the specific capability)
+      if (item.id === "analytics") return canAccess("analytics");
+      if (item.id === "lostmode")  return canAccess("lost_mode");
+      if (item.id === "devices")   return true; // always visible for convenience
+      return !isFree;
+    }
+    if (item.plans === "business") {
+      // Show for Business/Salon/LawFirm/Corporate — hide for individual users
+      if (explicitlyIndividual) return false;
+      if (item.id === "appointments") return canAccess("appointment_booking");
+      if (item.id === "leads")        return canAccess("lead_collection");
+      if (item.id === "crm")          return canAccess("crm_pipeline");
+      return true;
+    }
+    return true;
+  });
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
     const [hPath, hQuery] = href.split("?");
     if (hQuery) {
-      // Match tab param anywhere in the search string
-      const tabMatch = hQuery.match(/tab=([^&]+)/);
-      if (tabMatch) {
-        const sp = new URLSearchParams(location.search);
-        return location.pathname === hPath && sp.get("tab") === tabMatch[1];
-      }
+      const sp = new URLSearchParams(location.search);
+      const hsp = new URLSearchParams(hQuery);
+      const viewMatch = hsp.get("view");
+      if (viewMatch) return location.pathname === hPath && sp.get("view") === viewMatch;
       return location.pathname === hPath && location.search === "?" + hQuery;
     }
-    // "Profiles" root — active when on /bingoo with no tab or with view=workspace
+    // Profiles root — active when on /bingoo with no view or view=workspace or view=hub
     if (href === "/bingoo") {
-      return location.pathname === "/bingoo";
+      if (location.pathname !== "/bingoo") return false;
+      const sp = new URLSearchParams(location.search);
+      const v = sp.get("view");
+      return !v || v === "workspace" || v === "hub";
     }
     return location.pathname === href && !location.search;
   };
