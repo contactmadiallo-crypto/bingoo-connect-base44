@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, ExternalLink, MoreHorizontal, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { getEffectiveProfilePlan, PLAN_LABELS } from "@/lib/planPermissions";
 
-export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfile, onCreateNew, onLaunchAI }) {
+export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, onSelectProfile, onCreateNew, onLaunchAI }) {
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
 
@@ -37,7 +38,8 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
     corporate: { bg: isDark ? "rgba(251,191,36,0.15)" : "#fffbeb", text: isDark ? "#fbbf24" : "#d97706" },
   };
 
-  const getPlanStyle = (plan) => planColors[plan] || planColors.free;
+  const normPlan = (p) => { if (!p) return 'free'; if (p === 'pro') return 'professional'; return p; };
+  const getPlanStyle = (plan) => planColors[normPlan(plan)] || planColors.free;
 
   return (
     <div className="space-y-5">
@@ -69,7 +71,9 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
       {profiles.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {profiles.map(profile => {
-            const planStyle = getPlanStyle(profile.plan);
+            const effectivePlan = getEffectiveProfilePlan(accountPlan, profile);
+            const planStyle = getPlanStyle(effectivePlan);
+            const planLabel = PLAN_LABELS[effectivePlan] || 'Free';
             const profileUrl = `${window.location.origin}/p/${profile.username}`;
             return (
               <div key={profile.id}
@@ -94,9 +98,10 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
                   <div className="flex items-end justify-between -mt-6 mb-3">
                     <div className="flex-shrink-0">
                       {profile.profile_photo
-                        ? <img src={profile.profile_photo} className="w-12 h-12 rounded-2xl object-cover shadow-lg"
-                            style={{ border: isDark ? "3px solid #13162a" : "3px solid white" }} alt="" />
-                        : <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg"
+                        ? <img src={profile.profile_photo} alt=""
+                            className="w-12 h-12 rounded-2xl shadow-lg flex-shrink-0"
+                            style={{ objectFit: 'cover', objectPosition: 'center top', border: isDark ? "3px solid #13162a" : "3px solid white" }} />
+                        : <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg flex-shrink-0"
                             style={{ background: profile.cover_color || "#2563eb", border: isDark ? "3px solid #13162a" : "3px solid white" }}>
                             {profile.display_name?.charAt(0) || "?"}
                           </div>
@@ -112,7 +117,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
                       )}
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
                         style={{ background: planStyle.bg, color: planStyle.text }}>
-                        {profile.plan || "free"}
+                        {planLabel}
                       </span>
                     </div>
                   </div>
@@ -220,8 +225,8 @@ export default function ProfilesHub({ profiles = [], user, isDark, onSelectProfi
         </div>
       )}
 
-      {/* Upgrade nudge for multi-profile users on free */}
-      {profiles.length >= 1 && profiles.every(p => p.plan === "free") && (
+      {/* Upgrade nudge — only shown when account subscription is free */}
+      {profiles.length >= 1 && (!accountPlan || accountPlan === "free") && (
         <div className="rounded-2xl p-4 flex items-center gap-4"
           style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", border: "1px solid rgba(255,122,0,0.2)" }}>
           <div className="flex-1">

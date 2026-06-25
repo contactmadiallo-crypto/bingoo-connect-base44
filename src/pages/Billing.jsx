@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CreditCard, CheckCircle2, AlertTriangle, XCircle, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, UtensilsCrossed, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';

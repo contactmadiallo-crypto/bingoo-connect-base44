@@ -414,6 +414,7 @@ export default function BingooDashboard() {
               profiles={profiles}
               user={user}
               isDark={isDark}
+              accountPlan={userPlan}
               onSelectProfile={openWorkspace}
               onCreateNew={openNewProfile}
               onLaunchAI={launchAI}
