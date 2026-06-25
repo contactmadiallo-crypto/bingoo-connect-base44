@@ -265,7 +265,7 @@ export default function BingooDashboard() {
   };
 
   return (
-    <BingooLayout>
+    <BingooLayout selectedProfilePlan={activeProfile?.plan || "free"}>
       {showOnboarding && user && (
         <AIOnboardingAssistant
           userName={user.full_name}

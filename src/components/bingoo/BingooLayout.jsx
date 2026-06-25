@@ -1,58 +1,29 @@
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { User, Smartphone, BarChart3, CreditCard, LogOut, Shield, Menu, X, CalendarDays, Sun, Moon, Link2, Users, GitBranch, HeadphonesIcon, AlertOctagon, Scissors, Clock, MapPin, Scale, Briefcase, ClipboardList, UserCheck } from "lucide-react";
+import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
-import { usePlan } from "@/hooks/usePlan";
+import { getVisibleNavItems } from "@/lib/sidebarConfig";
+import { normalizePlan } from "@/lib/planPermissions";
 
-// ── Sidebar item config — single source of truth ──────────────────────────────
-// requiredFeature: canAccess(plan, feature) must return true
-// accountTypes: array of allowed account_type values, or "any"
-// plans: convenience group — "all" | "pro" | "business" | "lawfirm" | "corporate"
-// requiresProfile: if true, shows NoProfileState when no profile selected
-const ALL_NAV = [
-  // ── Always visible ────────────────────────────────────────────────────────
-  { id: "profiles",      label: "Profiles",       icon: User,           href: "/bingoo",                        iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",    requiredFeature: null,                  accountTypes: "any" },
-  // ── Pro Individual ────────────────────────────────────────────────────────
-  { id: "analytics",     label: "Analytics",      icon: BarChart3,      href: "/bingoo?view=analytics",         iconColor: "#d97706", iconBg: "rgba(217,119,6,0.18)",    requiredFeature: "analytics",           accountTypes: "any" },
-  { id: "devices",       label: "NFC Devices",    icon: Smartphone,     href: "/my-nfc-devices",                iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",   requiredFeature: "nfc_devices",         accountTypes: "any" },
-  { id: "lostmode",      label: "Lost Mode",      icon: AlertOctagon,   href: "/bingoo?view=lostmode",          iconColor: "#ef4444", iconBg: "rgba(239,68,68,0.18)",    requiredFeature: "lost_mode",           accountTypes: "any" },
-  // ── Business / Salon ─────────────────────────────────────────────────────
-  { id: "appointments",  label: "Appointments",   icon: CalendarDays,   href: "/bingoo?view=appointments",      iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   requiredFeature: "appointment_booking", accountTypes: ["business"] },
-  { id: "leads",         label: "Leads",          icon: Users,          href: "/bingoo?view=leads",             iconColor: "#f59e0b", iconBg: "rgba(245,158,11,0.18)",   requiredFeature: "lead_collection",     accountTypes: ["business"] },
-  { id: "services",      label: "Services",       icon: Scissors,       href: "/bingoo?view=services",          iconColor: "#ec4899", iconBg: "rgba(236,72,153,0.18)",   requiredFeature: "services",            accountTypes: ["business"] },
-  { id: "hours",         label: "Hours",          icon: Clock,          href: "/bingoo?view=hours",             iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)",   requiredFeature: "business_hours",      accountTypes: ["business"] },
-  // ── Law Firm specific ─────────────────────────────────────────────────────
-  { id: "practiceareas", label: "Practice Areas", icon: Scale,          href: "/bingoo?view=practiceareas",     iconColor: "#0369a1", iconBg: "rgba(3,105,161,0.18)",    requiredFeature: "practice_areas",      accountTypes: ["business"] },
-  { id: "legalservices", label: "Legal Services", icon: Briefcase,      href: "/bingoo?view=legalservices",     iconColor: "#1d4ed8", iconBg: "rgba(29,78,216,0.18)",    requiredFeature: "legal_services",      accountTypes: ["business"] },
-  { id: "offices",       label: "Offices",        icon: MapPin,         href: "/bingoo?view=offices",           iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    requiredFeature: "office_locations",    accountTypes: ["business"] },
-  // ── Shared business tools ─────────────────────────────────────────────────
-  { id: "team",          label: "Team",           icon: UserCheck,      href: "/bingoo?view=team",              iconColor: "#7c3aed", iconBg: "rgba(124,58,237,0.18)",   requiredFeature: "team_members",        accountTypes: ["business"] },
-  { id: "crm",           label: "CRM",            icon: GitBranch,      href: "/bingoo?view=crm",               iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)",   requiredFeature: "crm_pipeline",        accountTypes: ["business"] },
-  { id: "attendance",    label: "Attendance",     icon: ClipboardList,  href: "/bingoo?view=attendance",        iconColor: "#15803d", iconBg: "rgba(21,128,61,0.18)",    requiredFeature: "attendance",          accountTypes: ["business"] },
-  // ── Always visible ────────────────────────────────────────────────────────
-  { id: "connections",   label: "Connections",    icon: Link2,          href: "/bingoo?view=connections",       iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",    requiredFeature: null,                  accountTypes: "any" },
-  { id: "billing",       label: "Billing",        icon: CreditCard,     href: "/billing",                       iconColor: "#0891b2", iconBg: "rgba(8,145,178,0.18)",    requiredFeature: null,                  accountTypes: "any" },
-  { id: "support",       label: "Support",        icon: HeadphonesIcon, href: "/contact-support",               iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",  requiredFeature: null,                  accountTypes: "any" },
-];
-
-const bottomTabs = [
-  { label: "Profiles",  icon: User,         href: "/bingoo",                   color: "#FF7A00" },
-  { label: "Analytics", icon: BarChart3,    href: "/bingoo?view=analytics",    color: "#d97706" },
-  { label: "Devices",   icon: Smartphone,   href: "/my-nfc-devices",           color: "#06b6d4" },
-  { label: "More",      icon: Menu,         href: null,                        color: "#64748b" },
-  { label: "Logout",    icon: LogOut,       href: "logout",                    color: "#ef4444" },
-];
-
-export default function BingooLayout({ children }) {
+/**
+ * BingooLayout
+ *
+ * Sidebar items are derived from the SELECTED PROFILE's plan.
+ * Pass `selectedProfilePlan` (string) from BingooDashboard so the
+ * sidebar updates whenever a different profile is selected.
+ *
+ * If no profile is selected (e.g. on the hub), fall back to the
+ * user's highest plan so the sidebar isn't empty.
+ */
+export default function BingooLayout({ children, selectedProfilePlan }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
-  const { isFree, canAccess, isLoading: planLoading } = usePlan();
 
-  // Prevent Google from indexing any authenticated dashboard page
+  // Prevent search engines from indexing authenticated dashboard pages
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
@@ -70,18 +41,21 @@ export default function BingooLayout({ children }) {
   });
 
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
-  const userAccountType = user?.account_type || "individual";
 
-  // Build plan-driven sidebar from the single config source of truth
-  const navItems = isAdmin
-    ? ALL_NAV // admins see everything
-    : ALL_NAV.filter(item => {
-        // Account type gate
-        if (item.accountTypes !== "any" && !item.accountTypes.includes(userAccountType)) return false;
-        // Feature gate (while loading, keep open to avoid flicker)
-        if (item.requiredFeature && !planLoading && !canAccess(item.requiredFeature)) return false;
-        return true;
-      });
+  // Resolve the plan to drive sidebar visibility
+  const resolvedPlan = normalizePlan(selectedProfilePlan || "free");
+
+  // Build sidebar items from selected profile's plan
+  const navItems = getVisibleNavItems(resolvedPlan, isAdmin);
+
+  // Bottom tab bar — always the same 5 core tabs (More opens the drawer for extras)
+  const bottomTabs = [
+    { label: "Profiles",  href: "/bingoo",                  id: "profiles" },
+    { label: "Analytics", href: "/bingoo?view=analytics",   id: "analytics" },
+    { label: "Devices",   href: "/my-nfc-devices",          id: "devices" },
+    { label: "More",      href: null,                       id: "more" },
+    { label: "Logout",    href: "logout",                   id: "logout" },
+  ];
 
   const isActive = (href) => {
     if (!href || href === "logout") return false;
@@ -93,7 +67,6 @@ export default function BingooLayout({ children }) {
       if (viewMatch) return location.pathname === hPath && sp.get("view") === viewMatch;
       return location.pathname === hPath && location.search === "?" + hQuery;
     }
-    // Profiles root — active when on /bingoo with no view or view=workspace or view=hub
     if (href === "/bingoo") {
       if (location.pathname !== "/bingoo") return false;
       const sp = new URLSearchParams(location.search);
@@ -103,22 +76,10 @@ export default function BingooLayout({ children }) {
     return location.pathname === href && !location.search;
   };
 
-  // Sidebar is always Bingoo navy regardless of dark/light mode
   const t = {
     bg: isDark ? "#0f1117" : "#f8fafc",
     sidebar: "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)",
     sidebarBorder: "rgba(255,255,255,0.07)",
-    headerBg: isDark ? "#0B2E6B" : "#0B2E6B",
-    headerBorder: "rgba(255,255,255,0.1)",
-    text: "text-white",
-    textMuted: "text-white/40",
-    activeLink: "rgba(255,122,0,0.18)",
-    activeBorder: "#FF7A00",
-    inactiveLink: "text-white/50 hover:text-white hover:bg-white/8",
-    userBg: "bg-white/8",
-    logoutHover: "hover:bg-white/10",
-    mobileDrawer: "bg-black/60",
-    drawerBg: "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)",
   };
 
   const NavLink = ({ item, onNav }) => {
@@ -143,7 +104,7 @@ export default function BingooLayout({ children }) {
 
   const SidebarContent = ({ onNav }) => (
     <div className="flex flex-col h-full">
-      {/* Logo + orange accent */}
+      {/* Logo */}
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
         <div className="px-5 py-5" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
@@ -153,9 +114,11 @@ export default function BingooLayout({ children }) {
         </div>
       </div>
 
-      {/* Nav links - scrollable */}
+      {/* Nav links — scrollable */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(item => <NavLink key={item.label} item={item} onNav={onNav} />)}
+        {navItems.map(item => <NavLink key={item.id} item={item} onNav={onNav} />)}
+
+        {/* Admin Panel link — only for admins */}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -233,14 +196,17 @@ export default function BingooLayout({ children }) {
 
       {/* ── MOBILE SLIDE-OUT DRAWER ── */}
       {mobileOpen && (
-        <div className={`md:hidden fixed inset-0 z-40 backdrop-blur-sm ${t.mobileDrawer}`}
+        <div className="md:hidden fixed inset-0 z-40 backdrop-blur-sm bg-black/60"
           onClick={() => setMobileOpen(false)}>
           <div className="flex flex-col w-72 h-full shadow-2xl" onClick={e => e.stopPropagation()}
-            style={{ background: t.drawerBg, paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
-            {/* Close button at top */}
+            style={{
+              background: t.sidebar,
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}>
             <div className="flex justify-end px-4 pt-3 pb-1">
               <button onClick={() => setMobileOpen(false)}
-                className={`p-2 rounded-xl ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-slate-100 text-slate-400"}`}>
+                className="p-2 rounded-xl hover:bg-white/10 text-white/60">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -257,40 +223,42 @@ export default function BingooLayout({ children }) {
           paddingBottom: "env(safe-area-inset-bottom)",
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
-        {bottomTabs.map((item) => {
-          if (item.href === "logout") {
+        {bottomTabs.map((tab) => {
+          if (tab.id === "logout") {
             return (
               <button key="logout" onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(239,68,68,0.1)" }}>
-                  <item.icon className="w-5 h-5" style={{ color: item.color }} />
-                </div>
-                <span className="text-[10px] font-semibold" style={{ color: item.color }}>Logout</span>
+                <LogOut className="w-5 h-5 text-red-400" />
+                <span className="text-[10px] font-semibold text-red-400">Logout</span>
               </button>
             );
           }
-          if (item.href === null) {
+          if (tab.id === "more") {
             return (
               <button key="more" onClick={() => setMobileOpen(true)}
                 className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/8">
-                  <item.icon className="w-5 h-5 text-white/40" />
-                </div>
+                <Menu className="w-5 h-5 text-white/40" />
                 <span className="text-[10px] font-semibold text-white/40">More</span>
               </button>
             );
           }
-          const active = isActive(item.href);
+          // Find matching nav item for icon + color
+          const navItem = navItems.find(n => n.id === tab.id);
+          if (!navItem && tab.id !== "profiles") return null; // hide if plan doesn't include it
+          const active = isActive(tab.href);
+          const iconColor = active ? "#FF7A00" : "rgba(255,255,255,0.4)";
           return (
-            <Link key={item.label} to={item.href}
+            <Link key={tab.id} to={tab.href}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-                <item.icon className="w-5 h-5 transition-all" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+                {navItem
+                  ? <navItem.icon className="w-5 h-5 transition-all" style={{ color: iconColor }} />
+                  : null
+                }
               </div>
-              <span className="text-[10px] font-semibold transition-all"
-                style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
-                {item.label}
+              <span className="text-[10px] font-semibold transition-all" style={{ color: iconColor }}>
+                {tab.label}
               </span>
             </Link>
           );
@@ -298,12 +266,8 @@ export default function BingooLayout({ children }) {
       </nav>
 
       {/* ── MAIN CONTENT ── */}
-      {/* Mobile: push content below top header and above bottom tab bar */}
-      {/* Desktop: only offset by sidebar (ml-64), no top/bottom padding needed */}
       <main className="flex-1 md:ml-64 overflow-x-hidden overflow-y-auto"
-        style={{ background: t.bg, minHeight: "100vh" }}
-      >
-        {/* Mobile: push content below top header and above bottom tab bar */}
+        style={{ background: t.bg, minHeight: "100vh" }}>
         <div className="md:hidden" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         {children}
         <div className="md:hidden" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
