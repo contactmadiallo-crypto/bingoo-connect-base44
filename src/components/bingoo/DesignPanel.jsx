@@ -3,6 +3,7 @@ import { Check, Upload, Sparkles, Palette, Layout, Star, CreditCard, User } from
 import { base44 } from "@/api/base44Client";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { getEffectiveProfilePlan } from "@/lib/planPermissions";
+import { PROFILE_LAYOUTS } from "@/lib/profileLayouts";
 
 const COVER_COLORS = [
   "#2563eb","#0B2E6B","#1a4a9e","#7c3aed",
@@ -241,10 +242,10 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         </div>
       )}
 
-      {/* ── Save bar ── */}
-      <div className="flex items-center gap-4 pt-2">
+      {/* ── Save bar — mobile safe area ── */}
+      <div className="flex items-center gap-4 pt-4 pb-safe" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
         <button type="button" onClick={handleSave} disabled={isPending}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0"
           style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
           {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
         </button>
