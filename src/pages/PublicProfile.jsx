@@ -320,102 +320,119 @@ export default function PublicProfile() {
   return (
     <div ref={topRef} style={{ position: "relative", overflowX: "hidden" }}>
 
-      {/* Back button */}
+      {/* Back button — frosted glass */}
       <motion.button
         onClick={() => window.history.back()}
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.3 }}
         whileHover={{ scale: 1.05 }}
-        style={{ position: "fixed", top: 16, left: 16, zIndex: 100, display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.9)", backdropFilter: "blur(16px)", boxShadow: "0 4px 20px rgba(0,0,0,0.12)", border: "1px solid rgba(0,0,0,0.06)", color: "#374151", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+        style={{ position: "fixed", top: 16, left: 16, zIndex: 100, display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.88)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", boxShadow: "0 2px 16px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.6)", color: "#374151", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
       >
         ← Back
       </motion.button>
 
       {/* Main card */}
       <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
-        {/* ── COVER + HEADER ── */}
+        {/* ── PREMIUM COVER HERO ── */}
         <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
-          {/* Cover image / gradient */}
+          {/* Cover — taller, more impactful */}
           <div style={{
-            height: mobile ? 200 : 260,
+            height: mobile ? 220 : 280,
             position: "relative",
-            background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
+            background: `linear-gradient(155deg, ${color} 0%, ${hexRgb(color, 0.85)} 40%, ${B.navy} 100%)`,
             overflow: "hidden",
           }}>
-            {/* Cover photo — full bleed */}
+            {/* Cover photo */}
             {profile.cover_photo && (
               <img src={profile.cover_photo} alt="Cover"
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
               />
             )}
-            {/* Pattern overlay when no cover photo */}
+            {/* Subtle dot pattern on gradient cover */}
             {!profile.cover_photo && (
-              <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px)", backgroundSize: "22px 22px", opacity: 0.5 }} />
+              <>
+                <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.12) 1px,transparent 1px)", backgroundSize: "28px 28px", opacity: 0.6 }} />
+                <div style={{ position: "absolute", top: "20%", right: "10%", width: 200, height: 200, borderRadius: "50%", background: `radial-gradient(circle, ${hexRgb(color, 0.3)}, transparent 70%)`, filter: "blur(40px)" }} />
+              </>
             )}
-            {/* Bottom gradient */}
-            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.25))" }} />
+            {/* Bottom vignette — smoother transition into content */}
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 100, background: `linear-gradient(to bottom, transparent, ${isDark ? "rgba(15,23,42,0.7)" : "rgba(255,255,255,0.15)"})` }} />
 
-            {/* Plan badge — shows actual plan name */}
+            {/* Company logo badge — top left */}
+            {profile.company_logo && (
+              <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
+                style={{ position: "absolute", top: 16, left: 20, width: 44, height: 44, borderRadius: 12, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", background: "#fff" }}>
+                <img src={profile.company_logo} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </motion.div>
+            )}
+
+            {/* Plan badge — top right */}
             {profile.plan && profile.plan !== "free" && (
               <motion.div
-                initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, type: "spring" }}
-                style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.5)" }}
+                initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: "spring" }}
+                style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.45)" }}
               >
-                ✦ {({
-                  pro: "PRO", professional: "PROFESSIONAL",
-                  business: "BUSINESS", salon: "SALON",
-                  restaurant: "RESTAURANT", lawfirm: "LAW FIRM",
-                  corporate: "CORPORATE",
-                }[profile.plan] || "VERIFIED")}
+                ✦ {({ pro: "PRO", professional: "PRO", business: "BUSINESS", salon: "SALON", restaurant: "RESTAURANT", lawfirm: "LAW FIRM", corporate: "CORPORATE" }[profile.plan] || "VERIFIED")}
               </motion.div>
             )}
           </div>
 
-          {/* Card body — transparent so the shell background shows */}
-          <div style={{ overflow: "visible" }}>
-
-              {/* Avatar section */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -55 : -64, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
-                <div style={{ padding: mobile ? "0 20px" : "0 32px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <Avatar profile={profile} color={color} mobile={mobile} />
-
-                  <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} style={{ textAlign: "center", marginTop: 16, paddingBottom: 4 }}>
-                    <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 28 : 32, fontWeight: 950, color: isDark ? "#fff" : "#0f172a", lineHeight: 1.1, letterSpacing: "-0.8px" }}>
-                      {profile.display_name}
-                    </h1>
-                    {profile.job_title && (
-                      <p style={{ margin: "0 0 4px", fontSize: 15, fontWeight: 750, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.7)})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "0.02em" }}>
-                        {profile.job_title}
-                      </p>
-                    )}
-                    {profile.company_name && (
-                      <p style={{ margin: "0 0 10px", fontSize: 13.5, color: isDark ? "rgba(255,255,255,0.4)" : "#64748b", fontWeight: 600 }}>
-                        {profile.company_name}
-                      </p>
-                    )}
-                    {profile.bio && (
-                      <p style={{ margin: "0 0 4px", fontSize: 14, lineHeight: 1.75, color: isDark ? "rgba(255,255,255,0.55)" : "#64748b", padding: "12px 16px", borderRadius: 16, background: isDark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.05), border: isDark ? "1px solid rgba(255,255,255,0.08)" : `1px solid ${hexRgb(color, 0.12)}`, maxWidth: 340, textAlign: "left", fontWeight: 500 }}>
-                        {profile.bio}
-                      </p>
-                    )}
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* ── CONTENT AREA ── */}
-              <div style={{ padding: mobile ? "24px 20px 32px" : "24px 32px 40px" }}>
-                <ProfileContentSections
-                  profile={profile} color={color} isDark={isDark}
-                  isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
-                />
-              </div>
+          {/* ── AVATAR + IDENTITY ── */}
+          <div style={{ position: "relative", zIndex: 10 }}>
+            {/* Avatar overlaps cover */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -58 : -70 }}>
+              <Avatar profile={profile} color={color} mobile={mobile} />
             </div>
+
+            {/* Name / title / company */}
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
+              style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0" }}>
+              <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 30, fontWeight: 900, color: isDark ? "#fff" : "#0f172a", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
+                {profile.display_name}
+              </h1>
+              {profile.job_title && (
+                <p style={{ margin: "0 0 3px", fontSize: 14.5, fontWeight: 700, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.65)})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "0.01em" }}>
+                  {profile.job_title}
+                </p>
+              )}
+              {profile.company_name && (
+                <p style={{ margin: "0 0 14px", fontSize: 13, color: isDark ? "rgba(255,255,255,0.38)" : "#64748b", fontWeight: 600 }}>
+                  {profile.company_name}
+                </p>
+              )}
+              {/* Bio — premium highlight box */}
+              {profile.bio && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
+                  style={{ margin: "0 auto 6px", maxWidth: 360, padding: "13px 18px", borderRadius: 18, background: isDark ? "rgba(255,255,255,0.05)" : hexRgb(color, 0.045), border: isDark ? "1px solid rgba(255,255,255,0.09)" : `1px solid ${hexRgb(color, 0.14)}`, textAlign: "left" }}>
+                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.7, color: isDark ? "rgba(255,255,255,0.62)" : "#475569", fontWeight: 500 }}>
+                    {profile.bio}
+                  </p>
+                </motion.div>
+              )}
+              {/* Location pill */}
+              {profile.location && profile.show_location !== false && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 8, marginBottom: 4, padding: "4px 12px", borderRadius: 999, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0" }}>
+                  <span style={{ fontSize: 11 }}>📍</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b" }}>{profile.location}</span>
+                </motion.div>
+              )}
+            </motion.div>
           </div>
-        </ProfileLayoutShell>
+
+          {/* ── CONTENT AREA ── */}
+          <div style={{ padding: mobile ? "20px 18px 40px" : "24px 32px 48px" }}>
+            <ProfileContentSections
+              profile={profile} color={color} isDark={isDark}
+              isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+            />
+          </div>
+        </div>
+      </ProfileLayoutShell>
 
       {/* ── STICKY BOTTOM BAR ── */}
-      {profile.phone && (
+      {(profile.phone || profile.whatsapp_number) && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
@@ -428,24 +445,21 @@ export default function PublicProfile() {
             boxShadow: "0 -8px 40px rgba(0,0,0,0.08)",
           }}
         >
-          <div style={{ maxWidth: 440, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <a href={`tel:${profile.phone}`}
-              onClick={() => track("phone_click")}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 14, background: "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 800, fontSize: 13.5, textDecoration: "none", boxShadow: "0 6px 20px rgba(22,163,74,0.4)" }}>
-              <PhoneIcon size={18} /> Call Now
-            </a>
-            {profile.whatsapp_number
-              ? <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
-                  onClick={() => track("whatsapp_click")}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 14, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 13.5, textDecoration: "none", boxShadow: "0 6px 20px rgba(37,211,102,0.4)" }}>
-                  <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book via WA" : "WhatsApp"}
-                </a>
-              : <button
-                  onClick={() => { track("save_contact_click"); saveContact(profile); }}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 14, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 13.5, border: "none", cursor: "pointer", boxShadow: `0 6px 20px ${hexRgb(color, 0.4)}` }}>
-                  <SaveContactIcon size={18} /> Save Contact
-                </button>
-            }
+          <div style={{ maxWidth: 440, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && profile.whatsapp_number ? "1fr 1fr" : "1fr", gap: 10 }}>
+            {profile.phone && (
+              <a href={`tel:${profile.phone}`}
+                onClick={() => track("phone_click")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(22,163,74,0.35)", letterSpacing: "0.01em" }}>
+                <PhoneIcon size={18} /> Call Now
+              </a>
+            )}
+            {profile.whatsapp_number && (
+              <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
+                onClick={() => track("whatsapp_click")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(37,211,102,0.35)", letterSpacing: "0.01em" }}>
+                <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book via WA" : "WhatsApp"}
+              </a>
+            )}
           </div>
         </motion.div>
       )}
@@ -460,7 +474,7 @@ export default function PublicProfile() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => { topRef.current?.scrollIntoView({ behavior: "smooth" }); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             whileHover={{ scale: 1.1 }}
-            style={{ position: "fixed", bottom: profile.phone ? 100 : 24, right: 20, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: color, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: `0 6px 20px ${hexRgb(color, 0.5)}` }}
+            style={{ position: "fixed", bottom: (profile.phone || profile.whatsapp_number) ? 100 : 24, right: 20, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: color, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: `0 6px 20px ${hexRgb(color, 0.5)}` }}
           >
             ↑
           </motion.button>

@@ -138,50 +138,58 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
   return (
     <div style={{ padding: "0" }}>
-      {/* Save + Share row */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 24 }}>
+      {/* Save + Share row — premium pill buttons */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 26 }}>
         <motion.button
           onClick={() => { track("save_contact_click"); saveContact(profile); }}
-          whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: r, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.85)})`, color: "#fff", fontWeight: 800, fontSize: 13.5, border: "none", cursor: "pointer", boxShadow: `0 10px 28px ${hexRgb(color, 0.45)}` }}
+          whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.96 }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 12px", borderRadius: r, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 13, border: "none", cursor: "pointer", boxShadow: `0 12px 32px ${hexRgb(color, 0.42)}, inset 0 1px 0 rgba(255,255,255,0.2)` }}
         >
-          <SaveContactIcon size={18} /> Save Contact
+          <SaveContactIcon size={17} /> Save
         </motion.button>
         <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
         <motion.button
           onClick={handleShare}
-          whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: r, background: isDark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.08), color: isDark ? "#fff" : color, fontWeight: 800, fontSize: 13.5, border: `1.5px solid ${isDark ? "rgba(255,255,255,0.15)" : hexRgb(color, 0.25)}`, cursor: "pointer" }}
+          whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.96 }}
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 12px", borderRadius: r, background: isDark ? "rgba(255,255,255,0.09)" : hexRgb(color, 0.07), color: isDark ? "#fff" : color, fontWeight: 800, fontSize: 13, border: `1.5px solid ${isDark ? "rgba(255,255,255,0.14)" : hexRgb(color, 0.22)}`, cursor: "pointer" }}
         >
-          <ShareIcon size={18} color={isDark ? "#fff" : color} />
-          {shared ? "Copied!" : "Share"}
+          <ShareIcon size={17} color={isDark ? "#fff" : color} />
+          {shared ? "✓ Copied" : "Share"}
         </motion.button>
       </motion.div>
 
-      {/* Primary action buttons */}
+      {/* Primary action buttons — premium card grid */}
       {primaryLinks.length > 0 && (
         <div style={{ marginBottom: 28 }}>
           <SectionHead emoji="⚡" title="Contact" light={isDark} />
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(primaryLinks.length, 4)}, 1fr)`, gap: 10 }}>
-            {primaryLinks.map((l, i) => (
-              <motion.div key={l.label}
-                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }}
-              >
-                {l.href
-                  ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "18px 10px", borderRadius: 20, background: l.bg || l.color, color: "#fff", fontWeight: 800, fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.06em", boxShadow: `0 12px 32px ${hexRgb(l.color, 0.4)}`, border: "1px solid rgba(255,255,255,0.2)", minHeight: 88 }}
-                    onClick={() => l.ev && track(l.ev)}
-                  >
-                    {l.icon}<span>{l.label}</span>
-                  </a>
-                  : <button onClick={() => { l.ev && track(l.ev); l.onClick?.(); }} style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: "18px 10px", borderRadius: 20, background: l.bg || l.color, color: "#fff", fontWeight: 800, fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.06em", boxShadow: `0 12px 32px ${hexRgb(l.color, 0.4)}`, border: "1px solid rgba(255,255,255,0.2)", minHeight: 88, cursor: "pointer" }}>
-                    {l.icon}<span>{l.label}</span>
-                  </button>
-                }
-              </motion.div>
-            ))}
+            {primaryLinks.map((l, i) => {
+              const btnStyle = {
+                width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                gap: 9, padding: "20px 8px", borderRadius: 22, background: l.bg || l.color, color: "#fff",
+                fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.07em",
+                boxShadow: `0 14px 36px ${hexRgb(l.color, 0.38)}, inset 0 1px 0 rgba(255,255,255,0.2)`,
+                border: "1px solid rgba(255,255,255,0.18)", minHeight: 92, cursor: "pointer",
+                textDecoration: "none",
+              };
+              return (
+                <motion.div key={l.label}
+                  initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.38 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ scale: 1.04, y: -4 }} whileTap={{ scale: 0.96 }}
+                >
+                  {l.href
+                    ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={btnStyle} onClick={() => l.ev && track(l.ev)}>
+                        {l.icon}<span>{l.label}</span>
+                      </a>
+                    : <button onClick={() => { l.ev && track(l.ev); l.onClick?.(); }} style={btnStyle}>
+                        {l.icon}<span>{l.label}</span>
+                      </button>
+                  }
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -210,6 +218,33 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             ))}
           </div>
         </div>
+      )}
+
+      {/* Custom links — premium list cards */}
+      {(profile.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).length > 0 && (
+        <>
+          <Divider light={isDark} />
+          <div style={{ marginBottom: 28 }}>
+            <SectionHead emoji="🔗" title="Links" light={isDark} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {(profile.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).map((link, i) => (
+                <motion.a key={link.id || i} href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
+                  target="_blank" rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + i * 0.06 }}
+                  whileHover={{ x: 5 }}
+                  style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: 16, background: isDark ? "rgba(255,255,255,0.06)" : "#f8fafc", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", textDecoration: "none", color: isDark ? "rgba(255,255,255,0.85)" : "#374151", fontWeight: 600, fontSize: 14 }}
+                >
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.1), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 16 }}>
+                    🔗
+                  </div>
+                  <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
+                  <span style={{ color: "#94a3b8", fontSize: 14, flexShrink: 0 }}>›</span>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Website + Location + Google Review */}

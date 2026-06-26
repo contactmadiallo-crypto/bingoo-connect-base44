@@ -118,7 +118,7 @@ export function ProfileHeaderPreview({ profile }) {
 
           {/* Social icons */}
           {socialLinks.length > 0 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap", marginBottom: 10 }}>
               {socialLinks.map(({ Icon, label }) => (
                 <div key={label} style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
                   <Icon size={34} />
@@ -126,6 +126,14 @@ export function ProfileHeaderPreview({ profile }) {
               ))}
             </div>
           )}
+
+          {/* Custom links strip */}
+          {(profile?.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).slice(0, 3).map((link, i) => (
+            <div key={link.id || i} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 8px", marginBottom: 4, borderRadius: 8, background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+              <span style={{ fontSize: 9, color: "#374151", fontWeight: 700, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
+              <span style={{ fontSize: 8, color: "#94a3b8" }}>›</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

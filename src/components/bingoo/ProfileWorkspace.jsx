@@ -989,10 +989,24 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                     <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
                   </div>
                 </div>
-                {/* Screen */}
-                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#fff", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", height: Math.round(520 / 0.576) }}>
-                    <ProfileHeaderPreview profile={{ ...profile, ...liveForm }} />
+                {/* Screen — scales a 375px-wide preview into ~216px */}
+                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
+                    <ProfileHeaderPreview profile={{ ...(profile || {}), ...liveForm }} />
+                    {/* Links preview strip */}
+                    {(liveForm.custom_links?.filter(l => l.enabled && l.label && l.url).length > 0 ||
+                      liveForm.instagram_url || liveForm.facebook_url || liveForm.tiktok_url ||
+                      liveForm.linkedin_url || liveForm.youtube_url) && (
+                      <div style={{ padding: "8px 14px 4px" }}>
+                        <p style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8", marginBottom: 6 }}>Links</p>
+                        {liveForm.custom_links?.filter(l => l.enabled && l.label && l.url).slice(0, 4).map(link => (
+                          <div key={link.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", marginBottom: 5, borderRadius: 10, background: "#fff", border: "1px solid #e2e8f0" }}>
+                            <span style={{ fontSize: 9, fontWeight: 700, color: "#374151", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
+                            <span style={{ fontSize: 9, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 80 }}>{link.url?.replace(/^https?:\/\//, "")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 {/* Home bar */}
