@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
+import { ProfileHeaderPreview } from "@/components/bingoo/SectionPreview";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
@@ -29,7 +30,7 @@ import { t, getLang } from "@/lib/i18n";
 
 // Only these fields are sent to the backend — no system fields (id, created_date, etc.)
 const EDITABLE_FIELDS = [
-  "display_name", "job_title", "company_name", "location", "phone",
+  "display_name", "job_title", "company_name", "company_logo", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
   "profile_photo", "avatar_shape", "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
@@ -173,6 +174,36 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Business / Brand Logo upload — shown for all plans (salon, law firm, corporate, business, pro) */}
+          <div className="mb-4">
+            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Brand / Company Logo</Label>
+            <div className="flex items-center gap-3">
+              {liveForm.company_logo ? (
+                <div className="relative flex-shrink-0">
+                  <img src={liveForm.company_logo} alt="Logo" style={{ width: 56, height: 56, borderRadius: 10, objectFit: "contain", border: isDark ? "2px solid rgba(255,255,255,0.12)" : "2px solid #e2e8f0", background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc" }} />
+                  <button type="button" onClick={() => setVal("company_logo", "")}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow">×</button>
+                </div>
+              ) : (
+                <div style={{ width: 56, height: 56, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.05)" : "#f1f5f9", border: isDark ? "2px dashed rgba(255,255,255,0.15)" : "2px dashed #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                  🏢
+                </div>
+              )}
+              <div>
+                <label className={`cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${isDark ? "border-white/15 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                  <Plus className="w-3.5 h-3.5" />
+                  {liveForm.company_logo ? "Change Logo" : "Upload Logo"}
+                  <input type="file" accept="image/*" className="hidden" onChange={async e => {
+                    const file = e.target.files[0]; if (!file) return;
+                    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                    setVal("company_logo", file_url);
+                  }} />
+                </label>
+                <p className={`text-[10px] mt-1 ${mutedText}`}>PNG, SVG or JPG · shown on your public profile</p>
+              </div>
             </div>
           </div>
 
@@ -886,22 +917,31 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             )}
           </div>
 
-          {/* Live preview — desktop only */}
-          <div className="hidden xl:block w-72 flex-shrink-0">
+          {/* Live preview — desktop only, inline phone frame */}
+          <div className="hidden xl:block w-64 flex-shrink-0">
             <div className="sticky top-0">
               <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
-              <div className="rounded-2xl overflow-hidden shadow-xl" style={{ border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)"}` }}>
-                <LivePreviewPanel
-                  key={profileId}
-                  profile={profile}
-                  pendingProfile={{ ...profile, ...liveForm }}
-                  hasChanges={true}
-                  isDark={isDark}
-                  previewMode="profile"
-                  isLawFirm={isLawFirm}
-                  compact={true}
-                />
+              {/* Phone shell */}
+              <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)" }}>
+                {/* Notch */}
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+                  <div style={{ width: 64, height: 14, background: "#0f172a", borderRadius: "0 0 12px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                    <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#334155" }} />
+                    <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
+                  </div>
+                </div>
+                {/* Screen */}
+                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#fff", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", height: Math.round(520 / 0.576) }}>
+                    <ProfileHeaderPreview profile={{ ...profile, ...liveForm }} />
+                  </div>
+                </div>
+                {/* Home bar */}
+                <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+                  <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
+                </div>
               </div>
+              <p className={`text-[10px] text-center mt-2 ${mutedText}`}>Updates as you type</p>
             </div>
           </div>
         </div>

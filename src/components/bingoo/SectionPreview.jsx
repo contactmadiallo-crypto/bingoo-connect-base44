@@ -1,7 +1,5 @@
 /**
  * SectionPreview — lightweight section-specific previews for each editing tab.
- * Instead of rendering the full public profile, each tab renders only the
- * section it controls, for performance and clarity.
  */
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -26,70 +24,104 @@ export function ProfileHeaderPreview({ profile }) {
   const avRadius = avatarRadius(profile?.avatar_shape);
 
   const primaryLinks = [
-    profile?.whatsapp_number && { label: "WhatsApp", Icon: WhatsAppIcon, bg: "linear-gradient(135deg,#25D366,#128C7E)" },
-    profile?.phone && { label: "Call", Icon: PhoneIcon, bg: "linear-gradient(135deg,#16a34a,#15803d)" },
-    profile?.email && { label: "Email", Icon: EmailIcon, bg: "linear-gradient(135deg,#6366f1,#4f46e5)" },
-    profile?.website && { label: "Website", Icon: WebsiteIcon, bg: `linear-gradient(135deg,${color},${color}bb)` },
+    profile?.whatsapp_number && { label: "WHATSAPP", Icon: WhatsAppIcon, bg: "linear-gradient(135deg,#25D366,#128C7E)" },
+    profile?.phone           && { label: "CALL",      Icon: PhoneIcon,    bg: "linear-gradient(135deg,#16a34a,#15803d)" },
+    profile?.email           && { label: "EMAIL",     Icon: EmailIcon,    bg: "linear-gradient(135deg,#6366f1,#4f46e5)" },
+    profile?.website         && { label: "WEBSITE",   Icon: WebsiteIcon,  bg: `linear-gradient(135deg,${color},${color}bb)` },
   ].filter(Boolean);
+
+  // Fall back to showing some placeholder buttons if nothing is filled in
+  const displayLinks = primaryLinks.length > 0 ? primaryLinks : [
+    { label: "WHATSAPP", Icon: WhatsAppIcon, bg: "linear-gradient(135deg,#25D366,#128C7E)" },
+    { label: "CALL",     Icon: PhoneIcon,    bg: "linear-gradient(135deg,#16a34a,#15803d)" },
+    { label: "EMAIL",    Icon: EmailIcon,    bg: "linear-gradient(135deg,#6366f1,#4f46e5)" },
+    { label: "WEBSITE",  Icon: WebsiteIcon,  bg: `linear-gradient(135deg,${color},${color}bb)` },
+  ];
 
   const socialLinks = [
     profile?.instagram_url && { Icon: InstagramIcon, label: "IG" },
-    profile?.facebook_url && { Icon: FacebookIcon, label: "FB" },
-    profile?.tiktok_url && { Icon: TikTokIcon, label: "TK" },
-    profile?.linkedin_url && { Icon: LinkedInIcon, label: "in" },
-    profile?.youtube_url && { Icon: YouTubeIcon, label: "YT" },
+    profile?.facebook_url  && { Icon: FacebookIcon,  label: "FB" },
+    profile?.tiktok_url    && { Icon: TikTokIcon,    label: "TK" },
+    profile?.linkedin_url  && { Icon: LinkedInIcon,  label: "LI" },
+    profile?.youtube_url   && { Icon: YouTubeIcon,   label: "YT" },
   ].filter(Boolean);
 
+  const cols = Math.min(displayLinks.length, 4);
+
   return (
-    <div style={{ minHeight: "100vh", background: "#f1f5f9", padding: 12 }}>
-      <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
-        {/* Cover */}
+    <div style={{ background: "#f1f5f9", padding: "10px 10px 16px" }}>
+      <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.10)" }}>
+        {/* Cover photo */}
         <div style={{
-          height: 110,
+          height: 120,
           background: profile?.cover_photo
             ? `url(${profile.cover_photo}) center/cover no-repeat`
             : `linear-gradient(135deg, ${color}, ${color}88)`,
-        }} />
-        <div style={{ padding: "0 16px 16px" }}>
-          {/* Avatar */}
-          <div style={{ display: "flex", justifyContent: "center", marginTop: -30, marginBottom: 10 }}>
+          position: "relative",
+        }}>
+          {/* Company logo badge (top-left) */}
+          {profile?.company_logo && (
+            <div style={{ position: "absolute", top: 10, left: 10, width: 36, height: 36, borderRadius: 8, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", background: "#fff" }}>
+              <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </div>
+          )}
+        </div>
+
+        <div style={{ padding: "0 14px 14px" }}>
+          {/* Avatar — overlapping cover */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: -34, marginBottom: 10 }}>
             {profile?.profile_photo
-              ? <img src={profile.profile_photo} alt="" style={{ width: 60, height: 60, borderRadius: avRadius, objectFit: "cover", objectPosition: "center top", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
-              : <div style={{ width: 60, height: 60, borderRadius: avRadius, background: `linear-gradient(135deg,${color},${color}99)`, border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 22 }}>
+              ? <img src={profile.profile_photo} alt="" style={{ width: 68, height: 68, borderRadius: avRadius, objectFit: "cover", objectPosition: "center top", border: "3px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
+              : <div style={{ width: 68, height: 68, borderRadius: avRadius, background: `linear-gradient(135deg,${color},${color}99)`, border: "3px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 24 }}>
                   {profile?.display_name?.charAt(0) || "?"}
                 </div>
             }
           </div>
-          {/* Info */}
+
+          {/* Name / title / company / bio */}
           <div style={{ textAlign: "center", marginBottom: 12 }}>
-            <h2 style={{ margin: "0 0 3px", fontSize: 17, fontWeight: 900, color: "#0f172a", lineHeight: 1.2 }}>{profile?.display_name || "Your Name"}</h2>
-            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 11.5, fontWeight: 700, color }}>{profile.job_title}</p>}
-            {profile?.company_name && <p style={{ margin: "0 0 6px", fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{profile.company_name}</p>}
+            <h2 style={{ margin: "0 0 3px", fontSize: 16, fontWeight: 900, color: "#0f172a", lineHeight: 1.2 }}>
+              {profile?.display_name || "Your Name"}
+            </h2>
+            {profile?.job_title && (
+              <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color }}>{profile.job_title}</p>
+            )}
+            {profile?.company_name && (
+              <p style={{ margin: "0 0 8px", fontSize: 10.5, color: "#64748b", fontWeight: 600 }}>{profile.company_name}</p>
+            )}
             {profile?.bio && (
-              <p style={{ margin: "0 0 4px", fontSize: 10.5, lineHeight: 1.6, color: "#64748b", padding: "8px 12px", borderRadius: 12, background: `${color}10`, border: `1px solid ${color}20`, textAlign: "left" }}>
-                {profile.bio.slice(0, 100)}{profile.bio.length > 100 ? "…" : ""}
-              </p>
+              <div style={{ textAlign: "left", fontSize: 10, lineHeight: 1.6, color: "#64748b", padding: "7px 10px", borderRadius: 10, background: `${color}0e`, border: `1px solid ${color}18`, marginBottom: 2 }}>
+                {profile.bio.slice(0, 90)}{profile.bio.length > 90 ? "…" : ""}
+              </div>
             )}
           </div>
-          {/* Primary action buttons */}
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(primaryLinks.length || 1, 4)}, 1fr)`, gap: 6, marginBottom: 10 }}>
-            {primaryLinks.map(l => (
-              <div key={l.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: "10px 6px", borderRadius: 14, background: l.bg, color: "#fff", fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", minHeight: 64 }}>
-                <l.Icon size={16} />
+
+          {/* Action button grid — exactly like the screenshot */}
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5, marginBottom: 9 }}>
+            {displayLinks.map(l => (
+              <div key={l.label} style={{
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                gap: 4, padding: "9px 4px", borderRadius: 12, background: l.bg,
+                color: "#fff", fontSize: 8, fontWeight: 800, textTransform: "uppercase",
+                letterSpacing: "0.05em", minHeight: 60,
+              }}>
+                <l.Icon size={15} />
                 <span>{l.label}</span>
               </div>
             ))}
           </div>
-          {/* Save contact button */}
-          <div style={{ width: "100%", padding: "10px", borderRadius: br, background: "#0f172a", color: "#fff", fontSize: 11, fontWeight: 800, textAlign: "center", marginBottom: 10 }}>
+
+          {/* Save Contact bar */}
+          <div style={{ width: "100%", padding: "9px", borderRadius: br, background: "#0f172a", color: "#fff", fontSize: 10.5, fontWeight: 800, textAlign: "center", marginBottom: 10, letterSpacing: "0.02em" }}>
             💾 Save Contact
           </div>
-          {/* Social icons row */}
+
+          {/* Social icons */}
           {socialLinks.length > 0 && (
-            <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 7, flexWrap: "wrap" }}>
               {socialLinks.map(({ Icon, label }) => (
-                <div key={label} style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
-                  <Icon size={36} />
+                <div key={label} style={{ width: 34, height: 34, borderRadius: 9, overflow: "hidden", boxShadow: "0 2px 6px rgba(0,0,0,0.12)" }}>
+                  <Icon size={34} />
                 </div>
               ))}
             </div>
