@@ -50,17 +50,33 @@ const saveContact = (profile) => {
   URL.revokeObjectURL(url);
 };
 
-function Avatar({ profile, color }) {
+function Avatar({ profile, color, mobile }) {
+  const size = mobile ? 110 : 128;
   return (
     <motion.div
-      animate={{ y: [0, -5, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
       style={{ display: "inline-block" }}
     >
-      <div style={{ padding: 4, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`, borderRadius: "50%", boxShadow: `0 0 0 6px rgba(255,255,255,0.9), 0 16px 48px ${hexRgb(color, 0.4)}` }}>
+      <div style={{
+        padding: 4,
+        background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`,
+        borderRadius: "50%",
+        boxShadow: `0 0 0 5px #fff, 0 20px 60px ${hexRgb(color, 0.45)}`,
+      }}>
         {profile.profile_photo
-          ? <img src={profile.profile_photo} alt={profile.display_name} style={{ width: 110, height: 110, borderRadius: "50%", objectFit: "cover", display: "block" }} />
-          : <div style={{ width: 110, height: 110, borderRadius: "50%", background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.7)})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 44 }}>
+          ? <img
+              src={profile.profile_photo}
+              alt={profile.display_name}
+              style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", objectPosition: "center top", display: "block" }}
+            />
+          : <div style={{
+              width: size, height: size, borderRadius: "50%",
+              background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.7)})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: "#fff", fontWeight: 900, fontSize: Math.round(size * 0.4),
+            }}>
               {profile.display_name?.charAt(0) || "?"}
             </div>
         }
@@ -245,7 +261,7 @@ export default function PublicProfile() {
   if (isLoading) return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
       {/* Skeleton header */}
-      <div style={{ height: 190, background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)" }} />
+      <div style={{ height: 260, background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)" }} />
       <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 24px" }}>
         <div style={{ width: 110, height: 110, borderRadius: "50%", background: "#e2e8f0", margin: "-55px auto 16px", border: "4px solid #fff" }} />
         <div style={{ height: 28, background: "#e2e8f0", borderRadius: 8, marginBottom: 12, width: "60%", margin: "0 auto 12px" }} />
@@ -318,7 +334,7 @@ export default function PublicProfile() {
         <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
           {/* Cover image / gradient */}
           <div style={{
-            height: mobile ? 160 : 190,
+            height: mobile ? 200 : 260,
             position: "relative",
             background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 50%, ${B.navy} 100%)`,
             overflow: "hidden",
@@ -356,9 +372,9 @@ export default function PublicProfile() {
           <div style={{ overflow: "visible" }}>
 
               {/* Avatar section */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: -50, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? -55 : -64, paddingTop: 0, position: "relative", zIndex: 10, paddingBottom: 0 }}>
                 <div style={{ padding: mobile ? "0 20px" : "0 32px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                  <Avatar profile={profile} color={color} />
+                  <Avatar profile={profile} color={color} mobile={mobile} />
 
                   <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} style={{ textAlign: "center", marginTop: 16, paddingBottom: 4 }}>
                     <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 28 : 32, fontWeight: 950, color: isDark ? "#fff" : "#0f172a", lineHeight: 1.1, letterSpacing: "-0.8px" }}>

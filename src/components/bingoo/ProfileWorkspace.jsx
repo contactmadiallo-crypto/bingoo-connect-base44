@@ -15,6 +15,12 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import {
+  PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
+  InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
+  TikTokIcon as BITikTok, YouTubeIcon as BIYouTube, PayPalIcon as BIPayPal,
+  CashAppIcon as BICashApp, ZelleIcon as BIZelle, WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney,
+} from "@/components/bingoo/BrandIcons";
 import { usePlan } from "@/hooks/usePlan";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
 import { toast } from "sonner";
@@ -228,24 +234,24 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         ) : (
           <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc" }}>
             {[
-              { key: "phone", label: "Phone" },
-              { key: "whatsapp_number", label: "WhatsApp" },
-              { key: "email", label: "Email" },
-              { key: "website", label: "Website" },
-              { key: "instagram_url", label: "Instagram" },
-              { key: "linkedin_url", label: "LinkedIn" },
-              { key: "facebook_url", label: "Facebook" },
-              { key: "tiktok_url", label: "TikTok" },
-              { key: "youtube_url", label: "YouTube" },
-              { key: "payment_link", label: "PayPal / Pay" },
-              { key: "cashapp_link", label: "Cash App" },
-              { key: "zelle_link", label: "Zelle" },
-              { key: "wave_link", label: "Wave" },
-              { key: "orangemoney_link", label: "Orange Money" },
+              { key: "phone",           label: "Phone",       Icon: BIPhone },
+              { key: "whatsapp_number", label: "WhatsApp",    Icon: BIWhatsApp },
+              { key: "email",           label: "Email",       Icon: BIEmail },
+              { key: "website",         label: "Website",     Icon: BIWebsite },
+              { key: "instagram_url",   label: "Instagram",   Icon: BIInstagram },
+              { key: "linkedin_url",    label: "LinkedIn",    Icon: BILinkedIn },
+              { key: "facebook_url",    label: "Facebook",    Icon: BIFacebook },
+              { key: "tiktok_url",      label: "TikTok",      Icon: BITikTok },
+              { key: "youtube_url",     label: "YouTube",     Icon: BIYouTube },
+              { key: "payment_link",    label: "PayPal",      Icon: BIPayPal },
+              { key: "cashapp_link",    label: "Cash App",    Icon: BICashApp },
+              { key: "zelle_link",      label: "Zelle",       Icon: BIZelle },
+              { key: "wave_link",       label: "Wave",        Icon: BIWave },
+              { key: "orangemoney_link",label: "Orange Money",Icon: BIOrangeMoney },
             ].filter(r => liveForm[r.key]).map(r => (
-              <div key={r.key} className="flex items-center gap-3 px-4 py-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
-                <p className={`text-xs font-bold ${headText} w-24 flex-shrink-0`}>{r.label}</p>
+              <div key={r.key} className="flex items-center gap-3 px-3 py-2.5">
+                <r.Icon size={14} />
+                <p className={`text-xs font-bold ${headText} w-20 flex-shrink-0`}>{r.label}</p>
                 <p className={`text-xs truncate flex-1 ${mutedText}`}>{liveForm[r.key]}</p>
                 <button type="button" onClick={() => setVal(r.key, "")} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
                   <Trash2 className="w-3 h-3" />
@@ -299,18 +305,62 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 
 // DesignPanel is now imported from its own file (components/bingoo/DesignPanel.jsx)
 
-// ── SHARE PANEL ───────────────────────────────────────────────────────────
-function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDownloadQR, lang }) {
+// ── SHARE PANEL with QR Customization ────────────────────────────────────
+const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
+const QR_COLORS = ["#1e293b","#0B2E6B","#FF7A00","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
+
+function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
+
+  const [qrColor, setQrColor]   = useState("#1e293b");
+  const [qrLabel, setQrLabel]   = useState("Scan Me");
+  const [customLabel, setCustomLabel] = useState("");
+  const [downloading, setDownloading] = useState(false);
+
+  const displayLabel = customLabel.trim() || qrLabel;
+  const bgColor = isDark ? "1e293b" : "f8fafc";
+  const fgColor = qrColor.replace("#", "");
+
   const qrPreviewUrl = profileQrUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileQrUrl)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(profileQrUrl)}&color=${fgColor}&bgcolor=${bgColor}`
     : null;
+
+  const handleDownloadQR = async () => {
+    if (!profileQrUrl || downloading) return;
+    setDownloading(true);
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=${fgColor}&bgcolor=ffffff`;
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 400; canvas.height = 500;
+      const ctx = canvas.getContext("2d");
+      // White bg
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 500);
+      // QR
+      ctx.drawImage(img, 0, 30, 400, 400);
+      // Label
+      ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
+      ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
+      // Powered by footer
+      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
+      ctx.fillText("Powered by Bingoo Connect", 200, 489);
+      const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
+      a.download = `bingoo-qr.png`;
+      a.click();
+      setDownloading(false);
+    };
+    img.onerror = () => setDownloading(false);
+    img.src = qrSrc;
+  };
 
   return (
     <div className="space-y-4">
+      {/* Profile URL */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
         <p className={`font-bold text-sm ${headText} mb-3`}>{t("profile_link", lang)}</p>
         <div className="flex gap-2">
@@ -330,20 +380,74 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
           )}
         </div>
       </div>
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 text-center`}>
-        <p className={`font-bold text-sm ${headText} mb-4`}>{t("qr_code", lang)}</p>
+
+      {/* QR Code with customization */}
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
+        <p className={`font-bold text-sm ${headText}`}>{t("qr_code", lang)}</p>
+
         {qrPreviewUrl ? (
           <>
-            <div className={`inline-block p-4 rounded-2xl mb-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
-              <img src={qrPreviewUrl} alt="QR Code" className="w-36 h-36 rounded-xl mx-auto" />
+            {/* Live QR preview */}
+            <div className="flex justify-center">
+              <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
+                <img key={qrPreviewUrl} src={qrPreviewUrl} alt="QR Code" className="w-40 h-40 rounded-xl mx-auto" />
+                <p className="mt-2 text-xs font-bold" style={{ color: qrColor }}>{displayLabel}</p>
+                <p className="text-[9px] mt-1 font-bold text-white px-3 py-1 rounded-full inline-block" style={{ background: "#0B2E6B" }}>
+                  Powered by Bingoo Connect
+                </p>
+              </div>
             </div>
-            <p className={`text-xs mb-3 ${mutedText}`}>Scan to open your profile</p>
-            <Button type="button" onClick={onDownloadQR} className="rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
-              <Download className="w-4 h-4" /> {t("download_qr", lang)}
+
+            {/* QR Color */}
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>QR Color</p>
+              <div className="flex gap-2 flex-wrap">
+                {QR_COLORS.map(c => (
+                  <button key={c} type="button" onClick={() => setQrColor(c)}
+                    className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center flex-shrink-0"
+                    style={{ background: c, borderColor: qrColor === c ? "#FF7A00" : "transparent", transform: qrColor === c ? "scale(1.2)" : "scale(1)" }}>
+                    {qrColor === c && <Check className="w-3 h-3 text-white" />}
+                  </button>
+                ))}
+                <div className="w-7 h-7 rounded-full border-2 border-slate-300 overflow-hidden flex-shrink-0">
+                  <input type="color" value={qrColor} onChange={e => setQrColor(e.target.value)} className="w-9 h-9 -m-1 cursor-pointer" />
+                </div>
+              </div>
+            </div>
+
+            {/* Label */}
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Label</p>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {QR_LABELS.map(l => (
+                  <button key={l} type="button" onClick={() => { setQrLabel(l); setCustomLabel(""); }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                      qrLabel === l && !customLabel
+                        ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
+                    }`}
+                    style={qrLabel === l && !customLabel ? { background: "#FF7A00" } : {}}>
+                    {l}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                placeholder="Custom label…"
+                value={customLabel}
+                onChange={e => setCustomLabel(e.target.value)}
+                className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
+              />
+              <p className={`text-[10px] mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
+            </div>
+
+            {/* Download */}
+            <Button type="button" onClick={handleDownloadQR} disabled={downloading}
+              className="w-full rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
+              <Download className="w-4 h-4" /> {downloading ? "Generating…" : t("download_qr", lang)}
             </Button>
           </>
         ) : (
-          <p className={`text-sm ${mutedText}`}>Set a username to generate a QR code.</p>
+          <p className={`text-sm text-center py-4 ${mutedText}`}>Set a username to generate a QR code.</p>
         )}
       </div>
     </div>
@@ -738,7 +842,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <SharePanel
                 profileUrl={profileUrl} profileQrUrl={profileQrUrl}
                 isDark={isDark} copiedUrl={copiedUrl}
-                onCopy={copyUrl} onDownloadQR={downloadQR} lang={lang}
+                onCopy={copyUrl} lang={lang}
               />
             )}
             {innerTab === "lostmode" && (

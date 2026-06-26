@@ -44,7 +44,7 @@ function StatusBadge({ status, isDark }) {
 
 export default function MyNFCDevices() {
    const { isDark } = useBingooTheme();
-   const { maxNFCDevices, isLoading: planLoading } = usePlan();
+   const { maxNFCDevices, isLoading: planLoading, plan: accountPlan } = usePlan();
    const qc = useQueryClient();
 
    const [showActivate, setShowActivate] = useState(false);
@@ -242,10 +242,14 @@ export default function MyNFCDevices() {
       : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400"
   }`;
 
+  // The first profile is used to drive sidebar gating — so business/salon/lawfirm users
+  // see their full sidebar even when entering from the NFC Devices page.
+  const firstProfile = profiles[0] || null;
+
   // Free-plan gate — show upgrade prompt instead of full device management UI
   if (!planLoading && maxNFCDevices === 0) {
     return (
-      <BingooLayout>
+      <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
         <div className="p-6 max-w-xl mx-auto mt-12 text-center space-y-5">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
             style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
@@ -273,7 +277,7 @@ export default function MyNFCDevices() {
   }
 
   return (
-    <BingooLayout>
+    <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
       <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
 
         {/* Header */}

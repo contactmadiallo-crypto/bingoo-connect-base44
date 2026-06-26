@@ -147,32 +147,63 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           {/* Cover Photo */}
           <div className={rowCls}>
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Cover Photo</p>
-            {liveForm.cover_photo && (
-              <div className="w-full h-24 rounded-xl overflow-hidden mb-2">
-                <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full object-cover" />
-              </div>
-            )}
-            <label className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer w-full transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-              <Upload className="w-4 h-4 flex-shrink-0" />
-              {uploading ? "Uploading…" : liveForm.cover_photo ? "Change Cover" : "Upload Cover Photo"}
-              <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
-            </label>
-            {liveForm.cover_photo && (
-              <button type="button" onClick={() => setVal("cover_photo", "")} className="text-xs text-red-400 hover:text-red-600 mt-1">Remove cover photo</button>
-            )}
+            {/* Large cover preview */}
+            <div className={`w-full rounded-2xl overflow-hidden relative ${liveForm.cover_photo ? "" : (isDark ? "bg-white/5 border border-white/10" : "bg-slate-100 border border-slate-200")}`}
+              style={{ height: 160 }}>
+              {liveForm.cover_photo
+                ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
+                : <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${liveForm.cover_color || "#2563eb"}99 100%)` }}>
+                    <p className="text-xs font-bold text-white/60">No cover photo</p>
+                    <p className="text-[10px] text-white/40">Using accent color</p>
+                  </div>
+              }
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                <Upload className="w-4 h-4 flex-shrink-0" />
+                {uploading ? "Uploading…" : liveForm.cover_photo ? "Change Cover" : "Upload Cover"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
+              </label>
+              {liveForm.cover_photo && (
+                <button type="button" onClick={() => setVal("cover_photo", "")}
+                  className="px-3 py-2.5 rounded-xl border text-xs font-bold text-red-400 border-red-200 hover:bg-red-50 transition-all">
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Avatar */}
           <div className={rowCls}>
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Profile Photo</p>
-            {liveForm.profile_photo && (
-              <img src={liveForm.profile_photo} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover object-top border-2 border-white shadow mb-2" />
-            )}
-            <label className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer w-full transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-              <User className="w-4 h-4 flex-shrink-0" />
-              {uploading ? "Uploading…" : liveForm.profile_photo ? "Change Photo" : "Upload Profile Photo"}
-              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
-            </label>
+            <div className="flex items-center gap-4">
+              {/* Large circular avatar preview */}
+              <div className="flex-shrink-0 relative">
+                {liveForm.profile_photo
+                  ? <img src={liveForm.profile_photo} alt="Avatar"
+                      className="rounded-full border-4 border-white shadow-lg"
+                      style={{ width: 80, height: 80, objectFit: "cover", objectPosition: "center top" }} />
+                  : <div className="rounded-full border-4 border-white shadow-lg flex items-center justify-center font-black text-white text-2xl"
+                      style={{ width: 80, height: 80, background: liveForm.cover_color || "#2563eb" }}>
+                      {liveForm.display_name?.charAt(0) || "?"}
+                    </div>
+                }
+                {liveForm.profile_photo && (
+                  <button type="button" onClick={() => setVal("profile_photo", "")}
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow">
+                    ×
+                  </button>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer w-full transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                  <User className="w-4 h-4 flex-shrink-0" />
+                  {uploading ? "Uploading…" : liveForm.profile_photo ? "Change Photo" : "Upload Photo"}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
+                </label>
+                <p className={`text-[10px] mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shown circular on profile.</p>
+              </div>
+            </div>
           </div>
 
           {/* Button Style */}
