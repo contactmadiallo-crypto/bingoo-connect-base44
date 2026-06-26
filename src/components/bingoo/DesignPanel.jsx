@@ -203,15 +203,16 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             <div className="flex items-center gap-4">
               {/* Large circular avatar preview */}
               <div className="flex-shrink-0 relative">
-                {liveForm.profile_photo
-                  ? <img src={liveForm.profile_photo} alt="Avatar"
-                      className="rounded-full border-4 border-white shadow-lg"
-                      style={{ width: 80, height: 80, objectFit: "cover", objectPosition: "center top" }} />
-                  : <div className="rounded-full border-4 border-white shadow-lg flex items-center justify-center font-black text-white text-2xl"
-                      style={{ width: 80, height: 80, background: liveForm.cover_color || "#2563eb" }}>
-                      {liveForm.display_name?.charAt(0) || "?"}
-                    </div>
-                }
+                {(() => {
+                  const shapeMap = { circle: "50%", rounded: "22%", squircle: "28%", card: "14px" };
+                  const r = shapeMap[liveForm.avatar_shape] || "50%";
+                  return liveForm.profile_photo
+                    ? <img src={liveForm.profile_photo} alt="Avatar"
+                        style={{ width: 80, height: 80, borderRadius: r, objectFit: "cover", objectPosition: liveForm.avatar_position || "center top", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
+                    : <div style={{ width: 80, height: 80, borderRadius: r, background: liveForm.cover_color || "#2563eb", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 28 }}>
+                        {liveForm.display_name?.charAt(0) || "?"}
+                      </div>;
+                })()}
                 {liveForm.profile_photo && (
                   <button type="button" onClick={() => setVal("profile_photo", "")}
                     className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow">
@@ -225,7 +226,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                   {uploading ? "Uploading…" : liveForm.profile_photo ? "Change Photo" : "Upload Photo"}
                   <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
                 </label>
-                <p className={`text-[10px] mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shown circular on profile.</p>
+                <p className={`text-[10px] mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shape matches your "Avatar Shape" selection.</p>
               </div>
             </div>
           </div>

@@ -182,12 +182,14 @@ export function DesignPreview({ profile }) {
           }} />
         <div className="px-3 pb-3 pt-1 text-center">
           <div className="flex justify-center -mt-5 mb-1.5">
-            {profile?.profile_photo
-              ? <img src={profile.profile_photo} className="w-10 h-10 rounded-full border-3 border-white shadow object-cover" style={{ borderWidth: 3 }} alt="" />
-              : <div className="w-10 h-10 rounded-full border-4 border-white shadow flex items-center justify-center text-base font-black text-white" style={{ background: color }}>
-                  {profile?.display_name?.charAt(0) || "?"}
-                </div>
-            }
+            {(() => {
+              const r = avatarRadius(profile?.avatar_shape);
+              return profile?.profile_photo
+                ? <img src={profile.profile_photo} alt="" style={{ width: 40, height: 40, borderRadius: r, objectFit: "cover", objectPosition: profile?.avatar_position || "center top", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }} />
+                : <div style={{ width: 40, height: 40, borderRadius: r, background: color, border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 16 }}>
+                    {profile?.display_name?.charAt(0) || "?"}
+                  </div>;
+            })()}
           </div>
           <p className="font-black text-slate-900 text-sm">{profile?.display_name || "Your Name"}</p>
           {profile?.job_title && <p className="text-xs font-semibold" style={{ color }}>{profile.job_title}</p>}
