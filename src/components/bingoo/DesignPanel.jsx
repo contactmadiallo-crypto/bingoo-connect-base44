@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Check, Upload, Sparkles, Palette, Layout, Star, CreditCard, User } from "lucide-react";
+import { Check, Upload, Sparkles, Palette, Layout, User } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { getEffectiveProfilePlan } from "@/lib/planPermissions";
+import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
 
 
 const COVER_COLORS = [
@@ -204,14 +205,12 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               {/* Large circular avatar preview */}
               <div className="flex-shrink-0 relative">
                 {(() => {
-                  const shapeMap = { circle: "50%", rounded: "22%", squircle: "28%", card: "14px" };
-                  const r = shapeMap[liveForm.avatar_shape] || "50%";
-                  return liveForm.profile_photo
-                    ? <img src={liveForm.profile_photo} alt="Avatar"
-                        style={{ width: 80, height: 80, borderRadius: r, objectFit: "cover", objectPosition: liveForm.avatar_position || "center top", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
-                    : <div style={{ width: 80, height: 80, borderRadius: r, background: liveForm.cover_color || "#2563eb", border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 28 }}>
-                        {liveForm.display_name?.charAt(0) || "?"}
-                      </div>;
+                  const r = getAvatarRadius(liveForm.avatar_shape);
+                  return (
+                    <div style={{ borderRadius: `calc(${r} + 4px)`, border: "4px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }}>
+                      <AvatarRenderer profile={{ ...liveForm, cover_color: liveForm.cover_color || "#2563eb" }} size={72} />
+                    </div>
+                  );
                 })()}
                 {liveForm.profile_photo && (
                   <button type="button" onClick={() => setVal("profile_photo", "")}

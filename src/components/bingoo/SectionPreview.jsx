@@ -1,5 +1,6 @@
 /**
- * SectionPreview — lightweight section-specific previews for each editing tab.
+ * SectionPreview — lightweight section-specific previews for team/services/offices tabs.
+ * Profile and design tabs now use the real layout renderer (FullLayoutPreview in LivePreviewPanel).
  */
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -7,14 +8,10 @@ import {
   PhoneIcon, WhatsAppIcon, EmailIcon, WebsiteIcon,
   InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
 } from "@/components/bingoo/BrandIcons";
+import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
 
-// ── Avatar shape border-radius helper
-const avatarRadius = (shape) => ({
-  circle:   "50%",
-  rounded:  "20%",
-  squircle: "28%",
-  card:     "12px",
-}[shape] || "50%");
+// Kept for backwards compatibility in ProfileHeaderPreview
+const avatarRadius = (shape) => getAvatarRadius(shape);
 
 // ── PROFILE HEADER PREVIEW ─────────────────────────────────────────────────
 export function ProfileHeaderPreview({ profile }) {
@@ -182,14 +179,9 @@ export function DesignPreview({ profile }) {
           }} />
         <div className="px-3 pb-3 pt-1 text-center">
           <div className="flex justify-center -mt-5 mb-1.5">
-            {(() => {
-              const r = avatarRadius(profile?.avatar_shape);
-              return profile?.profile_photo
-                ? <img src={profile.profile_photo} alt="" style={{ width: 40, height: 40, borderRadius: r, objectFit: "cover", objectPosition: profile?.avatar_position || "center top", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }} />
-                : <div style={{ width: 40, height: 40, borderRadius: r, background: color, border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 16 }}>
-                    {profile?.display_name?.charAt(0) || "?"}
-                  </div>;
-            })()}
+            <div style={{ border: "3px solid #fff", borderRadius: `calc(${avatarRadius(profile?.avatar_shape)} + 3px)`, boxShadow: "0 4px 12px rgba(0,0,0,0.18)" }}>
+              <AvatarRenderer profile={profile} size={40} />
+            </div>
           </div>
           <p className="font-black text-slate-900 text-sm">{profile?.display_name || "Your Name"}</p>
           {profile?.job_title && <p className="text-xs font-semibold" style={{ color }}>{profile.job_title}</p>}

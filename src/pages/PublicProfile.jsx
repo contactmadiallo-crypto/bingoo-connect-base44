@@ -52,12 +52,6 @@ const saveContact = (profile) => {
   URL.revokeObjectURL(url);
 };
 
-const AVATAR_RADIUS = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" };
-
-function getAvatarRadius(shape) {
-  return AVATAR_RADIUS[shape] || "50%";
-}
-
 // ── Demo profile
 const DEMO_PROFILE = {
   id: "demo", username: "demo", display_name: "Amadou Diallo",

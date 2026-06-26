@@ -6,8 +6,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
-import ProfilePreview from "./ProfilePreview";
 import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
+import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout } from "./ProfileLayoutRenderer";
+import { isLayoutDark } from "@/lib/profileLayouts";
 
 const PANEL_WIDTH = 272;
 const PANEL_HEIGHT = 580;
@@ -23,15 +24,35 @@ const PREVIEW_LABELS = {
   offices: "Locations Section",
 };
 
+// Renders the actual layout renderers — same as PublicProfile.
+// This is the ONLY way to guarantee preview === public profile.
+function FullLayoutPreview({ profile }) {
+  const color = profile?.cover_color || "#2563eb";
+  const isDark = profile?.bg_style === "night" || isLayoutDark(profile?.layout);
+  const layoutType = profile?.layout || "classic";
+  const lp = { profile, color, isDark, mobile: true, contentSections: null };
+
+  if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType)) return <ImageHeroLayout {...lp} />;
+  if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient"].includes(layoutType)) return <PortraitLayout {...lp} />;
+  if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType)) return <GlassLayout {...lp} />;
+  if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType)) return <ModernSaasLayout {...lp} />;
+  if (["executive", "executive_corp", "luxury_gold"].includes(layoutType)) return <ExecutiveLayout {...lp} />;
+  if (["dark", "dark_premium", "darkpremium", "luxury", "aurora", "minimal_dark", "neon", "neon_tech", "cyberpunk", "forest", "premium_salon"].includes(layoutType)) return <DarkPremiumLayout {...lp} isDark={true} />;
+  if (["color_gradient", "bold", "gradient", "sunset", "ocean", "color", "color_hero"].includes(layoutType)) return <ColorLayout {...lp} />;
+  if (["minimal", "minimal_business", "monochrome", "paper", "retro"].includes(layoutType)) return <MinimalLayout {...lp} />;
+  if (["card", "card_compact"].includes(layoutType)) return <CardLayout {...lp} />;
+  return <ClassicLayout {...lp} />;
+}
+
 function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
-  if (previewMode === "profile") return <ProfileHeaderPreview profile={previewProfile} />;
-  if (previewMode === "design") return <DesignPreview profile={previewProfile} />;
+  // "profile" and "design" tabs both show the actual layout renderer now
+  if (previewMode === "profile" || previewMode === "design") return <FullLayoutPreview profile={previewProfile} />;
   if (previewMode === "team") return <TeamPreview profileId={previewProfile?.id} isDark={isDark} />;
   if (previewMode === "services") return <ServicesPreview profileId={previewProfile?.id} isDark={isDark} isLawFirm={isLawFirm} />;
   if (previewMode === "legal_services") return <PracticeAreasPreview profileId={previewProfile?.id} isDark={isDark} />;
   if (previewMode === "offices") return <OfficeLocationsPreview profileId={previewProfile?.id} isDark={isDark} />;
-  // fallback: full profile
-  return <ProfilePreview profile={previewProfile} />;
+  // fallback
+  return <FullLayoutPreview profile={previewProfile} />;
 }
 
 export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, isDark, previewMode, isLawFirm }) {
