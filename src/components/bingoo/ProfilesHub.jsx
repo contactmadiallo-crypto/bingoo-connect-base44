@@ -111,94 +111,52 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
             const profileUrl = `${window.location.origin}/p/${profile.username}`;
             return (
               <div key={profile.id}
-                className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
-                style={{ boxShadow: cardShadow }}>
+                className={`${cardBg} border ${cardBorder} rounded-2xl transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
+                style={{ boxShadow: cardShadow, overflow: "visible" }}>
 
-                {/* ── Cover + Avatar wrapper — position:relative so avatar can escape cover ── */}
-                <div className="relative">
-                  {/* Cover */}
-                  <div className="w-full overflow-hidden" style={{ height: "120px" }}>
+                {/* ── Outer wrapper: relative so avatar can be positioned absolutely ── */}
+                <div className="relative" style={{ borderRadius: "16px 16px 0 0", overflow: "hidden" }}>
+                  {/* Cover — overflow:hidden only on this inner div */}
+                  <div style={{ height: 120 }}>
                     {profile.cover_photo ? (
-                      <img
-                        src={profile.cover_photo}
-                        alt=""
-                        className="w-full h-full"
-                        style={{ objectFit: "cover", objectPosition: "center" }}
-                      />
+                      <img src={profile.cover_photo} alt=""
+                        style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
                     ) : (
-                      <div className="w-full h-full"
-                        style={{
-                          background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)`,
-                        }} />
+                      <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)` }} />
                     )}
-                    {/* subtle gloss overlay */}
-                    <div className="absolute inset-0 opacity-20 pointer-events-none"
-                      style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 65%)" }} />
-                  </div>
-
-                  {/* ── Avatar — floats outside cover, anchored bottom-left ── */}
-                  <div className="absolute left-4 flex-shrink-0" style={{ bottom: "-32px" }}>
-                    {(() => {
-                      const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "20%";
-                      return profile.profile_photo ? (
-                        <img
-                          src={profile.profile_photo}
-                          alt=""
-                          style={{
-                            width: 64, height: 64, borderRadius: shapeR,
-                            objectFit: "cover", objectPosition: "center top",
-                            border: isDark ? "3px solid #13162a" : "3px solid white",
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
-                            display: "block",
-                          }}
-                        />
-                      ) : (
-                        <div style={{
-                          width: 64, height: 64, borderRadius: shapeR,
-                          background: profile.cover_color || "#2563eb",
-                          border: isDark ? "3px solid #13162a" : "3px solid white",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          color: "#fff", fontWeight: 900, fontSize: 22,
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
-                        }}>
-                          {profile.display_name?.charAt(0) || "?"}
-                        </div>
-                      );
-                    })()}
                   </div>
                 </div>
 
-                {/* ── Card body ── */}
-                <div className="px-4 pb-4" style={{ paddingTop: "44px" }}>
-                  {/* Plan badge row — right aligned, sits at top of body */}
-                  <div className="flex items-center justify-end gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "20%";
-                        return profile.profile_photo ? (
-                          <img
-                            src={profile.profile_photo}
-                            alt=""
-                            style={{
-                              width: 64, height: 64, borderRadius: shapeR,
-                              objectFit: "cover", objectPosition: "center top",
-                              border: isDark ? "3px solid #13162a" : "3px solid white",
-                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                            }}
-                          />
-                        ) : (
-                          <div style={{
-                            width: 64, height: 64, borderRadius: shapeR,
-                            background: profile.cover_color || "#2563eb",
-                            border: isDark ? "3px solid #13162a" : "3px solid white",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            color: "#fff", fontWeight: 900, fontSize: 22,
-                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                          }}>
-                            {profile.display_name?.charAt(0) || "?"}
-                          </div>
-                        );
-                      })()}
+                {/* ── Avatar row — sits below cover, avatar uses negative margin to overlap ── */}
+                <div className="flex items-start justify-between px-4" style={{ marginTop: -32 }}>
+                  {/* Avatar — rendered OUTSIDE overflow:hidden cover */}
+                  {(() => {
+                    const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "50%";
+                    return profile.profile_photo ? (
+                      <img src={profile.profile_photo} alt=""
+                        style={{
+                          width: 64, height: 64, borderRadius: shapeR, flexShrink: 0,
+                          objectFit: "cover", objectPosition: "center top",
+                          border: isDark ? "3px solid #13162a" : "3px solid white",
+                          boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
+                          position: "relative", zIndex: 10,
+                        }} />
+                    ) : (
+                      <div style={{
+                        width: 64, height: 64, borderRadius: shapeR, flexShrink: 0,
+                        background: profile.cover_color || "#2563eb",
+                        border: isDark ? "3px solid #13162a" : "3px solid white",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: "#fff", fontWeight: 900, fontSize: 22,
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+                        position: "relative", zIndex: 10,
+                      }}>
+                        {profile.display_name?.charAt(0) || "?"}
+                      </div>
+                    );
+                  })()}
+                  {/* Badges — aligned to bottom of this row */}
+                  <div className="flex items-center gap-2 pt-9">
                     {profile.is_active && (
                       <span className="flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -210,9 +168,10 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       {planLabel}
                     </span>
                   </div>
-                  </div>
+                </div>
 
-                  {/* Name + username */}
+                {/* Name + username */}
+                <div className="px-4 pb-4">
                   <div className="mb-1">
                     <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
                     <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
