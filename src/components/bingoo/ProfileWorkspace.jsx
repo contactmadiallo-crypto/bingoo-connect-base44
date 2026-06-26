@@ -21,8 +21,74 @@ import {
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
   TikTokIcon as BITikTok, YouTubeIcon as BIYouTube, PayPalIcon as BIPayPal,
   CashAppIcon as BICashApp, ZelleIcon as BIZelle, WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney,
-  LocationIcon as BILocation,
+  LocationIcon as BILocation, TwitterXIcon as BITwitterX, SnapchatIcon as BISnapchat,
+  PinterestIcon as BIPinterest, DiscordIcon as BIDiscord, TwitchIcon as BITwitch,
+  ThreadsIcon as BIThreads, VenmoIcon as BIVenmo, SpotifyIcon as BISpotify,
+  ShopIcon as BIShop, PortfolioIcon as BIPortfolio, CalendarIcon as BICalendar,
 } from "@/components/bingoo/BrandIcons";
+
+// Resolve a brand icon from a custom_link by _catalog_id or URL domain
+function getLinkIcon(link, size = 14) {
+  const id  = link._catalog_id || "";
+  const url = (link.url || "").toLowerCase();
+  const match = (domains) => domains.some(d => url.includes(d));
+
+  const iconMap = {
+    phone:            BIPhone,
+    whatsapp_number:  BIWhatsApp,
+    email:            BIEmail,
+    website:          BIWebsite,
+    location:         BILocation,
+    instagram_url:    BIInstagram,
+    linkedin_url:     BILinkedIn,
+    facebook_url:     BIFacebook,
+    tiktok_url:       BITikTok,
+    youtube_url:      BIYouTube,
+    payment_link:     BIPayPal,
+    cashapp_link:     BICashApp,
+    zelle_link:       BIZelle,
+    wave_link:        BIWave,
+    orangemoney_link: BIOrangeMoney,
+    twitter_url:      BITwitterX,
+    snapchat_url:     BISnapchat,
+    pinterest_url:    BIPinterest,
+    discord_url:      BIDiscord,
+    twitch_url:       BITwitch,
+    threads_url:      BIThreads,
+    venmo_url:        BIVenmo,
+    music_link:       BISpotify,
+    shop_link:        BIShop,
+    portfolio_link:   BIPortfolio,
+    booking:          BICalendar,
+  };
+
+  let Icon = iconMap[id];
+
+  // Fallback: infer from URL domain
+  if (!Icon) {
+    if (match(["instagram.com"]))  Icon = BIInstagram;
+    else if (match(["linkedin.com"]))  Icon = BILinkedIn;
+    else if (match(["facebook.com", "fb.com"])) Icon = BIFacebook;
+    else if (match(["tiktok.com"]))  Icon = BITikTok;
+    else if (match(["youtube.com", "youtu.be"])) Icon = BIYouTube;
+    else if (match(["x.com", "twitter.com"])) Icon = BITwitterX;
+    else if (match(["snapchat.com"])) Icon = BISnapchat;
+    else if (match(["pinterest.com"])) Icon = BIPinterest;
+    else if (match(["discord.gg", "discord.com"])) Icon = BIDiscord;
+    else if (match(["twitch.tv"])) Icon = BITwitch;
+    else if (match(["threads.net"])) Icon = BIThreads;
+    else if (match(["paypal.com", "paypal.me"])) Icon = BIPayPal;
+    else if (match(["cash.app", "cash.me"])) Icon = BICashApp;
+    else if (match(["venmo.com"])) Icon = BIVenmo;
+    else if (match(["zellepay.com", "zelle"])) Icon = BIZelle;
+    else if (match(["wave.com"])) Icon = BIWave;
+    else if (match(["spotify.com", "open.spotify"])) Icon = BISpotify;
+    else if (match(["calendly.com", "cal.com"])) Icon = BICalendar;
+    else Icon = BIWebsite;
+  }
+
+  return <Icon size={size} />;
+}
 import { usePlan } from "@/hooks/usePlan";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
 import { toast } from "sonner";
@@ -366,8 +432,8 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               </div>
             ))}
             {links.map((link, idx) => (
-              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-4 py-2.5 ${!link.enabled ? "opacity-50" : ""}`}>
-                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${link.enabled ? "bg-emerald-400" : "bg-slate-300"}`} />
+              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 ${!link.enabled ? "opacity-50" : ""}`}>
+                <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
                 <p className={`text-xs font-bold ${headText} w-24 flex-shrink-0 truncate`}>{link.label}</p>
                 <p className={`text-xs truncate flex-1 ${mutedText}`}>{link.url}</p>
                 <div className="flex items-center gap-1 flex-shrink-0">
