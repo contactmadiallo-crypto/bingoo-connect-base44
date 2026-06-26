@@ -372,16 +372,20 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
 const QR_COLORS = ["#1e293b","#0B2E6B","#FF7A00","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
 
-function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang }) {
+function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang, profile, effectivePlan }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
 
-  const [qrColor, setQrColor]   = useState("#1e293b");
-  const [qrLabel, setQrLabel]   = useState("Scan Me");
+  const [qrColor, setQrColor]       = useState("#1e293b");
+  const [qrLabel, setQrLabel]       = useState("Scan Me");
   const [customLabel, setCustomLabel] = useState("");
   const [downloading, setDownloading] = useState(false);
+  const [logoWatermark, setLogoWatermark] = useState(false);
+
+  const isPro = effectivePlan && effectivePlan !== "free";
+  const hasLogo = !!profile?.company_logo;
 
   const displayLabel = customLabel.trim() || qrLabel;
   const bgColor = isDark ? "1e293b" : "f8fafc";
@@ -395,30 +399,55 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang 
     if (!profileQrUrl || downloading) return;
     setDownloading(true);
     const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=${fgColor}&bgcolor=ffffff`;
-    const img = new Image(); img.crossOrigin = "anonymous";
-    img.onload = () => {
+    const qrImg = new Image(); qrImg.crossOrigin = "anonymous";
+
+    qrImg.onload = async () => {
       const canvas = document.createElement("canvas");
       canvas.width = 400; canvas.height = 500;
       const ctx = canvas.getContext("2d");
       // White bg
       ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 500);
       // QR
-      ctx.drawImage(img, 0, 30, 400, 400);
-      // Label
-      ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
-      ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
-      // Powered by footer
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
-      ctx.fillText("Powered by Bingoo Connect", 200, 489);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = `bingoo-qr.png`;
-      a.click();
-      setDownloading(false);
+      ctx.drawImage(qrImg, 0, 30, 400, 400);
+
+      // Logo watermark — centered over the QR code (professional plan only)
+      const drawFinish = () => {
+        // Label
+        ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
+        ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
+        // Powered by footer
+        ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
+        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
+        ctx.fillText("Powered by Bingoo Connect", 200, 489);
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `bingoo-qr.png`;
+        a.click();
+        setDownloading(false);
+      };
+
+      if (logoWatermark && isPro && hasLogo) {
+        const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
+        logoImg.onload = () => {
+          // White rounded square behind logo
+          const logoSize = 72;
+          const lx = (400 - logoSize) / 2;
+          const ly = 30 + (400 - logoSize) / 2;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.roundRect(lx - 6, ly - 6, logoSize + 12, logoSize + 12, 12);
+          ctx.fill();
+          ctx.drawImage(logoImg, lx, ly, logoSize, logoSize);
+          drawFinish();
+        };
+        logoImg.onerror = drawFinish;
+        logoImg.src = profile.company_logo;
+      } else {
+        drawFinish();
+      }
     };
-    img.onerror = () => setDownloading(false);
-    img.src = qrSrc;
+    qrImg.onerror = () => setDownloading(false);
+    qrImg.src = qrSrc;
   };
 
   return (
@@ -501,6 +530,34 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang 
                 className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
               />
               <p className={`text-[10px] mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
+            </div>
+
+            {/* Logo Watermark — Pro feature */}
+            <div className={`rounded-xl border p-3 ${isDark ? "border-white/8 bg-white/4" : "border-slate-100 bg-slate-50"}`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>PRO</span>
+                  </div>
+                  <p className={`text-[10px] mt-0.5 ${mutedText}`}>
+                    {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
+                      : !hasLogo ? "Upload a company logo in the Info tab first."
+                      : "Your business logo will appear centered on the QR code."}
+                  </p>
+                </div>
+                {isPro && hasLogo ? (
+                  <Toggle value={logoWatermark} onChange={setLogoWatermark} />
+                ) : (
+                  <Lock className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-white/25" : "text-slate-300"}`} />
+                )}
+              </div>
+              {isPro && hasLogo && logoWatermark && (
+                <div className="mt-2 flex items-center gap-2">
+                  <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
+                  <p className={`text-[10px] ${mutedText}`}>This logo will be embedded in the downloaded QR code.</p>
+                </div>
+              )}
             </div>
 
             {/* Download */}
@@ -907,6 +964,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                 profileUrl={profileUrl} profileQrUrl={profileQrUrl}
                 isDark={isDark} copiedUrl={copiedUrl}
                 onCopy={copyUrl} lang={lang}
+                profile={profile}
+                effectivePlan={getEffectiveProfilePlan(userPlan, profile)}
               />
             )}
             {innerTab === "lostmode" && (
