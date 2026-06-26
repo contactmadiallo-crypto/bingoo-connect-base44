@@ -54,6 +54,61 @@ Deno.serve(async (req) => {
 
     const appointment = await base44.asServiceRole.entities.Appointment.create(appointmentData);
 
+    // Add event to Google Calendar (non-blocking)
+    try {
+      const { accessToken } = await base44.asServiceRole.connectors.getConnection('googlecalendar');
+
+      // Build start/end datetimes from date + time_slot (e.g. "2026-07-01" + "09:30")
+      const durationMins = duration || 30;
+      const startDt = date && time_slot ? new Date(`${date}T${time_slot}:00`) : null;
+      const endDt = startDt ? new Date(startDt.getTime() + durationMins * 60000) : null;
+
+      const toRfc = (d) => d.toISOString();
+
+      const eventBody = {
+        summary: `Booking: ${visitor_name}${service_name ? ` — ${service_name}` : ''}`,
+        description: [
+          `Profile: ${profile?.display_name || profile_id}`,
+          visitor_email ? `Email: ${visitor_email}` : '',
+          visitor_phone ? `Phone: ${visitor_phone}` : '',
+          stylist_name ? `Stylist: ${stylist_name}` : '',
+          guest_count ? `Guests: ${guest_count}` : '',
+          case_type ? `Case Type: ${case_type}` : '',
+          a_number ? `A-Number: ${a_number}` : '',
+          case_number ? `Case #: ${case_number}` : '',
+          notes ? `Notes: ${notes}` : '',
+          `Source: Bingoo Connect`,
+        ].filter(Boolean).join('\n'),
+        attendees: [{ email: visitor_email, displayName: visitor_name }],
+        ...(startDt && endDt ? {
+          start: { dateTime: toRfc(startDt) },
+          end: { dateTime: toRfc(endDt) },
+        } : {
+          start: { date: date },
+          end: { date: date },
+        }),
+      };
+
+      const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?sendUpdates=externalOnly', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventBody),
+      });
+
+      if (!calRes.ok) {
+        const err = await calRes.text();
+        console.error('Google Calendar event creation failed:', err);
+      } else {
+        const calEvent = await calRes.json();
+        console.log('Google Calendar event created:', calEvent.id);
+      }
+    } catch (calErr) {
+      console.error('Google Calendar integration failed (non-blocking):', calErr.message);
+    }
+
     // Create in-app notification for profile owner
     if (ownerUserId) {
       try {
