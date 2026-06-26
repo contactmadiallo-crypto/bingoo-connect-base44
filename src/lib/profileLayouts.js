@@ -120,11 +120,30 @@ export const PROFILE_LAYOUTS = {
 
 export const DEFAULT_LAYOUT = "classic";
 
+// Real layout type mapping — determines structural rendering
+export const LAYOUT_TYPES = {
+  classic: "default",
+  portrait: "portrait",
+  color: "color_hero",
+  card: "card_compact",
+  image: "image_hero",
+  glass: "glassmorphic",
+  darkpremium: "dark_premium",
+  minimal: "minimal_business",
+};
+
 /**
  * Get layout config by ID, with fallback to default
  */
 export function getLayoutConfig(layoutId) {
   return PROFILE_LAYOUTS[layoutId] || PROFILE_LAYOUTS[DEFAULT_LAYOUT];
+}
+
+/**
+ * Get the structural layout type
+ */
+export function getLayoutType(layoutId) {
+  return LAYOUT_TYPES[layoutId] || LAYOUT_TYPES[DEFAULT_LAYOUT];
 }
 
 /**

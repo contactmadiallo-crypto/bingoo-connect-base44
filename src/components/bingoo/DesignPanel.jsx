@@ -3,7 +3,7 @@ import { Check, Upload, Sparkles, Palette, Layout, Star, CreditCard, User } from
 import { base44 } from "@/api/base44Client";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { getEffectiveProfilePlan } from "@/lib/planPermissions";
-import { PROFILE_LAYOUTS } from "@/lib/profileLayouts";
+
 
 const COVER_COLORS = [
   "#2563eb","#0B2E6B","#1a4a9e","#7c3aed",

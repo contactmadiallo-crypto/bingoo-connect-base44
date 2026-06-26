@@ -20,6 +20,59 @@ import {
   WebsiteIcon, MapPinIcon, WaveIconNew, OrangeMoneyIconNew,
   ZelleIcon, CashAppIcon, WhatsAppIcon,
 } from "@/components/bingoo/SocialIcons";
+import {
+  PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
+  InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
+  TikTokIcon as BITikTok, YouTubeIcon as BIYouTube, TwitterXIcon, SnapchatIcon,
+  PinterestIcon, DiscordIcon, TwitchIcon, ThreadsIcon,
+  PayPalIcon, CashAppIcon as BICashApp, ZelleIcon as BIZelle, VenmoIcon,
+  WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney, SpotifyIcon,
+  CalendarIcon as BICalendar, ShopIcon, PortfolioIcon, LocationIcon as BILocation,
+} from "@/components/bingoo/BrandIcons";
+
+// Map catalog IDs and labels to brand icons
+const CATALOG_ICON_MAP = {
+  phone: BIPhone, whatsapp_number: BIWhatsApp, email: BIEmail, website: BIWebsite,
+  location: BILocation, instagram_url: BIInstagram, linkedin_url: BILinkedIn,
+  facebook_url: BIFacebook, tiktok_url: BITikTok, youtube_url: BIYouTube,
+  twitter_url: TwitterXIcon, snapchat_url: SnapchatIcon, pinterest_url: PinterestIcon,
+  discord_url: DiscordIcon, twitch_url: TwitchIcon, threads_url: ThreadsIcon,
+  payment_link: PayPalIcon, cashapp_link: BICashApp, zelle_link: BIZelle, venmo_url: VenmoIcon,
+  wave_link: BIWave, orangemoney_link: BIOrangeMoney, music_link: SpotifyIcon,
+  booking: BICalendar, shop_link: ShopIcon, portfolio_link: PortfolioIcon,
+};
+
+function LinkIcon({ link, size = 28 }) {
+  // Try catalog id match first
+  const byId = link._catalog_id ? CATALOG_ICON_MAP[link._catalog_id] : null;
+  if (byId) {
+    const Ic = byId;
+    return <Ic size={size} />;
+  }
+  // Fallback: try matching label
+  const label = (link.label || "").toLowerCase();
+  if (label.includes("instagram")) return <BIInstagram size={size} />;
+  if (label.includes("facebook")) return <BIFacebook size={size} />;
+  if (label.includes("tiktok")) return <BITikTok size={size} />;
+  if (label.includes("linkedin")) return <BILinkedIn size={size} />;
+  if (label.includes("youtube")) return <BIYouTube size={size} />;
+  if (label.includes("paypal")) return <PayPalIcon size={size} />;
+  if (label.includes("cash")) return <BICashApp size={size} />;
+  if (label.includes("zelle")) return <BIZelle size={size} />;
+  if (label.includes("venmo")) return <VenmoIcon size={size} />;
+  if (label.includes("wave")) return <BIWave size={size} />;
+  if (label.includes("orange")) return <BIOrangeMoney size={size} />;
+  if (label.includes("spotify") || label.includes("music")) return <SpotifyIcon size={size} />;
+  if (label.includes("discord")) return <DiscordIcon size={size} />;
+  if (label.includes("twitch")) return <TwitchIcon size={size} />;
+  if (label.includes("thread")) return <ThreadsIcon size={size} />;
+  if (label.includes("pinterest")) return <PinterestIcon size={size} />;
+  if (label.includes("shop")) return <ShopIcon size={size} />;
+  if (label.includes("portfolio")) return <PortfolioIcon size={size} />;
+  if (label.includes("book") || label.includes("calendly")) return <BICalendar size={size} />;
+  // Generic link icon  
+  return <BIWebsite size={size} />;
+}
 
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
@@ -235,8 +288,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                   whileHover={{ x: 5 }}
                   style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", borderRadius: 16, background: isDark ? "rgba(255,255,255,0.06)" : "#f8fafc", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", textDecoration: "none", color: isDark ? "rgba(255,255,255,0.85)" : "#374151", fontWeight: 600, fontSize: 14 }}
                 >
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.1)" : hexRgb(color, 0.1), display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 16 }}>
-                    🔗
+                  <div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
+                    <LinkIcon link={link} size={36} />
                   </div>
                   <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
                   <span style={{ color: "#94a3b8", fontSize: 14, flexShrink: 0 }}>›</span>

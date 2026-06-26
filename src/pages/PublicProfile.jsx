@@ -11,7 +11,8 @@ import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampi
 import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
-import { getLayoutConfig, isLayoutDark } from "@/lib/profileLayouts";
+import { isLayoutDark } from "@/lib/profileLayouts";
+import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
@@ -53,41 +54,8 @@ const saveContact = (profile) => {
 
 const AVATAR_RADIUS = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" };
 
-function Avatar({ profile, color, mobile }) {
-  const size = mobile ? 110 : 128;
-  const shape = profile.avatar_shape || "circle";
-  const radius = AVATAR_RADIUS[shape] || "50%";
-  return (
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: 0.15, type: "spring", stiffness: 200, damping: 20 }}
-      style={{ display: "inline-block" }}
-    >
-      <div style={{
-        padding: 4,
-        background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`,
-        borderRadius: radius,
-        boxShadow: `0 0 0 5px #fff, 0 20px 60px ${hexRgb(color, 0.45)}`,
-      }}>
-        {profile.profile_photo
-          ? <img
-              src={profile.profile_photo}
-              alt={profile.display_name}
-              style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", objectPosition: profile.avatar_position || "center top", display: "block" }}
-            />
-          : <div style={{
-              width: size, height: size, borderRadius: radius,
-              background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.7)})`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#fff", fontWeight: 900, fontSize: Math.round(size * 0.4),
-            }}>
-              {profile.display_name?.charAt(0) || "?"}
-            </div>
-        }
-      </div>
-    </motion.div>
-  );
+function getAvatarRadius(shape) {
+  return AVATAR_RADIUS[shape] || "50%";
 }
 
 // ── Demo profile
@@ -297,17 +265,17 @@ export default function PublicProfile() {
 
   // ── Render championship full-page layouts — pass all content as children
   const effectiveLayout = profile.layout || profile.profile_layout || "default";
-  const contentSections = (
+  const championContentSections = (
     <ProfileContentSections
       profile={profile} color={color} isDark={true}
       isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
     />
   );
   if (effectiveLayout === "ny_championship" || profile.profile_layout === "ny_championship") {
-    return <NewYorkChampionshipLayout profile={profile}>{contentSections}</NewYorkChampionshipLayout>;
+    return <NewYorkChampionshipLayout profile={profile}>{championContentSections}</NewYorkChampionshipLayout>;
   }
   if (effectiveLayout === "lions_teranga" || profile.profile_layout === "lions_teranga") {
-    return <LionsOfTerangaLayout profile={profile}>{contentSections}</LionsOfTerangaLayout>;
+    return <LionsOfTerangaLayout profile={profile}>{championContentSections}</LionsOfTerangaLayout>;
   }
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
@@ -315,11 +283,26 @@ export default function PublicProfile() {
     ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
     : null;
 
-  // Use layout system to determine dark mode
   const isDark = profile.bg_style === "night" || isLayoutDark(profile.layout);
-  
-  // Get layout configuration
-  const layoutConfig = getLayoutConfig(profile.layout);
+  const layoutType = profile.layout || "classic";
+
+  const layoutContentSections = (
+    <ProfileContentSections
+      profile={profile} color={color} isDark={isDark}
+      isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+    />
+  );
+
+  const renderActiveLayout = () => {
+    const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
+    if (["image", "image_hero"].includes(layoutType)) return <ImageHeroLayout {...lp} />;
+    if (["glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType)) return <GlassLayout {...lp} />;
+    if (["darkpremium", "dark_premium", "dark", "luxury", "aurora", "minimal_dark", "luxury_gold", "neon", "neon_tech", "cyberpunk", "executive_corp"].includes(layoutType)) return <DarkPremiumLayout {...lp} isDark={true} />;
+    if (["color", "color_hero", "bold", "gradient", "bubbly", "sunset", "ocean", "forest"].includes(layoutType)) return <ColorLayout {...lp} />;
+    if (["minimal", "minimal_business", "corporate", "monochrome", "paper"].includes(layoutType)) return <MinimalLayout {...lp} />;
+    if (["card", "card_compact"].includes(layoutType)) return <CardLayout {...lp} />;
+    return <ClassicLayout {...lp} />;
+  };
 
   return (
     <div ref={topRef} style={{ position: "relative", overflowX: "hidden" }}>
@@ -336,132 +319,13 @@ export default function PublicProfile() {
         ← Back
       </motion.button>
 
-      {/* Main card */}
+      {/* Main card — real layout renderer */}
       <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
-        {/* ── PREMIUM COVER HERO — using layout system ── */}
-        <div style={{ position: "relative", borderRadius: mobile ? 0 : "28px 28px 0 0", overflow: "hidden" }}>
-          {/* Cover — sized per layout */}
-          <div style={{
-            height: mobile ? layoutConfig.coverHeight.mobile : layoutConfig.coverHeight.desktop,
-            position: "relative",
-            background: `linear-gradient(155deg, ${color} 0%, ${hexRgb(color, 0.85)} 40%, ${B.navy} 100%)`,
-            overflow: "hidden",
-          }}>
-            {/* Cover photo */}
-            {profile.cover_photo && (
-              <img src={profile.cover_photo} alt="Cover"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }}
-              />
-            )}
-            {/* Subtle dot pattern on gradient cover */}
-            {!profile.cover_photo && (
-              <>
-                <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,rgba(255,255,255,0.12) 1px,transparent 1px)", backgroundSize: "28px 28px", opacity: 0.6 }} />
-                <div style={{ position: "absolute", top: "20%", right: "10%", width: 200, height: 200, borderRadius: "50%", background: `radial-gradient(circle, ${hexRgb(color, 0.3)}, transparent 70%)`, filter: "blur(40px)" }} />
-              </>
-            )}
-            {/* Bottom vignette — only if layout uses overlay */}
-            {layoutConfig.coverOverlay && (
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 100, background: `linear-gradient(to bottom, transparent, ${isDark ? "rgba(15,23,42,0.7)" : "rgba(255,255,255,0.15)"})` }} />
-            )}
-
-            {/* Company logo badge — top left */}
-            {profile.company_logo && (
-              <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}
-                style={{ position: "absolute", top: 16, left: 20, width: 44, height: 44, borderRadius: 12, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 4px 16px rgba(0,0,0,0.2)", background: "#fff" }}>
-                <img src={profile.company_logo} alt="Logo" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </motion.div>
-            )}
-
-            {/* Plan badge — top right */}
-            {profile.plan && profile.plan !== "free" && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5, type: "spring" }}
-                style={{ position: "absolute", top: 16, right: 16, display: "flex", alignItems: "center", gap: 5, padding: "5px 12px", borderRadius: 999, background: `linear-gradient(135deg, ${B.gold}, ${B.orange})`, color: "#fff", fontSize: 10, fontWeight: 900, letterSpacing: "0.1em", textTransform: "uppercase", boxShadow: "0 4px 12px rgba(253,186,33,0.45)" }}
-              >
-                ✦ {({ pro: "PRO", professional: "PRO", business: "BUSINESS", salon: "SALON", restaurant: "RESTAURANT", lawfirm: "LAW FIRM", corporate: "CORPORATE" }[profile.plan] || "VERIFIED")}
-              </motion.div>
-            )}
-          </div>
-
-          {/* ── AVATAR + IDENTITY — layout-driven ── */}
-          <div style={{ position: "relative", zIndex: 10 }}>
-            {/* Avatar overlaps cover — sized per layout */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: mobile ? layoutConfig.avatarOverlap.mobile : layoutConfig.avatarOverlap.desktop }}>
-              <div style={{
-                padding: 4,
-                background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`,
-                borderRadius: "50%",
-                boxShadow: `0 0 0 5px #fff, 0 20px 60px ${hexRgb(color, 0.45)}`,
-              }}>
-                {profile.profile_photo
-                  ? <img
-                      src={profile.profile_photo}
-                      alt={profile.display_name}
-                      style={{ width: mobile ? layoutConfig.avatarSize.mobile : layoutConfig.avatarSize.desktop, height: mobile ? layoutConfig.avatarSize.mobile : layoutConfig.avatarSize.desktop, borderRadius: "50%", objectFit: "cover", objectPosition: profile.avatar_position || "center top", display: "block" }}
-                    />
-                  : <div style={{
-                      width: mobile ? layoutConfig.avatarSize.mobile : layoutConfig.avatarSize.desktop, 
-                      height: mobile ? layoutConfig.avatarSize.mobile : layoutConfig.avatarSize.desktop, 
-                      borderRadius: "50%",
-                      background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.7)})`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "#fff", fontWeight: 900, fontSize: Math.round((mobile ? layoutConfig.avatarSize.mobile : layoutConfig.avatarSize.desktop) * 0.4),
-                    }}>
-                      {profile.display_name?.charAt(0) || "?"}
-                    </div>
-                }
-              </div>
-            </div>
-
-            {/* Name / title / company — layout-driven sizing */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-              style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0" }}>
-              <h1 style={{ margin: "0 0 5px", fontSize: mobile ? layoutConfig.titleSize.mobile : layoutConfig.titleSize.desktop, fontWeight: 900, color: isDark ? "#fff" : "#0f172a", lineHeight: 1.1, letterSpacing: "-0.5px" }}>
-                {profile.display_name}
-              </h1>
-              {profile.job_title && (
-                <p style={{ margin: "0 0 3px", fontSize: 14.5, fontWeight: 700, ...(layoutConfig.titleGradient ? { background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.65)})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" } : { color: isDark ? "rgba(255,255,255,0.5)" : "#64748b" }), letterSpacing: "0.01em" }}>
-                  {profile.job_title}
-                </p>
-              )}
-              {profile.company_name && (
-                <p style={{ margin: "0 0 14px", fontSize: 13, color: isDark ? "rgba(255,255,255,0.38)" : "#64748b", fontWeight: 600 }}>
-                  {profile.company_name}
-                </p>
-              )}
-              {/* Bio — styled per layout */}
-              {profile.bio && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-                  style={{ margin: "0 auto 6px", maxWidth: 360, padding: "13px 18px", borderRadius: 18, background: layoutConfig.bioBoxBg(isDark, color), border: layoutConfig.bioBoxBorder(isDark, color), textAlign: "left", backdropFilter: layoutConfig.bioBoxStyle === "glassmorphic" ? "blur(10px)" : "none" }}>
-                  <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.7, color: isDark ? "rgba(255,255,255,0.62)" : "#475569", fontWeight: 500 }}>
-                    {profile.bio}
-                  </p>
-                </motion.div>
-              )}
-              {/* Location pill */}
-              {profile.location && profile.show_location !== false && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 8, marginBottom: 4, padding: "4px 12px", borderRadius: 999, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0" }}>
-                  <span style={{ fontSize: 11 }}>📍</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b" }}>{profile.location}</span>
-                </motion.div>
-              )}
-            </motion.div>
-          </div>
-
-          {/* ── CONTENT AREA — layout-driven padding ── */}
-          <div style={{ padding: mobile ? layoutConfig.contentPadding.mobile : layoutConfig.contentPadding.desktop }}>
-            <ProfileContentSections
-              profile={profile} color={color} isDark={isDark}
-              isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
-            />
-          </div>
-        </div>
+        {renderActiveLayout()}
       </ProfileLayoutShell>
 
-      {/* ── STICKY BOTTOM BAR — shown if layout enabled ── */}
-      {layoutConfig.stickyBottomBar && (profile.phone || profile.whatsapp_number) && (
+      {/* ── STICKY BOTTOM BAR ── */}
+      {(profile.phone || profile.whatsapp_number) && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
