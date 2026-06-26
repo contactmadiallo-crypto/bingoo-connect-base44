@@ -45,12 +45,18 @@ export default function ProfileLayoutShell({ profile, color, isDark, children })
   const pageBg = getShellBg(layout, color, isDark);
 
   return (
-    <div style={{ minHeight: "100vh", background: pageBg, paddingBottom: 0 }}>
+    <div style={{ minHeight: "100vh", background: pageBg }}>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        style={{ width: "100%", maxWidth: mobile ? "100%" : 480, margin: "0 auto" }}
+        style={{
+          width: "100%",
+          maxWidth: mobile ? "100%" : 480,
+          margin: "0 auto",
+          // CRITICAL: no overflow:hidden here — avatar must escape the cover
+          position: "relative",
+        }}
       >
         {children}
       </motion.div>

@@ -7,7 +7,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
-import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout } from "./ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout } from "./ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
 
 const PANEL_WIDTH = 272;
@@ -24,23 +24,56 @@ const PREVIEW_LABELS = {
   offices: "Locations Section",
 };
 
+// Lightweight content stub shown in preview (no backend calls needed)
+function PreviewContentStub({ color, isDark }) {
+  const btnBg = color || "#2563eb";
+  const cardBg = isDark ? "rgba(255,255,255,0.06)" : "#f8fafc";
+  const text   = isDark ? "rgba(255,255,255,0.5)" : "#94a3b8";
+  const items  = ["📞 Phone", "💬 WhatsApp", "📧 Email", "🌐 Website", "📸 Instagram", "💼 LinkedIn"];
+  return (
+    <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+      {items.map((label, i) => (
+        <div key={i} style={{ background: cardBg, borderRadius: 12, padding: "10px 14px",
+          display: "flex", alignItems: "center", gap: 10, border: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "#e2e8f0"}` }}>
+          <span style={{ fontSize: 16 }}>{label.split(" ")[0]}</span>
+          <div style={{ flex: 1, height: 8, borderRadius: 4, background: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Renders the actual layout renderers — same as PublicProfile.
 // This is the ONLY way to guarantee preview === public profile.
 function FullLayoutPreview({ profile }) {
-  const color = profile?.cover_color || "#2563eb";
-  const isDark = profile?.bg_style === "night" || isLayoutDark(profile?.layout);
+  const color      = profile?.cover_color || "#2563eb";
+  const isDark     = profile?.bg_style === "night" || isLayoutDark(profile?.layout);
   const layoutType = profile?.layout || "classic";
-  const lp = { profile, color, isDark, mobile: true, contentSections: null };
+  const stub       = <PreviewContentStub color={color} isDark={isDark} />;
+  const lp         = { profile, color, isDark, mobile: true, contentSections: stub };
 
-  if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType)) return <ImageHeroLayout {...lp} />;
-  if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient"].includes(layoutType)) return <PortraitLayout {...lp} />;
-  if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType)) return <GlassLayout {...lp} />;
-  if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType)) return <ModernSaasLayout {...lp} />;
-  if (["executive", "executive_corp", "luxury_gold"].includes(layoutType)) return <ExecutiveLayout {...lp} />;
-  if (["dark", "dark_premium", "darkpremium", "luxury", "aurora", "minimal_dark", "neon", "neon_tech", "cyberpunk", "forest", "premium_salon"].includes(layoutType)) return <DarkPremiumLayout {...lp} isDark={true} />;
-  if (["color_gradient", "bold", "gradient", "sunset", "ocean", "color", "color_hero"].includes(layoutType)) return <ColorLayout {...lp} />;
-  if (["minimal", "minimal_business", "monochrome", "paper", "retro"].includes(layoutType)) return <MinimalLayout {...lp} />;
-  if (["card", "card_compact"].includes(layoutType)) return <CardLayout {...lp} />;
+  if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType))
+    return <ImageHeroLayout {...lp} />;
+  if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient", "aurora", "gradient"].includes(layoutType))
+    return <PortraitLayout {...lp} />;
+  if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType))
+    return <GlassLayout {...lp} />;
+  if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType))
+    return <ModernSaasLayout {...lp} />;
+  if (["executive", "executive_corp", "luxury_gold"].includes(layoutType))
+    return <ExecutiveLayout {...lp} />;
+  if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "forest", "premium_salon"].includes(layoutType))
+    return <DarkPremiumLayout {...lp} isDark={true} />;
+  if (["neon", "neon_tech"].includes(layoutType))
+    return <NeonLayout {...lp} isDark={true} />;
+  if (["retro", "monochrome", "paper"].includes(layoutType))
+    return <RetroLayout {...lp} />;
+  if (["color_gradient", "bold", "sunset", "ocean", "color", "color_hero"].includes(layoutType))
+    return <ColorLayout {...lp} />;
+  if (["minimal", "minimal_business"].includes(layoutType))
+    return <MinimalLayout {...lp} />;
+  if (["card", "card_compact"].includes(layoutType))
+    return <CardLayout {...lp} />;
   return <ClassicLayout {...lp} />;
 }
 
