@@ -43,6 +43,19 @@
       "default": "circle",
       "description": "Profile photo shape"
     },
+    "avatar_placement": {
+      "type": "string",
+      "enum": [
+        "center_overlap",
+        "lower_center",
+        "right_overlap",
+        "left_overlap",
+        "floating_card",
+        "inside_card"
+      ],
+      "default": "center_overlap",
+      "description": "Where avatar is positioned relative to cover"
+    },
     "avatar_position": {
       "type": "string",
       "enum": [
@@ -122,7 +135,13 @@
         "video_bg",
         "parallax",
         "ny_championship",
-        "lions_teranga"
+        "lions_teranga",
+        "portrait",
+        "image_hero",
+        "glass_card",
+        "modern_saas",
+        "executive",
+        "color_gradient"
       ],
       "default": "classic"
     },

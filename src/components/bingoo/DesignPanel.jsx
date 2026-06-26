@@ -28,6 +28,29 @@ const BTN_STYLES = [
   { v: "flat",     label: "Flat",     radius: 8 },
 ];
 
+const AVATAR_SHAPES = [
+  { v: "circle",   label: "Circle",   icon: "●" },
+  { v: "rounded",  label: "Rounded",  icon: "▣" },
+  { v: "squircle", label: "iOS Icon", icon: "⬟" },
+  { v: "card",     label: "Card",     icon: "▬" },
+];
+
+const AVATAR_PLACEMENTS = [
+  { v: "center_overlap", label: "Center Overlap", desc: "Avatar overlaps cover center" },
+  { v: "lower_center",   label: "Lower Center",   desc: "Avatar sits lower" },
+  { v: "right_overlap",  label: "Right Overlap",  desc: "Avatar floats right" },
+  { v: "left_overlap",   label: "Left Overlap",   desc: "Avatar floats left" },
+  { v: "floating_card",  label: "Floating Card",  desc: "Avatar inside content" },
+];
+
+const AVATAR_FOCAL = [
+  { v: "center top",    label: "Face (top)" },
+  { v: "center",        label: "Center" },
+  { v: "center bottom", label: "Bottom" },
+  { v: "left center",   label: "Left" },
+  { v: "right center",  label: "Right" },
+];
+
 const SECTIONS = [
   { id: "theme",    label: "Theme",        icon: Sparkles },
   { id: "general",  label: "General",      icon: Palette },
@@ -204,6 +227,65 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 </label>
                 <p className={`text-[10px] mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shown circular on profile.</p>
               </div>
+            </div>
+          </div>
+
+          {/* Avatar Shape */}
+          <div className={rowCls}>
+            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Avatar Shape</p>
+            <div className="flex gap-2 flex-wrap">
+              {AVATAR_SHAPES.map(o => {
+                const active = sel(o.v, liveForm.avatar_shape || "circle");
+                return (
+                  <button type="button" key={o.v} onClick={() => setVal("avatar_shape", o.v)}
+                    className={`flex flex-col items-center gap-1 px-3 py-2.5 rounded-xl border-2 text-xs font-bold transition-all ${active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/60" : "text-slate-500"} hover:border-slate-300`}`}
+                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.1)", color: "#FF7A00" } : {}}>
+                    <span className="text-lg leading-none">{o.icon}</span>
+                    <span>{o.label}</span>
+                    {active && <Check className="w-3 h-3" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Avatar Focal Point */}
+          <div className={rowCls}>
+            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Photo Focal Point</p>
+            <p className={`text-[10px] mb-2 ${mutedText}`}>Where to crop when zooming in</p>
+            <div className="flex gap-2 flex-wrap">
+              {AVATAR_FOCAL.map(o => {
+                const active = sel(o.v, liveForm.avatar_position || "center top");
+                return (
+                  <button type="button" key={o.v} onClick={() => setVal("avatar_position", o.v)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition-all ${active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/50" : "text-slate-500"}`}`}
+                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.1)", color: "#FF7A00" } : {}}>
+                    {active && <Check className="w-3 h-3" />}{o.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Avatar Placement */}
+          <div className={rowCls}>
+            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Profile Photo Placement</p>
+            <p className={`text-[10px] mb-2 ${mutedText}`}>How avatar overlaps the cover</p>
+            <div className="grid grid-cols-1 gap-2">
+              {AVATAR_PLACEMENTS.map(o => {
+                const active = sel(o.v, liveForm.avatar_placement || "center_overlap");
+                return (
+                  <button type="button" key={o.v} onClick={() => setVal("avatar_placement", o.v)}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-left transition-all ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10 hover:border-white/20" : "hover:border-slate-300"}`}`}
+                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.08)" } : {}}>
+                    <div className="flex-1">
+                      <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
+                      <p className={`text-[10px] ${mutedText}`}>{o.desc}</p>
+                    </div>
+                    {active && <Check className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

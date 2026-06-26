@@ -32,7 +32,7 @@ import { t, getLang } from "@/lib/i18n";
 const EDITABLE_FIELDS = [
   "display_name", "job_title", "company_name", "company_logo", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
-  "profile_photo", "avatar_shape", "avatar_position", "cover_position",
+  "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position",
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links",

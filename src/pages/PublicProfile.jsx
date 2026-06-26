@@ -12,7 +12,7 @@ import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayo
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
-import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
@@ -295,21 +295,25 @@ export default function PublicProfile() {
 
   const renderActiveLayout = () => {
     const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
-    // Image/hero: full-bleed cover
-    if (["image", "image_hero", "video_bg", "parallax", "realtor_luxury", "magazine"].includes(layoutType)) return <ImageHeroLayout {...lp} />;
-    // Portrait: large centered avatar
+    // Full image hero — cover is primary element
+    if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType)) return <ImageHeroLayout {...lp} />;
+    // Portrait — giant centered avatar
     if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient"].includes(layoutType)) return <PortraitLayout {...lp} />;
-    // Glass: frosted glass panels
-    if (["glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType)) return <GlassLayout {...lp} />;
-    // Dark/luxury: dark backgrounds
-    if (["darkpremium", "dark_premium", "dark", "luxury", "aurora", "minimal_dark", "luxury_gold", "neon", "neon_tech", "cyberpunk", "executive_corp", "forest"].includes(layoutType)) return <DarkPremiumLayout {...lp} isDark={true} />;
-    // Color/gradient: vibrant backgrounds
-    if (["color", "color_hero", "bold", "gradient", "sunset", "ocean", "premium_salon"].includes(layoutType)) return <ColorLayout {...lp} />;
-    // Minimal: clean, professional
-    if (["minimal", "minimal_business", "corporate", "monochrome", "paper", "modern_law", "retro", "split"].includes(layoutType)) return <MinimalLayout {...lp} />;
-    // Card: compact header
+    // Glass card — frosted glass header on gradient
+    if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType)) return <GlassLayout {...lp} />;
+    // Modern SaaS — horizontal header, accent bar
+    if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType)) return <ModernSaasLayout {...lp} />;
+    // Executive / luxury — right-side avatar, bright cover
+    if (["executive", "executive_corp", "realtor_luxury", "luxury_gold"].includes(layoutType)) return <ExecutiveLayout {...lp} />;
+    // Dark premium — cinematic dark
+    if (["dark", "dark_premium", "darkpremium", "luxury", "aurora", "minimal_dark", "neon", "neon_tech", "cyberpunk", "forest", "premium_salon"].includes(layoutType)) return <DarkPremiumLayout {...lp} isDark={true} />;
+    // Color / gradient — vibrant color header
+    if (["color_gradient", "bold", "gradient", "sunset", "ocean", "color", "color_hero"].includes(layoutType)) return <ColorLayout {...lp} />;
+    // Minimal — left accent bar, horizontal avatar+name
+    if (["minimal", "minimal_business", "minimal_dark", "monochrome", "paper", "retro"].includes(layoutType)) return <MinimalLayout {...lp} />;
+    // Card compact
     if (["card", "card_compact"].includes(layoutType)) return <CardLayout {...lp} />;
-    // Default
+    // Default / classic
     return <ClassicLayout {...lp} />;
   };
 
