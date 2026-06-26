@@ -114,31 +114,65 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                 className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
                 style={{ boxShadow: cardShadow }}>
 
-                {/* ── Cover — full-width top layer with proper aspect ratio ── */}
-                <div className="w-full relative overflow-hidden" style={{ height: "140px" }}>
-                  {profile.cover_photo ? (
-                    <img
-                      src={profile.cover_photo}
-                      alt=""
-                      className="absolute inset-0 w-full h-full"
-                      style={{ objectFit: "cover", objectPosition: "center" }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)`,
-                      }} />
-                  )}
-                  {/* subtle gloss overlay */}
-                  <div className="absolute inset-0 opacity-20"
-                    style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 65%)" }} />
+                {/* ── Cover + Avatar wrapper — position:relative so avatar can escape cover ── */}
+                <div className="relative">
+                  {/* Cover */}
+                  <div className="w-full overflow-hidden" style={{ height: "120px" }}>
+                    {profile.cover_photo ? (
+                      <img
+                        src={profile.cover_photo}
+                        alt=""
+                        className="w-full h-full"
+                        style={{ objectFit: "cover", objectPosition: "center" }}
+                      />
+                    ) : (
+                      <div className="w-full h-full"
+                        style={{
+                          background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)`,
+                        }} />
+                    )}
+                    {/* subtle gloss overlay */}
+                    <div className="absolute inset-0 opacity-20 pointer-events-none"
+                      style={{ background: "radial-gradient(circle at 80% 20%, white, transparent 65%)" }} />
+                  </div>
+
+                  {/* ── Avatar — floats outside cover, anchored bottom-left ── */}
+                  <div className="absolute left-4 flex-shrink-0" style={{ bottom: "-32px" }}>
+                    {(() => {
+                      const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "20%";
+                      return profile.profile_photo ? (
+                        <img
+                          src={profile.profile_photo}
+                          alt=""
+                          style={{
+                            width: 64, height: 64, borderRadius: shapeR,
+                            objectFit: "cover", objectPosition: "center top",
+                            border: isDark ? "3px solid #13162a" : "3px solid white",
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
+                            display: "block",
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: 64, height: 64, borderRadius: shapeR,
+                          background: profile.cover_color || "#2563eb",
+                          border: isDark ? "3px solid #13162a" : "3px solid white",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          color: "#fff", fontWeight: 900, fontSize: 22,
+                          boxShadow: "0 4px 12px rgba(0,0,0,0.18)",
+                        }}>
+                          {profile.display_name?.charAt(0) || "?"}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 </div>
 
-                {/* ── Card body — avatar overlaps cover ── */}
-                <div className="px-4 pb-4">
-                  {/* Avatar row: overlaps cover via negative margin */}
-                  <div className="flex items-end justify-between -mt-9 mb-3">
-                    <div className="flex-shrink-0">
+                {/* ── Card body ── */}
+                <div className="px-4 pb-4" style={{ paddingTop: "44px" }}>
+                  {/* Plan badge row — right aligned, sits at top of body */}
+                  <div className="flex items-center justify-end gap-2 mb-3">
+                    <div className="flex items-center gap-2">
                       {(() => {
                         const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "20%";
                         return profile.profile_photo ? (
@@ -165,20 +199,17 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                           </div>
                         );
                       })()}
-                    </div>
-                    {/* Plan badge + Live badge */}
-                    <div className="flex items-center gap-2 pb-0.5">
-                      {profile.is_active && (
-                        <span className="flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-[10px] font-semibold text-emerald-500">Live</span>
-                        </span>
-                      )}
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                        style={{ background: planStyle.bg, color: planStyle.text }}>
-                        {planLabel}
+                    {profile.is_active && (
+                      <span className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="text-[10px] font-semibold text-emerald-500">Live</span>
                       </span>
-                    </div>
+                    )}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                      style={{ background: planStyle.bg, color: planStyle.text }}>
+                      {planLabel}
+                    </span>
+                  </div>
                   </div>
 
                   {/* Name + username */}
