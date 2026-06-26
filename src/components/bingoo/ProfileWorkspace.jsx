@@ -5,17 +5,18 @@ import {
   ChevronLeft, Eye, QrCode, Copy, Check, Download, Info, Link2,
   Palette, Share2, Settings, ExternalLink, Plus, Trash2, GripVertical,
   Save, Shield, AlertTriangle, Globe, Mail, Phone, Instagram, Linkedin,
-  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon
+  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
-import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
+import LinkStore from "@/components/bingoo/LinkStore";
+import DesignPanel from "@/components/bingoo/DesignPanel";
 import { usePlan } from "@/hooks/usePlan";
-import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS } from "@/lib/planPermissions";
+import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
 
@@ -83,12 +84,11 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
     <div className="space-y-5">
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
         {/* Cover */}
-        <div className="h-28 relative cursor-pointer group"
-          style={{
-            backgroundColor: liveForm.cover_color || "#2563eb",
-            backgroundImage: liveForm.cover_photo ? `url(${liveForm.cover_photo})` : undefined,
-            backgroundSize: "cover", backgroundPosition: "center"
-          }}>
+        <div className="relative cursor-pointer group overflow-hidden" style={{ height: "140px" }}>
+          {liveForm.cover_photo
+            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
+            : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${(liveForm.cover_color || "#2563eb")}cc 100%)` }} />
+          }
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
             <label className="cursor-pointer opacity-0 group-hover:opacity-100 transition-all bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
               {t("change_cover", lang)}
@@ -109,11 +109,11 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
         </div>
 
         <div className="px-5 pb-5 pt-2">
-          <div className="flex items-end gap-4 -mt-10 mb-5">
+          <div className="flex items-end gap-4 -mt-9 mb-5">
             <div className="relative flex-shrink-0">
               {liveForm.profile_photo
-                ? <img src={liveForm.profile_photo} className="w-20 h-20 rounded-2xl border-4 border-white shadow-lg object-cover" alt="" />
-                : <div className="w-20 h-20 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-2xl font-black text-white"
+                ? <img src={liveForm.profile_photo} className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg" style={{ objectFit: "cover", objectPosition: "center top" }} alt="" />
+                : <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-xl font-black text-white"
                     style={{ background: liveForm.cover_color || "#2563eb" }}>{liveForm.display_name?.charAt(0) || "?"}</div>
               }
               <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer shadow-md">
@@ -187,252 +187,117 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   );
 }
 
-// ── LinkRow — stable component defined OUTSIDE panel to prevent remount on each keystroke ──
-// Props are passed explicitly so it never closes over stale renders
-function LinkRow({ fieldKey, label, placeholder, IconCmp, value, onChange, isDark, panelBg, panelBorder, mutedText }) {
-  return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
-      {IconCmp && <IconCmp className="w-4 h-4 flex-shrink-0 text-slate-400" />}
-      <div className="flex-1 min-w-0">
-        <Label className={`text-[10px] font-bold ${mutedText} block mb-0.5`}>{label}</Label>
-        <input
-          type="text"
-          className={`w-full h-7 text-xs bg-transparent border-0 outline-none p-0 ${isDark ? "text-white placeholder:text-white/20" : "text-slate-700 placeholder:text-slate-300"}`}
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-        />
-      </div>
-      {/* Indicator dot: filled = has value */}
-      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${value ? "bg-emerald-400" : "bg-slate-200"}`} />
-    </div>
-  );
-}
-
-// ── LINKS PANEL ───────────────────────────────────────────────────────────
-// Each section uses LinkRow which is defined OUTSIDE to prevent remount on keystroke.
-// The `set` handler from ProfileWorkspace is stable (useCallback), so no focus loss.
+// ── LINKS PANEL — wraps LinkStore sheet ──────────────────────────────────────
 function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
-  const [newLink, setNewLink] = useState({ label: "", url: "", enabled: true });
-  const headText    = isDark ? "text-white" : "text-slate-900";
-  const mutedText   = isDark ? "text-white/40" : "text-slate-400";
-  const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
+  const [storeOpen, setStoreOpen] = useState(false);
+  const headText  = isDark ? "text-white"    : "text-slate-900";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const panelBg   = isDark ? "bg-[#13162a]"  : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
-  const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
-  const sectionHead = `text-[10px] font-black uppercase tracking-[0.12em] px-1 mb-2 mt-5 first:mt-0 flex items-center gap-2 ${mutedText}`;
 
   const links = liveForm.custom_links || [];
-  const addLink = () => {
-    if (!newLink.label || !newLink.url) return;
-    setVal("custom_links", [...links, { ...newLink, id: Date.now().toString() }]);
-    setNewLink({ label: "", url: "", enabled: true });
-  };
   const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
   const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
 
-  const rowProps = { isDark, panelBg, panelBorder, mutedText };
+  // Count filled-in fields
+  const filledFields = [
+    liveForm.phone, liveForm.whatsapp_number, liveForm.email, liveForm.website,
+    liveForm.instagram_url, liveForm.linkedin_url, liveForm.facebook_url,
+    liveForm.tiktok_url, liveForm.youtube_url, liveForm.payment_link,
+    liveForm.cashapp_link, liveForm.zelle_link, liveForm.wave_link, liveForm.orangemoney_link,
+  ].filter(Boolean).length + links.length;
 
   return (
-    <div className="space-y-2 pb-4">
+    <div className="space-y-3 pb-4">
+      {/* Open Link Store button */}
+      <button type="button" onClick={() => setStoreOpen(true)}
+        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border-2 border-dashed transition-all font-bold text-sm"
+        style={{ borderColor: "#FF7A00", color: "#FF7A00", background: isDark ? "rgba(255,122,0,0.05)" : "rgba(255,122,0,0.03)" }}>
+        <Plus className="w-5 h-5" />
+        Add Links from Link Store
+        {filledFields > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>{filledFields}</span>}
+      </button>
 
-      {/* ── Contact ── */}
-      <p className={sectionHead}>
-        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
-        Contact
-        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
-      </p>
-      <div className="space-y-2">
-        <LinkRow fieldKey="phone"           label="Phone"           placeholder="+1 555 000 0000"   IconCmp={Phone}  value={liveForm.phone            || ""} onChange={set("phone")}            {...rowProps} />
-        <LinkRow fieldKey="whatsapp_number" label="WhatsApp"        placeholder="+1 555 000 0000"   IconCmp={Phone}  value={liveForm.whatsapp_number  || ""} onChange={set("whatsapp_number")}  {...rowProps} />
-        <LinkRow fieldKey="email"           label="Email"           placeholder="you@example.com"   IconCmp={Mail}   value={liveForm.email            || ""} onChange={set("email")}            {...rowProps} />
-        <LinkRow fieldKey="website"         label="Website"         placeholder="https://yoursite.com" IconCmp={Globe} value={liveForm.website         || ""} onChange={set("website")}          {...rowProps} />
-      </div>
-
-      {/* ── Social ── */}
-      <p className={sectionHead}>
-        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
-        Social
-        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
-      </p>
-      <div className="space-y-2">
-        <LinkRow fieldKey="instagram_url"  label="Instagram"  placeholder="https://instagram.com/..."    IconCmp={Instagram}  value={liveForm.instagram_url  || ""} onChange={set("instagram_url")}  {...rowProps} />
-        <LinkRow fieldKey="linkedin_url"   label="LinkedIn"   placeholder="https://linkedin.com/in/..."  IconCmp={Linkedin}   value={liveForm.linkedin_url   || ""} onChange={set("linkedin_url")}   {...rowProps} />
-        <LinkRow fieldKey="facebook_url"   label="Facebook"   placeholder="https://facebook.com/..."    IconCmp={Facebook}   value={liveForm.facebook_url   || ""} onChange={set("facebook_url")}   {...rowProps} />
-        <LinkRow fieldKey="tiktok_url"     label="TikTok"     placeholder="https://tiktok.com/@..."     IconCmp={Smartphone} value={liveForm.tiktok_url    || ""} onChange={set("tiktok_url")}     {...rowProps} />
-        <LinkRow fieldKey="youtube_url"    label="YouTube"    placeholder="https://youtube.com/@..."    IconCmp={Youtube}    value={liveForm.youtube_url    || ""} onChange={set("youtube_url")}    {...rowProps} />
-      </div>
-
-      {/* ── Payments ── */}
-      <p className={sectionHead}>
-        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
-        Payments
-        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
-      </p>
-      <div className="space-y-2">
-        <LinkRow fieldKey="payment_link"     label="PayPal / Payment Link" placeholder="https://paypal.me/..."            IconCmp={CreditCard} value={liveForm.payment_link     || ""} onChange={set("payment_link")}     {...rowProps} />
-        <LinkRow fieldKey="cashapp_link"     label="Cash App"              placeholder="https://cash.app/$..."            IconCmp={CreditCard} value={liveForm.cashapp_link     || ""} onChange={set("cashapp_link")}     {...rowProps} />
-        <LinkRow fieldKey="zelle_link"       label="Zelle"                 placeholder="https://enroll.zellepay.com/..."  IconCmp={CreditCard} value={liveForm.zelle_link       || ""} onChange={set("zelle_link")}       {...rowProps} />
-        <LinkRow fieldKey="wave_link"        label="Wave"                  placeholder="https://wave.com/..."             IconCmp={CreditCard} value={liveForm.wave_link        || ""} onChange={set("wave_link")}        {...rowProps} />
-        <LinkRow fieldKey="orangemoney_link" label="Orange Money"          placeholder="https://..."                      IconCmp={CreditCard} value={liveForm.orangemoney_link || ""} onChange={set("orangemoney_link")} {...rowProps} />
-      </div>
-
-      {/* ── Booking ── */}
-      <p className={sectionHead}>
-        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
-        Booking
-        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
-      </p>
-      <div className={`flex items-center justify-between p-3 rounded-xl border ${panelBorder} ${panelBg}`}>
-        <div>
-          <p className={`text-sm font-semibold ${headText}`}>Booking / Contact Form</p>
-          <p className={`text-xs ${mutedText}`}>Show a contact/booking form on your profile</p>
+      {/* Summary of active links */}
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
+        <div className="px-4 py-3 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
+          <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Active Links</p>
         </div>
-        <Toggle value={!!liveForm.booking_enabled} onChange={(v) => setVal("booking_enabled", v)} />
-      </div>
-      <div>
-        <Label className={`text-xs font-semibold ${mutedText} block mb-1`}>WhatsApp Booking Message</Label>
-        <input
-          type="text"
-          className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${inputCls}`}
-          value={liveForm.whatsapp_booking_message || ""}
-          onChange={set("whatsapp_booking_message")}
-          placeholder="Hi, I'd like to book an appointment..."
-        />
-      </div>
-
-      {/* ── Custom Links ── */}
-      <p className={sectionHead}>
-        <span className="w-4 h-px flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.12)" : "#e2e8f0" }} />
-        Custom Links
-        <span className="flex-1 h-px" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }} />
-      </p>
-      <div className={`p-3 rounded-xl border ${panelBorder} ${panelBg} space-y-2`}>
-        <p className={`text-[11px] font-semibold ${mutedText}`}>Add a link with a custom label</p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            className={`flex-1 min-w-0 px-3 py-2 rounded-xl text-xs border outline-none ${inputCls}`}
-            placeholder="Label (e.g. Book Now)"
-            value={newLink.label}
-            onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))}
-          />
-          <input
-            type="text"
-            className={`flex-1 min-w-0 px-3 py-2 rounded-xl text-xs border outline-none ${inputCls}`}
-            placeholder="https://..."
-            value={newLink.url}
-            onChange={e => setNewLink(l => ({ ...l, url: e.target.value }))}
-          />
-          <button type="button" onClick={addLink}
-            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0"
-            style={{ background: "#0B2E6B" }}>
-            <Plus className="w-3.5 h-3.5" /> Add
-          </button>
-        </div>
-      </div>
-      {links.length > 0 && (
-        <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
-          <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
+        {filledFields === 0 ? (
+          <p className={`px-4 py-6 text-center text-sm ${mutedText}`}>No links added yet. Tap "Add Links" above.</p>
+        ) : (
+          <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc" }}>
+            {[
+              { key: "phone", label: "Phone" },
+              { key: "whatsapp_number", label: "WhatsApp" },
+              { key: "email", label: "Email" },
+              { key: "website", label: "Website" },
+              { key: "instagram_url", label: "Instagram" },
+              { key: "linkedin_url", label: "LinkedIn" },
+              { key: "facebook_url", label: "Facebook" },
+              { key: "tiktok_url", label: "TikTok" },
+              { key: "youtube_url", label: "YouTube" },
+              { key: "payment_link", label: "PayPal / Pay" },
+              { key: "cashapp_link", label: "Cash App" },
+              { key: "zelle_link", label: "Zelle" },
+              { key: "wave_link", label: "Wave" },
+              { key: "orangemoney_link", label: "Orange Money" },
+            ].filter(r => liveForm[r.key]).map(r => (
+              <div key={r.key} className="flex items-center gap-3 px-4 py-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                <p className={`text-xs font-bold ${headText} w-24 flex-shrink-0`}>{r.label}</p>
+                <p className={`text-xs truncate flex-1 ${mutedText}`}>{liveForm[r.key]}</p>
+                <button type="button" onClick={() => setVal(r.key, "")} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
             {links.map((link, idx) => (
-              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-4 py-3 ${!link.enabled ? "opacity-50" : ""}`}>
-                <GripVertical className={`w-4 h-4 flex-shrink-0 ${mutedText} cursor-grab`} />
-                <div className="flex-1 min-w-0">
-                  <p className={`font-semibold text-sm truncate ${headText}`}>{link.label}</p>
-                  <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
-                </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  {link.enabled && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-4 py-2.5 ${!link.enabled ? "opacity-50" : ""}`}>
+                <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${link.enabled ? "bg-emerald-400" : "bg-slate-300"}`} />
+                <p className={`text-xs font-bold ${headText} w-24 flex-shrink-0 truncate`}>{link.label}</p>
+                <p className={`text-xs truncate flex-1 ${mutedText}`}>{link.url}</p>
+                <div className="flex items-center gap-1 flex-shrink-0">
                   <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
                   <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1">
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="pt-3 flex items-center gap-4">
+      <div className="pt-2 flex items-center gap-4">
         <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
+
+      {/* ── Link Store overlay (bottom-sheet on mobile, modal-style on desktop) ── */}
+      {storeOpen && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setStoreOpen(false)} />
+          <div className={`relative w-full md:max-w-lg md:mx-4 md:rounded-3xl rounded-t-3xl flex flex-col shadow-2xl ${isDark ? "bg-[#0e1223]" : "bg-white"}`}
+            style={{ maxHeight: "90vh", height: "90vh" }}>
+            <LinkStore
+              liveForm={liveForm}
+              setVal={setVal}
+              set={set}
+              onSave={onSave}
+              isPending={isPending}
+              isDark={isDark}
+              lang={lang}
+              onClose={() => setStoreOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── DESIGN PANEL ──────────────────────────────────────────────────────────
-function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang }) {
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const headText  = isDark ? "text-white" : "text-slate-900";
-
-  return (
-    <div className="space-y-5">
-      <div className={`rounded-2xl border ${isDark ? "border-white/8 bg-[#13162a]" : "border-slate-200 bg-white"} p-5 space-y-5`}>
-        <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("accent_color", lang)}</Label>
-          <div className="flex gap-2 flex-wrap">
-            {COVER_COLORS.map(c => (
-              <button type="button" key={c} onClick={() => setVal("cover_color", c)}
-                className="relative w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center"
-                style={{ background: c, borderColor: liveForm.cover_color === c ? "#fff" : "transparent", transform: liveForm.cover_color === c ? "scale(1.15)" : "scale(1)", boxShadow: liveForm.cover_color === c ? "0 0 0 2px #0B2E6B" : "none" }}>
-                {liveForm.cover_color === c && <Check className="w-3 h-3 text-white drop-shadow" />}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("bg_style", lang)}</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { v: "clean",    label: "Clean White",   desc: "Simple & neutral" },
-              { v: "gradient", label: "Soft Gradient",  desc: "Colour wash" },
-              { v: "mesh",     label: "Mesh",           desc: "Dual-tone blend" },
-              { v: "night",    label: "Night",          desc: "Dark atmosphere" },
-            ].map(o => {
-              const selected = liveForm.bg_style === o.v;
-              return (
-                <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
-                  className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${selected ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`}`}>
-                  <div className="flex-1">
-                    <p className={`text-xs font-bold ${selected ? "text-orange-600" : headText}`}>{o.label}</p>
-                    <p className={`text-[11px] ${mutedText}`}>{o.desc}</p>
-                  </div>
-                  {selected && <Check className="w-4 h-4 text-orange-500 flex-shrink-0 mt-0.5" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("button_style", lang)}</Label>
-          <div className="flex gap-2">
-            {[{ v: "pill", label: "Pill" }, { v: "rounded", label: "Rounded" }, { v: "sharp", label: "Sharp" }].map(o => {
-              const selected = liveForm.button_style === o.v;
-              return (
-                <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
-                  className={`flex-1 py-2 text-xs font-bold border-2 transition-all flex items-center justify-center gap-1 ${selected ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-100 text-slate-500 hover:border-slate-300"}`}
-                  style={{ borderRadius: o.v === "pill" ? 999 : o.v === "sharp" ? 6 : 12 }}>
-                  {selected && <Check className="w-3 h-3" />}{o.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <Label className={`text-xs font-semibold ${mutedText} mb-2 block`}>{t("profile_layout", lang)}</Label>
-          <LayoutPicker value={liveForm.layout || "classic"} onChange={v => setVal("layout", v)}
-            color={liveForm.cover_color} plan={getEffectiveProfilePlan(userPlan, profile)}
-            isAdmin={user?.role === "admin"} />
-        </div>
-      </div>
-      <div className="flex items-center gap-4">
-        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_design", lang)} />
-        <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
-      </div>
-    </div>
-  );
-}
+// DesignPanel is now imported from its own file (components/bingoo/DesignPanel.jsx)
 
 // ── SHARE PANEL ───────────────────────────────────────────────────────────
 function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDownloadQR, lang }) {
@@ -486,7 +351,47 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, onDow
 }
 
 // ── LOST MODE PANEL ───────────────────────────────────────────────────────
-function LostModePanel({ profileId, user, isDark }) {
+function LostModePanel({ profileId, user, isDark, effectivePlan }) {
+  const [trialLoading, setTrialLoading] = useState(false);
+  const isPaid = effectivePlan && effectivePlan !== "free";
+
+  if (!isPaid) {
+    // Locked gate for Free accounts
+    const startTrial = async () => {
+      if (trialLoading) return;
+      if (window.self !== window.top) { alert("Open bingooconnect.com to subscribe."); return; }
+      setTrialLoading(true);
+      try {
+        const resp = await base44.functions.invoke("createSubscriptionSession", {
+          plan: "professional", trial_days: 14,
+          success_url: `${window.location.origin}/bingoo`,
+          cancel_url: `${window.location.origin}/bingoo`,
+        });
+        if (resp?.data?.url) window.location.href = resp.data.url;
+      } catch(e) { console.error(e); } finally { setTrialLoading(false); }
+    };
+    return (
+      <div className={`rounded-2xl border-2 p-8 flex flex-col items-center text-center gap-4 ${isDark ? "border-amber-400/20 bg-amber-400/5" : "border-amber-200 bg-amber-50/60"}`}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.3)" }}>
+          <Lock className="w-7 h-7 text-amber-500" />
+        </div>
+        <div>
+          <p className={`font-black text-base ${isDark ? "text-white" : "text-slate-900"}`}>Lost Mode — Professional Feature</p>
+          <p className={`text-sm mt-2 leading-relaxed max-w-xs ${isDark ? "text-white/50" : "text-slate-500"}`}>
+            Enable Lost Mode on your NFC devices so finders can contact you and help recover your items.
+          </p>
+        </div>
+        <button onClick={startTrial} disabled={trialLoading}
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
+          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          <Star className="w-4 h-4" />
+          {trialLoading ? "Loading…" : "Try Professional free for 14 days"}
+        </button>
+        <p className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>$4.99/mo after 14 days · cancel anytime before trial ends</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex gap-3">
@@ -827,7 +732,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <LinksPanel {...makeSaveProps("links")} liveForm={liveForm} setVal={setVal} set={set} />
             )}
             {innerTab === "design" && (
-              <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} />
+              <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} lang={lang} />
             )}
             {innerTab === "share" && (
               <SharePanel
@@ -837,7 +742,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               />
             )}
             {innerTab === "lostmode" && (
-              <LostModePanel profileId={profileId} user={user} isDark={isDark} />
+              <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={getEffectiveProfilePlan(userPlan, profile)} />
             )}
             {innerTab === "settings" && (
               <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set} />

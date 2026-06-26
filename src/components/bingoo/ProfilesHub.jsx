@@ -115,7 +115,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                 style={{ boxShadow: cardShadow }}>
 
                 {/* ── Cover — full-width top layer with proper aspect ratio ── */}
-                <div className="w-full relative overflow-hidden" style={{ height: "96px" }}>
+                <div className="w-full relative overflow-hidden" style={{ height: "140px" }}>
                   {profile.cover_photo ? (
                     <img
                       src={profile.cover_photo}
@@ -136,14 +136,14 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
 
                 {/* ── Card body — avatar overlaps cover ── */}
                 <div className="px-4 pb-4">
-                  {/* Avatar row: -mt-6 = half of w-12 (h-12=48px → -24px = -6 in tailwind units) */}
-                  <div className="flex items-end justify-between -mt-6 mb-3">
+                  {/* Avatar row: overlaps cover via negative margin */}
+                  <div className="flex items-end justify-between -mt-9 mb-3">
                     <div className="flex-shrink-0">
                       {profile.profile_photo ? (
                         <img
                           src={profile.profile_photo}
                           alt=""
-                          className="w-12 h-12 rounded-2xl shadow-lg"
+                          className="w-16 h-16 rounded-2xl shadow-lg"
                           style={{
                             objectFit: "cover",
                             objectPosition: "center top",
@@ -151,7 +151,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                           }}
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-lg"
+                        <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-xl"
                           style={{
                             background: profile.cover_color || "#2563eb",
                             border: isDark ? "3px solid #13162a" : "3px solid white",
