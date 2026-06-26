@@ -218,9 +218,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
   const addedCount = LINK_CATALOG.filter(i => isAdded(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full safe-top">
       {/* Header */}
-      <div className={`flex items-center justify-between px-4 pt-4 pb-3 border-b ${borderCls} flex-shrink-0`}>
+      <div className={`flex items-center justify-between px-4 py-4 border-b ${borderCls} flex-shrink-0`}
+        style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
         <div>
           <h2 className={`font-black text-base ${headText}`}>Add Link</h2>
           {addedCount > 0 && <p className={`text-xs ${mutedText}`}>{addedCount} added</p>}
@@ -240,7 +241,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
 
       {/* Web Link quick-add */}
       {webOpen && (
-        <div className={`px-4 py-3 border-b ${borderCls} space-y-2 flex-shrink-0 ${isDark ? "bg-white/[0.03]" : "bg-slate-50"}`}>
+        <div className={`px-4 py-3 border-b ${borderCls} space-y-2 flex-shrink-0 ${isDark ? "bg-white/[0.03]" : "bg-slate-50"} max-h-24 overflow-y-auto`}>
           <div className="flex gap-2">
             <input type="text" className={inputCls + " flex-1"} placeholder="Label (e.g. Book Now)" value={webLabel} onChange={e => setWebLabel(e.target.value)} />
             <input type="text" className={inputCls + " flex-1"} placeholder="https://..." value={webUrl} onChange={e => setWebUrl(e.target.value)} />
@@ -265,7 +266,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
       ) : (
         <>
           {/* Category pills + Search */}
-          <div className={`px-4 pt-3 pb-2 border-b ${borderCls} flex-shrink-0 space-y-2`}>
+          <div className={`px-4 py-3 border-b ${borderCls} flex-shrink-0 space-y-2 max-h-28 overflow-y-auto`}>
             <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
               {CATEGORIES.map(c => (
                 <button key={c.id} onClick={() => setCat(c.id)}
@@ -316,8 +317,8 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
           </div>
 
           {/* Done button */}
-          <div className={`flex-shrink-0 px-4 py-3 border-t ${borderCls}`}
-            style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+          <div className={`flex-shrink-0 px-4 py-4 border-t ${borderCls}`}
+            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
             <button
               onClick={onClose}
               className="w-full py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"

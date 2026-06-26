@@ -900,6 +900,17 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     saveMutation.mutate();
   }, [saveMutation, innerTab]);
 
+  // Close preview on ESC key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && mobilePreviewOpen) {
+        setMobilePreviewOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobilePreviewOpen]);
+
   const headText  = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
 
@@ -1050,17 +1061,18 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
             {/* Full-screen overlay */}
             {mobilePreviewOpen && (
-              <div className="fixed inset-0 z-50 flex flex-col" style={{ background: isDark ? "#0a0c14" : "#f1f5f9" }}>
+              <div className="fixed inset-0 z-50 flex flex-col safe-top safe-bottom" style={{ background: isDark ? "#0a0c14" : "#f1f5f9" }}>
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
+                <div className="flex items-center justify-between px-4 py-4 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
                   <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
                   <button type="button" onClick={() => setMobilePreviewOpen(false)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"}`}>
-                    <X className="w-4 h-4" />
+                    className={`p-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600"}`}
+                    title="Close preview (ESC)">
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
                 {/* Preview content — scrollable */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex-1 overflow-y-auto pb-safe">
                   <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px" }}>
                     {/* Phone shell */}
                     <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", margin: "0 auto", maxWidth: 340 }}>
