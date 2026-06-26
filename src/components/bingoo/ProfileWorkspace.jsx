@@ -987,7 +987,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       </div>
 
       {/* ── Main layout ── */}
-      <div className="flex gap-4 flex-1 min-h-0">
+      <div className="flex gap-4 flex-1 min-h-0 max-w-full overflow-hidden">
         {/* Desktop vertical nav */}
         <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
           {INNER_TABS.map(tab => (
@@ -1005,7 +1005,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
 
         {/* Editing panel */}
-        <div className="flex gap-4 flex-1 min-w-0">
+        <div className="flex gap-4 flex-1 min-w-0 max-w-full overflow-hidden">
           <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
@@ -1091,8 +1091,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </div>
 
           {/* Live preview — desktop only, inline phone frame */}
-          <div className="hidden xl:block w-64 flex-shrink-0">
-            <div className="sticky top-0">
+          <div className="hidden xl:block w-64 flex-shrink-0 max-w-64">
+            <div style={{ position: "sticky", top: 0 }}>
               <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
               <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)" }}>
@@ -1103,9 +1103,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                     <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
                   </div>
                 </div>
-                {/* Screen — scales a 375px-wide preview into ~216px */}
-                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
+                {/* Screen — scales a 375px-wide preview into ~216px (fixed size for Safari) */}
+                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none", display: "flex", alignItems: "flex-start" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576), transformBox: "border-box", WebkitTransformBox: "border-box", WebkitTransformOrigin: "top left" }}>
                     <ProfileHeaderPreview profile={{ ...(profile || {}), ...liveForm }} />
                     {/* Links preview strip */}
                     {(liveForm.custom_links?.filter(l => l.enabled && l.label && l.url).length > 0 ||
