@@ -544,7 +544,8 @@ export default function BingooDashboard() {
           ════════════════════════════════════ */}
           {view === VIEW_CONNECTIONS && (
             <div>
-              <ConnectionsPanel isDark={isDark} />
+              <ProfileChip />
+              <ConnectionsPanel isDark={isDark} profileId={activeProfile?.id} />
             </div>
           )}
 

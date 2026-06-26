@@ -73,7 +73,7 @@ function Avatar({ profile, color, mobile }) {
           ? <img
               src={profile.profile_photo}
               alt={profile.display_name}
-              style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", objectPosition: "center top", display: "block" }}
+              style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", objectPosition: profile.avatar_position || "center top", display: "block" }}
             />
           : <div style={{
               width: size, height: size, borderRadius: radius,
@@ -346,7 +346,7 @@ export default function PublicProfile() {
             {/* Cover photo */}
             {profile.cover_photo && (
               <img src={profile.cover_photo} alt="Cover"
-                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }}
               />
             )}
             {/* Subtle dot pattern on gradient cover */}

@@ -41,7 +41,46 @@
         "card"
       ],
       "default": "circle",
-      "description": "Profile photo shape: circle, rounded, squircle (iOS icon), card (soft card)"
+      "description": "Profile photo shape"
+    },
+    "avatar_position": {
+      "type": "string",
+      "enum": [
+        "center top",
+        "center",
+        "center bottom",
+        "left center",
+        "right center"
+      ],
+      "default": "center top",
+      "description": "CSS objectPosition for avatar/profile photo"
+    },
+    "cover_position": {
+      "type": "string",
+      "enum": [
+        "center",
+        "top",
+        "bottom",
+        "left center",
+        "right center"
+      ],
+      "default": "center",
+      "description": "CSS objectPosition for cover photo"
+    },
+    "qr_color": {
+      "type": "string",
+      "default": "#1e293b",
+      "description": "QR code foreground color"
+    },
+    "qr_label": {
+      "type": "string",
+      "default": "Scan Me",
+      "description": "QR code label text"
+    },
+    "qr_watermark": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show company logo watermark on QR"
     },
     "layout": {
       "type": "string",
@@ -167,37 +206,32 @@
       "type": "string"
     },
     "zelle_link": {
-      "type": "string",
-      "description": "Optional Zelle link"
+      "type": "string"
     },
     "zelle_qr": {
-      "type": "string",
-      "description": "Uploaded Zelle QR code image URL"
+      "type": "string"
     },
     "cashapp_link": {
       "type": "string"
     },
     "cashapp_qr": {
-      "type": "string",
-      "description": "Uploaded Cash App QR code image URL"
+      "type": "string"
     },
     "orangemoney_link": {
       "type": "string"
     },
     "orangemoney_qr": {
-      "type": "string",
-      "description": "Uploaded Orange Money QR code image URL"
+      "type": "string"
     },
     "wave_link": {
       "type": "string"
     },
     "wave_qr": {
-      "type": "string",
-      "description": "Uploaded Wave QR code image URL"
+      "type": "string"
     },
     "custom_payments": {
       "type": "array",
-      "description": "Custom payment methods added by the user",
+      "description": "Custom payment methods",
       "items": {
         "type": "object",
         "properties": {
@@ -218,7 +252,7 @@
     },
     "custom_links": {
       "type": "array",
-      "description": "Custom links added by the user",
+      "description": "Custom links",
       "items": {
         "type": "object",
         "properties": {
@@ -243,16 +277,13 @@
         "en",
         "fr"
       ],
-      "default": "en",
-      "description": "Profile language preference"
+      "default": "en"
     },
     "google_review_url": {
-      "type": "string",
-      "description": "Google Maps/Business review link"
+      "type": "string"
     },
     "whatsapp_booking_message": {
-      "type": "string",
-      "description": "Pre-filled WhatsApp message for booking (salon/restaurant)"
+      "type": "string"
     },
     "plan": {
       "type": "string",

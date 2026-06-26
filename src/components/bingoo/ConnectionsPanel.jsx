@@ -5,18 +5,20 @@ import { motion } from "framer-motion";
 import { Trash2, ExternalLink, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function ConnectionsPanel({ isDark }) {
+export default function ConnectionsPanel({ isDark, profileId }) {
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
 
   const { data: connections = [], isLoading } = useQuery({
-    queryKey: ["saved-connections"],
-    queryFn: () => base44.entities.SavedConnection.list("-created_date"),
+    queryKey: ["saved-connections", profileId],
+    queryFn: () => profileId
+      ? base44.entities.SavedConnection.filter({ profile_id: profileId }, "-created_date")
+      : base44.entities.SavedConnection.list("-created_date"),
   });
 
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.SavedConnection.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["saved-connections"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["saved-connections", profileId] }),
   });
 
   const filtered = connections.filter(c => {

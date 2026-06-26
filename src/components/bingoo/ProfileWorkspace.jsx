@@ -5,7 +5,7 @@ import {
   ChevronLeft, Eye, QrCode, Copy, Check, Download, Info, Link2,
   Palette, Share2, Settings, ExternalLink, Plus, Trash2, GripVertical,
   Save, Shield, AlertTriangle, Globe, Mail, Phone, Instagram, Linkedin,
-  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star
+  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,10 +32,12 @@ import { t, getLang } from "@/lib/i18n";
 const EDITABLE_FIELDS = [
   "display_name", "job_title", "company_name", "company_logo", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
-  "profile_photo", "avatar_shape", "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
+  "profile_photo", "avatar_shape", "avatar_position", "cover_position",
+  "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
+  "qr_color", "qr_label", "qr_watermark",
 ];
 
 function buildPayload(liveForm) {
@@ -94,10 +96,10 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
         {/* Cover */}
         <div className="relative cursor-pointer group overflow-hidden" style={{ height: "140px" }}>
           {liveForm.cover_photo
-            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
+            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: liveForm.cover_position || "center" }} />
             : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${(liveForm.cover_color || "#2563eb")}cc 100%)` }} />
           }
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
             <label className="cursor-pointer opacity-0 group-hover:opacity-100 transition-all bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
               {t("change_cover", lang)}
               <input type="file" accept="image/*" className="hidden" onChange={async e => {
@@ -106,7 +108,25 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                 setVal("cover_photo", file_url);
               }} />
             </label>
+            {liveForm.cover_photo && (
+              <button type="button" onClick={() => setVal("cover_photo", "")}
+                className="opacity-0 group-hover:opacity-100 transition-all bg-red-500/90 text-white text-xs font-bold px-2 py-1.5 rounded-lg">
+                Remove
+              </button>
+            )}
           </div>
+          {/* Cover position controls */}
+          {liveForm.cover_photo && (
+            <div className="absolute bottom-2 left-2 flex gap-1" onClick={e => e.stopPropagation()}>
+              {[["center","●"],["top","↑"],["bottom","↓"],["left center","←"],["right center","→"]].map(([pos, icon]) => (
+                <button key={pos} type="button" onClick={() => setVal("cover_position", pos)}
+                  title={pos}
+                  className={`w-6 h-6 rounded-full text-[10px] font-black transition-all flex items-center justify-center ${(liveForm.cover_position||"center")===pos ? "bg-orange-500 text-white" : "bg-black/40 text-white/70 hover:bg-black/60"}`}>
+                  {icon}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="absolute top-3 right-3 flex gap-1.5 flex-wrap">
             {COVER_COLORS.map(c => (
               <button type="button" key={c} onClick={() => setVal("cover_color", c)}
@@ -122,7 +142,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
                 return liveForm.profile_photo
-                  ? <img src={liveForm.profile_photo} style={{ width: 64, height: 64, borderRadius: shapeR, objectFit: "cover", objectPosition: "center top", border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} alt="" />
+                  ? <img src={liveForm.profile_photo} style={{ width: 64, height: 64, borderRadius: shapeR, objectFit: "cover", objectPosition: liveForm.avatar_position || "center top", border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} alt="" />
                   : <div style={{ width: 64, height: 64, borderRadius: shapeR, border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", background: liveForm.cover_color || "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 22 }}>{liveForm.display_name?.charAt(0) || "?"}</div>;
               })()}
               <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer shadow-md">
@@ -176,6 +196,30 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               })}
             </div>
           </div>
+
+          {/* Avatar position (focal point) */}
+          {liveForm.profile_photo && (
+            <div className="mb-4">
+              <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Photo Focal Point</Label>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { v: "center top", label: "Top" },
+                  { v: "center", label: "Center" },
+                  { v: "center bottom", label: "Bottom" },
+                  { v: "left center", label: "Left" },
+                  { v: "right center", label: "Right" },
+                ].map(({ v, label }) => {
+                  const sel = (liveForm.avatar_position || "center top") === v;
+                  return (
+                    <button key={v} type="button" onClick={() => setVal("avatar_position", v)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${sel ? "border-orange-400 bg-orange-50 text-orange-600" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
+                      {sel && "✓ "}{label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Business / Brand Logo upload — shown for all plans (salon, law firm, corporate, business, pro) */}
           <div className="mb-4">
@@ -372,17 +416,23 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
 const QR_COLORS = ["#1e293b","#0B2E6B","#FF7A00","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
 
-function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang, profile, effectivePlan }) {
+function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang, profile, effectivePlan, liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
 
-  const [qrColor, setQrColor]       = useState("#1e293b");
-  const [qrLabel, setQrLabel]       = useState("Scan Me");
+  // QR settings — loaded from persisted profile values
+  const [qrColor, setQrColorLocal]   = useState(liveForm?.qr_color || profile?.qr_color || "#1e293b");
+  const [qrLabel, setQrLabelLocal]   = useState(liveForm?.qr_label || profile?.qr_label || "Scan Me");
   const [customLabel, setCustomLabel] = useState("");
   const [downloading, setDownloading] = useState(false);
-  const [logoWatermark, setLogoWatermark] = useState(false);
+  const [logoWatermark, setLogoWatermark] = useState(!!(liveForm?.qr_watermark ?? profile?.qr_watermark));
+
+  // Sync to liveForm when values change
+  const setQrColor = (v) => { setQrColorLocal(v); setVal("qr_color", v); };
+  const setQrLabel = (v) => { setQrLabelLocal(v); setVal("qr_label", v); };
+  const setWatermark = (v) => { setLogoWatermark(v); setVal("qr_watermark", v); };
 
   const isPro = effectivePlan && effectivePlan !== "free";
   const hasLogo = !!profile?.company_logo;
@@ -547,7 +597,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                   </p>
                 </div>
                 {isPro && hasLogo ? (
-                  <Toggle value={logoWatermark} onChange={setLogoWatermark} />
+                  <Toggle value={logoWatermark} onChange={setWatermark} />
                 ) : (
                   <Lock className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-white/25" : "text-slate-300"}`} />
                 )}
@@ -560,11 +610,17 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
               )}
             </div>
 
-            {/* Download */}
-            <Button type="button" onClick={handleDownloadQR} disabled={downloading}
-              className="w-full rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
-              <Download className="w-4 h-4" /> {downloading ? "Generating…" : t("download_qr", lang)}
-            </Button>
+            {/* Download + Save */}
+            <div className="flex gap-2">
+              <Button type="button" onClick={handleDownloadQR} disabled={downloading}
+                className="flex-1 rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
+                <Download className="w-4 h-4" /> {downloading ? "Generating…" : t("download_qr", lang)}
+              </Button>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <SaveBtn onSave={onSave} isPending={isPending} label="Save QR Settings" />
+              <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
+            </div>
           </>
         ) : (
           <p className={`text-sm text-center py-4 ${mutedText}`}>Set a username to generate a QR code.</p>
@@ -723,6 +779,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   ];
 
   const [innerTab, setInnerTab] = useState("info");
+  const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   // Track which tab triggered the current save (for post-save routing)
   const saveTabRef = useRef("info");
   const [liveForm, setLiveForm] = useState(null);
@@ -866,7 +923,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   });
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* ── Top bar ── */}
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <button type="button" onClick={onBack}
@@ -878,7 +935,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           {(() => {
             const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "10px" }[profile.avatar_shape] || "50%";
             return profile.profile_photo
-              ? <img src={profile.profile_photo} style={{ width: 36, height: 36, borderRadius: shapeR, objectFit: "cover", objectPosition: "center top", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} alt="" />
+              ? <img src={profile.profile_photo} style={{ width: 36, height: 36, borderRadius: shapeR, objectFit: "cover", objectPosition: profile.avatar_position || "center top", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} alt="" />
               : <div style={{ width: 36, height: 36, borderRadius: shapeR, background: profile.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>{profile.display_name?.charAt(0)}</div>;
           })()}
           <div className="min-w-0">
@@ -966,6 +1023,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                 onCopy={copyUrl} lang={lang}
                 profile={profile}
                 effectivePlan={getEffectiveProfilePlan(userPlan, profile)}
+                liveForm={liveForm}
+                setVal={setVal}
+                {...makeSaveProps("share")}
               />
             )}
             {innerTab === "lostmode" && (
@@ -973,6 +1033,60 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             )}
             {innerTab === "settings" && (
               <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set} />
+            )}
+          </div>
+
+          {/* Mobile preview FAB + overlay — mobile only */}
+          <div className="xl:hidden">
+            {/* FAB */}
+            <button
+              type="button"
+              onClick={() => setMobilePreviewOpen(true)}
+              className="fixed bottom-6 right-4 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
+              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)" }}
+            >
+              <Eye className="w-4 h-4" /> Preview
+            </button>
+
+            {/* Full-screen overlay */}
+            {mobilePreviewOpen && (
+              <div className="fixed inset-0 z-50 flex flex-col" style={{ background: isDark ? "#0a0c14" : "#f1f5f9" }}>
+                {/* Header */}
+                <div className="flex items-center justify-between px-4 py-3" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
+                  <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
+                  <button type="button" onClick={() => setMobilePreviewOpen(false)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${isDark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"}`}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                {/* Preview content — scrollable */}
+                <div className="flex-1 overflow-y-auto">
+                  <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px" }}>
+                    {/* Phone shell */}
+                    <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", margin: "0 auto", maxWidth: 340 }}>
+                      <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+                        <div style={{ width: 64, height: 14, background: "#0f172a", borderRadius: "0 0 12px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#334155" }} />
+                          <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
+                        </div>
+                      </div>
+                      <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh" }}>
+                        <ProfileHeaderPreview profile={{ ...(profile || {}), ...liveForm }} />
+                        {(liveForm.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).slice(0, 5).map((link, i) => (
+                          <div key={link.id || i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", marginBottom: 4, borderRadius: 10, background: "#fff", border: "1px solid #e2e8f0", margin: "4px 12px" }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
+                            <span style={{ fontSize: 10, color: "#94a3b8" }}>›</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+                        <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
+                      </div>
+                    </div>
+                    <p className={`text-[11px] text-center mt-3 ${isDark ? "text-white/30" : "text-slate-400"}`}>Updates as you type</p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 

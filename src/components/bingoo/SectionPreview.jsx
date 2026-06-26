@@ -55,10 +55,14 @@ export function ProfileHeaderPreview({ profile }) {
         <div style={{
           height: 120,
           background: profile?.cover_photo
-            ? `url(${profile.cover_photo}) center/cover no-repeat`
+            ? undefined
             : `linear-gradient(135deg, ${color}, ${color}88)`,
           position: "relative",
+          overflow: "hidden",
         }}>
+          {profile?.cover_photo && (
+            <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile?.cover_position || "center" }} />
+          )}
           {/* Company logo badge (top-left) */}
           {profile?.company_logo && (
             <div style={{ position: "absolute", top: 10, left: 10, width: 36, height: 36, borderRadius: 8, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", background: "#fff" }}>
@@ -71,7 +75,7 @@ export function ProfileHeaderPreview({ profile }) {
           {/* Avatar — overlapping cover */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: -34, marginBottom: 10 }}>
             {profile?.profile_photo
-              ? <img src={profile.profile_photo} alt="" style={{ width: 68, height: 68, borderRadius: avRadius, objectFit: "cover", objectPosition: "center top", border: "3px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
+              ? <img src={profile.profile_photo} alt="" style={{ width: 68, height: 68, borderRadius: avRadius, objectFit: "cover", objectPosition: profile?.avatar_position || "center top", border: "3px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)" }} />
               : <div style={{ width: 68, height: 68, borderRadius: avRadius, background: `linear-gradient(135deg,${color},${color}99)`, border: "3px solid #fff", boxShadow: "0 4px 16px rgba(0,0,0,0.18)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 24 }}>
                   {profile?.display_name?.charAt(0) || "?"}
                 </div>

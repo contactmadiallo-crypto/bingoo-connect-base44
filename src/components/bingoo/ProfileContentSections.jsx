@@ -335,7 +335,16 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                   <span style={{ fontSize: 18 }}>🕐</span>
                   <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: isDark ? "rgba(255,255,255,0.5)" : "#94a3b8" }}>Business Hours</span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: isOpenNow ? "#dcfce7" : "#fee2e2", color: isOpenNow ? "#16a34a" : "#dc2626" }}>
+                <span style={{
+                  fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
+                  background: isOpenNow
+                    ? (isDark ? "rgba(34,197,94,0.18)" : "#dcfce7")
+                    : (isDark ? "rgba(239,68,68,0.18)" : "#fee2e2"),
+                  color: isOpenNow
+                    ? (isDark ? "#4ade80" : "#16a34a")
+                    : (isDark ? "#f87171" : "#dc2626"),
+                  border: isDark ? `1px solid ${isOpenNow ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)"}` : "none",
+                }}>
                   {isOpenNow ? "● Open Now" : "● Closed"}
                 </span>
               </div>
