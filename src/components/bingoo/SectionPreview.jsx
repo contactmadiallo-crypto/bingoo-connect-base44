@@ -65,7 +65,7 @@ export function ProfileHeaderPreview({ profile }) {
           )}
           {/* Company logo badge (top-left) */}
           {profile?.company_logo && (
-            <div style={{ position: "absolute", top: 10, left: 10, width: 36, height: 36, borderRadius: 8, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", background: "#fff" }}>
+            <div style={{ position: "absolute", top: 10, left: 10, width: 36, height: 36, borderRadius: 8, overflow: "hidden", border: "2px solid rgba(255,255,255,0.9)", boxShadow: "0 2px 8px rgba(0,0,0,0.2)", background: "#fff", zIndex: 2 }}>
               <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
           )}
