@@ -5,7 +5,7 @@ import {
   InstagramIcon, LinkedInIcon, FacebookIcon, TikTokIcon,
   YouTubeIcon, TwitterXIcon, SnapchatIcon, PinterestIcon,
   DiscordIcon, TwitchIcon, ThreadsIcon,
-  PayPalIcon, CashAppIcon, ZelleIcon, WaveIcon, OrangeMoneyIcon,
+  PayPalIcon, CashAppIcon, ZelleIcon, WaveIcon, OrangeMoneyIcon, VenmoIcon,
   CalendarIcon, SpotifyIcon, ShopIcon, PortfolioIcon, LocationIcon,
 } from "@/components/bingoo/BrandIcons";
 
@@ -35,6 +35,7 @@ const LINK_CATALOG = [
   { id: "zelle_link",      label: "Zelle",            category: "payment",  Icon: ZelleIcon,       field: "zelle_link",       placeholder: "https://enroll.zellepay.com/",type: "field" },
   { id: "wave_link",       label: "Wave",             category: "payment",  Icon: WaveIcon,        field: "wave_link",        placeholder: "https://wave.com/...",       type: "field" },
   { id: "orangemoney_link",label: "Orange Money",     category: "payment",  Icon: OrangeMoneyIcon, field: "orangemoney_link", placeholder: "https://...",                type: "field" },
+  { id: "venmo_url",       label: "Venmo",            category: "payment",  Icon: VenmoIcon,       field: null,               placeholder: "https://venmo.com/u/...",    type: "custom" },
   // Business
   { id: "booking",         label: "Booking / Calendly",category:"business", Icon: CalendarIcon,    field: null,               placeholder: "https://calendly.com/...",   type: "custom" },
   // Content

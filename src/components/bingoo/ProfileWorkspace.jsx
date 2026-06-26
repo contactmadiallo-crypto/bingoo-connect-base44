@@ -20,6 +20,7 @@ import {
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
   TikTokIcon as BITikTok, YouTubeIcon as BIYouTube, PayPalIcon as BIPayPal,
   CashAppIcon as BICashApp, ZelleIcon as BIZelle, WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney,
+  LocationIcon as BILocation,
 } from "@/components/bingoo/BrandIcons";
 import { usePlan } from "@/hooks/usePlan";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
@@ -30,7 +31,7 @@ import { t, getLang } from "@/lib/i18n";
 const EDITABLE_FIELDS = [
   "display_name", "job_title", "company_name", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
-  "profile_photo", "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
+  "profile_photo", "avatar_shape", "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
@@ -117,11 +118,12 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
         <div className="px-5 pb-5 pt-2">
           <div className="flex items-end gap-4 -mt-9 mb-5">
             <div className="relative flex-shrink-0">
-              {liveForm.profile_photo
-                ? <img src={liveForm.profile_photo} className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg" style={{ objectFit: "cover", objectPosition: "center top" }} alt="" />
-                : <div className="w-16 h-16 rounded-2xl border-4 border-white shadow-lg flex items-center justify-center text-xl font-black text-white"
-                    style={{ background: liveForm.cover_color || "#2563eb" }}>{liveForm.display_name?.charAt(0) || "?"}</div>
-              }
+              {(() => {
+                const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
+                return liveForm.profile_photo
+                  ? <img src={liveForm.profile_photo} style={{ width: 64, height: 64, borderRadius: shapeR, objectFit: "cover", objectPosition: "center top", border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} alt="" />
+                  : <div style={{ width: 64, height: 64, borderRadius: shapeR, border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", background: liveForm.cover_color || "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 22 }}>{liveForm.display_name?.charAt(0) || "?"}</div>;
+              })()}
               <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer shadow-md">
                 <Plus className="w-3.5 h-3.5 text-white" />
                 <input type="file" accept="image/*" className="hidden" onChange={async e => {
@@ -142,6 +144,35 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                   </span>
                 );
               })()}
+            </div>
+          </div>
+
+          {/* Avatar shape selector */}
+          <div className="mb-4">
+            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Photo Shape</Label>
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { v: "circle",   label: "Circle",  r: "50%" },
+                { v: "rounded",  label: "Rounded", r: "20%" },
+                { v: "squircle", label: "iOS Icon", r: "28%" },
+                { v: "card",     label: "Card",    r: "12px" },
+              ].map(({ v, label, r }) => {
+                const sel = (liveForm.avatar_shape || "circle") === v;
+                const photoSrc = liveForm.profile_photo;
+                return (
+                  <button key={v} type="button" onClick={() => setVal("avatar_shape", v)}
+                    className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${sel ? "border-orange-400" : isDark ? "border-white/10" : "border-slate-200"}`}
+                    style={{ minWidth: 64 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: r, overflow: "hidden", border: sel ? "2px solid #FF7A00" : "2px solid #e2e8f0", background: liveForm.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {photoSrc
+                        ? <img src={photoSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
+                        : <span style={{ color: "#fff", fontWeight: 900, fontSize: 16 }}>{liveForm.display_name?.charAt(0) || "?"}</span>
+                      }
+                    </div>
+                    <span className={`text-[10px] font-bold ${sel ? "text-orange-500" : mutedText}`}>{label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -238,6 +269,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               { key: "whatsapp_number", label: "WhatsApp",    Icon: BIWhatsApp },
               { key: "email",           label: "Email",       Icon: BIEmail },
               { key: "website",         label: "Website",     Icon: BIWebsite },
+              { key: "location",        label: "Location",    Icon: BILocation },
               { key: "instagram_url",   label: "Instagram",   Icon: BIInstagram },
               { key: "linkedin_url",    label: "LinkedIn",    Icon: BILinkedIn },
               { key: "facebook_url",    label: "Facebook",    Icon: BIFacebook },
@@ -755,11 +787,12 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </button>
 
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          {profile.profile_photo
-            ? <img src={profile.profile_photo} className="w-9 h-9 rounded-xl object-cover shadow flex-shrink-0" alt="" />
-            : <div className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-sm flex-shrink-0 shadow"
-                style={{ background: profile.cover_color || "#2563eb" }}>{profile.display_name?.charAt(0)}</div>
-          }
+          {(() => {
+            const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "10px" }[profile.avatar_shape] || "50%";
+            return profile.profile_photo
+              ? <img src={profile.profile_photo} style={{ width: 36, height: 36, borderRadius: shapeR, objectFit: "cover", objectPosition: "center top", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} alt="" />
+              : <div style={{ width: 36, height: 36, borderRadius: shapeR, background: profile.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>{profile.display_name?.charAt(0)}</div>;
+          })()}
           <div className="min-w-0">
             <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
             <p className={`text-[11px] ${mutedText} truncate`}>/p/{profile.username}</p>

@@ -5,69 +5,95 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import {
+  PhoneIcon, WhatsAppIcon, EmailIcon, WebsiteIcon,
+  InstagramIcon, FacebookIcon, TikTokIcon, LinkedInIcon, YouTubeIcon,
+} from "@/components/bingoo/BrandIcons";
+
+// ── Avatar shape border-radius helper
+const avatarRadius = (shape) => ({
+  circle:   "50%",
+  rounded:  "20%",
+  squircle: "28%",
+  card:     "12px",
+}[shape] || "50%");
 
 // ── PROFILE HEADER PREVIEW ─────────────────────────────────────────────────
 export function ProfileHeaderPreview({ profile }) {
   const color = profile?.cover_color || "#2563eb";
   const buttonStyle = profile?.button_style || "pill";
-  const br = { pill: "9999px", rounded: "12px", sharp: "4px", outlined: "12px", flat: "8px" }[buttonStyle] || "9999px";
+  const br = { pill: "9999px", rounded: "14px", sharp: "4px", outlined: "14px", flat: "8px" }[buttonStyle] || "9999px";
+  const avRadius = avatarRadius(profile?.avatar_shape);
 
-  const links = [
-    profile?.whatsapp_number && { label: "💬 WhatsApp", key: "wa" },
-    profile?.phone && { label: "📞 Call", key: "ph" },
-    profile?.email && { label: "📧 Email", key: "em" },
-    profile?.website && { label: "🌐 Website", key: "wb" },
+  const primaryLinks = [
+    profile?.whatsapp_number && { label: "WhatsApp", Icon: WhatsAppIcon, bg: "linear-gradient(135deg,#25D366,#128C7E)" },
+    profile?.phone && { label: "Call", Icon: PhoneIcon, bg: "linear-gradient(135deg,#16a34a,#15803d)" },
+    profile?.email && { label: "Email", Icon: EmailIcon, bg: "linear-gradient(135deg,#6366f1,#4f46e5)" },
+    profile?.website && { label: "Website", Icon: WebsiteIcon, bg: `linear-gradient(135deg,${color},${color}bb)` },
+  ].filter(Boolean);
+
+  const socialLinks = [
+    profile?.instagram_url && { Icon: InstagramIcon, label: "IG" },
+    profile?.facebook_url && { Icon: FacebookIcon, label: "FB" },
+    profile?.tiktok_url && { Icon: TikTokIcon, label: "TK" },
+    profile?.linkedin_url && { Icon: LinkedInIcon, label: "in" },
+    profile?.youtube_url && { Icon: YouTubeIcon, label: "YT" },
   ].filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-slate-100 p-3">
-      <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
+    <div style={{ minHeight: "100vh", background: "#f1f5f9", padding: 12 }}>
+      <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 32px rgba(0,0,0,0.1)" }}>
         {/* Cover */}
-        <div className="w-full h-28"
-          style={{
-            background: profile?.cover_photo
-              ? `url(${profile.cover_photo}) center/cover`
-              : `linear-gradient(135deg, ${color}, ${color}99)`,
-          }} />
-        <div className="px-4 pb-4">
+        <div style={{
+          height: 110,
+          background: profile?.cover_photo
+            ? `url(${profile.cover_photo}) center/cover no-repeat`
+            : `linear-gradient(135deg, ${color}, ${color}88)`,
+        }} />
+        <div style={{ padding: "0 16px 16px" }}>
           {/* Avatar */}
-          <div className="flex justify-center -mt-7 mb-2">
+          <div style={{ display: "flex", justifyContent: "center", marginTop: -30, marginBottom: 10 }}>
             {profile?.profile_photo
-              ? <img src={profile.profile_photo} className="w-14 h-14 rounded-full object-cover border-4 border-white shadow" alt="" />
-              : <div className="w-14 h-14 rounded-full border-4 border-white shadow flex items-center justify-center text-xl font-black text-white" style={{ background: color }}>
+              ? <img src={profile.profile_photo} alt="" style={{ width: 60, height: 60, borderRadius: avRadius, objectFit: "cover", objectPosition: "center top", border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }} />
+              : <div style={{ width: 60, height: 60, borderRadius: avRadius, background: `linear-gradient(135deg,${color},${color}99)`, border: "3px solid #fff", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 22 }}>
                   {profile?.display_name?.charAt(0) || "?"}
                 </div>
             }
           </div>
           {/* Info */}
-          <div className="text-center mb-3">
-            <h2 className="font-black text-slate-900 text-base leading-tight">{profile?.display_name || "Your Name"}</h2>
-            {profile?.job_title && <p className="text-xs font-semibold mt-0.5" style={{ color }}>{profile.job_title}</p>}
-            {profile?.company_name && <p className="text-slate-400 text-xs">{profile.company_name}</p>}
-            {profile?.bio && <p className="text-slate-500 text-xs mt-1.5 leading-relaxed line-clamp-3">{profile.bio}</p>}
-            {profile?.location && profile?.show_location !== false && (
-              <p className="text-slate-400 text-xs mt-1">📍 {profile.location}</p>
+          <div style={{ textAlign: "center", marginBottom: 12 }}>
+            <h2 style={{ margin: "0 0 3px", fontSize: 17, fontWeight: 900, color: "#0f172a", lineHeight: 1.2 }}>{profile?.display_name || "Your Name"}</h2>
+            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 11.5, fontWeight: 700, color }}>{profile.job_title}</p>}
+            {profile?.company_name && <p style={{ margin: "0 0 6px", fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>{profile.company_name}</p>}
+            {profile?.bio && (
+              <p style={{ margin: "0 0 4px", fontSize: 10.5, lineHeight: 1.6, color: "#64748b", padding: "8px 12px", borderRadius: 12, background: `${color}10`, border: `1px solid ${color}20`, textAlign: "left" }}>
+                {profile.bio.slice(0, 100)}{profile.bio.length > 100 ? "…" : ""}
+              </p>
             )}
           </div>
-          {/* Action buttons */}
-          <div className="space-y-1.5">
-            {links.slice(0, 4).map(l => (
-              <div key={l.key} className="w-full py-2 text-white text-xs font-bold text-center"
-                style={{ background: color, borderRadius: br, border: buttonStyle === "outlined" ? `2px solid ${color}` : undefined, color: buttonStyle === "outlined" ? color : "#fff", background: buttonStyle === "outlined" ? "transparent" : color }}>
-                {l.label}
+          {/* Primary action buttons */}
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(primaryLinks.length || 1, 4)}, 1fr)`, gap: 6, marginBottom: 10 }}>
+            {primaryLinks.map(l => (
+              <div key={l.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: "10px 6px", borderRadius: 14, background: l.bg, color: "#fff", fontSize: 9, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", minHeight: 64 }}>
+                <l.Icon size={16} />
+                <span>{l.label}</span>
               </div>
             ))}
-            <div className="w-full py-2 bg-slate-800 text-white text-xs font-bold text-center" style={{ borderRadius: br }}>
-              💾 Save Contact
+          </div>
+          {/* Save contact button */}
+          <div style={{ width: "100%", padding: "10px", borderRadius: br, background: "#0f172a", color: "#fff", fontSize: 11, fontWeight: 800, textAlign: "center", marginBottom: 10 }}>
+            💾 Save Contact
+          </div>
+          {/* Social icons row */}
+          {socialLinks.length > 0 && (
+            <div style={{ display: "flex", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+              {socialLinks.map(({ Icon, label }) => (
+                <div key={label} style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+                  <Icon size={36} />
+                </div>
+              ))}
             </div>
-          </div>
-          {/* Social row */}
-          <div className="flex justify-center gap-2 mt-3 flex-wrap">
-            {profile?.instagram_url && <span className="text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-semibold">📸 IG</span>}
-            {profile?.facebook_url && <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-semibold">👤 FB</span>}
-            {profile?.tiktok_url && <span className="text-xs bg-slate-900 text-white px-2 py-0.5 rounded-full font-semibold">🎵 TK</span>}
-            {profile?.linkedin_url && <span className="text-xs bg-blue-700 text-white px-2 py-0.5 rounded-full font-semibold">in</span>}
-          </div>
+          )}
         </div>
       </div>
     </div>

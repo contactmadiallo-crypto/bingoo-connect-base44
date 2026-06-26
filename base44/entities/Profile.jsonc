@@ -32,6 +32,17 @@
       "type": "string",
       "default": "#2563eb"
     },
+    "avatar_shape": {
+      "type": "string",
+      "enum": [
+        "circle",
+        "rounded",
+        "squircle",
+        "card"
+      ],
+      "default": "circle",
+      "description": "Profile photo shape: circle, rounded, squircle (iOS icon), card (soft card)"
+    },
     "layout": {
       "type": "string",
       "enum": [

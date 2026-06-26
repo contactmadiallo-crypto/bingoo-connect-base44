@@ -268,3 +268,33 @@ export function LocationIcon({ size = 20 }) {
     </AppIcon>
   );
 }
+
+export function VenmoIcon({ size = 20 }) {
+  return (
+    <AppIcon bg="linear-gradient(145deg,#3D95CE,#1f7ab5)" size={size + 20} radius={Math.round((size + 20) * 0.24)}>
+      <svg viewBox="0 0 24 24" fill="white" style={S(size)}>
+        <path d="M19.06 2C19.7 3.17 20 4.37 20 5.76c0 4.4-3.76 10.12-6.82 14.14H6.35L3 2.92l6.07-.57 1.72 13.9c1.6-2.6 3.58-6.7 3.58-9.5 0-1.53-.27-2.57-.7-3.42L19.06 2z"/>
+      </svg>
+    </AppIcon>
+  );
+}
+
+export function TextIcon({ size = 20 }) {
+  return (
+    <AppIcon bg="linear-gradient(145deg,#34c759,#28a745)" size={size + 20} radius={Math.round((size + 20) * 0.24)}>
+      <svg viewBox="0 0 24 24" fill="white" style={S(size)}>
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 12H7v-2h10v2zm0-3H7V9h10v2zm0-3H7V6h10v2z"/>
+      </svg>
+    </AppIcon>
+  );
+}
+
+export function ResumeIcon({ size = 20 }) {
+  return (
+    <AppIcon bg="linear-gradient(145deg,#64748b,#475569)" size={size + 20} radius={Math.round((size + 20) * 0.24)}>
+      <svg viewBox="0 0 24 24" fill="white" style={S(size)}>
+        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-5 8h8v-1H8v1zm0-3h8v-1H8v1zm0-3h5v-1H8v1z"/>
+      </svg>
+    </AppIcon>
+  );
+}

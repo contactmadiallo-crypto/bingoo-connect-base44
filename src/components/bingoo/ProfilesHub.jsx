@@ -139,26 +139,32 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                   {/* Avatar row: overlaps cover via negative margin */}
                   <div className="flex items-end justify-between -mt-9 mb-3">
                     <div className="flex-shrink-0">
-                      {profile.profile_photo ? (
-                        <img
-                          src={profile.profile_photo}
-                          alt=""
-                          className="w-16 h-16 rounded-2xl shadow-lg"
-                          style={{
-                            objectFit: "cover",
-                            objectPosition: "center top",
-                            border: isDark ? "3px solid #13162a" : "3px solid white",
-                          }}
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-xl"
-                          style={{
+                      {(() => {
+                        const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "20%";
+                        return profile.profile_photo ? (
+                          <img
+                            src={profile.profile_photo}
+                            alt=""
+                            style={{
+                              width: 64, height: 64, borderRadius: shapeR,
+                              objectFit: "cover", objectPosition: "center top",
+                              border: isDark ? "3px solid #13162a" : "3px solid white",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                            }}
+                          />
+                        ) : (
+                          <div style={{
+                            width: 64, height: 64, borderRadius: shapeR,
                             background: profile.cover_color || "#2563eb",
                             border: isDark ? "3px solid #13162a" : "3px solid white",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            color: "#fff", fontWeight: 900, fontSize: 22,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                           }}>
-                          {profile.display_name?.charAt(0) || "?"}
-                        </div>
-                      )}
+                            {profile.display_name?.charAt(0) || "?"}
+                          </div>
+                        );
+                      })()}
                     </div>
                     {/* Plan badge + Live badge */}
                     <div className="flex items-center gap-2 pb-0.5">

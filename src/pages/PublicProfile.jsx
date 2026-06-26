@@ -50,8 +50,12 @@ const saveContact = (profile) => {
   URL.revokeObjectURL(url);
 };
 
+const AVATAR_RADIUS = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" };
+
 function Avatar({ profile, color, mobile }) {
   const size = mobile ? 110 : 128;
+  const shape = profile.avatar_shape || "circle";
+  const radius = AVATAR_RADIUS[shape] || "50%";
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
@@ -62,17 +66,17 @@ function Avatar({ profile, color, mobile }) {
       <div style={{
         padding: 4,
         background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`,
-        borderRadius: "50%",
+        borderRadius: radius,
         boxShadow: `0 0 0 5px #fff, 0 20px 60px ${hexRgb(color, 0.45)}`,
       }}>
         {profile.profile_photo
           ? <img
               src={profile.profile_photo}
               alt={profile.display_name}
-              style={{ width: size, height: size, borderRadius: "50%", objectFit: "cover", objectPosition: "center top", display: "block" }}
+              style={{ width: size, height: size, borderRadius: radius, objectFit: "cover", objectPosition: "center top", display: "block" }}
             />
           : <div style={{
-              width: size, height: size, borderRadius: "50%",
+              width: size, height: size, borderRadius: radius,
               background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.7)})`,
               display: "flex", alignItems: "center", justifyContent: "center",
               color: "#fff", fontWeight: 900, fontSize: Math.round(size * 0.4),
