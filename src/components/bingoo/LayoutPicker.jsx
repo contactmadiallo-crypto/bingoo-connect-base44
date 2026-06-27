@@ -1,23 +1,101 @@
 import { Link } from "react-router-dom";
 
+// ── Mini avatar using real profile photo ─────────────────────
+function MiniAvatar({ profile, size = 28, color = "#2563eb", border = "2px solid white" }) {
+  const shape = profile?.avatar_shape || "circle";
+  const radius = shape === "circle" ? "50%" : shape === "rounded" ? "22%" : shape === "squircle" ? "28%" : "12%";
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: radius, flexShrink: 0,
+      border, overflow: "hidden", background: color,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.18)",
+    }}>
+      {profile?.profile_photo
+        ? <img src={profile.profile_photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
+            background: `linear-gradient(135deg, ${color}, ${color}99)`,
+            color: "#fff", fontSize: size * 0.42, fontWeight: 900 }}>
+            {(profile?.display_name || "?")[0]}
+          </div>
+      }
+    </div>
+  );
+}
+
+// ── Mini cover area ──────────────────────────────────────────
+function MiniCover({ profile, color, height = "35%", children }) {
+  return (
+    <div style={{
+      height, position: "relative", flexShrink: 0, overflow: "hidden",
+      background: profile?.cover_photo
+        ? undefined
+        : `linear-gradient(135deg, ${color}, ${color}bb)`,
+    }}>
+      {profile?.cover_photo && (
+        <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      )}
+      {profile?.cover_photo && <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.22)" }} />}
+      {children}
+    </div>
+  );
+}
+
+// ── Sample link rows ─────────────────────────────────────────
+function MiniLinkRow({ color, isDark }) {
+  const bg = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {[1, 2].map(i => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 4, padding: "2px 4px", borderRadius: 5, background: bg }}>
+          <div style={{ width: 8, height: 8, borderRadius: 3, background: color, opacity: 0.7, flexShrink: 0 }} />
+          <div style={{ flex: 1, height: 3, borderRadius: 2, background: isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.1)" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Name + title bars ────────────────────────────────────────
+function MiniName({ isDark, wide = false }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+      <div style={{ width: wide ? 40 : 32, height: 4, borderRadius: 3, background: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.55)" }} />
+      <div style={{ width: wide ? 28 : 22, height: 2.5, borderRadius: 2, background: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.2)" }} />
+    </div>
+  );
+}
+
+// ── 3 action icon dots ────────────────────────────────────────
+function MiniActionDots({ color }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", gap: 4, marginTop: 3, marginBottom: 2 }}>
+      {[color, "#94a3b8", "#94a3b8"].map((c, i) => (
+        <div key={i} style={{ width: 14, height: 8, borderRadius: 4, background: i === 0 ? color : "rgba(0,0,0,0.07)", border: i !== 0 ? "1px solid #e2e8f0" : "none" }} />
+      ))}
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════
+// Layout thumbnails — each receives (color, profile)
+// ════════════════════════════════════════════════════════════════
 const layouts = [
-  // ── FREE ──────────────────────────────────────────────────────
+  // ── FREE ────────────────────────────────────────────────────
   {
     id: "classic",
     name: "Classic",
     desc: "Cover + card",
     pro: false,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden border border-slate-100">
-        <div className="h-10 rounded-t-lg" style={{ background: `linear-gradient(135deg, ${color}, ${color}99)` }} />
-        <div className="flex-1 bg-white flex flex-col items-center pt-1 px-2 gap-1">
-          <div className="w-7 h-7 rounded-full -mt-3.5 border-2 border-white shadow" style={{ background: color }} />
-          <div className="w-14 h-1.5 bg-slate-200 rounded" />
-          <div className="w-10 h-1 bg-slate-100 rounded" />
-          <div className="w-full mt-1 space-y-1">
-            <div className="w-full h-2 bg-slate-100 rounded-full" />
-            <div className="w-full h-2 bg-slate-100 rounded-full" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#f2f4f7", border: "1px solid #e2e8f0" }}>
+        <MiniCover profile={profile} color={color} height="38%" />
+        <div style={{ flex: 1, background: "#fff", display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px 6px" }}>
+          <div style={{ marginTop: -14 }}>
+            <MiniAvatar profile={profile} size={28} color={color} border="2px solid #fff" />
           </div>
+          <div style={{ marginTop: 3 }}><MiniName /></div>
+          <MiniActionDots color={color} />
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -27,20 +105,19 @@ const layouts = [
     name: "Minimal",
     desc: "Clean, no cover",
     pro: false,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden border border-slate-100 bg-white p-2 gap-1.5">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full flex-shrink-0" style={{ background: color }} />
-          <div className="flex flex-col gap-0.5">
-            <div className="w-14 h-1.5 bg-slate-200 rounded" />
-            <div className="w-10 h-1 bg-slate-100 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff", border: "1px solid #e8eaf0", padding: 6, gap: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="1.5px solid #e2e8f0" />
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 4, width: 36, borderRadius: 3, background: "#1e293b", marginBottom: 2 }} />
+            <div style={{ height: 2.5, width: 24, borderRadius: 2, background: "#94a3b8" }} />
           </div>
         </div>
-        <div className="border-t border-slate-100 pt-1.5 space-y-1">
-          <div className="w-full h-2 rounded-full" style={{ background: `${color}22` }} />
-          <div className="w-full h-2 bg-slate-100 rounded-full" />
-          <div className="w-full h-2 bg-slate-100 rounded-full" />
+        <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: 5 }}>
+          <MiniLinkRow color={color} />
         </div>
+        <MiniActionDots color={color} />
       </div>
     ),
   },
@@ -49,36 +126,34 @@ const layouts = [
     name: "Card Grid",
     desc: "Portfolio grid",
     pro: false,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-50 p-2 gap-1">
-        <div className="flex flex-col items-center gap-1 pb-1 border-b border-slate-200">
-          <div className="w-7 h-7 rounded-full" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-slate-300 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#f8fafc", padding: 5, gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, paddingBottom: 4, borderBottom: "1px solid #e2e8f0" }}>
+          <MiniAvatar profile={profile} size={22} color={color} />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "#1e293b" }} />
         </div>
-        <div className="grid grid-cols-2 gap-1">
-          <div className="h-4 bg-white rounded border border-slate-200" />
-          <div className="h-4 bg-white rounded border border-slate-200" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, flex: 1 }}>
+          {[color + "33", "#f1f5f9", "#f1f5f9", color + "22"].map((bg, i) => (
+            <div key={i} style={{ borderRadius: 5, background: bg, border: "1px solid #e2e8f0" }} />
+          ))}
         </div>
       </div>
     ),
   },
-  // ── PRO ───────────────────────────────────────────────────────
+  // ── PRO ─────────────────────────────────────────────────────
   {
     id: "dark",
     name: "Dark",
     desc: "Dark glassmorphism",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-900 p-2 gap-1.5">
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full border-2 border-slate-700" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-slate-600 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#0f172a", padding: 6, gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={26} color={color} border={`2px solid ${color}55`} />
+          <MiniName isDark />
         </div>
-        <div className="space-y-1 mt-1">
-          <div className="w-full h-2 rounded-full" style={{ background: color + "44" }} />
-          <div className="w-full h-2 bg-slate-700 rounded-full" />
-          <div className="w-full h-2 bg-slate-700 rounded-full" />
-        </div>
+        <MiniActionDots color={color} />
+        <MiniLinkRow color={color} isDark />
       </div>
     ),
   },
@@ -87,15 +162,18 @@ const layouts = [
     name: "Bold",
     desc: "Full gradient",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: `linear-gradient(135deg, ${color}, ${color}bb)` }}>
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full bg-white/30 border-2 border-white/50" />
-          <div className="w-12 h-1.5 bg-white/60 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", padding: 6, gap: 4, background: `linear-gradient(135deg, ${color}, ${color}bb)` }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={26} color="#fff" border="2px solid rgba(255,255,255,0.5)" />
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+            <div style={{ width: 32, height: 4, borderRadius: 3, background: "rgba(255,255,255,0.85)" }} />
+            <div style={{ width: 22, height: 2.5, borderRadius: 2, background: "rgba(255,255,255,0.5)" }} />
+          </div>
         </div>
-        <div className="space-y-1 mt-1">
-          <div className="w-full h-2 bg-white/40 rounded-full" />
-          <div className="w-full h-2 bg-white/25 rounded-full" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ height: 6, borderRadius: 4, background: "rgba(255,255,255,0.3)" }} />
+          <div style={{ height: 6, borderRadius: 4, background: "rgba(255,255,255,0.2)" }} />
         </div>
       </div>
     ),
@@ -105,20 +183,17 @@ const layouts = [
     name: "Split",
     desc: "Side accent bar",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex rounded-lg overflow-hidden border border-slate-100">
-        <div className="w-2 flex-shrink-0 rounded-l-lg" style={{ background: color }} />
-        <div className="flex-1 bg-white p-1.5 flex flex-col gap-1">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: color }} />
-            <div className="flex flex-col gap-0.5">
-              <div className="w-10 h-1.5 bg-slate-200 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", borderRadius: 10, overflow: "hidden", border: "1px solid #e2e8f0" }}>
+        <div style={{ width: 6, background: color, flexShrink: 0 }} />
+        <div style={{ flex: 1, background: "#fff", padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <MiniAvatar profile={profile} size={22} color={color} border="1.5px solid #e2e8f0" />
+            <div style={{ flex: 1 }}>
+              <div style={{ height: 4, width: 30, borderRadius: 2, background: "#1e293b" }} />
             </div>
           </div>
-          <div className="space-y-1">
-            <div className="w-full h-1.5 rounded-full" style={{ background: `${color}22` }} />
-            <div className="w-full h-1.5 bg-slate-100 rounded-full" />
-          </div>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -128,15 +203,14 @@ const layouts = [
     name: "Glass",
     desc: "Frosted glass",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: `linear-gradient(135deg, ${color}33, #e0e7ff)` }}>
-        <div className="flex flex-col items-center gap-1 bg-white/40 rounded-lg p-1">
-          <div className="w-6 h-6 rounded-full" style={{ background: color }} />
-          <div className="w-10 h-1 bg-white/70 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", padding: 5, gap: 4, background: `linear-gradient(135deg, ${color}44, #e0e7ff)` }}>
+        <div style={{ background: "rgba(255,255,255,0.55)", borderRadius: 8, padding: 5, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={22} color={color} border="1.5px solid rgba(255,255,255,0.8)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.8)" }} />
         </div>
-        <div className="space-y-1 bg-white/20 rounded-lg p-1">
-          <div className="w-full h-1.5 bg-white/40 rounded-full" />
-          <div className="w-full h-1.5 bg-white/30 rounded-full" />
+        <div style={{ background: "rgba(255,255,255,0.3)", borderRadius: 8, padding: 4 }}>
+          <MiniLinkRow color={color} isDark={false} />
         </div>
       </div>
     ),
@@ -146,34 +220,36 @@ const layouts = [
     name: "Gradient",
     desc: "Flowing colors",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1" style={{ background: `linear-gradient(135deg, ${color}22, ${color}88)` }}>
-        <div className="flex flex-col items-center gap-0.5">
-          <div className="w-6 h-6 rounded-full bg-white/80" />
-          <div className="w-10 h-1 bg-white/60 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", padding: 5, gap: 4, background: `linear-gradient(135deg, ${color}33, ${color}aa)` }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid rgba(255,255,255,0.7)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.7)" }} />
+          <div style={{ height: 2, width: 18, borderRadius: 2, background: "rgba(255,255,255,0.45)" }} />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-1.5 bg-white/40 rounded-full" />
-          <div className="w-full h-1.5 bg-white/25 rounded-full" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ height: 5, borderRadius: 4, background: "rgba(255,255,255,0.35)" }} />
+          <div style={{ height: 5, borderRadius: 4, background: "rgba(255,255,255,0.2)" }} />
         </div>
       </div>
     ),
   },
-  // ── NEW PRO LAYOUTS ─────────────────────────────────────────
   {
     id: "neon",
     name: "Neon",
     desc: "Glowing neon vibes",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-black p-2 gap-1.5">
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
-          <div className="w-12 h-1.5 rounded" style={{ background: color, opacity: 0.8 }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#050010", padding: 6, gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <div style={{ padding: 2, borderRadius: "50%", boxShadow: `0 0 8px ${color}, 0 0 16px ${color}66` }}>
+            <MiniAvatar profile={profile} size={24} color={color} border={`1.5px solid ${color}`} />
+          </div>
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: color, boxShadow: `0 0 6px ${color}` }} />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 rounded-full border" style={{ borderColor: color, opacity: 0.6 }} />
-          <div className="w-full h-2 rounded-full border" style={{ borderColor: color, opacity: 0.4 }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ height: 6, borderRadius: 4, border: `1px solid ${color}88`, background: `${color}11` }} />
+          <div style={{ height: 6, borderRadius: 4, border: `1px solid ${color}55`, background: "transparent" }} />
         </div>
       </div>
     ),
@@ -183,41 +259,37 @@ const layouts = [
     name: "Retro",
     desc: "80s bold style",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-yellow-50 p-2 gap-1.5 border-2 border-black">
-        <div className="bg-black text-center py-0.5 rounded">
-          <div className="w-6 h-1.5 bg-yellow-300 rounded mx-auto" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fffbeb", border: "2px solid #1a1a1a", padding: 5, gap: 4 }}>
+        <div style={{ background: "#1a1a1a", borderRadius: 4, padding: "3px 5px", textAlign: "center" }}>
+          <div style={{ height: 3, width: 24, borderRadius: 2, background: "#fbbf24", margin: "0 auto" }} />
         </div>
-        <div className="flex flex-col items-center gap-1 border border-black rounded p-1">
-          <div className="w-6 h-6 rounded-full border-2 border-black" style={{ background: color }} />
-          <div className="w-10 h-1 bg-black rounded" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, border: "1.5px solid #1a1a1a", borderRadius: 6, padding: 4 }}>
+          <MiniAvatar profile={profile} size={22} color={color} border="2px solid #1a1a1a" />
+          <div style={{ height: 3, width: 24, borderRadius: 2, background: "#1a1a1a" }} />
         </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-2 bg-black rounded" style={{ opacity: 0.8 }} />
-          <div className="w-full h-2 border border-black rounded" />
-        </div>
+        <div style={{ height: 6, borderRadius: 3, background: "#1a1a1a" }} />
       </div>
     ),
   },
   {
     id: "magazine",
     name: "Magazine",
-    desc: "Editorial editorial",
+    desc: "Editorial",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white p-0 gap-0">
-        <div className="h-12 relative" style={{ background: `linear-gradient(to bottom, ${color}, transparent)` }}>
-          <div className="absolute bottom-0 left-2 right-2 h-px bg-black/10" />
-        </div>
-        <div className="flex gap-1.5 p-1.5 flex-1">
-          <div className="w-8 h-8 rounded-full -mt-4 border-2 border-white flex-shrink-0" style={{ background: color }} />
-          <div className="flex flex-col gap-0.5 flex-1 pt-0.5">
-            <div className="w-full h-1.5 bg-slate-900 rounded" />
-            <div className="w-3/4 h-1 bg-slate-300 rounded" />
-            <div className="space-y-0.5 mt-0.5">
-              <div className="w-full h-1 bg-slate-100 rounded" />
-              <div className="w-full h-1 bg-slate-100 rounded" />
-            </div>
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff" }}>
+        <MiniCover profile={profile} color={color} height="40%">
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 12, background: "linear-gradient(to top, #fff, transparent)" }} />
+        </MiniCover>
+        <div style={{ display: "flex", gap: 5, padding: "0 6px 6px", flex: 1 }}>
+          <div style={{ marginTop: -14, flexShrink: 0 }}>
+            <MiniAvatar profile={profile} size={26} color={color} border="2px solid #fff" />
+          </div>
+          <div style={{ flex: 1, paddingTop: 4, display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ height: 4, width: "100%", borderRadius: 2, background: "#1e293b" }} />
+            <div style={{ height: 2.5, width: "65%", borderRadius: 2, background: "#94a3b8" }} />
+            <div style={{ height: 3, width: "100%", borderRadius: 2, background: "#f1f5f9", marginTop: 2 }} />
           </div>
         </div>
       </div>
@@ -228,17 +300,14 @@ const layouts = [
     name: "Aurora",
     desc: "Northern lights",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" }}>
-        <div className="h-4 rounded" style={{ background: `linear-gradient(90deg, ${color}88, #a855f788, #06b6d488)` }} />
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full border-2 border-white/30" style={{ background: color }} />
-          <div className="w-10 h-1.5 bg-white/40 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(135deg,#0f0c29,#302b63,#24243e)", padding: 5, gap: 4 }}>
+        <div style={{ height: 8, borderRadius: 4, background: `linear-gradient(90deg, ${color}88, #a855f788, #06b6d488)` }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid rgba(255,255,255,0.3)" />
+          <MiniName isDark />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-1.5 rounded-full bg-white/15" />
-          <div className="w-full h-1.5 rounded-full bg-white/10" />
-        </div>
+        <MiniLinkRow color={color} isDark />
       </div>
     ),
   },
@@ -247,20 +316,16 @@ const layouts = [
     name: "Minimal Dark",
     desc: "Clean dark mode",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-zinc-900 p-2 gap-1.5">
-        <div className="flex items-center gap-2 border-b border-white/10 pb-1.5">
-          <div className="w-6 h-6 rounded-lg" style={{ background: color }} />
-          <div className="flex flex-col gap-0.5">
-            <div className="w-12 h-1.5 bg-white/50 rounded" />
-            <div className="w-8 h-1 bg-white/25 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#18181b", padding: 6, gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 5 }}>
+          <MiniAvatar profile={profile} size={22} color={color} border="1.5px solid rgba(255,255,255,0.15)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 4, width: 32, borderRadius: 2, background: "rgba(255,255,255,0.6)", marginBottom: 2 }} />
+            <div style={{ height: 2.5, width: 22, borderRadius: 2, background: "rgba(255,255,255,0.25)" }} />
           </div>
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 bg-white/10 rounded-lg" />
-          <div className="w-full h-2 bg-white/10 rounded-lg" />
-          <div className="w-full h-2 rounded-lg" style={{ background: `${color}44` }} />
-        </div>
+        <MiniLinkRow color={color} isDark />
       </div>
     ),
   },
@@ -269,16 +334,20 @@ const layouts = [
     name: "Pastel",
     desc: "Soft pastel tones",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-pink-50 p-2 gap-1.5">
-        <div className="h-8 rounded-lg" style={{ background: `linear-gradient(135deg, ${color}55, #f9a8d455)` }} />
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full -mt-4 border-2 border-white" style={{ background: `${color}88` }} />
-          <div className="w-10 h-1.5 bg-pink-300 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fdf2f8", padding: 0 }}>
+        <div style={{ height: "35%", background: `linear-gradient(135deg, ${color}55, #f9a8d455)`, position: "relative" }}>
+          {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />}
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 bg-pink-100 rounded-full border border-pink-200" />
-          <div className="w-full h-2 bg-purple-100 rounded-full border border-purple-200" />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px 6px" }}>
+          <div style={{ marginTop: -14 }}>
+            <MiniAvatar profile={profile} size={26} color={color} border="2px solid #fdf2f8" />
+          </div>
+          <div style={{ marginTop: 3 }}><MiniName /></div>
+          <div style={{ marginTop: 5, display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
+            <div style={{ height: 5, borderRadius: 6, background: "#fbcfe8", border: "1px solid #f9a8d4" }} />
+            <div style={{ height: 5, borderRadius: 6, background: "#ede9fe", border: "1px solid #ddd6fe" }} />
+          </div>
         </div>
       </div>
     ),
@@ -288,19 +357,22 @@ const layouts = [
     name: "Corporate",
     desc: "Professional B2B",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white border border-slate-200 p-0">
-        <div className="h-2" style={{ background: color }} />
-        <div className="flex items-center gap-2 p-2 border-b border-slate-100">
-          <div className="w-8 h-8 rounded-lg border border-slate-200 bg-slate-50 flex-shrink-0" />
-          <div className="flex flex-col gap-0.5">
-            <div className="w-14 h-1.5 bg-slate-800 rounded" />
-            <div className="w-10 h-1 bg-slate-300 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff", border: "1px solid #e2e8f0" }}>
+        <div style={{ height: 4, background: color }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 6px", borderBottom: "1px solid #f1f5f9" }}>
+          <div style={{ width: 22, height: 22, borderRadius: 6, background: "#f8fafc", border: "1px solid #e2e8f0", overflow: "hidden", flexShrink: 0 }}>
+            {profile?.company_logo
+              ? <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              : <MiniAvatar profile={profile} size={22} color={color} border="none" />}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 4, width: 34, borderRadius: 2, background: "#1e293b", marginBottom: 2 }} />
+            <div style={{ height: 2.5, width: 22, borderRadius: 2, background: "#94a3b8" }} />
           </div>
         </div>
-        <div className="flex-1 p-1.5 space-y-1">
-          <div className="w-full h-2 bg-slate-100 rounded" />
-          <div className="w-full h-2 rounded" style={{ background: `${color}22` }} />
+        <div style={{ flex: 1, padding: "4px 6px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -310,36 +382,32 @@ const layouts = [
     name: "Floating",
     desc: "Floating card style",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col items-center justify-center rounded-lg overflow-hidden p-2 gap-1" style={{ background: `radial-gradient(circle at top, ${color}22, #f1f5f9)` }}>
-        <div className="bg-white rounded-xl shadow-lg p-2 w-full flex flex-col items-center gap-1 border border-slate-100">
-          <div className="w-7 h-7 rounded-full" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-slate-200 rounded" />
-          <div className="w-8 h-1 bg-slate-100 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderRadius: 10, overflow: "hidden", padding: 5, gap: 4, background: `radial-gradient(circle at top, ${color}22, #f1f5f9)` }}>
+        <div style={{ background: "#fff", borderRadius: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "6px 8px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, border: "1px solid #f1f5f9" }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid #fff" />
+          <MiniName />
         </div>
-        <div className="bg-white rounded-xl shadow p-1.5 w-full space-y-1 border border-slate-100">
-          <div className="w-full h-1.5 rounded-full bg-slate-100" />
-          <div className="w-full h-1.5 rounded-full bg-slate-100" />
+        <div style={{ background: "#fff", borderRadius: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.07)", padding: "4px 6px", width: "100%", border: "1px solid #f1f5f9" }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
   },
-  // ── 10 NEW PRO LAYOUTS ────────────────────────────────────────
+  // ── Additional layouts ────────────────────────────────────
   {
     id: "sunset",
     name: "Sunset",
     desc: "Warm orange gradient",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-0" style={{ background: "linear-gradient(160deg,#ff6b35,#f7c59f,#ffe0cc)" }}>
-        <div className="flex flex-col items-center pt-3 pb-1 gap-1">
-          <div className="w-8 h-8 rounded-full border-2 border-white/60" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-white/70 rounded" />
-          <div className="w-8 h-1 bg-white/50 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#ff6b35,#f7c59f,#ffe0cc)" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 6px 4px", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid rgba(255,255,255,0.6)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.85)" }} />
         </div>
-        <div className="mx-2 mb-2 flex-1 rounded-xl bg-white/25 p-1.5 space-y-1">
-          <div className="w-full h-2 bg-white/40 rounded-full" />
-          <div className="w-full h-2 bg-white/30 rounded-full" />
+        <div style={{ margin: "0 5px", flex: 1, borderRadius: 8, background: "rgba(255,255,255,0.3)", padding: 4 }}>
+          <MiniLinkRow color="#fff" />
         </div>
       </div>
     ),
@@ -349,16 +417,20 @@ const layouts = [
     name: "Ocean",
     desc: "Deep sea vibes",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#0077b6,#00b4d8,#90e0ef)" }}>
-        <div className="h-8 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.3) 4px, rgba(255,255,255,0.3) 5px)" }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#0077b6,#00b4d8,#90e0ef)" }}>
+        <div style={{ height: "35%", position: "relative" }}>
+          {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.5 }} />}
         </div>
-        <div className="flex flex-col items-center gap-1 p-2">
-          <div className="w-7 h-7 rounded-full border-2 border-white/70 -mt-4" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-white/70 rounded" />
-          <div className="w-full h-2 bg-white/20 rounded-full" />
-          <div className="w-full h-2 bg-white/20 rounded-full" />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px 6px", flex: 1, gap: 3 }}>
+          <div style={{ marginTop: -14 }}>
+            <MiniAvatar profile={profile} size={26} color={color} border="2px solid rgba(255,255,255,0.7)" />
+          </div>
+          <MiniName isDark />
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 3, marginTop: 2 }}>
+            <div style={{ height: 5, borderRadius: 4, background: "rgba(255,255,255,0.25)" }} />
+            <div style={{ height: 5, borderRadius: 4, background: "rgba(255,255,255,0.15)" }} />
+          </div>
         </div>
       </div>
     ),
@@ -368,56 +440,47 @@ const layouts = [
     name: "Forest",
     desc: "Nature & earthy tones",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-emerald-950 p-2 gap-1.5">
-        <div className="h-5 rounded-lg" style={{ background: "linear-gradient(90deg,#16a34a88,#14532d88)" }} />
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full border-2 border-emerald-400/50" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-emerald-300/60 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#052e16", padding: 5, gap: 4 }}>
+        <div style={{ height: 8, borderRadius: 4, background: "linear-gradient(90deg,#16a34a88,#14532d88)" }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid rgba(74,222,128,0.4)" />
+          <MiniName isDark />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 rounded-full bg-emerald-900/80 border border-emerald-700/40" />
-          <div className="w-full h-2 rounded-full bg-emerald-900/80 border border-emerald-700/40" />
-        </div>
+        <MiniLinkRow color="#4ade80" isDark />
       </div>
     ),
   },
   {
     id: "luxury",
     name: "Luxury",
-    desc: "Gold & black prestige",
+    desc: "Gold & black",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-zinc-950 p-2 gap-1.5">
-        <div className="flex flex-col items-center gap-1 pb-1.5 border-b border-amber-600/40">
-          <div className="w-7 h-7 rounded-full border border-amber-500/70" style={{ background: color }} />
-          <div className="w-12 h-1.5 rounded" style={{ background: "linear-gradient(90deg,#b45309,#fbbf24)" }} />
-          <div className="w-8 h-1 bg-amber-800/40 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#09090b", padding: 5, gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, paddingBottom: 5, borderBottom: "1px solid rgba(212,175,55,0.3)" }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="1.5px solid rgba(212,175,55,0.6)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "linear-gradient(90deg,#b45309,#fbbf24)" }} />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 rounded bg-amber-900/30 border border-amber-700/30" />
-          <div className="w-full h-2 rounded bg-amber-900/20 border border-amber-700/20" />
-        </div>
+        <MiniLinkRow color="#fbbf24" isDark />
       </div>
     ),
   },
   {
     id: "bubbly",
     name: "Bubbly",
-    desc: "Fun colorful dots",
+    desc: "Fun colorful",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white p-2 gap-1.5 relative">
-        <div className="absolute top-1 right-1 w-6 h-6 rounded-full opacity-30" style={{ background: color }} />
-        <div className="absolute bottom-2 left-1 w-4 h-4 rounded-full opacity-20" style={{ background: "#f472b6" }} />
-        <div className="flex flex-col items-center gap-1 z-10">
-          <div className="w-8 h-8 rounded-full shadow-lg" style={{ background: `linear-gradient(135deg, ${color}, #f472b6)` }} />
-          <div className="w-14 h-1.5 bg-slate-200 rounded-full" />
-          <div className="w-10 h-1 bg-slate-100 rounded-full" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff", padding: 5, gap: 4, position: "relative" }}>
+        <div style={{ position: "absolute", top: 4, right: 4, width: 18, height: 18, borderRadius: "50%", background: color, opacity: 0.2 }} />
+        <div style={{ position: "absolute", bottom: 8, left: 4, width: 12, height: 12, borderRadius: "50%", background: "#f472b6", opacity: 0.2 }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, position: "relative", zIndex: 1 }}>
+          <MiniAvatar profile={profile} size={26} color={color} border="2px solid #fff" />
+          <MiniName />
         </div>
-        <div className="space-y-1 z-10">
-          <div className="w-full h-2 rounded-full" style={{ background: `${color}30` }} />
-          <div className="w-full h-2 rounded-full bg-pink-100" />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -427,16 +490,16 @@ const layouts = [
     name: "Mono",
     desc: "Black & white stark",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white border-2 border-black p-0">
-        <div className="bg-black h-8 flex items-center px-2">
-          <div className="w-5 h-5 rounded-full bg-white" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff", border: "2px solid #000" }}>
+        <div style={{ background: "#000", padding: "5px 6px", display: "flex", alignItems: "center", gap: 5 }}>
+          <MiniAvatar profile={profile} size={20} color="#fff" border="none" />
         </div>
-        <div className="flex-1 p-2 space-y-1.5">
-          <div className="w-14 h-1.5 bg-black rounded" />
-          <div className="w-10 h-1 bg-gray-400 rounded" />
-          <div className="w-full h-2 border-2 border-black rounded" />
-          <div className="w-full h-2 bg-black rounded" />
+        <div style={{ flex: 1, padding: "4px 6px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ height: 4, width: 30, borderRadius: 2, background: "#000" }} />
+          <div style={{ height: 2.5, width: 20, borderRadius: 2, background: "#555" }} />
+          <div style={{ height: 5, borderRadius: 3, border: "2px solid #000" }} />
+          <div style={{ height: 5, borderRadius: 3, background: "#000" }} />
         </div>
       </div>
     ),
@@ -444,18 +507,19 @@ const layouts = [
   {
     id: "cyberpunk",
     name: "Cyberpunk",
-    desc: "Futuristic grid lines",
+    desc: "Futuristic",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: "#0a001f" }}>
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "linear-gradient(0deg,transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%), linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%)", backgroundSize: "50px 50px" }} />
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded" style={{ background: color, boxShadow: `0 0 10px ${color}` }} />
-          <div className="w-12 h-1.5 rounded" style={{ background: color, opacity: 0.8 }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#0a001f", padding: 5, gap: 4 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <div style={{ padding: 1, border: `1px solid ${color}`, boxShadow: `0 0 8px ${color}`, borderRadius: 4 }}>
+            <MiniAvatar profile={profile} size={22} color={color} border="none" />
+          </div>
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: color, boxShadow: `0 0 4px ${color}` }} />
         </div>
-        <div className="space-y-1">
-          <div className="w-full h-2 rounded border" style={{ borderColor: `${color}88` }} />
-          <div className="w-full h-2 rounded" style={{ background: `${color}22`, border: `1px solid ${color}44` }} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ height: 5, borderRadius: 3, border: `1px solid ${color}88`, background: `${color}11` }} />
+          <div style={{ height: 5, borderRadius: 3, border: `1px solid ${color}44` }} />
         </div>
       </div>
     ),
@@ -463,20 +527,19 @@ const layouts = [
   {
     id: "frosted",
     name: "Frosted",
-    desc: "iOS-style blur panels",
+    desc: "iOS blur panels",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-1.5 gap-1.5" style={{ background: `linear-gradient(135deg,${color}44,${color}22,#e0e7ff88)` }}>
-        <div className="rounded-xl p-2 flex items-center gap-2" style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(8px)" }}>
-          <div className="w-6 h-6 rounded-full flex-shrink-0" style={{ background: color }} />
-          <div className="flex-1 space-y-0.5">
-            <div className="w-full h-1.5 bg-white/70 rounded" />
-            <div className="w-2/3 h-1 bg-white/50 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", padding: 5, gap: 4, background: `linear-gradient(135deg,${color}44,${color}22,#e0e7ff88)` }}>
+        <div style={{ background: "rgba(255,255,255,0.55)", borderRadius: 8, padding: 5, display: "flex", alignItems: "center", gap: 5, backdropFilter: "blur(8px)" }}>
+          <MiniAvatar profile={profile} size={22} color={color} border="1.5px solid rgba(255,255,255,0.8)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 3, width: "100%", borderRadius: 2, background: "rgba(0,0,0,0.18)", marginBottom: 2 }} />
+            <div style={{ height: 2, width: "65%", borderRadius: 2, background: "rgba(0,0,0,0.1)" }} />
           </div>
         </div>
-        <div className="rounded-xl p-1.5 space-y-1" style={{ background: "rgba(255,255,255,0.4)", backdropFilter: "blur(8px)" }}>
-          <div className="w-full h-1.5 bg-white/60 rounded-full" />
-          <div className="w-full h-1.5 bg-white/40 rounded-full" />
+        <div style={{ background: "rgba(255,255,255,0.4)", borderRadius: 8, padding: 4, backdropFilter: "blur(8px)" }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -486,20 +549,16 @@ const layouts = [
     name: "Paper",
     desc: "Clean editorial serif",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-amber-50 p-2 gap-1.5 border border-amber-200">
-        <div className="border-b-2 border-slate-900 pb-1.5 flex items-end justify-between">
-          <div className="flex flex-col gap-0.5">
-            <div className="w-14 h-2 bg-slate-900 rounded-sm" />
-            <div className="w-8 h-1 bg-slate-400 rounded-sm" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fffbeb", border: "1px solid #d6b97a", padding: 5, gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", borderBottom: "2px solid #1a1a1a", paddingBottom: 4 }}>
+          <div>
+            <div style={{ height: 5, width: 34, borderRadius: 2, background: "#1a1a1a", marginBottom: 2 }} />
+            <div style={{ height: 3, width: 22, borderRadius: 2, background: "#78716c" }} />
           </div>
-          <div className="w-6 h-6 rounded-full" style={{ background: color }} />
+          <MiniAvatar profile={profile} size={20} color={color} border="1.5px solid #1a1a1a" />
         </div>
-        <div className="space-y-0.5">
-          <div className="w-full h-1.5 bg-slate-200 rounded-sm" />
-          <div className="w-4/5 h-1.5 bg-slate-200 rounded-sm" />
-          <div className="w-full h-2 rounded" style={{ background: `${color}22` }} />
-        </div>
+        <MiniLinkRow color={color} />
       </div>
     ),
   },
@@ -508,41 +567,40 @@ const layouts = [
     name: "Wave",
     desc: "Organic wave shapes",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white">
-        <div className="relative h-12" style={{ background: `linear-gradient(135deg,${color},${color}88)` }}>
-          <svg viewBox="0 0 100 20" preserveAspectRatio="none" className="absolute bottom-0 w-full h-4">
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff" }}>
+        <div style={{ height: "38%", position: "relative", background: `linear-gradient(135deg,${color},${color}88)` }}>
+          {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />}
+          <svg viewBox="0 0 100 20" preserveAspectRatio="none" style={{ position: "absolute", bottom: 0, width: "100%", height: 12 }}>
             <path d="M0,10 C20,20 40,0 60,10 C80,20 100,5 100,10 L100,20 L0,20 Z" fill="white" />
           </svg>
         </div>
-        <div className="flex-1 p-2 pt-0 flex flex-col items-center gap-1">
-          <div className="w-7 h-7 rounded-full -mt-3.5 border-2 border-white shadow" style={{ background: color }} />
-          <div className="w-12 h-1.5 bg-slate-200 rounded" />
-          <div className="w-full h-2 bg-slate-100 rounded-full" />
-          <div className="w-full h-2 bg-slate-100 rounded-full" />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px 6px", gap: 3 }}>
+          <div style={{ marginTop: -14 }}>
+            <MiniAvatar profile={profile} size={26} color={color} border="2px solid #fff" />
+          </div>
+          <MiniName />
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
   },
-  // ── PREMIUM THEMES ────────────────────────────────────────────
   {
     id: "glass_3d",
     name: "3D Glass",
     desc: "Depth & glass layers",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-1.5 gap-1" style={{ background: `linear-gradient(135deg, ${color}33 0%, ${color}11 50%, #fff8 100%)`, backdropFilter: "blur(10px)" }}>
-        <div className="rounded-lg p-1.5 flex items-center gap-1.5" style={{ background: "rgba(255,255,255,0.55)", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", border: "1px solid rgba(255,255,255,0.8)" }}>
-          <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: `linear-gradient(135deg, ${color}, ${color}99)`, boxShadow: `0 2px 8px ${color}66` }} />
-          <div className="flex flex-col gap-0.5 flex-1">
-            <div className="w-full h-1.5 rounded" style={{ background: "rgba(0,0,0,0.15)" }} />
-            <div className="w-2/3 h-1 rounded" style={{ background: "rgba(0,0,0,0.08)" }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", padding: 5, gap: 4, background: `linear-gradient(135deg, ${color}33 0%, ${color}11 50%, rgba(255,255,255,0.5) 100%)` }}>
+        <div style={{ borderRadius: 8, padding: 5, display: "flex", alignItems: "center", gap: 5, background: "rgba(255,255,255,0.55)", border: "1px solid rgba(255,255,255,0.8)", boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}>
+          <MiniAvatar profile={profile} size={20} color={color} border="1px solid rgba(255,255,255,0.8)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 3, width: "100%", borderRadius: 2, background: "rgba(0,0,0,0.15)", marginBottom: 2 }} />
+            <div style={{ height: 2, width: "60%", borderRadius: 2, background: "rgba(0,0,0,0.08)" }} />
           </div>
         </div>
-        <div className="rounded-lg p-1.5 space-y-1 flex-1" style={{ background: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.6)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)" }}>
-          <div className="w-full h-1.5 rounded-full" style={{ background: `${color}44` }} />
-          <div className="w-full h-1.5 rounded-full bg-white/60" />
-          <div className="w-3/4 h-1.5 rounded-full bg-white/40" />
+        <div style={{ borderRadius: 8, padding: 4, flex: 1, background: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.6)" }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -552,19 +610,14 @@ const layouts = [
     name: "Luxury Gold",
     desc: "Premium gold prestige",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg, #1a0a00, #2d1a00, #1a0a00)" }}>
-        <div className="h-0.5" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, #FFD700, #D4AF37, transparent)" }} />
-        <div className="flex flex-col items-center gap-1 p-2">
-          <div className="w-6 h-6 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #FFD700, #B8860B)`, boxShadow: "0 2px 8px rgba(212,175,55,0.5)" }} />
-          <div className="w-10 h-1.5 rounded" style={{ background: "linear-gradient(90deg, #B8860B, #FFD700, #B8860B)" }} />
-          <div className="w-8 h-1 rounded" style={{ background: "rgba(212,175,55,0.4)" }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#1a0a00,#2d1a00,#1a0a00)", padding: 5, gap: 4 }}>
+        <div style={{ height: 2, borderRadius: 1, background: "linear-gradient(90deg,transparent,#D4AF37,#FFD700,#D4AF37,transparent)" }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color="#B8860B" border="1.5px solid #D4AF37" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "linear-gradient(90deg,#B8860B,#FFD700,#B8860B)" }} />
         </div>
-        <div className="mx-1.5 space-y-1 pb-2 flex-1">
-          <div className="w-full h-2 rounded" style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }} />
-          <div className="w-full h-2 rounded" style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)" }} />
-        </div>
-        <div className="h-0.5 mx-4 mb-1" style={{ background: "linear-gradient(90deg, transparent, #D4AF37, transparent)" }} />
+        <MiniLinkRow color="#D4AF37" isDark />
       </div>
     ),
   },
@@ -573,20 +626,18 @@ const layouts = [
     name: "Executive",
     desc: "C-suite prestige",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-950">
-        <div className="flex items-center gap-1 px-2 py-1.5 border-b" style={{ borderColor: `${color}33` }}>
-          <div className="w-4 h-4 rounded flex-shrink-0 bg-slate-700" />
-          <div className="flex flex-col gap-0.5 flex-1">
-            <div className="w-10 h-1.5 rounded bg-slate-400" />
-            <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.7 }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#020617", padding: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 6px", borderBottom: `1px solid ${color}33` }}>
+          <MiniAvatar profile={profile} size={20} color={color} border="1px solid rgba(255,255,255,0.15)" />
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.5)", marginBottom: 2 }} />
+            <div style={{ height: 2, width: 18, borderRadius: 2, background: color, opacity: 0.7 }} />
           </div>
-          <div className="w-1 h-6 rounded" style={{ background: color }} />
+          <div style={{ width: 3, height: 18, borderRadius: 2, background: color }} />
         </div>
-        <div className="flex-1 p-1.5 space-y-1">
-          <div className="w-full h-1.5 rounded bg-slate-800" />
-          <div className="w-4/5 h-1.5 rounded bg-slate-800" />
-          <div className="mt-1 w-full h-2 rounded" style={{ background: `${color}22`, border: `1px solid ${color}44` }} />
+        <div style={{ flex: 1, padding: "4px 6px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <MiniLinkRow color={color} isDark />
         </div>
       </div>
     ),
@@ -596,20 +647,18 @@ const layouts = [
     name: "Neon Tech",
     desc: "Cybernetic glow",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: "#050510" }}>
-        <div className="flex items-center gap-1.5 pb-1" style={{ borderBottom: `1px solid ${color}44` }}>
-          <div className="w-5 h-5 rounded" style={{ background: `${color}22`, border: `1px solid ${color}`, boxShadow: `0 0 6px ${color}` }} />
-          <div className="flex-1 space-y-0.5">
-            <div className="w-full h-1.5 rounded" style={{ background: `${color}66` }} />
-            <div className="w-2/3 h-1 rounded bg-cyan-900/60" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#050510", padding: 5, gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, paddingBottom: 4, borderBottom: `1px solid ${color}44` }}>
+          <div style={{ borderRadius: 4, border: `1px solid ${color}`, boxShadow: `0 0 6px ${color}`, overflow: "hidden" }}>
+            <MiniAvatar profile={profile} size={20} color={color} border="none" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ height: 3, width: "100%", borderRadius: 2, background: `${color}77`, marginBottom: 2 }} />
+            <div style={{ height: 2, width: "60%", borderRadius: 2, background: "rgba(6,182,212,0.4)" }} />
           </div>
         </div>
-        <div className="space-y-1 flex-1">
-          <div className="w-full h-2 rounded" style={{ border: `1px solid ${color}55`, background: `${color}11` }} />
-          <div className="w-full h-2 rounded border border-cyan-900/50 bg-cyan-950/30" />
-        </div>
-        <div className="w-full h-1.5 rounded" style={{ background: `linear-gradient(90deg, ${color}, #06b6d4)`, opacity: 0.7 }} />
+        <MiniLinkRow color={color} isDark />
       </div>
     ),
   },
@@ -618,28 +667,20 @@ const layouts = [
     name: "Modern Law",
     desc: "Prestigious legal",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-slate-50 border border-slate-200">
-        <div className="flex items-stretch" style={{ height: "40%" }}>
-          <div className="w-1" style={{ background: color }} />
-          <div className="flex-1 bg-slate-900 flex flex-col justify-center px-2 gap-1">
-            <div className="w-10 h-1.5 bg-white/70 rounded-sm" />
-            <div className="w-7 h-1 rounded-sm" style={{ background: color, opacity: 0.8 }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#f8fafc", border: "1px solid #e2e8f0" }}>
+        <div style={{ display: "flex", height: "40%", flexShrink: 0 }}>
+          <div style={{ width: 4, background: color }} />
+          <div style={{ flex: 1, background: "#1e293b", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 6px", gap: 2 }}>
+            <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.7)" }} />
+            <div style={{ height: 2, width: 18, borderRadius: 2, background: color, opacity: 0.8 }} />
           </div>
-          <div className="w-8 h-full bg-slate-700 flex items-center justify-center">
-            <div className="w-4 h-4 rounded-full bg-slate-500" />
+          <div style={{ width: 22, background: "#334155", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <MiniAvatar profile={profile} size={18} color={color} border="none" />
           </div>
         </div>
-        <div className="flex-1 p-1.5 space-y-1">
-          <div className="flex gap-1">
-            <div className="w-1.5 h-1.5 rounded-full mt-0.5 flex-shrink-0" style={{ background: color }} />
-            <div className="flex-1 h-1.5 bg-slate-200 rounded" />
-          </div>
-          <div className="flex gap-1">
-            <div className="w-1.5 h-1.5 rounded-full mt-0.5 flex-shrink-0" style={{ background: color }} />
-            <div className="flex-1 h-1.5 bg-slate-200 rounded" />
-          </div>
-          <div className="w-full h-2 rounded" style={{ background: `${color}22` }} />
+        <div style={{ flex: 1, padding: "4px 6px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -649,19 +690,16 @@ const layouts = [
     name: "Premium Salon",
     desc: "Chic & elegant",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg, #1a0a14, #2d1020)" }}>
-        <div className="h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${color}, #f9a8d4, ${color}, transparent)` }} />
-        <div className="flex flex-col items-center gap-1 pt-2 pb-1">
-          <div className="w-7 h-7 rounded-full" style={{ background: `radial-gradient(circle at 35% 35%, #f9a8d4, ${color})`, boxShadow: `0 2px 10px ${color}66` }} />
-          <div className="w-10 h-1.5 rounded-full" style={{ background: "rgba(249,168,212,0.6)" }} />
-          <div className="w-7 h-1 rounded-full" style={{ background: `${color}88` }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#1a0a14,#2d1020)", padding: 5, gap: 4 }}>
+        <div style={{ height: 2, borderRadius: 1, background: `linear-gradient(90deg,transparent,${color},#f9a8d4,${color},transparent)` }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={24} color={color} border="1.5px solid rgba(249,168,212,0.5)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(249,168,212,0.6)" }} />
         </div>
-        <div className="mx-1.5 pb-2 space-y-1">
-          <div className="grid grid-cols-2 gap-1">
-            <div className="h-4 rounded-lg" style={{ background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
-            <div className="h-4 rounded-lg" style={{ background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
+          <div style={{ height: 16, borderRadius: 6, background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
+          <div style={{ height: 16, borderRadius: 6, background: "rgba(249,168,212,0.15)", border: "1px solid rgba(249,168,212,0.2)" }} />
         </div>
       </div>
     ),
@@ -671,23 +709,17 @@ const layouts = [
     name: "Realtor",
     desc: "Property prestige",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden bg-white">
-        <div className="relative flex-1" style={{ background: "linear-gradient(160deg, #0f2027, #203a43, #2c5364)" }}>
-          <div className="absolute inset-x-0 bottom-0 h-4" style={{ background: "linear-gradient(to top, white, transparent)" }} />
-          <div className="p-2 flex flex-col justify-between h-full">
-            <div className="text-right">
-              <div className="inline-block w-6 h-1 rounded" style={{ background: color }} />
-            </div>
-            <div>
-              <div className="w-10 h-1.5 bg-white/80 rounded mb-0.5" />
-              <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.8 }} />
-            </div>
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#fff" }}>
+        <div style={{ flex: 1, position: "relative", background: "linear-gradient(160deg,#0f2027,#203a43,#2c5364)" }}>
+          {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.5 }} />}
+          <div style={{ position: "absolute", bottom: 6, left: 6 }}>
+            <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.85)", marginBottom: 2 }} />
+            <div style={{ height: 2, width: 18, borderRadius: 2, background: color, opacity: 0.8 }} />
           </div>
         </div>
-        <div className="p-1.5 space-y-1 bg-white">
-          <div className="w-full h-2 rounded bg-slate-100" />
-          <div className="w-3/4 h-1.5 rounded" style={{ background: `${color}33` }} />
+        <div style={{ padding: "4px 6px", background: "#fff", display: "flex", flexDirection: "column", gap: 3 }}>
+          <MiniLinkRow color={color} />
         </div>
       </div>
     ),
@@ -697,15 +729,14 @@ const layouts = [
     name: "Animated",
     desc: "Living gradient",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden p-2 gap-1.5" style={{ background: `conic-gradient(from 0deg at 50% 50%, ${color}, #a855f7, #06b6d4, ${color})`, animation: "spin 4s linear infinite" }}>
-        <div className="flex flex-col items-center gap-1 bg-black/20 rounded-lg p-1.5">
-          <div className="w-6 h-6 rounded-full bg-white/80" />
-          <div className="w-10 h-1.5 bg-white/70 rounded" />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: `conic-gradient(from 0deg at 50% 50%, ${color}, #a855f7, #06b6d4, ${color})`, padding: 5, gap: 4 }}>
+        <div style={{ background: "rgba(0,0,0,0.2)", borderRadius: 8, padding: 5, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+          <MiniAvatar profile={profile} size={22} color="#fff" border="2px solid rgba(255,255,255,0.6)" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.8)" }} />
         </div>
-        <div className="space-y-1 bg-black/15 rounded-lg p-1.5">
-          <div className="w-full h-1.5 bg-white/50 rounded-full" />
-          <div className="w-full h-1.5 bg-white/35 rounded-full" />
+        <div style={{ background: "rgba(0,0,0,0.15)", borderRadius: 8, padding: 4 }}>
+          <MiniLinkRow color="#fff" isDark />
         </div>
       </div>
     ),
@@ -715,17 +746,16 @@ const layouts = [
     name: "Video BG",
     desc: "Dynamic video backdrop",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden relative" style={{ background: "linear-gradient(135deg, #0f0f0f, #1a1a2e)" }}>
-        <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%)", backgroundSize: "4px 4px" }} />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-6 h-6 rounded-full border-2 border-white/40 flex items-center justify-center">
-            <div className="w-0 h-0" style={{ borderLeft: "6px solid rgba(255,255,255,0.6)", borderTop: "4px solid transparent", borderBottom: "4px solid transparent", marginLeft: "2px" }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(135deg,#0f0f0f,#1a1a2e)", position: "relative" }}>
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 20, height: 20, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 0, height: 0, borderLeft: "5px solid rgba(255,255,255,0.7)", borderTop: "3px solid transparent", borderBottom: "3px solid transparent", marginLeft: 2 }} />
           </div>
         </div>
-        <div className="absolute bottom-0 left-0 right-0 p-1.5" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }}>
-          <div className="w-10 h-1.5 bg-white/70 rounded mb-0.5" />
-          <div className="w-7 h-1 rounded" style={{ background: color, opacity: 0.8 }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "4px 6px 6px", background: "linear-gradient(to top,rgba(0,0,0,0.8),transparent)" }}>
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.8)", marginBottom: 2 }} />
+          <div style={{ height: 2, width: 18, borderRadius: 2, background: color, opacity: 0.8 }} />
         </div>
       </div>
     ),
@@ -735,43 +765,40 @@ const layouts = [
     name: "Parallax",
     desc: "Depth scroll layers",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "#0a0a0a" }}>
-        <div className="relative" style={{ height: "45%", background: `linear-gradient(160deg, ${color}33, ${color}11)` }}>
-          <div className="absolute inset-0 opacity-30" style={{ background: `radial-gradient(ellipse at 50% 100%, ${color}88 0%, transparent 70%)` }} />
-          <div className="absolute bottom-1 left-0 right-0 flex justify-center">
-            <div className="w-7 h-7 rounded-full border-2 border-white/30" style={{ background: color, boxShadow: `0 4px 16px ${color}66` }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "#0a0a0a" }}>
+        <div style={{ height: "45%", position: "relative", background: `linear-gradient(160deg,${color}33,${color}11)` }}>
+          {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.4 }} />}
+          <div style={{ position: "absolute", bottom: 4, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+            <MiniAvatar profile={profile} size={24} color={color} border="2px solid rgba(255,255,255,0.3)" />
           </div>
         </div>
-        <div className="flex-1 p-1.5 pt-4 space-y-1">
-          <div className="w-12 h-1.5 bg-white/50 rounded mx-auto" />
-          <div className="w-8 h-1 rounded mx-auto" style={{ background: color, opacity: 0.7 }} />
-          <div className="w-full h-2 rounded mt-1" style={{ background: "rgba(255,255,255,0.05)", border: `1px solid ${color}44` }} />
+        <div style={{ flex: 1, padding: "14px 6px 5px", display: "flex", flexDirection: "column", gap: 3 }}>
+          <MiniName isDark />
+          <MiniLinkRow color={color} isDark />
         </div>
       </div>
     ),
   },
-  // ── CHAMPIONSHIP PREMIUM LAYOUTS ─────────────────────────────
   {
     id: "ny_championship",
     name: "🏀 NY Champ",
     desc: "NBA Finals Edition",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#020818,#0B2E6B)" }}>
-        <div className="h-1" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
-        <div className="flex flex-col items-center gap-1 p-2">
-          <div className="text-xs mb-0.5">🏀</div>
-          <div className="w-7 h-7 rounded-full border-2" style={{ borderColor: "#FF7A00", background: color }} />
-          <div className="w-12 h-1.5 bg-white/60 rounded" />
-          <div className="w-10 h-1 rounded" style={{ background: "#FF7A00", opacity: 0.8 }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#020818,#0B2E6B)" }}>
+        <div style={{ height: 3, background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "5px 6px" }}>
+          <span style={{ fontSize: 10 }}>🏀</span>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid #FF7A00" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.7)" }} />
+          <div style={{ height: 2, width: 20, borderRadius: 2, background: "#FF7A00", opacity: 0.8 }} />
         </div>
-        <div className="mx-2 space-y-1 pb-1">
-          <div className="w-full h-2 rounded-full" style={{ background: "rgba(255,122,0,0.25)" }} />
-          <div className="w-full h-2 rounded-full bg-white/10" />
+        <div style={{ margin: "0 5px", flex: 1 }}>
+          <MiniLinkRow color="#FF7A00" isDark />
         </div>
-        <div className="mx-2 mb-1.5 rounded border py-0.5 text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,122,0,0.3)" }}>
-          <span className="text-[8px] font-black" style={{ color: "#FF7A00" }}>CHAMPIONSHIP</span>
+        <div style={{ margin: "3px 5px 4px", borderRadius: 4, border: "1px solid rgba(255,122,0,0.3)", background: "rgba(255,255,255,0.05)", textAlign: "center", padding: "1px 0" }}>
+          <span style={{ fontSize: 7, fontWeight: 900, color: "#FF7A00" }}>CHAMPIONSHIP</span>
         </div>
       </div>
     ),
@@ -781,25 +808,24 @@ const layouts = [
     name: "🦁 Lions",
     desc: "World Cup Edition",
     pro: true,
-    preview: (color) => (
-      <div className="w-full h-full flex flex-col rounded-lg overflow-hidden" style={{ background: "linear-gradient(160deg,#020f06,#004d1a)" }}>
-        <div className="h-1 flex">
-          <div className="flex-1" style={{ background: "#00853F" }} />
-          <div className="flex-1" style={{ background: "#FDEF42" }} />
-          <div className="flex-1" style={{ background: "#E31B23" }} />
+    preview: (color, profile) => (
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", borderRadius: 10, overflow: "hidden", background: "linear-gradient(160deg,#020f06,#004d1a)" }}>
+        <div style={{ height: 3, display: "flex" }}>
+          <div style={{ flex: 1, background: "#00853F" }} />
+          <div style={{ flex: 1, background: "#FDEF42" }} />
+          <div style={{ flex: 1, background: "#E31B23" }} />
         </div>
-        <div className="flex flex-col items-center gap-1 p-2">
-          <div className="text-xs mb-0.5">⚽</div>
-          <div className="w-7 h-7 rounded-full border-2" style={{ borderColor: "#D4AF37", background: color }} />
-          <div className="w-12 h-1.5 bg-white/60 rounded" />
-          <div className="w-10 h-1 rounded" style={{ background: "#D4AF37", opacity: 0.8 }} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "5px 6px" }}>
+          <span style={{ fontSize: 10 }}>⚽</span>
+          <MiniAvatar profile={profile} size={24} color={color} border="2px solid #D4AF37" />
+          <div style={{ height: 3, width: 28, borderRadius: 2, background: "rgba(255,255,255,0.7)" }} />
+          <div style={{ height: 2, width: 20, borderRadius: 2, background: "#D4AF37", opacity: 0.8 }} />
         </div>
-        <div className="mx-2 space-y-1 pb-1">
-          <div className="w-full h-2 rounded-full" style={{ background: "rgba(212,175,55,0.25)" }} />
-          <div className="w-full h-2 rounded-full bg-white/10" />
+        <div style={{ margin: "0 5px", flex: 1 }}>
+          <MiniLinkRow color="#D4AF37" isDark />
         </div>
-        <div className="mx-2 mb-1.5 rounded border py-0.5 text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(212,175,55,0.3)" }}>
-          <span className="text-[8px] font-black" style={{ color: "#FDEF42" }}>LIONS TERANGA</span>
+        <div style={{ margin: "3px 5px 4px", borderRadius: 4, border: "1px solid rgba(212,175,55,0.3)", background: "rgba(255,255,255,0.05)", textAlign: "center", padding: "1px 0" }}>
+          <span style={{ fontSize: 7, fontWeight: 900, color: "#FDEF42" }}>LIONS TERANGA</span>
         </div>
       </div>
     ),
@@ -808,8 +834,8 @@ const layouts = [
 
 export { layouts };
 
-export default function LayoutPicker({ value, onChange, color = "#2563eb", plan = "free", isAdmin = false }) {
-  const isPro = isAdmin || plan === "pro" || plan === "professional" || plan === "business" || plan === "salon" || plan === "restaurant" || plan === "lawfirm" || plan === "corporate";
+export default function LayoutPicker({ value, onChange, color = "#2563eb", plan = "free", isAdmin = false, profile = null }) {
+  const isPro = isAdmin || ["pro", "professional", "business", "salon", "restaurant", "lawfirm", "corporate"].includes(plan);
   return (
     <div>
       <div className="grid grid-cols-4 gap-3">
@@ -823,7 +849,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
                   className="flex flex-col gap-2 p-0 rounded-xl transition-all focus:outline-none hover:ring-2 hover:ring-amber-400 hover:ring-offset-1 block"
                 >
                   <div className="w-full aspect-[3/2] rounded-xl overflow-hidden shadow-sm relative">
-                    <div className="opacity-40 w-full h-full">{layout.preview(color)}</div>
+                    <div className="opacity-40 w-full h-full">{layout.preview(color, profile)}</div>
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 rounded-xl">
                       <span className="text-base">🔒</span>
                       <span className="text-[9px] font-black text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded-full mt-0.5">PRO</span>
@@ -841,7 +867,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
                   }`}
                 >
                   <div className="w-full aspect-[3/2] rounded-xl overflow-hidden shadow-sm">
-                    {layout.preview(color)}
+                    {layout.preview(color, profile)}
                   </div>
                   <div className="text-center pb-1">
                     <p className={`text-xs font-bold ${value === layout.id ? "text-blue-600" : "text-slate-700"}`}>

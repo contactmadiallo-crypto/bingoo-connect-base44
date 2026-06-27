@@ -320,6 +320,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             color={liveForm.cover_color}
             plan={getEffectiveProfilePlan(userPlan, profile)}
             isAdmin={user?.role === "admin"}
+            profile={liveForm}
           />
         </div>
       )}
