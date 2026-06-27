@@ -30,7 +30,6 @@ const CATALOG_CATEGORY = {
   booking:          "business",
   music_link:       "content",
   shop_link:        "content",
-  portfolio_link:   "content",
 };
 
 // Resolve category for a custom_links entry by catalog_id → URL → label fallback
