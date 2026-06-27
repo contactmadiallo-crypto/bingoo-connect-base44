@@ -273,28 +273,36 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
 
   const handleSaveItem = (item, val, label) => {
     if (item.type === "field" && item.field) {
+      // For direct profile fields (phone, email, etc.) — save immediately
       setVal(item.field, val);
+      setEditing(null);
+      // Defer save to next tick so React state flush completes
+      setTimeout(() => onSave("links"), 0);
     } else {
+      // For custom_links — build the new array first, then set + save atomically
       const current = liveForm.custom_links || [];
       const existing = current.findIndex(l => l._catalog_id === item.id);
+      let updated;
       if (existing >= 0) {
-        const updated = [...current];
+        updated = [...current];
         updated[existing] = { ...updated[existing], label, url: val };
-        setVal("custom_links", updated);
       } else {
-        setVal("custom_links", [...current, { id: Date.now().toString(), _catalog_id: item.id, label, url: val, enabled: true }]);
+        updated = [...current, { id: Date.now().toString(), _catalog_id: item.id, label, url: val, enabled: true }];
       }
+      setVal("custom_links", updated);
+      setEditing(null);
+      // Defer save so React flushes the state update before reading liveForm in the mutation
+      setTimeout(() => onSave("links"), 0);
     }
-    setEditing(null);
-    onSave("links");
   };
 
   const handleAddWebLink = () => {
     if (!webLabel || !webUrl || webUrl === "https://") return;
     const current = liveForm.custom_links || [];
-    setVal("custom_links", [...current, { id: Date.now().toString(), label: webLabel, url: webUrl, enabled: true }]);
+    const updated = [...current, { id: Date.now().toString(), label: webLabel, url: webUrl, enabled: true }];
+    setVal("custom_links", updated);
     setWebLabel(""); setWebUrl("https://"); setWebOpen(false);
-    onSave("links");
+    setTimeout(() => onSave("links"), 0);
   };
 
   const addedCount = LINK_CATALOG.filter(i => isAdded(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);

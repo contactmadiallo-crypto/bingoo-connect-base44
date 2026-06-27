@@ -227,7 +227,8 @@ export function CardLayout({ profile, color, isDark, mobile, contentSections }) 
         ) : (
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.55)})` }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${hexRgb(color, 0.45)}, transparent)` }} />
+        {/* Subtle left-edge tint — keep image visible */}
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${hexRgb(color, 0.25)}, transparent)` }} />
       </div>
 
       {/* Floating card — overlaps strip */}
@@ -645,7 +646,7 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.55)}, rgba(0,0,0,0.2))` }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.28)}, transparent)` }} />
         </div>
       )}
 
