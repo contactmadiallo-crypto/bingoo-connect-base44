@@ -151,17 +151,17 @@ const Div = ({ isDark }) => (
   <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.07)" : "#f0f0f0", margin: "22px 0" }} />
 );
 
-function IconGridItem({ href, onClick, icon, label, ev, track, isDark }) {
+function IconGridItem({ href, onClick, icon, label, ev, track, isDark, tileSize = 58 }) {
   const inner = (
     <motion.div
-      whileHover={{ scale: 1.08, y: -2 }} whileTap={{ scale: 0.93 }}
-      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer" }}
+      whileHover={{ scale: 1.06, y: -1 }} whileTap={{ scale: 0.93 }}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", width: "100%" }}
     >
-      <div style={{ borderRadius: 17, overflow: "hidden", boxShadow: "0 3px 12px rgba(0,0,0,0.15)", flexShrink: 0 }}>
+      <div style={{ borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 10px rgba(0,0,0,0.13)", flexShrink: 0, width: tileSize, height: tileSize, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {icon}
       </div>
-      <span style={{ fontSize: 10, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b",
-        textAlign: "center", maxWidth: 60, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+      <span style={{ fontSize: 9.5, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b",
+        textAlign: "center", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontFamily: FONT_BODY }}>
         {label}
       </span>
@@ -230,20 +230,39 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
 }
 
 // ── Icon grid row renderer ────────────────────────────────────
-function IconRow({ items, isDark, track, delay = 0.3, justify = "center", maxInline = 5 }) {
+// wrap=true → CSS grid that wraps (social), wrap=false → single scrollable flex row (contact)
+function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
   if (!items.length) return null;
+
+  if (wrap) {
+    // Wrapping grid: 5 columns on mobile, auto-fit on desktop
+    return (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
+        style={{ marginBottom: 18 }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+          gap: 10,
+          padding: "2px 0 4px",
+        }}>
+          {items.map((item, i) => (
+            <IconGridItem key={item.label + i} {...item} track={track} isDark={isDark} tileSize={58} />
+          ))}
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Non-wrapping: single centered flex row (contact actions — max 4-5 items)
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
-      style={{ marginBottom: 18, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+      style={{ marginBottom: 18 }}>
       <div style={{
-        display: "flex", gap: 12,
-        justifyContent: items.length <= maxInline ? justify : "flex-start",
-        minWidth: "max-content", padding: "2px 2px 4px",
+        display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap",
+        padding: "2px 0 4px",
       }}>
         {items.map((item, i) => (
-          <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
-            <IconGridItem {...item} track={track} isDark={isDark} />
-          </div>
+          <IconGridItem key={item.label + i} {...item} track={track} isDark={isDark} tileSize={58} />
         ))}
       </div>
     </motion.div>
@@ -292,30 +311,30 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
   // ── Primary contact row ───────────────────────────────────────────────────
   const contactIcons = [
-    profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={54} />, label: "Call", ev: "phone_click" },
+    profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: "Call", ev: "phone_click" },
     isSalonOrRestaurant && waBookingHref && !hiddenLinks.has("whatsapp_number")
-      ? { href: waBookingHref, icon: <BIWhatsApp size={54} />, label: "Book WA", ev: "whatsapp_click" }
-      : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={54} />, label: "WhatsApp", ev: "whatsapp_click" },
-    profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={54} />, label: "Email", ev: "email_click" },
-    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={54} />, label: "Book", ev: null },
+      ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
+      : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" },
+    profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
+    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book", ev: null },
     // Booking custom link goes into contact row too
     ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
       href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
-      icon: <BICalendar size={54} />, label: l.label, ev: null,
+      icon: <BICalendar size={58} />, label: l.label, ev: null,
     })),
   ].filter(Boolean);
 
   // ── Social row: profile fields + custom_links categorized as social ───────
   const socialIcons = [
-    profile.instagram_url && !hiddenLinks.has("instagram_url") && { href: profile.instagram_url, icon: <BIInstagram size={54} />, label: "Instagram", ev: "instagram_click" },
-    profile.facebook_url && !hiddenLinks.has("facebook_url") && { href: profile.facebook_url, icon: <BIFacebook size={54} />, label: "Facebook", ev: "facebook_click" },
-    profile.tiktok_url && !hiddenLinks.has("tiktok_url") && { href: profile.tiktok_url, icon: <BITikTok size={54} />, label: "TikTok", ev: "tiktok_click" },
-    profile.linkedin_url && !hiddenLinks.has("linkedin_url") && { href: profile.linkedin_url, icon: <BILinkedIn size={54} />, label: "LinkedIn", ev: "linkedin_click" },
-    profile.youtube_url && !hiddenLinks.has("youtube_url") && { href: profile.youtube_url, icon: <BIYouTube size={54} />, label: "YouTube", ev: "youtube_click" },
+    profile.instagram_url && !hiddenLinks.has("instagram_url") && { href: profile.instagram_url, icon: <BIInstagram size={58} />, label: "Instagram", ev: "instagram_click" },
+    profile.facebook_url && !hiddenLinks.has("facebook_url") && { href: profile.facebook_url, icon: <BIFacebook size={58} />, label: "Facebook", ev: "facebook_click" },
+    profile.tiktok_url && !hiddenLinks.has("tiktok_url") && { href: profile.tiktok_url, icon: <BITikTok size={58} />, label: "TikTok", ev: "tiktok_click" },
+    profile.linkedin_url && !hiddenLinks.has("linkedin_url") && { href: profile.linkedin_url, icon: <BILinkedIn size={58} />, label: "LinkedIn", ev: "linkedin_click" },
+    profile.youtube_url && !hiddenLinks.has("youtube_url") && { href: profile.youtube_url, icon: <BIYouTube size={58} />, label: "YouTube", ev: "youtube_click" },
     // Custom social links (Snapchat, Twitter, Threads, Pinterest, Discord, Twitch)
     ...clSocial.map(l => ({
       href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
-      icon: getLinkBrandIcon(l, 54),
+      icon: getLinkBrandIcon(l, 58),
       label: l.label,
       ev: null,
     })),
@@ -379,19 +398,19 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Contact row: Call / WhatsApp / Email / Book ── */}
       <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
 
-      {/* ── Social row: all social platforms including custom ones ── */}
-      <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} maxInline={5} />
+      {/* ── Social row: wrapping grid, 5 per row ── */}
+      <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
 
-      {/* ── Content custom links (Spotify, Shop, Portfolio) as icon grid ── */}
+      {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
       {clContent.length > 0 && (
         <IconRow
           items={clContent.map(l => ({
             href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
-            icon: getLinkBrandIcon(l, 54),
+            icon: getLinkBrandIcon(l, 58),
             label: l.label,
             ev: null,
           }))}
-          isDark={isDark} track={track} delay={0.36} maxInline={5}
+          isDark={isDark} track={track} delay={0.36} wrap={true}
         />
       )}
 
