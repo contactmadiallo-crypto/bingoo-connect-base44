@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { X, Plus, Check, Search, ChevronLeft } from "lucide-react";
 import {
   InstagramIcon, LinkedInIcon, FacebookIcon, TikTokIcon,
@@ -148,9 +148,15 @@ const CATEGORY_LABELS = {
 };
 
 // ── Focused form for editing a single link item ──────────────────────────────
-function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark }) {
+// Returns [formEl, saveCallback] so parent can render a sticky Save button
+function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark, saveRef }) {
   const [val, setVal]     = useState(currentValue || "");
   const [label, setLabel] = useState(currentLabel || item.label);
+
+  // Expose save fn to parent via ref — update on every render so val/label are always fresh
+  useEffect(() => {
+    if (saveRef) saveRef.current = () => onSave(val, label);
+  });
 
   const inputCls = `w-full px-3 py-2.5 rounded-xl text-sm border outline-none transition-all ${
     isDark
@@ -159,7 +165,7 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
   }`;
 
   return (
-    <div className="flex flex-col h-full">
+    <div>
       <div className="flex items-center gap-3 mb-5">
         <button onClick={onBack} className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/8 text-white/60" : "hover:bg-slate-100 text-slate-500"}`}>
           <ChevronLeft className="w-4 h-4" />
@@ -170,7 +176,7 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
         </div>
       </div>
 
-      <div className="space-y-4 flex-1">
+      <div className="space-y-4">
         <div>
           <label className={`block text-xs font-bold mb-1.5 ${isDark ? "text-white/50" : "text-slate-500"}`}>Label</label>
           <input
@@ -190,13 +196,6 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
           />
         </div>
       </div>
-
-      <button
-        onClick={() => onSave(val, label)}
-        className="mt-5 w-full py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
-        style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
-        Save
-      </button>
     </div>
   );
 }
@@ -236,6 +235,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
   const [cat, setCat]           = useState("all");
   const [search, setSearch]     = useState("");
   const [editing, setEditing]   = useState(null);
+  const editSaveRef             = useRef(null);
   const [webOpen, setWebOpen]   = useState(false);
   const [webLabel, setWebLabel] = useState("");
   const [webUrl, setWebUrl]     = useState("https://");
@@ -343,16 +343,37 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
       )}
 
       {editing ? (
-        <div className="flex-1 overflow-y-auto px-4 py-4">
-          <LinkEditForm
-            item={editing}
-            currentValue={getFieldValue(editing)}
-            currentLabel={editing.label}
-            onSave={(val, label) => handleSaveItem(editing, val, label)}
-            onBack={() => setEditing(null)}
-            isDark={isDark}
-          />
-        </div>
+        <>
+          {/* Scrollable form content with bottom padding to clear sticky button */}
+          <div className="flex-1 overflow-y-auto px-4 py-4"
+            style={{ paddingBottom: "calc(96px + env(safe-area-inset-bottom))" }}>
+            <LinkEditForm
+              item={editing}
+              currentValue={getFieldValue(editing)}
+              currentLabel={editing.label}
+              onSave={(val, label) => handleSaveItem(editing, val, label)}
+              onBack={() => setEditing(null)}
+              isDark={isDark}
+              saveRef={editSaveRef}
+            />
+          </div>
+          {/* Sticky Save — fixed above bottom nav, always visible */}
+          <div style={{
+            position: "fixed",
+            bottom: "calc(72px + env(safe-area-inset-bottom))",
+            left: 0,
+            right: 0,
+            padding: "0 16px",
+            zIndex: 100,
+          }}>
+            <button
+              onClick={() => editSaveRef.current?.()}
+              className="w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
+              style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.4)" }}>
+              Save
+            </button>
+          </div>
+        </>
       ) : (
         <>
           {/* Category pills + Search */}
