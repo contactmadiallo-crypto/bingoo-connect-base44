@@ -85,6 +85,12 @@ const ShopIcon = ({ size = 20 }) => (
     <svg viewBox="0 0 24 24" fill="white" style={S(size)}><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12zM12 13c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
   </AppBox>
 );
+const PortfolioIcon = ({ size = 20 }) => (
+  <AppBox bg="linear-gradient(145deg,#7c3aed,#5b21b6)" size={size + 20} radius={Math.round((size + 20) * 0.24)}>
+    <svg viewBox="0 0 24 24" fill="white" style={S(size)}><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+  </AppBox>
+);
+
 // ── Link catalog with real brand icons ───────────────────────────────────────
 const LINK_CATALOG = [
   // Contact
@@ -117,6 +123,7 @@ const LINK_CATALOG = [
   // Content
   { id: "music_link",      label: "Music / Spotify",  category: "content",  Icon: SpotifyIcon,     field: null,               placeholder: "https://open.spotify.com/...",type: "custom" },
   { id: "shop_link",       label: "Online Shop",      category: "content",  Icon: ShopIcon,        field: null,               placeholder: "https://yourshop.com/...",   type: "custom" },
+  { id: "portfolio_link",  label: "Portfolio Site",   category: "content",  Icon: PortfolioIcon,   field: null,               placeholder: "https://yourportfolio.com/...",type: "custom" },
 ];
 
 const CATEGORIES = [

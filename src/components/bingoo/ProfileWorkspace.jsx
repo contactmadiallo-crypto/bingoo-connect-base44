@@ -24,7 +24,7 @@ import {
   LocationIcon as BILocation, TwitterXIcon as BITwitterX, SnapchatIcon as BISnapchat,
   PinterestIcon as BIPinterest, DiscordIcon as BIDiscord, TwitchIcon as BITwitch,
   ThreadsIcon as BIThreads, VenmoIcon as BIVenmo, SpotifyIcon as BISpotify,
-  ShopIcon as BIShop, CalendarIcon as BICalendar,
+  ShopIcon as BIShop, PortfolioIcon as BIPortfolio, CalendarIcon as BICalendar,
 } from "@/components/bingoo/BrandIcons";
 
 // Resolve a brand icon from a custom_link by _catalog_id or URL domain
@@ -58,6 +58,7 @@ function getLinkIcon(link, size = 14) {
     venmo_url:        BIVenmo,
     music_link:       BISpotify,
     shop_link:        BIShop,
+    portfolio_link:   BIPortfolio,
     booking:          BICalendar,
   };
 

@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
+import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
@@ -24,7 +25,7 @@ import {
   TwitterXIcon, SnapchatIcon, PinterestIcon, DiscordIcon, TwitchIcon, ThreadsIcon,
   PayPalIcon, CashAppIcon as BICashApp, ZelleIcon as BIZelle, VenmoIcon,
   WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney, SpotifyIcon,
-  CalendarIcon as BICalendar, ShopIcon, LocationIcon as BILocation,
+  CalendarIcon as BICalendar, ShopIcon, PortfolioIcon, LocationIcon as BILocation,
 } from "@/components/bingoo/BrandIcons";
 import { getLinkCategory } from "@/lib/linkCategories";
 
@@ -62,6 +63,7 @@ const CATALOG_ICON_MAP = {
   music_link:       SpotifyIcon,
   booking:          BICalendar,
   shop_link:        ShopIcon,
+  portfolio_link:   PortfolioIcon,
 };
 
 // Resolve icon by catalog_id first, then URL domain, then label keywords
@@ -110,6 +112,7 @@ function getLinkBrandIcon(link, size = 32) {
   if (label.includes("twitch"))    return <TwitchIcon size={size} />;
   if (label.includes("pinterest")) return <PinterestIcon size={size} />;
   if (label.includes("shop"))      return <ShopIcon size={size} />;
+  if (label.includes("portfolio")) return <PortfolioIcon size={size} />;
   if (label.includes("book") || label.includes("calendly")) return <BICalendar size={size} />;
   return <BIWebsite size={size} />;
 }
@@ -299,8 +302,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const clSocial   = activeCustomLinks.filter(l => getLinkCategory(l) === "social");
   const clPayment  = activeCustomLinks.filter(l => getLinkCategory(l) === "payment");
   const clBusiness = activeCustomLinks.filter(l => getLinkCategory(l) === "business");
-  // portfolio_link is excluded from all rendering
-  const clContent  = activeCustomLinks.filter(l => getLinkCategory(l) === "content" && l._catalog_id !== "portfolio_link");
+  const clContent  = activeCustomLinks.filter(l => getLinkCategory(l) === "content");
   // True generic custom links (no known category)
   const clGeneric  = activeCustomLinks.filter(l => {
     const cat = getLinkCategory(l);
@@ -399,7 +401,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Social row: wrapping grid, 5 per row ── */}
       <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
 
-      {/* ── Content custom links (Spotify, Shop) as wrapping icon grid ── */}
+      {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
       {clContent.length > 0 && (
         <IconRow
           items={clContent.map(l => ({
@@ -539,6 +541,11 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
       {/* ── Resume ── */}
       <ProfileResumeSection profileId={profile.id} color={color} isDark={isDark} showDivider />
+
+      {/* ── Portfolio ── */}
+      <Div isDark={isDark} />
+      <SLabel isDark={isDark}>Portfolio</SLabel>
+      <PortfolioSection profileId={profile.id} color={color} />
 
       {/* ── Attorneys ── */}
       {isLawFirmProfile && (
