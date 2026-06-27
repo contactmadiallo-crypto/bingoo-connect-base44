@@ -68,7 +68,7 @@ function AvatarRing({ profile, size, ringColor = "#fff", ringWidth = 4, shadow, 
 }
 
 // ── Cover helpers ──────────────────────────────────────────────
-function CoverBg({ profile, height, color, dimOpacity = 0.18, children, style = {} }) {
+function CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = {} }) {
   return (
     <div style={{ height, position: "relative", flexShrink: 0, ...style }}>
       {profile?.cover_photo ? (
@@ -112,7 +112,7 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
           <div style={{ position: "absolute", inset: 0,
             background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 70%, " + bg + " 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.22) 60%, " + bg + " 100%)" }} />
         {profile?.company_logo && (
           <div style={{ position: "absolute", top: 16, right: 16, zIndex: 5,
             width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.95)",
@@ -176,10 +176,10 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
 
       {/* Cover strip — only if cover photo exists */}
       {profile?.cover_photo && (
-        <div style={{ height: 90, position: "relative" }}>
+        <div style={{ height: 110, position: "relative" }}>
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.55)}, transparent)` }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.32)}, transparent)` }} />
         </div>
       )}
 
@@ -284,9 +284,9 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
             <div style={{ width: "100%", height: "100%",
               background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.6)} 60%, ${hexRgb(color, 0.3)} 100%)` }} />
           )}
-          {/* Gradient overlay for name legibility */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%",
-            background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)" }} />
+          {/* Gradient overlay for name legibility — only at bottom 40% */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "45%",
+            background: "linear-gradient(to top, rgba(0,0,0,0.60) 0%, transparent 100%)" }} />
 
           {/* Company logo */}
           {profile?.company_logo && (
@@ -352,7 +352,8 @@ export function GlassLayout({ profile, color, isDark, mobile, contentSections })
         <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
           <img src={profile.cover_photo} alt=""
             style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(155deg, ${hexRgb(color, 0.7)}, ${hexRgb(color, 0.4)})` }} />
+          {/* Light tint only — image must remain clearly visible */}
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(155deg, ${hexRgb(color, 0.38)}, ${hexRgb(color, 0.18)})` }} />
         </div>
       )}
 
@@ -417,7 +418,7 @@ export function DarkPremiumLayout({ profile, color, mobile, contentSections }) {
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.45, mixBlendMode: "luminosity" }} />
+              opacity: 0.72 }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, #0a0f1e 100%)" }} />
         {/* Glow blob */}
@@ -476,12 +477,12 @@ export function AuroraLayout({ profile, color, mobile, contentSections }) {
         <div style={{ position: "absolute", top: 50, right: "12%", width: 160, height: 110, background: "#a855f7", filter: "blur(90px)", opacity: 0.14, borderRadius: "50%", pointerEvents: "none" }} />
 
         <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          {/* Cover photo — small circular medallion if available */}
+          {/* Cover photo — banner strip behind the glow orbs */}
           {profile?.cover_photo && (
-            <div style={{ position: "absolute", top: -20, right: 20, width: 48, height: 48, borderRadius: 12,
-              overflow: "hidden", border: "2px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 100, overflow: "hidden", zIndex: 0 }}>
               <img src={profile.cover_photo} alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.6 }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(15,12,41,0.3) 0%, rgba(15,12,41,0.95) 100%)" }} />
             </div>
           )}
           <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`,
@@ -526,7 +527,7 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.72))" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55))" }} />
         {/* Magazine title tag */}
         <div style={{ position: "absolute", top: 16, left: 16, padding: "4px 12px",
           background: color, borderRadius: 4, zIndex: 2 }}>
@@ -697,7 +698,8 @@ export function ColorLayout({ profile, color, isDark, mobile, contentSections })
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", opacity: 0.22, mixBlendMode: "overlay", pointerEvents: "none" }} />
+              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              opacity: 0.35, pointerEvents: "none" }} />
         )}
         {profile?.company_logo && (
           <div style={{ position: "absolute", top: 14, right: 14, width: 40, height: 40,
@@ -752,12 +754,12 @@ export function NeonLayout({ profile, color, mobile, contentSections }) {
         textAlign: "center", position: "relative",
         borderBottom: `1px solid ${hexRgb(neon, 0.2)}`,
       }}>
-        {/* Cover photo — full-width behind scanlines */}
+        {/* Cover photo — visible banner behind scanlines */}
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.12, mixBlendMode: "color-dodge" }} />
+              opacity: 0.45 }} />
         )}
         {/* Scanline overlay */}
         <div style={{ position: "absolute", inset: 0,
@@ -817,7 +819,7 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center",
-              filter: "sepia(40%) saturate(80%) brightness(0.85)" }} />
+              filter: "sepia(20%) saturate(90%) brightness(0.95)" }} />
           <div style={{ position: "absolute", inset: 0,
             background: `linear-gradient(to bottom, transparent 40%, ${pageBg} 100%)` }} />
         </div>
@@ -934,7 +936,7 @@ export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.4, mixBlendMode: "luminosity" }} />
+              opacity: 0.65 }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 25%, #0c0700 100%)" }} />
         {/* Gold glow */}

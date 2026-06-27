@@ -35,41 +35,92 @@ const hexRgb = (hex, alpha = 1) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
+// Canonical catalog_id → BrandIcon map (single source of truth)
 const CATALOG_ICON_MAP = {
-  phone: BIPhone, whatsapp_number: BIWhatsApp, email: BIEmail, website: BIWebsite,
-  location: BILocation, instagram_url: BIInstagram, linkedin_url: BILinkedIn,
-  facebook_url: BIFacebook, tiktok_url: BITikTok, youtube_url: BIYouTube,
-  twitter_url: TwitterXIcon, snapchat_url: SnapchatIcon, pinterest_url: PinterestIcon,
-  discord_url: DiscordIcon, twitch_url: TwitchIcon, threads_url: ThreadsIcon,
-  payment_link: PayPalIcon, cashapp_link: BICashApp, zelle_link: BIZelle, venmo_url: VenmoIcon,
-  wave_link: BIWave, orangemoney_link: BIOrangeMoney, music_link: SpotifyIcon,
-  booking: BICalendar, shop_link: ShopIcon, portfolio_link: PortfolioIcon,
+  phone:            BIPhone,
+  whatsapp_number:  BIWhatsApp,
+  email:            BIEmail,
+  website:          BIWebsite,
+  location:         BILocation,
+  instagram_url:    BIInstagram,
+  linkedin_url:     BILinkedIn,
+  facebook_url:     BIFacebook,
+  tiktok_url:       BITikTok,
+  youtube_url:      BIYouTube,
+  twitter_url:      TwitterXIcon,
+  snapchat_url:     SnapchatIcon,
+  pinterest_url:    PinterestIcon,
+  discord_url:      DiscordIcon,
+  twitch_url:       TwitchIcon,
+  threads_url:      ThreadsIcon,
+  payment_link:     PayPalIcon,
+  cashapp_link:     BICashApp,
+  zelle_link:       BIZelle,
+  venmo_url:        VenmoIcon,
+  wave_link:        BIWave,
+  orangemoney_link: BIOrangeMoney,
+  music_link:       SpotifyIcon,
+  booking:          BICalendar,
+  shop_link:        ShopIcon,
+  portfolio_link:   PortfolioIcon,
 };
 
-function LinkIcon({ link, size = 32 }) {
+// Resolve icon by catalog_id first, then URL domain, then label keywords
+function getLinkBrandIcon(link, size = 32) {
+  // 1. Canonical _catalog_id — always wins
   const byId = link._catalog_id ? CATALOG_ICON_MAP[link._catalog_id] : null;
   if (byId) { const Ic = byId; return <Ic size={size} />; }
+
+  // 2. URL domain inference
+  const url = (link.url || "").toLowerCase();
+  if (url.includes("snapchat.com"))  return <SnapchatIcon size={size} />;
+  if (url.includes("instagram.com")) return <BIInstagram size={size} />;
+  if (url.includes("facebook.com") || url.includes("fb.com")) return <BIFacebook size={size} />;
+  if (url.includes("tiktok.com"))    return <BITikTok size={size} />;
+  if (url.includes("linkedin.com"))  return <BILinkedIn size={size} />;
+  if (url.includes("youtube.com") || url.includes("youtu.be")) return <BIYouTube size={size} />;
+  if (url.includes("x.com") || url.includes("twitter.com"))    return <TwitterXIcon size={size} />;
+  if (url.includes("threads.net"))   return <ThreadsIcon size={size} />;
+  if (url.includes("pinterest.com")) return <PinterestIcon size={size} />;
+  if (url.includes("discord."))      return <DiscordIcon size={size} />;
+  if (url.includes("twitch.tv"))     return <TwitchIcon size={size} />;
+  if (url.includes("paypal."))       return <PayPalIcon size={size} />;
+  if (url.includes("cash.app") || url.includes("cashapp")) return <BICashApp size={size} />;
+  if (url.includes("venmo.com"))     return <VenmoIcon size={size} />;
+  if (url.includes("zelle") || url.includes("zellepay")) return <BIZelle size={size} />;
+  if (url.includes("wave.com"))      return <BIWave size={size} />;
+  if (url.includes("orange"))        return <BIOrangeMoney size={size} />;
+  if (url.includes("spotify.com"))   return <SpotifyIcon size={size} />;
+  if (url.includes("calendly.com") || url.includes("cal.com")) return <BICalendar size={size} />;
+
+  // 3. Label keyword fallback
   const label = (link.label || "").toLowerCase();
+  if (label.includes("snapchat"))  return <SnapchatIcon size={size} />;
   if (label.includes("instagram")) return <BIInstagram size={size} />;
-  if (label.includes("facebook")) return <BIFacebook size={size} />;
-  if (label.includes("tiktok")) return <BITikTok size={size} />;
-  if (label.includes("linkedin")) return <BILinkedIn size={size} />;
-  if (label.includes("youtube")) return <BIYouTube size={size} />;
-  if (label.includes("paypal")) return <PayPalIcon size={size} />;
-  if (label.includes("cash")) return <BICashApp size={size} />;
-  if (label.includes("zelle")) return <BIZelle size={size} />;
-  if (label.includes("venmo")) return <VenmoIcon size={size} />;
-  if (label.includes("wave")) return <BIWave size={size} />;
-  if (label.includes("orange")) return <BIOrangeMoney size={size} />;
+  if (label.includes("facebook"))  return <BIFacebook size={size} />;
+  if (label.includes("tiktok"))    return <BITikTok size={size} />;
+  if (label.includes("linkedin"))  return <BILinkedIn size={size} />;
+  if (label.includes("youtube"))   return <BIYouTube size={size} />;
+  if (label.includes("twitter") || label.includes("x.com") || label === "x") return <TwitterXIcon size={size} />;
+  if (label.includes("thread"))    return <ThreadsIcon size={size} />;
+  if (label.includes("paypal"))    return <PayPalIcon size={size} />;
+  if (label.includes("cash"))      return <BICashApp size={size} />;
+  if (label.includes("zelle"))     return <BIZelle size={size} />;
+  if (label.includes("venmo"))     return <VenmoIcon size={size} />;
+  if (label.includes("wave"))      return <BIWave size={size} />;
+  if (label.includes("orange"))    return <BIOrangeMoney size={size} />;
   if (label.includes("spotify") || label.includes("music")) return <SpotifyIcon size={size} />;
-  if (label.includes("discord")) return <DiscordIcon size={size} />;
-  if (label.includes("twitch")) return <TwitchIcon size={size} />;
-  if (label.includes("thread")) return <ThreadsIcon size={size} />;
+  if (label.includes("discord"))   return <DiscordIcon size={size} />;
+  if (label.includes("twitch"))    return <TwitchIcon size={size} />;
   if (label.includes("pinterest")) return <PinterestIcon size={size} />;
-  if (label.includes("shop")) return <ShopIcon size={size} />;
+  if (label.includes("shop"))      return <ShopIcon size={size} />;
   if (label.includes("portfolio")) return <PortfolioIcon size={size} />;
   if (label.includes("book") || label.includes("calendly")) return <BICalendar size={size} />;
   return <BIWebsite size={size} />;
+}
+
+function LinkIcon({ link, size = 32 }) {
+  return getLinkBrandIcon(link, size);
 }
 
 const saveContact = (profile) => {
@@ -213,7 +264,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     }
   };
 
-  // Contact + social icons for the grid
+  // ── Primary contact row: Call / WhatsApp / Email / Book ──────────────
   const contactIcons = [
     profile.phone && { href: `tel:${profile.phone}`, icon: <BIPhone size={54} />, label: "Call", ev: "phone_click" },
     isSalonOrRestaurant && waBookingHref
@@ -223,6 +274,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={54} />, label: "Book", ev: null },
   ].filter(Boolean);
 
+  // ── Social row: Instagram / Facebook / TikTok / LinkedIn / YouTube / etc. ─
   const socialIcons = [
     profile.instagram_url && { href: profile.instagram_url, icon: <BIInstagram size={54} />, label: "Instagram", ev: "instagram_click" },
     profile.facebook_url && { href: profile.facebook_url, icon: <BIFacebook size={54} />, label: "Facebook", ev: "facebook_click" },
@@ -230,8 +282,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     profile.linkedin_url && { href: profile.linkedin_url, icon: <BILinkedIn size={54} />, label: "LinkedIn", ev: "linkedin_click" },
     profile.youtube_url && { href: profile.youtube_url, icon: <BIYouTube size={54} />, label: "YouTube", ev: "youtube_click" },
   ].filter(Boolean);
-
-  const allIcons = [...contactIcons, ...socialIcons];
 
   const payments = [
     (profile.zelle_qr || profile.zelle_link) && { e: "zelle", l: "Zelle", h: profile.zelle_link || null, qr: profile.zelle_qr || null },
@@ -285,13 +335,37 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </motion.p>
       )}
 
-      {/* ── Contact + Social icon grid ── */}
-      {allIcons.length > 0 && (
+      {/* ── Primary contact row: Call / WhatsApp / Email / Book ── */}
+      {contactIcons.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          style={{ marginBottom: 24 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "18px 8px" }}>
-            {allIcons.map((item, i) => (
-              <IconGridItem key={item.label + i} {...item} track={track} isDark={isDark} />
+          style={{ marginBottom: 18, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <div style={{
+            display: "flex", gap: 12,
+            justifyContent: contactIcons.length <= 4 ? "center" : "flex-start",
+            minWidth: "max-content", padding: "2px 2px 4px",
+          }}>
+            {contactIcons.map((item, i) => (
+              <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
+                <IconGridItem {...item} track={track} isDark={isDark} />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Social row: Instagram / Facebook / TikTok / LinkedIn / YouTube ── */}
+      {socialIcons.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.33 }}
+          style={{ marginBottom: 24, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <div style={{
+            display: "flex", gap: 12,
+            justifyContent: socialIcons.length <= 5 ? "center" : "flex-start",
+            minWidth: "max-content", padding: "2px 2px 4px",
+          }}>
+            {socialIcons.map((item, i) => (
+              <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
+                <IconGridItem {...item} track={track} isDark={isDark} />
+              </div>
             ))}
           </div>
         </motion.div>

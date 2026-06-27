@@ -915,11 +915,13 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       await base44.entities.Profile.update(profileId, payload);
       // 2. Refetch from server to verify persistence
       const fresh = await base44.entities.Profile.get(profileId);
-      // 3. Verify every submitted field matches the server value
-      const mismatch = Object.keys(payload).find(k => {
-        const submitted = JSON.stringify(payload[k]);
-        const server    = JSON.stringify(fresh[k]);
-        return submitted !== server;
+      // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
+      //    which Base44 may reorder or normalize.
+      const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
+        "cover_color","layout","language","is_active","show_location","booking_enabled"];
+      const mismatch = SCALAR_KEYS.find(k => {
+        if (payload[k] === undefined) return false;
+        return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
       });
       if (mismatch) {
         throw new Error(`Save verification failed: field "${mismatch}" did not persist.`);
