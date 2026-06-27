@@ -172,89 +172,93 @@ function AvatarLayer({ profile, size, ringColor, ringWidth = 4, shadow, placemen
 }
 
 // ═══════════════════════════════════════════════════════════
-// 1. CLASSIC — Circo-inspired: full-bleed cover, centered avatar overlap,
-//    frosted name pill, white rounded content card
+// 1. CLASSIC — True Circo style: full-card background color/image,
+//    avatar centered on bg, name centered in white below, clean link rows
 // ═══════════════════════════════════════════════════════════
 export function ClassicLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size    = mobile ? 108 : 124;
-  const coverH  = mobile ? 240 : 290;
-  const ringW   = 5;
-  const bg      = isDark ? "#111827" : "#f0f2f5";
-  const cardBg  = isDark ? "#1e293b" : "#fff";
-  const text    = isDark ? "#fff" : "#0f172a";
-  const sub     = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
-  const placement = profile?.avatar_placement || "center_overlap";
+  const size   = mobile ? 96 : 112;
+  const ringW  = 4;
+  const bg     = isDark ? "#111827" : "#f2f4f7";
+  const cardBg = isDark ? "#1e293b" : "#fff";
+  const text   = isDark ? "#fff" : "#0f172a";
+  const sub    = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
+
+  // Hero height — taller to feel immersive like Circo
+  const heroH  = mobile ? 280 : 340;
+  // Avatar sits halfway out of the hero
+  const pullUp = (size + ringW * 2) / 2;
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
 
-      {/* ── Full-bleed cover — NO overflow:hidden so avatar sibling can overlap ── */}
-      <CoverImage profile={profile} height={coverH} color={color} dimOpacity={profile?.cover_photo ? 0.18 : 0}>
-        {/* Bottom gradient fade into bg */}
-        <div style={{
-          position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
-          background: `linear-gradient(to bottom, transparent, ${bg})`,
-          pointerEvents: "none",
-        }} />
+      {/* ── HERO: full-bleed color or image background ── */}
+      <div style={{ position: "relative", height: heroH }}>
+        {/* Background: photo or gradient */}
+        {profile?.cover_photo
+          ? <img src={profile.cover_photo} alt=""
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+          : <div style={{ position: "absolute", inset: 0,
+              background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
+        }
+        {/* Dark overlay for photo legibility */}
+        {profile?.cover_photo && (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
+        )}
+        {/* Bottom fade into page bg */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80,
+          background: `linear-gradient(to bottom, transparent, ${bg})` }} />
+
+        {/* Company logo top-right */}
         {profile?.company_logo && (
-          <div style={{ position: "absolute", top: 16, right: 16, zIndex: 3,
-            width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.92)",
-            padding: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.18)", overflow: "hidden",
-            backdropFilter: "blur(8px)" }}>
+          <div style={{ position: "absolute", top: 16, right: 16, zIndex: 5,
+            width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.95)",
+            padding: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", overflow: "hidden" }}>
             <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
         )}
-      </CoverImage>
+      </div>
 
-      {/* ── Avatar — sibling of cover, centered, large white ring ── */}
-      <AvatarLayer
-        profile={profile} size={size}
-        ringColor={cardBg} ringWidth={ringW}
-        shadow={`0 0 0 2px ${hexRgb(color, 0.2)}, 0 20px 56px rgba(0,0,0,0.22)`}
-        placement={placement}
-      />
-
-      {/* ── Identity block — clean centered name ── */}
-      <div style={{
-        textAlign: "center",
-        padding: mobile ? "14px 24px 0" : "18px 40px 0",
-        position: "relative", zIndex: 5,
-      }}>
-        <h1 style={{
-          margin: "0 0 5px", fontSize: mobile ? 24 : 29,
-          fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.01em",
+      {/* ── AVATAR: centered, overlapping hero ── */}
+      <div style={{ display: "flex", justifyContent: "center", position: "relative",
+        zIndex: 20, marginTop: -pullUp }}>
+        <div style={{
+          padding: ringW,
+          borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
+          background: cardBg,
+          boxShadow: `0 0 0 2px ${hexRgb(color, 0.15)}, 0 16px 48px rgba(0,0,0,0.24)`,
         }}>
+          <AvatarRenderer profile={profile} size={size} />
+        </div>
+      </div>
+
+      {/* ── IDENTITY: centered name block ── */}
+      <div style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0",
+        position: "relative", zIndex: 5 }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900,
+          color: text, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
           {profile?.display_name}
         </h1>
         {profile?.job_title && (
-          <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, color, letterSpacing: "0.01em" }}>
+          <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color }}>
             {profile.job_title}
           </p>
         )}
         {profile?.company_name && (
-          <p style={{ margin: "0 0 4px", fontSize: 13, color: sub, fontWeight: 600 }}>
+          <p style={{ margin: 0, fontSize: 13, color: sub, fontWeight: 500 }}>
             {profile.company_name}
           </p>
         )}
-        {/* Accent underline */}
-        <div style={{
-          width: 40, height: 3, borderRadius: 99,
-          background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.4)})`,
-          margin: "10px auto 0",
-        }} />
       </div>
 
-      {/* ── Content — white rounded card floating over bg ── */}
+      {/* ── CONTENT: clean white card, rounded corners, no harsh borders ── */}
       <div style={{
-        margin: mobile ? "18px 12px 0" : "22px 20px 0",
+        margin: mobile ? "20px 14px 80px" : "24px 24px 80px",
         background: cardBg,
-        borderRadius: 28,
-        boxShadow: isDark
-          ? "0 2px 24px rgba(0,0,0,0.4)"
-          : "0 4px 32px rgba(0,0,0,0.08)",
-        border: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.04)",
-        padding: mobile ? "20px 16px 40px" : "28px 28px 60px",
-        marginBottom: 80,
+        borderRadius: 24,
+        boxShadow: isDark ? "0 4px 32px rgba(0,0,0,0.45)" : "0 2px 20px rgba(0,0,0,0.07)",
+        border: isDark ? "1px solid rgba(255,255,255,0.07)" : "none",
+        padding: mobile ? "20px 16px 36px" : "28px 28px 56px",
       }}>
         {contentSections}
       </div>
