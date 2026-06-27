@@ -12,7 +12,7 @@ import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayo
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
-import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, PastelLayout, WaveLayout, SunsetLayout, MagazineLayout, BubblyLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
@@ -290,87 +290,49 @@ export default function PublicProfile() {
   const renderActiveLayout = () => {
     const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
 
-    // ── Image Hero ── full-bleed photo cover, avatar bottom-right
-    if (["image_hero", "image", "video_bg", "parallax", "realtor_luxury"].includes(layoutType))
+    // Image Hero — full-bleed cover, avatar bottom-right
+    if (["image_hero","image","video_bg","parallax","realtor_luxury"].includes(layoutType))
       return <ImageHeroLayout {...lp} />;
-
-    // ── Magazine / Editorial ── image-top, identity row overlapping
+    // Magazine — editorial photo header, identity row overlapping
     if (["magazine"].includes(layoutType))
       return <MagazineLayout {...lp} />;
-
-    // ── Aurora ── dark northern-lights gradient, glow orbs
-    if (["aurora", "animated_gradient"].includes(layoutType))
+    // Aurora — northern-lights dark gradient
+    if (["aurora","animated_gradient"].includes(layoutType))
       return <AuroraLayout {...lp} color={color} />;
-
-    // ── Wave ── color header with wave SVG divider
-    if (["wave"].includes(layoutType))
-      return <WaveLayout {...lp} />;
-
-    // ── Pastel ── soft pink/lavender, friendly rounded
-    if (["pastel"].includes(layoutType))
-      return <PastelLayout {...lp} />;
-
-    // ── Bubbly ── playful bubbles, large rounded card
-    if (["bubbly"].includes(layoutType))
-      return <BubblyLayout {...lp} />;
-
-    // ── Floating ── detached floating card layout
+    // Glass — frosted glass on vivid gradient bg
+    if (["glassmorphic","glass_card","glass","frosted","glass_3d"].includes(layoutType))
+      return <GlassLayout {...lp} />;
+    // Split / Modern SaaS — horizontal header + accent bar
+    if (["modern_saas","split","corporate","modern_law"].includes(layoutType))
+      return <ModernSaasLayout {...lp} />;
+    // Executive — right-aligned avatar, tall cover
+    if (["executive","executive_corp"].includes(layoutType))
+      return <ExecutiveLayout {...lp} />;
+    // Luxury Gold — dark executive with gold accent
+    if (["luxury_gold"].includes(layoutType))
+      return <DarkPremiumLayout {...lp} isDark={true} profile={{ ...profile, cover_color: "#B8860B" }} color="#B8860B" />;
+    // Dark Premium — cinematic dark bg, glow ring
+    if (["dark","dark_premium","darkpremium","luxury","minimal_dark","cyberpunk","premium_salon","monochrome"].includes(layoutType))
+      return <DarkPremiumLayout {...lp} isDark={true} />;
+    // Neon — glow ring on near-black
+    if (["neon","neon_tech"].includes(layoutType))
+      return <NeonLayout {...lp} isDark={true} />;
+    // Retro — editorial serif header
+    if (["retro","paper"].includes(layoutType))
+      return <RetroLayout {...lp} />;
+    // Floating — radial bg, detached card
     if (["floating"].includes(layoutType))
       return <FloatingLayout {...lp} />;
-
-    // ── Sunset ── warm orange natural gradient
-    if (["sunset"].includes(layoutType))
-      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#ff6b35 0%,#f7c59f 50%,#ffe0cc 100%)" />;
-
-    // ── Ocean ── deep blue gradient
-    if (["ocean"].includes(layoutType))
-      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#0077b6 0%,#00b4d8 50%,#90e0ef 100%)" />;
-
-    // ── Forest ── nature green gradient
-    if (["forest"].includes(layoutType))
-      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#052e16 0%,#166534 40%,#4ade80 100%)" />;
-
-    // ── Portrait / Gradient ── large centered avatar, short cover
-    if (["portrait", "gradient"].includes(layoutType))
-      return <PortraitLayout {...lp} />;
-
-    // ── Glass / Frosted ── frosted glass header on vivid gradient bg
-    if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType))
-      return <GlassLayout {...lp} />;
-
-    // ── Modern SaaS / Split / Corporate ── horizontal header, accent bar
-    if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType))
-      return <ModernSaasLayout {...lp} />;
-
-    // ── Executive / Luxury Gold ── right-side avatar, tall cover
-    if (["executive", "executive_corp", "luxury_gold"].includes(layoutType))
-      return <ExecutiveLayout {...lp} />;
-
-    // ── Dark / Cyberpunk / Forest themes ── cinematic dark, glow ring
-    if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "premium_salon", "monochrome"].includes(layoutType))
-      return <DarkPremiumLayout {...lp} isDark={true} />;
-
-    // ── Neon / Neon Tech ── vivid neon glow on near-black
-    if (["neon", "neon_tech"].includes(layoutType))
-      return <NeonLayout {...lp} isDark={true} />;
-
-    // ── Retro / Paper ── warm editorial feel
-    if (["retro", "paper"].includes(layoutType))
-      return <RetroLayout {...lp} />;
-
-    // ── Bold / Color / Gradient hero ── vivid full-color header + wave
-    if (["color_gradient", "bold", "color", "color_hero"].includes(layoutType))
+    // Bold Gradient — vivid color hero + wave
+    if (["bold","color_gradient","color","color_hero","sunset","ocean","forest","wave","bubbly","pastel","gradient","portrait"].includes(layoutType))
       return <ColorLayout {...lp} />;
-
-    // ── Minimal ── left accent stripe, horizontal compact header
-    if (["minimal", "minimal_business"].includes(layoutType))
+    // Minimal — left accent stripe, horizontal
+    if (["minimal","minimal_business"].includes(layoutType))
       return <MinimalLayout {...lp} />;
-
-    // ── Card Compact ── slim strip + floating card
-    if (["card", "card_compact"].includes(layoutType))
+    // Card — slim strip + floating card
+    if (["card","card_compact"].includes(layoutType))
       return <CardLayout {...lp} />;
-
-    // ── Default / Classic ──
+    // Default
     return <ClassicLayout {...lp} />;
   };
 
