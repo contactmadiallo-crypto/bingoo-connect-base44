@@ -90,11 +90,14 @@ const saveContact = (profile) => {
   URL.revokeObjectURL(url);
 };
 
+const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
+const FONT_BODY    = "'Inter', system-ui, sans-serif";
+
 // ── Tiny section label ───────────────────────────────────────
 function SLabel({ children, isDark }) {
   return (
-    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase",
-      color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8", margin: "0 0 10px" }}>
+    <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
+      color: isDark ? "rgba(255,255,255,0.35)" : "#94a3b8", margin: "0 0 10px", fontFamily: FONT_BODY }}>
       {children}
     </p>
   );
@@ -116,7 +119,8 @@ function IconGridItem({ href, onClick, icon, label, ev, track, isDark }) {
         {icon}
       </div>
       <span style={{ fontSize: 10, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b",
-        textAlign: "center", maxWidth: 60, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        textAlign: "center", maxWidth: 60, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        fontFamily: FONT_BODY }}>
         {label}
       </span>
     </motion.div>
@@ -174,10 +178,10 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
     <>
       <div style={{ flexShrink: 0 }}>{iconEl}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontWeight: 600, fontSize: 14,
+        <p style={{ margin: 0, fontWeight: 600, fontSize: 14, fontFamily: FONT_BODY,
           color: isDark ? "rgba(255,255,255,0.9)" : "#1e293b",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
-        {subtitle && <p style={{ margin: 0, fontSize: 11, color: "#0077b6", fontWeight: 600 }}>{subtitle}</p>}
+        {subtitle && <p style={{ margin: 0, fontSize: 11, color: "#0077b6", fontWeight: 600, fontFamily: FONT_BODY }}>{subtitle}</p>}
       </div>
       {chevron && <span style={{ color: "#c0c8d4", fontSize: 18, fontWeight: 300, flexShrink: 0 }}>›</span>}
     </>
@@ -252,7 +256,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             padding: "13px 8px", borderRadius: 14,
             background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
             color: "#fff", fontWeight: 800, fontSize: 12.5, border: "none", cursor: "pointer",
-            boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}` }}>
+            boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`, fontFamily: FONT_BODY }}>
           <SaveContactIcon size={15} /> Save
         </motion.button>
         {/* Connect */}
@@ -266,7 +270,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             padding: "13px 8px", borderRadius: 14,
             background: isDark ? "rgba(255,255,255,0.09)" : "#f0f2f5",
             color: isDark ? "#fff" : "#374151", fontWeight: 800, fontSize: 12.5,
-            border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e4e7ec", cursor: "pointer" }}>
+            border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e4e7ec", cursor: "pointer", fontFamily: FONT_BODY }}>
           <ShareIcon size={15} color={isDark ? "#fff" : "#374151"} />
           {shared ? "✓" : "Share"}
         </motion.button>
@@ -275,8 +279,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Bio ── */}
       {profile.bio && (
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
-          style={{ fontSize: 14, lineHeight: 1.65, color: isDark ? "rgba(255,255,255,0.65)" : "#475569",
-            textAlign: "center", margin: "0 0 22px", fontWeight: 400 }}>
+          style={{ fontSize: 14, lineHeight: 1.7, color: isDark ? "rgba(255,255,255,0.65)" : "#475569",
+            textAlign: "center", margin: "0 0 22px", fontWeight: 400, fontFamily: FONT_BODY }}>
           {profile.bio}
         </motion.p>
       )}

@@ -10,6 +10,10 @@
  * ─────────────────────────────────────────────────────────────────
  */
 
+// ── Typography tokens ──────────────────────────────────────────
+const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
+const FONT_BODY    = "'Inter', system-ui, sans-serif";
+
 // ── Color helpers ──────────────────────────────────────────────
 export const hexRgb = (hex, alpha = 1) => {
   if (!hex || typeof hex !== "string" || hex.length < 7) return `rgba(0,0,0,${alpha})`;
@@ -132,11 +136,11 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
 
       {/* IDENTITY */}
       <div style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>
           {profile?.display_name}
         </h1>
-        {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color }}>{profile.job_title}</p>}
-        {profile?.company_name && <p style={{ margin: 0, fontSize: 13, color: sub, fontWeight: 500 }}>{profile.company_name}</p>}
+        {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color, fontFamily: FONT_BODY, letterSpacing: "0.01em" }}>{profile.job_title}</p>}
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 500, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
       </div>
 
       {/* CONTENT CARD */}
@@ -188,9 +192,9 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
             <AvatarRenderer profile={profile} size={size} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 18 : 22, fontWeight: 900, color: text }}>{profile?.display_name}</h1>
-            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub }}>{profile.company_name}</p>}
+            <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 18 : 22, fontWeight: 800, color: text, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>{profile?.display_name}</h1>
+            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+            {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
           </div>
         </div>
       </div>
@@ -240,11 +244,11 @@ export function CardLayout({ profile, color, isDark, mobile, contentSections }) 
           <AvatarRenderer profile={profile} size={size} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 16 : 19, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 16 : 19, fontWeight: 800, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.01em" }}>
             {profile?.display_name}
           </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 1px", fontSize: 12, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 11, color: sub }}>{profile.company_name}</p>}
+          {profile?.job_title && <p style={{ margin: "0 0 1px", fontSize: 11.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 11, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
       </div>
 
@@ -296,11 +300,11 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
           <div style={{ position: "absolute", bottom: totalRing / 2 + 14, left: 0, right: size + 44,
             padding: mobile ? "0 18px" : "0 28px", zIndex: 3 }}>
             <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 28, fontWeight: 900, color: "#fff",
-              textShadow: "0 2px 14px rgba(0,0,0,0.55)", lineHeight: 1.1 }}>
+              textShadow: "0 2px 14px rgba(0,0,0,0.55)", lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
               {profile?.display_name}
             </h1>
             {profile?.job_title && (
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.88)", fontWeight: 700 }}>{profile.job_title}</p>
+              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.88)", fontWeight: 600, fontFamily: FONT_BODY }}>{profile.job_title}</p>
             )}
           </div>
         </div>
@@ -374,11 +378,11 @@ export function GlassLayout({ profile, color, isDark, mobile, contentSections })
             <div style={{ padding: "14px 24px", borderRadius: 18,
               background: "rgba(255,255,255,0.58)", backdropFilter: "blur(16px)",
               border: "1px solid rgba(255,255,255,0.8)" }}>
-              <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1 }}>
+              <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
                 {profile?.display_name}
               </h1>
-              {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: hexRgb(color, 0.95) }}>{profile.job_title}</p>}
-              {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(15,23,42,0.55)" }}>{profile.company_name}</p>}
+              {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color: hexRgb(color, 0.95), fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+              {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(15,23,42,0.5)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
             </div>
           </div>
         </div>
@@ -436,15 +440,15 @@ export function DarkPremiumLayout({ profile, color, mobile, contentSections }) {
 
       {/* Identity */}
       <div style={{ textAlign: "center", padding: mobile ? "14px 20px 0" : "18px 36px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>
           {profile?.display_name}
         </h1>
         {profile?.job_title && (
-          <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: accentColor, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: accentColor, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_BODY }}>
             {profile.job_title}
           </p>
         )}
-        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.3)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         <div style={{ width: 52, height: 2, background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)`, margin: "14px auto 0" }} />
       </div>
 
@@ -485,9 +489,9 @@ export function AuroraLayout({ profile, color, mobile, contentSections }) {
             boxShadow: `0 0 0 1.5px rgba(255,255,255,0.2), 0 16px 48px ${hexRgb(ac, 0.4)}` }}>
             <AvatarRenderer profile={profile} size={size} />
           </div>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.07em", textTransform: "uppercase" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
+          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.35)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
           <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${ac}, #a855f7, transparent)`, marginTop: 8 }} />
         </div>
       </div>
@@ -542,11 +546,11 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
         </div>
         <div style={{ flex: 1, paddingBottom: 4 }}>
           <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 19 : 23, fontWeight: 900,
-            color: "#fff", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+            color: "#fff", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)", fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
             {profile?.display_name}
           </h1>
           {profile?.job_title && (
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 700,
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 600, fontFamily: FONT_BODY,
               color: hexRgb(color, 0.9), textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
               {profile.job_title}
             </p>
@@ -600,11 +604,11 @@ export function ExecutiveLayout({ profile, color, isDark, mobile, contentSection
         padding: mobile ? "0 18px" : "0 36px",
         marginTop: -pullUp, position: "relative", zIndex: 20 }}>
         <div style={{ flex: 1, paddingBottom: 6, paddingTop: size * 0.55 }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 25, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 25, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
             {profile?.display_name}
           </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600 }}>{profile.company_name}</p>}
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
         <AvatarRing profile={profile} size={size} ringColor={bg} ringWidth={ringW}
           shadow={`0 0 0 3px ${hexRgb(color, 0.2)}, 0 16px 48px rgba(0,0,0,0.2)`} />
@@ -656,11 +660,11 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
           <AvatarRenderer profile={profile} size={size} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 19 : 23, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 19 : 23, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
             {profile?.display_name}
           </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600 }}>{profile.company_name}</p>}
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
         {profile?.company_logo && (
           <img src={profile.company_logo} alt=""
@@ -710,11 +714,11 @@ export function ColorLayout({ profile, color, isDark, mobile, contentSections })
             <AvatarRenderer profile={profile} size={size} />
           </div>
           <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 25 : 29, fontWeight: 900, color: "#fff",
-            textShadow: "0 2px 8px rgba(0,0,0,0.18)" }}>
+            textShadow: "0 2px 8px rgba(0,0,0,0.18)", fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
             {profile?.display_name}
           </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: "0 0 24px", fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{profile.company_name}</p>}
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: "0 0 24px", fontSize: 12.5, color: "rgba(255,255,255,0.6)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
 
         {/* Wave divider */}
@@ -773,17 +777,17 @@ export function NeonLayout({ profile, color, mobile, contentSections }) {
           </div>
           <div>
             <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#fff",
-              textShadow: `0 0 20px ${hexRgb(neon, 0.5)}` }}>
+              textShadow: `0 0 20px ${hexRgb(neon, 0.5)}`, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
               {profile?.display_name}
             </h1>
             {profile?.job_title && (
-              <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: neon,
-                letterSpacing: "0.1em", textTransform: "uppercase",
+              <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: neon, fontFamily: FONT_BODY,
+                letterSpacing: "0.12em", textTransform: "uppercase",
                 textShadow: `0 0 12px ${hexRgb(neon, 0.7)}` }}>
                 {profile.job_title}
               </p>
             )}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
+            {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.3)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
           </div>
         </div>
       </div>
@@ -837,15 +841,15 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
           </div>
           <div>
             <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 26, fontWeight: 900, color: text, lineHeight: 1.1,
-              fontVariant: "small-caps", letterSpacing: "0.02em" }}>
+              fontFamily: FONT_DISPLAY, letterSpacing: "-0.01em" }}>
               {profile?.display_name}
             </h1>
             {profile?.job_title && (
-              <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color: accent, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+              <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: accent, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: FONT_BODY }}>
                 {profile.job_title}
               </p>
             )}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub }}>{profile.company_name}</p>}
+            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
           </div>
         </div>
       </div>
@@ -895,9 +899,9 @@ export function FloatingLayout({ profile, color, isDark, mobile, contentSections
           <AvatarRenderer profile={profile} size={size} />
         </div>
         <div style={{ textAlign: "center" }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 24, fontWeight: 900, color: text, lineHeight: 1.1 }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub }}>{profile.company_name}</p>}
+          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 24, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
       </div>
 
@@ -955,16 +959,16 @@ export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
 
       {/* Identity */}
       <div style={{ textAlign: "center", padding: mobile ? "14px 20px 0" : "18px 36px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>
           {profile?.display_name}
         </h1>
         {profile?.job_title && (
-          <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: goldLt, letterSpacing: "0.09em", textTransform: "uppercase",
+          <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: goldLt, letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_BODY,
             textShadow: `0 0 12px ${hexRgb(goldLt, 0.5)}` }}>
             {profile.job_title}
           </p>
         )}
-        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.28)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         <div style={{ width: 60, height: 1, background: `linear-gradient(90deg, transparent, ${gold}, transparent)`, margin: "14px auto 0" }} />
       </div>
 
@@ -1014,9 +1018,9 @@ export function PortraitLayout({ profile, color, isDark, mobile, contentSections
       </div>
 
       <div style={{ textAlign: "center", padding: mobile ? "16px 20px 0" : "20px 44px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1 }}>{profile?.display_name}</h1>
-        {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 15, fontWeight: 700, color }}>{profile.job_title}</p>}
-        {profile?.company_name && <p style={{ margin: "0 0 18px", fontSize: 13, color: sub }}>{profile.company_name}</p>}
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.025em" }}>{profile?.display_name}</h1>
+        {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 13.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+        {profile?.company_name && <p style={{ margin: "0 0 18px", fontSize: 12.5, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
       </div>
 
       <div style={{ padding: mobile ? "6px 16px 120px" : "10px 36px 80px" }}>{contentSections}</div>
