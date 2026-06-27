@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
-import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 import ResumePanel from "@/components/bingoo/ResumePanel";
@@ -53,8 +52,6 @@ const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
 const VIEW_RESUME       = "resume";
-const VIEW_PORTFOLIO    = "portfolio";
-
 // ── NewProfileForm ──────────────────────────────────────────────────────────
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
 // Creates the record then hands off to ProfileWorkspace for all editing.
@@ -700,22 +697,6 @@ export default function BingooDashboard() {
                 <PlanGateScreen feature="digital_resume" isDark={isDark} />
               ) : (
                 <ResumePanel user={user} profileId={activeProfile?.id} />
-              )}
-            </div>
-          )}
-
-          {/* ════════════════════════════════════
-              PORTFOLIO — Pro individual / Pro plans
-          ════════════════════════════════════ */}
-          {view === VIEW_PORTFOLIO && (
-            <div>
-              <ProfileChip />
-              {!activeProfile ? (
-                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("portfolio") ? (
-                <PlanGateScreen feature="portfolio" isDark={isDark} />
-              ) : (
-                <PortfolioPanel profileId={activeProfile.id} user={user} />
               )}
             </div>
           )}

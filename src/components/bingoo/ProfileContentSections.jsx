@@ -5,7 +5,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
-import PortfolioSection from "@/components/bingoo/PortfolioSection";
 import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
 import ZelleQRModal from "@/components/bingoo/ZelleQRModal";
 import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
@@ -541,11 +540,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
       {/* ── Resume ── */}
       <ProfileResumeSection profileId={profile.id} color={color} isDark={isDark} showDivider />
-
-      {/* ── Portfolio ── */}
-      <Div isDark={isDark} />
-      <SLabel isDark={isDark}>Portfolio</SLabel>
-      <PortfolioSection profileId={profile.id} color={color} />
 
       {/* ── Attorneys ── */}
       {isLawFirmProfile && (
