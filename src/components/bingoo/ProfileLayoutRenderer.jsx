@@ -172,54 +172,92 @@ function AvatarLayer({ profile, size, ringColor, ringWidth = 4, shadow, placemen
 }
 
 // ═══════════════════════════════════════════════════════════
-// 1. CLASSIC — white card, colored cover, centered avatar overlap
+// 1. CLASSIC — Circo-inspired: full-bleed cover, centered avatar overlap,
+//    frosted name pill, white rounded content card
 // ═══════════════════════════════════════════════════════════
 export function ClassicLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size    = mobile ? 100 : 116;
-  const coverH  = mobile ? 190 : 230;
-  const ringW   = 4;
-  const bg      = isDark ? "#0f172a" : "#f8fafc";
+  const size    = mobile ? 108 : 124;
+  const coverH  = mobile ? 240 : 290;
+  const ringW   = 5;
+  const bg      = isDark ? "#111827" : "#f0f2f5";
   const cardBg  = isDark ? "#1e293b" : "#fff";
   const text    = isDark ? "#fff" : "#0f172a";
-  const sub     = isDark ? "rgba(255,255,255,0.45)" : "#64748b";
+  const sub     = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
   const placement = profile?.avatar_placement || "center_overlap";
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
-      {/* Cover — NO overflow:hidden on this wrapper */}
-      <CoverImage profile={profile} height={coverH} color={color}>
+
+      {/* ── Full-bleed cover — NO overflow:hidden so avatar sibling can overlap ── */}
+      <CoverImage profile={profile} height={coverH} color={color} dimOpacity={profile?.cover_photo ? 0.18 : 0}>
+        {/* Bottom gradient fade into bg */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0, height: "50%",
+          background: `linear-gradient(to bottom, transparent, ${bg})`,
+          pointerEvents: "none",
+        }} />
         {profile?.company_logo && (
-          <div style={{ position: "absolute", top: 14, right: 14, zIndex: 3,
-            width: 44, height: 44, borderRadius: 10, background: "#fff",
-            padding: 4, boxShadow: "0 2px 12px rgba(0,0,0,0.15)", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 16, right: 16, zIndex: 3,
+            width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.92)",
+            padding: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.18)", overflow: "hidden",
+            backdropFilter: "blur(8px)" }}>
             <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           </div>
         )}
       </CoverImage>
 
-      {/* Avatar — sibling of cover, zIndex 20 */}
+      {/* ── Avatar — sibling of cover, centered, large white ring ── */}
       <AvatarLayer
         profile={profile} size={size}
         ringColor={cardBg} ringWidth={ringW}
-        shadow={`0 0 0 3px ${hexRgb(color, 0.18)}, 0 16px 48px rgba(0,0,0,0.16)`}
+        shadow={`0 0 0 2px ${hexRgb(color, 0.2)}, 0 20px 56px rgba(0,0,0,0.22)`}
         placement={placement}
       />
 
-      {/* Identity */}
-      <div style={{ textAlign: "center", padding: mobile ? "10px 20px 0" : "14px 36px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 27, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+      {/* ── Identity block — clean centered name ── */}
+      <div style={{
+        textAlign: "center",
+        padding: mobile ? "14px 24px 0" : "18px 40px 0",
+        position: "relative", zIndex: 5,
+      }}>
+        <h1 style={{
+          margin: "0 0 5px", fontSize: mobile ? 24 : 29,
+          fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.01em",
+        }}>
           {profile?.display_name}
         </h1>
         {profile?.job_title && (
-          <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color }}>{profile.job_title}</p>
+          <p style={{ margin: "0 0 3px", fontSize: 14, fontWeight: 700, color, letterSpacing: "0.01em" }}>
+            {profile.job_title}
+          </p>
         )}
         {profile?.company_name && (
-          <p style={{ margin: "0 0 14px", fontSize: 13, color: sub, fontWeight: 600 }}>{profile.company_name}</p>
+          <p style={{ margin: "0 0 4px", fontSize: 13, color: sub, fontWeight: 600 }}>
+            {profile.company_name}
+          </p>
         )}
+        {/* Accent underline */}
+        <div style={{
+          width: 40, height: 3, borderRadius: 99,
+          background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.4)})`,
+          margin: "10px auto 0",
+        }} />
       </div>
 
-      {/* Content */}
-      <div style={{ padding: mobile ? "10px 16px 120px" : "14px 32px 80px" }}>{contentSections}</div>
+      {/* ── Content — white rounded card floating over bg ── */}
+      <div style={{
+        margin: mobile ? "18px 12px 0" : "22px 20px 0",
+        background: cardBg,
+        borderRadius: 28,
+        boxShadow: isDark
+          ? "0 2px 24px rgba(0,0,0,0.4)"
+          : "0 4px 32px rgba(0,0,0,0.08)",
+        border: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.04)",
+        padding: mobile ? "20px 16px 40px" : "28px 28px 60px",
+        marginBottom: 80,
+      }}>
+        {contentSections}
+      </div>
     </div>
   );
 }
