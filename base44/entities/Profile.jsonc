@@ -40,8 +40,7 @@
         "squircle",
         "card"
       ],
-      "default": "circle",
-      "description": "Profile photo shape"
+      "default": "circle"
     },
     "avatar_placement": {
       "type": "string",
@@ -53,8 +52,7 @@
         "floating_card",
         "inside_card"
       ],
-      "default": "center_overlap",
-      "description": "Where avatar is positioned relative to cover"
+      "default": "center_overlap"
     },
     "avatar_position": {
       "type": "string",
@@ -65,8 +63,7 @@
         "left center",
         "right center"
       ],
-      "default": "center top",
-      "description": "CSS objectPosition for avatar/profile photo"
+      "default": "center top"
     },
     "cover_position": {
       "type": "string",
@@ -77,23 +74,19 @@
         "left center",
         "right center"
       ],
-      "default": "center",
-      "description": "CSS objectPosition for cover photo"
+      "default": "center"
     },
     "qr_color": {
       "type": "string",
-      "default": "#1e293b",
-      "description": "QR code foreground color"
+      "default": "#1e293b"
     },
     "qr_label": {
       "type": "string",
-      "default": "Scan Me",
-      "description": "QR code label text"
+      "default": "Scan Me"
     },
     "qr_watermark": {
       "type": "boolean",
-      "default": false,
-      "description": "Show company logo watermark on QR"
+      "default": false
     },
     "layout": {
       "type": "string",
@@ -152,8 +145,7 @@
         "ny_championship",
         "lions_teranga"
       ],
-      "default": "default",
-      "description": "Public profile page layout"
+      "default": "default"
     },
     "profile_theme": {
       "type": "string",
@@ -250,7 +242,6 @@
     },
     "custom_payments": {
       "type": "array",
-      "description": "Custom payment methods",
       "items": {
         "type": "object",
         "properties": {
@@ -271,7 +262,7 @@
     },
     "custom_links": {
       "type": "array",
-      "description": "Custom links",
+      "description": "Custom links with _catalog_id, category, enabled flag",
       "items": {
         "type": "object",
         "properties": {
@@ -286,8 +277,23 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "_catalog_id": {
+            "type": "string",
+            "description": "Canonical catalog id e.g. snapchat_url"
+          },
+          "category": {
+            "type": "string",
+            "description": "social | contact | payment | business | content"
           }
         }
+      }
+    },
+    "hidden_links": {
+      "type": "array",
+      "description": "Array of profile field keys the owner has hidden, e.g. ['instagram_url','phone']",
+      "items": {
+        "type": "string"
       }
     },
     "language": {

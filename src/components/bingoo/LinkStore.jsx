@@ -287,7 +287,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
         updated = [...current];
         updated[existing] = { ...updated[existing], label, url: val };
       } else {
-        updated = [...current, { id: Date.now().toString(), _catalog_id: item.id, label, url: val, enabled: true }];
+        updated = [...current, { id: Date.now().toString(), _catalog_id: item.id, category: item.category, label, url: val, enabled: true }];
       }
       setVal("custom_links", updated);
       setEditing(null);

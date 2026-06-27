@@ -101,7 +101,7 @@ const EDITABLE_FIELDS = [
   "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position",
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
-  "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links",
+  "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark",
 ];
@@ -373,17 +373,39 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   const panelBg   = isDark ? "bg-[#13162a]"  : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
 
+  const hiddenLinks = new Set(liveForm.hidden_links || []);
   const links = liveForm.custom_links || [];
+
+  // Toggle visibility of a profile-field link (phone, email, instagram_url, etc.)
+  const toggleFieldLink = (key) => {
+    const current = new Set(liveForm.hidden_links || []);
+    if (current.has(key)) current.delete(key); else current.add(key);
+    setVal("hidden_links", [...current]);
+  };
+
   const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
   const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
 
-  // Count filled-in fields
-  const filledFields = [
-    liveForm.phone, liveForm.whatsapp_number, liveForm.email, liveForm.website,
-    liveForm.instagram_url, liveForm.linkedin_url, liveForm.facebook_url,
-    liveForm.tiktok_url, liveForm.youtube_url, liveForm.payment_link,
-    liveForm.cashapp_link, liveForm.zelle_link, liveForm.wave_link, liveForm.orangemoney_link,
-  ].filter(Boolean).length + links.length;
+  // All field-type links that have a value
+  const FIELD_LINKS = [
+    { key: "phone",           label: "Phone",        Icon: BIPhone,        category: "Contact" },
+    { key: "whatsapp_number", label: "WhatsApp",      Icon: BIWhatsApp,     category: "Contact" },
+    { key: "email",           label: "Email",         Icon: BIEmail,        category: "Contact" },
+    { key: "website",         label: "Website",       Icon: BIWebsite,      category: "Business" },
+    { key: "location",        label: "Location",      Icon: BILocation,     category: "Business" },
+    { key: "instagram_url",   label: "Instagram",     Icon: BIInstagram,    category: "Social" },
+    { key: "linkedin_url",    label: "LinkedIn",      Icon: BILinkedIn,     category: "Social" },
+    { key: "facebook_url",    label: "Facebook",      Icon: BIFacebook,     category: "Social" },
+    { key: "tiktok_url",      label: "TikTok",        Icon: BITikTok,       category: "Social" },
+    { key: "youtube_url",     label: "YouTube",       Icon: BIYouTube,      category: "Social" },
+    { key: "payment_link",    label: "PayPal",        Icon: BIPayPal,       category: "Payment" },
+    { key: "cashapp_link",    label: "Cash App",      Icon: BICashApp,      category: "Payment" },
+    { key: "zelle_link",      label: "Zelle",         Icon: BIZelle,        category: "Payment" },
+    { key: "wave_link",       label: "Wave",          Icon: BIWave,         category: "Payment" },
+    { key: "orangemoney_link",label: "Orange Money",  Icon: BIOrangeMoney,  category: "Payment" },
+  ].filter(r => liveForm[r.key]);
+
+  const totalCount = FIELD_LINKS.length + links.length;
 
   return (
     <div className="space-y-3 pb-4">
@@ -393,55 +415,54 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         style={{ borderColor: "#FF7A00", color: "#FF7A00", background: isDark ? "rgba(255,122,0,0.05)" : "rgba(255,122,0,0.03)" }}>
         <Plus className="w-5 h-5" />
         Add Links from Link Store
-        {filledFields > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>{filledFields}</span>}
+        {totalCount > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>{totalCount}</span>}
       </button>
 
-      {/* Summary of active links */}
+      {/* Active Links list */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
         <div className="px-4 py-3 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
           <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Active Links</p>
+          <p className={`text-[10px] mt-0.5 ${mutedText}`}>Toggle to show/hide on public profile</p>
         </div>
-        {filledFields === 0 ? (
+        {totalCount === 0 ? (
           <p className={`px-4 py-6 text-center text-sm ${mutedText}`}>No links added yet. Tap "Add Links" above.</p>
         ) : (
           <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc" }}>
-            {[
-              { key: "phone",           label: "Phone",       Icon: BIPhone },
-              { key: "whatsapp_number", label: "WhatsApp",    Icon: BIWhatsApp },
-              { key: "email",           label: "Email",       Icon: BIEmail },
-              { key: "website",         label: "Website",     Icon: BIWebsite },
-              { key: "location",        label: "Location",    Icon: BILocation },
-              { key: "instagram_url",   label: "Instagram",   Icon: BIInstagram },
-              { key: "linkedin_url",    label: "LinkedIn",    Icon: BILinkedIn },
-              { key: "facebook_url",    label: "Facebook",    Icon: BIFacebook },
-              { key: "tiktok_url",      label: "TikTok",      Icon: BITikTok },
-              { key: "youtube_url",     label: "YouTube",     Icon: BIYouTube },
-              { key: "payment_link",    label: "PayPal",      Icon: BIPayPal },
-              { key: "cashapp_link",    label: "Cash App",    Icon: BICashApp },
-              { key: "zelle_link",      label: "Zelle",       Icon: BIZelle },
-              { key: "wave_link",       label: "Wave",        Icon: BIWave },
-              { key: "orangemoney_link",label: "Orange Money",Icon: BIOrangeMoney },
-            ].filter(r => liveForm[r.key]).map(r => (
-              <div key={r.key} className="flex items-center gap-3 px-3 py-2.5">
-                <r.Icon size={14} />
-                <p className={`text-xs font-bold ${headText} w-20 flex-shrink-0`}>{r.label}</p>
-                <p className={`text-xs truncate flex-1 ${mutedText}`}>{liveForm[r.key]}</p>
-                <button type="button" onClick={() => setVal(r.key, "")} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
-            {links.map((link, idx) => (
-              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 ${!link.enabled ? "opacity-50" : ""}`}>
-                <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
-                <p className={`text-xs font-bold ${headText} w-24 flex-shrink-0 truncate`}>{link.label}</p>
-                <p className={`text-xs truncate flex-1 ${mutedText}`}>{link.url}</p>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
-                  <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1">
+            {/* Field-type links — toggle uses hidden_links */}
+            {FIELD_LINKS.map(r => {
+              const isHidden = hiddenLinks.has(r.key);
+              return (
+                <div key={r.key} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${isHidden ? "opacity-40" : ""}`}>
+                  <r.Icon size={14} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-bold ${headText} truncate`}>{r.label}</p>
+                    <p className={`text-[10px] truncate ${mutedText}`}>{liveForm[r.key]}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
+                    {r.category}
+                  </span>
+                  <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
+                  <button type="button" onClick={() => setVal(r.key, "")} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
                     <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
+              );
+            })}
+            {/* Custom links — toggle uses enabled field */}
+            {links.map((link, idx) => (
+              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${!link.enabled ? "opacity-40" : ""}`}>
+                <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-bold ${headText} truncate`}>{link.label}</p>
+                  <p className={`text-[10px] truncate ${mutedText}`}>{link.url}</p>
+                </div>
+                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
+                  Social
+                </span>
+                <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
+                <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
+                  <Trash2 className="w-3 h-3" />
+                </button>
               </div>
             ))}
           </div>
@@ -453,7 +474,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
 
-      {/* ── Link Store overlay (bottom-sheet on mobile, modal-style on desktop) ── */}
+      {/* ── Link Store overlay ── */}
       {storeOpen && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setStoreOpen(false)} />

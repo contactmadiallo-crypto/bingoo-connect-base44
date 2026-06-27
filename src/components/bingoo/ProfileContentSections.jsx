@@ -1,6 +1,6 @@
 /**
  * ProfileContentSections — Circo-inspired modern layout.
- * Clean rows, iOS app icons, minimal section labels, card feel.
+ * Custom links are routed to their correct category row via getLinkCategory().
  */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,6 +27,7 @@ import {
   WaveIcon as BIWave, OrangeMoneyIcon as BIOrangeMoney, SpotifyIcon,
   CalendarIcon as BICalendar, ShopIcon, PortfolioIcon, LocationIcon as BILocation,
 } from "@/components/bingoo/BrandIcons";
+import { getLinkCategory } from "@/lib/linkCategories";
 
 // ── Helpers ──────────────────────────────────────────────────
 const hexRgb = (hex, alpha = 1) => {
@@ -67,11 +68,9 @@ const CATALOG_ICON_MAP = {
 
 // Resolve icon by catalog_id first, then URL domain, then label keywords
 function getLinkBrandIcon(link, size = 32) {
-  // 1. Canonical _catalog_id — always wins
   const byId = link._catalog_id ? CATALOG_ICON_MAP[link._catalog_id] : null;
   if (byId) { const Ic = byId; return <Ic size={size} />; }
 
-  // 2. URL domain inference
   const url = (link.url || "").toLowerCase();
   if (url.includes("snapchat.com"))  return <SnapchatIcon size={size} />;
   if (url.includes("instagram.com")) return <BIInstagram size={size} />;
@@ -93,7 +92,6 @@ function getLinkBrandIcon(link, size = 32) {
   if (url.includes("spotify.com"))   return <SpotifyIcon size={size} />;
   if (url.includes("calendly.com") || url.includes("cal.com")) return <BICalendar size={size} />;
 
-  // 3. Label keyword fallback
   const label = (link.label || "").toLowerCase();
   if (label.includes("snapchat"))  return <SnapchatIcon size={size} />;
   if (label.includes("instagram")) return <BIInstagram size={size} />;
@@ -101,7 +99,7 @@ function getLinkBrandIcon(link, size = 32) {
   if (label.includes("tiktok"))    return <BITikTok size={size} />;
   if (label.includes("linkedin"))  return <BILinkedIn size={size} />;
   if (label.includes("youtube"))   return <BIYouTube size={size} />;
-  if (label.includes("twitter") || label.includes("x.com") || label === "x") return <TwitterXIcon size={size} />;
+  if (label.includes("twitter") || label === "x") return <TwitterXIcon size={size} />;
   if (label.includes("thread"))    return <ThreadsIcon size={size} />;
   if (label.includes("paypal"))    return <PayPalIcon size={size} />;
   if (label.includes("cash"))      return <BICashApp size={size} />;
@@ -117,10 +115,6 @@ function getLinkBrandIcon(link, size = 32) {
   if (label.includes("portfolio")) return <PortfolioIcon size={size} />;
   if (label.includes("book") || label.includes("calendly")) return <BICalendar size={size} />;
   return <BIWebsite size={size} />;
-}
-
-function LinkIcon({ link, size = 32 }) {
-  return getLinkBrandIcon(link, size);
 }
 
 const saveContact = (profile) => {
@@ -144,7 +138,6 @@ const saveContact = (profile) => {
 const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const FONT_BODY    = "'Inter', system-ui, sans-serif";
 
-// ── Tiny section label ───────────────────────────────────────
 function SLabel({ children, isDark }) {
   return (
     <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase",
@@ -154,12 +147,10 @@ function SLabel({ children, isDark }) {
   );
 }
 
-// ── Thin divider ─────────────────────────────────────────────
 const Div = ({ isDark }) => (
   <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.07)" : "#f0f0f0", margin: "22px 0" }} />
 );
 
-// ── iOS-style icon grid item ─────────────────────────────────
 function IconGridItem({ href, onClick, icon, label, ev, track, isDark }) {
   const inner = (
     <motion.div
@@ -176,7 +167,6 @@ function IconGridItem({ href, onClick, icon, label, ev, track, isDark }) {
       </span>
     </motion.div>
   );
-
   if (href) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer"
@@ -193,7 +183,6 @@ function IconGridItem({ href, onClick, icon, label, ev, track, isDark }) {
   );
 }
 
-// ── Payment button ───────────────────────────────────────────
 function PaymentBtn({ p, color, isDark }) {
   const [open, setOpen] = useState(false);
   const iconEl = p.e === "wave" ? <WaveIconNew size={32} /> : p.e === "orangemoney" ? <OrangeMoneyIconNew size={32} /> : p.e === "zelle" ? <ZelleIcon size={32} /> : p.e === "cashapp" ? <CashAppIcon size={32} /> : <span style={{ fontSize: 26 }}>{p.e}</span>;
@@ -216,7 +205,6 @@ function PaymentBtn({ p, color, isDark }) {
   );
 }
 
-// ── Row link (for website, location, custom links, google review) ──
 function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track }) {
   const style = {
     display: "flex", alignItems: "center", gap: 14,
@@ -241,6 +229,27 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
   return <motion.button onClick={onClick} style={{ ...style, width: "100%", border: style.border, cursor: "pointer" }} whileHover={{ x: 3 }}>{content}</motion.button>;
 }
 
+// ── Icon grid row renderer ────────────────────────────────────
+function IconRow({ items, isDark, track, delay = 0.3, justify = "center", maxInline = 5 }) {
+  if (!items.length) return null;
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}
+      style={{ marginBottom: 18, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+      <div style={{
+        display: "flex", gap: 12,
+        justifyContent: items.length <= maxInline ? justify : "flex-start",
+        minWidth: "max-content", padding: "2px 2px 4px",
+      }}>
+        {items.map((item, i) => (
+          <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
+            <IconGridItem {...item} track={track} isDark={isDark} />
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 // ════════════════════════════════════════════════════════════
 export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track }) {
   const [bookOpen, setBookOpen] = useState(false);
@@ -249,6 +258,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isLawFirmProfile = profile.plan === "lawfirm";
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
+
+  // hidden_links: array of profile field keys the owner has disabled
+  const hiddenLinks = new Set(profile.hidden_links || []);
 
   const waBookingHref = profile.whatsapp_number
     ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
@@ -264,34 +276,66 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     }
   };
 
-  // ── Primary contact row: Call / WhatsApp / Email / Book ──────────────
+  // ── Active custom_links (enabled, with url) split by category ──────────────
+  const activeCustomLinks = (profile.custom_links || []).filter(l => l.enabled !== false && l.label && l.url);
+
+  // Route each custom link to its category bucket
+  const clSocial   = activeCustomLinks.filter(l => getLinkCategory(l) === "social");
+  const clPayment  = activeCustomLinks.filter(l => getLinkCategory(l) === "payment");
+  const clBusiness = activeCustomLinks.filter(l => getLinkCategory(l) === "business");
+  const clContent  = activeCustomLinks.filter(l => getLinkCategory(l) === "content");
+  // True generic custom links (no known category)
+  const clGeneric  = activeCustomLinks.filter(l => {
+    const cat = getLinkCategory(l);
+    return !["social", "payment", "business", "content", "contact"].includes(cat);
+  });
+
+  // ── Primary contact row ───────────────────────────────────────────────────
   const contactIcons = [
-    profile.phone && { href: `tel:${profile.phone}`, icon: <BIPhone size={54} />, label: "Call", ev: "phone_click" },
-    isSalonOrRestaurant && waBookingHref
+    profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={54} />, label: "Call", ev: "phone_click" },
+    isSalonOrRestaurant && waBookingHref && !hiddenLinks.has("whatsapp_number")
       ? { href: waBookingHref, icon: <BIWhatsApp size={54} />, label: "Book WA", ev: "whatsapp_click" }
-      : profile.whatsapp_number && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={54} />, label: "WhatsApp", ev: "whatsapp_click" },
-    profile.email && { href: `mailto:${profile.email}`, icon: <BIEmail size={54} />, label: "Email", ev: "email_click" },
+      : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={54} />, label: "WhatsApp", ev: "whatsapp_click" },
+    profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={54} />, label: "Email", ev: "email_click" },
     canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={54} />, label: "Book", ev: null },
+    // Booking custom link goes into contact row too
+    ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
+      href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
+      icon: <BICalendar size={54} />, label: l.label, ev: null,
+    })),
   ].filter(Boolean);
 
-  // ── Social row: Instagram / Facebook / TikTok / LinkedIn / YouTube / etc. ─
+  // ── Social row: profile fields + custom_links categorized as social ───────
   const socialIcons = [
-    profile.instagram_url && { href: profile.instagram_url, icon: <BIInstagram size={54} />, label: "Instagram", ev: "instagram_click" },
-    profile.facebook_url && { href: profile.facebook_url, icon: <BIFacebook size={54} />, label: "Facebook", ev: "facebook_click" },
-    profile.tiktok_url && { href: profile.tiktok_url, icon: <BITikTok size={54} />, label: "TikTok", ev: "tiktok_click" },
-    profile.linkedin_url && { href: profile.linkedin_url, icon: <BILinkedIn size={54} />, label: "LinkedIn", ev: "linkedin_click" },
-    profile.youtube_url && { href: profile.youtube_url, icon: <BIYouTube size={54} />, label: "YouTube", ev: "youtube_click" },
+    profile.instagram_url && !hiddenLinks.has("instagram_url") && { href: profile.instagram_url, icon: <BIInstagram size={54} />, label: "Instagram", ev: "instagram_click" },
+    profile.facebook_url && !hiddenLinks.has("facebook_url") && { href: profile.facebook_url, icon: <BIFacebook size={54} />, label: "Facebook", ev: "facebook_click" },
+    profile.tiktok_url && !hiddenLinks.has("tiktok_url") && { href: profile.tiktok_url, icon: <BITikTok size={54} />, label: "TikTok", ev: "tiktok_click" },
+    profile.linkedin_url && !hiddenLinks.has("linkedin_url") && { href: profile.linkedin_url, icon: <BILinkedIn size={54} />, label: "LinkedIn", ev: "linkedin_click" },
+    profile.youtube_url && !hiddenLinks.has("youtube_url") && { href: profile.youtube_url, icon: <BIYouTube size={54} />, label: "YouTube", ev: "youtube_click" },
+    // Custom social links (Snapchat, Twitter, Threads, Pinterest, Discord, Twitch)
+    ...clSocial.map(l => ({
+      href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
+      icon: getLinkBrandIcon(l, 54),
+      label: l.label,
+      ev: null,
+    })),
   ].filter(Boolean);
 
+  // ── Payment row (profile fields) ──────────────────────────────────────────
   const payments = [
-    (profile.zelle_qr || profile.zelle_link) && { e: "zelle", l: "Zelle", h: profile.zelle_link || null, qr: profile.zelle_qr || null },
-    (profile.cashapp_qr || profile.cashapp_link) && { e: "cashapp", l: "Cash App", h: profile.cashapp_link || null, qr: profile.cashapp_qr || null },
-    (profile.orangemoney_qr || profile.orangemoney_link) && { e: "orangemoney", l: "Orange Money", h: profile.orangemoney_link || null, qr: profile.orangemoney_qr || null },
-    (profile.wave_qr || profile.wave_link) && { e: "wave", l: "Wave", h: profile.wave_link || null, qr: profile.wave_qr || null },
+    profile.payment_link && !hiddenLinks.has("payment_link") && { e: "paypal", l: "PayPal", h: profile.payment_link, qr: null },
+    (profile.zelle_qr || profile.zelle_link) && !hiddenLinks.has("zelle_link") && { e: "zelle", l: "Zelle", h: profile.zelle_link || null, qr: profile.zelle_qr || null },
+    (profile.cashapp_qr || profile.cashapp_link) && !hiddenLinks.has("cashapp_link") && { e: "cashapp", l: "Cash App", h: profile.cashapp_link || null, qr: profile.cashapp_qr || null },
+    (profile.orangemoney_qr || profile.orangemoney_link) && !hiddenLinks.has("orangemoney_link") && { e: "orangemoney", l: "Orange Money", h: profile.orangemoney_link || null, qr: profile.orangemoney_qr || null },
+    (profile.wave_qr || profile.wave_link) && !hiddenLinks.has("wave_link") && { e: "wave", l: "Wave", h: profile.wave_link || null, qr: profile.wave_qr || null },
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
+    // Custom payment links (Venmo, etc.)
+    ...clPayment.filter(l => !["payment_link","zelle_link","cashapp_link","orangemoney_link","wave_link"].includes(l._catalog_id))
+      .map(l => ({ e: "custom", l: l.label, h: l.url, qr: null, icon: getLinkBrandIcon(l, 32) })),
   ].filter(Boolean);
 
-  const customLinks = (profile.custom_links || []).filter(l => l.enabled !== false && l.label && l.url);
+  // ── Business Info row ─────────────────────────────────────────────────────
+  const businessCustomLinks = clBusiness.filter(l => l._catalog_id !== "booking");
 
   return (
     <div>
@@ -299,7 +343,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── 3-button action row ── */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-        {/* Save Contact */}
         <motion.button onClick={() => { track("save_contact_click"); saveContact(profile); }}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -309,11 +352,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`, fontFamily: FONT_BODY }}>
           <SaveContactIcon size={15} /> Save
         </motion.button>
-        {/* Connect */}
         <div style={{ flex: 1 }}>
           <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
         </div>
-        {/* Share */}
         <motion.button onClick={handleShare}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -335,54 +376,37 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </motion.p>
       )}
 
-      {/* ── Primary contact row: Call / WhatsApp / Email / Book ── */}
-      {contactIcons.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          style={{ marginBottom: 18, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          <div style={{
-            display: "flex", gap: 12,
-            justifyContent: contactIcons.length <= 4 ? "center" : "flex-start",
-            minWidth: "max-content", padding: "2px 2px 4px",
-          }}>
-            {contactIcons.map((item, i) => (
-              <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
-                <IconGridItem {...item} track={track} isDark={isDark} />
-              </div>
-            ))}
-          </div>
-        </motion.div>
+      {/* ── Contact row: Call / WhatsApp / Email / Book ── */}
+      <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
+
+      {/* ── Social row: all social platforms including custom ones ── */}
+      <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} maxInline={5} />
+
+      {/* ── Content custom links (Spotify, Shop, Portfolio) as icon grid ── */}
+      {clContent.length > 0 && (
+        <IconRow
+          items={clContent.map(l => ({
+            href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
+            icon: getLinkBrandIcon(l, 54),
+            label: l.label,
+            ev: null,
+          }))}
+          isDark={isDark} track={track} delay={0.36} maxInline={5}
+        />
       )}
 
-      {/* ── Social row: Instagram / Facebook / TikTok / LinkedIn / YouTube ── */}
-      {socialIcons.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.33 }}
-          style={{ marginBottom: 24, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          <div style={{
-            display: "flex", gap: 12,
-            justifyContent: socialIcons.length <= 5 ? "center" : "flex-start",
-            minWidth: "max-content", padding: "2px 2px 4px",
-          }}>
-            {socialIcons.map((item, i) => (
-              <div key={item.label + i} style={{ width: 68, flexShrink: 0 }}>
-                <IconGridItem {...item} track={track} isDark={isDark} />
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* ── Custom links as clean rows ── */}
-      {customLinks.length > 0 && (
+      {/* ── Generic custom links (true custom web links) ── */}
+      {clGeneric.length > 0 && (
         <>
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Links</SLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 4 }}>
-            {customLinks.map((link, i) => (
+            {clGeneric.map((link, i) => (
               <motion.div key={link.id || i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 + i * 0.05 }}>
                 <RowLink
                   href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
-                  iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}><LinkIcon link={link} size={36} /></div>}
+                  iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
                   title={link.label}
                   isDark={isDark} track={track}
                 />
@@ -392,19 +416,19 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </>
       )}
 
-      {/* ── Website / Location / Google Review ── */}
-      {(profile.website || (profile.location && profile.show_location !== false) || profile.google_review_url) && (
+      {/* ── Website / Location / Google Review + business custom links ── */}
+      {(profile.website && !hiddenLinks.has("website") || (profile.location && profile.show_location !== false && !hiddenLinks.has("location")) || profile.google_review_url || businessCustomLinks.length > 0) && (
         <>
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Business Info</SLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {profile.website && (
+            {profile.website && !hiddenLinks.has("website") && (
               <RowLink href={profile.website} ev="website_click" track={track}
                 iconEl={<WebsiteIcon size={20} color={color} />}
                 title={profile.website.replace(/^https?:\/\//, "")}
                 isDark={isDark} />
             )}
-            {profile.location && profile.show_location !== false && (
+            {profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
               <RowLink href={`https://maps.google.com/?q=${encodeURIComponent(profile.location)}`} ev="location_click" track={track}
                 iconEl={<MapPinIcon size={20} color="#ef4444" />}
                 title={profile.location} subtitle="Get Directions →"
@@ -416,6 +440,14 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                 title="Leave a Google Review" subtitle="Share your experience →"
                 isDark={isDark} />
             )}
+            {businessCustomLinks.map((link, i) => (
+              <RowLink key={link.id || i}
+                href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
+                iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
+                title={link.label}
+                isDark={isDark} track={track}
+              />
+            ))}
           </div>
         </>
       )}
@@ -521,7 +553,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <PublicFooter dark={isDark} />
       </div>
 
-      {/* Appointment modal */}
       {bookOpen && <AppointmentBooking profile={profile} onClose={() => setBookOpen(false)} />}
     </div>
   );
