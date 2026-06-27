@@ -1,19 +1,16 @@
 /**
- * ProfileLayoutRenderer — 12 visually distinct public profile layouts.
+ * ProfileLayoutRenderer — 15 visually distinct public profile layouts.
  *
- * AVATAR ARCHITECTURE (enforced in every layout):
+ * AVATAR ARCHITECTURE:
  * ─────────────────────────────────────────────────────────────────
- * The avatar MUST always be a SIBLING of (or outside) the cover block.
- * NO ancestor of the avatar may have overflow:hidden.
- * The avatar is pulled up over the cover via negative marginTop on its
- * own wrapper div, which has position:relative + zIndex:20.
- *
- * For layouts where the avatar lives INSIDE a header (no cover-overlap),
- * overflow:hidden is OK on that header because there is nothing to clip.
+ * Avatar is ALWAYS a sibling of (or outside) the cover element.
+ * NO ancestor of the avatar may have overflow:hidden when it needs
+ * to visually escape a cover edge. Layouts where avatar sits INSIDE
+ * a full header (not escaping) may use overflow:hidden on that header.
  * ─────────────────────────────────────────────────────────────────
  */
 
-// ── Color helpers ──────────────────────────────────────────
+// ── Color helpers ──────────────────────────────────────────────
 export const hexRgb = (hex, alpha = 1) => {
   if (!hex || typeof hex !== "string" || hex.length < 7) return `rgba(0,0,0,${alpha})`;
   const r = parseInt(hex.slice(1, 3), 16);
@@ -22,109 +19,61 @@ export const hexRgb = (hex, alpha = 1) => {
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
-// ── Avatar shape → CSS border-radius ──────────────────────
+// ── Avatar shape → CSS border-radius ──────────────────────────
 export function getAvatarRadius(shape) {
   const MAP = { circle: "50%", rounded: "22%", squircle: "28%", ios: "28%", card: "14px" };
   return MAP[shape] || "50%";
 }
 
-// ── AvatarRenderer ─────────────────────────────────────────
-// Single source of truth. Never wraps in overflow:hidden.
+// ── AvatarRenderer ─────────────────────────────────────────────
 export function AvatarRenderer({ profile, size = 96, extraStyle = {} }) {
   const radius = getAvatarRadius(profile?.avatar_shape);
   const color  = profile?.cover_color || "#2563eb";
   const initial = (profile?.display_name || "?").charAt(0).toUpperCase();
-
-  const base = {
-    width: size,
-    height: size,
-    borderRadius: radius,
-    flexShrink: 0,
-    display: "block",
-    ...extraStyle,
-  };
-
+  const base = { width: size, height: size, borderRadius: radius, flexShrink: 0, display: "block", ...extraStyle };
   if (profile?.profile_photo) {
     return (
-      <img
-        src={profile.profile_photo}
-        alt={profile.display_name || ""}
-        style={{
-          ...base,
-          objectFit: "cover",
-          objectPosition: profile.avatar_position || "center top",
-        }}
-      />
+      <img src={profile.profile_photo} alt={profile.display_name || ""}
+        style={{ ...base, objectFit: "cover", objectPosition: profile.avatar_position || "center top" }} />
     );
   }
   return (
-    <div
-      style={{
-        ...base,
-        background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.62)})`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#fff",
-        fontWeight: 900,
-        fontSize: Math.round(size * 0.38),
-      }}
-    >
-      {initial}
-    </div>
+    <div style={{
+      ...base, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.62)})`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      color: "#fff", fontWeight: 900, fontSize: Math.round(size * 0.38),
+    }}>{initial}</div>
   );
 }
 
-// ── AvatarRing ─────────────────────────────────────────────
-// White (or custom) border ring around avatar. NO overflow:hidden.
+// ── AvatarRing ─────────────────────────────────────────────────
 function AvatarRing({ profile, size, ringColor = "#fff", ringWidth = 4, shadow, extraStyle = {} }) {
   const radius = getAvatarRadius(profile?.avatar_shape);
   return (
-    <div
-      style={{
-        flexShrink: 0,
-        padding: ringWidth,
-        borderRadius: `calc(${radius} + ${ringWidth}px)`,
-        background: ringColor,
-        boxShadow: shadow || "0 8px 32px rgba(0,0,0,0.18)",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        ...extraStyle,
-      }}
-    >
+    <div style={{
+      flexShrink: 0, padding: ringWidth,
+      borderRadius: `calc(${radius} + ${ringWidth}px)`,
+      background: ringColor,
+      boxShadow: shadow || "0 8px 32px rgba(0,0,0,0.18)",
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      ...extraStyle,
+    }}>
       <AvatarRenderer profile={profile} size={size} />
     </div>
   );
 }
 
-// ── CoverImage ─────────────────────────────────────────────
-// CRITICAL: outer container has NO overflow:hidden so avatar siblings
-// can visually overlap it using negative marginTop.
-function CoverImage({ profile, height, color, dimOpacity = 0, children }) {
+// ── Cover helpers ──────────────────────────────────────────────
+function CoverBg({ profile, height, color, dimOpacity = 0.18, children, style = {} }) {
   return (
-    <div
-      style={{
-        height,
-        position: "relative",
-        flexShrink: 0,
-        // NO overflow:hidden on this element
-        background: profile?.cover_photo
-          ? undefined
-          : `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 100%)`,
-      }}
-    >
-      {profile?.cover_photo && (
-        <img
-          src={profile.cover_photo}
-          alt=""
-          style={{
-            position: "absolute", inset: 0,
-            width: "100%", height: "100%",
-            objectFit: "cover",
-            objectPosition: profile.cover_position || "center",
-          }}
-        />
+    <div style={{ height, position: "relative", flexShrink: 0, ...style }}>
+      {profile?.cover_photo ? (
+        <img src={profile.cover_photo} alt=""
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+            objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+      ) : (
+        <div style={{ position: "absolute", inset: 0,
+          background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 100%)` }} />
       )}
       {dimOpacity > 0 && (
         <div style={{ position: "absolute", inset: 0, background: `rgba(0,0,0,${dimOpacity})` }} />
@@ -134,82 +83,32 @@ function CoverImage({ profile, height, color, dimOpacity = 0, children }) {
   );
 }
 
-// ── AvatarLayer ────────────────────────────────────────────
-// Sibling to CoverImage. zIndex:20. Pulls up over cover via negative marginTop.
-// placement controls horizontal alignment.
-function AvatarLayer({ profile, size, ringColor, ringWidth = 4, shadow, placement = "center_overlap" }) {
-  const pullUp = (size + ringWidth * 2) * (placement === "lower_center" ? 0.28 : 0.5);
-  const justifyContent =
-    placement === "right_overlap" ? "flex-end"
-    : placement === "left_overlap" ? "flex-start"
-    : "center";
-  const px = (placement === "right_overlap" || placement === "left_overlap") ? 24 : 0;
-
-  return (
-    <div
-      style={{
-        position: "relative",
-        zIndex: 20,
-        display: "flex",
-        justifyContent,
-        paddingLeft: px,
-        paddingRight: px,
-        marginTop: -pullUp,
-        pointerEvents: "none", // allow clicking through
-      }}
-    >
-      <div style={{ pointerEvents: "auto" }}>
-        <AvatarRing
-          profile={profile}
-          size={size}
-          ringColor={ringColor || "#fff"}
-          ringWidth={ringWidth}
-          shadow={shadow}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 1. CLASSIC — True Circo style: full-card background color/image,
-//    avatar centered on bg, name centered in white below, clean link rows
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 1. CLASSIC — Circo-style: full-bleed cover, centered overlapping avatar, white card
+// ═══════════════════════════════════════════════════════════════
 export function ClassicLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 96 : 112;
-  const ringW  = 4;
-  const bg     = isDark ? "#111827" : "#f2f4f7";
-  const cardBg = isDark ? "#1e293b" : "#fff";
-  const text   = isDark ? "#fff" : "#0f172a";
-  const sub    = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
-
-  // Hero height — taller to feel immersive like Circo
-  const heroH  = mobile ? 280 : 340;
-  // Avatar sits halfway out of the hero
-  const pullUp = (size + ringW * 2) / 2;
+  const size  = mobile ? 96 : 112;
+  const ringW = 4;
+  const bg    = isDark ? "#111827" : "#f2f4f7";
+  const cardBg= isDark ? "#1e293b" : "#fff";
+  const text  = isDark ? "#fff" : "#0f172a";
+  const sub   = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
+  const heroH = mobile ? 240 : 300;
+  const pullUp= (size + ringW * 2) / 2;
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
-
-      {/* ── HERO: full-bleed color or image background ── */}
+      {/* HERO — full-bleed, NO overflow:hidden */}
       <div style={{ position: "relative", height: heroH }}>
-        {/* Background: photo or gradient */}
-        {profile?.cover_photo
-          ? <img src={profile.cover_photo} alt=""
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-                objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          : <div style={{ position: "absolute", inset: 0,
-              background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
-        }
-        {/* Dark overlay for photo legibility */}
-        {profile?.cover_photo && (
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.28)" }} />
+        {profile?.cover_photo ? (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0,
+            background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
         )}
-        {/* Bottom fade into page bg */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80,
-          background: `linear-gradient(to bottom, transparent, ${bg})` }} />
-
-        {/* Company logo top-right */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.35) 70%, " + bg + " 100%)" }} />
         {profile?.company_logo && (
           <div style={{ position: "absolute", top: 16, right: 16, zIndex: 5,
             width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.95)",
@@ -219,9 +118,8 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
         )}
       </div>
 
-      {/* ── AVATAR: centered, overlapping hero ── */}
-      <div style={{ display: "flex", justifyContent: "center", position: "relative",
-        zIndex: 20, marginTop: -pullUp }}>
+      {/* AVATAR — sibling, centered, zIndex:20 */}
+      <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20, marginTop: -pullUp }}>
         <div style={{
           padding: ringW,
           borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
@@ -232,30 +130,19 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
         </div>
       </div>
 
-      {/* ── IDENTITY: centered name block ── */}
-      <div style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0",
-        position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900,
-          color: text, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
+      {/* IDENTITY */}
+      <div style={{ textAlign: "center", padding: mobile ? "14px 24px 0" : "18px 40px 0", position: "relative", zIndex: 5 }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.015em" }}>
           {profile?.display_name}
         </h1>
-        {profile?.job_title && (
-          <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color }}>
-            {profile.job_title}
-          </p>
-        )}
-        {profile?.company_name && (
-          <p style={{ margin: 0, fontSize: 13, color: sub, fontWeight: 500 }}>
-            {profile.company_name}
-          </p>
-        )}
+        {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color }}>{profile.job_title}</p>}
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 13, color: sub, fontWeight: 500 }}>{profile.company_name}</p>}
       </div>
 
-      {/* ── CONTENT: clean white card, rounded corners, no harsh borders ── */}
+      {/* CONTENT CARD */}
       <div style={{
         margin: mobile ? "20px 14px 80px" : "24px 24px 80px",
-        background: cardBg,
-        borderRadius: 24,
+        background: cardBg, borderRadius: 24,
         boxShadow: isDark ? "0 4px 32px rgba(0,0,0,0.45)" : "0 2px 20px rgba(0,0,0,0.07)",
         border: isDark ? "1px solid rgba(255,255,255,0.07)" : "none",
         padding: mobile ? "20px 16px 36px" : "28px 28px 56px",
@@ -266,9 +153,9 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 2. MINIMAL — left accent stripe, horizontal compact header
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 2. MINIMAL — clean left accent stripe, no cover, horizontal compact header
+// ═══════════════════════════════════════════════════════════════
 export function MinimalLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 68 : 84;
   const radius = getAvatarRadius(profile?.avatar_shape);
@@ -280,18 +167,23 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
 
   return (
     <div style={{ background: outerBg, minHeight: "100vh" }}>
-      {/* Slim cover strip */}
+      {/* Slim color rule at the very top */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.3)})` }} />
+
+      {/* Cover strip — only if cover photo exists */}
       {profile?.cover_photo && (
-        <div style={{ height: 60, position: "relative" }}>
+        <div style={{ height: 90, position: "relative" }}>
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.6)}, transparent)` }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.55)}, transparent)` }} />
         </div>
       )}
 
-      {/* Header card */}
+      {/* Header card — left accent border */}
       <div style={{ background: bg, borderLeft: `5px solid ${color}`, boxShadow: isDark ? "none" : "0 1px 8px rgba(0,0,0,0.06)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: mobile ? "20px 18px" : "24px 32px", borderBottom: `1px solid ${border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16,
+          padding: mobile ? "20px 18px" : "24px 32px",
+          borderBottom: `1px solid ${border}` }}>
           <div style={{ flexShrink: 0, border: `2.5px solid ${hexRgb(color, 0.25)}`, borderRadius: `calc(${radius} + 2.5px)` }}>
             <AvatarRenderer profile={profile} size={size} />
           </div>
@@ -308,39 +200,235 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 3. DARK PREMIUM — cinematic dark bg, glow cover, gradient ring avatar
-// ═══════════════════════════════════════════════════════════
-export function DarkPremiumLayout({ profile, color, isDark: _isDark, mobile, contentSections }) {
+// ═══════════════════════════════════════════════════════════════
+// 3. CARD COMPACT — slim color strip, floating white card, avatar inside card
+// ═══════════════════════════════════════════════════════════════
+export function CardLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size   = mobile ? 60 : 72;
+  const radius = getAvatarRadius(profile?.avatar_shape);
+  const bg     = isDark ? "#1e293b" : "#fff";
+  const outerBg= isDark ? "#0f172a" : "#f1f5f9";
+  const text   = isDark ? "#fff" : "#0f172a";
+  const sub    = isDark ? "rgba(255,255,255,0.4)" : "#94a3b8";
+  const stripH = mobile ? 120 : 150;
+
+  return (
+    <div style={{ background: outerBg, minHeight: "100vh" }}>
+      {/* Color/photo strip */}
+      <div style={{ height: stripH, position: "relative" }}>
+        {profile?.cover_photo ? (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.55)})` }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${hexRgb(color, 0.45)}, transparent)` }} />
+      </div>
+
+      {/* Floating card — overlaps strip */}
+      <div style={{
+        background: bg, margin: mobile ? "0 12px" : "0 20px",
+        borderRadius: 20, marginTop: -28, position: "relative", zIndex: 5,
+        padding: "16px 18px", display: "flex", alignItems: "center", gap: 14,
+        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+      }}>
+        <div style={{ flexShrink: 0, padding: 2.5,
+          background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.48)})`,
+          borderRadius: `calc(${radius} + 2.5px)` }}>
+          <AvatarRenderer profile={profile} size={size} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 16 : 19, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+            {profile?.display_name}
+          </h1>
+          {profile?.job_title && <p style={{ margin: "0 0 1px", fontSize: 12, fontWeight: 700, color }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 11, color: sub }}>{profile.company_name}</p>}
+        </div>
+      </div>
+
+      <div style={{ padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 4. IMAGE HERO — full-bleed cover dominates, avatar bottom-right, name on gradient
+// ═══════════════════════════════════════════════════════════════
+export function ImageHeroLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size      = mobile ? 84 : 100;
+  const radius    = getAvatarRadius(profile?.avatar_shape);
+  const ringW     = 4;
+  const heroH     = mobile ? 320 : 420;
+  const totalRing = size + ringW * 2;
+  const bg        = isDark ? "#0f172a" : "#f8fafc";
+
+  // If no cover photo, fall back to a colour gradient hero
+  const hasPhoto = !!profile?.cover_photo;
+
+  return (
+    <div style={{ background: bg, minHeight: "100vh" }}>
+      {/* Outer wrapper: no overflow:hidden so avatar can escape */}
+      <div style={{ position: "relative", height: heroH + totalRing / 2 }}>
+        {/* Inner: only this clips the image */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: heroH, overflow: "hidden" }}>
+          {hasPhoto ? (
+            <img src={profile.cover_photo} alt=""
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+          ) : (
+            <div style={{ width: "100%", height: "100%",
+              background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.6)} 60%, ${hexRgb(color, 0.3)} 100%)` }} />
+          )}
+          {/* Gradient overlay for name legibility */}
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "60%",
+            background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%)" }} />
+
+          {/* Company logo */}
+          {profile?.company_logo && (
+            <div style={{ position: "absolute", top: 14, left: 14, width: 44, height: 44, zIndex: 2,
+              borderRadius: 10, background: "rgba(255,255,255,0.9)", padding: 4, overflow: "hidden" }}>
+              <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </div>
+          )}
+
+          {/* Name over gradient (leaves right side for avatar) */}
+          <div style={{ position: "absolute", bottom: totalRing / 2 + 14, left: 0, right: size + 44,
+            padding: mobile ? "0 18px" : "0 28px", zIndex: 3 }}>
+            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 28, fontWeight: 900, color: "#fff",
+              textShadow: "0 2px 14px rgba(0,0,0,0.55)", lineHeight: 1.1 }}>
+              {profile?.display_name}
+            </h1>
+            {profile?.job_title && (
+              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.88)", fontWeight: 700 }}>{profile.job_title}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Avatar — on outer wrapper (NOT inside the clip div), zIndex 20 */}
+        <div style={{ position: "absolute", bottom: 0, right: mobile ? 18 : 28, zIndex: 20 }}>
+          <div style={{
+            padding: ringW, background: "#fff",
+            borderRadius: `calc(${radius} + ${ringW}px)`,
+            boxShadow: "0 12px 40px rgba(0,0,0,0.28)",
+          }}>
+            <AvatarRenderer profile={profile} size={size} />
+          </div>
+        </div>
+      </div>
+
+      {/* Company name below hero */}
+      {profile?.company_name && (
+        <p style={{ textAlign: "right", paddingRight: mobile ? 18 : 28, paddingTop: 6, paddingBottom: 2,
+          fontSize: 13, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b", fontWeight: 600 }}>
+          {profile.company_name}
+        </p>
+      )}
+      <div style={{ padding: mobile ? "6px 16px 120px" : "8px 28px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 5. GLASS — frosted glass header on vivid gradient background
+// ═══════════════════════════════════════════════════════════════
+export function GlassLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 96 : 116;
   const radius = getAvatarRadius(profile?.avatar_shape);
-  const coverH = mobile ? 175 : 220;
+
+  return (
+    <div style={{ minHeight: "100vh",
+      background: profile?.cover_photo
+        ? undefined
+        : `linear-gradient(155deg, ${color} 0%, ${hexRgb(color, 0.5)} 50%, #c7d2fe 100%)`,
+      position: "relative",
+    }}>
+      {/* Full-page cover photo as background */}
+      {profile?.cover_photo && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
+          <img src={profile.cover_photo} alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(155deg, ${hexRgb(color, 0.7)}, ${hexRgb(color, 0.4)})` }} />
+        </div>
+      )}
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Frosted glass header */}
+        <div style={{
+          padding: mobile ? "52px 20px 44px" : "68px 40px 52px",
+          background: "rgba(255,255,255,0.18)",
+          backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)",
+          borderBottom: "1px solid rgba(255,255,255,0.4)",
+          textAlign: "center",
+        }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            {/* Frosted avatar ring */}
+            <div style={{
+              padding: 5, background: "rgba(255,255,255,0.72)",
+              backdropFilter: "blur(12px)",
+              borderRadius: `calc(${radius} + 5px)`,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 0 0 1.5px rgba(255,255,255,0.6)",
+            }}>
+              <AvatarRenderer profile={profile} size={size} />
+            </div>
+            <div style={{ padding: "14px 24px", borderRadius: 18,
+              background: "rgba(255,255,255,0.58)", backdropFilter: "blur(16px)",
+              border: "1px solid rgba(255,255,255,0.8)" }}>
+              <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1 }}>
+                {profile?.display_name}
+              </h1>
+              {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: hexRgb(color, 0.95) }}>{profile.job_title}</p>}
+              {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(15,23,42,0.55)" }}>{profile.company_name}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Content on frosted white base */}
+        <div style={{
+          background: "rgba(255,255,255,0.88)", backdropFilter: "blur(20px)",
+          padding: mobile ? "18px 16px 120px" : "22px 32px 80px",
+        }}>
+          {contentSections}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 6. DARK PREMIUM — cinematic dark, cover photo with luminosity blend, glow ring
+// ═══════════════════════════════════════════════════════════════
+export function DarkPremiumLayout({ profile, color, mobile, contentSections }) {
+  const size   = mobile ? 96 : 116;
+  const radius = getAvatarRadius(profile?.avatar_shape);
+  const coverH = mobile ? 200 : 260;
   const ringW  = 3;
+  const accentColor = color || "#2563eb";
 
   return (
     <div style={{ background: "#0a0f1e", minHeight: "100vh" }}>
-      {/* Cover */}
+      {/* Cover with luminosity blend for cinematic effect */}
       <div style={{ height: coverH, position: "relative", background: "linear-gradient(155deg, #0f1a2e, #0a0f1e)" }}>
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.28, mixBlendMode: "luminosity" }} />
+              opacity: 0.45, mixBlendMode: "luminosity" }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 25%, #0a0f1e 100%)" }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, #0a0f1e 100%)" }} />
         {/* Glow blob */}
-        <div style={{ position: "absolute", bottom: -50, left: "50%", transform: "translateX(-50%)",
-          width: 220, height: 90, background: color, filter: "blur(70px)", opacity: 0.25 }} />
+        <div style={{ position: "absolute", bottom: -40, left: "50%", transform: "translateX(-50%)",
+          width: 240, height: 100, background: accentColor, filter: "blur(80px)", opacity: 0.22 }} />
       </div>
 
-      {/* Avatar — sibling, zIndex 20, gradient ring */}
+      {/* Avatar — sibling, glow gradient ring */}
       <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20,
         marginTop: -((size + ringW * 2) * 0.5) }}>
         <div style={{
           padding: ringW,
-          background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.3)})`,
+          background: `linear-gradient(135deg, ${accentColor}, ${hexRgb(accentColor, 0.3)})`,
           borderRadius: `calc(${radius} + ${ringW}px)`,
-          boxShadow: `0 0 0 1px rgba(255,255,255,0.07), 0 16px 56px ${hexRgb(color, 0.45)}`,
+          boxShadow: `0 0 0 1px rgba(255,255,255,0.07), 0 16px 56px ${hexRgb(accentColor, 0.45)}`,
         }}>
           <AvatarRenderer profile={profile} size={size} />
         </div>
@@ -352,14 +440,12 @@ export function DarkPremiumLayout({ profile, color, isDark: _isDark, mobile, con
           {profile?.display_name}
         </h1>
         {profile?.job_title && (
-          <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: accentColor, letterSpacing: "0.08em", textTransform: "uppercase" }}>
             {profile.job_title}
           </p>
         )}
-        {profile?.company_name && (
-          <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>
-        )}
-        <div style={{ width: 52, height: 2, background: `linear-gradient(90deg, transparent, ${color}, transparent)`, margin: "14px auto 0" }} />
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
+        <div style={{ width: 52, height: 2, background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)`, margin: "14px auto 0" }} />
       </div>
 
       <div style={{ padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
@@ -367,66 +453,173 @@ export function DarkPremiumLayout({ profile, color, isDark: _isDark, mobile, con
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 4. BOLD / COLOR GRADIENT — vivid full-color header, wave divider
-// ═══════════════════════════════════════════════════════════
-export function ColorLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 106 : 126;
+// ═══════════════════════════════════════════════════════════════
+// 7. AURORA — multi-color northern-lights gradient, glow bands, no cover
+// ═══════════════════════════════════════════════════════════════
+export function AuroraLayout({ profile, color, mobile, contentSections }) {
+  const size   = mobile ? 96 : 116;
   const radius = getAvatarRadius(profile?.avatar_shape);
+  const ac     = color || "#7c3aed";
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
-      {/* Color hero — overflow:hidden only clips the photo tint, avatar is OUTSIDE */}
-      <div style={{
-        padding: mobile ? "44px 20px 0" : "60px 40px 0",
-        background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.75)} 55%, ${hexRgb(color, 0.45)} 100%)`,
-        position: "relative",
-        textAlign: "center",
-      }}>
-        {profile?.cover_photo && (
-          <img src={profile.cover_photo} alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", opacity: 0.18, mixBlendMode: "overlay", pointerEvents: "none" }} />
-        )}
-        {profile?.company_logo && (
-          <div style={{ position: "absolute", top: 14, right: 14, width: 40, height: 40,
-            borderRadius: 8, background: "rgba(255,255,255,0.88)", padding: 4, overflow: "hidden", zIndex: 2 }}>
-            <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-          </div>
-        )}
+    <div style={{ background: "linear-gradient(160deg,#0f0c29 0%,#302b63 45%,#24243e 100%)", minHeight: "100vh" }}>
+      {/* Aurora glow band */}
+      <div style={{ height: 5, background: `linear-gradient(90deg, ${ac}88, #a855f788, #06b6d488, ${ac}88)` }} />
 
-        {/* Avatar inside color hero — no cover edge to escape, overflow:hidden is OK on parent */}
-        <div style={{ position: "relative", zIndex: 3 }}>
-          <div style={{ display: "inline-block", padding: 5,
-            background: "rgba(255,255,255,0.28)", backdropFilter: "blur(8px)",
-            borderRadius: `calc(${radius} + 5px)`,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.22)", marginBottom: 16 }}>
+      <div style={{ padding: mobile ? "44px 20px 36px" : "64px 40px 52px", textAlign: "center", position: "relative" }}>
+        {/* Soft glow orbs */}
+        <div style={{ position: "absolute", top: 0, left: "20%", width: 200, height: 140, background: ac, filter: "blur(90px)", opacity: 0.18, borderRadius: "50%", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: 50, right: "12%", width: 160, height: 110, background: "#a855f7", filter: "blur(90px)", opacity: 0.14, borderRadius: "50%", pointerEvents: "none" }} />
+
+        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+          {/* Cover photo — small circular medallion if available */}
+          {profile?.cover_photo && (
+            <div style={{ position: "absolute", top: -20, right: 20, width: 48, height: 48, borderRadius: 12,
+              overflow: "hidden", border: "2px solid rgba(255,255,255,0.2)", boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}>
+              <img src={profile.cover_photo} alt=""
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+            </div>
+          )}
+          <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`,
+            background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
+            boxShadow: `0 0 0 1.5px rgba(255,255,255,0.2), 0 16px 48px ${hexRgb(ac, 0.4)}` }}>
             <AvatarRenderer profile={profile} size={size} />
           </div>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 25 : 29, fontWeight: 900, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.18)" }}>
-            {profile?.display_name}
-          </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: "0 0 24px", fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{profile.company_name}</p>}
-        </div>
-
-        {/* Wave */}
-        <div style={{ height: 40, position: "relative", overflow: "hidden", marginTop: -4 }}>
-          <svg viewBox="0 0 400 40" preserveAspectRatio="none"
-            style={{ position: "absolute", bottom: 0, width: "100%", height: 40 }}>
-            <path d="M0,20 C100,40 300,0 400,20 L400,40 L0,40 Z" fill="#f8fafc" />
-          </svg>
+          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.07em", textTransform: "uppercase" }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
+          <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${ac}, #a855f7, transparent)`, marginTop: 8 }} />
         </div>
       </div>
 
-      <div style={{ padding: mobile ? "10px 16px 120px" : "14px 32px 80px" }}>{contentSections}</div>
+      <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)",
+        borderTop: "1px solid rgba(255,255,255,0.08)", padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>
+        {contentSections}
+      </div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 5. SPLIT / MODERN SAAS — horizontal header card, accent top bar
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 8. MAGAZINE — editorial: full-bleed top photo, identity row overlapping bottom edge
+// ═══════════════════════════════════════════════════════════════
+export function MagazineLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size    = mobile ? 72 : 88;
+  const radius  = getAvatarRadius(profile?.avatar_shape);
+  const bg      = isDark ? "#18181b" : "#fff";
+  const text    = isDark ? "#fff" : "#09090b";
+  const sub     = isDark ? "rgba(255,255,255,0.4)" : "#71717a";
+  const border  = isDark ? "rgba(255,255,255,0.1)" : "#e4e4e7";
+  const coverH  = mobile ? 220 : 300;
+
+  return (
+    <div style={{ background: bg, minHeight: "100vh" }}>
+      {/* Full-bleed top photo or gradient */}
+      <div style={{ height: coverH, position: "relative",
+        background: `linear-gradient(160deg, #0f2027, ${color}88, #203a43)` }}>
+        {profile?.cover_photo && (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 25%, rgba(0,0,0,0.72))" }} />
+        {/* Magazine title tag */}
+        <div style={{ position: "absolute", top: 16, left: 16, padding: "4px 12px",
+          background: color, borderRadius: 4, zIndex: 2 }}>
+          <span style={{ fontSize: 9, fontWeight: 900, color: "#fff", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+            {profile?.company_name || "Profile"}
+          </span>
+        </div>
+      </div>
+
+      {/* Identity row — overlaps the photo bottom edge */}
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 16,
+        padding: mobile ? "0 18px 18px" : "0 32px 24px",
+        marginTop: mobile ? -44 : -54, position: "relative", zIndex: 10 }}>
+        <div style={{ flexShrink: 0, padding: 3, background: bg,
+          borderRadius: `calc(${radius} + 3px)`, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+          <AvatarRenderer profile={profile} size={size} />
+        </div>
+        <div style={{ flex: 1, paddingBottom: 4 }}>
+          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 19 : 23, fontWeight: 900,
+            color: "#fff", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
+            {profile?.display_name}
+          </h1>
+          {profile?.job_title && (
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 700,
+              color: hexRgb(color, 0.9), textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
+              {profile.job_title}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Ruled separator */}
+      <div style={{ height: 1, background: border, margin: "0 18px" }} />
+      <div style={{ padding: mobile ? "10px 16px 120px" : "14px 28px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 9. EXECUTIVE — tall cover, name block left + avatar right (corporate)
+// ═══════════════════════════════════════════════════════════════
+export function ExecutiveLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size   = mobile ? 88 : 108;
+  const ringW  = 4;
+  const bg     = isDark ? "#0f172a" : "#fff";
+  const text   = isDark ? "#fff" : "#0f172a";
+  const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
+  const coverH = mobile ? 220 : 280;
+  const pullUp = (size + ringW * 2) * 0.5;
+
+  return (
+    <div style={{ background: bg, minHeight: "100vh" }}>
+      {/* Tall cover */}
+      <div style={{ height: coverH, position: "relative" }}>
+        {profile?.cover_photo ? (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0,
+            background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.55)} 100%)` }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.5) 100%)" }} />
+        {/* Company logo top-right */}
+        {profile?.company_logo && (
+          <div style={{ position: "absolute", top: 16, right: 16, width: 44, height: 44, zIndex: 2,
+            borderRadius: 10, background: "rgba(255,255,255,0.92)", padding: 4, overflow: "hidden" }}>
+            <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          </div>
+        )}
+      </div>
+
+      {/* Identity row: name LEFT, avatar RIGHT — both pulled up over cover */}
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 16,
+        padding: mobile ? "0 18px" : "0 36px",
+        marginTop: -pullUp, position: "relative", zIndex: 20 }}>
+        <div style={{ flex: 1, paddingBottom: 6, paddingTop: size * 0.55 }}>
+          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 25, fontWeight: 900, color: text, lineHeight: 1.1 }}>
+            {profile?.display_name}
+          </h1>
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600 }}>{profile.company_name}</p>}
+        </div>
+        <AvatarRing profile={profile} size={size} ringColor={bg} ringWidth={ringW}
+          shadow={`0 0 0 3px ${hexRgb(color, 0.2)}, 0 16px 48px rgba(0,0,0,0.2)`} />
+      </div>
+
+      {/* Gold/color accent rule */}
+      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.2)} 70%, transparent)`, margin: "16px 0 0" }} />
+      <div style={{ padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10. MODERN SAAS / SPLIT — accent top bar, horizontal header card
+// ═══════════════════════════════════════════════════════════════
 export function ModernSaasLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 76 : 92;
   const radius = getAvatarRadius(profile?.avatar_shape);
@@ -438,16 +631,16 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
-      {/* Gradient accent bar */}
+      {/* Gradient accent top bar */}
       <div style={{ height: 5, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.35)})` }} />
 
-      {/* Optional slim cover */}
+      {/* Cover strip — if available */}
       {profile?.cover_photo && (
-        <div style={{ height: 90, position: "relative", overflow: "hidden" }}>
+        <div style={{ height: 110, position: "relative" }}>
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
-          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.5)}, transparent)` }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.55)}, rgba(0,0,0,0.2))` }} />
         </div>
       )}
 
@@ -481,104 +674,67 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 6. GLASS CARD — frosted glass on color gradient background
-// ═══════════════════════════════════════════════════════════
-export function GlassLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 96 : 116;
+// ═══════════════════════════════════════════════════════════════
+// 11. BOLD GRADIENT — vivid full-color header, avatar inside, wave SVG divider
+// ═══════════════════════════════════════════════════════════════
+export function ColorLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size   = mobile ? 106 : 126;
   const radius = getAvatarRadius(profile?.avatar_shape);
+  const bg     = isDark ? "#0f172a" : "#f8fafc";
 
   return (
-    <div style={{ minHeight: "100vh", background: `linear-gradient(155deg, ${color} 0%, ${hexRgb(color, 0.5)} 50%, #c7d2fe 100%)` }}>
-      {/* Glass header — avatar lives INSIDE (no cover to escape) */}
+    <div style={{ background: bg, minHeight: "100vh" }}>
+      {/* Color hero — avatar lives inside (no edge to escape) */}
       <div style={{
-        padding: mobile ? "48px 20px 40px" : "64px 40px 48px",
-        background: "rgba(255,255,255,0.2)",
-        backdropFilter: "blur(36px)",
-        WebkitBackdropFilter: "blur(36px)",
-        borderBottom: "1px solid rgba(255,255,255,0.4)",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden", // safe: avatar is inside, not escaping
+        padding: mobile ? "48px 20px 0" : "64px 40px 0",
+        background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.75)} 55%, ${hexRgb(color, 0.45)} 100%)`,
+        position: "relative", textAlign: "center",
       }}>
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", opacity: 0.1, pointerEvents: "none" }} />
+              objectFit: "cover", opacity: 0.22, mixBlendMode: "overlay", pointerEvents: "none" }} />
         )}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          {/* Frosted ring around avatar */}
-          <div style={{
-            padding: 5,
-            background: "rgba(255,255,255,0.72)",
-            backdropFilter: "blur(12px)",
+        {profile?.company_logo && (
+          <div style={{ position: "absolute", top: 14, right: 14, width: 40, height: 40,
+            borderRadius: 8, background: "rgba(255,255,255,0.88)", padding: 4, overflow: "hidden", zIndex: 2 }}>
+            <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          </div>
+        )}
+
+        <div style={{ position: "relative", zIndex: 3 }}>
+          <div style={{ display: "inline-block", padding: 5,
+            background: "rgba(255,255,255,0.28)", backdropFilter: "blur(8px)",
             borderRadius: `calc(${radius} + 5px)`,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 0 0 1.5px rgba(255,255,255,0.6)",
-          }}>
+            boxShadow: "0 8px 32px rgba(0,0,0,0.22)", marginBottom: 16 }}>
             <AvatarRenderer profile={profile} size={size} />
           </div>
-          <div style={{ padding: "14px 24px", borderRadius: 18,
-            background: "rgba(255,255,255,0.58)", backdropFilter: "blur(16px)",
-            border: "1px solid rgba(255,255,255,0.8)" }}>
-            <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1 }}>
-              {profile?.display_name}
-            </h1>
-            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: hexRgb(color, 0.95) }}>{profile.job_title}</p>}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(15,23,42,0.55)" }}>{profile.company_name}</p>}
-          </div>
+          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 25 : 29, fontWeight: 900, color: "#fff",
+            textShadow: "0 2px 8px rgba(0,0,0,0.18)" }}>
+            {profile?.display_name}
+          </h1>
+          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: "0 0 24px", fontSize: 13, color: "rgba(255,255,255,0.65)" }}>{profile.company_name}</p>}
+        </div>
+
+        {/* Wave divider */}
+        <div style={{ height: 44, position: "relative", overflow: "hidden", marginTop: -4 }}>
+          <svg viewBox="0 0 400 44" preserveAspectRatio="none"
+            style={{ position: "absolute", bottom: 0, width: "100%", height: 44 }}>
+            <path d="M0,22 C100,44 300,0 400,22 L400,44 L0,44 Z" fill={bg} />
+          </svg>
         </div>
       </div>
 
-      <div style={{ background: "rgba(255,255,255,0.9)", backdropFilter: "blur(20px)",
-        padding: mobile ? "18px 16px 120px" : "22px 32px 80px" }}>
-        {contentSections}
-      </div>
+      <div style={{ padding: mobile ? "10px 16px 120px" : "14px 32px 80px" }}>{contentSections}</div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 7. GRADIENT / AURORA — mesh gradient bg, centered portrait avatar
-// ═══════════════════════════════════════════════════════════
-export function PortraitLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 130 : 158;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg     = isDark ? "#0f172a" : "#f8fafc";
-  const cardBg = isDark ? "#1e293b" : "#fff";
-  const text   = isDark ? "#fff" : "#0f172a";
-  const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
-  const coverH = mobile ? 120 : 140;
-  const ringW  = 5;
-
-  return (
-    <div style={{ background: bg, minHeight: "100vh" }}>
-      <CoverImage profile={profile} height={coverH} color={color} />
-
-      {/* Avatar — sibling, centered, large */}
-      <AvatarLayer
-        profile={profile} size={size}
-        ringColor={cardBg} ringWidth={ringW}
-        shadow={`0 0 0 4px ${hexRgb(color, 0.25)}, 0 24px 64px ${hexRgb(color, 0.3)}`}
-        placement="center_overlap"
-      />
-
-      <div style={{ textAlign: "center", padding: mobile ? "16px 20px 0" : "20px 44px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1 }}>
-          {profile?.display_name}
-        </h1>
-        {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 15, fontWeight: 700, color }}>{profile.job_title}</p>}
-        {profile?.company_name && <p style={{ margin: "0 0 18px", fontSize: 13, color: sub }}>{profile.company_name}</p>}
-      </div>
-
-      <div style={{ padding: mobile ? "6px 16px 120px" : "10px 36px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 8. NEO / NEON — dark bg, vivid neon glow, no-cover full dark header
-// ═══════════════════════════════════════════════════════════
-export function NeonLayout({ profile, color, isDark: _isDark, mobile, contentSections }) {
+// ═══════════════════════════════════════════════════════════════
+// 12. NEON — near-black bg, scanlines, vivid neon glow ring
+// ═══════════════════════════════════════════════════════════════
+export function NeonLayout({ profile, color, mobile, contentSections }) {
   const size   = mobile ? 88 : 108;
   const radius = getAvatarRadius(profile?.avatar_shape);
   const neon   = color || "#00ffcc";
@@ -587,24 +743,29 @@ export function NeonLayout({ profile, color, isDark: _isDark, mobile, contentSec
     <div style={{ background: "#060912", minHeight: "100vh" }}>
       {/* Glowing header */}
       <div style={{
-        padding: mobile ? "52px 20px 40px" : "68px 40px 52px",
+        padding: mobile ? "56px 20px 44px" : "72px 40px 56px",
         background: "linear-gradient(175deg, #0c0e1e, #060912)",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
+        textAlign: "center", position: "relative",
         borderBottom: `1px solid ${hexRgb(neon, 0.2)}`,
       }}>
-        {/* Scan-line overlay */}
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)", pointerEvents: "none" }} />
+        {/* Cover photo — full-width behind scanlines */}
+        {profile?.cover_photo && (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              opacity: 0.12, mixBlendMode: "color-dodge" }} />
+        )}
+        {/* Scanline overlay */}
+        <div style={{ position: "absolute", inset: 0,
+          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
+          pointerEvents: "none" }} />
         {/* Glow orb */}
         <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
           width: 300, height: 150, background: neon, filter: "blur(90px)", opacity: 0.12 }} />
 
         <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          {/* Neon ring */}
           <div style={{
-            padding: 3,
-            borderRadius: `calc(${radius} + 3px)`,
+            padding: 3, borderRadius: `calc(${radius} + 3px)`,
             boxShadow: `0 0 0 1.5px ${neon}, 0 0 20px ${hexRgb(neon, 0.55)}, 0 0 60px ${hexRgb(neon, 0.2)}`,
             background: "#0c0e1e",
           }}>
@@ -622,9 +783,7 @@ export function NeonLayout({ profile, color, isDark: _isDark, mobile, contentSec
                 {profile.job_title}
               </p>
             )}
-            {profile?.company_name && (
-              <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>
-            )}
+            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
           </div>
         </div>
       </div>
@@ -634,9 +793,9 @@ export function NeonLayout({ profile, color, isDark: _isDark, mobile, contentSec
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 9. RETRO / MAGAZINE — paper texture feel, serif-style header, warm tones
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 13. RETRO — warm paper texture, dashed border rules, offset avatar shadow
+// ═══════════════════════════════════════════════════════════════
 export function RetroLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 80 : 96;
   const radius = getAvatarRadius(profile?.avatar_shape);
@@ -648,14 +807,25 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
 
   return (
     <div style={{ background: pageBg, minHeight: "100vh" }}>
+      {/* Cover strip — sepia toned if present */}
+      {profile?.cover_photo && (
+        <div style={{ height: mobile ? 130 : 160, position: "relative" }}>
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              filter: "sepia(40%) saturate(80%) brightness(0.85)" }} />
+          <div style={{ position: "absolute", inset: 0,
+            background: `linear-gradient(to bottom, transparent 40%, ${pageBg} 100%)` }} />
+        </div>
+      )}
+
       {/* Header band */}
       <div style={{
-        background: cardBg,
-        borderBottom: `3px double ${hexRgb(accent, 0.5)}`,
-        padding: mobile ? "28px 18px 20px" : "36px 36px 24px",
-        position: "relative",
+        background: cardBg, borderBottom: `3px double ${hexRgb(accent, 0.5)}`,
+        padding: mobile ? "24px 18px 18px" : "32px 36px 22px", position: "relative",
+        marginTop: profile?.cover_photo ? (mobile ? -20 : -24) : 0,
       }}>
-        {/* Decorative top rule */}
+        {/* Decorative top dashed rule */}
         <div style={{ height: 3, background: `repeating-linear-gradient(90deg, ${accent} 0, ${accent} 8px, transparent 8px, transparent 14px)`, marginBottom: 20 }} />
 
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -685,170 +855,43 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 10. EXECUTIVE — right-aligned avatar, full cover, left name block
-// ═══════════════════════════════════════════════════════════
-export function ExecutiveLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 96 : 116;
-  const bg     = isDark ? "#0f172a" : "#fff";
-  const text   = isDark ? "#fff" : "#0f172a";
-  const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
-  const coverH = mobile ? 200 : 260;
-  const ringW  = 4;
-  const pullUp = (size + ringW * 2) * 0.5;
-
-  return (
-    <div style={{ background: bg, minHeight: "100vh" }}>
-      <CoverImage profile={profile} height={coverH} color={color} />
-
-      {/* AvatarLayer + NameLayer flex row — both overlap cover */}
-      <div style={{
-        display: "flex",
-        alignItems: "flex-end",
-        gap: 16,
-        padding: mobile ? "0 18px" : "0 36px",
-        marginTop: -pullUp,
-        position: "relative",
-        zIndex: 20,
-      }}>
-        <div style={{ flex: 1, paddingBottom: 6, paddingTop: size * 0.6 }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 25, fontWeight: 900, color: text, lineHeight: 1.1 }}>
-            {profile?.display_name}
-          </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 600 }}>{profile.company_name}</p>}
-        </div>
-        <AvatarRing profile={profile} size={size} ringColor={bg} ringWidth={ringW}
-          shadow={`0 0 0 3px ${hexRgb(color, 0.2)}, 0 16px 48px rgba(0,0,0,0.2)`} />
-      </div>
-
-      <div style={{ height: 3, background: `linear-gradient(90deg, ${color}, ${hexRgb(color, 0.2)} 70%, transparent)`, margin: "16px 0 0" }} />
-      <div style={{ padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 11. IMAGE HERO — full-bleed cover, avatar bottom-right, name on gradient
-// Avatar placed OUTSIDE inner overflow:hidden clip div
-// ═══════════════════════════════════════════════════════════
-export function ImageHeroLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size       = mobile ? 84 : 100;
-  const radius     = getAvatarRadius(profile?.avatar_shape);
-  const ringW      = 4;
-  const heroH      = mobile ? 300 : 400;
-  const totalRing  = size + ringW * 2;
-
-  if (!profile?.cover_photo) {
-    return <ClassicLayout profile={profile} color={color} isDark={isDark} mobile={mobile} contentSections={contentSections} />;
-  }
-
-  return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
-      {/*
-        Outer wrapper: height = heroH + half avatar height.
-        NO overflow:hidden — avatar sits in the lower half.
-      */}
-      <div style={{ position: "relative", height: heroH + totalRing / 2 }}>
-        {/* Inner image clip — ONLY clips the image */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: heroH, overflow: "hidden" }}>
-          <img src={profile.cover_photo} alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile?.cover_position || "center" }} />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "55%",
-            background: "linear-gradient(to top, rgba(0,0,0,0.68) 0%, transparent 100%)" }} />
-          {profile?.company_logo && (
-            <div style={{ position: "absolute", top: 14, left: 14, width: 44, height: 44, zIndex: 2,
-              borderRadius: 10, background: "rgba(255,255,255,0.9)", padding: 4, overflow: "hidden", backdropFilter: "blur(8px)" }}>
-              <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-            </div>
-          )}
-          {/* Name over gradient */}
-          <div style={{ position: "absolute", bottom: totalRing / 2 + 14, left: 0, right: size + 44,
-            padding: mobile ? "0 18px" : "0 28px", zIndex: 3 }}>
-            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 28, fontWeight: 900, color: "#fff",
-              textShadow: "0 2px 14px rgba(0,0,0,0.55)", lineHeight: 1.1 }}>
-              {profile?.display_name}
-            </h1>
-            {profile?.job_title && (
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.88)", fontWeight: 700 }}>{profile.job_title}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Avatar — on outer wrapper (NOT inside the clip div), zIndex 20 */}
-        <div style={{ position: "absolute", bottom: 0, right: mobile ? 18 : 28, zIndex: 20 }}>
-          <div style={{
-            padding: ringW,
-            background: "#fff",
-            borderRadius: `calc(${radius} + ${ringW}px)`,
-            boxShadow: "0 12px 40px rgba(0,0,0,0.28)",
-          }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ paddingTop: 10 }}>
-        {profile?.company_name && (
-          <p style={{ textAlign: "right", paddingRight: mobile ? 18 : 28, paddingBottom: 4,
-            fontSize: 13, color: "#64748b", fontWeight: 600 }}>
-            {profile.company_name}
-          </p>
-        )}
-        <div style={{ padding: mobile ? "0 16px 120px" : "0 28px 80px" }}>{contentSections}</div>
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 13. AURORA — deep dark multi-color gradient, soft glow bands, top-centered avatar
-// Structurally distinct from DarkPremium: no cover, pure gradient bg, horizontal glow strips
-// ═══════════════════════════════════════════════════════════
-export function AuroraLayout({ profile, color, mobile, contentSections }) {
-  const size   = mobile ? 96 : 116;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  return (
-    <div style={{ background: "linear-gradient(160deg,#0f0c29 0%,#302b63 45%,#24243e 100%)", minHeight: "100vh" }}>
-      {/* Aurora glow band */}
-      <div style={{ height: 6, background: `linear-gradient(90deg, ${color}88, #a855f788, #06b6d488, ${color}88)` }} />
-      <div style={{ padding: mobile ? "44px 20px 36px" : "60px 40px 48px", textAlign: "center", position: "relative" }}>
-        {/* Soft aurora glow orbs */}
-        <div style={{ position: "absolute", top: 0, left: "20%", width: 180, height: 120, background: color, filter: "blur(80px)", opacity: 0.18, borderRadius: "50%" }} />
-        <div style={{ position: "absolute", top: 40, right: "15%", width: 140, height: 100, background: "#a855f7", filter: "blur(80px)", opacity: 0.14, borderRadius: "50%" }} />
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)", boxShadow: `0 0 0 1.5px rgba(255,255,255,0.2), 0 16px 48px ${hexRgb(color, 0.4)}` }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.07em", textTransform: "uppercase" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.35)" }}>{profile.company_name}</p>}
-          <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${color}, #a855f7, transparent)`, marginTop: 8 }} />
-        </div>
-      </div>
-      <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.08)", padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 14. FLOATING CARD — radial bg, detached white card centered, wide gap feel
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// 14. FLOATING — radial background, identity card + content card both floating
+// ═══════════════════════════════════════════════════════════════
 export function FloatingLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 72 : 88;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const outerBg = isDark ? "#0f172a" : `radial-gradient(ellipse at top, ${hexRgb(color, 0.12)} 0%, #f1f5f9 60%)`;
-  const cardBg = isDark ? "#1e293b" : "#fff";
-  const text = isDark ? "#fff" : "#0f172a";
-  const sub = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
+  const size    = mobile ? 72 : 88;
+  const radius  = getAvatarRadius(profile?.avatar_shape);
+  const outerBg = isDark
+    ? "#0f172a"
+    : `radial-gradient(ellipse at top, ${hexRgb(color, 0.14)} 0%, #f1f5f9 60%)`;
+  const cardBg  = isDark ? "#1e293b" : "#fff";
+  const text    = isDark ? "#fff" : "#0f172a";
+  const sub     = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
+
   return (
-    <div style={{ background: outerBg, minHeight: "100vh", padding: mobile ? "32px 16px 120px" : "48px 28px 80px" }}>
+    <div style={{ background: outerBg, minHeight: "100vh", padding: mobile ? "28px 16px 120px" : "44px 28px 80px" }}>
+      {/* Cover photo strip — if present, floats above cards */}
+      {profile?.cover_photo && (
+        <div style={{ borderRadius: 20, overflow: "hidden", height: mobile ? 130 : 160,
+          marginBottom: 16, position: "relative",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.14)" }}>
+          <img src={profile.cover_photo} alt=""
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+          <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 40%, ${hexRgb(color, 0.4)})` }} />
+        </div>
+      )}
+
       {/* Floating identity card */}
-      <div style={{ background: cardBg, borderRadius: 28, boxShadow: isDark ? "0 24px 64px rgba(0,0,0,0.6)" : `0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px ${hexRgb(color, 0.08)}`, padding: "28px 24px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 16, position: "relative" }}>
+      <div style={{ background: cardBg, borderRadius: 28,
+        boxShadow: isDark ? "0 24px 64px rgba(0,0,0,0.6)" : `0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px ${hexRgb(color, 0.08)}`,
+        padding: "28px 24px 24px", display: "flex", flexDirection: "column",
+        alignItems: "center", gap: 12, marginBottom: 16, position: "relative" }}>
         {/* Accent top strip */}
-        <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3, background: `linear-gradient(90deg, transparent, ${color}, transparent)`, borderRadius: "0 0 4px 4px" }} />
-        <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.4)})`, boxShadow: `0 8px 28px ${hexRgb(color, 0.32)}` }}>
+        <div style={{ position: "absolute", top: 0, left: 24, right: 24, height: 3,
+          background: `linear-gradient(90deg, transparent, ${color}, transparent)`, borderRadius: "0 0 4px 4px" }} />
+        <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`,
+          background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.4)})`,
+          boxShadow: `0 8px 28px ${hexRgb(color, 0.32)}` }}>
           <AvatarRenderer profile={profile} size={size} />
         </div>
         <div style={{ textAlign: "center" }}>
@@ -857,220 +900,130 @@ export function FloatingLayout({ profile, color, isDark, mobile, contentSections
           {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub }}>{profile.company_name}</p>}
         </div>
       </div>
-      {/* Content floats below the card */}
-      <div style={{ background: cardBg, borderRadius: 24, boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 20px rgba(0,0,0,0.07)", padding: "16px 16px 32px" }}>{contentSections}</div>
+
+      {/* Content floats below */}
+      <div style={{ background: cardBg, borderRadius: 24,
+        boxShadow: isDark ? "0 8px 32px rgba(0,0,0,0.35)" : "0 2px 20px rgba(0,0,0,0.07)",
+        padding: "16px 16px 32px" }}>
+        {contentSections}
+      </div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════
-// 15. PASTEL — soft pink/lavender cover, rounded friendly header
-// ═══════════════════════════════════════════════════════════
-export function PastelLayout({ profile, color, mobile, contentSections }) {
-  const size = mobile ? 88 : 106;
-  const ringW = 4;
-  const pullUp = (size + ringW * 2) / 2;
-  return (
-    <div style={{ background: "#fdf2f8", minHeight: "100vh" }}>
-      {/* Pastel cover */}
-      <div style={{ height: mobile ? 160 : 200, position: "relative", background: `linear-gradient(135deg, ${hexRgb(color, 0.5)}, #f9a8d455, #c4b5fd44)` }}>
-        {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.35, mixBlendMode: "multiply" }} />}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to bottom, transparent, #fdf2f8)" }} />
-      </div>
-      {/* Avatar centered over cover */}
-      <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20, marginTop: -pullUp }}>
-        <div style={{ padding: ringW, borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`, background: "#fdf2f8", boxShadow: "0 8px 32px rgba(244,114,182,0.25)" }}>
-          <AvatarRenderer profile={profile} size={size} />
-        </div>
-      </div>
-      <div style={{ textAlign: "center", padding: mobile ? "12px 20px 0" : "16px 36px 0" }}>
-        <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#831843", lineHeight: 1.1 }}>{profile?.display_name}</h1>
-        {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: hexRgb(color, 0.9) }}>{profile.job_title}</p>}
-        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "#9d174d" }}>{profile.company_name}</p>}
-      </div>
-      <div style={{ margin: mobile ? "16px 14px 80px" : "20px 24px 80px", background: "rgba(255,255,255,0.8)", borderRadius: 20, border: "1px solid #fbcfe8", padding: "16px 14px 32px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 16. WAVE — wave SVG divider, clean white content below
-// ═══════════════════════════════════════════════════════════
-export function WaveLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size = mobile ? 88 : 106;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg = isDark ? "#0f172a" : "#fff";
-  const text = isDark ? "#fff" : "#0f172a";
-  const sub = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
-  return (
-    <div style={{ background: bg, minHeight: "100vh" }}>
-      {/* Color header */}
-      <div style={{ padding: mobile ? "36px 20px 0" : "50px 40px 0", background: `linear-gradient(150deg, ${color}, ${hexRgb(color, 0.7)})`, textAlign: "center", position: "relative" }}>
-        {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.2, mixBlendMode: "overlay" }} />}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 10, paddingBottom: 16 }}>
-          <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`, background: "rgba(255,255,255,0.85)", boxShadow: "0 8px 32px rgba(0,0,0,0.2)" }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#fff", textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.65)" }}>{profile.company_name}</p>}
-        </div>
-        {/* Wave SVG */}
-        <div style={{ height: 48, position: "relative", overflow: "hidden", marginTop: -4 }}>
-          <svg viewBox="0 0 400 48" preserveAspectRatio="none" style={{ position: "absolute", bottom: 0, width: "100%", height: 48 }}>
-            <path d="M0,24 C80,48 160,0 240,24 C320,48 360,12 400,24 L400,48 L0,48 Z" fill={bg} />
-          </svg>
-        </div>
-      </div>
-      <div style={{ padding: mobile ? "8px 16px 120px" : "12px 32px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 17. SUNSET / OCEAN — vivid natural gradient, large immersive header, no wave
-// ═══════════════════════════════════════════════════════════
-export function SunsetLayout({ profile, color, mobile, contentSections, gradientColors }) {
-  const size = mobile ? 100 : 120;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const grad = gradientColors || `linear-gradient(160deg, #ff6b35 0%, #f7c59f 50%, #ffe0cc 100%)`;
-  return (
-    <div style={{ minHeight: "100vh", background: "#fff" }}>
-      <div style={{ padding: mobile ? "52px 20px 32px" : "70px 40px 40px", background: grad, textAlign: "center", position: "relative" }}>
-        {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.25, mixBlendMode: "multiply" }} />}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          <div style={{ padding: 5, borderRadius: `calc(${radius} + 5px)`, background: "rgba(255,255,255,0.7)", backdropFilter: "blur(10px)", boxShadow: "0 12px 40px rgba(0,0,0,0.2)" }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-          <div>
-            <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 29, fontWeight: 900, color: "#fff", textShadow: "0 2px 12px rgba(0,0,0,0.25)" }}>{profile?.display_name}</h1>
-            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>{profile.job_title}</p>}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{profile.company_name}</p>}
-          </div>
-        </div>
-      </div>
-      <div style={{ padding: mobile ? "16px 16px 120px" : "20px 32px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 18. MAGAZINE / EDITORIAL — image-left, text-right, full-bleed top photo
-// ═══════════════════════════════════════════════════════════
-export function MagazineLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size = mobile ? 72 : 88;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg = isDark ? "#18181b" : "#fff";
-  const text = isDark ? "#fff" : "#09090b";
-  const sub = isDark ? "rgba(255,255,255,0.4)" : "#71717a";
-  const border = isDark ? "rgba(255,255,255,0.1)" : "#e4e4e7";
-  const coverH = mobile ? 200 : 260;
-  return (
-    <div style={{ background: bg, minHeight: "100vh" }}>
-      {/* Full-bleed top photo or gradient */}
-      <div style={{ height: coverH, position: "relative", background: `linear-gradient(160deg, #0f2027, ${color}88, #203a43)` }}>
-        {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} />}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.7))" }} />
-      </div>
-      {/* Identity row — left avatar, right text, overlapping photo */}
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 16, padding: mobile ? "0 18px 18px" : "0 32px 24px", marginTop: mobile ? -44 : -54, position: "relative", zIndex: 10 }}>
-        <div style={{ flexShrink: 0, padding: 3, background: bg, borderRadius: `calc(${radius} + 3px)`, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
-          <AvatarRenderer profile={profile} size={size} />
-        </div>
-        <div style={{ flex: 1, paddingBottom: 4 }}>
-          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 19 : 23, fontWeight: 900, color: "#fff", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: hexRgb(color, 0.9), textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>{profile.job_title}</p>}
-        </div>
-      </div>
-      {/* Ruled separator */}
-      <div style={{ height: 1, background: border, margin: "0 18px" }} />
-      {profile?.company_name && <p style={{ margin: "6px 18px 0", fontSize: 12, color: sub, fontWeight: 600 }}>{profile.company_name}</p>}
-      <div style={{ padding: mobile ? "10px 16px 120px" : "14px 28px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 19. BUBBLY — playful large rounded card, bubble decorations
-// ═══════════════════════════════════════════════════════════
-export function BubblyLayout({ profile, color, mobile, contentSections }) {
-  const size = mobile ? 88 : 106;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  return (
-    <div style={{ background: "#fff", minHeight: "100vh", position: "relative", overflow: "hidden" }}>
-      {/* Background bubbles */}
-      <div style={{ position: "absolute", top: -60, right: -40, width: 200, height: 200, borderRadius: "50%", background: `${hexRgb(color, 0.12)}` }} />
-      <div style={{ position: "absolute", top: 80, left: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(244,114,182,0.1)" }} />
-      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: mobile ? 140 : 180, background: `linear-gradient(135deg, ${hexRgb(color, 0.15)}, rgba(244,114,182,0.08))`, borderRadius: "0 0 40px 40px" }} />
-      <div style={{ position: "relative", zIndex: 2, padding: mobile ? "40px 20px 20px" : "56px 32px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-        <div style={{ padding: 5, borderRadius: `calc(${radius} + 5px)`, background: "#fff", boxShadow: `0 12px 40px ${hexRgb(color, 0.25)}, 0 0 0 3px ${hexRgb(color, 0.12)}` }}>
-          <AvatarRenderer profile={profile} size={size} />
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a" }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>{profile.company_name}</p>}
-        </div>
-      </div>
-      <div style={{ position: "relative", zIndex: 2, padding: mobile ? "0 16px 120px" : "0 28px 80px" }}>{contentSections}</div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════
-// 12. CARD COMPACT — slim color strip, floating white card
-// Avatar inside the floating card (not escaping a cover strip)
-// ═══════════════════════════════════════════════════════════
-export function CardLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size   = mobile ? 60 : 72;
-  const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg     = isDark ? "#1e293b" : "#fff";
-  const outerBg= isDark ? "#0f172a" : "#f1f5f9";
-  const text   = isDark ? "#fff" : "#0f172a";
-  const sub    = isDark ? "rgba(255,255,255,0.4)" : "#94a3b8";
+// ═══════════════════════════════════════════════════════════════
+// 15. LUXURY GOLD — black + dark brown bg, gold gradient ring, gold accents throughout
+// ═══════════════════════════════════════════════════════════════
+export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
+  const size    = mobile ? 100 : 120;
+  const radius  = getAvatarRadius(profile?.avatar_shape);
+  const gold    = "#B8860B";
+  const goldLt  = "#FFD700";
+  const coverH  = mobile ? 200 : 260;
+  const ringW   = 3;
 
   return (
-    <div style={{ background: outerBg, minHeight: "100vh" }}>
-      {/* Color strip — avatar is NOT overlapping this strip; it lives in the card below */}
-      <div style={{ height: mobile ? 90 : 110,
-        background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.6)})`,
-        position: "relative" }}>
+    <div style={{ background: "#0c0700", minHeight: "100vh" }}>
+      {/* Cover — desaturated gold tint */}
+      <div style={{ height: coverH, position: "relative", background: "linear-gradient(155deg, #1a1000, #0c0700)" }}>
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.55 }} />
+              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              opacity: 0.4, mixBlendMode: "luminosity" }} />
         )}
-        <div style={{ position: "absolute", inset: 0, background: `linear-gradient(90deg, ${hexRgb(color, 0.5)}, transparent)` }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 25%, #0c0700 100%)" }} />
+        {/* Gold glow */}
+        <div style={{ position: "absolute", bottom: -30, left: "50%", transform: "translateX(-50%)",
+          width: 220, height: 80, background: gold, filter: "blur(70px)", opacity: 0.35 }} />
+        {/* Gold corner ornament */}
+        <div style={{ position: "absolute", top: 14, right: 14, fontSize: 22 }}>👑</div>
       </div>
 
-      {/* Floating card — overlaps strip, avatar inside */}
-      <div style={{
-        background: bg,
-        margin: mobile ? "0 12px" : "0 20px",
-        borderRadius: 20,
-        marginTop: -28,
-        position: "relative",
-        zIndex: 5,
-        padding: "16px 18px",
-        display: "flex", alignItems: "center", gap: 14,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-        border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
-      }}>
-        <div style={{ flexShrink: 0, padding: 2.5,
-          background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.48)})`,
-          borderRadius: `calc(${radius} + 2.5px)` }}>
+      {/* Avatar — gold gradient ring */}
+      <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20,
+        marginTop: -((size + ringW * 2) * 0.5) }}>
+        <div style={{
+          padding: ringW,
+          background: `linear-gradient(135deg, ${goldLt}, ${gold}, #8B6914)`,
+          borderRadius: `calc(${radius} + ${ringW}px)`,
+          boxShadow: `0 0 0 1px rgba(255,215,0,0.15), 0 16px 56px ${hexRgb(gold, 0.5)}`,
+        }}>
           <AvatarRenderer profile={profile} size={size} />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 16 : 19, fontWeight: 900, color: text, lineHeight: 1.1 }}>
-            {profile?.display_name}
-          </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 1px", fontSize: 12, fontWeight: 700, color }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 11, color: sub }}>{profile.company_name}</p>}
-        </div>
+      </div>
+
+      {/* Identity */}
+      <div style={{ textAlign: "center", padding: mobile ? "14px 20px 0" : "18px 36px 0", position: "relative", zIndex: 5 }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
+          {profile?.display_name}
+        </h1>
+        {profile?.job_title && (
+          <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: goldLt, letterSpacing: "0.09em", textTransform: "uppercase",
+            textShadow: `0 0 12px ${hexRgb(goldLt, 0.5)}` }}>
+            {profile.job_title}
+          </p>
+        )}
+        {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{profile.company_name}</p>}
+        <div style={{ width: 60, height: 1, background: `linear-gradient(90deg, transparent, ${gold}, transparent)`, margin: "14px auto 0" }} />
       </div>
 
       <div style={{ padding: mobile ? "14px 16px 120px" : "18px 32px 80px" }}>{contentSections}</div>
     </div>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════
+// PASTEL (kept for backward compat with old profiles) — routes to ColorLayout
+// ═══════════════════════════════════════════════════════════════
+export function PastelLayout({ profile, color, mobile, contentSections }) {
+  return <ColorLayout profile={profile} color={color} isDark={false} mobile={mobile} contentSections={contentSections} />;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PORTRAIT (backward compat)
+// ═══════════════════════════════════════════════════════════════
+export function PortraitLayout({ profile, color, isDark, mobile, contentSections }) {
+  const size  = mobile ? 130 : 158;
+  const ringW = 5;
+  const bg    = isDark ? "#0f172a" : "#f8fafc";
+  const cardBg= isDark ? "#1e293b" : "#fff";
+  const text  = isDark ? "#fff" : "#0f172a";
+  const sub   = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
+  const coverH= mobile ? 120 : 140;
+
+  return (
+    <div style={{ background: bg, minHeight: "100vh" }}>
+      <div style={{ height: coverH, position: "relative" }}>
+        {profile?.cover_photo ? (
+          <img src={profile.cover_photo} alt=""
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+        ) : (
+          <div style={{ position: "absolute", inset: 0,
+            background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 100%)` }} />
+        )}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, " + bg + " 100%)" }} />
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20, marginTop: -((size + ringW * 2) / 2) }}>
+        <div style={{ padding: ringW, borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
+          background: cardBg, boxShadow: `0 0 0 4px ${hexRgb(color, 0.25)}, 0 24px 64px ${hexRgb(color, 0.3)}` }}>
+          <AvatarRenderer profile={profile} size={size} />
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", padding: mobile ? "16px 20px 0" : "20px 44px 0", position: "relative", zIndex: 5 }}>
+        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1 }}>{profile?.display_name}</h1>
+        {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 15, fontWeight: 700, color }}>{profile.job_title}</p>}
+        {profile?.company_name && <p style={{ margin: "0 0 18px", fontSize: 13, color: sub }}>{profile.company_name}</p>}
+      </div>
+
+      <div style={{ padding: mobile ? "6px 16px 120px" : "10px 36px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// Backward-compat aliases
+export { AuroraLayout as WaveLayout, ColorLayout as BubblyLayout, ColorLayout as SunsetLayout };
+export { ModernSaasLayout as SplitLayout };

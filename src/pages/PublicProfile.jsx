@@ -12,7 +12,7 @@ import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayo
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
-import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
@@ -290,50 +290,41 @@ export default function PublicProfile() {
   const renderActiveLayout = () => {
     const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
 
-    // Image Hero — full-bleed cover, avatar bottom-right
-    if (["image_hero","image","video_bg","parallax","realtor_luxury"].includes(layoutType))
-      return <ImageHeroLayout {...lp} />;
-    // Magazine — editorial photo header, identity row overlapping
-    if (["magazine"].includes(layoutType))
-      return <MagazineLayout {...lp} />;
-    // Aurora — northern-lights dark gradient
-    if (["aurora","animated_gradient"].includes(layoutType))
-      return <AuroraLayout {...lp} color={color} />;
-    // Glass — frosted glass on vivid gradient bg
-    if (["glassmorphic","glass_card","glass","frosted","glass_3d"].includes(layoutType))
-      return <GlassLayout {...lp} />;
-    // Split / Modern SaaS — horizontal header + accent bar
-    if (["modern_saas","split","corporate","modern_law"].includes(layoutType))
-      return <ModernSaasLayout {...lp} />;
-    // Executive — right-aligned avatar, tall cover
-    if (["executive","executive_corp"].includes(layoutType))
-      return <ExecutiveLayout {...lp} />;
-    // Luxury Gold — dark executive with gold accent
-    if (["luxury_gold"].includes(layoutType))
-      return <DarkPremiumLayout {...lp} isDark={true} profile={{ ...profile, cover_color: "#B8860B" }} color="#B8860B" />;
-    // Dark Premium — cinematic dark bg, glow ring
-    if (["dark","dark_premium","darkpremium","luxury","minimal_dark","cyberpunk","premium_salon","monochrome"].includes(layoutType))
-      return <DarkPremiumLayout {...lp} isDark={true} />;
-    // Neon — glow ring on near-black
-    if (["neon","neon_tech"].includes(layoutType))
-      return <NeonLayout {...lp} isDark={true} />;
-    // Retro — editorial serif header
-    if (["retro","paper"].includes(layoutType))
-      return <RetroLayout {...lp} />;
-    // Floating — radial bg, detached card
-    if (["floating"].includes(layoutType))
-      return <FloatingLayout {...lp} />;
-    // Bold Gradient — vivid color hero + wave
-    if (["bold","color_gradient","color","color_hero","sunset","ocean","forest","wave","bubbly","pastel","gradient","portrait"].includes(layoutType))
-      return <ColorLayout {...lp} />;
-    // Minimal — left accent stripe, horizontal
-    if (["minimal","minimal_business"].includes(layoutType))
-      return <MinimalLayout {...lp} />;
-    // Card — slim strip + floating card
-    if (["card","card_compact"].includes(layoutType))
-      return <CardLayout {...lp} />;
-    // Default
-    return <ClassicLayout {...lp} />;
+    switch (layoutType) {
+      // ── 15 premium curated layouts ──
+      case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury":
+        return <ImageHeroLayout {...lp} />;
+      case "magazine":
+        return <MagazineLayout {...lp} />;
+      case "aurora": case "animated_gradient":
+        return <AuroraLayout {...lp} color={color} />;
+      case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d":
+        return <GlassLayout {...lp} />;
+      case "modern_saas": case "split": case "corporate": case "modern_law":
+        return <ModernSaasLayout {...lp} />;
+      case "executive": case "executive_corp":
+        return <ExecutiveLayout {...lp} />;
+      case "luxury_gold":
+        return <LuxuryGoldLayout profile={profile} mobile={mobile} contentSections={layoutContentSections} />;
+      case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome":
+        return <DarkPremiumLayout {...lp} />;
+      case "neon": case "neon_tech":
+        return <NeonLayout {...lp} />;
+      case "retro": case "paper":
+        return <RetroLayout {...lp} />;
+      case "floating":
+        return <FloatingLayout {...lp} />;
+      case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly":
+        return <ColorLayout {...lp} />;
+      case "pastel": case "gradient": case "portrait":
+        return <PortraitLayout {...lp} />;
+      case "minimal": case "minimal_business":
+        return <MinimalLayout {...lp} />;
+      case "card": case "card_compact":
+        return <CardLayout {...lp} />;
+      default:
+        return <ClassicLayout {...lp} />;
+    }
   };
 
   return (

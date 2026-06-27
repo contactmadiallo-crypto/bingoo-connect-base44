@@ -152,7 +152,7 @@ export function getLayoutType(layoutId) {
 export function isLayoutDark(layoutId) {
   const darkLayouts = [
     "dark", "dark_premium", "darkpremium", "minimal_dark", "luxury",
-    "cyberpunk", "forest", "premium_salon", "neon", "neon_tech",
+    "cyberpunk", "premium_salon", "neon", "neon_tech",
     "aurora", "luxury_gold", "executive_corp", "ny_championship",
     "lions_teranga", "animated_gradient", "video_bg", "parallax",
     "monochrome",

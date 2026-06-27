@@ -7,7 +7,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
-import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout } from "./ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "./ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
 
 const PANEL_WIDTH = 272;
@@ -52,35 +52,40 @@ function FullLayoutPreview({ profile }) {
   const stub       = <PreviewContentStub color={color} isDark={isDark} />;
   const lp         = { profile, color, isDark, mobile: true, contentSections: stub };
 
-  if (["image_hero","image","video_bg","parallax","realtor_luxury"].includes(layoutType))
-    return <ImageHeroLayout {...lp} />;
-  if (["magazine"].includes(layoutType))
-    return <MagazineLayout {...lp} />;
-  if (["aurora","animated_gradient"].includes(layoutType))
-    return <AuroraLayout {...lp} color={color} />;
-  if (["glassmorphic","glass_card","glass","frosted","glass_3d"].includes(layoutType))
-    return <GlassLayout {...lp} />;
-  if (["modern_saas","split","corporate","modern_law"].includes(layoutType))
-    return <ModernSaasLayout {...lp} />;
-  if (["executive","executive_corp"].includes(layoutType))
-    return <ExecutiveLayout {...lp} />;
-  if (["luxury_gold"].includes(layoutType))
-    return <DarkPremiumLayout {...lp} isDark={true} profile={{ ...lp.profile, cover_color: "#B8860B" }} color="#B8860B" />;
-  if (["dark","dark_premium","darkpremium","luxury","minimal_dark","cyberpunk","premium_salon","monochrome"].includes(layoutType))
-    return <DarkPremiumLayout {...lp} isDark={true} />;
-  if (["neon","neon_tech"].includes(layoutType))
-    return <NeonLayout {...lp} isDark={true} />;
-  if (["retro","paper"].includes(layoutType))
-    return <RetroLayout {...lp} />;
-  if (["floating"].includes(layoutType))
-    return <FloatingLayout {...lp} />;
-  if (["bold","color_gradient","color","color_hero","sunset","ocean","forest","wave","bubbly","pastel","gradient","portrait"].includes(layoutType))
-    return <ColorLayout {...lp} />;
-  if (["minimal","minimal_business"].includes(layoutType))
-    return <MinimalLayout {...lp} />;
-  if (["card","card_compact"].includes(layoutType))
-    return <CardLayout {...lp} />;
-  return <ClassicLayout {...lp} />;
+  switch (layoutType) {
+    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury":
+      return <ImageHeroLayout {...lp} />;
+    case "magazine":
+      return <MagazineLayout {...lp} />;
+    case "aurora": case "animated_gradient":
+      return <AuroraLayout {...lp} color={color} />;
+    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d":
+      return <GlassLayout {...lp} />;
+    case "modern_saas": case "split": case "corporate": case "modern_law":
+      return <ModernSaasLayout {...lp} />;
+    case "executive": case "executive_corp":
+      return <ExecutiveLayout {...lp} />;
+    case "luxury_gold":
+      return <LuxuryGoldLayout profile={profile} mobile={true} contentSections={stub} />;
+    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome":
+      return <DarkPremiumLayout {...lp} />;
+    case "neon": case "neon_tech":
+      return <NeonLayout {...lp} />;
+    case "retro": case "paper":
+      return <RetroLayout {...lp} />;
+    case "floating":
+      return <FloatingLayout {...lp} />;
+    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly":
+      return <ColorLayout {...lp} />;
+    case "pastel": case "gradient": case "portrait":
+      return <PortraitLayout {...lp} />;
+    case "minimal": case "minimal_business":
+      return <MinimalLayout {...lp} />;
+    case "card": case "card_compact":
+      return <CardLayout {...lp} />;
+    default:
+      return <ClassicLayout {...lp} />;
+  }
 }
 
 function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
