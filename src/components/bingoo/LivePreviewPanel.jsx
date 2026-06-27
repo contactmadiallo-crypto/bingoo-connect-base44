@@ -7,7 +7,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import { ProfileHeaderPreview, DesignPreview, TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
-import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout } from "./ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, PastelLayout, WaveLayout, SunsetLayout, MagazineLayout, BubblyLayout } from "./ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
 
 const PANEL_WIDTH = 272;
@@ -52,9 +52,27 @@ function FullLayoutPreview({ profile }) {
   const stub       = <PreviewContentStub color={color} isDark={isDark} />;
   const lp         = { profile, color, isDark, mobile: true, contentSections: stub };
 
-  if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType))
+  if (["image_hero", "image", "video_bg", "parallax", "realtor_luxury"].includes(layoutType))
     return <ImageHeroLayout {...lp} />;
-  if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient", "aurora", "gradient"].includes(layoutType))
+  if (["magazine"].includes(layoutType))
+    return <MagazineLayout {...lp} />;
+  if (["aurora", "animated_gradient"].includes(layoutType))
+    return <AuroraLayout {...lp} color={color} />;
+  if (["wave"].includes(layoutType))
+    return <WaveLayout {...lp} />;
+  if (["pastel"].includes(layoutType))
+    return <PastelLayout {...lp} />;
+  if (["bubbly"].includes(layoutType))
+    return <BubblyLayout {...lp} />;
+  if (["floating"].includes(layoutType))
+    return <FloatingLayout {...lp} />;
+  if (["sunset"].includes(layoutType))
+    return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#ff6b35 0%,#f7c59f 50%,#ffe0cc 100%)" />;
+  if (["ocean"].includes(layoutType))
+    return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#0077b6 0%,#00b4d8 50%,#90e0ef 100%)" />;
+  if (["forest"].includes(layoutType))
+    return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#052e16 0%,#166534 40%,#4ade80 100%)" />;
+  if (["portrait", "gradient"].includes(layoutType))
     return <PortraitLayout {...lp} />;
   if (["glass_card", "glass", "glassmorphic", "frosted", "glass_3d"].includes(layoutType))
     return <GlassLayout {...lp} />;
@@ -62,13 +80,13 @@ function FullLayoutPreview({ profile }) {
     return <ModernSaasLayout {...lp} />;
   if (["executive", "executive_corp", "luxury_gold"].includes(layoutType))
     return <ExecutiveLayout {...lp} />;
-  if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "forest", "premium_salon"].includes(layoutType))
+  if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "premium_salon", "monochrome"].includes(layoutType))
     return <DarkPremiumLayout {...lp} isDark={true} />;
   if (["neon", "neon_tech"].includes(layoutType))
     return <NeonLayout {...lp} isDark={true} />;
-  if (["retro", "monochrome", "paper"].includes(layoutType))
+  if (["retro", "paper"].includes(layoutType))
     return <RetroLayout {...lp} />;
-  if (["color_gradient", "bold", "sunset", "ocean", "color", "color_hero"].includes(layoutType))
+  if (["color_gradient", "bold", "color", "color_hero"].includes(layoutType))
     return <ColorLayout {...lp} />;
   if (["minimal", "minimal_business"].includes(layoutType))
     return <MinimalLayout {...lp} />;

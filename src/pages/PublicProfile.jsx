@@ -12,7 +12,7 @@ import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayo
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
-import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { ClassicLayout, ImageHeroLayout, PortraitLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, PastelLayout, WaveLayout, SunsetLayout, MagazineLayout, BubblyLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
@@ -291,11 +291,47 @@ export default function PublicProfile() {
     const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
 
     // ── Image Hero ── full-bleed photo cover, avatar bottom-right
-    if (["image_hero", "image", "video_bg", "parallax", "magazine", "realtor_luxury"].includes(layoutType))
+    if (["image_hero", "image", "video_bg", "parallax", "realtor_luxury"].includes(layoutType))
       return <ImageHeroLayout {...lp} />;
 
-    // ── Portrait / Aurora / Gradient ── giant centered avatar, shorter cover
-    if (["portrait", "floating", "pastel", "bubbly", "wave", "animated_gradient", "aurora", "gradient"].includes(layoutType))
+    // ── Magazine / Editorial ── image-top, identity row overlapping
+    if (["magazine"].includes(layoutType))
+      return <MagazineLayout {...lp} />;
+
+    // ── Aurora ── dark northern-lights gradient, glow orbs
+    if (["aurora", "animated_gradient"].includes(layoutType))
+      return <AuroraLayout {...lp} color={color} />;
+
+    // ── Wave ── color header with wave SVG divider
+    if (["wave"].includes(layoutType))
+      return <WaveLayout {...lp} />;
+
+    // ── Pastel ── soft pink/lavender, friendly rounded
+    if (["pastel"].includes(layoutType))
+      return <PastelLayout {...lp} />;
+
+    // ── Bubbly ── playful bubbles, large rounded card
+    if (["bubbly"].includes(layoutType))
+      return <BubblyLayout {...lp} />;
+
+    // ── Floating ── detached floating card layout
+    if (["floating"].includes(layoutType))
+      return <FloatingLayout {...lp} />;
+
+    // ── Sunset ── warm orange natural gradient
+    if (["sunset"].includes(layoutType))
+      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#ff6b35 0%,#f7c59f 50%,#ffe0cc 100%)" />;
+
+    // ── Ocean ── deep blue gradient
+    if (["ocean"].includes(layoutType))
+      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#0077b6 0%,#00b4d8 50%,#90e0ef 100%)" />;
+
+    // ── Forest ── nature green gradient
+    if (["forest"].includes(layoutType))
+      return <SunsetLayout {...lp} gradientColors="linear-gradient(160deg,#052e16 0%,#166534 40%,#4ade80 100%)" />;
+
+    // ── Portrait / Gradient ── large centered avatar, short cover
+    if (["portrait", "gradient"].includes(layoutType))
       return <PortraitLayout {...lp} />;
 
     // ── Glass / Frosted ── frosted glass header on vivid gradient bg
@@ -306,27 +342,27 @@ export default function PublicProfile() {
     if (["modern_saas", "corporate", "modern_law", "split"].includes(layoutType))
       return <ModernSaasLayout {...lp} />;
 
-    // ── Executive / Luxury ── right-side avatar, tall cover
+    // ── Executive / Luxury Gold ── right-side avatar, tall cover
     if (["executive", "executive_corp", "luxury_gold"].includes(layoutType))
       return <ExecutiveLayout {...lp} />;
 
-    // ── Dark / Premium / Luxury ── cinematic dark background, glow ring
-    if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "forest", "premium_salon"].includes(layoutType))
+    // ── Dark / Cyberpunk / Forest themes ── cinematic dark, glow ring
+    if (["dark", "dark_premium", "darkpremium", "luxury", "minimal_dark", "cyberpunk", "premium_salon", "monochrome"].includes(layoutType))
       return <DarkPremiumLayout {...lp} isDark={true} />;
 
     // ── Neon / Neon Tech ── vivid neon glow on near-black
     if (["neon", "neon_tech"].includes(layoutType))
       return <NeonLayout {...lp} isDark={true} />;
 
-    // ── Retro / Monochrome / Paper / Magazine ── warm editorial feel
-    if (["retro", "monochrome", "paper"].includes(layoutType))
+    // ── Retro / Paper ── warm editorial feel
+    if (["retro", "paper"].includes(layoutType))
       return <RetroLayout {...lp} />;
 
-    // ── Bold / Color / Gradient hero ── vivid full-color header
-    if (["color_gradient", "bold", "sunset", "ocean", "color", "color_hero"].includes(layoutType))
+    // ── Bold / Color / Gradient hero ── vivid full-color header + wave
+    if (["color_gradient", "bold", "color", "color_hero"].includes(layoutType))
       return <ColorLayout {...lp} />;
 
-    // ── Minimal / Minimal Business ── left accent stripe, horizontal header
+    // ── Minimal ── left accent stripe, horizontal compact header
     if (["minimal", "minimal_business"].includes(layoutType))
       return <MinimalLayout {...lp} />;
 

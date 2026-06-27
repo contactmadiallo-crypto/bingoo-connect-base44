@@ -150,6 +150,12 @@ export function getLayoutType(layoutId) {
  * Determine if a layout is dark-styled (dark backgrounds)
  */
 export function isLayoutDark(layoutId) {
-  const darkLayouts = ["darkpremium", "neon", "aurora", "minimal_dark", "luxury", "cyberpunk"];
+  const darkLayouts = [
+    "dark", "dark_premium", "darkpremium", "minimal_dark", "luxury",
+    "cyberpunk", "forest", "premium_salon", "neon", "neon_tech",
+    "aurora", "luxury_gold", "executive_corp", "ny_championship",
+    "lions_teranga", "animated_gradient", "video_bg", "parallax",
+    "monochrome",
+  ];
   return darkLayouts.includes(layoutId);
 }
