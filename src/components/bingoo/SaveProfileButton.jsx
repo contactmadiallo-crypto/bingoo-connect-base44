@@ -67,8 +67,8 @@ export default function SaveProfileButton({ profile, source = "manual", color = 
         whileTap={{ scale: 0.97 }}
         disabled={saved || saving}
         style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          padding: "14px 16px", borderRadius: 14,
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          padding: "13px 10px", borderRadius: 14,
           background: saved
             ? "linear-gradient(135deg, #10b981, #059669)"
             : `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,

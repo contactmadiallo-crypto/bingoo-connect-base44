@@ -213,23 +213,26 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
   return (
     <div style={{ padding: "0" }}>
-      {/* Save Contact + Share — full-width pill buttons (Circo style) */}
+      {/* Save Contact + Connect + Share — 3-button Circo style row */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-        style={{ display: "flex", gap: 10, marginBottom: 28 }}>
+        style={{ display: "flex", gap: 8, marginBottom: 28 }}>
         <motion.button
           onClick={() => { track("save_contact_click"); saveContact(profile); }}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: 14, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${hexRgb(color, 0.38)}` }}
+          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "13px 10px", borderRadius: 14, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 13, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${hexRgb(color, 0.38)}` }}
         >
-          <SaveContactIcon size={18} /> Save Contact
+          <SaveContactIcon size={16} /> Save
         </motion.button>
+        <div style={{ flex: 1 }}>
+          <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
+        </div>
         <motion.button
           onClick={handleShare}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: 14, background: isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9", color: isDark ? "#fff" : "#374151", fontWeight: 800, fontSize: 14, border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", cursor: "pointer" }}
+          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "13px 10px", borderRadius: 14, background: isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9", color: isDark ? "#fff" : "#374151", fontWeight: 800, fontSize: 13, border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", cursor: "pointer" }}
         >
-          <ShareIcon size={18} color={isDark ? "#fff" : "#374151"} />
-          {shared ? "✓ Copied" : "Exchange"}
+          <ShareIcon size={16} color={isDark ? "#fff" : "#374151"} />
+          {shared ? "✓" : "Share"}
         </motion.button>
       </motion.div>
 
