@@ -165,20 +165,20 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   };
 
   const primaryLinks = [
-    profile.phone && { label: "Call", color: "#16a34a", bg: "linear-gradient(135deg,#16a34a,#15803d)", href: `tel:${profile.phone}`, icon: <PhoneIcon size={24} />, ev: "phone_click" },
+    profile.phone && { label: "Call", href: `tel:${profile.phone}`, icon: <BIPhone size={48} />, ev: "phone_click" },
     isSalonOrRestaurant && waBookingHref
-      ? { label: "Book via WA", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: waBookingHref, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" }
-      : profile.whatsapp_number && { label: "WhatsApp", color: "#25D366", bg: "linear-gradient(135deg,#25D366,#128C7E)", href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <WhatsAppIcon size={24} />, ev: "whatsapp_click" },
-    profile.email && { label: "Email", color: "#6366f1", bg: "linear-gradient(135deg,#6366f1,#4f46e5)", href: `mailto:${profile.email}`, icon: <EmailSvgIcon size={24} />, ev: "email_click" },
-    canBook && { label: "Book", color, bg: `linear-gradient(135deg,${color},${hexRgb(color, 0.8)})`, href: null, onClick: () => setBookOpen(true), icon: <CalendarSvgIcon size={24} />, ev: null },
+      ? { label: "Book via WA", href: waBookingHref, icon: <BIWhatsApp size={48} />, ev: "whatsapp_click" }
+      : profile.whatsapp_number && { label: "WhatsApp", href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={48} />, ev: "whatsapp_click" },
+    profile.email && { label: "Email", href: `mailto:${profile.email}`, icon: <BIEmail size={48} />, ev: "email_click" },
+    canBook && { label: "Book", href: null, onClick: () => setBookOpen(true), icon: <BICalendar size={48} />, ev: null },
   ].filter(Boolean);
 
   const socialLinks = [
-    profile.instagram_url && { Icon: InstagramIcon, href: profile.instagram_url, label: "Instagram", ev: "instagram_click" },
-    profile.facebook_url && { Icon: FacebookIcon, href: profile.facebook_url, label: "Facebook", ev: "facebook_click" },
-    profile.tiktok_url && { Icon: TikTokIcon, href: profile.tiktok_url, label: "TikTok", ev: "tiktok_click" },
-    profile.linkedin_url && { Icon: LinkedInIcon, href: profile.linkedin_url, label: "LinkedIn", ev: "linkedin_click" },
-    profile.youtube_url && { Icon: YouTubeIcon, href: profile.youtube_url, label: "YouTube", ev: "youtube_click" },
+    profile.instagram_url && { Icon: BIInstagram, href: profile.instagram_url, label: "Instagram", ev: "instagram_click" },
+    profile.facebook_url && { Icon: BIFacebook, href: profile.facebook_url, label: "Facebook", ev: "facebook_click" },
+    profile.tiktok_url && { Icon: BITikTok, href: profile.tiktok_url, label: "TikTok", ev: "tiktok_click" },
+    profile.linkedin_url && { Icon: BILinkedIn, href: profile.linkedin_url, label: "LinkedIn", ev: "linkedin_click" },
+    profile.youtube_url && { Icon: BIYouTube, href: profile.youtube_url, label: "YouTube", ev: "youtube_click" },
   ].filter(Boolean);
 
   const payments = [
@@ -189,89 +189,70 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     ...((profile.custom_payments || []).filter(c => c.label && (c.link || c.qr)).map(c => ({ e: c.emoji || "💵", l: c.label, h: c.link || null, qr: c.qr || null }))),
   ].filter(Boolean);
 
+  // ── Circo-style icon item (large iOS app icon + label below) ──
+  const IconItem = ({ href, onClick, icon, label, ev, delay = 0 }) => (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ scale: 1.1, y: -3 }} whileTap={{ scale: 0.92 }}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer" }}
+    >
+      {href
+        ? <a href={href} target="_blank" rel="noopener noreferrer" onClick={() => ev && track(ev)}
+            style={{ display: "block", textDecoration: "none", borderRadius: Math.round((48 + 20) * 0.24) + 2, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.14)" }}>
+            {icon}
+          </a>
+        : <button onClick={() => { ev && track(ev); onClick?.(); }}
+            style={{ display: "block", background: "none", border: "none", padding: 0, cursor: "pointer", borderRadius: Math.round((48 + 20) * 0.24) + 2, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.14)" }}>
+            {icon}
+          </button>
+      }
+      <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? "rgba(255,255,255,0.55)" : "#64748b", letterSpacing: "0.01em", textAlign: "center", maxWidth: 64, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+    </motion.div>
+  );
+
   return (
     <div style={{ padding: "0" }}>
-      {/* Save + Share row — premium pill buttons */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 26 }}>
+      {/* Save Contact + Share — full-width pill buttons (Circo style) */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+        style={{ display: "flex", gap: 10, marginBottom: 28 }}>
         <motion.button
           onClick={() => { track("save_contact_click"); saveContact(profile); }}
-          whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.96 }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 12px", borderRadius: r, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 13, border: "none", cursor: "pointer", boxShadow: `0 12px 32px ${hexRgb(color, 0.42)}, inset 0 1px 0 rgba(255,255,255,0.2)` }}
+          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: 14, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, color: "#fff", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${hexRgb(color, 0.38)}` }}
         >
-          <SaveContactIcon size={17} /> Save
+          <SaveContactIcon size={18} /> Save Contact
         </motion.button>
-        <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
         <motion.button
           onClick={handleShare}
-          whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.96 }}
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "15px 12px", borderRadius: r, background: isDark ? "rgba(255,255,255,0.09)" : hexRgb(color, 0.07), color: isDark ? "#fff" : color, fontWeight: 800, fontSize: 13, border: `1.5px solid ${isDark ? "rgba(255,255,255,0.14)" : hexRgb(color, 0.22)}`, cursor: "pointer" }}
+          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+          style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 16px", borderRadius: 14, background: isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9", color: isDark ? "#fff" : "#374151", fontWeight: 800, fontSize: 14, border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0", cursor: "pointer" }}
         >
-          <ShareIcon size={17} color={isDark ? "#fff" : color} />
-          {shared ? "✓ Copied" : "Share"}
+          <ShareIcon size={18} color={isDark ? "#fff" : "#374151"} />
+          {shared ? "✓ Copied" : "Exchange"}
         </motion.button>
       </motion.div>
 
-      {/* Primary action buttons — premium card grid */}
-      {primaryLinks.length > 0 && (
-        <div style={{ marginBottom: 28 }}>
-          <SectionHead emoji="⚡" title="Contact" light={isDark} />
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(primaryLinks.length, 4)}, 1fr)`, gap: 10 }}>
-            {primaryLinks.map((l, i) => {
-              const btnStyle = {
-                width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                gap: 9, padding: "20px 8px", borderRadius: 22, background: l.bg || l.color, color: "#fff",
-                fontWeight: 800, fontSize: 11, textTransform: "uppercase", letterSpacing: "0.07em",
-                boxShadow: `0 14px 36px ${hexRgb(l.color, 0.38)}, inset 0 1px 0 rgba(255,255,255,0.2)`,
-                border: "1px solid rgba(255,255,255,0.18)", minHeight: 92, cursor: "pointer",
-                textDecoration: "none",
-              };
-              return (
-                <motion.div key={l.label}
-                  initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.38 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ scale: 1.04, y: -4 }} whileTap={{ scale: 0.96 }}
-                >
-                  {l.href
-                    ? <a href={l.href} target="_blank" rel="noopener noreferrer" style={btnStyle} onClick={() => l.ev && track(l.ev)}>
-                        {l.icon}<span>{l.label}</span>
-                      </a>
-                    : <button onClick={() => { l.ev && track(l.ev); l.onClick?.(); }} style={btnStyle}>
-                        {l.icon}<span>{l.label}</span>
-                      </button>
-                  }
-                </motion.div>
-              );
-            })}
+      {/* All action icons — Circo-style large icon grid (contact + social together) */}
+      {(primaryLinks.length > 0 || socialLinks.length > 0) && (() => {
+        // Build unified icon list: contact actions first, then social
+        const contactIcons = primaryLinks.map((l, i) => ({
+          href: l.href, onClick: l.onClick, icon: l.icon, label: l.label, ev: l.ev, delay: 0.32 + i * 0.06,
+        }));
+        const socialIcons = socialLinks.map(({ Icon, href, label, ev }, i) => ({
+          href, icon: <Icon size={48} />, label, ev, delay: 0.32 + (primaryLinks.length + i) * 0.06,
+        }));
+        const allIcons = [...contactIcons, ...socialIcons];
+        return (
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "16px 10px" }}>
+              {allIcons.map((item, i) => (
+                <IconItem key={item.label + i} {...item} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      <Divider light={isDark} />
-
-      {/* Social icons */}
-      {socialLinks.length > 0 && (
-        <div style={{ marginBottom: 28 }}>
-          <SectionHead emoji="🌐" title="Social Media" light={isDark} />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-            {socialLinks.map(({ Icon, href, label, ev }, i) => (
-              <motion.a key={label} href={href} target="_blank" rel="noopener noreferrer"
-                title={label}
-                initial={{ opacity: 0, scale: 0.7 }} animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.45 + i * 0.07, duration: 0.4 }}
-                whileHover={{ scale: 1.15, y: -4 }} whileTap={{ scale: 0.9 }}
-                onClick={() => track(ev)}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, textDecoration: "none" }}
-              >
-                <div style={{ width: 52, height: 52, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", background: "#fff" }}>
-                  <Icon size={52} />
-                </div>
-                <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? "rgba(255,255,255,0.5)" : "#64748b", letterSpacing: "0.02em" }}>{label}</span>
-              </motion.a>
-            ))}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Custom links — premium list cards */}
       {(profile.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).length > 0 && (
