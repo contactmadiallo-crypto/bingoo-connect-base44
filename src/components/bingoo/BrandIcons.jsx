@@ -17,7 +17,7 @@ function AppIcon({ bg, size = 40, radius = 10, children, shadow }) {
   );
 }
 
-const S = ({ size }) => ({ width: size, height: size });
+const S = (size) => ({ width: size, height: size });
 
 export function PhoneIcon({ size = 20 }) {
   return (
