@@ -11,19 +11,19 @@ import {
 } from "./ProfileLayoutRenderer";
 import { hexRgb } from "./ProfileLayoutRenderer";
 
-// Generic sample avatars — real professional headshots from Unsplash, no personal photos
+// 3D Memoji-style avatars — diverse professional characters
 const SAMPLE_AVATARS = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face&q=80",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face&q=80",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face&q=80",
+  "https://media.base44.com/images/public/692bd9007b93ba81de543346/1ccea4ba2_image.png",
+  "https://media.base44.com/images/public/692bd9007b93ba81de543346/09d0f59fa_image.png",
+  "https://media.base44.com/images/public/692bd9007b93ba81de543346/1ccea4ba2_image.png",
+  "https://media.base44.com/images/public/692bd9007b93ba81de543346/09d0f59fa_image.png",
+  "https://media.base44.com/images/public/692bd9007b93ba81de543346/1ccea4ba2_image.png",
 ];
 
 // Sample cover photos — high-quality Unsplash professional images per layout
 const SAMPLE_COVERS = {
-  image_hero:   "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
-  magazine:     "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
+  image_hero:   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+  magazine:     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop&crop=top&q=80",
   executive:    "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80",
   classic:      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
   retro:        "https://images.unsplash.com/photo-1519750157634-b6d493a0f77c?w=800&q=80",
@@ -39,29 +39,43 @@ const SAMPLE_COVERS = {
   minimal:      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
 };
 
-const LAYOUT_AVATARS = {
-  classic: 0, minimal: 1, card: 2, image_hero: 3, glassmorphic: 1,
-  dark: 4, aurora: 0, magazine: 3, executive: 2, modern_saas: 1,
-  bold: 3, neon: 4, retro: 0, floating: 2, luxury_gold: 1,
+// Each layout gets a UNIQUE accent color so previews look visually distinct
+const LAYOUT_ACCENT_COLORS = {
+  classic:      "#2563eb",
+  minimal:      "#0f172a",
+  card:         "#7c3aed",
+  image_hero:   "#dc2626",
+  glassmorphic: "#6366f1",
+  dark:         "#1e293b",
+  aurora:       "#06b6d4",
+  magazine:     "#be185d",
+  executive:    "#1e3a5f",
+  modern_saas:  "#059669",
+  bold:         "#ea580c",
+  neon:         "#a21caf",
+  retro:        "#b45309",
+  floating:     "#0891b2",
+  luxury_gold:  "#92400e",
 };
 
-// Map layout → matching cover photo person for cohesive look
-const PERSON_COVER_MATCH = {
-  // For layouts that show person on cover
-  magazine: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop&crop=top&q=80",
-  image_hero: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=800&h=600&fit=crop&crop=faces&q=80",
+const LAYOUT_AVATARS = {
+  classic: 0, minimal: 1, card: 0, image_hero: 1, glassmorphic: 0,
+  dark: 1, aurora: 0, magazine: 1, executive: 0, modern_saas: 1,
+  bold: 0, neon: 1, retro: 0, floating: 1, luxury_gold: 0,
 };
 
 function buildSampleProfile(layoutId, accentColor) {
   const avatarIdx = LAYOUT_AVATARS[layoutId] ?? 0;
-  const coverPhoto = PERSON_COVER_MATCH[layoutId] || SAMPLE_COVERS[layoutId] || null;
+  const coverPhoto = SAMPLE_COVERS[layoutId] || null;
+  // Use the layout's unique accent if caller didn't override
+  const resolvedColor = LAYOUT_ACCENT_COLORS[layoutId] || accentColor || "#2563eb";
   return {
     display_name: "Sarah Mitchell",
     job_title: "Creative Director",
     company_name: "Apex Studio",
     profile_photo: SAMPLE_AVATARS[avatarIdx],
     cover_photo: coverPhoto,
-    cover_color: accentColor || "#2563eb",
+    cover_color: resolvedColor,
     avatar_shape: "circle",
     avatar_placement: "center_overlap",
     avatar_position: "center top",
@@ -109,9 +123,10 @@ function MiniContentStub({ color, isDark }) {
 // Routes a layoutId → the correct renderer — identical to PublicProfile.jsx
 function LayoutRenderer({ layoutId, color }) {
   const profile = buildSampleProfile(layoutId, color);
+  const resolvedColor = profile.cover_color;
   const isDark  = ["dark", "dark_premium", "neon", "aurora", "luxury_gold"].includes(layoutId);
-  const stub    = <MiniContentStub color={color} isDark={isDark} />;
-  const lp      = { profile, color, isDark, mobile: true, contentSections: stub };
+  const stub    = <MiniContentStub color={resolvedColor} isDark={isDark} />;
+  const lp      = { profile, color: resolvedColor, isDark, mobile: true, contentSections: stub };
 
   switch (layoutId) {
     case "image_hero":   return <ImageHeroLayout {...lp} />;

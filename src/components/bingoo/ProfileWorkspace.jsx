@@ -104,6 +104,7 @@ const EDITABLE_FIELDS = [
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
+  "bg_watermark_image", "bg_watermark_opacity",
 ];
 
 function buildPayload(liveForm) {

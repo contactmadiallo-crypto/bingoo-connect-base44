@@ -329,9 +329,21 @@ export default function PublicProfile() {
 
   // Apply custom background color if set
   const pageBackground = profile.theme_background_color || undefined;
+  const bgWatermark = profile.bg_watermark_image || null;
+  const bgWatermarkOpacity = (profile.bg_watermark_opacity ?? 15) / 100;
 
   return (
     <div ref={topRef} style={{ position: "relative", ...(pageBackground ? { background: pageBackground, minHeight: "100vh" } : {}) }}>
+
+      {/* Watermark background image */}
+      {bgWatermark && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+          backgroundImage: `url(${bgWatermark})`,
+          backgroundSize: "cover", backgroundPosition: "center",
+          opacity: bgWatermarkOpacity,
+        }} />
+      )}
 
       {/* Back button — frosted glass */}
       <motion.button
@@ -346,9 +358,11 @@ export default function PublicProfile() {
       </motion.button>
 
       {/* Main card — real layout renderer */}
-      <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
-        {renderActiveLayout()}
-      </ProfileLayoutShell>
+      <div style={{ position: "relative", zIndex: 1 }}>
+        <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
+          {renderActiveLayout()}
+        </ProfileLayoutShell>
+      </div>
 
       {/* ── STICKY BOTTOM BAR ── */}
       {(profile.phone || profile.whatsapp_number) && (

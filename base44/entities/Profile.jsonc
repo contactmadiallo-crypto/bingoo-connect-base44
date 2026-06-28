@@ -36,6 +36,15 @@
       "type": "string",
       "description": "Custom background color for the public profile page"
     },
+    "bg_watermark_image": {
+      "type": "string",
+      "description": "Background watermark image URL for the public profile page"
+    },
+    "bg_watermark_opacity": {
+      "type": "number",
+      "default": 15,
+      "description": "Watermark image opacity 5-40%"
+    },
     "avatar_shape": {
       "type": "string",
       "enum": [
