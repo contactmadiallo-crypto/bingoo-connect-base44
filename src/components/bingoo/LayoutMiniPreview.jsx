@@ -1,7 +1,7 @@
 /**
  * LayoutMiniPreview — renders the REAL layout component scaled down.
- * Uses generic sample profiles — NO personal user data ever.
- * Routing mirrors PublicProfile.jsx exactly.
+ * Uses ONLY generic sample data. No personal user data ever.
+ * Switch statement mirrors PublicProfile.jsx renderActiveLayout() exactly.
  */
 import {
   ClassicLayout, ImageHeroLayout, GlassLayout,
@@ -10,83 +10,113 @@ import {
   AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout,
 } from "./ProfileLayoutRenderer";
 
-// 3D Memoji-style avatars — diverse professional characters
-// Using two confirmed working Memoji URLs, alternating per layout
+// ── Two confirmed 3D Memoji assets ──────────────────────────────────────────
 const MEMOJI_A = "https://media.base44.com/images/public/692bd9007b93ba81de543346/1ccea4ba2_image.png";
 const MEMOJI_B = "https://media.base44.com/images/public/692bd9007b93ba81de543346/09d0f59fa_image.png";
 
-// High-quality cover photos — unique per layout
-const SAMPLE_COVERS = {
-  classic:      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
-  minimal:      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
-  card:         "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
-  image_hero:   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-  glassmorphic: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80",
-  dark:         "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=80",
-  aurora:       "https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=800&q=80",
-  magazine:     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop&crop=top&q=80",
-  executive:    "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80",
-  modern_saas:  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
-  bold:         "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80",
-  neon:         "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
-  retro:        "https://images.unsplash.com/photo-1519750157634-b6d493a0f77c?w=800&q=80",
-  floating:     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-  luxury_gold:  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
-};
-
-// Each layout has its OWN unique accent color — this is the key visual differentiator
-const LAYOUT_ACCENTS = {
-  classic:      "#2563eb",
-  minimal:      "#0f172a",
-  card:         "#7c3aed",
-  image_hero:   "#dc2626",
-  glassmorphic: "#6366f1",
-  dark:         "#0f172a",
-  aurora:       "#06b6d4",
-  magazine:     "#be185d",
-  executive:    "#1e3a5f",
-  modern_saas:  "#059669",
-  bold:         "#ea580c",
-  neon:         "#a21caf",
-  retro:        "#b45309",
-  floating:     "#0891b2",
-  luxury_gold:  "#78350f",
-};
-
-// Sample names/titles per layout for variety
-const LAYOUT_IDENTITY = {
-  classic:      { name: "Alex Johnson",   title: "Marketing Director",  company: "BrandCo" },
-  minimal:      { name: "Sophie Chen",    title: "UX Designer",          company: "Pixel Lab" },
-  card:         { name: "Marcus Reid",    title: "Software Engineer",    company: "TechBase" },
-  image_hero:   { name: "Nadia Kone",     title: "Creative Director",    company: "Apex Studio" },
-  glassmorphic: { name: "Liam Torres",    title: "Product Manager",      company: "Nexus HQ" },
-  dark:         { name: "Karim Hassan",   title: "CEO & Founder",        company: "Onyx Group" },
-  aurora:       { name: "Priya Nair",     title: "Brand Strategist",     company: "Aurora Co" },
-  magazine:     { name: "Isabella Rossi", title: "Fashion Editor",       company: "Style Magazine" },
-  executive:    { name: "David Morgan",   title: "Executive Director",   company: "Morgan & Co" },
-  modern_saas:  { name: "Taylor Swift",   title: "Growth Lead",          company: "SaaS Labs" },
-  bold:         { name: "Omar Diallo",    title: "Creative Entrepreneur", company: "Bold Studio" },
-  neon:         { name: "Zoe Park",       title: "Digital Artist",       company: "NeonWorks" },
-  retro:        { name: "James Collins",  title: "Vintage Curator",      company: "Retro House" },
-  floating:     { name: "Amara Diallo",   title: "Wellness Coach",       company: "Serenity" },
-  luxury_gold:  { name: "Elena Voss",     title: "Luxury Consultant",    company: "Gold Class" },
+// ── Per-layout config — each MUST look visually unique ───────────────────────
+const LAYOUT_CONFIG = {
+  classic: {
+    color: "#2563eb",
+    cover: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
+    name: "Alex Johnson", title: "Marketing Director", company: "BrandCo",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  minimal: {
+    color: "#0f172a",
+    cover: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
+    name: "Sophie Chen", title: "UX Designer", company: "Pixel Lab",
+    avatar: MEMOJI_B, isDark: false,
+  },
+  card: {
+    color: "#7c3aed",
+    cover: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
+    name: "Marcus Reid", title: "Software Engineer", company: "TechBase",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  image_hero: {
+    color: "#dc2626",
+    cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    name: "Nadia Kone", title: "Creative Director", company: "Apex Studio",
+    avatar: MEMOJI_B, isDark: false,
+  },
+  glassmorphic: {
+    color: "#6366f1",
+    cover: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80",
+    name: "Liam Torres", title: "Product Manager", company: "Nexus HQ",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  dark: {
+    color: "#6366f1",
+    cover: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=80",
+    name: "Karim Hassan", title: "CEO & Founder", company: "Onyx Group",
+    avatar: MEMOJI_B, isDark: true,
+  },
+  aurora: {
+    color: "#06b6d4",
+    cover: "https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=800&q=80",
+    name: "Priya Nair", title: "Brand Strategist", company: "Aurora Co",
+    avatar: MEMOJI_A, isDark: true,
+  },
+  magazine: {
+    color: "#be185d",
+    cover: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80",
+    name: "Isabella Rossi", title: "Fashion Editor", company: "Style Mag",
+    avatar: MEMOJI_B, isDark: false,
+  },
+  executive: {
+    color: "#1e3a5f",
+    cover: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80",
+    name: "David Morgan", title: "Executive Director", company: "Morgan & Co",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  modern_saas: {
+    color: "#059669",
+    cover: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
+    name: "Taylor Kim", title: "Growth Lead", company: "SaaS Labs",
+    avatar: MEMOJI_B, isDark: false,
+  },
+  bold: {
+    color: "#ea580c",
+    cover: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80",
+    name: "Omar Diallo", title: "Entrepreneur", company: "Bold Studio",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  neon: {
+    color: "#a21caf",
+    cover: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
+    name: "Zoe Park", title: "Digital Artist", company: "NeonWorks",
+    avatar: MEMOJI_B, isDark: true,
+  },
+  retro: {
+    color: "#b45309",
+    cover: "https://images.unsplash.com/photo-1519750157634-b6d493a0f77c?w=800&q=80",
+    name: "James Collins", title: "Vintage Curator", company: "Retro House",
+    avatar: MEMOJI_A, isDark: false,
+  },
+  floating: {
+    color: "#0891b2",
+    cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    name: "Amara Diallo", title: "Wellness Coach", company: "Serenity Co",
+    avatar: MEMOJI_B, isDark: false,
+  },
+  luxury_gold: {
+    color: "#B8860B",
+    cover: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
+    name: "Elena Voss", title: "Luxury Consultant", company: "Gold Class",
+    avatar: MEMOJI_A, isDark: true,
+  },
 };
 
 function buildSampleProfile(layoutId) {
-  const accent = LAYOUT_ACCENTS[layoutId] || "#2563eb";
-  const identity = LAYOUT_IDENTITY[layoutId] || { name: "Alex Johnson", title: "Director", company: "Studio" };
-  const coverPhoto = SAMPLE_COVERS[layoutId] || null;
-  const avatarUrl = [0, 2, 4, 6, 8, 10, 12, 14].includes(Object.keys(LAYOUT_ACCENTS).indexOf(layoutId))
-    ? MEMOJI_A
-    : MEMOJI_B;
-
+  const cfg = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;
   return {
-    display_name: identity.name,
-    job_title: identity.title,
-    company_name: identity.company,
-    profile_photo: avatarUrl,
-    cover_photo: coverPhoto,
-    cover_color: accent,
+    display_name: cfg.name,
+    job_title: cfg.title,
+    company_name: cfg.company,
+    profile_photo: cfg.avatar,
+    cover_photo: cfg.cover,
+    cover_color: cfg.color,
     avatar_shape: "circle",
     avatar_placement: "center_overlap",
     avatar_position: "center top",
@@ -98,18 +128,18 @@ function buildSampleProfile(layoutId) {
 }
 
 function MiniContentStub({ color, isDark }) {
-  const bg   = isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
-  const line = isDark ? "rgba(255,255,255,0.18)" : "#cbd5e1";
-  const subline = isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0";
+  const bg      = isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
+  const line    = isDark ? "rgba(255,255,255,0.18)" : "#cbd5e1";
+  const subline = isDark ? "rgba(255,255,255,0.10)" : "#e2e8f0";
   return (
     <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
-      {/* Icon row */}
+      {/* 4 app-icon squares */}
       <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 2 }}>
-        {[color, "#25D366", "#1877F2", "#000"].map((c, i) => (
+        {[color, "#25D366", "#1877F2", "#000000"].map((c, i) => (
           <div key={i} style={{ width: 30, height: 30, borderRadius: 9, background: c, flexShrink: 0, boxShadow: `0 2px 6px ${c}55` }} />
         ))}
       </div>
-      {/* Link rows */}
+      {/* 3 link row stubs */}
       {[1, 2, 3].map(i => (
         <div key={i} style={{ background: bg, borderRadius: 10, padding: "7px 10px", display: "flex", alignItems: "center", gap: 8 }}>
           <div style={{ width: 18, height: 18, borderRadius: 6, background: color, flexShrink: 0, opacity: 0.85 }} />
@@ -123,13 +153,14 @@ function MiniContentStub({ color, isDark }) {
   );
 }
 
-// Mirrors PublicProfile.jsx renderActiveLayout() exactly
+// EXACTLY mirrors PublicProfile.jsx renderActiveLayout()
 function LayoutRenderer({ layoutId }) {
+  const cfg     = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;
   const profile = buildSampleProfile(layoutId);
-  const color = profile.cover_color;
-  const isDark = ["dark", "neon", "aurora", "luxury_gold"].includes(layoutId);
-  const stub = <MiniContentStub color={color} isDark={isDark} />;
-  const lp = { profile, color, isDark, mobile: true, contentSections: stub };
+  const color   = cfg.color;
+  const isDark  = cfg.isDark;
+  const stub    = <MiniContentStub color={color} isDark={isDark} />;
+  const lp      = { profile, color, isDark, mobile: true, contentSections: stub };
 
   switch (layoutId) {
     case "image_hero":   return <ImageHeroLayout {...lp} />;
@@ -150,24 +181,32 @@ function LayoutRenderer({ layoutId }) {
   }
 }
 
-export default function LayoutMiniPreview({ layoutId, color, isSelected = false, previewHeight = 260 }) {
+export default function LayoutMiniPreview({ layoutId, isSelected = false, previewHeight = 260 }) {
+  const cfg = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;
   const RENDER_WIDTH  = 375;
   const RENDER_HEIGHT = 680;
   const scale = previewHeight / RENDER_HEIGHT;
 
   return (
     <div style={{
-      width: "100%", height: previewHeight,
-      borderRadius: 10, overflow: "hidden",
+      width: "100%",
+      height: previewHeight,
+      borderRadius: 10,
+      overflow: "hidden",
       position: "relative",
-      background: ["dark", "neon", "luxury_gold", "aurora"].includes(layoutId) ? "#0f172a" : "#f8fafc",
+      // Use layout's own background color so even light layouts look distinct
+      background: cfg.isDark ? "#0a0f1e" : "#f8fafc",
     }}>
       <div style={{
-        position: "absolute", top: 0, left: "50%",
+        position: "absolute",
+        top: 0,
+        left: "50%",
         transform: `translateX(-50%) scale(${scale})`,
         transformOrigin: "top center",
-        width: RENDER_WIDTH, height: RENDER_HEIGHT,
-        pointerEvents: "none", userSelect: "none",
+        width: RENDER_WIDTH,
+        height: RENDER_HEIGHT,
+        pointerEvents: "none",
+        userSelect: "none",
       }}>
         <LayoutRenderer layoutId={layoutId} />
       </div>
