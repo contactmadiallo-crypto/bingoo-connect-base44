@@ -333,7 +333,7 @@ export default function PublicProfile() {
   const bgWatermarkOpacity = (profile.bg_watermark_opacity ?? 15) / 100;
 
   return (
-    <div ref={topRef} style={{ position: "relative", ...(pageBackground ? { background: pageBackground, minHeight: "100vh" } : {}) }}>
+    <div ref={topRef} style={{ position: "relative", ...(pageBackground ? { background: pageBackground } : {}), minHeight: "100vh" }}>
 
       {/* Watermark background image */}
       {bgWatermark && (
