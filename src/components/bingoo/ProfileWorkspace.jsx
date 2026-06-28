@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import { ProfileHeaderPreview } from "@/components/bingoo/SectionPreview";
+import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { isLayoutDark } from "@/lib/profileLayouts";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
@@ -129,6 +131,33 @@ const Toggle = ({ value, onChange }) => (
     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${value ? "left-5" : "left-0.5"}`} />
   </button>
 );
+
+// ── Compact layout preview for the inline phone shells ───────────────────
+function WorkspaceLayoutPreview({ liveForm }) {
+  const color = liveForm?.cover_color || "#2563eb";
+  const isDark = liveForm?.bg_style === "night" || isLayoutDark(liveForm?.layout);
+  const layoutType = liveForm?.layout || "classic";
+  const stub = <div style={{ padding: "8px 12px", opacity: 0.5 }}><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0", borderRadius: 4, marginBottom: 8 }} /><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", borderRadius: 4, marginBottom: 8, width: "80%" }} /><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", borderRadius: 4, width: "60%" }} /></div>;
+  const lp = { profile: liveForm, color, isDark, mobile: true, contentSections: stub };
+  switch (layoutType) {
+    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury": return <ImageHeroLayout {...lp} />;
+    case "magazine": return <MagazineLayout {...lp} />;
+    case "aurora": case "animated_gradient": return <AuroraLayout {...lp} color={color} />;
+    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d": return <GlassLayout {...lp} />;
+    case "modern_saas": case "split": case "corporate": case "modern_law": return <ModernSaasLayout {...lp} />;
+    case "executive": case "executive_corp": return <ExecutiveLayout {...lp} />;
+    case "luxury_gold": return <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={stub} />;
+    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome": return <DarkPremiumLayout {...lp} />;
+    case "neon": case "neon_tech": return <NeonLayout {...lp} />;
+    case "retro": case "paper": return <RetroLayout {...lp} />;
+    case "floating": return <FloatingLayout {...lp} />;
+    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly": return <ColorLayout {...lp} />;
+    case "pastel": case "gradient": case "portrait": return <PortraitLayout {...lp} />;
+    case "minimal": case "minimal_business": return <MinimalLayout {...lp} />;
+    case "card": case "card_compact": return <CardLayout {...lp} />;
+    default: return <ClassicLayout {...lp} />;
+  }
+}
 
 // ── Save status line ──────────────────────────────────────────────────────
 function SaveStatus({ status, time, error, lang }) {
@@ -1178,13 +1207,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                         </div>
                       </div>
                       <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh" }}>
-                        <ProfileHeaderPreview profile={{ ...(profile || {}), ...liveForm }} />
-                        {(liveForm.custom_links || []).filter(l => l.enabled !== false && l.label && l.url).slice(0, 5).map((link, i) => (
-                          <div key={link.id || i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", marginBottom: 4, borderRadius: 10, background: "#fff", border: "1px solid #e2e8f0", margin: "4px 12px" }}>
-                            <span style={{ fontSize: 11, fontWeight: 700, color: "#374151", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
-                            <span style={{ fontSize: 10, color: "#94a3b8" }}>›</span>
-                          </div>
-                        ))}
+                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(600 / 0.747) }}>
+                          <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
+                        </div>
                       </div>
                       <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
                         <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
@@ -1211,23 +1236,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                   </div>
                 </div>
                 {/* Screen — scales a 375px-wide preview into ~216px (fixed size for Safari) */}
-                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none", display: "flex", alignItems: "flex-start" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576), transformBox: "border-box", WebkitTransformBox: "border-box", WebkitTransformOrigin: "top left" }}>
-                    <ProfileHeaderPreview profile={{ ...(profile || {}), ...liveForm }} />
-                    {/* Links preview strip */}
-                    {(liveForm.custom_links?.filter(l => l.enabled && l.label && l.url).length > 0 ||
-                      liveForm.instagram_url || liveForm.facebook_url || liveForm.tiktok_url ||
-                      liveForm.linkedin_url || liveForm.youtube_url) && (
-                      <div style={{ padding: "8px 14px 4px" }}>
-                        <p style={{ fontSize: 9, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8", marginBottom: 6 }}>Links</p>
-                        {liveForm.custom_links?.filter(l => l.enabled && l.label && l.url).slice(0, 4).map(link => (
-                          <div key={link.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", marginBottom: 5, borderRadius: 10, background: "#fff", border: "1px solid #e2e8f0" }}>
-                            <span style={{ fontSize: 9, fontWeight: 700, color: "#374151", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{link.label}</span>
-                            <span style={{ fontSize: 9, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 80 }}>{link.url?.replace(/^https?:\/\//, "")}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
+                    <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                   </div>
                 </div>
                 {/* Home bar */}

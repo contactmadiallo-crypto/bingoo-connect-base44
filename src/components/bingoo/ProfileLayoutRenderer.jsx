@@ -367,32 +367,33 @@ export function GlassLayout({ profile, color, isDark, mobile, contentSections })
       )}
 
       <div style={{ position: "relative", zIndex: 1 }}>
-        {/* Frosted glass header */}
-        <div style={{
-          padding: mobile ? "52px 20px 44px" : "68px 40px 52px",
-          background: "rgba(255,255,255,0.18)",
-          backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)",
-          borderBottom: "1px solid rgba(255,255,255,0.4)",
-          textAlign: "center",
-        }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-            {/* Frosted avatar ring */}
-            <div style={{
-              padding: 5, background: "rgba(255,255,255,0.72)",
-              backdropFilter: "blur(12px)",
-              borderRadius: `calc(${radius} + 5px)`,
-              boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 0 0 1.5px rgba(255,255,255,0.6)",
-            }}>
-              <AvatarRenderer profile={profile} size={size} />
-            </div>
-            <div style={{ padding: "14px 24px", borderRadius: 18,
-              background: "rgba(255,255,255,0.58)", backdropFilter: "blur(16px)",
-              border: "1px solid rgba(255,255,255,0.8)" }}>
-              <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
-                {profile?.display_name}
-              </h1>
-              {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color: hexRgb(color, 0.95), fontFamily: FONT_BODY }}>{profile.job_title}</p>}
-              {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(15,23,42,0.5)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+        {/* STICKY: Frosted glass header */}
+        <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+          <div style={{
+            padding: mobile ? "28px 20px 22px" : "36px 40px 28px",
+            background: "rgba(255,255,255,0.18)",
+            backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)",
+            borderBottom: "1px solid rgba(255,255,255,0.4)",
+            textAlign: "center",
+          }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+              <div style={{
+                padding: 5, background: "rgba(255,255,255,0.72)",
+                backdropFilter: "blur(12px)",
+                borderRadius: `calc(${radius} + 5px)`,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.22), 0 0 0 1.5px rgba(255,255,255,0.6)",
+              }}>
+                <AvatarRenderer profile={profile} size={size} />
+              </div>
+              <div style={{ padding: "14px 24px", borderRadius: 18,
+                background: "rgba(255,255,255,0.58)", backdropFilter: "blur(16px)",
+                border: "1px solid rgba(255,255,255,0.8)" }}>
+                <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#0f172a", lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
+                  {profile?.display_name}
+                </h1>
+                {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12.5, fontWeight: 700, color: hexRgb(color, 0.95), fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+                {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(15,23,42,0.5)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+              </div>
             </div>
           </div>
         </div>
@@ -478,32 +479,33 @@ export function AuroraLayout({ profile, color, mobile, contentSections }) {
 
   return (
     <div style={{ background: "linear-gradient(160deg,#0f0c29 0%,#302b63 45%,#24243e 100%)", minHeight: "100vh" }}>
-      {/* Aurora glow band */}
-      <div style={{ height: 5, background: `linear-gradient(90deg, ${ac}88, #a855f788, #06b6d488, ${ac}88)` }} />
+      {/* STICKY: Aurora header */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10, background: "linear-gradient(160deg,#0f0c29 0%,#302b63 45%,#24243e 100%)" }}>
+        {/* Aurora glow band */}
+        <div style={{ height: 5, background: `linear-gradient(90deg, ${ac}88, #a855f788, #06b6d488, ${ac}88)` }} />
 
-      <div style={{ padding: mobile ? "44px 20px 36px" : "64px 40px 52px", textAlign: "center", position: "relative" }}>
-        {/* Soft glow orbs */}
-        <div style={{ position: "absolute", top: 0, left: "20%", width: 200, height: 140, background: ac, filter: "blur(90px)", opacity: 0.18, borderRadius: "50%", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: 50, right: "12%", width: 160, height: 110, background: "#a855f7", filter: "blur(90px)", opacity: 0.14, borderRadius: "50%", pointerEvents: "none" }} />
+        <div style={{ padding: mobile ? "28px 20px 20px" : "36px 40px 28px", textAlign: "center", position: "relative" }}>
+          <div style={{ position: "absolute", top: 0, left: "20%", width: 200, height: 140, background: ac, filter: "blur(90px)", opacity: 0.18, borderRadius: "50%", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: 50, right: "12%", width: 160, height: 110, background: "#a855f7", filter: "blur(90px)", opacity: 0.14, borderRadius: "50%", pointerEvents: "none" }} />
 
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-          {/* Cover photo — banner strip behind the glow orbs */}
-          {profile?.cover_photo && (
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 100, overflow: "hidden", zIndex: 0 }}>
-              <img src={profile.cover_photo} alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.6 }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(15,12,41,0.3) 0%, rgba(15,12,41,0.95) 100%)" }} />
+          <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            {profile?.cover_photo && (
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 100, overflow: "hidden", zIndex: 0 }}>
+                <img src={profile.cover_photo} alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.6 }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(15,12,41,0.3) 0%, rgba(15,12,41,0.95) 100%)" }} />
+              </div>
+            )}
+            <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`,
+              background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
+              boxShadow: `0 0 0 1.5px rgba(255,255,255,0.2), 0 16px 48px ${hexRgb(ac, 0.4)}` }}>
+              <AvatarRenderer profile={profile} size={size} />
             </div>
-          )}
-          <div style={{ padding: 4, borderRadius: `calc(${radius} + 4px)`,
-            background: "rgba(255,255,255,0.12)", backdropFilter: "blur(12px)",
-            boxShadow: `0 0 0 1.5px rgba(255,255,255,0.2), 0 16px 48px ${hexRgb(ac, 0.4)}` }}>
-            <AvatarRenderer profile={profile} size={size} />
+            <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>{profile?.display_name}</h1>
+            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+            {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.35)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+            <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${ac}, #a855f7, transparent)`, marginTop: 8 }} />
           </div>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em", fontFamily: FONT_DISPLAY }}>{profile?.display_name}</h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: "#a5b4fc", letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.35)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
-          <div style={{ width: 60, height: 2, background: `linear-gradient(90deg, transparent, ${ac}, #a855f7, transparent)`, marginTop: 8 }} />
         </div>
       </div>
 
@@ -538,39 +540,41 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
               objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55))" }} />
-        {/* Magazine title tag */}
+        {/* Magazine title tag — shows plan label */}
         <div style={{ position: "absolute", top: 16, left: 16, padding: "4px 12px",
           background: color, borderRadius: 4, zIndex: 2 }}>
           <span style={{ fontSize: 9, fontWeight: 900, color: "#fff", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            {profile?.company_name || "Profile"}
+            {({ free: "Free", pro: "Pro", professional: "Professional", salon: "Salon", restaurant: "Restaurant", lawfirm: "Law Firm", business: "Business", corporate: "Corporate" })[profile?.plan] || "Profile"}
           </span>
         </div>
       </div>
 
-      {/* Identity row — overlaps the photo bottom edge */}
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 16,
-        padding: mobile ? "0 18px 18px" : "0 32px 24px",
-        marginTop: mobile ? -44 : -54, position: "relative", zIndex: 10 }}>
-        <div style={{ flexShrink: 0, padding: 3, background: bg,
-          borderRadius: `calc(${radius} + 3px)`, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
-          <AvatarRenderer profile={profile} size={size} />
+      {/* STICKY: Identity row overlaps photo bottom */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10, background: bg }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 16,
+          padding: mobile ? "0 18px 18px" : "0 32px 24px",
+          marginTop: mobile ? -44 : -54, position: "relative" }}>
+          <div style={{ flexShrink: 0, padding: 3, background: bg,
+            borderRadius: `calc(${radius} + 3px)`, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}>
+            <AvatarRenderer profile={profile} size={size} />
+          </div>
+          <div style={{ flex: 1, paddingBottom: 4 }}>
+            <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 19 : 23, fontWeight: 900,
+              color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
+              {profile?.display_name}
+            </h1>
+            {profile?.job_title && (
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, fontFamily: FONT_BODY,
+                color: hexRgb(color, 0.9) }}>
+                {profile.job_title}
+              </p>
+            )}
+          </div>
         </div>
-        <div style={{ flex: 1, paddingBottom: 4 }}>
-          <h1 style={{ margin: "0 0 3px", fontSize: mobile ? 19 : 23, fontWeight: 900,
-            color: "#fff", lineHeight: 1.1, textShadow: "0 2px 8px rgba(0,0,0,0.5)", fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
-            {profile?.display_name}
-          </h1>
-          {profile?.job_title && (
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 600, fontFamily: FONT_BODY,
-              color: hexRgb(color, 0.9), textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}>
-              {profile.job_title}
-            </p>
-          )}
-        </div>
+        {/* Ruled separator */}
+        <div style={{ height: 1, background: border, margin: "0 18px" }} />
       </div>
 
-      {/* Ruled separator */}
-      <div style={{ height: 1, background: border, margin: "0 18px" }} />
       <div style={{ padding: mobile ? "10px 16px 120px" : "14px 28px 80px" }}>{contentSections}</div>
     </div>
   );
@@ -703,46 +707,48 @@ export function ColorLayout({ profile, color, isDark, mobile, contentSections })
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
-      {/* Color hero — avatar lives inside (no edge to escape) */}
-      <div style={{
-        padding: mobile ? "48px 20px 0" : "64px 40px 0",
-        background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.75)} 55%, ${hexRgb(color, 0.45)} 100%)`,
-        position: "relative", textAlign: "center",
-      }}>
-        {profile?.cover_photo && (
-          <img src={profile.cover_photo} alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.35, pointerEvents: "none" }} />
-        )}
-        {profile?.company_logo && (
-          <div style={{ position: "absolute", top: 14, right: 14, width: 40, height: 40,
-            borderRadius: 8, background: "rgba(255,255,255,0.88)", padding: 4, overflow: "hidden", zIndex: 2 }}>
-            <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-          </div>
-        )}
+      {/* STICKY: Color hero header */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{
+          padding: mobile ? "28px 20px 0" : "36px 40px 0",
+          background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.75)} 55%, ${hexRgb(color, 0.45)} 100%)`,
+          position: "relative", textAlign: "center",
+        }}>
+          {profile?.cover_photo && (
+            <img src={profile.cover_photo} alt=""
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                objectFit: "cover", objectPosition: profile.cover_position || "center",
+                opacity: 0.35, pointerEvents: "none" }} />
+          )}
+          {profile?.company_logo && (
+            <div style={{ position: "absolute", top: 14, right: 14, width: 40, height: 40,
+              borderRadius: 8, background: "rgba(255,255,255,0.88)", padding: 4, overflow: "hidden", zIndex: 2 }}>
+              <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </div>
+          )}
 
-        <div style={{ position: "relative", zIndex: 3 }}>
-          <div style={{ display: "inline-block", padding: 5,
-            background: "rgba(255,255,255,0.28)", backdropFilter: "blur(8px)",
-            borderRadius: `calc(${radius} + 5px)`,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.22)", marginBottom: 16 }}>
-            <AvatarRenderer profile={profile} size={size} />
+          <div style={{ position: "relative", zIndex: 3 }}>
+            <div style={{ display: "inline-block", padding: 5,
+              background: "rgba(255,255,255,0.28)", backdropFilter: "blur(8px)",
+              borderRadius: `calc(${radius} + 5px)`,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.22)", marginBottom: 12 }}>
+              <AvatarRenderer profile={profile} size={size} />
+            </div>
+            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#fff",
+              textShadow: "0 2px 8px rgba(0,0,0,0.18)", fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
+              {profile?.display_name}
+            </h1>
+            {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+            {profile?.company_name && <p style={{ margin: "0 0 12px", fontSize: 11.5, color: "rgba(255,255,255,0.6)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
           </div>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 25 : 29, fontWeight: 900, color: "#fff",
-            textShadow: "0 2px 8px rgba(0,0,0,0.18)", fontFamily: FONT_DISPLAY, letterSpacing: "-0.02em" }}>
-            {profile?.display_name}
-          </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: FONT_BODY }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: "0 0 24px", fontSize: 12.5, color: "rgba(255,255,255,0.6)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
-        </div>
 
-        {/* Wave divider */}
-        <div style={{ height: 44, position: "relative", overflow: "hidden", marginTop: -4 }}>
-          <svg viewBox="0 0 400 44" preserveAspectRatio="none"
-            style={{ position: "absolute", bottom: 0, width: "100%", height: 44 }}>
-            <path d="M0,22 C100,44 300,0 400,22 L400,44 L0,44 Z" fill={bg} />
-          </svg>
+          {/* Wave divider */}
+          <div style={{ height: 36, position: "relative", overflow: "hidden" }}>
+            <svg viewBox="0 0 400 36" preserveAspectRatio="none"
+              style={{ position: "absolute", bottom: 0, width: "100%", height: 36 }}>
+              <path d="M0,18 C100,36 300,0 400,18 L400,36 L0,36 Z" fill={bg} />
+            </svg>
+          </div>
         </div>
       </div>
 
@@ -761,49 +767,48 @@ export function NeonLayout({ profile, color, mobile, contentSections }) {
 
   return (
     <div style={{ background: "#060912", minHeight: "100vh" }}>
-      {/* Glowing header */}
-      <div style={{
-        padding: mobile ? "56px 20px 44px" : "72px 40px 56px",
-        background: "linear-gradient(175deg, #0c0e1e, #060912)",
-        textAlign: "center", position: "relative",
-        borderBottom: `1px solid ${hexRgb(neon, 0.2)}`,
-      }}>
-        {/* Cover photo — visible banner behind scanlines */}
-        {profile?.cover_photo && (
-          <img src={profile.cover_photo} alt=""
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center",
-              opacity: 0.45 }} />
-        )}
-        {/* Scanline overlay */}
-        <div style={{ position: "absolute", inset: 0,
-          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
-          pointerEvents: "none" }} />
-        {/* Glow orb */}
-        <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
-          width: 300, height: 150, background: neon, filter: "blur(90px)", opacity: 0.12 }} />
+      {/* STICKY: Glowing header */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{
+          padding: mobile ? "32px 20px 24px" : "44px 40px 32px",
+          background: "linear-gradient(175deg, #0c0e1e, #060912)",
+          textAlign: "center", position: "relative",
+          borderBottom: `1px solid ${hexRgb(neon, 0.2)}`,
+        }}>
+          {profile?.cover_photo && (
+            <img src={profile.cover_photo} alt=""
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
+                objectFit: "cover", objectPosition: profile.cover_position || "center",
+                opacity: 0.45 }} />
+          )}
+          <div style={{ position: "absolute", inset: 0,
+            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
+            pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)",
+            width: 300, height: 150, background: neon, filter: "blur(90px)", opacity: 0.12 }} />
 
-        <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-          <div style={{
-            padding: 3, borderRadius: `calc(${radius} + 3px)`,
-            boxShadow: `0 0 0 1.5px ${neon}, 0 0 20px ${hexRgb(neon, 0.55)}, 0 0 60px ${hexRgb(neon, 0.2)}`,
-            background: "#0c0e1e",
-          }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-          <div>
-            <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#fff",
-              textShadow: `0 0 20px ${hexRgb(neon, 0.5)}`, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
-              {profile?.display_name}
-            </h1>
-            {profile?.job_title && (
-              <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: neon, fontFamily: FONT_BODY,
-                letterSpacing: "0.12em", textTransform: "uppercase",
-                textShadow: `0 0 12px ${hexRgb(neon, 0.7)}` }}>
-                {profile.job_title}
-              </p>
-            )}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.3)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+          <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+            <div style={{
+              padding: 3, borderRadius: `calc(${radius} + 3px)`,
+              boxShadow: `0 0 0 1.5px ${neon}, 0 0 20px ${hexRgb(neon, 0.55)}, 0 0 60px ${hexRgb(neon, 0.2)}`,
+              background: "#0c0e1e",
+            }}>
+              <AvatarRenderer profile={profile} size={size} />
+            </div>
+            <div>
+              <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 22 : 26, fontWeight: 900, color: "#fff",
+                textShadow: `0 0 20px ${hexRgb(neon, 0.5)}`, fontFamily: FONT_DISPLAY, letterSpacing: "-0.015em" }}>
+                {profile?.display_name}
+              </h1>
+              {profile?.job_title && (
+                <p style={{ margin: "0 0 2px", fontSize: 10.5, fontWeight: 700, color: neon, fontFamily: FONT_BODY,
+                  letterSpacing: "0.12em", textTransform: "uppercase",
+                  textShadow: `0 0 12px ${hexRgb(neon, 0.7)}` }}>
+                  {profile.job_title}
+                </p>
+              )}
+              {profile?.company_name && <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,0.3)", fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+            </div>
           </div>
         </div>
       </div>
@@ -839,33 +844,33 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
         </div>
       )}
 
-      {/* Header band */}
-      <div style={{
-        background: cardBg, borderBottom: `3px double ${hexRgb(accent, 0.5)}`,
-        padding: mobile ? "24px 18px 18px" : "32px 36px 22px", position: "relative",
-        marginTop: profile?.cover_photo ? (mobile ? -20 : -24) : 0,
-      }}>
-        {/* Decorative top dashed rule */}
-        <div style={{ height: 3, background: `repeating-linear-gradient(90deg, ${accent} 0, ${accent} 8px, transparent 8px, transparent 14px)`, marginBottom: 20 }} />
-
-        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div style={{ flexShrink: 0,
-            border: `3px solid ${accent}`,
-            borderRadius: `calc(${radius} + 3px)`,
-            boxShadow: `4px 4px 0 ${hexRgb(accent, 0.3)}` }}>
-            <AvatarRenderer profile={profile} size={size} />
-          </div>
-          <div>
-            <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 26, fontWeight: 900, color: text, lineHeight: 1.1,
-              fontFamily: FONT_DISPLAY, letterSpacing: "-0.01em" }}>
-              {profile?.display_name}
-            </h1>
-            {profile?.job_title && (
-              <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: accent, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: FONT_BODY }}>
-                {profile.job_title}
-              </p>
-            )}
-            {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+      {/* STICKY: Retro header band */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{
+          background: cardBg, borderBottom: `3px double ${hexRgb(accent, 0.5)}`,
+          padding: mobile ? "24px 18px 18px" : "32px 36px 22px", position: "relative",
+          marginTop: profile?.cover_photo ? (mobile ? -20 : -24) : 0,
+        }}>
+          <div style={{ height: 3, background: `repeating-linear-gradient(90deg, ${accent} 0, ${accent} 8px, transparent 8px, transparent 14px)`, marginBottom: 20 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <div style={{ flexShrink: 0,
+              border: `3px solid ${accent}`,
+              borderRadius: `calc(${radius} + 3px)`,
+              boxShadow: `4px 4px 0 ${hexRgb(accent, 0.3)}` }}>
+              <AvatarRenderer profile={profile} size={size} />
+            </div>
+            <div>
+              <h1 style={{ margin: "0 0 4px", fontSize: mobile ? 20 : 26, fontWeight: 900, color: text, lineHeight: 1.1,
+                fontFamily: FONT_DISPLAY, letterSpacing: "-0.01em" }}>
+                {profile?.display_name}
+              </h1>
+              {profile?.job_title && (
+                <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, color: accent, letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: FONT_BODY }}>
+                  {profile.job_title}
+                </p>
+              )}
+              {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+            </div>
           </div>
         </div>
       </div>
@@ -1027,17 +1032,20 @@ export function PortraitLayout({ profile, color, isDark, mobile, contentSections
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, " + bg + " 100%)" }} />
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20, marginTop: -((size + ringW * 2) / 2) }}>
-        <div style={{ padding: ringW, borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
-          background: cardBg, boxShadow: `0 0 0 4px ${hexRgb(color, 0.25)}, 0 24px 64px ${hexRgb(color, 0.3)}` }}>
-          <AvatarRenderer profile={profile} size={size} />
+      {/* STICKY: Avatar + identity */}
+      <div style={{ position: "sticky", top: 0, zIndex: 20, background: bg }}>
+        <div style={{ display: "flex", justifyContent: "center", position: "relative", marginTop: -((size + ringW * 2) / 2) }}>
+          <div style={{ padding: ringW, borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
+            background: cardBg, boxShadow: `0 0 0 4px ${hexRgb(color, 0.25)}, 0 24px 64px ${hexRgb(color, 0.3)}` }}>
+            <AvatarRenderer profile={profile} size={size} />
+          </div>
         </div>
-      </div>
 
-      <div style={{ textAlign: "center", padding: mobile ? "16px 20px 0" : "20px 44px 0", position: "relative", zIndex: 5 }}>
-        <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.025em" }}>{profile?.display_name}</h1>
-        {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 13.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
-        {profile?.company_name && <p style={{ margin: "0 0 18px", fontSize: 12.5, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+        <div style={{ textAlign: "center", padding: mobile ? "16px 20px 12px" : "20px 44px 14px", position: "relative", zIndex: 5 }}>
+          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 26 : 32, fontWeight: 900, color: text, lineHeight: 1.1, fontFamily: FONT_DISPLAY, letterSpacing: "-0.025em" }}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 13.5, fontWeight: 700, color, fontFamily: FONT_BODY }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: "0 0 4px", fontSize: 12.5, color: sub, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+        </div>
       </div>
 
       <div style={{ padding: mobile ? "6px 16px 120px" : "10px 36px 80px" }}>{contentSections}</div>
