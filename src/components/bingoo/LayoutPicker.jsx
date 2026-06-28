@@ -102,7 +102,6 @@ function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
       >
         <LayoutMiniPreview
           layoutId={layout.id}
-          color={color}
           isSelected={isSelected}
           previewHeight={PREVIEW_H}
         />
