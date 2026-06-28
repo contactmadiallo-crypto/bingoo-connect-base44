@@ -2,12 +2,12 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { layouts } from "./LayoutPicker";
+import LayoutMiniPreview from "./LayoutMiniPreview";
 import { Link } from "react-router-dom";
-import { Eye, Check, Upload, Palette, CheckCircle, Lock, Sparkles } from "lucide-react";
+import { Eye, Check, Upload, Palette, CheckCircle, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import LivePreviewPanel from "./LivePreviewPanel";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -15,57 +15,28 @@ const PREMIUM_THEME_IDS = new Set([
   "animated_gradient", "video_bg", "parallax"
 ]);
 
-function LayoutCard({ layout, isActive, color, saving, isDark, headText, subText, cardBase, profileUrl, onSelect, isPremiumTheme }) {
+function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardBase, profileUrl, onSelect, isPremiumTheme }) {
   return (
-    <div className={`relative rounded-2xl overflow-hidden transition-all duration-200 ${cardBase} ${
+    <div className={`relative rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${cardBase} ${
       isActive
-        ? isDark ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-transparent" : "ring-2 ring-blue-600 ring-offset-2"
+        ? isDark ? "ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent" : "ring-2 ring-orange-500 ring-offset-2"
         : ""
-    }`}>
+    }`} onClick={() => onSelect(layout.id)}>
       {isPremiumTheme && !isActive && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow">
-          <Sparkles className="w-2.5 h-2.5" /> PREMIUM
+          <Sparkles className="w-2.5 h-2.5" /> PRO
         </div>
       )}
       {isActive && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-blue-600 text-white text-xs font-black px-2.5 py-1 rounded-full shadow">
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 text-white text-xs font-black px-2.5 py-1 rounded-full shadow" style={{ background: "#FF7A00" }}>
           <Check className="w-3 h-3" /> Active
         </div>
       )}
-      <div
-        className="w-full aspect-[4/3] p-3 cursor-pointer"
-        style={{ background: isDark ? "#0f1628" : "#f1f5f9" }}
-        onClick={() => onSelect(layout.id)}
-      >
-        <div className="w-full h-full">{layout.preview(color)}</div>
-      </div>
-      <div className={`p-4 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}>
-        <div className="mb-3">
-          <p className={`font-black text-base ${headText}`}>{layout.name}</p>
-          <p className={`text-xs mt-0.5 ${subText}`}>{layout.desc}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={() => onSelect(layout.id)}
-            disabled={isActive || !!saving}
-            className={`flex-1 font-bold text-xs gap-1.5 border-0 ${
-              isActive
-                ? isDark ? "!bg-blue-500/20 !text-blue-300 !border !border-blue-500/40" : "!bg-blue-50 !text-blue-600 !border !border-blue-200"
-                : isPremiumTheme ? "!bg-gradient-to-r !from-amber-500 !to-orange-500 hover:!from-amber-400 hover:!to-orange-400 !text-white" : "!bg-blue-600 hover:!bg-blue-700 !text-white"
-            }`}
-            variant="default"
-          >
-            {isActive ? <><Check className="w-3.5 h-3.5" /> Current</> : isPremiumTheme ? <><Sparkles className="w-3.5 h-3.5" /> Apply Theme</> : "Apply Layout"}
-          </Button>
-          {profileUrl && (
-            <a href={profileUrl} target="_blank" rel="noopener noreferrer">
-              <Button size="sm" variant="ghost" className={`px-3 text-xs font-semibold ${isDark ? "border border-white/15 text-white/60 hover:bg-white/10 hover:text-white" : "border border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                <Eye className="w-3.5 h-3.5" />
-              </Button>
-            </a>
-          )}
-        </div>
+      {/* Real layout preview — same component as public profile */}
+      <LayoutMiniPreview layoutId={layout.id} isSelected={isActive} previewHeight={220} />
+      <div className={`p-3 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}>
+        <p className={`font-black text-sm ${headText}`}>{layout.name}</p>
+        <p className={`text-[11px] mt-0.5 ${subText}`}>{layout.desc}</p>
       </div>
     </div>
   );
@@ -179,7 +150,7 @@ export default function DesignTab({ profile, user, onSaved }) {
         <h3 className={`text-base font-black mb-4 ${headText}`}>Standard Layouts</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {layouts.filter(l => !PREMIUM_THEME_IDS.has(l.id) && l.id !== "ny_championship" && l.id !== "lions_teranga").map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} color={color} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
+            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
           ))}
         </div>
       </div>
@@ -196,7 +167,7 @@ export default function DesignTab({ profile, user, onSaved }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {layouts.filter(l => PREMIUM_THEME_IDS.has(l.id)).map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} color={color} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} isPremiumTheme />
+            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} isPremiumTheme />
           ))}
         </div>
       </div>
@@ -206,7 +177,7 @@ export default function DesignTab({ profile, user, onSaved }) {
         <h3 className={`text-base font-black mb-4 ${headText}`}>🏆 Championship Edition</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {layouts.filter(l => l.id === "ny_championship" || l.id === "lions_teranga").map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} color={color} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
+            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
           ))}
         </div>
       </div>

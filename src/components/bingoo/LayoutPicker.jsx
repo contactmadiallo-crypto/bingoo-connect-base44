@@ -17,8 +17,10 @@ export const layouts = [
   { id: "bold",         name: "Bold Gradient", desc: "Color hero + wave divider",  pro: true },
   { id: "neon",         name: "Neon",          desc: "Glow ring on near-black",    pro: true },
   { id: "retro",        name: "Retro",         desc: "80s editorial serif header", pro: true },
-  { id: "floating",     name: "Floating",      desc: "Detached radial bg card",    pro: true },
-  { id: "luxury_gold",  name: "Luxury Gold",   desc: "Gold ring, dark prestige",   pro: true },
+  { id: "floating",        name: "Floating",          desc: "Detached radial bg card",    pro: true },
+  { id: "luxury_gold",     name: "Luxury Gold",       desc: "Gold ring, dark prestige",   pro: true },
+  { id: "ny_championship", name: "NY Championship",   desc: "Bold sports-style header",   pro: true },
+  { id: "lions_teranga",   name: "Lions de la Téranga", desc: "Heritage pride edition",   pro: true },
 ];
 
 export default function LayoutPicker({ value, onChange, color = "#2563eb", plan = "free", isAdmin = false }) {
