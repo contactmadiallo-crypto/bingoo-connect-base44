@@ -11,13 +11,13 @@ import {
 } from "./ProfileLayoutRenderer";
 import { hexRgb } from "./ProfileLayoutRenderer";
 
-// Generic sample avatars — no personal user photos
+// Generic sample avatars — professional 3D style, no personal photos
 const SAMPLE_AVATARS = [
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=ffdfbf",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Jade&backgroundColor=c0aede",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus&backgroundColor=d1d4f9",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Sofia&backgroundColor=ffd5dc",
+  "https://api.dicebear.com/9.x/lorelei/svg?seed=Alex&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear&radius=50",
+  "https://api.dicebear.com/9.x/lorelei/svg?seed=Morgan&backgroundColor=ffdfbf,ffd5dc,ffecd2&backgroundType=gradientLinear&radius=50",
+  "https://api.dicebear.com/9.x/lorelei/svg?seed=Jordan&backgroundColor=c0aede,b6e3f4,d1d4f9&backgroundType=gradientLinear&radius=50",
+  "https://api.dicebear.com/9.x/lorelei/svg?seed=Casey&backgroundColor=d1d4f9,c0aede,b6e3f4&backgroundType=gradientLinear&radius=50",
+  "https://api.dicebear.com/9.x/lorelei/svg?seed=Riley&backgroundColor=ffd5dc,ffdfbf,ffecd2&backgroundType=gradientLinear&radius=50",
 ];
 
 // Sample cover photos — Unsplash stable URLs (no personal images)

@@ -103,7 +103,7 @@ const EDITABLE_FIELDS = [
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
-  "qr_color", "qr_label", "qr_watermark",
+  "qr_color", "qr_label", "qr_watermark", "theme_background_color",
 ];
 
 function buildPayload(liveForm) {
@@ -1030,7 +1030,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   return (
     <div className="flex flex-col h-full relative">
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className="flex items-center gap-3 mb-4 flex-wrap" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
         <button type="button" onClick={onBack}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
           <ChevronLeft className="w-4 h-4" /> {t("back_profiles", lang)}
@@ -1078,7 +1078,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs ── */}
-      <div className="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
+      <div className="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
         {INNER_TABS.map(tab => (
           <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)}
             className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
@@ -1142,13 +1142,13 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </div>
 
           {/* Mobile preview FAB + overlay — mobile only */}
-          <div className="xl:hidden">
-            {/* FAB */}
+          <div className="xl:hidden" style={{ pointerEvents: "none" }}>
+            {/* FAB — pointer-events re-enabled on the button itself */}
             <button
               type="button"
               onClick={() => setMobilePreviewOpen(true)}
-              className="fixed z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
-              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16 }}
+              className="fixed z-30 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
+              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
             >
               <Eye className="w-4 h-4" /> Preview
             </button>

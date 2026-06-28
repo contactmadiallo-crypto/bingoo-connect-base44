@@ -12,6 +12,12 @@ const COVER_COLORS = [
   "#0891b2","#1e293b","#374151","#FF7A00"
 ];
 
+const BG_COLORS = [
+  "#ffffff","#f8fafc","#f1f5f9","#0f172a",
+  "#1e293b","#0B2E6B","#0f0f0f","#faf7f2",
+  "#f0fdf4","#fdf4ff","#fffbeb","#fff1f2",
+];
+
 const BG_STYLES = [
   { v: "clean",    label: "Clean",    desc: "Simple & neutral" },
   { v: "gradient", label: "Gradient", desc: "Color wash" },
@@ -139,6 +145,34 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 <input type="color" value={liveForm.cover_color || "#2563eb"} onChange={e => setVal("cover_color", e.target.value)}
                   className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom" />
               </div>
+            </div>
+          </div>
+
+          <div className={rowCls}>
+            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Background Color</p>
+            <div className="flex gap-2 flex-wrap">
+              {BG_COLORS.map(c => (
+                <button type="button" key={c} onClick={() => setVal("theme_background_color", c)}
+                  className="relative w-9 h-9 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center"
+                  style={{
+                    background: c,
+                    borderColor: sel(c, liveForm.theme_background_color) ? "#FF7A00" : (c === "#ffffff" || c === "#f8fafc" ? "#e2e8f0" : "transparent"),
+                    transform: sel(c, liveForm.theme_background_color) ? "scale(1.15)" : "scale(1)",
+                    boxShadow: sel(c, liveForm.theme_background_color) ? `0 0 0 2px #FF7A00` : "none",
+                  }}>
+                  {sel(c, liveForm.theme_background_color) && <Check className="w-3.5 h-3.5" style={{ color: c === "#ffffff" || c === "#f8fafc" || c === "#f1f5f9" ? "#374151" : "white" }} />}
+                </button>
+              ))}
+              <div className="w-9 h-9 rounded-full border-2 border-slate-300 flex items-center justify-center overflow-hidden">
+                <input type="color" value={liveForm.theme_background_color || "#ffffff"} onChange={e => setVal("theme_background_color", e.target.value)}
+                  className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom background color" />
+              </div>
+              {liveForm.theme_background_color && (
+                <button type="button" onClick={() => setVal("theme_background_color", "")}
+                  className="px-2 py-1 rounded-full text-[10px] font-bold text-slate-500 border border-slate-200 hover:bg-slate-100">
+                  Reset
+                </button>
+              )}
             </div>
           </div>
 

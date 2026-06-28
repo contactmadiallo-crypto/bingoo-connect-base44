@@ -251,7 +251,54 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
     return cl?.url || "";
   }, [liveForm]);
 
-  const isAdded = (item) => !!getFieldValue(item);
+  // Robust active detection: checks field value, _catalog_id, URL domain, and label
+  const isCatalogItemActive = useCallback((item) => {
+    // 1. Direct field value (phone, email, instagram_url, etc.)
+    if (item.type === "field" && item.field && liveForm[item.field]) return true;
+    // 2. custom_links match by _catalog_id
+    const byId = (liveForm.custom_links || []).find(l => l._catalog_id === item.id);
+    if (byId) return true;
+    // 3. custom_links match by URL domain (for platforms like snapchat that have no field)
+    const domainMap = {
+      twitter_url:    ["x.com", "twitter.com"],
+      snapchat_url:   ["snapchat.com"],
+      pinterest_url:  ["pinterest.com"],
+      discord_url:    ["discord.gg", "discord.com"],
+      twitch_url:     ["twitch.tv"],
+      threads_url:    ["threads.net"],
+      venmo_url:      ["venmo.com"],
+      booking:        ["calendly.com", "cal.com"],
+      music_link:     ["spotify.com", "open.spotify"],
+      shop_link:      ["shopify.com", "etsy.com", "gumroad.com"],
+      portfolio_link: ["portfolio", "behance.net", "dribbble.com"],
+    };
+    const domains = domainMap[item.id];
+    if (domains) {
+      const match = (liveForm.custom_links || []).find(l => {
+        const url = (l.url || "").toLowerCase();
+        return domains.some(d => url.includes(d));
+      });
+      if (match) return true;
+    }
+    // 4. custom_links match by normalized label
+    const normalizedLabel = item.label.toLowerCase().replace(/[^a-z]/g, "");
+    const byLabel = (liveForm.custom_links || []).find(l =>
+      (l.label || "").toLowerCase().replace(/[^a-z]/g, "") === normalizedLabel
+    );
+    if (byLabel) return true;
+    return false;
+  }, [liveForm]);
+
+  const getValuePreview = useCallback((item) => {
+    if (item.type === "field" && item.field) return liveForm[item.field] || "";
+    const cl = (liveForm.custom_links || []).find(l =>
+      l._catalog_id === item.id ||
+      (l.label || "").toLowerCase().replace(/[^a-z]/g, "") === item.label.toLowerCase().replace(/[^a-z]/g, "")
+    );
+    return cl?.url || "";
+  }, [liveForm]);
+
+  const isAdded = (item) => isCatalogItemActive(item);
 
   const filtered = LINK_CATALOG.filter(item => {
     const matchCat = cat === "all" || (cat === "popular" ? POPULAR_IDS.has(item.id) : item.category === cat);
@@ -305,7 +352,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
     setTimeout(() => onSave("links"), 0);
   };
 
-  const addedCount = LINK_CATALOG.filter(i => isAdded(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);
+  const addedCount = LINK_CATALOG.filter(i => isCatalogItemActive(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);
 
   return (
     <div className="flex flex-col h-full safe-top">
@@ -411,7 +458,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                     <div className="space-y-2">
                       {items.map(item => (
                         <CatalogRow key={item.id} item={item} added={isAdded(item)}
-                          valuePreview={getFieldValue(item)} onEdit={() => setEditing(item)} isDark={isDark} />
+                          valuePreview={getValuePreview(item)} onEdit={() => setEditing(item)} isDark={isDark} />
                       ))}
                     </div>
                   </div>
@@ -422,7 +469,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               <div className="space-y-2">
                 {filtered.map(item => (
                   <CatalogRow key={item.id} item={item} added={isAdded(item)}
-                    valuePreview={getFieldValue(item)} onEdit={() => setEditing(item)} isDark={isDark} />
+                    valuePreview={getValuePreview(item)} onEdit={() => setEditing(item)} isDark={isDark} />
                 ))}
               </div>
             )}

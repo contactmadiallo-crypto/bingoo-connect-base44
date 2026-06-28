@@ -32,6 +32,10 @@
       "type": "string",
       "default": "#2563eb"
     },
+    "theme_background_color": {
+      "type": "string",
+      "description": "Custom background color for the public profile page"
+    },
     "avatar_shape": {
       "type": "string",
       "enum": [

@@ -302,8 +302,9 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setMobileOpen(true)}
+        aria-label="Open preview"
         style={{
-          position: "fixed", bottom: 90, right: 20, zIndex: 40,
+          position: "fixed", bottom: "calc(90px + env(safe-area-inset-bottom))", right: 20, zIndex: 25,
           display: "flex", alignItems: "center", gap: 8,
           padding: "12px 18px", borderRadius: 999,
           background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)",
@@ -330,9 +331,10 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
             {/* Close */}
             <button
               onClick={() => setMobileOpen(false)}
-              style={{ position: "absolute", top: 20, right: 20, width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              aria-label="Close preview"
+              style={{ position: "absolute", top: 20, right: 20, zIndex: 60, width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
-              <X size={20} />
+              <X size={22} />
             </button>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>

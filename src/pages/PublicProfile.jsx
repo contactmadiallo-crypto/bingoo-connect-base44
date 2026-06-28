@@ -327,8 +327,11 @@ export default function PublicProfile() {
     }
   };
 
+  // Apply custom background color if set
+  const pageBackground = profile.theme_background_color || undefined;
+
   return (
-    <div ref={topRef} style={{ position: "relative" }}>
+    <div ref={topRef} style={{ position: "relative", ...(pageBackground ? { background: pageBackground, minHeight: "100vh" } : {}) }}>
 
       {/* Back button — frosted glass */}
       <motion.button
