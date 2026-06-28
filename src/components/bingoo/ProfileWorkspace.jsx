@@ -449,27 +449,32 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               );
             })}
             {/* Custom links — toggle uses enabled field */}
-            {links.map((link, idx) => (
-              <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${!link.enabled ? "opacity-40" : ""}`}>
-                <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-bold ${headText} truncate`}>{link.label}</p>
-                  <p className={`text-[10px] truncate ${mutedText}`}>{link.url}</p>
+            {links.map((link, idx) => {
+              const catLabel = link.category
+                ? link.category.charAt(0).toUpperCase() + link.category.slice(1)
+                : "Custom";
+              return (
+                <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${!link.enabled ? "opacity-40" : ""}`}>
+                  <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-xs font-bold ${headText} truncate`}>{link.label}</p>
+                    <p className={`text-[10px] truncate ${mutedText}`}>{link.url}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
+                    {catLabel}
+                  </span>
+                  <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
+                  <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
+                    <Trash2 className="w-3 h-3" />
+                  </button>
                 </div>
-                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
-                  Social
-                </span>
-                <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
-                <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                  <Trash2 className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      <div className="pt-2 flex items-center gap-4">
+      <div className="pt-2 flex items-center gap-4" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
         <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
@@ -1142,8 +1147,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             <button
               type="button"
               onClick={() => setMobilePreviewOpen(true)}
-              className="fixed bottom-6 right-4 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
-              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)" }}
+              className="fixed z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
+              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16 }}
             >
               <Eye className="w-4 h-4" /> Preview
             </button>

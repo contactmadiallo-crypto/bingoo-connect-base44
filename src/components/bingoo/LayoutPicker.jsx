@@ -25,24 +25,23 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
   const isPro = isAdmin || ["pro", "professional", "business", "salon", "restaurant", "lawfirm", "corporate"].includes(plan);
   const scrollRef = useRef(null);
 
-  // Card is ~45% of container width on desktop (≈2 per page), ~80% on mobile (1.2 visible)
-  // We use CSS calc via className below.
-
   return (
     <div>
-      {/* ── Swipe carousel ───────────────────────────────────── */}
+      {/* ── Swipe carousel: 1 large card on mobile, ~2 on tablet/desktop ── */}
       <div
         ref={scrollRef}
         className="scrollbar-hide"
         style={{
           display: "flex",
-          gap: 14,
+          gap: 12,
           overflowX: "auto",
           overflowY: "visible",
           scrollSnapType: "x mandatory",
           WebkitOverflowScrolling: "touch",
           paddingBottom: 12,
           paddingTop: 4,
+          paddingLeft: 2,
+          paddingRight: 2,
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
@@ -80,25 +79,24 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
 }
 
 function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
-  // Responsive width: fills ~45% of container on ≥480px, ~78% on phones
-  // Using inline style with vw is problematic in modals, so we use a fixed pixel approach:
-  // 160px is readable at 2-per-page in a ~380px sidebar; on mobile it becomes 1.3-per-page.
-  const CARD_W = 160;
-  const PREVIEW_H = 200; // px — tall enough to appreciate structure
+  // Mobile: calc(85vw - 24px) ≈ 1 card + peek of next
+  // Tablet/desktop: 180px ≈ 2 per page in a ~400px container
+  const CARD_W = "min(180px, calc(82vw - 20px))";
+  const PREVIEW_H = 220; // px — tall enough to appreciate layout structure
 
   const inner = (
     <>
       {/* Preview thumbnail */}
       <div
         style={{
-          borderRadius: 12,
+          borderRadius: 14,
           overflow: "hidden",
           height: PREVIEW_H,
           position: "relative",
           boxShadow: isSelected
-            ? "0 0 0 3px #2563eb, 0 6px 24px rgba(37,99,235,0.25)"
-            : "0 2px 10px rgba(0,0,0,0.13)",
-          transition: "box-shadow 0.15s",
+            ? `0 0 0 3px ${color}, 0 6px 24px rgba(0,0,0,0.22)`
+            : "0 2px 12px rgba(0,0,0,0.13)",
+          transition: "box-shadow 0.2s",
           border: isSelected ? "none" : "1.5px solid rgba(0,0,0,0.08)",
         }}
       >
@@ -164,6 +162,7 @@ function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
   const wrapperStyle = {
     flexShrink: 0,
     width: CARD_W,
+    minWidth: CARD_W,
     scrollSnapAlign: "start",
   };
 

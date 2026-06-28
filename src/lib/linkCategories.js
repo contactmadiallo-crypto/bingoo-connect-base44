@@ -65,5 +65,11 @@ export function getLinkCategory(link) {
   if (url.includes("calendly.com") || url.includes("cal.com")) return "business";
   if (url.includes("spotify.com"))    return "content";
 
-  return "content"; // default for true custom/generic web links
+  // Label keyword fallback
+  const label = (link.label || "").toLowerCase();
+  if (label.includes("spotify") || label.includes("music") || label.includes("apple music")) return "content";
+  if (label.includes("shop") || label.includes("store") || label.includes("portfolio")) return "content";
+  if (label.includes("book") || label.includes("calendly") || label.includes("schedule")) return "business";
+
+  return "generic"; // true custom/unknown web links go to generic row
 }

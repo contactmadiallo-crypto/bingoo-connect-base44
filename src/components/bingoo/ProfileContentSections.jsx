@@ -302,11 +302,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const clPayment  = activeCustomLinks.filter(l => getLinkCategory(l) === "payment");
   const clBusiness = activeCustomLinks.filter(l => getLinkCategory(l) === "business");
   const clContent  = activeCustomLinks.filter(l => getLinkCategory(l) === "content");
-  // True generic custom links (no known category)
-  const clGeneric  = activeCustomLinks.filter(l => {
-    const cat = getLinkCategory(l);
-    return !["social", "payment", "business", "content", "contact"].includes(cat);
-  });
+  // True generic custom links — anything that didn't resolve to a known category
+  const clGeneric  = activeCustomLinks.filter(l => getLinkCategory(l) === "generic");
 
   // ── Primary contact row ───────────────────────────────────────────────────
   const contactIcons = [

@@ -346,7 +346,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
         <>
           {/* Scrollable form content with bottom padding to clear sticky button */}
           <div className="flex-1 overflow-y-auto px-4 py-4"
-            style={{ paddingBottom: "calc(96px + env(safe-area-inset-bottom))" }}>
+            style={{ paddingBottom: "calc(120px + env(safe-area-inset-bottom))" }}>
             <LinkEditForm
               item={editing}
               currentValue={getFieldValue(editing)}
@@ -357,13 +357,14 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               saveRef={editSaveRef}
             />
           </div>
-          {/* Sticky Save — fixed above bottom nav, always visible */}
+          {/* Sticky Save — fixed above bottom nav, always visible on iOS Safari + Android */}
           <div style={{
             position: "fixed",
-            bottom: "calc(72px + env(safe-area-inset-bottom))",
-            left: 0,
-            right: 0,
-            padding: "0 16px",
+            bottom: "calc(84px + env(safe-area-inset-bottom))",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "calc(100% - 32px)",
+            maxWidth: 520,
             zIndex: 100,
           }}>
             <button
