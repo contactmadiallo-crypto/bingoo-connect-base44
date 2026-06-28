@@ -13,9 +13,16 @@ const COVER_COLORS = [
 ];
 
 const BG_COLORS = [
-  "#ffffff","#f8fafc","#f1f5f9","#0f172a",
-  "#1e293b","#0B2E6B","#0f0f0f","#faf7f2",
+  // Whites & lights
+  "#ffffff","#f8fafc","#f1f5f9","#faf7f2",
+  // Pastels
   "#f0fdf4","#fdf4ff","#fffbeb","#fff1f2",
+  "#e0f2fe","#fce7f3","#f0fdfa","#fef9c3",
+  // Neutrals
+  "#f5f0eb","#e8e4e0","#d4c5b0","#c9b99a",
+  // Darks
+  "#0f172a","#1e293b","#0B2E6B","#0f0f0f",
+  "#1a0533","#0d1b2a","#1a1a2e","#0a0a0a",
 ];
 
 const BG_STYLES = [

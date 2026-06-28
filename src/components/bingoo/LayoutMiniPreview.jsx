@@ -11,25 +11,32 @@ import {
 } from "./ProfileLayoutRenderer";
 import { hexRgb } from "./ProfileLayoutRenderer";
 
-// Generic sample avatars — professional 3D style, no personal photos
+// Generic sample avatars — real professional headshots from Unsplash, no personal photos
 const SAMPLE_AVATARS = [
-  "https://api.dicebear.com/9.x/lorelei/svg?seed=Alex&backgroundColor=b6e3f4,c0aede,d1d4f9&backgroundType=gradientLinear&radius=50",
-  "https://api.dicebear.com/9.x/lorelei/svg?seed=Morgan&backgroundColor=ffdfbf,ffd5dc,ffecd2&backgroundType=gradientLinear&radius=50",
-  "https://api.dicebear.com/9.x/lorelei/svg?seed=Jordan&backgroundColor=c0aede,b6e3f4,d1d4f9&backgroundType=gradientLinear&radius=50",
-  "https://api.dicebear.com/9.x/lorelei/svg?seed=Casey&backgroundColor=d1d4f9,c0aede,b6e3f4&backgroundType=gradientLinear&radius=50",
-  "https://api.dicebear.com/9.x/lorelei/svg?seed=Riley&backgroundColor=ffd5dc,ffdfbf,ffecd2&backgroundType=gradientLinear&radius=50",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face&q=80",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face&q=80",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face&q=80",
 ];
 
-// Sample cover photos — Unsplash stable URLs (no personal images)
+// Sample cover photos — high-quality Unsplash professional images per layout
 const SAMPLE_COVERS = {
-  image_hero:   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70",
-  magazine:     "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=70",
-  executive:    "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=70",
-  classic:      "https://images.unsplash.com/photo-1557683316-973673baf926?w=800&q=70",
-  retro:        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=70",
-  floating:     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=70",
-  modern_saas:  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=70",
-  luxury_gold:  "https://images.unsplash.com/photo-1605902711622-cfb43c4437b5?w=800&q=70",
+  image_hero:   "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
+  magazine:     "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
+  executive:    "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=800&q=80",
+  classic:      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
+  retro:        "https://images.unsplash.com/photo-1519750157634-b6d493a0f77c?w=800&q=80",
+  floating:     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+  modern_saas:  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
+  luxury_gold:  "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80",
+  aurora:       "https://images.unsplash.com/photo-1531306728370-e2ebd9d7bb99?w=800&q=80",
+  glassmorphic: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80",
+  dark:         "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=80",
+  neon:         "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
+  bold:         "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&q=80",
+  card:         "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=800&q=80",
+  minimal:      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
 };
 
 const LAYOUT_AVATARS = {
@@ -38,13 +45,20 @@ const LAYOUT_AVATARS = {
   bold: 3, neon: 4, retro: 0, floating: 2, luxury_gold: 1,
 };
 
+// Map layout → matching cover photo person for cohesive look
+const PERSON_COVER_MATCH = {
+  // For layouts that show person on cover
+  magazine: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=600&fit=crop&crop=top&q=80",
+  image_hero: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=800&h=600&fit=crop&crop=faces&q=80",
+};
+
 function buildSampleProfile(layoutId, accentColor) {
   const avatarIdx = LAYOUT_AVATARS[layoutId] ?? 0;
-  const coverPhoto = SAMPLE_COVERS[layoutId] || null;
+  const coverPhoto = PERSON_COVER_MATCH[layoutId] || SAMPLE_COVERS[layoutId] || null;
   return {
-    display_name: "Alex Johnson",
-    job_title: "Product Designer",
-    company_name: "Studio Co.",
+    display_name: "Sarah Mitchell",
+    job_title: "Creative Director",
+    company_name: "Apex Studio",
     profile_photo: SAMPLE_AVATARS[avatarIdx],
     cover_photo: coverPhoto,
     cover_color: accentColor || "#2563eb",
@@ -54,23 +68,38 @@ function buildSampleProfile(layoutId, accentColor) {
     cover_position: "center",
     layout: layoutId,
     phone: "+1 555 000 0000",
-    email: "hello@studio.co",
+    email: "hello@apexstudio.co",
   };
 }
 
 function MiniContentStub({ color, isDark }) {
-  const bg   = isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9";
-  const line = isDark ? "rgba(255,255,255,0.16)" : "#cbd5e1";
-  const dot  = isDark ? hexRgb(color, 0.45) : hexRgb(color, 0.3);
+  const bg   = isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
+  const line = isDark ? "rgba(255,255,255,0.18)" : "#cbd5e1";
+  const subline = isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0";
+  const dot  = color;
   return (
-    <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
+    <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
+      {/* Icon row — 4 app-style icons */}
+      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 2 }}>
+        {[color, "#25D366", "#1877F2", "#000"].map((c, i) => (
+          <div key={i} style={{
+            width: 30, height: 30, borderRadius: 9,
+            background: c, flexShrink: 0,
+            boxShadow: `0 2px 6px ${c}55`,
+          }} />
+        ))}
+      </div>
+      {/* Link rows */}
       {[1, 2, 3].map(i => (
         <div key={i} style={{
-          background: bg, borderRadius: 10, padding: "8px 12px",
-          display: "flex", alignItems: "center", gap: 9,
+          background: bg, borderRadius: 10, padding: "7px 10px",
+          display: "flex", alignItems: "center", gap: 8,
         }}>
-          <div style={{ width: 20, height: 20, borderRadius: 7, background: dot, flexShrink: 0 }} />
-          <div style={{ flex: 1, height: 8, borderRadius: 4, background: line }} />
+          <div style={{ width: 18, height: 18, borderRadius: 6, background: dot, flexShrink: 0, opacity: 0.85 }} />
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
+            <div style={{ height: 6, borderRadius: 3, background: line, width: "60%" }} />
+            <div style={{ height: 4, borderRadius: 2, background: subline, width: "40%" }} />
+          </div>
         </div>
       ))}
     </div>
