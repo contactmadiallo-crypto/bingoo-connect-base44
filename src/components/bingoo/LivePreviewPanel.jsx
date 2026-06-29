@@ -275,9 +275,10 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                     {/* Scale down the 375px-wide profile to fit 220px screen */}
                     <div style={{
                       width: 375,
+                      height: Math.round(PHONE_CONTENT_HEIGHT / 0.587),
+                      overflow: "hidden",
                       transform: "scale(0.587)",
                       transformOrigin: "top left",
-                      minHeight: Math.round(PHONE_CONTENT_HEIGHT / 0.587),
                     }}>
                        <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                     </div>
@@ -373,7 +374,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                 </div>
               </div>
               <div style={{ borderRadius: 26, height: 560, overflowY: "scroll", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
-                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(560 / 0.747) }}>
+                <div style={{ width: 375, height: Math.round(560 / 0.747), overflow: "hidden", transform: "scale(0.747)", transformOrigin: "top left" }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
