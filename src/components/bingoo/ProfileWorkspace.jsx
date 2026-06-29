@@ -140,9 +140,6 @@ function WorkspaceLayoutPreview({ liveForm }) {
   const color = liveForm?.cover_color || "#2563eb";
   const isDark = liveForm?.bg_style === "night" || isLayoutDark(liveForm?.layout);
   const layoutType = liveForm?.layout || "classic";
-  const bgColor = liveForm?.theme_background_color || undefined;
-  const bgWatermark = liveForm?.bg_watermark_image || null;
-  const bgWatermarkOpacity = (liveForm?.bg_watermark_opacity ?? 15) / 100;
 
   const content = (
     <ProfileContentSections
@@ -179,19 +176,7 @@ function WorkspaceLayoutPreview({ liveForm }) {
     default: layoutEl = <ClassicLayout {...lp} />;
   }
 
-  // Wrap in bg color + watermark container (same as PublicProfile outer wrapper)
-  return (
-    <div style={{ minHeight: "100%", position: "relative", ...(bgColor ? { background: bgColor } : {}) }}>
-      {bgWatermark && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
-          <img src={bgWatermark} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: bgWatermarkOpacity }} />
-        </div>
-      )}
-      <div style={{ position: "relative", zIndex: 1 }}>
-        {layoutEl}
-      </div>
-    </div>
-  );
+  return layoutEl;
 }
 
 // ── Save status line ──────────────────────────────────────────────────────
@@ -1244,7 +1229,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                         </div>
                       </div>
                       <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh" }}>
-                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(600 / 0.747) }}>
+                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(520 / 0.747) }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
                       </div>
@@ -1274,7 +1259,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                 </div>
                 {/* Screen — exactly 216px wide, 520px tall */}
                 <div style={{ borderRadius: 22, width: 216, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", height: "auto" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
                     <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                   </div>
                 </div>

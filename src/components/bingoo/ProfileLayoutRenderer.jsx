@@ -14,9 +14,9 @@
 const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const FONT_BODY    = "'Inter', system-ui, sans-serif";
 
-// ── Custom background helper — respects theme_background_color ─
+// ── Custom background helper — returns the layout's own fallback ─
 export function resolvePageBg(profile, fallbackBg) {
-  return profile?.theme_background_color || fallbackBg;
+  return fallbackBg;
 }
 
 // ── Color helpers ──────────────────────────────────────────────
@@ -98,7 +98,7 @@ function CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = 
 export function ClassicLayout({ profile, color, isDark, mobile, contentSections }) {
   const size  = mobile ? 96 : 112;
   const ringW = 4;
-  const bg    = isDark ? "#111827" : "#f2f4f7";
+  const bg    = isDark ? "#111827" : "#eef4ff";
   const cardBg= isDark ? "#1e293b" : "#fff";
   const text  = isDark ? "#fff" : "#0f172a";
   const sub   = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
@@ -173,7 +173,7 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
   const size   = mobile ? 68 : 84;
   const radius = getAvatarRadius(profile?.avatar_shape);
   const bg     = isDark ? "#0f172a" : "#fff";
-  const outerBg= resolvePageBg(profile, isDark ? "#080d18" : "#f8fafc");
+  const outerBg= resolvePageBg(profile, isDark ? "#080d18" : "#f0fdf4");
   const text   = isDark ? "#fff" : "#0f172a";
   const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
   const border = isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9";
@@ -223,7 +223,7 @@ export function CardLayout({ profile, color, isDark, mobile, contentSections }) 
   const size   = mobile ? 60 : 72;
   const radius = getAvatarRadius(profile?.avatar_shape);
   const bg     = isDark ? "#1e293b" : "#fff";
-  const outerBg= resolvePageBg(profile, isDark ? "#0f172a" : "#f1f5f9");
+  const outerBg= resolvePageBg(profile, isDark ? "#0f172a" : "#faf5ff");
   const text   = isDark ? "#fff" : "#0f172a";
   const sub    = isDark ? "rgba(255,255,255,0.4)" : "#94a3b8";
   const stripH = mobile ? 120 : 150;
@@ -285,9 +285,10 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
 
   // If no cover photo, fall back to a colour gradient hero
   const hasPhoto = !!profile?.cover_photo;
+  const imageBg = isDark ? "#0c1525" : "#fff7ed";
 
   return (
-    <div style={{ background: resolvePageBg(profile, bg), minHeight: "100vh" }}>
+    <div style={{ background: resolvePageBg(profile, imageBg), minHeight: "100vh" }}>
       {/* Outer wrapper: no overflow:hidden so avatar can escape */}
       <div style={{ position: "relative", height: heroH + totalRing / 2 }}>
         {/* Inner: only this clips the image */}
@@ -529,7 +530,7 @@ export function AuroraLayout({ profile, color, mobile, contentSections }) {
 export function MagazineLayout({ profile, color, isDark, mobile, contentSections }) {
   const size    = mobile ? 72 : 88;
   const radius  = getAvatarRadius(profile?.avatar_shape);
-  const bg      = resolvePageBg(profile, isDark ? "#18181b" : "#fff");
+  const bg      = resolvePageBg(profile, isDark ? "#18181b" : "#fffbf0");
   const text    = isDark ? "#fff" : "#09090b";
   const sub     = isDark ? "rgba(255,255,255,0.4)" : "#71717a";
   const border  = isDark ? "rgba(255,255,255,0.1)" : "#e4e4e7";
@@ -592,7 +593,7 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
 export function ExecutiveLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 88 : 108;
   const ringW  = 4;
-  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#fff");
+  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#f0f7ff");
   const text   = isDark ? "#fff" : "#0f172a";
   const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
   const coverH = mobile ? 220 : 280;
@@ -650,7 +651,7 @@ export function ExecutiveLayout({ profile, color, isDark, mobile, contentSection
 export function ModernSaasLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 76 : 92;
   const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#f1f5f9");
+  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#ecfdf5");
   const cardBg = isDark ? "#1e293b" : "#fff";
   const text   = isDark ? "#fff" : "#0f172a";
   const sub    = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
@@ -709,7 +710,7 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
 export function ColorLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 106 : 126;
   const radius = getAvatarRadius(profile?.avatar_shape);
-  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#f8fafc");
+  const bg     = resolvePageBg(profile, isDark ? "#0f172a" : "#fefce8");
 
   return (
     <div style={{ background: bg, minHeight: "100vh" }}>
@@ -830,7 +831,7 @@ export function NeonLayout({ profile, color, mobile, contentSections }) {
 export function RetroLayout({ profile, color, isDark, mobile, contentSections }) {
   const size   = mobile ? 80 : 96;
   const radius = getAvatarRadius(profile?.avatar_shape);
-  const pageBg = resolvePageBg(profile, isDark ? "#1a1005" : "#faf6ef");
+  const pageBg = resolvePageBg(profile, isDark ? "#1a1005" : "#fdf8ef");
   const cardBg = isDark ? "#2a1e08" : "#fffdf7";
   const text   = isDark ? "#f5e6c8" : "#1a0e00";
   const sub    = isDark ? "#a89060" : "#8b6b3a";
@@ -894,7 +895,7 @@ export function FloatingLayout({ profile, color, isDark, mobile, contentSections
   const radius  = getAvatarRadius(profile?.avatar_shape);
   const outerBg = resolvePageBg(profile, isDark
     ? "#0f172a"
-    : `radial-gradient(ellipse at top, ${hexRgb(color, 0.14)} 0%, #f1f5f9 60%)`);
+    : `radial-gradient(ellipse at top, ${hexRgb(color, 0.18)} 0%, #e0f2fe 60%)`);
   const cardBg  = isDark ? "#1e293b" : "#fff";
   const text    = isDark ? "#fff" : "#0f172a";
   const sub     = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
@@ -1018,7 +1019,7 @@ export function PastelLayout({ profile, color, mobile, contentSections }) {
 export function PortraitLayout({ profile, color, isDark, mobile, contentSections }) {
   const size  = mobile ? 130 : 158;
   const ringW = 5;
-  const bg    = resolvePageBg(profile, isDark ? "#0f172a" : "#f8fafc");
+  const bg    = resolvePageBg(profile, isDark ? "#0f172a" : "#f0fdf4");
   const cardBg= isDark ? "#1e293b" : "#fff";
   const text  = isDark ? "#fff" : "#0f172a";
   const sub   = isDark ? "rgba(255,255,255,0.4)" : "#64748b";
