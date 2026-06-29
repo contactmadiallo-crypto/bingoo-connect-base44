@@ -46,7 +46,7 @@ const LAYOUT_CONFIG = {
     color: "#6366f1",
     cover: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800&q=80",
     name: "Liam Torres", title: "Product Manager", company: "Nexus HQ",
-    avatar: MEMOJI_A, isDark: false,
+    avatar: MEMOJI_A, isDark: true,
   },
   dark: {
     color: "#6366f1",
@@ -203,6 +203,68 @@ function MiniContentStub({ color, isDark }) {
   );
 }
 
+// iOS Control Center glass thumbnail — dark charcoal + frosted glass tiles
+function GlassThumbnail({ profile }) {
+  const color = "#6366f1";
+  const avatar = profile?.profile_photo;
+  const radius = 14;
+  const tileStyle = (bg = "rgba(255,255,255,0.13)") => ({
+    background: bg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    border: "1px solid rgba(255,255,255,0.18)",
+    borderRadius: radius,
+    boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+  });
+  const dotIcon = (c) => (
+    <div style={{ width: 32, height: 32, borderRadius: 10, background: c, boxShadow: `0 3px 10px ${c}88`, border: "1.5px solid rgba(255,255,255,0.25)" }} />
+  );
+  return (
+    <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1c1c1e 0%,#2c2c2e 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 16px 16px", gap: 10, position: "relative", overflow: "hidden" }}>
+      {/* Subtle blurred color orb */}
+      <div style={{ position: "absolute", top: 30, left: "50%", transform: "translateX(-50%)", width: 200, height: 100, background: color, filter: "blur(70px)", opacity: 0.2, borderRadius: "50%" }} />
+
+      {/* Profile card — glass pill */}
+      <div style={{ ...tileStyle("rgba(255,255,255,0.14)"), width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
+        <div style={{ width: 40, height: 40, borderRadius: 13, overflow: "hidden", border: "2px solid rgba(255,255,255,0.3)", flexShrink: 0 }}>
+          {avatar ? <img src={avatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", background: color }} />}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.7)", width: "60%", marginBottom: 4 }} />
+          <div style={{ height: 5, borderRadius: 3, background: `${color}cc`, width: "40%" }} />
+        </div>
+      </div>
+
+      {/* Icon row */}
+      <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+        {dotIcon("#25D366")}{dotIcon(color)}{dotIcon("#1877F2")}{dotIcon("#000")}
+      </div>
+
+      {/* Glass rows — iOS Control Center style */}
+      {/* Wide pill row */}
+      <div style={{ ...tileStyle(), width: "100%", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(255,255,255,0.25)" }} />
+        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.22)" }} />
+        <div style={{ width: 14, height: 14, borderRadius: "50%", background: "rgba(255,255,255,0.15)" }} />
+      </div>
+      {/* Two-col row */}
+      <div style={{ display: "flex", gap: 8, width: "100%" }}>
+        {[color, "#06b6d4"].map((c, i) => (
+          <div key={i} style={{ ...tileStyle(i === 0 ? `${c}55` : "rgba(255,255,255,0.10)"), flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
+            <div style={{ width: 20, height: 20, borderRadius: 7, background: c, boxShadow: `0 2px 8px ${c}88` }} />
+            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.3)", width: "70%" }} />
+          </div>
+        ))}
+      </div>
+      {/* Another wide pill */}
+      <div style={{ ...tileStyle(), width: "100%", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(255,255,255,0.18)" }} />
+        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.18)" }} />
+      </div>
+    </div>
+  );
+}
+
 // EXACTLY mirrors PublicProfile.jsx renderActiveLayout()
 function LayoutRenderer({ layoutId }) {
   const cfg     = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic; // eslint-disable-line no-unused-vars
@@ -216,7 +278,7 @@ function LayoutRenderer({ layoutId }) {
     case "image_hero":   return <ImageHeroLayout {...lp} />;
     case "magazine":     return <MagazineLayout {...lp} />;
     case "aurora":       return <AuroraLayout {...lp} color={color} />;
-    case "glassmorphic": return <GlassLayout {...lp} />;
+    case "glassmorphic": return <GlassThumbnail profile={profile} />;
     case "modern_saas":  return <ModernSaasLayout {...lp} />;
     case "executive":    return <ExecutiveLayout {...lp} />;
     case "luxury_gold":  return <LuxuryGoldLayout profile={profile} mobile={true} contentSections={stub} />;
@@ -239,6 +301,21 @@ export default function LayoutMiniPreview({ layoutId, isSelected = false, previe
   const RENDER_HEIGHT = 680;
   const scale = previewHeight / RENDER_HEIGHT;
 
+  // GlassThumbnail fills 100% of container directly — no scaling wrapper needed
+  if (layoutId === "glassmorphic") {
+    return (
+      <div style={{
+        width: "100%", height: previewHeight, borderRadius: 10,
+        overflow: "hidden", position: "relative",
+        background: "#1c1c1e",
+      }}>
+        <div style={{ width: "100%", height: "100%", pointerEvents: "none", userSelect: "none" }}>
+          <LayoutRenderer layoutId={layoutId} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       width: "100%",
@@ -246,7 +323,6 @@ export default function LayoutMiniPreview({ layoutId, isSelected = false, previe
       borderRadius: 10,
       overflow: "hidden",
       position: "relative",
-      // Use layout's own background color so even light layouts look distinct
       background: cfg.isDark ? "#0a0f1e" : "#f8fafc",
     }}>
       <div style={{

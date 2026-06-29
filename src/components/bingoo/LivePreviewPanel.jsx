@@ -263,7 +263,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                     style={{
                       borderRadius: 22,
                       height: PHONE_CONTENT_HEIGHT,
-                      overflowY: "auto",
+                      overflowY: "scroll",
                       overflowX: "hidden",
                       background: "#fff",
                       scrollbarWidth: "none",
@@ -272,7 +272,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                     }}
                   >
                     {/* Scale down the 375px-wide profile to fit 220px screen */}
-                    <div style={{ width: 375, transform: "scale(0.587)", transformOrigin: "top left", height: Math.round(PHONE_CONTENT_HEIGHT / 0.587) }}>
+                    <div style={{ width: 375, transform: "scale(0.587)", transformOrigin: "top left", minHeight: Math.round(PHONE_CONTENT_HEIGHT / 0.587) }}>
                        <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                     </div>
                   </div>
@@ -326,31 +326,38 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20 }}
+            onClick={() => setMobileOpen(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 20, overflow: "auto" }}
           >
-            {/* Close */}
-            <button
-              onClick={() => setMobileOpen(false)}
-              aria-label="Close preview"
-              style={{ position: "absolute", top: 20, right: 20, zIndex: 60, width: 44, height: 44, borderRadius: "50%", background: "rgba(255,255,255,0.2)", border: "2px solid rgba(255,255,255,0.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            {/* Top bar: label + close button */}
+            <div
+              onClick={e => e.stopPropagation()}
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", maxWidth: 340, marginBottom: 12, paddingLeft: 8, paddingRight: 4 }}
             >
-              <X size={22} />
-            </button>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-              <Smartphone size={16} color="rgba(255,255,255,0.7)" />
-              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
-              {hasChanges && <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.2)", padding: "2px 8px", borderRadius: 999 }}>UNSAVED</span>}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Smartphone size={16} color="rgba(255,255,255,0.7)" />
+                <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</span>
+                {hasChanges && <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.2)", padding: "2px 8px", borderRadius: 999 }}>UNSAVED</span>}
+              </div>
+              <button
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close preview"
+                style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "2px solid rgba(255,255,255,0.35)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
+              >
+                <X size={20} />
+              </button>
             </div>
 
             <motion.div
               initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 30 }}
+              onClick={e => e.stopPropagation()}
               style={{
                 width: 300, background: "#0f172a", borderRadius: 36,
                 padding: 12,
                 boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+                flexShrink: 0,
               }}
             >
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
@@ -359,8 +366,8 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                   <div style={{ width: 20, height: 3, borderRadius: 999, background: "#334155" }} />
                 </div>
               </div>
-              <div style={{ borderRadius: 26, height: 560, overflowY: "auto", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
-                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(560 / 0.747) }}>
+              <div style={{ borderRadius: 26, height: 560, overflowY: "scroll", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
+                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(560 / 0.747) }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
