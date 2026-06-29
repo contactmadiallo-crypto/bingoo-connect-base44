@@ -181,6 +181,23 @@ export default function PublicProfile() {
     retry: false, // don't retry 404s
   });
 
+  // Safety net: if a device code is in the URL (from NFC redirect), verify it
+  // isn't marked lost. If it is, redirect to the lost device page instead of
+  // rendering the profile. This catches direct profile URL access that
+  // bypasses the /n/:deviceCode route.
+  const { data: deviceCheck } = useQuery({
+    queryKey: ["profile-device-check", deviceCodeParam],
+    queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: deviceCodeParam }),
+    enabled: !!deviceCodeParam,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (deviceCheck?.data?.is_lost) {
+      window.location.replace(`/lost/${deviceCodeParam}`);
+    }
+  }, [deviceCheck?.data?.is_lost, deviceCodeParam]);
+
   const profile = queryResult?.profile;
   const isNotFound = !isLoading && queryResult?.not_found === true;
 
