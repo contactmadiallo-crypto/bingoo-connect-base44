@@ -373,8 +373,8 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                   <div style={{ width: 20, height: 3, borderRadius: 999, background: "#334155" }} />
                 </div>
               </div>
-              <div style={{ borderRadius: 26, height: 560, overflowY: "scroll", overflowX: "hidden", background: "#fff", scrollbarWidth: "none", overflow: "hidden" }}>
-                <div style={{ width: 375, height: 560 / 0.747, overflow: "hidden", transform: "scale(0.747)", transformOrigin: "top left" }}>
+              <div style={{ borderRadius: 26, height: 560, overflow: "hidden", background: "#fff", scrollbarWidth: "none" }}>
+                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left" }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
