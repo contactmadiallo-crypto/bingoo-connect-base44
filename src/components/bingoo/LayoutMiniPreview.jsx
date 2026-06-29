@@ -142,25 +142,61 @@ function buildSampleProfile(layoutId) {
 }
 
 function MiniContentStub({ color, isDark }) {
-  const bg      = isDark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
-  const line    = isDark ? "rgba(255,255,255,0.18)" : "#cbd5e1";
-  const subline = isDark ? "rgba(255,255,255,0.10)" : "#e2e8f0";
+  // iOS glass-style icons
+  const icons = [
+    { c: color, shadow: color },
+    { c: "#25D366", shadow: "#25D366" },
+    { c: "#1877F2", shadow: "#1877F2" },
+    { c: "#000000", shadow: "#555" },
+    { c: "#E1306C", shadow: "#E1306C" },
+  ];
+  // Glass link rows
+  const glassBg = isDark
+    ? "rgba(255,255,255,0.10)"
+    : "rgba(255,255,255,0.72)";
+  const glassBorder = isDark
+    ? "1px solid rgba(255,255,255,0.15)"
+    : "1px solid rgba(255,255,255,0.9)";
+  const lineColor = isDark ? "rgba(255,255,255,0.22)" : "rgba(0,0,0,0.14)";
+  const subColor  = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)";
+
   return (
-    <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
-      {/* 4 app-icon squares */}
-      <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 2 }}>
-        {[color, "#25D366", "#1877F2", "#000000"].map((c, i) => (
-          <div key={i} style={{ width: 30, height: 30, borderRadius: 9, background: c, flexShrink: 0, boxShadow: `0 2px 6px ${c}55` }} />
+    <div style={{ padding: "6px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
+      {/* iOS-style rounded app icon grid */}
+      <div style={{ display: "flex", gap: 5, justifyContent: "center", marginBottom: 4 }}>
+        {icons.map((ic, i) => (
+          <div key={i} style={{
+            width: 28, height: 28,
+            borderRadius: 8,
+            background: `linear-gradient(145deg, ${ic.c}dd, ${ic.c}88)`,
+            flexShrink: 0,
+            boxShadow: `0 3px 8px ${ic.shadow}55, inset 0 1px 0 rgba(255,255,255,0.35)`,
+            border: "1px solid rgba(255,255,255,0.2)",
+          }} />
         ))}
       </div>
-      {/* 3 link row stubs */}
-      {[1, 2, 3].map(i => (
-        <div key={i} style={{ background: bg, borderRadius: 10, padding: "7px 10px", display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 18, height: 18, borderRadius: 6, background: color, flexShrink: 0, opacity: 0.85 }} />
+      {/* Glass morphic link rows */}
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} style={{
+          background: glassBg,
+          border: glassBorder,
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderRadius: 10,
+          padding: "6px 9px",
+          display: "flex", alignItems: "center", gap: 7,
+          boxShadow: isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.06)",
+        }}>
+          <div style={{
+            width: 20, height: 20, borderRadius: 7, flexShrink: 0,
+            background: `linear-gradient(145deg, ${color}cc, ${color}66)`,
+            boxShadow: `0 2px 6px ${color}44, inset 0 1px 0 rgba(255,255,255,0.3)`,
+          }} />
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-            <div style={{ height: 6, borderRadius: 3, background: line, width: "60%" }} />
-            <div style={{ height: 4, borderRadius: 2, background: subline, width: "40%" }} />
+            <div style={{ height: 5, borderRadius: 3, background: lineColor, width: "55%" }} />
+            <div style={{ height: 3, borderRadius: 2, background: subColor, width: "38%" }} />
           </div>
+          <div style={{ width: 5, height: 5, borderRadius: "50%", background: lineColor, flexShrink: 0 }} />
         </div>
       ))}
     </div>

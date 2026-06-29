@@ -140,8 +140,10 @@ function WorkspaceLayoutPreview({ liveForm }) {
   const color = liveForm?.cover_color || "#2563eb";
   const isDark = liveForm?.bg_style === "night" || isLayoutDark(liveForm?.layout);
   const layoutType = liveForm?.layout || "classic";
+  const bgColor = liveForm?.theme_background_color || undefined;
+  const bgWatermark = liveForm?.bg_watermark_image || null;
+  const bgWatermarkOpacity = (liveForm?.bg_watermark_opacity ?? 15) / 100;
 
-  // Use actual ProfileContentSections so links, bio, etc. appear in preview
   const content = (
     <ProfileContentSections
       profile={liveForm}
@@ -155,28 +157,41 @@ function WorkspaceLayoutPreview({ liveForm }) {
 
   const lp = { profile: liveForm, color, isDark, mobile: true, contentSections: content };
 
-  // Championship layouts
-  if (layoutType === "ny_championship") return <NewYorkChampionshipLayout profile={liveForm}>{content}</NewYorkChampionshipLayout>;
-  if (layoutType === "lions_teranga") return <LionsOfTerangaLayout profile={liveForm}>{content}</LionsOfTerangaLayout>;
-
-  switch (layoutType) {
-    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury": return <ImageHeroLayout {...lp} />;
-    case "magazine": return <MagazineLayout {...lp} />;
-    case "aurora": case "animated_gradient": return <AuroraLayout {...lp} color={color} />;
-    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d": return <GlassLayout {...lp} />;
-    case "modern_saas": case "split": case "corporate": case "modern_law": return <ModernSaasLayout {...lp} />;
-    case "executive": case "executive_corp": return <ExecutiveLayout {...lp} />;
-    case "luxury_gold": return <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={content} />;
-    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome": return <DarkPremiumLayout {...lp} />;
-    case "neon": case "neon_tech": return <NeonLayout {...lp} />;
-    case "retro": case "paper": return <RetroLayout {...lp} />;
-    case "floating": return <FloatingLayout {...lp} />;
-    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly": return <ColorLayout {...lp} />;
-    case "pastel": case "gradient": case "portrait": return <PortraitLayout {...lp} />;
-    case "minimal": case "minimal_business": return <MinimalLayout {...lp} />;
-    case "card": case "card_compact": return <CardLayout {...lp} />;
-    default: return <ClassicLayout {...lp} />;
+  let layoutEl;
+  if (layoutType === "ny_championship") layoutEl = <NewYorkChampionshipLayout profile={liveForm}>{content}</NewYorkChampionshipLayout>;
+  else if (layoutType === "lions_teranga") layoutEl = <LionsOfTerangaLayout profile={liveForm}>{content}</LionsOfTerangaLayout>;
+  else switch (layoutType) {
+    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury": layoutEl = <ImageHeroLayout {...lp} />; break;
+    case "magazine": layoutEl = <MagazineLayout {...lp} />; break;
+    case "aurora": case "animated_gradient": layoutEl = <AuroraLayout {...lp} color={color} />; break;
+    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d": layoutEl = <GlassLayout {...lp} />; break;
+    case "modern_saas": case "split": case "corporate": case "modern_law": layoutEl = <ModernSaasLayout {...lp} />; break;
+    case "executive": case "executive_corp": layoutEl = <ExecutiveLayout {...lp} />; break;
+    case "luxury_gold": layoutEl = <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={content} />; break;
+    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome": layoutEl = <DarkPremiumLayout {...lp} />; break;
+    case "neon": case "neon_tech": layoutEl = <NeonLayout {...lp} />; break;
+    case "retro": case "paper": layoutEl = <RetroLayout {...lp} />; break;
+    case "floating": layoutEl = <FloatingLayout {...lp} />; break;
+    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly": layoutEl = <ColorLayout {...lp} />; break;
+    case "pastel": case "gradient": case "portrait": layoutEl = <PortraitLayout {...lp} />; break;
+    case "minimal": case "minimal_business": layoutEl = <MinimalLayout {...lp} />; break;
+    case "card": case "card_compact": layoutEl = <CardLayout {...lp} />; break;
+    default: layoutEl = <ClassicLayout {...lp} />;
   }
+
+  // Wrap in bg color + watermark container (same as PublicProfile outer wrapper)
+  return (
+    <div style={{ minHeight: "100%", position: "relative", ...(bgColor ? { background: bgColor } : {}) }}>
+      {bgWatermark && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+          <img src={bgWatermark} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: bgWatermarkOpacity }} />
+        </div>
+      )}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {layoutEl}
+      </div>
+    </div>
+  );
 }
 
 // ── Save status line ──────────────────────────────────────────────────────
@@ -1169,7 +1184,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <LinksPanel {...makeSaveProps("links")} liveForm={liveForm} setVal={setVal} set={set} />
             )}
             {innerTab === "design" && (
-              <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} lang={lang} />
+              <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} lang={lang}
+                onLayoutChange={() => handleSave("design")}
+              />
             )}
             {innerTab === "share" && (
               <SharePanel
@@ -1243,11 +1260,11 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </div>
 
           {/* Live preview — desktop only, inline phone frame */}
-          <div className="hidden xl:block w-64 flex-shrink-0 max-w-64">
+          <div className="hidden xl:block flex-shrink-0" style={{ width: 240 }}>
             <div style={{ position: "sticky", top: 0 }}>
               <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
-              <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)" }}>
+              <div style={{ background: "#0f172a", borderRadius: 32, padding: "10px 12px", boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", width: "fit-content" }}>
                 {/* Notch */}
                 <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
                   <div style={{ width: 64, height: 14, background: "#0f172a", borderRadius: "0 0 12px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
@@ -1255,9 +1272,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                     <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
                   </div>
                 </div>
-                {/* Screen — scales a 375px-wide preview into ~216px (fixed size for Safari) */}
-                <div style={{ borderRadius: 22, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
+                {/* Screen — exactly 216px wide, 520px tall */}
+                <div style={{ borderRadius: 22, width: 216, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", height: "auto" }}>
                     <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                   </div>
                 </div>

@@ -79,7 +79,7 @@ const SECTIONS = [
   { id: "layout",   label: "Layout",       icon: Layout },
 ];
 
-export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang }) {
+export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange }) {
   const [section, setSection] = useState("theme");
   const [uploading, setUploading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -406,7 +406,11 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           <p className={`text-xs font-black uppercase tracking-widest mb-3 ${mutedText}`}>Profile Layout</p>
           <LayoutPicker
             value={liveForm.layout || "classic"}
-            onChange={v => setVal("layout", v)}
+            onChange={v => {
+              setVal("layout", v);
+              // Auto-save layout selection after short debounce
+              setTimeout(() => onLayoutChange?.(v), 100);
+            }}
             color={liveForm.cover_color}
             plan={getEffectiveProfilePlan(userPlan, profile)}
             isAdmin={user?.role === "admin"}
