@@ -270,6 +270,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                       msOverflowStyle: "none",
                       pointerEvents: "none",
                       position: "relative",
+                      userSelect: "none",
                     }}
                   >
                     {/* Scale down the 375px-wide profile to fit 220px screen */}
@@ -373,7 +374,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                   <div style={{ width: 20, height: 3, borderRadius: 999, background: "#334155" }} />
                 </div>
               </div>
-              <div style={{ borderRadius: 26, height: 560, maxHeight: 560, overflow: "hidden", background: "#fff" }}>
+              <div style={{ borderRadius: 26, height: 560, maxHeight: 560, overflow: "hidden", background: "#fff", pointerEvents: "none", userSelect: "none" }}>
                 <div style={{ width: 375, maxHeight: 749, overflow: "hidden", transform: "scale(0.747)", transformOrigin: "top left" }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
