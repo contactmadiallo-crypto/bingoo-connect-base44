@@ -15,6 +15,9 @@ import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
 import { ProfileHeaderPreview } from "@/components/bingoo/SectionPreview";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
+import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
+import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
+import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
@@ -137,8 +140,25 @@ function WorkspaceLayoutPreview({ liveForm }) {
   const color = liveForm?.cover_color || "#2563eb";
   const isDark = liveForm?.bg_style === "night" || isLayoutDark(liveForm?.layout);
   const layoutType = liveForm?.layout || "classic";
-  const stub = <div style={{ padding: "8px 12px", opacity: 0.5 }}><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0", borderRadius: 4, marginBottom: 8 }} /><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", borderRadius: 4, marginBottom: 8, width: "80%" }} /><div style={{ height: 8, background: isDark ? "rgba(255,255,255,0.07)" : "#f1f5f9", borderRadius: 4, width: "60%" }} /></div>;
-  const lp = { profile: liveForm, color, isDark, mobile: true, contentSections: stub };
+
+  // Use actual ProfileContentSections so links, bio, etc. appear in preview
+  const content = (
+    <ProfileContentSections
+      profile={liveForm}
+      color={color}
+      isDark={isDark}
+      isDemo={false}
+      deviceCodeParam={null}
+      track={() => {}}
+    />
+  );
+
+  const lp = { profile: liveForm, color, isDark, mobile: true, contentSections: content };
+
+  // Championship layouts
+  if (layoutType === "ny_championship") return <NewYorkChampionshipLayout profile={liveForm}>{content}</NewYorkChampionshipLayout>;
+  if (layoutType === "lions_teranga") return <LionsOfTerangaLayout profile={liveForm}>{content}</LionsOfTerangaLayout>;
+
   switch (layoutType) {
     case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury": return <ImageHeroLayout {...lp} />;
     case "magazine": return <MagazineLayout {...lp} />;
@@ -146,7 +166,7 @@ function WorkspaceLayoutPreview({ liveForm }) {
     case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d": return <GlassLayout {...lp} />;
     case "modern_saas": case "split": case "corporate": case "modern_law": return <ModernSaasLayout {...lp} />;
     case "executive": case "executive_corp": return <ExecutiveLayout {...lp} />;
-    case "luxury_gold": return <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={stub} />;
+    case "luxury_gold": return <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={content} />;
     case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome": return <DarkPremiumLayout {...lp} />;
     case "neon": case "neon_tech": return <NeonLayout {...lp} />;
     case "retro": case "paper": return <RetroLayout {...lp} />;

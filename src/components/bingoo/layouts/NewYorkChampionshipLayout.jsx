@@ -164,6 +164,10 @@ export default function NewYorkChampionshipLayout({ profile, color, children }) 
 
           {/* Hero section with hoop, ball, skyline */}
           <div style={{ position: "relative", height: 220, overflow: "hidden" }}>
+            {/* User's cover photo — shown behind the graphics */}
+            {profile.cover_photo && (
+              <img src={profile.cover_photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.28 }} />
+            )}
             {/* Skyline at bottom */}
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
               <NYSkyline />

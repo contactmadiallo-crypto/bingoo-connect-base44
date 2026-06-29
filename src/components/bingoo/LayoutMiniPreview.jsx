@@ -9,6 +9,8 @@ import {
   ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout,
   AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout,
 } from "./ProfileLayoutRenderer";
+import NewYorkChampionshipLayout from "./layouts/NewYorkChampionshipLayout";
+import LionsOfTerangaLayout from "./layouts/LionsOfTerangaLayout";
 
 // ── Two confirmed 3D Memoji assets ──────────────────────────────────────────
 const MEMOJI_A = "https://media.base44.com/images/public/692bd9007b93ba81de543346/1ccea4ba2_image.png";
@@ -189,37 +191,8 @@ function LayoutRenderer({ layoutId }) {
     case "floating":     return <FloatingLayout {...lp} />;
     case "minimal":      return <MinimalLayout {...lp} />;
     case "card":            return <CardLayout {...lp} />;
-    // Championship layouts — render their unique dark gradient as a static preview
-    case "ny_championship": return (
-      <div style={{ minHeight: "100%", background: "linear-gradient(160deg,#020818 0%,#051530 40%,#0B2E6B 75%,#0d1a3a 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px 20px", gap: 12 }}>
-        <div style={{ fontSize: 40 }}>🏀</div>
-        <div style={{ padding: 4, background: "linear-gradient(135deg,#FF7A00,#FDBA21)", borderRadius: "50%", boxShadow: "0 0 24px rgba(255,122,0,0.5)" }}>
-          <img src={cfg.avatar} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover" }} alt="" />
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff" }}>{cfg.name} <span style={{ color: "#FF7A00" }}>✓</span></div>
-          <div style={{ fontSize: 11, color: "#FF7A00", marginTop: 3 }}>{cfg.title}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2, fontStyle: "italic" }}>New York. Heart. Hustle. Champion.</div>
-        </div>
-        <div style={{ width: "100%", height: 2, background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
-        <MiniContentStub color="#FF7A00" isDark={true} />
-      </div>
-    );
-    case "lions_teranga": return (
-      <div style={{ minHeight: "100%", background: "linear-gradient(160deg,#020f06 0%,#012c0e 40%,#004d1a 70%,#013a0e 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 20px 20px", gap: 12 }}>
-        <div style={{ fontSize: 40 }}>🦁</div>
-        <div style={{ padding: 4, background: "linear-gradient(135deg,#D4AF37,#00853F,#E31B23)", borderRadius: "50%", boxShadow: "0 0 24px rgba(212,175,55,0.5)" }}>
-          <img src={cfg.avatar} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover" }} alt="" />
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 16, fontWeight: 900, color: "#fff" }}>{cfg.name} <span style={{ color: "#00853F" }}>✓</span></div>
-          <div style={{ fontSize: 11, color: "#D4AF37", marginTop: 3 }}>{cfg.title}</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2, fontStyle: "italic" }}>One People. One Goal. One Victory.</div>
-        </div>
-        <div style={{ width: "100%", height: 5, background: "linear-gradient(90deg,#00853F 33%,#FDEF42 33%,#FDEF42 66%,#E31B23 66%)" }} />
-        <MiniContentStub color="#D4AF37" isDark={true} />
-      </div>
-    );
+    case "ny_championship": return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#FF7A00" isDark={true} /></NewYorkChampionshipLayout>;
+    case "lions_teranga": return <LionsOfTerangaLayout profile={profile}><MiniContentStub color="#D4AF37" isDark={true} /></LionsOfTerangaLayout>;
     default:             return <ClassicLayout {...lp} />;
   }
 }

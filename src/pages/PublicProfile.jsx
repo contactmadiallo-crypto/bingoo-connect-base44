@@ -327,7 +327,6 @@ export default function PublicProfile() {
     }
   };
 
-  // Apply custom background color if set
   const pageBackground = profile.theme_background_color || undefined;
   const bgWatermark = profile.bg_watermark_image || null;
   const bgWatermarkOpacity = (profile.bg_watermark_opacity ?? 15) / 100;

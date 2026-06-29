@@ -42,8 +42,9 @@ function getShellBg(layout, color, isDark) {
 export default function ProfileLayoutShell({ profile, color, isDark, children }) {
   const mobile = useIsMobile();
   const layout = profile?.layout || "classic";
-  // User's custom background color takes precedence over layout-derived shell background
-  const pageBg = profile?.theme_background_color || getShellBg(layout, color, isDark);
+  const hasCustomBg = !!profile?.theme_background_color;
+  // Only apply shell bg when no custom bg is set (custom bg is on the outer PublicProfile wrapper)
+  const pageBg = hasCustomBg ? "transparent" : getShellBg(layout, color, isDark);
 
   return (
     <div style={{ minHeight: "100vh", background: pageBg }}>
