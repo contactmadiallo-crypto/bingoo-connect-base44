@@ -327,22 +327,8 @@ export default function PublicProfile() {
     }
   };
 
-  const pageBackground = profile.theme_background_color || undefined;
-  const bgWatermark = profile.bg_watermark_image || null;
-  const bgWatermarkOpacity = (profile.bg_watermark_opacity ?? 15) / 100;
-
   return (
-    <div ref={topRef} style={{ position: "relative", minHeight: "100vh", ...(pageBackground ? { background: pageBackground } : {}) }}>
-
-      {/* Watermark background image */}
-      {bgWatermark && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-          backgroundImage: `url(${bgWatermark})`,
-          backgroundSize: "cover", backgroundPosition: "center",
-          opacity: bgWatermarkOpacity,
-        }} />
-      )}
+    <div ref={topRef} style={{ position: "relative", minHeight: "100vh", background: "#fff" }}>
 
       {/* Back button — frosted glass */}
       <motion.button
