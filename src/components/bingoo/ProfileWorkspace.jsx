@@ -1211,7 +1211,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-4 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
                   <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
-                  <button type="button" onClick={() => setMobilePreviewOpen(false)}
+                  <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMobilePreviewOpen(false); }}
                     className={`p-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600"}`}
                     title="Close preview (ESC)">
                     <X className="w-5 h-5" />

@@ -203,86 +203,79 @@ function MiniContentStub({ color, isDark }) {
   );
 }
 
-// iOS Control Center glass thumbnail — matches screenshot exactly
+// iOS Control Center glass thumbnail — dark phone UI style
 function GlassThumbnail({ profile }) {
   const avatar = profile?.profile_photo;
-
-  // Tile helper: dark semi-transparent rounded rect
-  const tile = (extraStyle = {}, children) => (
-    <div style={{
-      background: "rgba(60,60,65,0.85)",
-      border: "1px solid rgba(255,255,255,0.10)",
-      borderRadius: 16,
-      ...extraStyle,
-    }}>{children}</div>
-  );
 
   return (
     <div style={{
       width: "100%", height: "100%",
-      background: "linear-gradient(180deg,#1c1c1e 0%,#28282a 100%)",
+      background: "linear-gradient(180deg,#1a1a1c 0%,#2a2a2e 100%)",
       display: "flex", flexDirection: "column",
-      alignItems: "center", padding: "20px 14px 14px", gap: 8,
+      alignItems: "center", padding: "18px 12px 12px", gap: 7,
       overflow: "hidden",
     }}>
-      {/* Avatar circle centered at top */}
+      {/* Avatar circle */}
       <div style={{
-        width: 52, height: 52, borderRadius: "50%",
-        border: "3px solid rgba(255,255,255,0.25)",
+        width: 48, height: 48, borderRadius: "50%",
+        border: "2.5px solid rgba(255,255,255,0.3)",
         overflow: "hidden", flexShrink: 0,
         background: "#3a3a3c",
-        marginBottom: 2,
       }}>
         {avatar && <img src={avatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />}
       </div>
 
-      {/* Name line */}
-      <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.65)", width: "55%", marginBottom: 2 }} />
+      {/* Name + subtitle bars */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, width: "100%" }}>
+        <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.7)", width: "52%" }} />
+        <div style={{ height: 5, borderRadius: 3, background: "rgba(255,255,255,0.25)", width: "38%" }} />
+      </div>
 
-      {/* 4-icon row: green, blue, purple, black */}
-      <div style={{ display: "flex", gap: 7, justifyContent: "center", marginBottom: 2 }}>
-        {["#25D366","#5856D6","#007AFF","#1c1c1e"].map((c, i) => (
+      {/* 4-icon row */}
+      <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+        {["#25D366", "#5856D6", "#007AFF", "#2c2c2e"].map((c, i) => (
           <div key={i} style={{
-            width: 38, height: 38, borderRadius: 12,
+            width: 36, height: 36, borderRadius: 11,
             background: c,
-            border: i === 3 ? "1.5px solid rgba(255,255,255,0.18)" : "none",
-            boxShadow: `0 3px 10px ${c}88`,
+            border: i === 3 ? "1px solid rgba(255,255,255,0.15)" : "none",
           }} />
         ))}
       </div>
 
-      {/* Wide pill row 1 — dark */}
-      {tile({ width: "100%", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 },
-        <>
-          <div style={{ width: 18, height: 18, borderRadius: 6, background: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
-          <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.18)" }} />
-          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
-        </>
-      )}
-
-      {/* Two-col row */}
-      <div style={{ display: "flex", gap: 8, width: "100%" }}>
-        {tile({ flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 },
-          <>
-            <div style={{ width: 22, height: 22, borderRadius: 8, background: "#5856D6" }} />
-            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.25)", width: "65%" }} />
-          </>
-        )}
-        {tile({ flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 },
-          <>
-            <div style={{ width: 22, height: 22, borderRadius: 8, background: "#32ADE6" }} />
-            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.25)", width: "65%" }} />
-          </>
-        )}
+      {/* Wide dark tile 1 */}
+      <div style={{
+        width: "100%", background: "rgba(58,58,60,0.9)", borderRadius: 14,
+        padding: "9px 11px", display: "flex", alignItems: "center", gap: 8,
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}>
+        <div style={{ width: 16, height: 16, borderRadius: 5, background: "rgba(255,255,255,0.22)", flexShrink: 0 }} />
+        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.18)" }} />
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
       </div>
 
-      {/* Wide pill row 2 */}
-      {tile({ width: "100%", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 },
-        <>
-          <div style={{ width: 18, height: 18, borderRadius: 6, background: "rgba(255,255,255,0.18)", flexShrink: 0 }} />
-          <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.15)" }} />
-        </>
-      )}
+      {/* Two-col tiles */}
+      <div style={{ display: "flex", gap: 7, width: "100%" }}>
+        {[{ bg: "#5856D6" }, { bg: "#32ADE6" }].map((t, i) => (
+          <div key={i} style={{
+            flex: 1, background: "rgba(58,58,60,0.9)", borderRadius: 14,
+            padding: "9px 10px", display: "flex", flexDirection: "column", gap: 5,
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}>
+            <div style={{ width: 20, height: 20, borderRadius: 7, background: t.bg }} />
+            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.22)", width: "60%" }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Wide dark tile 2 */}
+      <div style={{
+        width: "100%", background: "rgba(58,58,60,0.9)", borderRadius: 14,
+        padding: "9px 11px", display: "flex", alignItems: "center", gap: 8,
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}>
+        <div style={{ width: 16, height: 16, borderRadius: 5, background: "rgba(255,255,255,0.18)", flexShrink: 0 }} />
+        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.15)" }} />
+      </div>
     </div>
   );
 }

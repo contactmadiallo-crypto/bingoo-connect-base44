@@ -277,8 +277,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                       width: 375,
                       transform: "scale(0.587)",
                       transformOrigin: "top left",
-                      // height must be set explicitly so the scaled div reports correct scroll height
-                      height: Math.round(PHONE_CONTENT_HEIGHT / 0.587),
+                      minHeight: Math.round(PHONE_CONTENT_HEIGHT / 0.587),
                     }}>
                        <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                     </div>
@@ -374,7 +373,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                 </div>
               </div>
               <div style={{ borderRadius: 26, height: 560, overflowY: "scroll", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
-                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(560 / 0.747) }}>
+                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(560 / 0.747) }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
