@@ -36,12 +36,13 @@ export default function NFCRedirect() {
     }
   }, [isClaimed, profile?.id, device?.id]);
 
-  // Redirect claimed devices to the profile
+  // Redirect claimed (non-lost) devices to the profile.
+  // Lost devices must NOT redirect — they render LostDevicePage below.
   useEffect(() => {
-    if (isClaimed && profile?.username) {
+    if (isClaimed && !isLost && profile?.username) {
       window.location.replace(`/p/${profile.username}?source=nfc`);
     }
-  }, [isClaimed, profile?.username]);
+  }, [isClaimed, isLost, profile?.username]);
 
   if (isLoading) {
     return (
