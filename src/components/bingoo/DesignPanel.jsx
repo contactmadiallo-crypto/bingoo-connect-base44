@@ -12,26 +12,6 @@ const COVER_COLORS = [
   "#0891b2","#1e293b","#374151","#FF7A00"
 ];
 
-const BG_COLORS = [
-  // Whites & near-whites
-  "#ffffff","#f8fafc","#f1f5f9","#faf7f2",
-  // Pastels – cool
-  "#e0f2fe","#dbeafe","#ede9fe","#f3e8ff",
-  // Pastels – warm
-  "#fce7f3","#fff1f2","#fff7ed","#fefce8",
-  // Pastels – nature
-  "#f0fdf4","#d1fae5","#f0fdfa","#ecfeff",
-  // Warm neutrals
-  "#faf5eb","#f5f0eb","#e8e4e0","#d4c5b0",
-  // Mids
-  "#94a3b8","#64748b","#475569","#374151",
-  // Deep blues
-  "#0f172a","#1e293b","#0B2E6B","#172554",
-  // Rich darks
-  "#0f0f0f","#0a0a0a","#1a1a2e","#1a0533",
-  // Accent darks
-  "#0d1b2a","#0d2137","#0f2b1e","#1f0a2e",
-];
 
 const BG_STYLES = [
   { v: "clean",    label: "Clean",    desc: "Simple & neutral" },
@@ -118,17 +98,6 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
     }
   };
 
-  const handleBgImageUpload = async (e) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setVal("bg_watermark_image", file_url);
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const sel = (v, current) => v === current;
 
   return (
@@ -172,64 +141,6 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                   className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom" />
               </div>
             </div>
-          </div>
-
-          <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Background Color</p>
-            <div className="flex gap-2 flex-wrap">
-              {BG_COLORS.map(c => (
-                <button type="button" key={c} onClick={() => setVal("theme_background_color", c)}
-                  className="relative w-9 h-9 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center"
-                  style={{
-                    background: c,
-                    borderColor: sel(c, liveForm.theme_background_color) ? "#FF7A00" : (c === "#ffffff" || c === "#f8fafc" ? "#e2e8f0" : "transparent"),
-                    transform: sel(c, liveForm.theme_background_color) ? "scale(1.15)" : "scale(1)",
-                    boxShadow: sel(c, liveForm.theme_background_color) ? `0 0 0 2px #FF7A00` : "none",
-                  }}>
-                  {sel(c, liveForm.theme_background_color) && <Check className="w-3.5 h-3.5" style={{ color: c === "#ffffff" || c === "#f8fafc" || c === "#f1f5f9" ? "#374151" : "white" }} />}
-                </button>
-              ))}
-              <div className="w-9 h-9 rounded-full border-2 border-slate-300 flex items-center justify-center overflow-hidden">
-                <input type="color" value={liveForm.theme_background_color || "#ffffff"} onChange={e => setVal("theme_background_color", e.target.value)}
-                  className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom background color" />
-              </div>
-              {liveForm.theme_background_color && (
-                <button type="button" onClick={() => setVal("theme_background_color", "")}
-                  className="px-2 py-1 rounded-full text-[10px] font-bold text-slate-500 border border-slate-200 hover:bg-slate-100">
-                  Reset
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Background Watermark Image */}
-          <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Background Image</p>
-            <p className={`text-[10px] mb-2 ${mutedText}`}>Subtle watermark behind your profile content</p>
-            {liveForm.bg_watermark_image && (
-              <div className="relative w-full rounded-xl overflow-hidden mb-2" style={{ height: 80 }}>
-                <img src={liveForm.bg_watermark_image} alt="BG" className="w-full h-full" style={{ objectFit: "cover", opacity: 0.5 }} />
-                <button type="button" onClick={() => setVal("bg_watermark_image", "")}
-                  className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-black shadow">×</button>
-              </div>
-            )}
-            <label className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-              <Upload className="w-4 h-4 flex-shrink-0" />
-              {uploading ? "Uploading…" : liveForm.bg_watermark_image ? "Change Image" : "Upload Background Image"}
-              <input type="file" accept="image/*" className="hidden" onChange={handleBgImageUpload} disabled={uploading} />
-            </label>
-            {liveForm.bg_watermark_image && (
-              <div className="mt-2 space-y-1">
-                <p className={`text-[10px] font-bold ${mutedText}`}>Opacity</p>
-                <input type="range" min="5" max="40" step="1"
-                  value={liveForm.bg_watermark_opacity ?? 15}
-                  onChange={e => setVal("bg_watermark_opacity", Number(e.target.value))}
-                  className="w-full accent-orange-400" />
-                <div className="flex justify-between text-[9px] text-slate-400">
-                  <span>Subtle</span><span>{liveForm.bg_watermark_opacity ?? 15}%</span><span>Visible</span>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className={rowCls}>
