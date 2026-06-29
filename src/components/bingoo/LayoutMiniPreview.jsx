@@ -203,64 +203,86 @@ function MiniContentStub({ color, isDark }) {
   );
 }
 
-// iOS Control Center glass thumbnail — dark charcoal + frosted glass tiles
+// iOS Control Center glass thumbnail — matches screenshot exactly
 function GlassThumbnail({ profile }) {
-  const color = "#6366f1";
   const avatar = profile?.profile_photo;
-  const radius = 14;
-  const tileStyle = (bg = "rgba(255,255,255,0.13)") => ({
-    background: bg,
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    border: "1px solid rgba(255,255,255,0.18)",
-    borderRadius: radius,
-    boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
-  });
-  const dotIcon = (c) => (
-    <div style={{ width: 32, height: 32, borderRadius: 10, background: c, boxShadow: `0 3px 10px ${c}88`, border: "1.5px solid rgba(255,255,255,0.25)" }} />
+
+  // Tile helper: dark semi-transparent rounded rect
+  const tile = (extraStyle = {}, children) => (
+    <div style={{
+      background: "rgba(60,60,65,0.85)",
+      border: "1px solid rgba(255,255,255,0.10)",
+      borderRadius: 16,
+      ...extraStyle,
+    }}>{children}</div>
   );
+
   return (
-    <div style={{ width: "100%", height: "100%", background: "linear-gradient(160deg,#1c1c1e 0%,#2c2c2e 100%)", display: "flex", flexDirection: "column", alignItems: "center", padding: "28px 16px 16px", gap: 10, position: "relative", overflow: "hidden" }}>
-      {/* Subtle blurred color orb */}
-      <div style={{ position: "absolute", top: 30, left: "50%", transform: "translateX(-50%)", width: 200, height: 100, background: color, filter: "blur(70px)", opacity: 0.2, borderRadius: "50%" }} />
-
-      {/* Profile card — glass pill */}
-      <div style={{ ...tileStyle("rgba(255,255,255,0.14)"), width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px" }}>
-        <div style={{ width: 40, height: 40, borderRadius: 13, overflow: "hidden", border: "2px solid rgba(255,255,255,0.3)", flexShrink: 0 }}>
-          {avatar ? <img src={avatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ width: "100%", height: "100%", background: color }} />}
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.7)", width: "60%", marginBottom: 4 }} />
-          <div style={{ height: 5, borderRadius: 3, background: `${color}cc`, width: "40%" }} />
-        </div>
+    <div style={{
+      width: "100%", height: "100%",
+      background: "linear-gradient(180deg,#1c1c1e 0%,#28282a 100%)",
+      display: "flex", flexDirection: "column",
+      alignItems: "center", padding: "20px 14px 14px", gap: 8,
+      overflow: "hidden",
+    }}>
+      {/* Avatar circle centered at top */}
+      <div style={{
+        width: 52, height: 52, borderRadius: "50%",
+        border: "3px solid rgba(255,255,255,0.25)",
+        overflow: "hidden", flexShrink: 0,
+        background: "#3a3a3c",
+        marginBottom: 2,
+      }}>
+        {avatar && <img src={avatar} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />}
       </div>
 
-      {/* Icon row */}
-      <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-        {dotIcon("#25D366")}{dotIcon(color)}{dotIcon("#1877F2")}{dotIcon("#000")}
-      </div>
+      {/* Name line */}
+      <div style={{ height: 7, borderRadius: 4, background: "rgba(255,255,255,0.65)", width: "55%", marginBottom: 2 }} />
 
-      {/* Glass rows — iOS Control Center style */}
-      {/* Wide pill row */}
-      <div style={{ ...tileStyle(), width: "100%", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(255,255,255,0.25)" }} />
-        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.22)" }} />
-        <div style={{ width: 14, height: 14, borderRadius: "50%", background: "rgba(255,255,255,0.15)" }} />
-      </div>
-      {/* Two-col row */}
-      <div style={{ display: "flex", gap: 8, width: "100%" }}>
-        {[color, "#06b6d4"].map((c, i) => (
-          <div key={i} style={{ ...tileStyle(i === 0 ? `${c}55` : "rgba(255,255,255,0.10)"), flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 }}>
-            <div style={{ width: 20, height: 20, borderRadius: 7, background: c, boxShadow: `0 2px 8px ${c}88` }} />
-            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.3)", width: "70%" }} />
-          </div>
+      {/* 4-icon row: green, blue, purple, black */}
+      <div style={{ display: "flex", gap: 7, justifyContent: "center", marginBottom: 2 }}>
+        {["#25D366","#5856D6","#007AFF","#1c1c1e"].map((c, i) => (
+          <div key={i} style={{
+            width: 38, height: 38, borderRadius: 12,
+            background: c,
+            border: i === 3 ? "1.5px solid rgba(255,255,255,0.18)" : "none",
+            boxShadow: `0 3px 10px ${c}88`,
+          }} />
         ))}
       </div>
-      {/* Another wide pill */}
-      <div style={{ ...tileStyle(), width: "100%", padding: "10px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(255,255,255,0.18)" }} />
-        <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.18)" }} />
+
+      {/* Wide pill row 1 — dark */}
+      {tile({ width: "100%", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 },
+        <>
+          <div style={{ width: 18, height: 18, borderRadius: 6, background: "rgba(255,255,255,0.2)", flexShrink: 0 }} />
+          <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.18)" }} />
+          <div style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(255,255,255,0.12)", flexShrink: 0 }} />
+        </>
+      )}
+
+      {/* Two-col row */}
+      <div style={{ display: "flex", gap: 8, width: "100%" }}>
+        {tile({ flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 },
+          <>
+            <div style={{ width: 22, height: 22, borderRadius: 8, background: "#5856D6" }} />
+            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.25)", width: "65%" }} />
+          </>
+        )}
+        {tile({ flex: 1, padding: "10px 10px", display: "flex", flexDirection: "column", gap: 5 },
+          <>
+            <div style={{ width: 22, height: 22, borderRadius: 8, background: "#32ADE6" }} />
+            <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.25)", width: "65%" }} />
+          </>
+        )}
       </div>
+
+      {/* Wide pill row 2 */}
+      {tile({ width: "100%", padding: "10px 12px", display: "flex", alignItems: "center", gap: 8 },
+        <>
+          <div style={{ width: 18, height: 18, borderRadius: 6, background: "rgba(255,255,255,0.18)", flexShrink: 0 }} />
+          <div style={{ flex: 1, height: 5, borderRadius: 3, background: "rgba(255,255,255,0.15)" }} />
+        </>
+      )}
     </div>
   );
 }

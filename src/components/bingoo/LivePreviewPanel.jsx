@@ -269,10 +269,17 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                       scrollbarWidth: "none",
                       msOverflowStyle: "none",
                       pointerEvents: "none",
+                      position: "relative",
                     }}
                   >
                     {/* Scale down the 375px-wide profile to fit 220px screen */}
-                    <div style={{ width: 375, transform: "scale(0.587)", transformOrigin: "top left", minHeight: Math.round(PHONE_CONTENT_HEIGHT / 0.587) }}>
+                    <div style={{
+                      width: 375,
+                      transform: "scale(0.587)",
+                      transformOrigin: "top left",
+                      // height must be set explicitly so the scaled div reports correct scroll height
+                      height: Math.round(PHONE_CONTENT_HEIGHT / 0.587),
+                    }}>
                        <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                     </div>
                   </div>
@@ -326,7 +333,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setMobileOpen(false)}
+            onClick={(e) => { e.preventDefault(); setMobileOpen(false); }}
             style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 20, overflow: "auto" }}
           >
             {/* Top bar: label + close button */}
@@ -340,7 +347,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                 {hasChanges && <span style={{ fontSize: 10, fontWeight: 800, color: "#f59e0b", background: "rgba(245,158,11,0.2)", padding: "2px 8px", borderRadius: 999 }}>UNSAVED</span>}
               </div>
               <button
-                onClick={() => setMobileOpen(false)}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMobileOpen(false); }}
                 aria-label="Close preview"
                 style={{ width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.18)", border: "2px solid rgba(255,255,255,0.35)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
               >
@@ -367,7 +374,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
                 </div>
               </div>
               <div style={{ borderRadius: 26, height: 560, overflowY: "scroll", overflowX: "hidden", background: "#fff", scrollbarWidth: "none" }}>
-                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(560 / 0.747) }}>
+                <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", height: Math.round(560 / 0.747) }}>
                   <SectionContent previewMode={previewMode} previewProfile={previewProfile} isDark={isDark} isLawFirm={isLawFirm} />
                 </div>
               </div>
