@@ -100,7 +100,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const card = isDark ? "bg-white/5 border-white/8" : "bg-white border-slate-200";
   const head = isDark ? "text-white" : "text-slate-900";
   const sub = isDark ? "text-white/50" : "text-slate-500";
-  const inp = isDark ? "bg-white/8 border-white/15 text-white focus:border-white/30" : "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-400";
+  const inp = isDark ? "bg-[#1a2235] border-white/10 text-white placeholder:text-white/30 focus:border-blue-500/50" : "bg-slate-50 border-slate-200 text-slate-900 focus:border-blue-400";
 
   return (
     <div className="space-y-4">
@@ -123,7 +123,8 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
             <div>
               <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Category</label>
               <select value={form.legal_category} onChange={(e) => setForm(f => ({ ...f, legal_category: e.target.value }))}
-                className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`}>
+                className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`}
+                style={isDark ? { background: "#1a2235" } : {}}>
                 {LEGAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>

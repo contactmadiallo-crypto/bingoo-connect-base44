@@ -52,7 +52,7 @@ export default function PortfolioPanel({ profileId, user }) {
   const cardBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
   const formBg = isDark ? "rgba(255,255,255,0.05)" : "#f8fafc";
   const inputClass = isDark
-    ? "bg-white/5 border-white/10 text-white placeholder:text-white/20"
+    ? "bg-[#1a2235] border-white/10 text-white placeholder:text-white/30"
     : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400";
   const labelClass = isDark ? "text-white/60" : "text-slate-600";
   const cancelBtnClass = isDark
