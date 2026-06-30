@@ -539,7 +539,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             profileId={profile.id} color={color} isDark={isDark}
             onBookService={canBook ? (svc) => { setBookService(svc); setBookOpen(true); } : undefined}
           />
-          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={canBook} onBookWithStylist={(stylistName) => { setBookService(null); setBookStylist(stylistName); setBookOpen(true); }} />
+          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={true} onBookWithStylist={(stylistName) => { setBookService(null); setBookStylist(stylistName); setBookOpen(true); }} />
           <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
           {/* ── Prominent Google Review for salons ── */}
           {profile.google_review_url && (
