@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -89,6 +89,14 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
     case_type: "Immigration", a_number: "", case_number: "",
     notes: "",
   });
+
+  // Sync prefilled stylist/service if they change after mount (e.g. opened from stylist card)
+  useEffect(() => {
+    if (prefilledStylist) setForm(f => ({ ...f, stylist_name: prefilledStylist }));
+  }, [prefilledStylist]);
+  useEffect(() => {
+    if (prefilledService?.name) setForm(f => ({ ...f, service_name: prefilledService.name }));
+  }, [prefilledService]);
   const set = k => e => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const today = new Date(); today.setHours(0,0,0,0);

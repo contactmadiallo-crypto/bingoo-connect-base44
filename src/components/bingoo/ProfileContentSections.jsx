@@ -274,6 +274,7 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
 export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track }) {
   const [bookOpen, setBookOpen] = useState(false);
   const [bookService, setBookService] = useState(null);
+  const [bookStylist, setBookStylist] = useState(null);
   const [shared, setShared] = useState(false);
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
@@ -538,7 +539,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             profileId={profile.id} color={color} isDark={isDark}
             onBookService={canBook ? (svc) => { setBookService(svc); setBookOpen(true); } : undefined}
           />
-          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={canBook} onBookWithStylist={(stylist) => { setBookService(null); setBookOpen(true); }} />
+          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={canBook} onBookWithStylist={(stylistName) => { setBookService(null); setBookStylist(stylistName); setBookOpen(true); }} />
           <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
           {/* ── Prominent Google Review for salons ── */}
           {profile.google_review_url && (
@@ -591,8 +592,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {bookOpen && (
         <AppointmentBooking
           profile={profile}
-          onClose={() => { setBookOpen(false); setBookService(null); }}
+          onClose={() => { setBookOpen(false); setBookService(null); setBookStylist(null); }}
           prefilledService={bookService}
+          prefilledStylist={bookStylist}
         />
       )}
     </div>
