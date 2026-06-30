@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,7 @@ function getProfileType(profile) {
   return "general";
 }
 
-export default function AppointmentBooking({ profile, onClose }) {
+export default function AppointmentBooking({ profile, onClose, prefilledService, prefilledStylist }) {
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -59,6 +60,13 @@ export default function AppointmentBooking({ profile, onClose }) {
 
   const profileType = getProfileType(profile);
   const color = profile.cover_color || "#2563eb";
+
+  // Load salon team members for stylist picker
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ["public-salon-team-booking", profile.id],
+    queryFn: () => base44.entities.TeamMember.filter({ profile_id: profile.id, status: "active" }, "order", 50),
+    enabled: profileType === "salon",
+  });
   const hours = profile.business_hours || {};
   const duration = profile.booking_slot_duration || 30;
   const restricted = profile.booking_restricted_emails || [];
@@ -75,7 +83,8 @@ export default function AppointmentBooking({ profile, onClose }) {
   // Form state — unified for all profile types
   const [form, setForm] = useState({
     name: "", email: "", phone: "",
-    service_name: "", stylist_name: "",
+    service_name: prefilledService?.name || "",
+    stylist_name: prefilledStylist || "",
     guest_count: 2,
     case_type: "Immigration", a_number: "", case_number: "",
     notes: "",
@@ -265,7 +274,17 @@ export default function AppointmentBooking({ profile, onClose }) {
                   </div>
                   <div>
                     <Label>Preferred Stylist (optional)</Label>
-                    <Input className="mt-1" placeholder="Stylist name or 'No preference'" value={form.stylist_name} onChange={set("stylist_name")} />
+                    {teamMembers.length > 0 ? (
+                      <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white outline-none"
+                        value={form.stylist_name} onChange={set("stylist_name")}>
+                        <option value="">No preference</option>
+                        {teamMembers.map(m => (
+                          <option key={m.id} value={m.name}>{m.name}{m.role ? ` — ${m.role}` : ""}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <Input className="mt-1" placeholder="Stylist name or 'No preference'" value={form.stylist_name} onChange={set("stylist_name")} />
+                    )}
                   </div>
                 </>
               )}

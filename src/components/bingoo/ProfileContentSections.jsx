@@ -13,6 +13,7 @@ import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
 import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
 import SalonTeamSection from "@/components/bingoo/SalonTeamSection";
+import SalonLoyaltyCard from "@/components/bingoo/SalonLoyaltyCard";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import {
   SaveContactIcon, ShareIcon, WebsiteIcon, MapPinIcon,
@@ -272,6 +273,7 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
 // ════════════════════════════════════════════════════════════
 export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track }) {
   const [bookOpen, setBookOpen] = useState(false);
+  const [bookService, setBookService] = useState(null);
   const [shared, setShared] = useState(false);
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
@@ -528,12 +530,33 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         );
       })()}
 
-      {/* ── Salon services ── */}
+      {/* ── Salon services + team + loyalty ── */}
       {isSalonOrRestaurant && (
         <>
           <Div isDark={isDark} />
-          <SalonServicesSection profileId={profile.id} color={color} isDark={isDark} />
-          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} />
+          <SalonServicesSection
+            profileId={profile.id} color={color} isDark={isDark}
+            onBookService={canBook ? (svc) => { setBookService(svc); setBookOpen(true); } : undefined}
+          />
+          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={canBook} onBookWithStylist={(stylist) => { setBookService(null); setBookOpen(true); }} />
+          <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
+          {/* ── Prominent Google Review for salons ── */}
+          {profile.google_review_url && (
+            <a href={profile.google_review_url} target="_blank" rel="noreferrer" style={{ display: "block", marginBottom: 20, textDecoration: "none" }}>
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                padding: "14px 20px", borderRadius: 18, cursor: "pointer",
+                background: isDark ? "rgba(251,191,36,0.1)" : "#fffbeb",
+                border: isDark ? "1px solid rgba(251,191,36,0.25)" : "1px solid #fde68a",
+              }}>
+                <span style={{ fontSize: 22 }}>⭐</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 800, fontSize: 14, color: isDark ? "#fbbf24" : "#92400e" }}>Leave us a Google Review</p>
+                  <p style={{ margin: 0, fontSize: 11, color: isDark ? "rgba(251,191,36,0.6)" : "#b45309" }}>Your review helps us grow! 🙏</p>
+                </div>
+              </div>
+            </a>
+          )}
         </>
       )}
 
@@ -565,7 +588,13 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <PublicFooter dark={isDark} />
       </div>
 
-      {bookOpen && <AppointmentBooking profile={profile} onClose={() => setBookOpen(false)} />}
+      {bookOpen && (
+        <AppointmentBooking
+          profile={profile}
+          onClose={() => { setBookOpen(false); setBookService(null); }}
+          prefilledService={bookService}
+        />
+      )}
     </div>
   );
 }

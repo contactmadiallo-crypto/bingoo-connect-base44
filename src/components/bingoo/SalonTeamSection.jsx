@@ -19,7 +19,7 @@ function InfoChip({ label, isDark }) {
   );
 }
 
-function StylistModal({ member, color, isDark, onClose }) {
+function StylistModal({ member, color, isDark, onClose, onBook }) {
   const bg = isDark ? "#0f172a" : "#ffffff";
   const textPrimary = isDark ? "#fff" : "#0f172a";
   const textSecondary = isDark ? "rgba(255,255,255,0.55)" : "#64748b";
@@ -143,6 +143,18 @@ function StylistModal({ member, color, isDark, onClose }) {
             </div>
           )}
 
+          {/* Book with this stylist */}
+          {onBook && (
+            <button onClick={onBook} style={{
+              width: "100%", marginBottom: 12, padding: "13px", borderRadius: 14, border: "none", cursor: "pointer",
+              background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
+              color: "#fff", fontWeight: 900, fontSize: 14,
+              boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`,
+            }}>
+              📅 Book Appointment with {member.name?.split(" ")[0]}
+            </button>
+          )}
+
           {/* Contact buttons */}
           {(member.phone || member.whatsapp || member.email) && (
             <div style={{ display: "flex", gap: 10 }}>
@@ -187,7 +199,7 @@ function StylistModal({ member, color, isDark, onClose }) {
   );
 }
 
-export default function SalonTeamSection({ profileId, color = "#0B2E6B", isDark }) {
+export default function SalonTeamSection({ profileId, color = "#0B2E6B", isDark, canBook, onBookWithStylist }) {
   const [selected, setSelected] = useState(null);
 
   const { data: members = [], isLoading } = useQuery({
@@ -262,6 +274,7 @@ export default function SalonTeamSection({ profileId, color = "#0B2E6B", isDark 
           color={color}
           isDark={isDark}
           onClose={() => setSelected(null)}
+          onBook={canBook && onBookWithStylist ? () => { onBookWithStylist(selected.name); setSelected(null); } : undefined}
         />
       )}
     </>

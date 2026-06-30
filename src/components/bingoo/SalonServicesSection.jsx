@@ -7,27 +7,17 @@ const hexRgb = (hex, a = 1) => {
   return `rgba(${r},${g},${b},${a})`;
 };
 
-export default function SalonServicesSection({ profileId, color = "#0B2E6B", isDark }) {
-  const { data: allServices = [], isLoading, error } = useQuery({
+// Called from parent with onBookService(service) to open booking with pre-filled service
+export default function SalonServicesSection({ profileId, color = "#0B2E6B", isDark, onBookService }) {
+  const { data: allServices = [], isLoading } = useQuery({
     queryKey: ["public-salon-services", profileId],
-    queryFn: async () => {
-      if (!profileId) return [];
-      const result = await base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100);
-      console.log(`[SalonServices] Fetched ${result?.length || 0} services for profile ${profileId}`, result);
-      return result || [];
-    },
+    queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),
     enabled: !!profileId,
-    staleTime: 5000, // Refresh every 5s to catch newly added services
   });
 
-  // Show all services where is_active is not explicitly false
   const services = (allServices || []).filter(s => s.is_active !== false);
 
   if (isLoading) return <div style={{ marginBottom: 28, padding: "16px", textAlign: "center", color: "#94a3b8", fontSize: "13px" }}>Loading services…</div>;
-  if (error) {
-    console.error("[SalonServices] Query error:", error);
-    return null;
-  }
   if (!services.length) return null;
 
   const categories = [...new Set(services.map(s => s.category || "Services"))];
@@ -71,6 +61,21 @@ export default function SalonServicesSection({ profileId, color = "#0B2E6B", isD
                       )}
                     </div>
                   </div>
+
+                  {/* Book this service button */}
+                  {onBookService && (
+                    <button
+                      onClick={() => onBookService(service)}
+                      style={{
+                        flexShrink: 0, padding: "7px 14px", borderRadius: 99, border: "none",
+                        background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
+                        color: "#fff", fontWeight: 800, fontSize: 12, cursor: "pointer",
+                        boxShadow: `0 3px 12px ${hexRgb(color, 0.3)}`,
+                        whiteSpace: "nowrap",
+                      }}>
+                      Book
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
