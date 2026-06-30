@@ -20,7 +20,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
   const mutedText = isDark ? "text-white/50" : "text-slate-500";
   const labelCls = `block text-xs font-semibold mb-1.5 ${mutedText}`;
   const inputCls = isDark
-    ? "bg-white/6 border-white/12 text-white placeholder:text-white/25 focus:border-white/30 focus:bg-white/8"
+    ? "bg-[#1a2235] border-white/10 text-white placeholder:text-white/30 focus:border-blue-500/50"
     : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-100";
 
   return (
