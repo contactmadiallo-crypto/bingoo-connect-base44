@@ -61,7 +61,7 @@ const LABELS = {
 const DEFAULT_LABELS = LABELS[TYPE_BUSINESS];
 
 const EMPTY_FORM = {
-  name: "", role_type: "", role: "", email: "", phone: "",
+  name: "", role_type: "", role: "", email: "", phone: "", whatsapp: "",
   bio: "", photo: "", status: "active",
   // Law firm specific
   bar_states: "", languages: "", practice_categories: [], practice_areas: "",
@@ -102,8 +102,9 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      // Merge role_type into role field for storage compatibility
+      // Merge role_type into role; map specialties → practice_areas for salon
       const payload = { ...data, role: data.role_type || data.role };
+      if (payload.specialties) { payload.practice_areas = payload.practice_areas || payload.specialties; }
       if (editing === "new") {
         return base44.entities.TeamMember.create({ ...payload, profile_id: profileId });
       }
@@ -135,7 +136,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
   const openEdit = (m) => {
     setForm({
       name: m.name || "", role_type: m.role || "", role: m.role || "",
-      email: m.email || "", phone: m.phone || "", bio: m.bio || "",
+      email: m.email || "", phone: m.phone || "", whatsapp: m.whatsapp || "", bio: m.bio || "",
       photo: m.photo || "", status: m.status || "active",
       bar_states: m.bar_states || "", languages: m.languages || "",
       practice_categories: m.practice_categories || [], practice_areas: m.practice_areas || "",
@@ -250,6 +251,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
             {field("email", "Email")}
             {field("phone", "Phone")}
+            {isSalon && field("whatsapp", "WhatsApp number (e.g. +1234567890)")}
           </div>
 
           {/* ── LAW FIRM specific ── */}
@@ -292,9 +294,16 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           {/* ── SALON specific ── */}
           {isSalon && (
             <>
-              {field("specialties", "Specialties (e.g. Balayage, Acrylics)")}
-              {field("services", "Services offered (comma-separated)")}
-              {textArea("bio", "Short bio…", 2)}
+              <div className="grid grid-cols-2 gap-3">
+                {field("practice_areas", "Specialties (e.g. Balayage, Acrylics, Color)")}
+                {field("languages", "Languages (e.g. English, Spanish)")}
+                {field("consultation_fee", "Rate / Price (e.g. $35+)")}
+                {field("availability", "Availability (e.g. Mon–Sat 9am–6pm)")}
+                {field("experience", "Experience (e.g. 5+ years)")}
+              </div>
+              {textArea("bio", "Short bio — shown in stylist profile…", 2)}
+              {textArea("education", "Training / Certifications (optional)", 2)}
+              {textArea("awards", "Awards or recognitions (optional)", 2)}
             </>
           )}
 
