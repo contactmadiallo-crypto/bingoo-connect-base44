@@ -143,21 +143,9 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
             </div>
           )}
 
-          {/* Book with this stylist */}
-          {onBook && (
-            <button onClick={onBook} style={{
-              width: "100%", marginBottom: 12, padding: "13px", borderRadius: 14, border: "none", cursor: "pointer",
-              background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
-              color: "#fff", fontWeight: 900, fontSize: 14,
-              boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`,
-            }}>
-              📅 Book Appointment with {member.name?.split(" ")[0]}
-            </button>
-          )}
-
           {/* Contact buttons */}
           {(member.phone || member.whatsapp || member.email) && (
-            <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ display: "flex", gap: 10, marginBottom: onBook ? 12 : 0 }}>
               {member.phone && (
                 <a href={`tel:${member.phone}`} style={{
                   flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -192,6 +180,18 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
                 </a>
               )}
             </div>
+          )}
+
+          {/* Book with this stylist — always at the bottom */}
+          {onBook && (
+            <button onClick={onBook} style={{
+              width: "100%", marginTop: 12, padding: "15px", borderRadius: 14, border: "none", cursor: "pointer",
+              background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
+              color: "#fff", fontWeight: 900, fontSize: 15,
+              boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`,
+            }}>
+              📅 Book Appointment with {member.name?.split(" ")[0]}
+            </button>
           )}
         </div>
       </div>
