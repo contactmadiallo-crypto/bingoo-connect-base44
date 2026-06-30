@@ -70,6 +70,7 @@ export default function BusinessHoursTab({ profileId, isDark, onSaved }) {
         <BusinessHoursEditor
           value={resolvedHours}
           onChange={(v) => setHours(v)}
+          isDark={isDark}
         />
       </div>
 

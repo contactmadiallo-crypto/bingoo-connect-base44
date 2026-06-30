@@ -132,7 +132,8 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
             <input className={`pl-9 w-full sm:w-56 text-sm rounded-xl px-3 py-2 border outline-none ${inputClass}`} placeholder="Search leads..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <Button onClick={exportCSV} variant="outline" disabled={filtered.length === 0}
-            className={`gap-2 flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+            className={`gap-2 flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:text-white bg-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+            style={isDark ? { background: "rgba(255,255,255,0.05)" } : {}}>
             <Download className="w-4 h-4" /> CSV
           </Button>
         </div>
