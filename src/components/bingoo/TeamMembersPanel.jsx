@@ -189,7 +189,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
   const head   = dark ? "text-white" : "text-slate-900";
   const sub    = dark ? "text-white/50" : "text-slate-500";
   const inputCls = dark
-    ? "bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-white/30"
+    ? "bg-[#1a2235] border-white/10 text-white placeholder:text-white/30 focus:border-blue-500/50"
     : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400";
 
   if (!profileId) return <div className={`text-center py-12 ${sub}`}>Select a profile first.</div>;
@@ -242,7 +242,8 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
             <select
               value={form.role_type || ""}
               onChange={e => setForm(f => ({ ...f, role_type: e.target.value }))}
-              className={`rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inputCls}`}>
+              className={`rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inputCls}`}
+              style={dark ? { background: "#1a2235" } : {}}>
               <option value="">Select Role...</option>
               {roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
