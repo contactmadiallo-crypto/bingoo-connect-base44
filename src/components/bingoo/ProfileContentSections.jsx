@@ -12,6 +12,7 @@ import AttorneysSectionPublic from "@/components/bingoo/AttorneysSectionPublic";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
 import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
+import SalonTeamSection from "@/components/bingoo/SalonTeamSection";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import {
   SaveContactIcon, ShareIcon, WebsiteIcon, MapPinIcon,
@@ -532,6 +533,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <>
           <Div isDark={isDark} />
           <SalonServicesSection profileId={profile.id} color={color} isDark={isDark} />
+          <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} />
         </>
       )}
 
