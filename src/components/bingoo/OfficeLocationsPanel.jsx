@@ -31,7 +31,13 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
 
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "create", profileId,
-      () => base44.entities.OfficeLocation.create({ profile_id: profileId, ...data })),
+      async () => {
+        // Server-side plan entitlement check — free/unentitled plans are rejected even via direct API calls.
+        const res = await base44.functions.invoke('createGatedRecord', {
+          entity_name: 'OfficeLocation', profile_id: profileId, data,
+        });
+        return res.data.record;
+      }),
     onSuccess: (newRecord) => {
       qc.setQueryData(["office-locations", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });

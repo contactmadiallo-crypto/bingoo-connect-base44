@@ -34,7 +34,13 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
 
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "create", profileId,
-      () => base44.entities.LegalService.create({ profile_id: profileId, ...data })),
+      async () => {
+        // Server-side plan entitlement check — free/unentitled plans are rejected even via direct API calls.
+        const res = await base44.functions.invoke('createGatedRecord', {
+          entity_name: 'LegalService', profile_id: profileId, data,
+        });
+        return res.data.record;
+      }),
     onSuccess: (newRecord) => {
       qc.setQueryData(["legal-services", profileId], (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });

@@ -1,6 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import Stripe from 'npm:stripe@14.21.0';
 
+// Fallback mapping when a subscription item's price has no plan metadata
+// (e.g. prices created before plan metadata was added).
+const PRODUCT_TO_PLAN = {
+  'prod_UdL2W8XwDY3Bmq': 'professional',
+  'prod_UfF46myS8RxwKE': 'salon',
+  'prod_UfFHNuhuWhyGVZ': 'lawfirm',
+  'prod_UdL2NqVtcHwKb2': 'business',
+};
+
+function resolvePlanFromSubscriptionItem(item, fallbackPlan) {
+  const price = item?.price;
+  if (price?.metadata?.plan) return price.metadata.plan;
+  const productId = typeof price?.product === 'string' ? price.product : price?.product?.id;
+  if (productId && PRODUCT_TO_PLAN[productId]) return PRODUCT_TO_PLAN[productId];
+  return fallbackPlan;
+}
+
 async function upsertSubscription(base44, { customer_email, customer_name, plan, status, stripe_subscription_id, stripe_customer_id, stripe_session_id, current_period_end, cancel_at_period_end }) {
   const existing = await base44.asServiceRole.entities.Subscription.filter({ customer_email });
   if (existing.length > 0) {
@@ -147,26 +164,34 @@ Deno.serve(async (req) => {
     }
 
     // ── customer.subscription.updated ─────────────────────────
+    // Covers plan upgrades/downgrades made via Stripe Billing Portal, and status transitions.
     if (event.type === 'customer.subscription.updated') {
       const sub = event.data.object;
       const existing = await base44.asServiceRole.entities.Subscription.filter({
         stripe_subscription_id: sub.id
       });
       if (existing.length > 0) {
-        const newStatus = ['active', 'past_due', 'canceled'].includes(sub.status) ? sub.status : sub.status;
+        const resolvedPlan = resolvePlanFromSubscriptionItem(sub.items?.data?.[0], existing[0].plan);
+        const newStatus = sub.status; // active, trialing, past_due, canceled, unpaid, incomplete, incomplete_expired
         const periodEnd = sub.current_period_end
           ? new Date(sub.current_period_end * 1000).toISOString()
           : null;
+
         await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
+          plan: resolvedPlan,
           status: newStatus,
           cancel_at_period_end: sub.cancel_at_period_end || false,
           ...(periodEnd && { current_period_end: periodEnd }),
         });
-        console.log('Subscription updated:', sub.id, newStatus);
+        console.log('Subscription updated:', sub.id, resolvedPlan, newStatus);
 
-        if (newStatus !== 'active') {
+        if (newStatus === 'active' || newStatus === 'trialing') {
+          // Covers upgrades AND downgrades made through the Billing Portal
+          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: resolvedPlan });
+        } else if (newStatus === 'canceled' || newStatus === 'unpaid' || newStatus === 'incomplete_expired') {
           await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
         }
+        // past_due / incomplete: keep current plan (grace period) — no profile change
       }
     }
 

@@ -65,7 +65,11 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       }
       console.log("%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "color:red;font-weight:bold");
 
-      return base44.entities.PracticeArea.create(payload);
+      // Server-side plan entitlement check — free/unentitled plans are rejected even via direct API calls.
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'PracticeArea', profile_id: profileId, data: payload,
+      });
+      return res.data.record;
     },
     onSuccess: (newRecord) => {
       const WRITE_KEY = ["practice-areas", profileId];

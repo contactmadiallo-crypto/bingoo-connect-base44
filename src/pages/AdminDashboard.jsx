@@ -85,8 +85,6 @@ export default function AdminDashboard() {
   const { features } = useFeatures();
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
-  const [resetConfirm, setResetConfirm] = useState(null);
-  const [resetting, setResetting] = useState(false);
   const [lang, setLang] = useState(() => {
     const saved = localStorage.getItem("bingoo_lang");
     if (saved) return saved;
@@ -106,7 +104,6 @@ export default function AdminDashboard() {
 
   const { data: profiles = [] } = useQuery({ queryKey: ["admin-profiles"], queryFn: () => base44.entities.Profile.list() });
   const { data: devices = [] } = useQuery({ queryKey: ["admin-devices"], queryFn: () => base44.entities.NFCDevice.list() });
-  const { data: allNfcDevices = [], refetch: refetchNfcDevices } = useQuery({ queryKey: ["admin-nfc-devices"], queryFn: () => base44.entities.Device.list() });
   const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list("-created_date", 500) });
   const { data: allAppointments = [] } = useQuery({ queryKey: ["admin-appointments"], queryFn: () => base44.entities.Appointment.list("-created_date", 500) });
   const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
@@ -116,21 +113,6 @@ export default function AdminDashboard() {
   const [subSearch, setSubSearch] = useState("");
   const [subPlanFilter, setSubPlanFilter] = useState("all");
   const [subStatusFilter, setSubStatusFilter] = useState("all");
-
-  const handleForceReset = async (device) => {
-    setResetting(true);
-    await base44.entities.Device.update(device.id, {
-      activation_status: "available",
-      assigned_user: "",
-      assigned_profile: "",
-      activation_date: null,
-      nickname: "",
-    });
-    toast.success(`Device ${device.device_code} has been reset and is now available for a new account.`);
-    setResetConfirm(null);
-    setResetting(false);
-    refetchNfcDevices();
-  };
 
   const updatePlan = useMutation({
     mutationFn: ({ id, plan }) => base44.entities.Profile.update(id, { plan }),
@@ -553,7 +535,7 @@ export default function AdminDashboard() {
 
         {/* Unified NFC Device Manager */}
         {tab === "nfc_manager" && (
-          <NFCDeviceManager profiles={profiles} allNfcDevices={allNfcDevices} currentUser={user} />
+          <NFCDeviceManager profiles={profiles} currentUser={user} />
         )}
 
         {/* All Leads */}
@@ -901,34 +883,6 @@ export default function AdminDashboard() {
       </div>
       </div>
 
-      {/* Force Reset Confirmation Modal */}
-      {resetConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-red-100">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                <RotateCcw className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <h3 className="font-black text-slate-900">{t.forceResetTitle}</h3>
-                <p className="text-xs text-slate-400 font-mono">{resetConfirm.device_code}</p>
-              </div>
-            </div>
-            <p className="text-sm text-slate-600 mb-2">{t.forceResetMsg}</p>
-            <p className="text-xs text-red-500 bg-red-50 rounded-xl p-3 mb-5">{t.forceResetWarning}</p>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => handleForceReset(resetConfirm)}
-                disabled={resetting}
-                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold"
-              >
-                {resetting ? t.resetting : t.yesReset}
-              </Button>
-              <Button variant="outline" onClick={() => setResetConfirm(null)} className="flex-1">{t.cancel}</Button>
-            </div>
-          </div>
-        </div>
-      )}
     </BingooLayout>
   );
 }

@@ -80,8 +80,10 @@ export default function SubscriptionPricing() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === '1';
-    const successPlan = params.get('plan');
 
+    // Plan is always read from the server (Profile / Subscription records).
+    // It is NEVER set from URL params — only a verified Stripe webhook or an
+    // admin manual override may change Profile.plan.
     base44.auth.me().then(user => {
       if (!user?.id) return;
       Promise.all([
@@ -90,16 +92,13 @@ export default function SubscriptionPricing() {
       ]).then(([profiles, subscriptions]) => {
         const profilePlan = profiles?.[0]?.plan || 'free';
         const sub = subscriptions?.[0];
-        const subPlan = (sub?.status === 'active' || sub?.status === 'free') ? (sub.plan || 'free') : 'free';
+        const subPlan = (sub?.status === 'active' || sub?.status === 'past_due') ? (sub.plan || 'free') : 'free';
         const activePlan = (PLAN_HIERARCHY[subPlan] || 0) >= (PLAN_HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
 
-        if (isSuccess && successPlan) {
-          setSuccessMsg(`🎉 You're now on the ${PLAN_DEFS.find(p => p.id === successPlan)?.name || successPlan} plan! Welcome aboard.`);
-          if (profiles?.[0]?.id) base44.entities.Profile.update(profiles[0].id, { plan: successPlan });
-          setCurrentPlan(successPlan);
-        } else {
-          setCurrentPlan(activePlan);
+        if (isSuccess) {
+          setSuccessMsg('🎉 Payment received! Your plan is being activated — this can take up to a minute to reflect here.');
         }
+        setCurrentPlan(activePlan);
       });
     }).catch(() => {});
   }, []);
@@ -117,11 +116,6 @@ export default function SubscriptionPricing() {
     return convertPrice(plan.priceUSD, currency);
   };
 
-  const getStripePriceId = (planId) => {
-    const dbConfig = pricingConfigs.find(c => c.plan_name === planId && c.currency === currency);
-    return dbConfig?.stripe_price_id || null;
-  };
-
   const isCurrent = (planId) => {
     const normalized = currentPlan === 'pro' ? 'professional' : currentPlan;
     return normalized === planId || currentPlan === planId;
@@ -135,17 +129,19 @@ export default function SubscriptionPricing() {
     }
     setLoading(plan.id);
     try {
-      const stripePriceId = getStripePriceId(plan.id);
-      const amount = getPlanPrice(plan.id);
+      // Only plan + display currency are sent — the backend always resolves the
+      // actual charge amount server-side via a fixed Stripe Price. The client
+      // can never influence what gets charged.
       const res = await base44.functions.invoke('createSubscriptionSession', {
         plan: plan.id,
         currency: stripeCheckoutCurrency,
-        amount_cents: Math.round(amount * (currency === 'XOF' ? 1 : 100)),
-        stripe_price_id: stripePriceId || undefined,
         display_currency: currency,
       });
       if (res.data?.url) {
         window.location.href = res.data.url;
+      } else if (res.data?.updated) {
+        toast({ title: 'Plan Updated', description: res.data.message || 'Your plan has been updated.' });
+        window.location.href = '/billing';
       } else {
         toast({ title: 'Checkout Failed', description: 'Could not start checkout. Please try again.', variant: 'destructive' });
         setLoading(null);
@@ -231,7 +227,7 @@ export default function SubscriptionPricing() {
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-4 rounded-2xl text-sm font-medium"
             style={{ background: 'rgba(253,186,33,0.12)', border: '1px solid rgba(253,186,33,0.3)', color: '#b45309' }}>
-            🌍 Prices displayed in CFA Francs for your convenience. Stripe charges are processed in USD at the current exchange rate.
+            🌍 Prices shown in CFA Francs are an estimate only. Your card will be charged the equivalent amount in USD by Stripe — never the raw CFA number shown.
           </motion.div>
         )}
 

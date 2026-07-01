@@ -101,12 +101,16 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       // Merge role_type into role; map specialties → practice_areas for salon
       const payload = { ...data, role: data.role_type || data.role };
       if (payload.specialties) { payload.practice_areas = payload.practice_areas || payload.specialties; }
       if (editing === "new") {
-        return base44.entities.TeamMember.create({ ...payload, profile_id: profileId });
+        // Server-side plan entitlement check — free/unentitled plans are rejected even via direct API calls.
+        const res = await base44.functions.invoke('createGatedRecord', {
+          entity_name: 'TeamMember', profile_id: profileId, data: payload,
+        });
+        return res.data.record;
       }
       return base44.entities.TeamMember.update(editing, payload);
     },

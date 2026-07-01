@@ -3,8 +3,8 @@ import Stripe from 'npm:stripe@14.21.0';
 
 /**
  * Plan definitions.
- * productId: existing Stripe product (reuse). null = will find/create dynamically.
- * amount: cents in USD
+ * productId: existing Stripe product (reuse). amount: fixed cents in USD (server-side, trusted).
+ * The client can never override the amount — only the display currency is client-selected.
  */
 const PLAN_MAP = {
    professional: { productId: 'prod_UdL2W8XwDY3Bmq', amount: 499,  productName: 'Bingoo Professional Plan' },
@@ -17,6 +17,41 @@ const PLAN_MAP = {
 const STRIPE_SUPPORTED_CURRENCIES = ['usd', 'eur', 'gbp', 'cad'];
 const APP_URL = 'https://bingooconnect.com';
 
+/**
+ * Resolves a fixed, reusable Stripe Price ID for a plan + currency.
+ * Never trusts a client-supplied amount or price ID.
+ * 1. Looks up an admin-configured PricingConfig record (server-side only).
+ * 2. Otherwise reuses/creates a Price on the plan's product using the fixed PLAN_MAP amount.
+ */
+async function resolvePriceId(stripe, base44, plan, currency) {
+  const normalizedPlan = plan === 'pro' ? 'professional' : plan;
+  const info = PLAN_MAP[plan];
+
+  const configs = await base44.asServiceRole.entities.PricingConfig.filter({
+    plan_name: normalizedPlan,
+    currency: currency.toUpperCase(),
+    active: true,
+  }).catch(() => []);
+  if (configs?.[0]?.stripe_price_id) {
+    return configs[0].stripe_price_id;
+  }
+
+  const existingPrices = await stripe.prices.list({ product: info.productId, active: true, limit: 20 });
+  const match = existingPrices.data.find(
+    p => p.currency === currency && p.unit_amount === info.amount && p.recurring?.interval === 'month'
+  );
+  if (match) return match.id;
+
+  const newPrice = await stripe.prices.create({
+    product: info.productId,
+    currency,
+    unit_amount: info.amount,
+    recurring: { interval: 'month' },
+    metadata: { plan: normalizedPlan },
+  });
+  return newPrice.id;
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -27,71 +62,64 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { plan, currency, amount_cents, stripe_price_id, display_currency, trial_days, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
+    const { plan, currency, display_currency, trial_days, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
 
     if (!plan || !PLAN_MAP[plan]) {
       return Response.json({ error: 'Invalid plan: ' + plan }, { status: 400 });
     }
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
-    const priceInfo = PLAN_MAP[plan];
 
-    // Resolve currency: default usd, fall back to usd if not Stripe-supported (e.g. XOF)
+    // Currency is only ever a real Stripe-supported currency — never derived from a client amount.
     const requestedCurrency = (currency || 'usd').toLowerCase();
     const stripeCurrency = STRIPE_SUPPORTED_CURRENCIES.includes(requestedCurrency) ? requestedCurrency : 'usd';
-    const effectiveAmountCents = (stripeCurrency === requestedCurrency && amount_cents && amount_cents > 0)
-      ? Math.round(amount_cents)
-      : priceInfo.amount;
 
-    // Find existing Stripe customer
+    const priceId = await resolvePriceId(stripe, base44, plan, stripeCurrency);
+
+    // Find existing Stripe customer for this user
     let customerId;
     const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
     if (subs?.[0]?.stripe_customer_id) {
       customerId = subs[0].stripe_customer_id;
     }
 
-    let lineItems;
+    // ── Prevent duplicate subscriptions ──────────────────────────────────
+    // If the customer already has an active/trialing subscription, update it in place
+    // instead of creating a second concurrent Stripe subscription.
+    if (customerId) {
+      const [activeSubs, trialingSubs] = await Promise.all([
+        stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 5 }),
+        stripe.subscriptions.list({ customer: customerId, status: 'trialing', limit: 5 }),
+      ]);
+      const existingSub = [...activeSubs.data, ...trialingSubs.data][0];
 
-    // If a specific Stripe Price ID is provided (from admin pricing config), use it directly
-    if (stripe_price_id) {
-      console.log(`Using Stripe Price ID: ${stripe_price_id} for plan=${plan}`);
-      lineItems = [{ price: stripe_price_id, quantity: 1 }];
-    } else {
-      // Resolve product: use existing or find/create dynamically
-      let productId = priceInfo.productId;
-
-      if (!productId) {
-        // Try to find existing product by name first (avoid duplicates)
-        const searchResult = await stripe.products.search({
-          query: `name:'${priceInfo.productName}' AND active:'true'`
-        }).catch(() => ({ data: [] }));
-
-        if (searchResult.data.length > 0) {
-          productId = searchResult.data[0].id;
-          console.log(`Found existing product: ${productId} (${priceInfo.productName})`);
-        } else {
-          const newProduct = await stripe.products.create({ name: priceInfo.productName });
-          productId = newProduct.id;
-          console.log(`Created new product: ${productId} (${priceInfo.productName})`);
-        }
+      if (existingSub) {
+        const itemId = existingSub.items.data[0].id;
+        await stripe.subscriptions.update(existingSub.id, {
+          items: [{ id: itemId, price: priceId }],
+          proration_behavior: 'create_prorations',
+          metadata: {
+            ...existingSub.metadata,
+            base44_app_id: Deno.env.get('BASE44_APP_ID'),
+            user_id: user.id,
+            user_email: user.email,
+            plan,
+          },
+        });
+        console.log(`Updated existing subscription ${existingSub.id} to plan=${plan} for ${user.email} (no duplicate created)`);
+        return Response.json({
+          updated: true,
+          plan,
+          message: 'Your plan has been updated. It may take a moment to reflect on your account.',
+        });
       }
-
-      lineItems = [{
-        price_data: {
-          currency: stripeCurrency,
-          product: productId,
-          unit_amount: effectiveAmountCents,
-          recurring: { interval: 'month' },
-        },
-        quantity: 1,
-      }];
     }
 
     const sessionParams = {
       payment_method_types: ['card'],
       mode: 'subscription',
-      line_items: lineItems,
-      success_url: bodySuccessUrl || `${APP_URL}/plans?success=1&plan=${plan}`,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: bodySuccessUrl || `${APP_URL}/plans?success=1`,
       cancel_url: bodyCancelUrl || `${APP_URL}/plans?canceled=1`,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
@@ -109,13 +137,12 @@ Deno.serve(async (req) => {
       sessionParams.customer_email = user.email;
     }
 
-    // Add trial period if requested
     if (trial_days && Number(trial_days) > 0) {
       sessionParams.subscription_data = { trial_period_days: Number(trial_days) };
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
-    console.log(`Checkout session created: ${session.id} | plan=${plan} | currency=${stripeCurrency} | amount=${effectiveAmountCents}`);
+    console.log(`Checkout session created: ${session.id} | plan=${plan} | currency=${stripeCurrency} | price=${priceId}`);
 
     return Response.json({ url: session.url });
   } catch (error) {
