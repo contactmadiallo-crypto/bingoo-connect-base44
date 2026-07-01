@@ -35,13 +35,8 @@ Deno.serve(async (req) => {
     }
 
     // ── Plan-based device limit enforcement ──────────────────────────────────
-    // Determine the user's plan from their Profile record (authoritative server-side source).
-    // The Subscription entity requires a separate query and may not reflect Stripe state
-    // in real time on the backend, so we rely on Profile.plan as the safe fallback.
-    //
-    // TODO (follow-up): Once a server-side plan resolver is available (e.g. a dedicated
-    // getUserPlan function that checks Stripe subscription status), replace the Profile.plan
-    // lookup below with that canonical source.
+    // Effective plan comes only from the trusted Subscription record (its `update` RLS
+    // is admin-only). Profile.plan is owner-writable and must NEVER be used for entitlement.
     const DEVICE_LIMITS = {
       free:         0,
       professional: 5,
@@ -53,7 +48,18 @@ Deno.serve(async (req) => {
       corporate:    50,
     };
 
-    const plan = (profile.plan || 'free').toLowerCase();
+    function normalizeDevicePlan(p) {
+      if (!p) return 'free';
+      if (p === 'pro') return 'professional';
+      return DEVICE_LIMITS[p] !== undefined ? p : 'free';
+    }
+
+    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
+    const sub = subs?.[0];
+    let plan = 'free';
+    if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due')) {
+      plan = normalizeDevicePlan(sub.plan);
+    }
     const limit = DEVICE_LIMITS[plan] ?? 0;
 
     if (limit === 0) {

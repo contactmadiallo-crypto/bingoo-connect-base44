@@ -21,10 +21,29 @@ const PLAN_FEATURES = {
   corporate:    ['team_members', 'legal_services', 'practice_areas', 'office_locations'],
 };
 
+// Max team members per plan (mirrors src/lib/planPermissions.js maxTeamMembers()).
+const TEAM_MEMBER_LIMITS = {
+  free: 0, professional: 0, pro: 0,
+  business: 10, salon: 10, restaurant: 10,
+  lawfirm: 20, corporate: 999,
+};
+
 function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
   return PLAN_FEATURES[plan] ? plan : 'free';
+}
+
+// Trusted effective plan — resolved ONLY from the Subscription entity, whose `update`
+// RLS is admin-only. Profile.plan is owner-writable and must NEVER be used for entitlement.
+async function getEffectivePlan(base44, userEmail) {
+  const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: userEmail });
+  const sub = subs?.[0];
+  if (!sub) return 'free';
+  if (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') {
+    return normalizePlan(sub.plan);
+  }
+  return 'free';
 }
 
 Deno.serve(async (req) => {
@@ -51,12 +70,24 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'You do not own this profile' }, { status: 403 });
     }
 
-    const plan = normalizePlan(profile.plan);
+    // Effective plan comes only from the trusted Subscription record — never from Profile.plan.
+    const plan = await getEffectivePlan(base44, user.email);
     const allowedFeatures = PLAN_FEATURES[plan] || [];
     if (!allowedFeatures.includes(featureKey)) {
       return Response.json({
         error: `Your current plan (${plan}) does not include this feature. Please upgrade to unlock it.`,
       }, { status: 403 });
+    }
+
+    // Enforce count limits for entities that have one (currently: TeamMember).
+    if (entity_name === 'TeamMember') {
+      const existing = await base44.asServiceRole.entities.TeamMember.filter({ profile_id });
+      const limit = TEAM_MEMBER_LIMITS[plan] ?? 0;
+      if (existing.length >= limit) {
+        return Response.json({
+          error: `You've reached the team member limit for your ${plan} plan (${limit}). Upgrade to add more.`,
+        }, { status: 403 });
+      }
     }
 
     const created = await base44.asServiceRole.entities[entity_name].create({ ...data, profile_id });

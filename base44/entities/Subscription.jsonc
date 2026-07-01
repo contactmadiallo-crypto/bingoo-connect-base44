@@ -27,10 +27,20 @@
       "enum": [
         "free",
         "active",
+        "trialing",
         "past_due",
         "canceled"
       ],
       "default": "free"
+    },
+    "plan_source": {
+      "type": "string",
+      "enum": [
+        "stripe",
+        "admin_override"
+      ],
+      "default": "stripe",
+      "description": "Where this record's entitlement comes from. 'admin_override' means an admin manually granted this plan without a real Stripe subscription."
     },
     "stripe_subscription_id": {
       "type": "string"

@@ -62,7 +62,10 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { plan, currency, display_currency, trial_days, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
+    // trial_days intentionally NOT read from the request body — trials are not
+    // currently offered, and accepting a client-supplied trial length would let
+    // anyone request an arbitrarily long free trial (e.g. trial_days: 3650).
+    const { plan, currency, display_currency, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
 
     if (!plan || !PLAN_MAP[plan]) {
       return Response.json({ error: 'Invalid plan: ' + plan }, { status: 400 });
@@ -137,9 +140,7 @@ Deno.serve(async (req) => {
       sessionParams.customer_email = user.email;
     }
 
-    if (trial_days && Number(trial_days) > 0) {
-      sessionParams.subscription_data = { trial_period_days: Number(trial_days) };
-    }
+    // No trial support — sessionParams.subscription_data is intentionally not set from client input.
 
     const session = await stripe.checkout.sessions.create(sessionParams);
     console.log(`Checkout session created: ${session.id} | plan=${plan} | currency=${stripeCurrency} | price=${priceId}`);

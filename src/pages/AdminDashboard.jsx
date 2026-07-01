@@ -114,9 +114,43 @@ export default function AdminDashboard() {
   const [subPlanFilter, setSubPlanFilter] = useState("all");
   const [subStatusFilter, setSubStatusFilter] = useState("all");
 
+  // Admin manual override: writes to the trusted Subscription entity (admin-only update RLS)
+  // with plan_source="admin_override", NOT to Profile.plan — Profile.plan is no longer used
+  // for entitlement anywhere. Profile.plan is still updated alongside it purely so the
+  // "Plan (Override)" column below displays the current override at a glance.
   const updatePlan = useMutation({
-    mutationFn: ({ id, plan }) => base44.entities.Profile.update(id, { plan }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-profiles"] }); toast.success("Plan updated!"); },
+    mutationFn: async ({ profile, plan }) => {
+      const owner = allUsers.find(u =>
+        u.id === profile.created_by_id ||
+        (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(profile.id))
+      );
+      const email = profile.email || owner?.email;
+      if (!email) throw new Error("No email found for this profile — cannot grant entitlement.");
+
+      const existingSubs = await base44.entities.Subscription.filter({ customer_email: email });
+      const existing = existingSubs?.[0];
+      if (existing?.stripe_subscription_id) {
+        throw new Error("This customer has a real Stripe subscription. Manage their plan from the Stripe dashboard, not here.");
+      }
+
+      const status = plan === "free" ? "free" : "active";
+      if (existing) {
+        await base44.entities.Subscription.update(existing.id, { plan, status, plan_source: "admin_override" });
+      } else {
+        await base44.entities.Subscription.create({
+          customer_email: email,
+          customer_name: profile.display_name || owner?.full_name || "",
+          plan, status, plan_source: "admin_override",
+        });
+      }
+      await base44.entities.Profile.update(profile.id, { plan });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-subscriptions"] });
+      toast.success("Plan updated!");
+    },
+    onError: (err) => toast.error(err.message || "Failed to update plan"),
   });
 
   if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
@@ -324,7 +358,7 @@ export default function AdminDashboard() {
             <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-xs mb-2"
               style={{ background: "rgba(253,186,33,0.08)", border: "1px solid rgba(253,186,33,0.2)", color: "rgba(253,186,33,0.8)" }}>
               <span className="flex-shrink-0 mt-0.5">⚠️</span>
-              <span><strong>Manual app-plan override for testing/internal use.</strong> Changing the plan here updates <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Profile.plan</code> directly. This does <em>not</em> change Stripe billing, cancel subscriptions, or modify any subscription records.</span>
+              <span><strong>Manual app-plan override for testing/internal use.</strong> Changing the plan here creates/updates an admin-only <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Subscription</code> record marked <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>admin_override</code>. This does <em>not</em> change Stripe billing, cancel subscriptions, or affect a customer's real Stripe subscription.</span>
             </div>
 
             <div className="rounded-2xl overflow-hidden border"
@@ -365,7 +399,7 @@ export default function AdminDashboard() {
                         <td className="px-5 py-4">
                           {p ? (
                             <div className="flex flex-col gap-1">
-                              <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ id: p.id, plan: e.target.value })}
+                              <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
                                 className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
                                 style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
                                 <option value="free">Free</option>

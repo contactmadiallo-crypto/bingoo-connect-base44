@@ -129,15 +129,13 @@ Deno.serve(async (req) => {
     let planName = 'free';
 
     if (subscription) {
-      if (subscription.status === 'canceled') {
-        planName = 'free';
+      if (subscription.status === 'active' || subscription.status === 'trialing') {
+        planName = normalizePlan(subscription.plan);
       } else if (subscription.status === 'past_due') {
         // Grace period — keep current plan access
         planName = normalizePlan(subscription.plan);
-      } else if (subscription.status === 'active') {
-        planName = normalizePlan(subscription.plan);
       }
-      // 'free' status → stays free
+      // 'canceled' / 'free' status → stays free
     }
 
     const features = PLAN_FEATURES[planName] || FREE;
