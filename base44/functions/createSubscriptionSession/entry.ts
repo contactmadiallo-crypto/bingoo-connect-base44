@@ -62,10 +62,12 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    // trial_days intentionally NOT read from the request body — trials are not
-    // currently offered, and accepting a client-supplied trial length would let
-    // anyone request an arbitrarily long free trial (e.g. trial_days: 3650).
+    // trial_days is intentionally NOT read from the request body — accepting a client-supplied
+    // trial length would let anyone request an arbitrarily long free trial (e.g. trial_days: 3650).
+    // Trials are instead a fixed, server-owned 14 days, offered only for the Professional plan,
+    // and only to customers who have never had a real Stripe subscription before (see below).
     const { plan, currency, display_currency, success_url: bodySuccessUrl, cancel_url: bodyCancelUrl } = body;
+    const FIXED_TRIAL_DAYS = 14;
 
     if (!plan || !PLAN_MAP[plan]) {
       return Response.json({ error: 'Invalid plan: ' + plan }, { status: 400 });
@@ -85,6 +87,11 @@ Deno.serve(async (req) => {
     if (subs?.[0]?.stripe_customer_id) {
       customerId = subs[0].stripe_customer_id;
     }
+
+    // Eligible for the free trial only if: plan is Professional AND this customer
+    // has never had a real Stripe subscription before (prevents repeat-trial abuse).
+    const everHadRealSubscription = subs.some(s => !!s.stripe_subscription_id);
+    const isTrialEligible = (plan === 'professional' || plan === 'pro') && !everHadRealSubscription;
 
     // ── Prevent duplicate subscriptions ──────────────────────────────────
     // If the customer already has an active/trialing subscription, update it in place
@@ -140,10 +147,13 @@ Deno.serve(async (req) => {
       sessionParams.customer_email = user.email;
     }
 
-    // No trial support — sessionParams.subscription_data is intentionally not set from client input.
+    // Trial length is fixed server-side (never from client input) and only granted when eligible.
+    if (isTrialEligible) {
+      sessionParams.subscription_data = { trial_period_days: FIXED_TRIAL_DAYS };
+    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
-    console.log(`Checkout session created: ${session.id} | plan=${plan} | currency=${stripeCurrency} | price=${priceId}`);
+    console.log(`Checkout session created: ${session.id} | plan=${plan} | currency=${stripeCurrency} | price=${priceId} | trial=${isTrialEligible}`);
 
     return Response.json({ url: session.url });
   } catch (error) {
