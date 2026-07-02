@@ -296,17 +296,25 @@ export function maxTeamMembers(userPlan) {
   return map[normalized] ?? 0;
 }
 
+// Industry/business-tier plans fall back to Professional (not Free) when a subscription
+// is canceled or a trial ends unpaid — they're built on top of Professional.
+// Professional itself falls back to Free. Mirrors the policy in getUserFeatures.
+const INDUSTRY_PLANS = new Set(['salon', 'restaurant', 'lawfirm', 'business', 'corporate']);
+function downgradedPlan(plan) {
+  return INDUSTRY_PLANS.has(plan) ? 'professional' : 'free';
+}
+
 /**
  * Resolves active plan from a subscription record.
  * - No subscription → free
- * - canceled → free
+ * - canceled → Professional if it was a business-tier plan, else Free
  * - past_due → keep current plan (grace period, Stripe retries)
  * - active → use plan field
  */
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
-  if (status === 'canceled') return 'free';
+  if (status === 'canceled') return downgradedPlan(normalizePlan(plan));
   // past_due: keep access during grace period
   if (status === 'past_due') return normalizePlan(plan);
   if (plan && plan !== 'free') return normalizePlan(plan);

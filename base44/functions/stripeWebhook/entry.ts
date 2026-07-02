@@ -10,6 +10,14 @@ const PRODUCT_TO_PLAN = {
   'prod_UdL2NqVtcHwKb2': 'business',
 };
 
+// Industry/business-tier plans fall back to Professional (not Free) when payment fails
+// or a trial ends unpaid — they're built on top of Professional. Professional itself
+// falls back to Free. Mirrors the same policy in getUserFeatures.
+const INDUSTRY_PLANS = ['salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
+function downgradedPlan(plan) {
+  return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
+}
+
 function resolvePlanFromSubscriptionItem(item, fallbackPlan) {
   const price = item?.price;
   if (price?.metadata?.plan) return price.metadata.plan;
@@ -189,7 +197,8 @@ Deno.serve(async (req) => {
           // Covers upgrades AND downgrades made through the Billing Portal
           await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: resolvedPlan });
         } else if (newStatus === 'canceled' || newStatus === 'unpaid' || newStatus === 'incomplete_expired') {
-          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
+          // Payment failed permanently or trial ended unpaid — apply tiered downgrade policy.
+          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: downgradedPlan(resolvedPlan) });
         }
         // past_due / incomplete: keep current plan (grace period) — no profile change
       }
@@ -206,8 +215,9 @@ Deno.serve(async (req) => {
           status: 'canceled',
           cancel_at_period_end: false,
         });
-        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: 'free' });
-        console.log('Subscription canceled:', sub.id);
+        // Subscription fully deleted — apply tiered downgrade policy based on what plan they had.
+        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: downgradedPlan(existing[0].plan) });
+        console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(existing[0].plan));
       }
     }
 

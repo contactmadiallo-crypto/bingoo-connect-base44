@@ -111,6 +111,14 @@ function normalizePlan(plan) {
   return 'free'; // unknown plan → free (secure default)
 }
 
+// Industry/business-tier plans fall back to Professional (not Free) when payment fails
+// or a trial ends unpaid — they're built on top of Professional, so losing the paid
+// upgrade should not strip the base Professional tier. Professional itself falls back to Free.
+const INDUSTRY_PLANS = ['salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
+function downgradedPlan(plan) {
+  return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -134,8 +142,11 @@ Deno.serve(async (req) => {
       } else if (subscription.status === 'past_due') {
         // Grace period — keep current plan access
         planName = normalizePlan(subscription.plan);
+      } else {
+        // 'canceled' or any other terminal status: apply the tiered downgrade policy —
+        // Business/Salon/Restaurant/Law Firm/Corporate → Professional, Professional → Free.
+        planName = downgradedPlan(normalizePlan(subscription.plan));
       }
-      // 'canceled' / 'free' status → stays free
     }
 
     const features = PLAN_FEATURES[planName] || FREE;
