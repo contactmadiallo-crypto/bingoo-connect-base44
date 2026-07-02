@@ -62,6 +62,8 @@ export default function Register() {
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
+      // Fire the welcome email — best-effort, never blocks the redirect.
+      base44.functions.invoke('onUserSignup', { data: { email, full_name: email.split('@')[0] } }).catch(() => {});
       window.location.href = getNextUrl();
     } catch (err) {
       setError(err.message || "Invalid verification code");

@@ -168,6 +168,19 @@ Deno.serve(async (req) => {
           userId: user_id,
           plan,
         });
+
+        // Send a subscription confirmation email — best-effort, don't fail the webhook if it errors.
+        try {
+          const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+          await base44.asServiceRole.integrations.Core.SendEmail({
+            to: customerEmail,
+            subject: `You're subscribed to the ${planLabel} plan! 🎉`,
+            from_name: 'Bingoo Connect',
+            body: `Hi ${customerName || 'there'},\n\nThanks for subscribing to the Bingoo Connect ${planLabel} plan! Your new features are unlocked and ready to use.\n\nManage your subscription anytime from your Billing page: https://bingooconnect.com/billing\n\nCheers,\nThe Bingoo Connect Team`,
+          });
+        } catch (emailErr) {
+          console.error('Subscription confirmation email failed:', emailErr.message);
+        }
       }
     }
 
