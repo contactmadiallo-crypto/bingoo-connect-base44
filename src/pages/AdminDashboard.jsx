@@ -155,20 +155,29 @@ export default function AdminDashboard() {
 
   if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
 
-  // Build a merged user+profile roster for the Users tab
+  // Build a merged user+profile roster for the Users tab.
+  // realSubscription is the TRUE entitlement source (Subscription entity, keyed by email) —
+  // Profile.plan can be stale, so the admin table must never rely on it alone to show status.
+  const subsByEmail = new Map(subscriptions.map(s => [s.customer_email?.toLowerCase(), s]));
   const userProfileRows = allUsers.map(u => {
     const profile = profiles.find(p =>
       p.created_by_id === u.id ||
       (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id)) ||
       (p.email && p.email === u.email)
     ) || null;
-    return { user: u, profile };
+    const email = (profile?.email || u.email || "").toLowerCase();
+    const realSubscription = subsByEmail.get(email) || null;
+    const hasRealStripeSub = !!realSubscription?.stripe_subscription_id;
+    // Real plan shown to the admin: Stripe subscription wins when present (source of truth),
+    // otherwise fall back to whatever plan is on the profile (admin override or free).
+    const realPlan = hasRealStripeSub ? realSubscription.plan : (profile?.plan || "free");
+    return { user: u, profile, realSubscription, hasRealStripeSub, realPlan };
   });
 
   const filteredUserRows = userProfileRows
     .filter(row => {
       const planMatch = planFilter === "all"
-        || (planFilter === "no_profile" ? !row.profile : (row.profile?.plan || "free") === planFilter);
+        || (planFilter === "no_profile" ? !row.profile : row.realPlan === planFilter);
       const term = search.toLowerCase();
       const searchMatch = !term || [
         row.user.full_name, row.user.email,
@@ -373,7 +382,7 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUserRows.map(({ user: u, profile: p }) => (
+                    {filteredUserRows.map(({ user: u, profile: p, hasRealStripeSub, realPlan }) => (
                       <tr key={u.id} className="transition-colors"
                         style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
                         onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
@@ -399,21 +408,33 @@ export default function AdminDashboard() {
                         <td className="px-5 py-4">
                           {p ? (
                             <div className="flex flex-col gap-1">
-                              <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
-                                className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer"
-                                style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
-                                <option value="free">Free</option>
-                                <option value="pro">Pro (legacy)</option>
-                                <option value="professional">Professional</option>
-                                <option value="business">Business</option>
-                                <option value="salon">Salon</option>
-                                <option value="restaurant">Restaurant</option>
-                                <option value="lawfirm">Law Firm</option>
-                                <option value="corporate">Corporate</option>
-                              </select>
-                              <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
-                                App-plan override · no Stripe change
+                              <span className="px-2.5 py-1 rounded-full text-xs font-bold w-fit"
+                                style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
+                                {PLAN_LABELS[realPlan] || realPlan}
                               </span>
+                              {hasRealStripeSub ? (
+                                <span className="text-[9px] leading-tight font-semibold" style={{ color: "#06b6d4" }}>
+                                  💳 Real Stripe subscription — manage in Stripe dashboard
+                                </span>
+                              ) : (
+                                <>
+                                  <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
+                                    className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer mt-1"
+                                    style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
+                                    <option value="free">Free</option>
+                                    <option value="pro">Pro (legacy)</option>
+                                    <option value="professional">Professional</option>
+                                    <option value="business">Business</option>
+                                    <option value="salon">Salon</option>
+                                    <option value="restaurant">Restaurant</option>
+                                    <option value="lawfirm">Law Firm</option>
+                                    <option value="corporate">Corporate</option>
+                                  </select>
+                                  <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                    App-plan override · no Stripe change
+                                  </span>
+                                </>
+                              )}
                             </div>
                           ) : <span className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
