@@ -80,8 +80,13 @@ Deno.serve(async (req) => {
     });
     if (!classResponse.ok && classResponse.status !== 409) {
       const errText = await classResponse.text();
-      console.error('GenericClass creation failed:', classResponse.status, errText);
-      return Response.json({ error: 'Google Wallet API is not enabled in your Google Cloud project. Enable it at https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview and link your service account to your Wallet Issuer account.' }, { status: 500 });
+      if (classResponse.status === 403) {
+        console.error('[Google Wallet 403] GenericClass creation forbidden. Full Google error:', errText);
+        console.error('This usually means: (1) Google Wallet API is not enabled in your Google Cloud project, OR (2) the service account is not added to the Google Pay & Wallet Console users with "Wallet Object Issuer" access. Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account at: https://pay.google.com/business/console');
+      } else {
+        console.error('GenericClass creation failed:', classResponse.status, errText);
+      }
+      return Response.json({ error: `Failed to create pass class (HTTP ${classResponse.status}). Check function logs for the full Google error message.` }, { status: 500 });
     }
 
     // ── 3. Build GenericObject ──
@@ -143,8 +148,13 @@ Deno.serve(async (req) => {
       }
     } else if (!objectResponse.ok) {
       const errText = await objectResponse.text();
-      console.error('GenericObject creation failed:', objectResponse.status, errText);
-      return Response.json({ error: `Failed to create pass object: ${objectResponse.status}` }, { status: 500 });
+      if (objectResponse.status === 403) {
+        console.error('[Google Wallet 403] GenericObject creation forbidden. Full Google error:', errText);
+        console.error('This usually means: (1) Google Wallet API is not enabled in your Google Cloud project, OR (2) the service account is not added to the Google Pay & Wallet Console users with "Wallet Object Issuer" access. Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account at: https://pay.google.com/business/console');
+      } else {
+        console.error('GenericObject creation failed:', objectResponse.status, errText);
+      }
+      return Response.json({ error: `Failed to create pass object (HTTP ${objectResponse.status}). Check function logs for the full Google error message.` }, { status: 500 });
     }
 
     // ── 5. Generate signed JWT for "Add to Google Wallet" link ──
