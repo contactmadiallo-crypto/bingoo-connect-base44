@@ -52,6 +52,7 @@ export default function Billing() {
   const { plan, subscription, isLoading } = usePlan();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   const statusKey = subscription?.status || 'free';
   const status = STATUS_CONFIG[statusKey] || STATUS_CONFIG.free;
@@ -86,6 +87,24 @@ export default function Billing() {
       toast({ title: 'Portal Error', description: err.message, variant: 'destructive' });
     } finally {
       setPortalLoading(false);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Cancel your subscription? You will keep access until the end of your current billing period.')) return;
+    setCancelLoading(true);
+    try {
+      const res = await base44.functions.invoke('cancelSubscription', {});
+      if (res.data?.success) {
+        toast({ title: 'Subscription Canceled', description: 'Your plan will remain active until the end of the current billing period.' });
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        toast({ title: 'Cancellation Failed', description: res.data?.error || 'Please try again.', variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ title: 'Cancellation Failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -139,12 +158,19 @@ export default function Billing() {
           </div>
 
           {subscription?.stripe_customer_id && (
-            <div className="mt-5 pt-5 border-t border-slate-100">
+            <div className="mt-5 pt-5 border-t border-slate-100 flex flex-wrap gap-3">
               <Button variant="outline" onClick={handleManageBilling} disabled={portalLoading}
                 className="font-semibold flex items-center gap-2">
                 <CreditCard className="w-4 h-4" />
                 {portalLoading ? 'Opening...' : 'Manage Payment'}
               </Button>
+              {statusKey === 'active' && !subscription?.cancel_at_period_end && (
+                <Button variant="outline" onClick={handleCancelSubscription} disabled={cancelLoading}
+                  className="font-semibold flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+                  <XCircle className="w-4 h-4" />
+                  {cancelLoading ? 'Canceling...' : 'Cancel Subscription'}
+                </Button>
+              )}
             </div>
           )}
         </div>
