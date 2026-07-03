@@ -44,6 +44,10 @@
         "corporate"
       ],
       "description": "Business category. Only meaningful when account_type = business."
+    },
+    "default_profile_id": {
+      "type": "string",
+      "description": "The profile ID auto-selected when the user has more than one profile. Set via the My Profiles hub."
     }
   },
   "rls": {

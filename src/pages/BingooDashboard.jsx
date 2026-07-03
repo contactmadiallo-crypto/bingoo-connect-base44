@@ -226,10 +226,22 @@ export default function BingooDashboard() {
     }).catch(() => setOwnershipReady(true));
   }, [user?.id]);
 
-  // Active profile — resolves from selectedProfileId
+  // Active profile — resolves from selectedProfileId, then the user's chosen default, then the first profile
+  const defaultProfileId = user?.default_profile_id;
   const activeProfile = selectedProfileId
-    ? (profiles.find(p => p.id === selectedProfileId) ?? profiles[0])
-    : profiles[0];
+    ? (profiles.find(p => p.id === selectedProfileId) ?? profiles.find(p => p.id === defaultProfileId) ?? profiles[0])
+    : (profiles.find(p => p.id === defaultProfileId) ?? profiles[0]);
+
+  // Mark a profile as the default (auto-selected on dashboard load). Only meaningful when the
+  // user owns more than one profile.
+  const setDefaultProfile = async (profileId) => {
+    try {
+      await base44.auth.updateMe({ default_profile_id: profileId });
+      refetchUser();
+    } catch (e) {
+      console.error("Failed to set default profile:", e);
+    }
+  };
 
   // Queries scoped to activeProfile
   const { data: leads = [] } = useQuery({
@@ -415,6 +427,8 @@ export default function BingooDashboard() {
               user={user}
               isDark={isDark}
               accountPlan={userPlan}
+              defaultProfileId={user?.default_profile_id}
+              onSetDefault={setDefaultProfile}
               onSelectProfile={openWorkspace}
               onCreateNew={openNewProfile}
               onLaunchAI={launchAI}

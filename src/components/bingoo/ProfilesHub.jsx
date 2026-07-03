@@ -4,10 +4,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 
-export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, onSelectProfile, onCreateNew, onLaunchAI }) {
+export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, onSelectProfile, onCreateNew, onLaunchAI, defaultProfileId, onSetDefault }) {
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
+  const [settingDefault, setSettingDefault] = useState(null);
+
+  // "Default profile" only matters when the user owns more than one
+  const showDefaultUI = profiles.length > 1;
+  const isDefault = (profile) => showDefaultUI && defaultProfileId && profile.id === defaultProfileId;
+
+  const handleSetDefault = (profile) => {
+    if (settingDefault || isDefault(profile)) return;
+    setSettingDefault(profile.id);
+    onSetDefault?.(profile.id).finally(() => setSettingDefault(null));
+  };
 
   const headText  = isDark ? "text-white"       : "text-slate-900";
   const mutedText = isDark ? "text-white/40"    : "text-slate-400";
@@ -78,7 +89,10 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
       <div className="flex items-center justify-between">
         <div>
           <h2 className={`text-xl font-black ${headText}`}>My Profiles</h2>
-          <p className={`text-xs mt-0.5 ${mutedText}`}>{profiles.length} profile{profiles.length !== 1 ? "s" : ""} · select one to manage</p>
+          <p className={`text-xs mt-0.5 ${mutedText}`}>
+            {profiles.length} profile{profiles.length !== 1 ? "s" : ""} · select one to manage
+            {showDefaultUI && " · tap the star to set a default"}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={onLaunchAI}
@@ -163,6 +177,12 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                         <span className="text-[10px] font-semibold text-emerald-500">Live</span>
                       </span>
                     )}
+                    {isDefault(profile) && (
+                      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+                        style={{ background: isDark ? "rgba(251,191,36,0.18)" : "#fef3c7", color: isDark ? "#fbbf24" : "#b45309" }}>
+                        <Star className="w-2.5 h-2.5 fill-current" /> Default
+                      </span>
+                    )}
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
                       style={{ background: planStyle.bg, color: planStyle.text }}>
                       {planLabel}
@@ -221,6 +241,26 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       }}>
                       {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
+                    {showDefaultUI && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleSetDefault(profile); }}
+                        disabled={settingDefault === profile.id}
+                        title={isDefault(profile) ? "Default profile" : "Set as default profile"}
+                        className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0 disabled:opacity-50"
+                        style={{
+                          background: isDefault(profile)
+                            ? (isDark ? "rgba(251,191,36,0.18)" : "rgba(251,191,36,0.12)")
+                            : (isDark ? "rgba(255,255,255,0.06)" : "rgba(251,191,36,0.06)"),
+                          borderColor: isDefault(profile)
+                            ? "rgba(251,191,36,0.4)"
+                            : (isDark ? "rgba(255,255,255,0.1)" : "rgba(251,191,36,0.25)"),
+                          color: isDefault(profile) ? (isDark ? "#fbbf24" : "#b45309") : (isDark ? "#fbbf24" : "#d97706"),
+                        }}>
+                        {settingDefault === profile.id
+                          ? <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          : <Star className={`w-3.5 h-3.5 ${isDefault(profile) ? "fill-current" : ""}`} />}
+                      </button>
+                    )}
                   </div>
 
                   {/* QR Expanded */}
