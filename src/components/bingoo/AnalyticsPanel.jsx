@@ -45,14 +45,14 @@ export default function AnalyticsPanel({ profileId }) {
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["analytics", profileId],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profileId }),
+    queryFn: () => base44.entities.Analytics.filter({ profile_id: profileId }, '-created_date', 500),
     enabled: !!profileId,
     refetchInterval: 15000,
   });
 
   const { data: tapEvents = [] } = useQuery({
     queryKey: ["tap-events", profileId],
-    queryFn: () => base44.entities.TapEvent.filter({ profile_id: profileId }),
+    queryFn: () => base44.entities.TapEvent.filter({ profile_id: profileId }, '-created_date', 500),
     enabled: !!profileId,
     refetchInterval: 15000,
   });
@@ -77,12 +77,15 @@ export default function AnalyticsPanel({ profileId }) {
   const rowText = isDark ? "text-white/70" : "text-slate-600";
   const rowTextBold = isDark ? "text-white" : "text-slate-900";
 
+  const eventDate = (e) => e.created_at || e.created_date;
   const filtered = events.filter(e => {
+    const d = eventDate(e);
+    if (!d) return false;
     if (period === null) return true;
-    if (period === 0) return new Date(e.created_at).toDateString() === new Date().toDateString();
+    if (period === 0) return new Date(d).toDateString() === new Date().toDateString();
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - period);
-    return new Date(e.created_at) >= cutoff;
+    return new Date(d) >= cutoff;
   });
 
   const counts = {};
@@ -102,10 +105,12 @@ export default function AnalyticsPanel({ profileId }) {
   ];
 
   const filteredTaps = tapEvents.filter(e => {
+    const d = e.tapped_at || e.created_date;
+    if (!d) return false;
     if (period === null) return true;
-    if (period === 0) return new Date(e.tapped_at).toDateString() === new Date().toDateString();
+    if (period === 0) return new Date(d).toDateString() === new Date().toDateString();
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - period);
-    return new Date(e.tapped_at) >= cutoff;
+    return new Date(d) >= cutoff;
   });
 
   const last7 = Array.from({ length: 7 }, (_, i) => {
@@ -116,8 +121,8 @@ export default function AnalyticsPanel({ profileId }) {
 
   const chartData = last7.map(date => ({
     date: date.slice(5),
-    views: events.filter(e => e.created_at?.startsWith(date) && e.event_type === "profile_view").length,
-    clicks: events.filter(e => e.created_at?.startsWith(date) && e.event_type !== "profile_view").length,
+    views: events.filter(e => { const d = eventDate(e); return d?.startsWith(date) && e.event_type === "profile_view"; }).length,
+    clicks: events.filter(e => { const d = eventDate(e); return d?.startsWith(date) && e.event_type !== "profile_view"; }).length,
   }));
 
   const socialKeys = ["instagram_click", "facebook_click", "tiktok_click", "linkedin_click", "youtube_click"];
@@ -228,7 +233,7 @@ export default function AnalyticsPanel({ profileId }) {
             <span className={`text-xs font-normal ${mutedText}`}>(most recent first)</span>
           </h3>
           <div className="space-y-2 max-h-56 overflow-y-auto">
-            {tapEvents.slice(0, 20).map(e => (
+            {[...tapEvents].sort((a, b) => new Date(b.tapped_at || b.created_date) - new Date(a.tapped_at || a.created_date)).slice(0, 20).map(e => (
               <div key={e.id} className="flex items-center justify-between text-sm py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                 <div className="flex items-center gap-2">
                   <span>{e.event_type === "tap" ? "📲" : e.event_type === "whatsapp_click" ? "💬" : "🔗"}</span>
@@ -236,7 +241,7 @@ export default function AnalyticsPanel({ profileId }) {
                   {e.country && <span className={`text-xs ${mutedText}`}>· {e.country}</span>}
                   {e.device && <span className={`text-xs ${mutedText}`}>· {e.device}</span>}
                 </div>
-                <span className={`text-xs flex-shrink-0 ${mutedText}`}>{e.tapped_at ? new Date(e.tapped_at).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
+                <span className={`text-xs flex-shrink-0 ${mutedText}`}>{e.tapped_at ? new Date(e.tapped_at).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : (e.created_date ? new Date(e.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "")}</span>
               </div>
             ))}
           </div>

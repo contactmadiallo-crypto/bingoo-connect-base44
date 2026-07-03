@@ -106,7 +106,7 @@ export default function AdminDashboard() {
   const { data: devices = [] } = useQuery({ queryKey: ["admin-devices"], queryFn: () => base44.entities.NFCDevice.list() });
   const { data: leads = [] } = useQuery({ queryKey: ["admin-leads"], queryFn: () => base44.entities.Lead.list("-created_date", 500) });
   const { data: allAppointments = [] } = useQuery({ queryKey: ["admin-appointments"], queryFn: () => base44.entities.Appointment.list("-created_date", 500) });
-  const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_at", 500) });
+  const { data: analytics = [] } = useQuery({ queryKey: ["admin-analytics"], queryFn: () => base44.entities.Analytics.list("-created_date", 500) });
   const { data: subscriptions = [], refetch: refetchSubs } = useQuery({ queryKey: ["admin-subscriptions"], queryFn: () => base44.entities.Subscription.list("-created_date", 200) });
   const { data: prospectLeads = [], refetch: refetchProspects } = useQuery({ queryKey: ["admin-prospect-leads"], queryFn: () => base44.entities.ProspectLead.list("-created_at", 500) });
   const { data: allUsers = [] } = useQuery({ queryKey: ["admin-users"], queryFn: () => base44.entities.User.list("-created_date", 200) });
@@ -236,6 +236,30 @@ export default function AdminDashboard() {
     .sort((a, b) => new Date(b.assigned_at) - new Date(a.assigned_at))
     .slice(0, 20);
 
+  // Device status breakdown for admin overview
+  const deviceStats = {
+    active: devices.filter(d => d.status === "active").length,
+    lost: devices.filter(d => d.status === "lost").length,
+    available: devices.filter(d => d.status === "available").length,
+    replaced: devices.filter(d => d.status === "replaced").length,
+    disabled: devices.filter(d => d.status === "disabled").length,
+  };
+  // Recent analytics events (all profiles) — real-time activity feed
+  const recentEvents = [...analytics].sort((a, b) =>
+    new Date(b.created_at || b.created_date) - new Date(a.created_at || a.created_date)
+  ).slice(0, 25);
+
+  // Top profiles by event count
+  const profileEventCounts = {};
+  analytics.forEach(a => {
+    if (a.profile_id) profileEventCounts[a.profile_id] = (profileEventCounts[a.profile_id] || 0) + 1;
+  });
+  const topProfiles = Object.entries(profileEventCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([pid, count]) => ({ profile: profiles.find(p => p.id === pid), count }))
+    .filter(t => t.profile);
+
   const TABS = [
     { id: "users",        label: t.tabs.users,        icon: Users,        count: allUsers.length },
     { id: "subscriptions",label: t.tabs.subscriptions,icon: CreditCard,   count: allSubRows.length },
@@ -290,6 +314,10 @@ export default function AdminDashboard() {
             { label: "Total Profiles", value: profiles.length, icon: QrCode, accent: gold },
             { label: "Paid Access", value: totalPaidAccess, icon: Star, accent: "#22c55e" },
             { label: t.stats.analytics, value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
+            { label: "NFC Devices", value: devices.length, icon: Clock, accent: "#8b5cf6" },
+            { label: "Active Devices", value: deviceStats.active, icon: CheckCircle2, accent: "#22c55e" },
+            { label: "Lost Devices", value: deviceStats.lost, icon: AlertTriangle, accent: "#ef4444" },
+            { label: "Available", value: deviceStats.available, icon: RotateCcw, accent: "#06b6d4" },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-5 border"
               style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
@@ -302,6 +330,23 @@ export default function AdminDashboard() {
             </div>
           ))}
         </div>
+
+        {/* Lost Devices Alert */}
+        {deviceStats.lost > 0 && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-6"
+            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" style={{ color: "#ef4444" }} />
+            <p className="text-sm" style={{ color: "rgba(239,68,68,0.9)" }}>
+              <strong>{deviceStats.lost} device{deviceStats.lost > 1 ? "s" : ""} reported lost.</strong>{" "}
+              Owners have activated Lost Mode — scans show a recovery page. Review in the NFC Manager tab.
+            </p>
+            <button onClick={() => setTab("nfc_manager")}
+              className="ml-auto text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0"
+              style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>
+              Review →
+            </button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 rounded-2xl p-1.5 mb-6 overflow-x-auto"
@@ -921,17 +966,92 @@ export default function AdminDashboard() {
 
         {/* Analytics */}
         {tab === "analytics" && (
-          <div className="space-y-4">
-            <p className="text-slate-500 text-sm">{analytics.length} total events recorded</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {Object.entries(
-                analytics.reduce((acc, a) => { acc[a.event_type] = (acc[a.event_type] || 0) + 1; return acc; }, {})
-              ).sort((a,b) => b[1]-a[1]).map(([type, count]) => (
-                <div key={type} className="bg-white rounded-2xl border border-slate-100 p-5">
-                  <p className="text-2xl font-black text-slate-900">{count}</p>
-                  <p className="text-slate-500 text-xs mt-1 capitalize">{type.replace(/_/g," ")}</p>
+          <div className="space-y-6">
+            {/* Event type breakdown */}
+            <div>
+              <h3 className="text-sm font-black text-white mb-3">📊 Event Type Breakdown <span className="text-white/30 font-normal">({analytics.length} total events)</span></h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {Object.entries(
+                  analytics.reduce((acc, a) => { acc[a.event_type] = (acc[a.event_type] || 0) + 1; return acc; }, {})
+                ).sort((a,b) => b[1]-a[1]).map(([type, count]) => (
+                  <div key={type} className="rounded-2xl p-5 border"
+                    style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+                    <p className="text-2xl font-black text-white">{count}</p>
+                    <p className="text-white/40 text-xs mt-1 capitalize">{type.replace(/_/g," ")}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Real-time recent activity feed */}
+              <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+                <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <h3 className="text-sm font-black text-white flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    Live Activity Feed
+                    <span className="text-white/30 font-normal text-xs ml-1">(latest 25)</span>
+                  </h3>
                 </div>
-              ))}
+                <div className="max-h-96 overflow-y-auto">
+                  {recentEvents.length === 0 ? (
+                    <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}>
+                      <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                      <p className="text-sm">No events recorded yet</p>
+                    </div>
+                  ) : recentEvents.map(e => {
+                    const linkedProfile = profiles.find(p => p.id === e.profile_id);
+                    return (
+                      <div key={e.id} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-sm"
+                          style={{ background: "rgba(255,255,255,0.06)" }}>
+                          {e.event_type === "profile_view" ? "👁️" : e.event_type === "nfc_tap" ? "📲" : e.event_type?.includes("whatsapp") ? "💬" : e.event_type?.includes("phone") ? "📞" : e.event_type?.includes("email") ? "📧" : "⚡"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-white truncate capitalize">{(e.event_type || "event").replace(/_/g, " ")}</p>
+                          <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>
+                            {linkedProfile ? linkedProfile.display_name : e.profile_id?.slice(0, 10) + "…"}
+                            {e.visitor_device && <span> · {e.visitor_device}</span>}
+                          </p>
+                        </div>
+                        <span className="text-xs flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)" }}>
+                          {new Date(e.created_at || e.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Top profiles by activity */}
+              <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+                <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <h3 className="text-sm font-black text-white">🏆 Top Profiles by Activity</h3>
+                </div>
+                <div>
+                  {topProfiles.length === 0 ? (
+                    <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}>
+                      <Star className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                      <p className="text-sm">No profile activity yet</p>
+                    </div>
+                  ) : topProfiles.map((t, i) => (
+                    <div key={t.profile.id} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                      <span className="text-lg font-black flex-shrink-0" style={{ color: i === 0 ? gold : "rgba(255,255,255,0.3)" }}>#{i + 1}</span>
+                      {t.profile.profile_photo
+                        ? <img src={t.profile.profile_photo} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
+                        : <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: t.profile.cover_color || "#334155" }}>{t.profile.display_name?.charAt(0) || "?"}</div>
+                      }
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-white truncate">{t.profile.display_name}</p>
+                        <a href={`/p/${t.profile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{t.profile.username}</a>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>
+                        {t.count} events
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
