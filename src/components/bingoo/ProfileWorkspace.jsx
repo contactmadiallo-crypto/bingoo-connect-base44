@@ -22,6 +22,7 @@ import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
+import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import {
   PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
@@ -571,6 +572,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
   const [customLabel, setCustomLabel] = useState("");
   const [downloading, setDownloading] = useState(false);
   const [logoWatermark, setLogoWatermark] = useState(!!(liveForm?.qr_watermark ?? profile?.qr_watermark));
+  const [previewDataUrl, setPreviewDataUrl] = useState(null);
 
   // Sync to liveForm when values change
   const setQrColor = (v) => { setQrColorLocal(v); setVal("qr_color", v); };
@@ -588,59 +590,59 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
     ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(profileQrUrl)}&color=${fgColor}&bgcolor=${bgColor}`
     : null;
 
-  const handleDownloadQR = async () => {
-    if (!profileQrUrl || downloading) return;
-    setDownloading(true);
-    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=${fgColor}&bgcolor=ffffff`;
-    const qrImg = new Image(); qrImg.crossOrigin = "anonymous";
+  // Compose the exact QR image that will be downloaded (QR + optional logo watermark + label
+  // + "Powered by Bingoo Connect" footer) onto a canvas, so the preview matches the download
+  // byte-for-byte. Recomputes whenever any input changes — toggling the watermark updates the
+  // preview immediately.
+  useEffect(() => {
+    if (!profileQrUrl) { setPreviewDataUrl(null); return; }
+    let cancelled = false;
+    const fg = qrColor.replace("#", "");
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=${fg}&bgcolor=ffffff`;
+    const canvas = document.createElement("canvas");
+    canvas.width = 400; canvas.height = 500;
+    const ctx = canvas.getContext("2d");
+    const useLogo = logoWatermark && isPro && hasLogo;
 
-    qrImg.onload = async () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 400; canvas.height = 500;
-      const ctx = canvas.getContext("2d");
-      // White bg
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 500);
-      // QR
-      ctx.drawImage(qrImg, 0, 30, 400, 400);
-
-      // Logo watermark — centered over the QR code (professional plan only)
-      const drawFinish = () => {
-        // Label
-        ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
-        ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
-        // Powered by footer
-        ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
-        ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
-        ctx.fillText("Powered by Bingoo Connect", 200, 489);
-        const a = document.createElement("a");
-        a.href = canvas.toDataURL("image/png");
-        a.download = `bingoo-qr.png`;
-        a.click();
-        setDownloading(false);
-      };
-
-      if (logoWatermark && isPro && hasLogo) {
-        const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
-        logoImg.onload = () => {
-          // White rounded square behind logo
-          const logoSize = 72;
-          const lx = (400 - logoSize) / 2;
-          const ly = 30 + (400 - logoSize) / 2;
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.roundRect(lx - 6, ly - 6, logoSize + 12, logoSize + 12, 12);
-          ctx.fill();
-          ctx.drawImage(logoImg, lx, ly, logoSize, logoSize);
-          drawFinish();
-        };
-        logoImg.onerror = drawFinish;
-        logoImg.src = profile.company_logo;
-      } else {
-        drawFinish();
-      }
+    const drawLabelAndFooter = () => {
+      ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
+      ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
+      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
+      ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
+      ctx.fillText("Powered by Bingoo Connect", 200, 489);
     };
-    qrImg.onerror = () => setDownloading(false);
+
+    const qrImg = new Image(); qrImg.crossOrigin = "anonymous";
+    qrImg.onload = () => {
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 500);
+      ctx.drawImage(qrImg, 0, 30, 400, 400);
+      if (!useLogo) { drawLabelAndFooter(); if (!cancelled) setPreviewDataUrl(canvas.toDataURL("image/png")); return; }
+      const logoImg = new Image(); logoImg.crossOrigin = "anonymous";
+      logoImg.onload = () => {
+        const ls = 72, lx = (400 - ls) / 2, ly = 30 + (400 - ls) / 2;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.roundRect(lx - 6, ly - 6, ls + 12, ls + 12, 12); ctx.fill();
+        ctx.drawImage(logoImg, lx, ly, ls, ls);
+        drawLabelAndFooter();
+        if (!cancelled) setPreviewDataUrl(canvas.toDataURL("image/png"));
+      };
+      logoImg.onerror = () => { drawLabelAndFooter(); if (!cancelled) setPreviewDataUrl(canvas.toDataURL("image/png")); };
+      logoImg.src = profile.company_logo;
+    };
+    qrImg.onerror = () => { if (!cancelled) setPreviewDataUrl(null); };
     qrImg.src = qrSrc;
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profileQrUrl, qrColor, displayLabel, logoWatermark, isPro, hasLogo, profile?.company_logo]);
+
+  const handleDownloadQR = () => {
+    if (!previewDataUrl || downloading) return;
+    setDownloading(true);
+    const a = document.createElement("a");
+    a.href = previewDataUrl;
+    a.download = "bingoo-qr.png";
+    a.click();
+    setTimeout(() => setDownloading(false), 500);
   };
 
   return (
@@ -672,14 +674,17 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
 
         {qrPreviewUrl ? (
           <>
-            {/* Live QR preview */}
+            {/* Live QR preview — composed on canvas, matches the downloaded file exactly (QR + logo watermark + label + footer) */}
             <div className="flex justify-center">
               <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
-                <img key={qrPreviewUrl} src={qrPreviewUrl} alt="QR Code" className="w-40 h-40 rounded-xl mx-auto" />
-                <p className="mt-2 text-xs font-bold" style={{ color: qrColor }}>{displayLabel}</p>
-                <p className="text-[9px] mt-1 font-bold text-white px-3 py-1 rounded-full inline-block" style={{ background: "#0B2E6B" }}>
-                  Powered by Bingoo Connect
-                </p>
+                {previewDataUrl ? (
+                  <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 200, height: "auto" }} />
+                ) : (
+                  <div className="w-[200px] h-[250px] flex items-center justify-center">
+                    <span className={`text-xs ${mutedText}`}>Generating preview…</span>
+                  </div>
+                )}
+                <p className={`text-[10px] mt-2 ${mutedText}`}>Preview matches the downloaded QR exactly.</p>
               </div>
             </div>
 
@@ -832,12 +837,13 @@ function LostModePanel({ profileId, user, isDark, effectivePlan }) {
 }
 
 // ── SETTINGS PANEL ────────────────────────────────────────────────────────
-function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
+function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, onDeleted }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -891,16 +897,28 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
           <p className="font-bold text-sm text-red-600">Danger Zone</p>
         </div>
         <p className={`text-xs ${isDark ? "text-red-300" : "text-red-500"}`}>Disabling your profile hides it from public access instantly.</p>
-        <button type="button" onClick={() => setVal("is_active", false)}
-          className="text-xs font-bold text-red-600 border border-red-300 px-4 py-2 rounded-xl hover:bg-red-100 transition-all">
-          Deactivate Profile
-        </button>
+        <div className="flex flex-col gap-2">
+          <button type="button" onClick={() => setVal("is_active", false)}
+            className="text-xs font-bold text-red-600 border border-red-300 px-4 py-2 rounded-xl hover:bg-red-100 transition-all">
+            Deactivate Profile
+          </button>
+          <button type="button" onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-1.5 text-xs font-bold text-white px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition-all">
+            <Trash2 className="w-3.5 h-3.5" /> Delete Profile Permanently
+          </button>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
         <SaveBtn onSave={onSave} isPending={isPending} label={t("save_settings", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
+
+      {showDeleteModal && (
+        <DeleteProfileModal profile={profile} isDark={isDark}
+          onClose={() => setShowDeleteModal(false)}
+          onDeleted={onDeleted} />
+      )}
     </div>
   );
 }
@@ -1192,7 +1210,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={getEffectiveProfilePlan(userPlan, profile)} />
             )}
             {innerTab === "settings" && (
-              <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set} />
+              <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set}
+                profile={profile} onDeleted={onBack} />
             )}
           </div>
 
@@ -1213,12 +1232,20 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <div className="fixed inset-0 z-50 flex flex-col safe-top safe-bottom" style={{ background: isDark ? "#0a0c14" : "#f1f5f9" }}>
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 py-4 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
-                  <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
-                  <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMobilePreviewOpen(false); }}
-                    className={`p-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600"}`}
-                    title="Close preview (ESC)">
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"} mr-auto`}>Live Preview</p>
+                    {profileUrl && (
+                      <a href={profileUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                        className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                        <ExternalLink className="w-3.5 h-3.5" /> Open live
+                      </a>
+                    )}
+                    <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMobilePreviewOpen(false); }}
+                      className={`p-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600"}`}
+                      title="Close preview (ESC)">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
                 {/* Preview content — scrollable */}
                 <div className="flex-1 overflow-y-auto pb-safe">
@@ -1231,8 +1258,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                           <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
                         </div>
                       </div>
-                      <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh" }}>
-                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(520 / 0.747) }}>
+                      <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh", position: "relative" }}
+                        onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(520 / 0.747), pointerEvents: "none", userSelect: "none" }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
                       </div>
@@ -1261,8 +1289,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                   </div>
                 </div>
                 {/* Screen — exactly 216px wide, 520px tall */}
-                <div style={{ borderRadius: 22, width: 216, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576) }}>
+                <div style={{ borderRadius: 22, width: 216, height: 520, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                  <div style={{ width: 375, transform: "scale(0.576)", transformOrigin: "top left", minHeight: Math.round(520 / 0.576), pointerEvents: "none", userSelect: "none" }}>
                     <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                   </div>
                 </div>
