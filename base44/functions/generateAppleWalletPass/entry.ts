@@ -90,8 +90,9 @@ Deno.serve(async (req) => {
       ],
     };
 
-    // Fetch Bingoo logo for icon.png and logo.png
-    const logoUrl = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png';
+    // Official Bingoo Connect brand logo — used for icon, logo, and thumbnail.
+    // Never use personal photos, user profile photos, or gallery images in wallet passes.
+    const logoUrl = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
     const logoResponse = await fetch(logoUrl);
     const logoBytes = new Uint8Array(await logoResponse.arrayBuffer());
 
@@ -100,19 +101,8 @@ Deno.serve(async (req) => {
       { name: 'pass.json', data: new TextEncoder().encode(JSON.stringify(passJson, null, 2)) },
       { name: 'icon.png', data: logoBytes },
       { name: 'logo.png', data: logoBytes },
+      { name: 'thumbnail.png', data: logoBytes },
     ];
-
-    // Try to fetch profile photo for thumbnail
-    if (profile.profile_photo) {
-      try {
-        const photoRes = await fetch(profile.profile_photo);
-        if (photoRes.ok) {
-          fileEntries.push({ name: 'thumbnail.png', data: new Uint8Array(await photoRes.arrayBuffer()) });
-        }
-      } catch (e) {
-        console.warn('Could not fetch profile photo for pass thumbnail:', e.message);
-      }
-    }
 
     // Create manifest (SHA1 of each file)
     const manifest: Record<string, string> = {};
