@@ -114,39 +114,27 @@ export const TRANSLATIONS = {
 };
 
 /**
- * Detect browser/device language on first visit only.
- * Priority: saved pref → navigator.languages → navigator.language → Intl locale → "en"
- * Writes to localStorage on first detection so it persists across pages.
+ * Get current language from localStorage.
+ * Defaults to English on first visit — language only changes when the user
+ * explicitly clicks the EN/FR toggle. No silent browser-locale auto-detection.
+ *
+ * Migration: if a previous version auto-detected French without explicit user
+ * consent, reset to English so the user isn't stuck seeing French.
  */
-function detectBrowserLang() {
-  // Check all navigator.languages first (most reliable)
-  const langs = (typeof navigator !== "undefined" && navigator.languages) || [];
-  for (const l of langs) {
-    if (l.toLowerCase().startsWith("fr")) return "fr";
-  }
-  // Fallback to single navigator.language
-  const single = (typeof navigator !== "undefined" && navigator.language) || "";
-  if (single.toLowerCase().startsWith("fr")) return "fr";
-  // Fallback to Intl locale
-  try {
-    const intlLang = Intl.DateTimeFormat().resolvedOptions().locale || "";
-    if (intlLang.toLowerCase().startsWith("fr")) return "fr";
-  } catch (_) {}
-  return "en";
-}
-
-/** Get current language from localStorage, auto-detecting browser lang on first visit only */
 export function getLang() {
   const saved = localStorage.getItem("bingoo_lang");
   const userSet = localStorage.getItem("bingoo_lang_user_set");
-  // If user manually set it, always honour that — never override
+  // Honour explicitly user-set preference
   if (saved && userSet === "true") return saved;
-  // If auto-detected previously, return it (but allow re-detection if browser lang changed)
-  if (saved && !userSet) return saved;
-  // First visit — auto-detect and persist without marking as user-set
-  const detected = detectBrowserLang();
-  localStorage.setItem("bingoo_lang", detected);
-  return detected;
+  // Previously auto-detected (no explicit user consent) — reset to English
+  if (saved && userSet !== "true") {
+    localStorage.setItem("bingoo_lang", "en");
+    localStorage.removeItem("bingoo_lang_user_set");
+    return "en";
+  }
+  // First visit — default to English
+  localStorage.setItem("bingoo_lang", "en");
+  return "en";
 }
 
 /** Persist language to localStorage and mark as user-set (prevents auto-override) */
