@@ -358,12 +358,15 @@ export default function BingooDashboard() {
     enabled: !!activeProfile?.id && ownershipReady,
     refetchOnMount: true,
   });
-  const { data: myNfcDevices = [] } = useQuery({
-    queryKey: ["my-nfc-devices", activeProfile?.id],
-    queryFn: () => base44.entities.NFCDevice.filter({ profile_id: activeProfile.id }),
-    enabled: !!activeProfile?.id,
+  const { data: allNfcDevices = [] } = useQuery({
+    queryKey: ["my-nfc-devices-all"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getMyNfcDevices", {});
+      return res?.data?.devices || [];
+    },
     refetchInterval: 10000,
   });
+  const myNfcDevices = activeProfile?.id ? allNfcDevices.filter(d => d.profile_id === activeProfile.id) : [];
   const { data: salonServices = [] } = useQuery({
     queryKey: ["salon-services-count", activeProfile?.id],
     queryFn: () => base44.entities.SalonService.filter({ profile_id: activeProfile.id }),

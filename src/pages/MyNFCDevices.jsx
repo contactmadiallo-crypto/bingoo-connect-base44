@@ -77,14 +77,12 @@ export default function MyNFCDevices() {
    // Debug logs removed — do not re-add (production data leak)
 
    const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
-     queryKey: ["my-nfc-devices-page", user?.id, profileIds.join(",")],
+     queryKey: ["my-nfc-devices-page", user?.id],
      queryFn: async () => {
-       const all = await Promise.all(
-         profileIds.map(pid => base44.entities.NFCDevice.filter({ profile_id: pid }))
-       );
-       return all.flat();
+       const res = await base44.functions.invoke("getMyNfcDevices", {});
+       return res?.data?.devices || [];
      },
-     enabled: !!user?.id && profileIds.length > 0,
+     enabled: !!user?.id,
      staleTime: 0,
      refetchOnMount: true,
      refetchInterval: 10000,
@@ -177,31 +175,29 @@ export default function MyNFCDevices() {
   };
 
   const reportLost = useMutation({
-    mutationFn: (device) => base44.entities.NFCDevice.update(device.id, { status: "lost" }),
-    onSuccess: (_, device) => {
+    mutationFn: async (device) => {
+      const res = await base44.functions.invoke("updateNfcDeviceStatus", { device_id: device.id, status: "lost" });
+      if (res?.data?.error) throw new Error(res.data.error);
+      return res;
+    },
+    onSuccess: () => {
       toast.success("Device marked as lost. Scans are now disabled.");
-      // audit log
-      base44.entities.DeviceAuditLog.create({
-        device_id: device.id,
-        device_code: device.device_code,
-        action: "lost_reported",
-        performed_by: user?.id,
-        performed_by_name: user?.full_name,
-        old_status: device.status,
-        new_status: "lost",
-      }).catch(() => {});
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(e.message || "Failed to report device as lost"),
   });
 
   const reactivate = useMutation({
-    mutationFn: (device) => base44.entities.NFCDevice.update(device.id, { status: "active" }),
+    mutationFn: async (device) => {
+      const res = await base44.functions.invoke("updateNfcDeviceStatus", { device_id: device.id, status: "active" });
+      if (res?.data?.error) throw new Error(res.data.error);
+      return res;
+    },
     onSuccess: () => {
       toast.success("Device reactivated!");
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(e.message || "Failed to reactivate device"),
   });
 
   const handleWriteNFC = async (device) => {

@@ -7,11 +7,17 @@ const deviceIcons = { card: CreditCard, keychain: Key, bracelet: Award, stand: S
 const statusColors = { active: "bg-green-100 text-green-700", inactive: "bg-slate-100 text-slate-500", lost: "bg-red-100 text-red-600" };
 
 export default function DevicesPanel({ profileId }) {
-  const { data: devices = [], isLoading } = useQuery({
-    queryKey: ["devices", profileId],
-    queryFn: () => base44.entities.NFCDevice.filter({ profile_id: profileId }),
-    enabled: !!profileId,
+  const { data: allDevices = [], isLoading } = useQuery({
+    queryKey: ["my-nfc-devices-page"],
+    queryFn: async () => {
+      const res = await base44.functions.invoke("getMyNfcDevices", {});
+      return res?.data?.devices || [];
+    },
+    refetchInterval: 10000,
   });
+
+  // Filter to just this profile's devices on the client side
+  const devices = profileId ? allDevices.filter(d => d.profile_id === profileId) : [];
 
   if (!profileId) return (
     <div className="text-center py-20 text-slate-400">
