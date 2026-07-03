@@ -48,7 +48,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
 
   // Unread notification badges mapped to nav item IDs
-  const { badgeMap, totalUnread } = useNavBadges(effectiveUserId);
+  const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
   const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";

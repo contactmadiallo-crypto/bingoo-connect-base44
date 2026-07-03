@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 
 // Maps notification event_type → array of sidebar nav item ids that should badge
-// new_lead badges both "leads" and "crm" (crm is the law firm / corporate lead pipeline)
 const EVENT_TO_NAV = {
   new_lead: ["leads", "crm"],
   new_appointment: ["appointments"],
@@ -26,11 +25,13 @@ const EVENT_TO_NAV = {
  * Fetches BingooNotification records for the current user and maps unread ones
  * to sidebar nav item IDs. Returns { badgeMap, totalUnread }.
  *
- * Uses the SAME query key as NotificationCenter so they share the same cache
- * (single network request, always in sync). Client-side filtering for is_read
- * is the source of truth for badge counts.
+ * - `totalUnread` counts ALL unread notifications (for the bell icon).
+ * - `badgeMap` only counts notifications for the currently selected profile,
+ *   so per-nav badges match the data on the page you're viewing.
+ *
+ * Uses the SAME query key as NotificationCenter so they share one cache.
  */
-export function useNavBadges(userId) {
+export function useNavBadges(userId, profileId) {
   const qc = useQueryClient();
 
   const { data: notifications = [] } = useQuery({
@@ -63,6 +64,11 @@ export function useNavBadges(userId) {
   for (const n of notifications) {
     if (n.is_read) continue;
     totalUnread++;
+
+    // Per-nav badges: only for the currently selected profile.
+    // When no profile is selected (hub view), show badges for all profiles.
+    if (profileId && n.profile_id && n.profile_id !== profileId) continue;
+
     const navIds = EVENT_TO_NAV[n.event_type];
     if (navIds) {
       for (const navId of navIds) {
