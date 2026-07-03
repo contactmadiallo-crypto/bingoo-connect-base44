@@ -41,7 +41,6 @@ const CLASS_TEMPLATE_INFO = {
   cardTemplateOverride: {
     cardRowTemplateInfos: [
       _twoItemRow('handle'),
-      _twoItemRow('contact_company'),
       _twoItemRow('contact_phone'),
       _twoItemRow('contact_email'),
       _twoItemRow('contact_website'),
@@ -54,7 +53,6 @@ const CLASS_TEMPLATE_INFO = {
     firstRowOption: {
       firstValue: {
         fields: [
-          { fieldPath: 'textModulesData.contact_company.body' },
           { fieldPath: 'textModulesData.handle.body' },
         ],
       },
@@ -197,19 +195,18 @@ Deno.serve(async (req) => {
 
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
     const professionalLabel = PLAN_LABELS[profile.plan] || 'Bingoo Profile';
-    // Subheader: prefer job_title, fall back to plan-based professional label
-    const subheaderValue = profile.job_title || professionalLabel;
+    // Hierarchy: cardTitle = person's name, header = role/title, subheader = company
+    const headerValue = profile.job_title || professionalLabel;
+    const subheaderValue = profile.company_name || '';
 
     const websiteClean = cleanWebsite(profile.website);
 
     // Text modules — each non-empty field becomes its own module. Missing fields
     // → no module → the template row is auto-dropped by Google Wallet (no empty rows).
+    // Company is shown in subheader, so it is NOT duplicated as a text module.
     const textModules = [];
     if (profile.username) {
       textModules.push({ id: 'handle', header: 'Handle', body: truncate(`@${profile.username}`, 40) });
-    }
-    if (profile.company_name && profile.company_name !== subheaderValue) {
-      textModules.push({ id: 'contact_company', header: 'Company', body: truncate(profile.company_name, 50) });
     }
     if (profile.phone) {
       textModules.push({ id: 'contact_phone', header: 'Phone', body: truncate(profile.phone, 40) });
@@ -241,8 +238,8 @@ Deno.serve(async (req) => {
           contentDescription: { defaultValue: { language: 'en', value: `${displayName} profile photo` } },
         },
       } : {}),
-      cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
-      header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
+      cardTitle: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
+      header: { defaultValue: { language: 'en', value: truncate(headerValue, 35) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
       textModulesData: textModules,
       linksModuleData: {
