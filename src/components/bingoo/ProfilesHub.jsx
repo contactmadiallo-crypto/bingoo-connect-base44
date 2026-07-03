@@ -1,10 +1,24 @@
 import React, { useState } from "react";
-import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users } from "lucide-react";
+import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, CheckCircle2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 
-export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, onSelectProfile, onCreateNew, onLaunchAI, defaultProfileId, onSetDefault }) {
+export default function ProfilesHub({
+  profiles = [],
+  user,
+  isDark,
+  accountPlan,
+  onSelectProfile,
+  onCreateNew,
+  onLaunchAI,
+  defaultProfileId,
+  onSetDefault,
+  // The profile currently active in the dashboard (selectedProfileId ?? default ?? first).
+  // Its card shows a "Selected" check at the top.
+  activeProfileId,
+  loading = false,
+}) {
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
@@ -13,11 +27,24 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
   // "Default profile" only matters when the user owns more than one
   const showDefaultUI = profiles.length > 1;
   const isDefault = (profile) => showDefaultUI && defaultProfileId && profile.id === defaultProfileId;
+  const isSelected = (profile) => profile.id === activeProfileId;
 
   const handleSetDefault = (profile) => {
     if (settingDefault || isDefault(profile)) return;
     setSettingDefault(profile.id);
     onSetDefault?.(profile.id).finally(() => setSettingDefault(null));
+  };
+
+  // Card-level activation — sets the dashboard's selected profile and opens the workspace.
+  const handleCardActivate = (profile) => {
+    onSelectProfile?.(profile.id);
+  };
+
+  const handleCardKeyDown = (e, profile) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleCardActivate(profile);
+    }
   };
 
   const headText  = isDark ? "text-white"       : "text-slate-900";
@@ -83,18 +110,52 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
     }
   };
 
+  // ── Top-of-card status chip: distinguishes Selected vs Default ──
+  const renderStatusChip = (profile) => {
+    const selected = isSelected(profile);
+    const def = isDefault(profile);
+    if (!selected && !def) return null;
+
+    // When selected AND default are the same, show a single combined chip (no clutter)
+    if (selected && def) {
+      return (
+        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+          style={{ background: "rgba(251,191,36,0.95)", color: "#7c2d12" }}>
+          <CheckCircle2 className="w-3 h-3" /> Default
+        </span>
+      );
+    }
+    if (selected) {
+      return (
+        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+          style={{ background: "rgba(11,46,107,0.95)", color: "#fff" }}>
+          <CheckCircle2 className="w-3 h-3" /> Selected
+        </span>
+      );
+    }
+    // default only
+    return (
+      <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+        style={{ background: "rgba(251,191,36,0.92)", color: "#7c2d12" }}>
+        <Star className="w-3 h-3 fill-current" /> Default
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <h2 className={`text-xl font-black ${headText}`}>My Profiles</h2>
           <p className={`text-xs mt-0.5 ${mutedText}`}>
-            {profiles.length} profile{profiles.length !== 1 ? "s" : ""} · select one to manage
-            {showDefaultUI && " · tap the star to set a default"}
+            {loading
+              ? "Loading your profiles…"
+              : `${profiles.length} profile${profiles.length !== 1 ? "s" : ""} · tap a card to manage`}
+            {showDefaultUI && !loading && " · tap the star to set a default"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button onClick={onLaunchAI}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
             style={{
@@ -115,22 +176,62 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
         </div>
       </div>
 
+      {/* Loading skeleton */}
+      {loading && profiles.length === 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[0, 1].map(i => (
+            <div key={i} className={`${cardBg} border ${cardBorder} rounded-2xl overflow-hidden`} style={{ boxShadow: cardShadow }}>
+              <div className={`h-[120px] ${isDark ? "bg-white/5" : "bg-slate-100"} animate-pulse`} />
+              <div className="px-4 pb-4 -mt-8">
+                <div className={`w-16 h-16 rounded-full ${isDark ? "bg-white/10" : "bg-slate-200"} animate-pulse`} />
+                <div className={`h-3.5 w-2/3 mt-3 rounded ${isDark ? "bg-white/10" : "bg-slate-200"} animate-pulse`} />
+                <div className={`h-2.5 w-1/3 mt-2 rounded ${isDark ? "bg-white/8" : "bg-slate-100"} animate-pulse`} />
+                <div className="flex gap-2 mt-4">
+                  <div className={`flex-1 h-9 rounded-xl ${isDark ? "bg-white/8" : "bg-slate-100"} animate-pulse`} />
+                  <div className={`w-9 h-9 rounded-xl ${isDark ? "bg-white/8" : "bg-slate-100"} animate-pulse`} />
+                  <div className={`w-9 h-9 rounded-xl ${isDark ? "bg-white/8" : "bg-slate-100"} animate-pulse`} />
+                  <div className={`w-9 h-9 rounded-xl ${isDark ? "bg-white/8" : "bg-slate-100"} animate-pulse`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Profile Cards Grid */}
-      {profiles.length > 0 ? (
+      {!loading && profiles.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {profiles.map(profile => {
             const effectivePlan = getEffectiveProfilePlan(accountPlan, profile);
             const planStyle = getPlanStyle(effectivePlan);
             const planLabel = PLAN_LABELS[effectivePlan] || "Free";
             const profileUrl = `${window.location.origin}/p/${profile.username}`;
+            const selected = isSelected(profile);
+
             return (
               <div key={profile.id}
-                className={`${cardBg} border ${cardBorder} rounded-2xl transition-all duration-200 hover:scale-[1.01] hover:shadow-lg`}
-                style={{ boxShadow: cardShadow, overflow: "visible" }}>
+                role="button"
+                tabIndex={0}
+                aria-label={`Manage profile: ${profile.display_name}`}
+                aria-pressed={selected}
+                onClick={() => handleCardActivate(profile)}
+                onKeyDown={(e) => handleCardKeyDown(e, profile)}
+                className={`relative ${cardBg} border rounded-2xl transition-all duration-200 cursor-pointer outline-none
+                  focus:ring-2 focus:ring-orange-400/60
+                  hover:shadow-lg hover:-translate-y-0.5
+                  ${selected
+                    ? (isDark ? "border-blue-400/70 ring-1 ring-blue-400/40" : "border-blue-500/70 ring-1 ring-blue-400/30")
+                    : cardBorder
+                  }`}
+                style={{ boxShadow: selected ? "0 8px 28px rgba(37,99,235,0.18)" : cardShadow, overflow: "visible" }}>
 
-                {/* ── Outer wrapper: relative so avatar can be positioned absolutely ── */}
+                {/* ── Top-of-card status chip (Selected / Default) ── */}
+                <div className="absolute top-2.5 right-2.5 z-30 pointer-events-none">
+                  {renderStatusChip(profile)}
+                </div>
+
+                {/* ── Cover ── */}
                 <div className="relative" style={{ borderRadius: "16px 16px 0 0", overflow: "hidden" }}>
-                  {/* Cover — overflow:hidden only on this inner div */}
                   <div style={{ height: 120 }}>
                     {profile.cover_photo ? (
                       <img src={profile.cover_photo} alt=""
@@ -169,18 +270,12 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                       </div>
                     );
                   })()}
-                  {/* Badges — aligned to bottom of this row */}
+                  {/* Bottom-aligned badges — Live + Plan (Default moved to top chip) */}
                   <div className="flex items-center gap-2 pt-9">
                     {profile.is_active && (
                       <span className="flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                         <span className="text-[10px] font-semibold text-emerald-500">Live</span>
-                      </span>
-                    )}
-                    {isDefault(profile) && (
-                      <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-                        style={{ background: isDark ? "rgba(251,191,36,0.18)" : "#fef3c7", color: isDark ? "#fbbf24" : "#b45309" }}>
-                        <Star className="w-2.5 h-2.5 fill-current" /> Default
                       </span>
                     )}
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
@@ -203,17 +298,18 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                     </p>
                   )}
 
-                  {/* Quick Actions */}
-                  <div className="flex gap-2 mt-3">
+                  {/* Quick Actions — all stopPropagation so they don't trigger the card click */}
+                  <div className="flex gap-2 mt-3 items-center">
                     <button
-                      onClick={() => onSelectProfile(profile.id, "overview")}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                      onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 min-w-0"
                       style={{ background: "#0B2E6B" }}>
-                      <Settings className="w-3.5 h-3.5" /> Manage
+                      <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Manage</span>
                     </button>
                     <a href={profileUrl} target="_blank" rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="flex items-center justify-center gap-1 w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+                      aria-label="View public profile"
+                      className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.07)",
                         borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(59,130,246,0.2)",
@@ -223,6 +319,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                     </a>
                     <button
                       onClick={(e) => { e.stopPropagation(); setExpandedQR(expandedQR === profile.id ? null : profile.id); }}
+                      aria-label="Show QR code"
                       className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(99,102,241,0.07)",
@@ -233,6 +330,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); copyLink(profile); }}
+                      aria-label="Copy profile link"
                       className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
                       style={{
                         background: isDark ? "rgba(255,255,255,0.06)" : "rgba(16,185,129,0.07)",
@@ -246,6 +344,7 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
                         onClick={(e) => { e.stopPropagation(); handleSetDefault(profile); }}
                         disabled={settingDefault === profile.id}
                         title={isDefault(profile) ? "Default profile" : "Set as default profile"}
+                        aria-label={isDefault(profile) ? "Default profile" : "Set as default profile"}
                         className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0 disabled:opacity-50"
                         style={{
                           background: isDefault(profile)
@@ -265,7 +364,8 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
 
                   {/* QR Expanded */}
                   {expandedQR === profile.id && (
-                    <div className={`mt-3 pt-3 border-t text-center ${isDark ? "border-white/8" : "border-slate-100"}`}>
+                    <div className={`mt-3 pt-3 border-t text-center ${isDark ? "border-white/8" : "border-slate-100"}`}
+                      onClick={(e) => e.stopPropagation()}>
                       <img src={getQrUrl(profile)} alt="QR" className="w-28 h-28 mx-auto rounded-xl" />
                       <p className={`text-[10px] mt-1.5 ${mutedText}`}>Scan to open profile</p>
                     </div>
@@ -320,8 +420,10 @@ export default function ProfilesHub({ profiles = [], user, isDark, accountPlan, 
             </button>
           )}
         </div>
-      ) : (
-        /* Empty state — first profile creation always allowed */
+      )}
+
+      {/* Empty state — first profile creation always allowed */}
+      {!loading && profiles.length === 0 && (
         <div className={`rounded-2xl border-2 border-dashed text-center p-10 ${isDark ? "border-white/12" : "border-slate-200"}`}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
             style={{ background: isDark ? "rgba(11,46,107,0.3)" : "rgba(11,46,107,0.06)", border: "1px solid rgba(11,46,107,0.15)" }}>
