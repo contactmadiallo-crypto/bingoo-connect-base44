@@ -56,20 +56,7 @@
     "created_at"
   ],
   "rls": {
-    "create": {
-      "$or": [
-        {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
-        },
-        {
-          "created_by_id": null
-        }
-      ]
-    },
+    "create": {},
     "read": {
       "$or": [
         {
