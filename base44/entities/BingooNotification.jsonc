@@ -18,6 +18,7 @@
         "appointment_confirmed",
         "appointment_cancelled",
         "appointment_rescheduled",
+        "appointment_reminder",
         "nfc_activated",
         "lost_device_reported",
         "new_review",

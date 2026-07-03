@@ -87,6 +87,11 @@
         "no_show"
       ],
       "default": "pending"
+    },
+    "reminder_sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the push reminder was last sent for this appointment"
     }
   },
   "required": [

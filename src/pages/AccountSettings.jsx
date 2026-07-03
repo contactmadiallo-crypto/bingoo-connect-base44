@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
+import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 
 function AccountTypeSection({ user, onUpdated }) {
   const [saving, setSaving] = useState(false);
@@ -206,6 +207,9 @@ export default function AccountSettings() {
 
         {/* Account Type */}
         <AccountTypeSection user={user} onUpdated={setUser} />
+
+        {/* Phone Alerts (push notifications) */}
+        <PhoneAlertsSection user={user} />
 
         {/* Account info */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">

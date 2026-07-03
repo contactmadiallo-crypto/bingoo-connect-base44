@@ -75,6 +75,20 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Send web push notification to the profile owner (if opted in)
+    if (ownerUserId) {
+      try {
+        await base44.asServiceRole.functions.invoke('sendPushNotification', {
+          user_id: ownerUserId,
+          title: `⭐ New lead from ${formData.name || 'Someone'}`,
+          body: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || 'Tap to view details'),
+          url: actionUrl,
+        });
+      } catch (pushErr) {
+        console.error('Push notification failed (non-blocking):', pushErr.message);
+      }
+    }
+
     // Send email notification to the profile owner
     try {
       const { name, email, phone, message, preferred_contact_method } = formData;

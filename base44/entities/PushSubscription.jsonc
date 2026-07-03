@@ -1,0 +1,96 @@
+{
+  "name": "PushSubscription",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID \u2014 must match the authenticated user"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "Browser push endpoint URL from PushManager subscription"
+    },
+    "p256dh": {
+      "type": "string",
+      "description": "P-256 ECDH public key (base64url) for payload encryption"
+    },
+    "auth": {
+      "type": "string",
+      "description": "Authentication secret (base64url) for payload encryption"
+    },
+    "device_label": {
+      "type": "string",
+      "description": "Friendly device label e.g. 'iPhone Safari', 'Chrome Desktop'"
+    },
+    "browser": {
+      "type": "string",
+      "description": "Detected browser name e.g. Chrome, Safari, Firefox, Edge"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Detected platform/OS e.g. iOS, Android, macOS, Windows"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this subscription should receive pushes"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this subscription was first saved"
+    },
+    "last_used_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time a push was delivered to this endpoint"
+    }
+  },
+  "required": [
+    "user_id",
+    "endpoint",
+    "p256dh",
+    "auth"
+  ],
+  "rls": {
+    "create": {
+      "data.user_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
