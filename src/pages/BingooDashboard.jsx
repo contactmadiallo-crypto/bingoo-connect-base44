@@ -343,6 +343,7 @@ export default function BingooDashboard() {
     enabled: !!activeProfile?.id,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 5000,
   });
   const { data: analytics = [] } = useQuery({
     queryKey: ["analytics-all", activeProfile?.id],
@@ -361,6 +362,7 @@ export default function BingooDashboard() {
     queryKey: ["my-nfc-devices", activeProfile?.id],
     queryFn: () => base44.entities.NFCDevice.filter({ profile_id: activeProfile.id }),
     enabled: !!activeProfile?.id,
+    refetchInterval: 10000,
   });
   const { data: salonServices = [] } = useQuery({
     queryKey: ["salon-services-count", activeProfile?.id],

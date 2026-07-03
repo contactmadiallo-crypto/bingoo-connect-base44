@@ -43,6 +43,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     enabled: !!profileId,
     staleTime: 0,
     refetchOnMount: true,
+    refetchInterval: 5000,
   });
 
   useEffect(() => {

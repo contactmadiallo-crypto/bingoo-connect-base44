@@ -87,6 +87,7 @@ export default function MyNFCDevices() {
      enabled: !!user?.id && profileIds.length > 0,
      staleTime: 0,
      refetchOnMount: true,
+     refetchInterval: 10000,
    });
 
   const { data: nfcAnalytics = [] } = useQuery({
