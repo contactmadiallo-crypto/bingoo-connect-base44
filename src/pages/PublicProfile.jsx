@@ -23,7 +23,7 @@ const trackEvent = (profileId, eventType) => {
     profile_id: profileId, event_type: eventType,
     visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
     created_at: new Date().toISOString(),
-  }).catch(() => {});
+  }).catch((err) => console.warn("[Analytics] track failed:", eventType, err?.message || err));
 };
 
 const btnRadius = (s) => s === "pill" ? "9999px" : s === "sharp" ? "10px" : "18px";
