@@ -80,13 +80,13 @@ Deno.serve(async (req) => {
     });
     if (!classResponse.ok && classResponse.status !== 409) {
       const errText = await classResponse.text();
+      let errMsg;
+      try { errMsg = JSON.parse(errText)?.error?.message || errText; } catch { errMsg = errText; }
+      console.error(`[Wallet] GenericClass failed (${classResponse.status}): ${errMsg}`);
       if (classResponse.status === 403) {
-        console.error('[Google Wallet 403] GenericClass creation forbidden. Full Google error:', errText);
-        console.error('This usually means: (1) Google Wallet API is not enabled in your Google Cloud project, OR (2) the service account is not added to the Google Pay & Wallet Console users with "Wallet Object Issuer" access. Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account at: https://pay.google.com/business/console');
-      } else {
-        console.error('GenericClass creation failed:', classResponse.status, errText);
+        console.error('[Wallet 403] Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account to Wallet Console: https://pay.google.com/business/console');
       }
-      return Response.json({ error: `Failed to create pass class (HTTP ${classResponse.status}). Check function logs for the full Google error message.` }, { status: 500 });
+      return Response.json({ error: `GenericClass failed (${classResponse.status}): ${errMsg}` }, { status: 500 });
     }
 
     // ── 3. Build GenericObject ──
