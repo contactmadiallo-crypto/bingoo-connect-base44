@@ -173,8 +173,16 @@ Deno.serve(async (req) => {
     // Premium Bingoo brand accent — navy card (the only pass-level color Google Wallet supports)
     const BINGOO_NAVY = '#0B2E6B';
 
-    // Subheader: prefer profession/title, then company, for a business-card feel
-    const subheaderValue = profile.job_title || profile.company_name || '';
+    // Plan → professional label mapping for subheader fallback
+    const PLAN_LABELS = {
+      free: '', professional: 'Professional', pro: 'Pro',
+      salon: 'Salon Professional', restaurant: 'Restaurant',
+      lawfirm: 'Legal Professional', business: 'Business', corporate: 'Corporate',
+    };
+    const planLabel = PLAN_LABELS[profile.plan] || '';
+
+    // Subheader: prefer profession/title, then a plan-based professional label
+    const subheaderValue = profile.job_title || planLabel || '';
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
 
     // Contact + brand text modules — each non-empty field becomes its own module so the
@@ -188,8 +196,11 @@ Deno.serve(async (req) => {
     if (profile.email) textModules.push({ id: 'contact_email', header: 'Email', body: truncate(profile.email, 50) });
     if (websiteClean) textModules.push({ id: 'contact_website', header: 'Website', body: truncate(websiteClean, 50) });
     if (profile.location) textModules.push({ id: 'contact_location', header: 'Location', body: truncate(profile.location, 50) });
-    if (profile.company_name && profile.company_name !== subheaderValue) {
+    if (profile.company_name) {
       textModules.push({ id: 'contact_company', header: 'Company', body: truncate(profile.company_name, 50) });
+    }
+    if (profile.username) {
+      textModules.push({ id: 'handle', header: 'Handle', body: truncate('@' + profile.username, 40) });
     }
     textModules.push({ id: 'tagline', header: '', body: 'Connect • Share • Grow' });
     textModules.push({ id: 'powered_by', header: '', body: 'Powered by Bingoo Connect' });
@@ -205,6 +216,13 @@ Deno.serve(async (req) => {
           uri: BINGOO_LOGO_URL,
         },
       },
+      // Use the profile photo as the hero image (top banner) when available.
+      // Google Wallet generic passes support a single hero image per object.
+      ...(profile.profile_photo ? {
+        heroImage: {
+          sourceUri: { uri: profile.profile_photo },
+        },
+      } : {}),
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
       header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
@@ -216,7 +234,7 @@ Deno.serve(async (req) => {
       barcode: {
         type: 'qrCode',
         value: profileUrl,
-        alternateText: 'Scan to open Bingoo profile',
+        alternateText: 'Scan to open profile',
       },
       state: 'ACTIVE',
     };
