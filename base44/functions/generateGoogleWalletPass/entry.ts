@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
     const profileUrl = `https://bingooconnect.com/p/${profile.username}`;
-    const hexBg = (profile.cover_color || '#0B2E6B').replace('#', '');
+    const hexBg = (profile.cover_color || '#0B2E6B').startsWith('#') ? (profile.cover_color || '#0B2E6B') : `#${profile.cover_color || '0B2E6B'}`;
 
     // ── 1. Get OAuth2 access token via JWT bearer flow ──
     const now = Math.floor(Date.now() / 1000);
@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
         uris: [{ uri: profileUrl, description: 'View Profile', id: 'profile_url' }],
       },
       barcode: {
-        type: 'BARCODE_TYPE_QR_CODE',
+        type: 'qrCode',
         value: profileUrl,
         alternateText: 'Scan to view profile',
       },
@@ -148,13 +148,10 @@ Deno.serve(async (req) => {
       }
     } else if (!objectResponse.ok) {
       const errText = await objectResponse.text();
-      if (objectResponse.status === 403) {
-        console.error('[Google Wallet 403] GenericObject creation forbidden. Full Google error:', errText);
-        console.error('This usually means: (1) Google Wallet API is not enabled in your Google Cloud project, OR (2) the service account is not added to the Google Pay & Wallet Console users with "Wallet Object Issuer" access. Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account at: https://pay.google.com/business/console');
-      } else {
-        console.error('GenericObject creation failed:', objectResponse.status, errText);
-      }
-      return Response.json({ error: `Failed to create pass object (HTTP ${objectResponse.status}). Check function logs for the full Google error message.` }, { status: 500 });
+      let errMsg;
+      try { errMsg = JSON.parse(errText)?.error?.message || errText; } catch { errMsg = errText; }
+      console.error(`[Wallet] GenericObject failed (${objectResponse.status}): ${errMsg}`);
+      return Response.json({ error: `GenericObject failed (${objectResponse.status}): ${errMsg}` }, { status: 500 });
     }
 
     // ── 5. Generate signed JWT for "Add to Google Wallet" link ──
