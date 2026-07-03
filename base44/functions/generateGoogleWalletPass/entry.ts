@@ -165,20 +165,9 @@ Deno.serve(async (req) => {
           uri: BINGOO_LOGO_URL,
         },
       },
-      // Wide branded banner across the top of the pass face — premium hero strip.
-      // Official Bingoo commercial/brand image only; never personal/user photos.
-      heroImage: {
-        sourceUri: {
-          uri: BINGOO_LOGO_URL,
-        },
-      },
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
       header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
-      // Branded image module — official Bingoo commercial/brand image shown in the details panel.
-      imageModulesData: [
-        { id: 'brand_hero', mainImage: { sourceUri: { uri: BINGOO_LOGO_URL } } },
-      ],
       textModulesData: textModules,
       ...(infoModuleData ? { infoModuleData } : {}),
       linksModuleData: {
