@@ -57,8 +57,6 @@ Deno.serve(async (req) => {
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
     const profileUrl = `https://bingooconnect.com/p/${profile.username}`;
-    // Fixed brand background — never use profile/custom colors for the pass
-    const hexBg = '#0B2E6B';
 
     // ── 1. Get OAuth2 access token via JWT bearer flow ──
     const now = Math.floor(Date.now() / 1000);
@@ -130,14 +128,19 @@ Deno.serve(async (req) => {
       return str;
     };
 
-    const textModules = [];
+    // Contact info rows — clean label/value modules
+    const textModules = [
+      // Premium brand tagline rows first — gives the card a "digital profile card" feel
+      { id: 'card_type', header: 'Bingoo Connect', body: 'Digital Profile Card' },
+      { id: 'tagline', header: '', body: 'Connect • Share • Grow' },
+    ];
     if (profile.phone) textModules.push({ id: 'phone', header: 'Phone', body: truncate(profile.phone, 30) });
     if (profile.email) textModules.push({ id: 'email', header: 'Email', body: truncate(profile.email, 40) });
     const websiteClean = cleanWebsite(profile.website);
     if (websiteClean) textModules.push({ id: 'website', header: 'Website', body: truncate(websiteClean, 40) });
     if (profile.location) textModules.push({ id: 'location', header: 'Location', body: truncate(profile.location, 40) });
 
-    // Subheader: prefer company name, fall back to job title
+    // Subheader: prefer company name, fall back to profession/job title
     const subheaderValue = profile.company_name || profile.job_title || '';
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
 
@@ -145,27 +148,30 @@ Deno.serve(async (req) => {
       id: objectId,
       classId,
       genericType: 'GENERIC_TYPE_UNSPECIFIED',
-      hexBackgroundColor: hexBg,
+      // Premium Bingoo navy background — fixed brand color, never user-supplied
+      hexBackgroundColor: '#0B2E6B',
       logo: {
         sourceUri: {
           uri: BINGOO_LOGO_URL,
         },
       },
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
-      header: { defaultValue: { language: 'en', value: truncate(displayName, 25) } },
-      ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 30) } } } : {}),
-      // Branded image module — official Bingoo brand image only, no user photos
+      header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
+      ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
+      // Branded hero image module — official Bingoo commercial/brand image only.
+      // No personal photos, profile photos, or user-uploaded imagery ever used here.
       imageModulesData: [
-        { id: 'brand_banner', mainImage: { sourceUri: { uri: BINGOO_LOGO_URL } } },
+        { id: 'brand_hero', mainImage: { sourceUri: { uri: BINGOO_LOGO_URL } } },
       ],
       textModulesData: textModules,
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
       },
+      // Large centered native Google Wallet QR code linking to the public profile
       barcode: {
         type: 'qrCode',
         value: profileUrl,
-        alternateText: 'Scan to view Bingoo profile',
+        alternateText: 'Scan to open Bingoo profile',
       },
       state: 'ACTIVE',
     };
