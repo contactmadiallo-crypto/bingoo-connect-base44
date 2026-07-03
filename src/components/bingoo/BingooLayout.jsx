@@ -17,7 +17,7 @@ import { t, getLang } from "@/lib/i18n";
  * When no profile is selected (hub view), selectedProfile is null → free sidebar.
  * Admin users see all items + Admin Panel regardless of selected profile.
  */
-export default function BingooLayout({ children, selectedProfile, accountPlan, lang = "en" }) {
+export default function BingooLayout({ children, selectedProfile, accountPlan, lang = "en", userId }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
@@ -34,9 +34,12 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   }, []);
 
   const { data: user } = useQuery({
-    queryKey: ["me"],
+    queryKey: ["current-user"],
     queryFn: () => base44.auth.me(),
   });
+
+  // userId prop takes priority (passed from BingooDashboard which already has the user)
+  const effectiveUserId = userId || user?.id;
 
   // Admin Panel is gated strictly on user.role — never on profile plan
   const isAdmin = user?.role === "admin" || user?.role === "super_admin";
@@ -45,7 +48,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
 
   // Unread notification badges mapped to nav item IDs
-  const { badgeMap, totalUnread } = useNavBadges(user?.id);
+  const { badgeMap, totalUnread } = useNavBadges(effectiveUserId);
 
   const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";
@@ -108,7 +111,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             <img
               src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
               alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-            <NotificationCenter userId={user?.id} isDark={true} />
+            <NotificationCenter userId={effectiveUserId} isDark={true} />
           </div>
           <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">
             CONNECT • SHARE • GROW
@@ -202,7 +205,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
-          <NotificationCenter userId={user?.id} isDark={true} />
+          <NotificationCenter userId={effectiveUserId} isDark={true} />
           <button onClick={toggle}
             className="p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white">
             {isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}
