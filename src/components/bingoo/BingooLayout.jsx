@@ -5,6 +5,7 @@ import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
+import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
 import { t, getLang } from "@/lib/i18n";
 
@@ -42,6 +43,9 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
   // All sidebar items derived from selected profile + effective account plan — isAdmin unlocks everything
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
+
+  // Unread notification badges mapped to nav item IDs
+  const { badgeMap, totalUnread } = useNavBadges(user?.id);
 
   const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";

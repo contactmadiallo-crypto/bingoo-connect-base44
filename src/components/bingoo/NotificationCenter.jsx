@@ -130,8 +130,8 @@ export default function NotificationCenter({ userId, isDark }) {
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={handleClose} />
-          <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl shadow-2xl overflow-hidden"
+          <div className="fixed inset-0 z-[55]" onClick={handleClose} />
+          <div className="fixed top-[68px] right-2 z-[60] w-[calc(100vw-16px)] max-w-sm rounded-2xl shadow-2xl overflow-hidden"
             style={{ background: panelBg, border: `1px solid ${panelBorder}` }}>
             {/* Header */}
             <div className={`px-4 py-3 flex items-center justify-between border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
