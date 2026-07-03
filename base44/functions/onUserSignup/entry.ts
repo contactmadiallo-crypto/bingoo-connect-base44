@@ -4,11 +4,26 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Auth check — automation calls run as service role (authenticated).
+    // Direct anonymous HTTP calls must validate the target user exists.
+    const caller = await base44.auth.me();
+    const isAuthed = caller || await base44.auth.isAuthenticated();
+
     const payload = await req.json();
     const userData = payload?.data;
 
     if (!userData?.email) {
       return Response.json({ skipped: true, reason: 'No email on new user payload' });
+    }
+
+    // For unauthenticated direct calls, verify the email is a real registered user
+    // to prevent arbitrary email abuse via this endpoint.
+    if (!isAuthed) {
+      const users = await base44.asServiceRole.entities.User.filter({ email: userData.email }, '-created_date', 1);
+      if (!users?.length) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
     const name = userData.full_name || 'there';

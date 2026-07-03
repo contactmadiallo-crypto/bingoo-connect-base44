@@ -6,6 +6,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+
+    // Auth check — automation calls run as service role (authenticated).
+    // Direct anonymous HTTP calls must validate the profile exists.
+    const caller = await base44.auth.me();
+    const isAuthed = caller || await base44.auth.isAuthenticated();
+
     const body = await req.json().catch(() => ({}));
 
     // Called from automation payload: { event, data }
@@ -15,6 +21,15 @@ Deno.serve(async (req) => {
     if (!username) {
       console.log("[notifyGoogleIndex] No username in payload, skipping.");
       return Response.json({ ok: true, skipped: true });
+    }
+
+    // For unauthenticated direct calls, verify the profile exists to prevent
+    // arbitrary URL submission abuse via this endpoint.
+    if (!isAuthed) {
+      const profiles = await base44.asServiceRole.entities.Profile.filter({ username, is_active: true }, '-updated_date', 1);
+      if (!profiles?.length) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
 
     const profileUrl = `https://bingooconnect.com/p/${username}`;
