@@ -6,14 +6,28 @@ const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const WALLET_SCOPE = 'https://www.googleapis.com/auth/wallet_object.issuer';
 const SAVE_URL_PREFIX = 'https://pay.google.com/gp/v/save/';
 
-// Official Bingoo Connect commercial brand logo — used for all public brand imagery.
-// Never use personal photos, user profile photos, or gallery images here.
+// Official Bingoo Connect commercial brand logo — used as the pass issuer logo.
+// Never use personal photos or user profile photos as the brand logo.
 const BINGOO_LOGO_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
 
-// classTemplateInfo — shared on the GenericClass. Surfaces contact rows + brand taglines
-// on the FRONT card (between the header and the QR). Rows whose fieldPath doesn't resolve
-// on a given object (field absent) are auto-hidden by Google Wallet, so no empty rows render.
-// listTemplateOverride shows company/phone in the pass list view.
+// Premium Bingoo brand accent — navy card (the only pass-level color Google Wallet supports)
+const BINGOO_NAVY = '#0B2E6B';
+
+// Professional label shown in the subheader when no job_title is set, derived from plan
+const PLAN_LABELS = {
+  free: 'Bingoo Profile',
+  professional: 'Professional',
+  pro: 'Pro Member',
+  salon: 'Salon Professional',
+  restaurant: 'Restaurant',
+  lawfirm: 'Legal Professional',
+  business: 'Business',
+  corporate: 'Corporate',
+};
+
+// classTemplateInfo — shared on the GenericClass. Each row references a textModule by id.
+// Rows whose fieldPath doesn't resolve on a given object (module absent) are auto-hidden
+// by Google Wallet, so no empty rows ever render.
 const _twoItemRow = (id) => ({
   twoItems: {
     startItem: { firstValue: { fields: [{ fieldPath: `textModulesData.${id}.header` }] } },
@@ -26,11 +40,12 @@ const _oneItemRow = (id) => ({
 const CLASS_TEMPLATE_INFO = {
   cardTemplateOverride: {
     cardRowTemplateInfos: [
+      _twoItemRow('handle'),
+      _twoItemRow('contact_company'),
       _twoItemRow('contact_phone'),
       _twoItemRow('contact_email'),
       _twoItemRow('contact_website'),
       _twoItemRow('contact_location'),
-      _twoItemRow('contact_company'),
       _oneItemRow('tagline'),
       _oneItemRow('powered_by'),
     ],
@@ -40,7 +55,7 @@ const CLASS_TEMPLATE_INFO = {
       firstValue: {
         fields: [
           { fieldPath: 'textModulesData.contact_company.body' },
-          { fieldPath: 'textModulesData.contact_phone.body' },
+          { fieldPath: 'textModulesData.handle.body' },
         ],
       },
     },
@@ -56,20 +71,36 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'profile_id or username is required' }, { status: 400 });
     }
 
+    // ── Validate Google Wallet secrets ──
     const issuerId = Deno.env.get('GOOGLE_WALLET_ISSUER_ID');
     const serviceAccountEmail = Deno.env.get('GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL');
     let privateKeyPem = Deno.env.get('GOOGLE_WALLET_SERVICE_ACCOUNT_PRIVATE_KEY');
 
     if (!issuerId || !serviceAccountEmail || !privateKeyPem) {
-      console.error('Google Wallet secrets missing');
-      return Response.json({ error: 'Google Wallet credentials not configured' }, { status: 500 });
+      const missing = [
+        !issuerId && 'GOOGLE_WALLET_ISSUER_ID',
+        !serviceAccountEmail && 'GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL',
+        !privateKeyPem && 'GOOGLE_WALLET_SERVICE_ACCOUNT_PRIVATE_KEY',
+      ].filter(Boolean);
+      console.error(`Google Wallet secrets missing: ${missing.join(', ')}`);
+      return Response.json({
+        error: `Google Wallet credentials not configured. Missing: ${missing.join(', ')}. Set them in Settings → Environment Variables.`,
+      }, { status: 500 });
     }
 
     privateKeyPem = privateKeyPem.replace(/\\n/g, '\n').trim();
     const privateKey = await importPKCS8(privateKeyPem, 'RS256');
 
-    // Fetch profile
+    // ── Auth: require logged-in user (ownership checked after profile fetch) ──
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized — login required to generate a wallet pass' }, { status: 401 });
+    }
+
+    // ── Fetch the EXACT profile by profile_id or username ──
+    // Using service role to guarantee we can read the profile regardless of RLS,
+    // then we verify ownership before minting the pass.
     let profile;
     if (profile_id) {
       profile = await base44.asServiceRole.entities.Profile.get(profile_id);
@@ -78,22 +109,20 @@ Deno.serve(async (req) => {
       profile = results[0];
     }
     if (!profile) {
-      return Response.json({ error: 'Profile not found' }, { status: 404 });
+      return Response.json({
+        error: `Profile not found for ${profile_id ? `id "${profile_id}"` : `username "${username}"`}`,
+      }, { status: 404 });
     }
 
-    // Ownership check: only the profile owner (or an admin) may generate a wallet pass.
-    // Public visitors must never be able to mint passes for someone else's profile.
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // ── Ownership check: only the profile owner (or an admin) may generate a pass ──
     if (profile.created_by_id !== user.id && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: you do not own this profile' }, { status: 403 });
+      return Response.json({ error: 'Forbidden — you do not own this profile' }, { status: 403 });
     }
 
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
-    const profileUrl = `https://bingooconnect.com/p/${profile.username}`;
+    const appOrigin = (Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com').replace(/\/$/, '');
+    const profileUrl = `${appOrigin}/p/${profile.username}`;
 
     // ── 1. Get OAuth2 access token via JWT bearer flow ──
     const now = Math.floor(Date.now() / 1000);
@@ -120,17 +149,18 @@ Deno.serve(async (req) => {
     const accessToken = tokenData.access_token;
 
     // ── 2. Create GenericClass (idempotent — 409 if already exists) ──
+    const classPayload = {
+      id: classId,
+      logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+      classTemplateInfo: CLASS_TEMPLATE_INFO,
+    };
     const classResponse = await fetch(`${WALLET_API_BASE}/genericClass`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        id: classId,
-        logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
-        classTemplateInfo: CLASS_TEMPLATE_INFO,
-      }),
+      body: JSON.stringify(classPayload),
     });
     if (!classResponse.ok && classResponse.status !== 409) {
       const errText = await classResponse.text();
@@ -142,21 +172,16 @@ Deno.serve(async (req) => {
       }
       return Response.json({ error: `GenericClass failed (${classResponse.status}): ${errMsg}` }, { status: 500 });
     }
-    // Class already exists (409) — update it to ensure logo + hero are set
+    // Class already exists (409) — update it to ensure latest template + logo
     if (classResponse.status === 409) {
       await fetch(`${WALLET_API_BASE}/genericClass/${classId}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: classId,
-          logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
-          classTemplateInfo: CLASS_TEMPLATE_INFO,
-        }),
+        body: JSON.stringify(classPayload),
       });
     }
 
     // ── 3. Build GenericObject ──
-    // Truncate to keep text short and prevent mobile overflow
     const truncate = (str, max) => str && str.length > max ? str.slice(0, max) + '…' : str || '';
     const cleanWebsite = (url) => (url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
     // Convert all-caps names to readable title case; leave mixed-case names untouched
@@ -170,26 +195,33 @@ Deno.serve(async (req) => {
       return str;
     };
 
-    // Premium Bingoo brand accent — navy card (the only pass-level color Google Wallet supports)
-    const BINGOO_NAVY = '#0B2E6B';
-
-    // Subheader: prefer profession/title, then company, for a business-card feel
-    const subheaderValue = profile.job_title || profile.company_name || '';
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
+    const professionalLabel = PLAN_LABELS[profile.plan] || 'Bingoo Profile';
+    // Subheader: prefer job_title, fall back to plan-based professional label
+    const subheaderValue = profile.job_title || professionalLabel;
 
-    // Contact + brand text modules — each non-empty field becomes its own module so the
-    // class cardTemplateOverride can surface it on the front card. Missing fields → no module
-    // → the template row is auto-dropped by Google Wallet (no empty rows).
     const websiteClean = cleanWebsite(profile.website);
-    const textModules = [
-      { id: 'card_type', header: 'Bingoo Connect', body: 'Digital Profile Card' },
-    ];
-    if (profile.phone) textModules.push({ id: 'contact_phone', header: 'Phone', body: truncate(profile.phone, 40) });
-    if (profile.email) textModules.push({ id: 'contact_email', header: 'Email', body: truncate(profile.email, 50) });
-    if (websiteClean) textModules.push({ id: 'contact_website', header: 'Website', body: truncate(websiteClean, 50) });
-    if (profile.location) textModules.push({ id: 'contact_location', header: 'Location', body: truncate(profile.location, 50) });
+
+    // Text modules — each non-empty field becomes its own module. Missing fields
+    // → no module → the template row is auto-dropped by Google Wallet (no empty rows).
+    const textModules = [];
+    if (profile.username) {
+      textModules.push({ id: 'handle', header: 'Handle', body: truncate(`@${profile.username}`, 40) });
+    }
     if (profile.company_name && profile.company_name !== subheaderValue) {
       textModules.push({ id: 'contact_company', header: 'Company', body: truncate(profile.company_name, 50) });
+    }
+    if (profile.phone) {
+      textModules.push({ id: 'contact_phone', header: 'Phone', body: truncate(profile.phone, 40) });
+    }
+    if (profile.email) {
+      textModules.push({ id: 'contact_email', header: 'Email', body: truncate(profile.email, 50) });
+    }
+    if (websiteClean) {
+      textModules.push({ id: 'contact_website', header: 'Website', body: truncate(websiteClean, 50) });
+    }
+    if (profile.location) {
+      textModules.push({ id: 'contact_location', header: 'Location', body: truncate(profile.location, 50) });
     }
     textModules.push({ id: 'tagline', header: '', body: 'Connect • Share • Grow' });
     textModules.push({ id: 'powered_by', header: '', body: 'Powered by Bingoo Connect' });
@@ -198,13 +230,17 @@ Deno.serve(async (req) => {
       id: objectId,
       classId,
       genericType: 'GENERIC_TYPE_UNSPECIFIED',
-      // Premium Bingoo navy background — fixed brand color, never user-supplied
       hexBackgroundColor: BINGOO_NAVY,
       logo: {
-        sourceUri: {
-          uri: BINGOO_LOGO_URL,
-        },
+        sourceUri: { uri: BINGOO_LOGO_URL },
       },
+      // Hero image: profile_photo when available — gives a premium personal business-card feel
+      ...(profile.profile_photo ? {
+        heroImage: {
+          sourceUri: { uri: profile.profile_photo },
+          contentDescription: { defaultValue: { language: 'en', value: `${displayName} profile photo` } },
+        },
+      } : {}),
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
       header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
@@ -212,11 +248,11 @@ Deno.serve(async (req) => {
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
       },
-      // Large centered native Google Wallet QR code linking to the public profile
+      // Large centered native Google Wallet QR code linking to the exact public profile URL
       barcode: {
         type: 'qrCode',
         value: profileUrl,
-        alternateText: 'Scan to open Bingoo profile',
+        alternateText: 'Scan to open profile',
       },
       state: 'ACTIVE',
     };
@@ -258,7 +294,7 @@ Deno.serve(async (req) => {
     const saveJwt = await new SignJWT({
       iss: serviceAccountEmail,
       aud: 'google',
-      origins: ['https://bingooconnect.com'],
+      origins: [appOrigin],
       typ: 'savetowallet',
       iat: now,
       exp: now + 3600,
