@@ -23,12 +23,24 @@ const EVENT_LABELS = {
   save_contact_click: "Save Contact",
 };
 
-const TAP_EVENT_LABELS = {
-  tap: "NFC Taps",
-  link_click: "Link Clicks",
-  whatsapp_click: "WhatsApp (NFC)",
-  email_click: "Email (NFC)",
-  phone_click: "Phone (NFC)",
+const EVENT_ICONS = {
+  profile_view: "👁️",
+  nfc_tap: "📲",
+  qr_scan: "🔲",
+  whatsapp_click: "💬",
+  phone_click: "📞",
+  email_click: "📧",
+  instagram_click: "📸",
+  facebook_click: "👍",
+  tiktok_click: "🎵",
+  linkedin_click: "💼",
+  youtube_click: "▶️",
+  website_click: "🌐",
+  location_click: "📍",
+  payment_click: "💳",
+  save_contact_click: "💾",
+  lead_submitted: "⭐",
+  appointment_booked: "📅",
 };
 
 const PERIODS = [
@@ -50,22 +62,12 @@ export default function AnalyticsPanel({ profileId }) {
     refetchInterval: 15000,
   });
 
-  const { data: tapEvents = [] } = useQuery({
-    queryKey: ["tap-events", profileId],
-    queryFn: () => base44.entities.TapEvent.filter({ profile_id: profileId }, '-created_date', 500),
-    enabled: !!profileId,
-    refetchInterval: 15000,
-  });
-
   useEffect(() => {
     if (!profileId) return;
     const unsubAnalytics = base44.entities.Analytics.subscribe((event) => {
       if (event.data?.profile_id === profileId) qc.invalidateQueries({ queryKey: ["analytics", profileId] });
     });
-    const unsubTaps = base44.entities.TapEvent.subscribe((event) => {
-      if (event.data?.profile_id === profileId) qc.invalidateQueries({ queryKey: ["tap-events", profileId] });
-    });
-    return () => { unsubAnalytics(); unsubTaps(); };
+    return () => { unsubAnalytics(); };
   }, [profileId]);
 
   // Theme tokens
@@ -103,15 +105,6 @@ export default function AnalyticsPanel({ profileId }) {
     { key: "lead_submitted",    label: "Leads",          color: isDark ? "bg-amber-500/20 text-amber-300"  : "bg-amber-100 text-amber-700",  icon: "⭐" },
     { key: "appointment_booked",label: "Bookings",       color: isDark ? "bg-teal-500/20 text-teal-300"    : "bg-teal-100 text-teal-700",    icon: "📅" },
   ];
-
-  const filteredTaps = tapEvents.filter(e => {
-    const d = e.tapped_at || e.created_date;
-    if (!d) return false;
-    if (period === null) return true;
-    if (period === 0) return new Date(d).toDateString() === new Date().toDateString();
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - period);
-    return new Date(d) >= cutoff;
-  });
 
   const last7 = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -156,15 +149,15 @@ export default function AnalyticsPanel({ profileId }) {
         </span>
       </div>
 
-      {/* NFC/QR block — always dark gradient, readable */}
+      {/* NFC/QR block — always dark gradient, readable. Pulls from Analytics entity (live source of truth) */}
       <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-3">📡 NFC Taps & QR Scans</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "NFC Taps",          value: filteredTaps.filter(e => e.event_type === "tap").length,           icon: "📲" },
-            { label: "Link Clicks",       value: filteredTaps.filter(e => e.event_type === "link_click").length,    icon: "🔗" },
-            { label: "WhatsApp",          value: filteredTaps.filter(e => e.event_type === "whatsapp_click").length,icon: "💬" },
-            { label: "Total Interactions",value: filteredTaps.length,                                               icon: "⚡" },
+            { label: "NFC Taps",          value: filtered.filter(e => e.event_type === "nfc_tap").length,            icon: "📲" },
+            { label: "QR Scans",          value: filtered.filter(e => e.event_type === "qr_scan").length,           icon: "🔲" },
+            { label: "WhatsApp",          value: filtered.filter(e => e.event_type === "whatsapp_click").length,    icon: "💬" },
+            { label: "Total Interactions",value: filtered.length,                                                  icon: "⚡" },
           ].map(s => (
             <div key={s.label} className="bg-white/10 rounded-xl p-3">
               <p className="text-lg mb-0.5">{s.icon}</p>
@@ -225,28 +218,32 @@ export default function AnalyticsPanel({ profileId }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Recent NFC activity */}
-      {tapEvents.length > 0 && (
-        <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
-          <h3 className={`font-bold mb-3 text-sm flex items-center gap-2 ${headText}`}>
-            📲 Recent NFC / QR Activity
-            <span className={`text-xs font-normal ${mutedText}`}>(most recent first)</span>
-          </h3>
-          <div className="space-y-2 max-h-56 overflow-y-auto">
-            {[...tapEvents].sort((a, b) => new Date(b.tapped_at || b.created_date) - new Date(a.tapped_at || a.created_date)).slice(0, 20).map(e => (
+      {/* Recent activity feed — from Analytics entity (live source of truth) */}
+      <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+        <h3 className={`font-bold mb-3 text-sm flex items-center gap-2 ${headText}`}>
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          Recent Activity
+          <span className={`text-xs font-normal ${mutedText}`}>(most recent first · {filtered.length} total)</span>
+        </h3>
+        <div className="space-y-2 max-h-64 overflow-y-auto">
+          {[...filtered]
+            .sort((a, b) => new Date(eventDate(b)) - new Date(eventDate(a)))
+            .slice(0, 25)
+            .map(e => (
               <div key={e.id} className="flex items-center justify-between text-sm py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                <div className="flex items-center gap-2">
-                  <span>{e.event_type === "tap" ? "📲" : e.event_type === "whatsapp_click" ? "💬" : "🔗"}</span>
-                  <span className={`font-semibold capitalize ${isDark ? "text-white/70" : "text-slate-700"}`}>{TAP_EVENT_LABELS[e.event_type] || e.event_type}</span>
-                  {e.country && <span className={`text-xs ${mutedText}`}>· {e.country}</span>}
-                  {e.device && <span className={`text-xs ${mutedText}`}>· {e.device}</span>}
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="flex-shrink-0">{EVENT_ICONS[e.event_type] || "⚡"}</span>
+                  <span className={`font-semibold truncate ${isDark ? "text-white/70" : "text-slate-700"}`}>{EVENT_LABELS[e.event_type] || e.event_type?.replace(/_/g, " ")}</span>
+                  {e.visitor_device && <span className={`text-xs flex-shrink-0 ${mutedText}`}>· {e.visitor_device}</span>}
                 </div>
-                <span className={`text-xs flex-shrink-0 ${mutedText}`}>{e.tapped_at ? new Date(e.tapped_at).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : (e.created_date ? new Date(e.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "")}</span>
+                <span className={`text-xs flex-shrink-0 ${mutedText}`}>{eventDate(e) ? new Date(eventDate(e)).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}</span>
               </div>
             ))}
-          </div>
+          {filtered.length === 0 && (
+            <p className={`text-sm text-center py-4 ${mutedText}`}>No activity recorded yet.</p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
