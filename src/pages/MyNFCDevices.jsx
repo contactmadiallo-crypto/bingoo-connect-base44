@@ -3,10 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
+import LostModeInfoBanner from "@/components/bingoo/LostModeInfoBanner";
+import ReportLostDialog from "@/components/bingoo/ReportLostDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
-  CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, AlertTriangle
+  CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, AlertTriangle, Layers
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
@@ -55,6 +57,7 @@ export default function MyNFCDevices() {
    const [copied, setCopied] = useState(null);
    const [nfcWriting, setNfcWriting] = useState(null);
    const [nfcMsg, setNfcMsg] = useState(null);
+   const [lostDialogDevice, setLostDialogDevice] = useState(null);
 
    const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
 
@@ -181,10 +184,11 @@ export default function MyNFCDevices() {
       return res;
     },
     onSuccess: () => {
-      toast.success("Device marked as lost. Scans are now disabled.");
+      toast.success("🔒 Lost Mode activated. Scans are now disabled.");
+      setLostDialogDevice(null);
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message || "Failed to report device as lost"),
+    onError: (e) => toast.error(e.message || "Failed to activate Lost Mode"),
   });
 
   const reactivate = useMutation({
@@ -226,6 +230,7 @@ export default function MyNFCDevices() {
 
   const getProfile = (id) => profiles.find(p => p.id === id) || { display_name: id?.slice(0, 8) + "…" };
   const activeCount = myDevices.filter(d => d.status === "active").length;
+  const lostCount = myDevices.filter(d => d.status === "lost").length;
   const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
 
@@ -293,6 +298,10 @@ export default function MyNFCDevices() {
                 <p className="text-xs mt-0.5 text-white/50">Manage your Bingoo NFC cards, keychains & accessories</p>
                 <div className="flex items-center gap-3 mt-2">
                   <span className="text-sm font-bold text-emerald-400">{activeCount} Active</span>
+                  {lostCount > 0 && (<>
+                    <span className="text-white/30 text-xs">·</span>
+                    <span className="text-sm font-bold text-red-400">{lostCount} Lost</span>
+                  </>)}
                   <span className="text-white/30 text-xs">·</span>
                   <span className="text-sm font-bold text-white/50">{totalCount} Total</span>
                   <span className="text-white/30 text-xs">·</span>
@@ -366,6 +375,9 @@ export default function MyNFCDevices() {
           )}
         </AnimatePresence>
 
+        {/* Lost Mode Info Banner */}
+        <LostModeInfoBanner isDark={isDark} />
+
         {/* Loading state */}
         {(!user || devicesLoading) && (
           <div className="rounded-2xl p-10 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
@@ -398,12 +410,46 @@ export default function MyNFCDevices() {
           </div>
         )}
 
-        {/* Device List */}
+        {/* Device List — grouped by profile */}
         {user && !devicesLoading && myDevices.length > 0 && (
-          <div className="space-y-4">
-            {myDevices.map(device => {
+          <div className="space-y-6">
+            {(() => {
+              // Group devices by profile_id
+              const groups = {};
+              myDevices.forEach(d => {
+                const pid = d.profile_id || "_unassigned";
+                if (!groups[pid]) groups[pid] = [];
+                groups[pid].push(d);
+              });
+              const groupEntries = Object.entries(groups);
+
+              return groupEntries.map(([pid, devices]) => {
+                const profile = getProfile(pid === "_unassigned" ? null : pid);
+                const isMulti = devices.length > 1;
+                const lostCount = devices.filter(d => d.status === "lost").length;
+                const activeCountInGroup = devices.filter(d => d.status === "active").length;
+
+                return (
+                  <div key={pid} className="space-y-3">
+                    {/* Profile Group Header */}
+                    <div className={`flex items-center gap-2.5 px-1 ${isMulti ? "" : "hidden"}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
+                        <Layers className={`w-4 h-4 ${isDark ? "text-white/50" : "text-slate-500"}`} />
+                      </div>
+                      <div className="flex-1">
+                        <p className={`font-bold text-sm ${headText}`}>{profile?.display_name || "Unassigned"}</p>
+                        <p className={`text-xs ${mutedText}`}>
+                          {devices.length} device{devices.length > 1 ? "s" : ""}
+                          {activeCountInGroup > 0 && <> · <span className="text-emerald-500 font-semibold">{activeCountInGroup} active</span></>}
+                          {lostCount > 0 && <> · <span className="text-red-500 font-semibold">{lostCount} lost</span></>}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Devices in this group */}
+                    <div className={`space-y-4 ${isMulti ? "sm:pl-2" : ""}`}>
+            {devices.map(device => {
               const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
-              const profile = getProfile(device.profile_id);
               const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
               const isExpanded = expandedId === device.id;
               const isLost = device.status === "lost";
@@ -438,8 +484,8 @@ export default function MyNFCDevices() {
                           Reactivate
                         </button>
                       ) : !isDisabled && (
-                        <button onClick={() => reportLost.mutate(device)}
-                          title="Report Lost" className="p-2 rounded-lg transition-colors"
+                        <button onClick={() => setLostDialogDevice(device)}
+                          title="Activate Lost Mode" className="p-2 rounded-lg transition-colors"
                           style={{ color: "rgba(239,68,68,0.6)" }}>
                           <AlertTriangle className="w-4 h-4" />
                         </button>
@@ -523,22 +569,32 @@ export default function MyNFCDevices() {
                                 🔒 Lost Mode
                               </p>
                               {isLost ? (
-                                <div className="flex items-center justify-between">
-                                  <p className={`text-sm ${isDark ? "text-red-300" : "text-red-700"}`}>Device is marked lost. Scans show a recovery page.</p>
+                                <div className="space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-red-500">🔒 Lost Mode is ACTIVE</span>
+                                  </div>
+                                  <p className={`text-xs ${isDark ? "text-white/60" : "text-slate-600"}`}>
+                                    Scans of this device now show a recovery page. Finders can submit their contact details and GPS location so you can recover your item.
+                                  </p>
                                   <button onClick={() => reactivate.mutate(device)}
-                                    className="text-xs font-bold px-3 py-1.5 rounded-xl ml-3 flex-shrink-0"
+                                    className="text-xs font-bold px-4 py-2 rounded-xl"
                                     style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
-                                    Reactivate
+                                    ✓ Reactivate Device
                                   </button>
                                 </div>
                               ) : (
-                                <div className="flex items-center justify-between">
-                                  <p className={`text-xs ${mutedText}`}>If lost or stolen, report it to disable scans and show a recovery page.</p>
-                                  <button onClick={() => reportLost.mutate(device)}
-                                    className="text-xs font-bold px-3 py-1.5 rounded-xl ml-3 flex-shrink-0"
-                                    style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}>
-                                    Report Lost
-                                  </button>
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <p className={`text-xs ${mutedText}`}>If lost or stolen, activate Lost Mode to disable scans and show a recovery page.</p>
+                                    <button onClick={() => setLostDialogDevice(device)}
+                                      className="text-xs font-bold px-3 py-1.5 rounded-xl ml-3 flex-shrink-0"
+                                      style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}>
+                                      🔒 Activate Lost Mode
+                                    </button>
+                                  </div>
+                                  <p className={`text-[11px] ${mutedText}`}>
+                                    Learn more about Lost Mode in the info banner above.
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -588,13 +644,28 @@ export default function MyNFCDevices() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
+                  </motion.div>
+                  );
+                  })}
+                   </div>
+                  </div>
+                  );
+                  })
+                  })()}
+                  </div>
+                  )}
 
-        {/* Order CTA */}
+                  {/* Report Lost Confirmation Dialog */}
+                  <ReportLostDialog
+                  open={!!lostDialogDevice}
+                  device={lostDialogDevice}
+                  isDark={isDark}
+                  isPending={reportLost.isPending}
+                  onClose={() => setLostDialogDevice(null)}
+                  onConfirm={() => lostDialogDevice && reportLost.mutate(lostDialogDevice)}
+                  />
+
+                  {/* Order CTA */}
         <div className="rounded-2xl p-5 text-center"
           style={{ background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "1px solid rgba(255,122,0,0.2)" }}>
           <p className="font-black text-white mb-1">Need more NFC devices?</p>
