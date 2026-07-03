@@ -72,6 +72,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   // Render helpers (plain functions, not React components, so no remount risk)
   const renderNavLink = (item, onNav) => {
     const active = isActive(item.href);
+    const badge = badgeMap[item.id];
     return (
       <Link key={item.id} to={item.href} onClick={onNav}
         className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
@@ -87,7 +88,13 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           style={{ color: active ? "#fff" : "rgba(255,255,255,0.60)" }}>
           {item.label}
         </span>
-        {active && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.iconColor }} />}
+        {badge > 0 && (
+          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-black text-white flex-shrink-0"
+            style={{ background: "#F97316" }}>
+            {badge > 9 ? "9+" : badge}
+          </span>
+        )}
+        {active && !badge && <span className="ml-auto w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.iconColor }} />}
       </Link>
     );
   };
@@ -97,9 +104,12 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
         <div className="px-5 py-5" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
-          <img
-            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-            alt="Bingoo Connect" className="h-10 w-auto object-contain" />
+          <div className="flex items-center justify-between">
+            <img
+              src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
+              alt="Bingoo Connect" className="h-10 w-auto object-contain" />
+            <NotificationCenter userId={user?.id} isDark={true} />
+          </div>
           <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">
             CONNECT • SHARE • GROW
           </div>
@@ -256,10 +266,16 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 2. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+          className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <Menu className="w-5 h-5 text-white/40" />
           </div>
+          {totalUnread > 0 && (
+            <span className="absolute top-1.5 right-[calc(50%-24px)] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-black text-white"
+              style={{ background: "#F97316" }}>
+              {totalUnread > 9 ? "9+" : totalUnread}
+            </span>
+          )}
           <span className="text-[10px] font-semibold text-white/40">{t("more", lang)}</span>
         </button>
 
