@@ -10,6 +10,43 @@ const SAVE_URL_PREFIX = 'https://pay.google.com/gp/v/save/';
 // Never use personal photos, user profile photos, or gallery images here.
 const BINGOO_LOGO_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
 
+// classTemplateInfo — shared on the GenericClass. Surfaces contact rows + brand taglines
+// on the FRONT card (between the header and the QR). Rows whose fieldPath doesn't resolve
+// on a given object (field absent) are auto-hidden by Google Wallet, so no empty rows render.
+// listTemplateOverride shows company/phone in the pass list view.
+const _twoItemRow = (id) => ({
+  twoItems: {
+    startItem: { firstValue: { fields: [{ fieldPath: `textModulesData.${id}.header` }] } },
+    endItem: { firstValue: { fields: [{ fieldPath: `textModulesData.${id}.body` }] } },
+  },
+});
+const _oneItemRow = (id) => ({
+  oneItem: { item: { firstValue: { fields: [{ fieldPath: `textModulesData.${id}.body` }] } } },
+});
+const CLASS_TEMPLATE_INFO = {
+  cardTemplateOverride: {
+    cardRowTemplateInfos: [
+      _twoItemRow('contact_phone'),
+      _twoItemRow('contact_email'),
+      _twoItemRow('contact_website'),
+      _twoItemRow('contact_location'),
+      _twoItemRow('contact_company'),
+      _oneItemRow('tagline'),
+      _oneItemRow('powered_by'),
+    ],
+  },
+  listTemplateOverride: {
+    firstRowOption: {
+      firstValue: {
+        fields: [
+          { fieldPath: 'textModulesData.contact_company.body' },
+          { fieldPath: 'textModulesData.contact_phone.body' },
+        ],
+      },
+    },
+  },
+};
+
 Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
@@ -92,6 +129,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         id: classId,
         logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+        classTemplateInfo: CLASS_TEMPLATE_INFO,
       }),
     });
     if (!classResponse.ok && classResponse.status !== 409) {
@@ -112,6 +150,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           id: classId,
           logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+          classTemplateInfo: CLASS_TEMPLATE_INFO,
         }),
       });
     }
@@ -138,26 +177,22 @@ Deno.serve(async (req) => {
     const subheaderValue = profile.job_title || profile.company_name || '';
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
 
-    // Premium text modules — brand identity + taglines (no personal photos)
+    // Contact + brand text modules — each non-empty field becomes its own module so the
+    // class cardTemplateOverride can surface it on the front card. Missing fields → no module
+    // → the template row is auto-dropped by Google Wallet (no empty rows).
+    const websiteClean = cleanWebsite(profile.website);
     const textModules = [
       { id: 'card_type', header: 'Bingoo Connect', body: 'Digital Profile Card' },
-      { id: 'tagline', header: '', body: 'Connect • Share • Grow' },
-      { id: 'powered_by', header: '', body: 'Powered by Bingoo Connect' },
     ];
-
-    // infoModuleData — clean label/value rows for the details panel (only non-empty fields)
-    const websiteClean = cleanWebsite(profile.website);
-    const infoColumns = [];
-    if (profile.phone) infoColumns.push({ label: 'Phone', value: truncate(profile.phone, 30) });
-    if (profile.email) infoColumns.push({ label: 'Email', value: truncate(profile.email, 40) });
-    if (websiteClean) infoColumns.push({ label: 'Website', value: truncate(websiteClean, 40) });
-    if (profile.location) infoColumns.push({ label: 'Location', value: truncate(profile.location, 40) });
+    if (profile.phone) textModules.push({ id: 'contact_phone', header: 'Phone', body: truncate(profile.phone, 40) });
+    if (profile.email) textModules.push({ id: 'contact_email', header: 'Email', body: truncate(profile.email, 50) });
+    if (websiteClean) textModules.push({ id: 'contact_website', header: 'Website', body: truncate(websiteClean, 50) });
+    if (profile.location) textModules.push({ id: 'contact_location', header: 'Location', body: truncate(profile.location, 50) });
     if (profile.company_name && profile.company_name !== subheaderValue) {
-      infoColumns.push({ label: 'Company', value: truncate(profile.company_name, 40) });
+      textModules.push({ id: 'contact_company', header: 'Company', body: truncate(profile.company_name, 50) });
     }
-    const infoModuleData = infoColumns.length
-      ? { labelValueRows: [{ columns: infoColumns }] }
-      : undefined;
+    textModules.push({ id: 'tagline', header: '', body: 'Connect • Share • Grow' });
+    textModules.push({ id: 'powered_by', header: '', body: 'Powered by Bingoo Connect' });
 
     const objectBody = {
       id: objectId,
@@ -174,7 +209,6 @@ Deno.serve(async (req) => {
       header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
       textModulesData: textModules,
-      ...(infoModuleData ? { infoModuleData } : {}),
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
       },
