@@ -31,6 +31,12 @@ button, a, nav, [role="tab"], [role="button"] {
   height: calc(4rem + env(safe-area-inset-bottom));
 }
 
+/* Notification bell unread badge pulse */
+@keyframes bell-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.12); opacity: 0.85; }
+}
+
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
