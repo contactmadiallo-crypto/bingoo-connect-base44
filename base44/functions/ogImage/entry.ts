@@ -23,7 +23,8 @@ Deno.serve(async (req) => {
     const name = profile?.display_name || "Bingoo Connect";
     const jobTitle = profile?.job_title || "";
     const company = profile?.company_name || "";
-    const photo = profile?.profile_photo || "";
+    // Official Bingoo Connect brand logo — never use personal/profile photos in public brand images
+    const BINGOO_LOGO_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
     const color = profile?.cover_color || "#0B2E6B";
 
     // Subtitle line
@@ -76,10 +77,7 @@ Deno.serve(async (req) => {
   <!-- Avatar circle border -->
   <circle cx="220" cy="310" r="118" fill="rgba(255,255,255,0.25)" />
   <circle cx="220" cy="310" r="112" fill="${color}" />
-  ${photo
-    ? `<image href="${photo}" x="108" y="198" width="224" height="224" clip-path="url(#avatarClip)" preserveAspectRatio="xMidYMid slice" />`
-    : `<text x="220" y="340" font-family="system-ui,-apple-system,sans-serif" font-size="96" font-weight="900" fill="rgba(255,255,255,0.9)" text-anchor="middle">${name.charAt(0).toUpperCase()}</text>`
-  }
+  <image href="${BINGOO_LOGO_URL}" x="120" y="210" width="200" height="200" clip-path="url(#avatarClip)" preserveAspectRatio="xMidYMid meet" />
 
   <!-- Name -->
   <text x="400" y="280" font-family="system-ui,-apple-system,sans-serif" font-size="58" font-weight="900" fill="#ffffff" letter-spacing="-1">${name.length > 22 ? name.slice(0, 22) + "…" : name}</text>

@@ -6,6 +6,10 @@ const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const WALLET_SCOPE = 'https://www.googleapis.com/auth/wallet_object.issuer';
 const SAVE_URL_PREFIX = 'https://pay.google.com/gp/v/save/';
 
+// Official Bingoo Connect commercial brand logo — used for all public brand imagery.
+// Never use personal photos, user profile photos, or gallery images here.
+const BINGOO_LOGO_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
+
 Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
@@ -76,7 +80,10 @@ Deno.serve(async (req) => {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id: classId }),
+      body: JSON.stringify({
+        id: classId,
+        logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+      }),
     });
     if (!classResponse.ok && classResponse.status !== 409) {
       const errText = await classResponse.text();
@@ -87,6 +94,14 @@ Deno.serve(async (req) => {
         console.error('[Wallet 403] Enable API: https://console.developers.google.com/apis/api/walletobjects.googleapis.com/overview — Add service account to Wallet Console: https://pay.google.com/business/console');
       }
       return Response.json({ error: `GenericClass failed (${classResponse.status}): ${errMsg}` }, { status: 500 });
+    }
+    // Class already exists (409) — update it to ensure logo is set
+    if (classResponse.status === 409) {
+      await fetch(`${WALLET_API_BASE}/genericClass/${classId}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: classId, logo: { sourceUri: { uri: BINGOO_LOGO_URL } } }),
+      });
     }
 
     // ── 3. Build GenericObject ──
@@ -103,7 +118,7 @@ Deno.serve(async (req) => {
       hexBackgroundColor: hexBg,
       logo: {
         sourceUri: {
-          uri: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png',
+          uri: BINGOO_LOGO_URL,
         },
       },
       cardTitle: { defaultValue: { language: 'en', value: profile.company_name || 'Bingoo Connect' } },
