@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
@@ -193,11 +193,42 @@ export default function BingooDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: profiles = [], refetch: refetchProfiles } = useQuery({
+  const { data: profiles = [], isLoading: profilesLoading, refetch: refetchProfiles } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
     enabled: !!user?.id,
   });
+
+  // ── Profile ordering ──
+  // Saved order (array of profile IDs) takes precedence; any profiles not in the saved
+  // list are appended, sorted by created_date (oldest first) then name as a stable fallback.
+  const profileOrderIds = user?.profile_order_ids || [];
+  const orderedProfiles = React.useMemo(() => {
+    const ids = profileOrderIds.filter(id => profiles.some(p => p.id === id));
+    const rest = profiles
+      .filter(p => !ids.includes(p.id))
+      .sort((a, b) => {
+        const ad = a.created_date ? new Date(a.created_date).getTime() : 0;
+        const bd = b.created_date ? new Date(b.created_date).getTime() : 0;
+        if (ad !== bd) return ad - bd;
+        return (a.display_name || "").localeCompare(b.display_name || "");
+      });
+    const ordered = ids
+      .map(id => profiles.find(p => p.id === id))
+      .filter(Boolean);
+    return [...ordered, ...rest];
+  }, [profiles, profileOrderIds]);
+
+  // Persist a new display order for the user's profiles (optimistic via refetchUser).
+  const saveProfileOrder = async (orderedIds) => {
+    try {
+      await base44.auth.updateMe({ profile_order_ids: orderedIds });
+      refetchUser();
+    } catch (e) {
+      console.error("Failed to save profile order:", e);
+      throw e;
+    }
+  };
 
   // Onboarding trigger
   const onboardingParam = searchParams.get("onboarding");
@@ -226,11 +257,11 @@ export default function BingooDashboard() {
     }).catch(() => setOwnershipReady(true));
   }, [user?.id]);
 
-  // Active profile — resolves from selectedProfileId, then the user's chosen default, then the first profile
+  // Active profile — resolves from selectedProfileId, then the user's chosen default, then the first ordered profile
   const defaultProfileId = user?.default_profile_id;
   const activeProfile = selectedProfileId
-    ? (profiles.find(p => p.id === selectedProfileId) ?? profiles.find(p => p.id === defaultProfileId) ?? profiles[0])
-    : (profiles.find(p => p.id === defaultProfileId) ?? profiles[0]);
+    ? (orderedProfiles.find(p => p.id === selectedProfileId) ?? orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0])
+    : (orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0]);
 
   // Mark a profile as the default (auto-selected on dashboard load). Only meaningful when the
   // user owns more than one profile.
@@ -423,12 +454,15 @@ export default function BingooDashboard() {
           ════════════════════════════════════ */}
           {view === VIEW_HUB && (
             <ProfilesHub
-              profiles={profiles}
+              profiles={orderedProfiles}
               user={user}
               isDark={isDark}
               accountPlan={userPlan}
               defaultProfileId={user?.default_profile_id}
+              activeProfileId={activeProfile?.id}
+              loading={profilesLoading && profiles.length === 0}
               onSetDefault={setDefaultProfile}
+              onReorder={saveProfileOrder}
               onSelectProfile={openWorkspace}
               onCreateNew={openNewProfile}
               onLaunchAI={launchAI}

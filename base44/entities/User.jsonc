@@ -48,6 +48,13 @@
     "default_profile_id": {
       "type": "string",
       "description": "The profile ID auto-selected when the user has more than one profile. Set via the My Profiles hub."
+    },
+    "profile_order_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Owner-defined display order of profile IDs in the My Profiles dashboard. Profiles not listed are appended by created date."
     }
   },
   "rls": {
