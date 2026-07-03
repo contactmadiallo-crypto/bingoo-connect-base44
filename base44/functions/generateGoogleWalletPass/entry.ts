@@ -47,7 +47,8 @@ Deno.serve(async (req) => {
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
     const profileUrl = `https://bingooconnect.com/p/${profile.username}`;
-    const hexBg = (profile.cover_color || '#0B2E6B').startsWith('#') ? (profile.cover_color || '#0B2E6B') : `#${profile.cover_color || '0B2E6B'}`;
+    // Fixed brand background — never use profile/custom colors for the pass
+    const hexBg = '#0B2E6B';
 
     // ── 1. Get OAuth2 access token via JWT bearer flow ──
     const now = Math.floor(Date.now() / 1000);
@@ -105,11 +106,19 @@ Deno.serve(async (req) => {
     }
 
     // ── 3. Build GenericObject ──
+    // Truncate to keep text short and prevent mobile overflow
+    const truncate = (str, max) => str && str.length > max ? str.slice(0, max) + '…' : str || '';
+    const cleanWebsite = (url) => (url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+
     const textModules = [];
-    if (profile.phone) textModules.push({ id: 'phone', header: 'Phone', body: profile.phone });
-    if (profile.email) textModules.push({ id: 'email', header: 'Email', body: profile.email });
-    if (profile.website) textModules.push({ id: 'website', header: 'Website', body: profile.website });
-    if (profile.location) textModules.push({ id: 'location', header: 'Location', body: profile.location });
+    if (profile.phone) textModules.push({ id: 'phone', header: 'Phone', body: truncate(profile.phone, 30) });
+    if (profile.email) textModules.push({ id: 'email', header: 'Email', body: truncate(profile.email, 40) });
+    const websiteClean = cleanWebsite(profile.website);
+    if (websiteClean) textModules.push({ id: 'website', header: 'Website', body: truncate(websiteClean, 40) });
+    if (profile.location) textModules.push({ id: 'location', header: 'Location', body: truncate(profile.location, 40) });
+
+    // Subheader: prefer company name, fall back to job title
+    const subheaderValue = profile.company_name || profile.job_title || '';
 
     const objectBody = {
       id: objectId,
@@ -121,9 +130,9 @@ Deno.serve(async (req) => {
           uri: BINGOO_LOGO_URL,
         },
       },
-      cardTitle: { defaultValue: { language: 'en', value: profile.company_name || 'Bingoo Connect' } },
-      subtitle: { defaultValue: { language: 'en', value: profile.job_title || '' } },
-      header: { defaultValue: { language: 'en', value: profile.display_name || 'Bingoo Profile' } },
+      cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
+      header: { defaultValue: { language: 'en', value: truncate(profile.display_name || 'Bingoo Profile', 25) } },
+      ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 30) } } } : {}),
       textModulesData: textModules,
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'View Profile', id: 'profile_url' }],
@@ -131,7 +140,7 @@ Deno.serve(async (req) => {
       barcode: {
         type: 'qrCode',
         value: profileUrl,
-        alternateText: 'Scan to view profile',
+        alternateText: 'Scan to view Bingoo profile',
       },
       state: 'ACTIVE',
     };
