@@ -21,6 +21,10 @@ const EVENT_LABELS = {
   location_click: "Location",
   payment_click: "Payment",
   save_contact_click: "Save Contact",
+  lead_submitted: "Leads",
+  appointment_booked: "Bookings",
+  prospect_popup_shown: "Request Info",
+  request_info_click: "Request Info",
 };
 
 const EVENT_ICONS = {
@@ -41,6 +45,8 @@ const EVENT_ICONS = {
   save_contact_click: "💾",
   lead_submitted: "⭐",
   appointment_booked: "📅",
+  prospect_popup_shown: "🙋",
+  request_info_click: "🙋",
 };
 
 const PERIODS = [
@@ -57,9 +63,10 @@ export default function AnalyticsPanel({ profileId }) {
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["analytics", profileId],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profileId }, '-created_date', 500),
+    queryFn: () => base44.functions.invoke('getMyAnalytics', { profile_id: profileId }),
     enabled: !!profileId,
-    refetchInterval: 15000,
+    refetchInterval: 5000,
+    select: (res) => res.data?.events || [],
   });
 
   useEffect(() => {
@@ -104,6 +111,7 @@ export default function AnalyticsPanel({ profileId }) {
     { key: "website_click",     label: "Website",        color: isDark ? "bg-indigo-500/20 text-indigo-300": "bg-indigo-100 text-indigo-700",icon: "🌐" },
     { key: "lead_submitted",    label: "Leads",          color: isDark ? "bg-amber-500/20 text-amber-300"  : "bg-amber-100 text-amber-700",  icon: "⭐" },
     { key: "appointment_booked",label: "Bookings",       color: isDark ? "bg-teal-500/20 text-teal-300"    : "bg-teal-100 text-teal-700",    icon: "📅" },
+    { key: "prospect_popup_shown",label: "Request Info", color: isDark ? "bg-pink-500/20 text-pink-300"    : "bg-pink-100 text-pink-700",    icon: "🙋" },
   ];
 
   const last7 = Array.from({ length: 7 }, (_, i) => {

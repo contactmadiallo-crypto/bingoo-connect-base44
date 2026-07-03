@@ -28,7 +28,9 @@
         "lead_submitted",
         "appointment_booked",
         "qr_scan",
-        "nfc_tap"
+        "nfc_tap",
+        "prospect_popup_shown",
+        "request_info_click"
       ],
       "default": "profile_view"
     },
