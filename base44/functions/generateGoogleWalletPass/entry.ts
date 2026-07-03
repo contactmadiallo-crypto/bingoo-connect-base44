@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         id: classId,
         logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+        heroImage: { sourceUri: { uri: BINGOO_LOGO_URL } },
       }),
     });
     if (!classResponse.ok && classResponse.status !== 409) {
@@ -104,12 +105,16 @@ Deno.serve(async (req) => {
       }
       return Response.json({ error: `GenericClass failed (${classResponse.status}): ${errMsg}` }, { status: 500 });
     }
-    // Class already exists (409) — update it to ensure logo is set
+    // Class already exists (409) — update it to ensure logo + hero are set
     if (classResponse.status === 409) {
       await fetch(`${WALLET_API_BASE}/genericClass/${classId}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: classId, logo: { sourceUri: { uri: BINGOO_LOGO_URL } } }),
+        body: JSON.stringify({
+          id: classId,
+          logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
+          heroImage: { sourceUri: { uri: BINGOO_LOGO_URL } },
+        }),
       });
     }
 
@@ -128,17 +133,22 @@ Deno.serve(async (req) => {
       return str;
     };
 
-    // Contact info rows — clean label/value modules
+    // Brand tagline modules — premium "digital profile card" identity in the details panel
     const textModules = [
-      // Premium brand tagline rows first — gives the card a "digital profile card" feel
       { id: 'card_type', header: 'Bingoo Connect', body: 'Digital Profile Card' },
       { id: 'tagline', header: '', body: 'Connect • Share • Grow' },
     ];
-    if (profile.phone) textModules.push({ id: 'phone', header: 'Phone', body: truncate(profile.phone, 30) });
-    if (profile.email) textModules.push({ id: 'email', header: 'Email', body: truncate(profile.email, 40) });
+
+    // Contact info — clean label/value rows render like a premium business card
+    const infoColumns = [];
+    if (profile.phone) infoColumns.push({ label: 'Phone', value: truncate(profile.phone, 30) });
+    if (profile.email) infoColumns.push({ label: 'Email', value: truncate(profile.email, 40) });
     const websiteClean = cleanWebsite(profile.website);
-    if (websiteClean) textModules.push({ id: 'website', header: 'Website', body: truncate(websiteClean, 40) });
-    if (profile.location) textModules.push({ id: 'location', header: 'Location', body: truncate(profile.location, 40) });
+    if (websiteClean) infoColumns.push({ label: 'Website', value: truncate(websiteClean, 40) });
+    if (profile.location) infoColumns.push({ label: 'Location', value: truncate(profile.location, 40) });
+    const infoModuleData = infoColumns.length
+      ? { labelValueRows: [{ columns: infoColumns }] }
+      : undefined;
 
     // Subheader: prefer company name, fall back to profession/job title
     const subheaderValue = profile.company_name || profile.job_title || '';
@@ -155,15 +165,22 @@ Deno.serve(async (req) => {
           uri: BINGOO_LOGO_URL,
         },
       },
+      // Wide branded banner across the top of the pass face — premium hero strip.
+      // Official Bingoo commercial/brand image only; never personal/user photos.
+      heroImage: {
+        sourceUri: {
+          uri: BINGOO_LOGO_URL,
+        },
+      },
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
       header: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
-      // Branded hero image module — official Bingoo commercial/brand image only.
-      // No personal photos, profile photos, or user-uploaded imagery ever used here.
+      // Branded image module — official Bingoo commercial/brand image shown in the details panel.
       imageModulesData: [
         { id: 'brand_hero', mainImage: { sourceUri: { uri: BINGOO_LOGO_URL } } },
       ],
       textModulesData: textModules,
+      ...(infoModuleData ? { infoModuleData } : {}),
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
       },
