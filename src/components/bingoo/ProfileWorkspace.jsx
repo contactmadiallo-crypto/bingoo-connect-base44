@@ -21,6 +21,7 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import {
   PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
@@ -768,6 +769,8 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
           <p className={`text-sm text-center py-4 ${mutedText}`}>Set a username to generate a QR code.</p>
         )}
       </div>
+
+      <OwnerWalletPanel profile={profile} isDark={isDark} panelBorder={panelBorder} panelBg={panelBg} headText={headText} mutedText={mutedText} />
     </div>
   );
 }

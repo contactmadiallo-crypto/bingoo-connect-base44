@@ -11,7 +11,6 @@ import LeadCaptureSection from "@/components/bingoo/LeadCaptureSection";
 import AttorneysSectionPublic from "@/components/bingoo/AttorneysSectionPublic";
 import SaveProfileButton from "@/components/bingoo/SaveProfileButton";
 import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
-import WalletPassButtons from "@/components/bingoo/WalletPassButtons";
 import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
 import SalonTeamSection from "@/components/bingoo/SalonTeamSection";
 import SalonLoyaltyCard from "@/components/bingoo/SalonLoyaltyCard";
@@ -386,9 +385,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           {shared ? "✓" : "Share"}
         </motion.button>
       </motion.div>
-
-      {/* ── Add to Wallet ── */}
-      <WalletPassButtons profile={profile} color={color} isDark={isDark} />
 
       {/* ── Bio ── */}
       {profile.bio && (

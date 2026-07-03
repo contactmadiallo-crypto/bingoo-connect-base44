@@ -44,6 +44,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Profile not found' }, { status: 404 });
     }
 
+    // Ownership check: only the profile owner (or an admin) may generate a wallet pass.
+    // Public visitors must never be able to mint passes for someone else's profile.
+    const user = await base44.auth.me();
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (profile.created_by_id !== user.id && user.role !== 'admin') {
+      return Response.json({ error: 'Forbidden: you do not own this profile' }, { status: 403 });
+    }
+
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
     const profileUrl = `https://bingooconnect.com/p/${profile.username}`;
