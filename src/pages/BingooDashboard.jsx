@@ -52,6 +52,36 @@ const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
 const VIEW_RESUME       = "resume";
+
+// ── Deep-link param parsing ──
+// Notifications and emails link to the dashboard with `view` (the canonical param) plus
+// `profileId`, `leadId`, `appointmentId`, and `notificationId`. The legacy `tab` param is
+// accepted as an alias for `view` so older links keep working.
+const TAB_TO_VIEW = {
+  leads: VIEW_LEADS,
+  appointments: VIEW_APPTS,
+  crm: VIEW_CRM,
+  analytics: VIEW_ANALYTICS,
+  lostmode: VIEW_LOSTMODE,
+  connections: VIEW_CONNECTIONS,
+  services: VIEW_SERVICES,
+  hours: VIEW_HOURS,
+  practiceareas: VIEW_PRACTICE,
+  legalservices: VIEW_LEGAL_SVC,
+  offices: VIEW_OFFICES,
+  team: VIEW_TEAM,
+  attendance: VIEW_ATTENDANCE,
+  resume: VIEW_RESUME,
+  workspace: VIEW_WORKSPACE,
+  hub: VIEW_HUB,
+};
+function resolveView(searchParams) {
+  const v = searchParams.get("view");
+  if (v) return v;
+  const tab = searchParams.get("tab");
+  if (tab && TAB_TO_VIEW[tab]) return TAB_TO_VIEW[tab];
+  return VIEW_HUB;
+}
 // ── NewProfileForm ──────────────────────────────────────────────────────────
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
 // Creates the record then hands off to ProfileWorkspace for all editing.
@@ -172,10 +202,13 @@ export default function BingooDashboard() {
   const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const view = searchParams.get("view") || VIEW_HUB;
+  const view = resolveView(searchParams);
 
   // selectedProfileId is the single source of truth
   const [selectedProfileId, setSelectedProfileId] = useState(null);
+  // Highlight targets carried in from notification/email deep links
+  const [highlightLeadId, setHighlightLeadId] = useState(null);
+  const [highlightAppointmentId, setHighlightAppointmentId] = useState(null);
 
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
@@ -273,6 +306,35 @@ export default function BingooDashboard() {
       console.error("Failed to set default profile:", e);
     }
   };
+
+  // ── Deep-link resolution ──
+  // When a notification or email opens the dashboard with profileId/leadId/appointmentId/
+  // notificationId, select the (owned) profile and surface the related record. The selected
+  // profile is validated against the user's owned profiles so a tampered link can't force an
+  // unowned profile into context.
+  const qProfileId = searchParams.get("profileId");
+  const qLeadId = searchParams.get("leadId");
+  const qApptId = searchParams.get("appointmentId");
+  const qNotifId = searchParams.get("notificationId");
+
+  useEffect(() => {
+    // Carry highlight targets from the URL into state for the active panel.
+    setHighlightLeadId(qLeadId || null);
+    setHighlightAppointmentId(qApptId || null);
+
+    // Select the profile from the link if the user owns it.
+    if (qProfileId && profiles.length > 0 && profiles.some(p => p.id === qProfileId)) {
+      setSelectedProfileId(qProfileId);
+    }
+
+    // Mark the notification read on open (fire-and-forget; non-blocking).
+    if (qNotifId) {
+      base44.entities.BingooNotification.update(qNotifId, { is_read: true })
+        .then(() => qc.invalidateQueries({ queryKey: ["bingoo-notifications"] }))
+        .catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qProfileId, qLeadId, qApptId, qNotifId, profiles]);
 
   // Queries scoped to activeProfile
   const { data: leads = [] } = useQuery({
@@ -519,6 +581,7 @@ export default function BingooDashboard() {
                   profileId={activeProfile.id}
                   userId={user?.id}
                   isDark={isDark}
+                  highlightId={highlightAppointmentId}
                   onSaved={() => { /* stay on this page — no redirect */ }}
                 />
               )}
@@ -540,6 +603,7 @@ export default function BingooDashboard() {
                   profileId={activeProfile.id}
                   profileIds={profiles.map(p => p.id)}
                   user={user}
+                  highlightId={highlightLeadId}
                   onSaved={() => { /* stay on this page */ }}
                 />
               )}

@@ -19,6 +19,26 @@ Deno.serve(async (req) => {
     }
 
     const ownerUserId = profile?.created_by_id || null;
+    const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
+
+    // ── Idempotency: if an identical lead was created in the last 5 seconds,
+    //    return it instead of creating a duplicate (double-submit / retry guard).
+    try {
+      const recent = await base44.asServiceRole.entities.Lead.filter(
+        { profile_id, email: formData.email || '', phone: formData.phone || '' },
+        '-created_date',
+        1
+      );
+      if (recent.length > 0) {
+        const ageMs = Date.now() - new Date(recent[0].created_date).getTime();
+        if (ageMs < 5000) {
+          console.log('Duplicate lead suppressed (recent identical lead):', recent[0].id);
+          return Response.json({ success: true, lead: recent[0], duplicate: true });
+        }
+      }
+    } catch (e) {
+      console.error('Idempotency check failed (non-blocking):', e.message);
+    }
 
     // Create the lead (unauthenticated visitors allowed via service role)
     const lead = await base44.asServiceRole.entities.Lead.create({
@@ -32,6 +52,9 @@ Deno.serve(async (req) => {
 
     console.log(`Lead created: ${lead.id} for profile ${profile_id}, owner: ${ownerUserId}`);
 
+    // Deep link to the Leads page with the profile selected and the lead highlighted
+    const actionUrl = `/bingoo?view=leads&profileId=${profile_id}&leadId=${lead.id}`;
+
     // Create in-app notification for the profile owner
     if (ownerUserId) {
       try {
@@ -42,7 +65,7 @@ Deno.serve(async (req) => {
           title: `New lead from ${formData.name || 'Someone'}`,
           message: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || ''),
           is_read: false,
-          action_url: '/bingoo?tab=leads',
+          action_url: actionUrl,
           related_id: lead.id,
           actor_name: formData.name || 'Anonymous',
         });
@@ -52,12 +75,13 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Send email notification
+    // Send email notification to the profile owner
     try {
       const { name, email, phone, message, preferred_contact_method } = formData;
 
       if (profile?.email) {
         const contactIcon = preferred_contact_method === 'WhatsApp' ? '💬' : preferred_contact_method === 'Phone' ? '📞' : '📧';
+        const ctaUrl = `${appOrigin}${actionUrl}`;
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: profile.email,
           subject: `⭐ New Lead from ${name || 'Someone'} via your Bingoo profile`,
@@ -89,9 +113,9 @@ Deno.serve(async (req) => {
     </a>
   </div>` : ''}
   <div style="text-align:center;">
-    <a href="${Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com'}/bingoo?tab=leads" 
+    <a href="${ctaUrl}" 
        style="display:inline-block;background:#0B2E6B;color:white;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
-      View All Leads →
+      View Lead in Dashboard →
     </a>
   </div>
   <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:20px;">Bingoo Connect · This lead came from your public profile</p>

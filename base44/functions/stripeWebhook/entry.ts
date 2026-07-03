@@ -18,12 +18,68 @@ function downgradedPlan(plan) {
   return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
 }
 
+// Local plan rank for upgrade/downgrade detection (mirrors planPermissions.PLAN_HIERARCHY)
+const PLAN_RANK = {
+  free: 0, professional: 1, pro: 1, business: 2, salon: 3, restaurant: 3, lawfirm: 4, corporate: 5,
+};
+
 function resolvePlanFromSubscriptionItem(item, fallbackPlan) {
   const price = item?.price;
   if (price?.metadata?.plan) return price.metadata.plan;
   const productId = typeof price?.product === 'string' ? price.product : price?.product?.id;
   if (productId && PRODUCT_TO_PLAN[productId]) return PRODUCT_TO_PLAN[productId];
   return fallbackPlan;
+}
+
+// Look up the Bingoo user account for a customer email (best-effort; non-blocking).
+async function findUserIdByEmail(base44, email) {
+  if (!email) return null;
+  try {
+    const users = await base44.asServiceRole.entities.User.filter({ email }, '-created_date', 1);
+    return users?.[0]?.id || null;
+  } catch (e) {
+    console.error('findUserIdByEmail failed (non-blocking):', e.message);
+    return null;
+  }
+}
+
+// Append a SubscriptionActivity audit row (non-blocking).
+async function logSubscriptionActivity(base44, { customer_email, customer_name, plan, action, old_plan, old_status, status, amount, stripe_subscription_id, details }) {
+  try {
+    await base44.asServiceRole.entities.SubscriptionActivity.create({
+      customer_email,
+      customer_name: customer_name || '',
+      plan: plan || '',
+      action,
+      old_plan: old_plan || '',
+      old_status: old_status || '',
+      status: status || '',
+      amount: amount || 0,
+      stripe_subscription_id: stripe_subscription_id || '',
+      details: details || '',
+      activity_date: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error('SubscriptionActivity log failed (non-blocking):', e.message);
+  }
+}
+
+// Create an in-app notification for the subscriber (non-blocking).
+async function notifyUser(base44, { userId, eventType, title, message, actionUrl, relatedId }) {
+  if (!userId) return;
+  try {
+    await base44.asServiceRole.entities.BingooNotification.create({
+      user_id: userId,
+      event_type: eventType,
+      title,
+      message: message || '',
+      is_read: false,
+      action_url: actionUrl,
+      related_id: relatedId || '',
+    });
+  } catch (e) {
+    console.error('notifyUser failed (non-blocking):', e.message);
+  }
 }
 
 async function upsertSubscription(base44, { customer_email, customer_name, plan, status, stripe_subscription_id, stripe_customer_id, stripe_session_id, current_period_end, cancel_at_period_end }) {
@@ -88,6 +144,7 @@ Deno.serve(async (req) => {
     const body = await req.text();
     const sig = req.headers.get('stripe-signature');
     const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
 
     if (!webhookSecret) {
       console.error('STRIPE_WEBHOOK_SECRET is not set');
@@ -169,14 +226,33 @@ Deno.serve(async (req) => {
           plan,
         });
 
-        // Send a subscription confirmation email — best-effort, don't fail the webhook if it errors.
+        // Activity log + in-app notification + confirmation email (all non-blocking)
+        const billingUrl = stripeSubId ? `${appOrigin}/billing?subscriptionId=${stripeSubId}` : `${appOrigin}/billing`;
+        const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+        const subscriberUserId = user_id || await findUserIdByEmail(base44, customerEmail);
+
+        await logSubscriptionActivity(base44, {
+          customer_email: customerEmail, customer_name: customerName,
+          plan, action: 'created', status: 'active',
+          stripe_subscription_id: stripeSubId,
+          details: `Subscribed to ${planLabel} via checkout`,
+        });
+
+        await notifyUser(base44, {
+          userId: subscriberUserId,
+          eventType: 'subscription_created',
+          title: `You're on the ${planLabel} plan 🎉`,
+          message: 'Your premium features are unlocked.',
+          actionUrl: billingUrl,
+          relatedId: stripeSubId,
+        });
+
         try {
-          const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
           await base44.asServiceRole.integrations.Core.SendEmail({
             to: customerEmail,
             subject: `You're subscribed to the ${planLabel} plan! 🎉`,
             from_name: 'Bingoo Connect',
-            body: `Hi ${customerName || 'there'},\n\nThanks for subscribing to the Bingoo Connect ${planLabel} plan! Your new features are unlocked and ready to use.\n\nManage your subscription anytime from your Billing page: https://bingooconnect.com/billing\n\nCheers,\nThe Bingoo Connect Team`,
+            body: `Hi ${customerName || 'there'},\n\nThanks for subscribing to the Bingoo Connect ${planLabel} plan! Your new features are unlocked and ready to use.\n\nManage your subscription anytime from your Billing page: ${billingUrl}\n\nCheers,\nThe Bingoo Connect Team`,
           });
         } catch (emailErr) {
           console.error('Subscription confirmation email failed:', emailErr.message);
@@ -192,13 +268,14 @@ Deno.serve(async (req) => {
         stripe_subscription_id: sub.id
       });
       if (existing.length > 0) {
-        const resolvedPlan = resolvePlanFromSubscriptionItem(sub.items?.data?.[0], existing[0].plan);
+        const prev = existing[0];
+        const resolvedPlan = resolvePlanFromSubscriptionItem(sub.items?.data?.[0], prev.plan);
         const newStatus = sub.status; // active, trialing, past_due, canceled, unpaid, incomplete, incomplete_expired
         const periodEnd = sub.current_period_end
           ? new Date(sub.current_period_end * 1000).toISOString()
           : null;
 
-        await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
+        await base44.asServiceRole.entities.Subscription.update(prev.id, {
           plan: resolvedPlan,
           status: newStatus,
           cancel_at_period_end: sub.cancel_at_period_end || false,
@@ -206,12 +283,47 @@ Deno.serve(async (req) => {
         });
         console.log('Subscription updated:', sub.id, resolvedPlan, newStatus);
 
+        const billingUrl = `${appOrigin}/billing?subscriptionId=${sub.id}`;
+
         if (newStatus === 'active' || newStatus === 'trialing') {
+          const action = (resolvedPlan !== prev.plan) ? (PLAN_RANK[resolvedPlan] > PLAN_RANK[prev.plan] ? 'upgraded' : 'downgraded') : 'renewed';
           // Covers upgrades AND downgrades made through the Billing Portal
-          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: resolvedPlan });
+          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: resolvedPlan });
+
+          await logSubscriptionActivity(base44, {
+            customer_email: prev.customer_email, customer_name: prev.customer_name,
+            plan: resolvedPlan, action, old_plan: prev.plan, old_status: prev.status, status: newStatus,
+            stripe_subscription_id: sub.id,
+            details: `${resolvedPlan !== prev.plan ? `${prev.plan} → ${resolvedPlan}` : `Renewed (${newStatus})`}`,
+          });
+
+          if (resolvedPlan !== prev.plan) {
+            await notifyUser(base44, {
+              userId: await findUserIdByEmail(base44, prev.customer_email),
+              eventType: 'subscription_updated',
+              title: `Plan ${action} to ${resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1)}`,
+              message: 'Your subscription was updated.',
+              actionUrl: billingUrl, relatedId: sub.id,
+            });
+          }
         } else if (newStatus === 'canceled' || newStatus === 'unpaid' || newStatus === 'incomplete_expired') {
           // Payment failed permanently or trial ended unpaid — apply tiered downgrade policy.
-          await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: downgradedPlan(resolvedPlan) });
+          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(resolvedPlan) });
+
+          await logSubscriptionActivity(base44, {
+            customer_email: prev.customer_email, customer_name: prev.customer_name,
+            plan: resolvedPlan, action: 'canceled', old_plan: prev.plan, old_status: prev.status, status: newStatus,
+            stripe_subscription_id: sub.id,
+            details: `Subscription ended (${newStatus})`,
+          });
+
+          await notifyUser(base44, {
+            userId: await findUserIdByEmail(base44, prev.customer_email),
+            eventType: 'subscription_canceled',
+            title: 'Subscription ended',
+            message: 'Your premium features have been adjusted.',
+            actionUrl: billingUrl, relatedId: sub.id,
+          });
         }
         // past_due / incomplete: keep current plan (grace period) — no profile change
       }
@@ -224,13 +336,30 @@ Deno.serve(async (req) => {
         stripe_subscription_id: sub.id
       });
       if (existing.length > 0) {
-        await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
+        const prev = existing[0];
+        await base44.asServiceRole.entities.Subscription.update(prev.id, {
           status: 'canceled',
           cancel_at_period_end: false,
         });
+        const billingUrl = `${appOrigin}/billing?subscriptionId=${sub.id}`;
         // Subscription fully deleted — apply tiered downgrade policy based on what plan they had.
-        await updateProfilePlan(base44, { customerEmail: existing[0].customer_email, plan: downgradedPlan(existing[0].plan) });
-        console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(existing[0].plan));
+        await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(prev.plan) });
+        console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(prev.plan));
+
+        await logSubscriptionActivity(base44, {
+          customer_email: prev.customer_email, customer_name: prev.customer_name,
+          plan: prev.plan, action: 'canceled', old_status: prev.status, status: 'canceled',
+          stripe_subscription_id: sub.id,
+          details: 'Subscription deleted',
+        });
+
+        await notifyUser(base44, {
+          userId: await findUserIdByEmail(base44, prev.customer_email),
+          eventType: 'subscription_canceled',
+          title: 'Subscription canceled',
+          message: 'Your plan has been canceled.',
+          actionUrl: billingUrl, relatedId: sub.id,
+        });
       }
     }
 
@@ -243,11 +372,28 @@ Deno.serve(async (req) => {
         stripe_subscription_id: invoice.subscription
       });
       if (existing.length > 0) {
-        await base44.asServiceRole.entities.Subscription.update(existing[0].id, {
+        const prev = existing[0];
+        await base44.asServiceRole.entities.Subscription.update(prev.id, {
           status: 'past_due',
         });
+        const billingUrl = invoice.subscription ? `${appOrigin}/billing?subscriptionId=${invoice.subscription}` : `${appOrigin}/billing`;
         // No plan downgrade yet — allow Stripe's retry window (3-7 days) before losing access
         console.log('Subscription past_due (grace period active):', invoice.subscription);
+
+        await logSubscriptionActivity(base44, {
+          customer_email: prev.customer_email, customer_name: prev.customer_name,
+          plan: prev.plan, action: 'past_due', old_status: prev.status, status: 'past_due',
+          stripe_subscription_id: invoice.subscription,
+          details: 'Invoice payment failed — grace period active',
+        });
+
+        await notifyUser(base44, {
+          userId: await findUserIdByEmail(base44, prev.customer_email),
+          eventType: 'payment_failed',
+          title: 'Payment failed ⚠️',
+          message: 'Update your payment method to keep your plan.',
+          actionUrl: billingUrl, relatedId: invoice.subscription,
+        });
       }
     }
 

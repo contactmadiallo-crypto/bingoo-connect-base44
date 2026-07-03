@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -23,13 +23,15 @@ function getStatusStyle(status, isDark) {
   return isDark ? s.darkCls : s.lightCls;
 }
 
-export default function LeadsPanel({ profileId, profileIds: propProfileIds, user }) {
+export default function LeadsPanel({ profileId, profileIds: propProfileIds, user, highlightId }) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [noteFor, setNoteFor] = useState(null);
   const [noteText, setNoteText] = useState("");
+  const [flashId, setFlashId] = useState(null);
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
+  const listRef = useRef(null);
 
   // Query ONLY by the active profileId — same as the badge count in BingooDashboard.
   // Querying all owned_profile_ids causes RLS failures for profiles owned by other users.
@@ -52,6 +54,22 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     });
     return () => unsub();
   }, [profileId]);
+
+  // Scroll to + briefly flash a lead surfaced from a notification/email deep link.
+  useEffect(() => {
+    if (!highlightId || isLoading || leads.length === 0) return;
+    if (!leads.some(l => l.id === highlightId)) {
+      // Record no longer exists — stay on the list with a concise fallback message.
+      toast.info("This lead may have been moved or deleted.");
+      return;
+    }
+    setFlashId(highlightId);
+    const el = listRef.current?.querySelector(`[data-lead-id="${highlightId}"]`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => setFlashId(null), 5000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightId, isLoading, leads]);
 
   const updateLead = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
@@ -177,9 +195,15 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
           <p className={`text-sm mt-1 ${mutedText}`}>{search ? "Try a different search term." : "Visitors who submit the contact form will appear here."}</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4" ref={listRef}>
           {filtered.map(lead => (
-            <div key={lead.id} className="rounded-2xl p-5 space-y-3" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+            <div key={lead.id} data-lead-id={lead.id}
+              className="rounded-2xl p-5 space-y-3 transition-all"
+              style={{
+                background: cardBg,
+                border: `1px solid ${flashId === lead.id ? (isDark ? "#fbbf24" : "#f59e0b") : cardBorder}`,
+                boxShadow: flashId === lead.id ? `0 0 0 3px ${isDark ? "rgba(251,191,36,0.35)" : "rgba(245,158,11,0.25)"}` : "none",
+              }}>
               {/* Lead header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3">

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle } from "lucide-react";
+import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle, CreditCard, ShieldAlert, RefreshCw } from "lucide-react";
 import { FIREBASE_NOTIFICATIONS_ENABLED } from "@/lib/featureFlags";
 import { useFirestoreNotifications } from "@/hooks/useFirestoreNotifications";
 // Note: firebase.js uses dynamic imports internally — no static firebase/* imports here.
@@ -16,6 +17,11 @@ const EVENT_ICONS = {
   lost_device_reported: AlertTriangle,
   new_review: Star,
   new_contact: Star,
+  subscription_created: CreditCard,
+  subscription_updated: CreditCard,
+  subscription_canceled: CreditCard,
+  payment_failed: AlertTriangle,
+  security_alert: ShieldAlert,
 };
 
 const EVENT_COLORS = {
@@ -26,14 +32,20 @@ const EVENT_COLORS = {
   appointment_rescheduled: { dark: "bg-blue-500/20 text-blue-400", light: "bg-blue-100 text-blue-600" },
   nfc_activated: { dark: "bg-purple-500/20 text-purple-400", light: "bg-purple-100 text-purple-600" },
   lost_device_reported: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
+  subscription_created: { dark: "bg-blue-500/20 text-blue-400", light: "bg-blue-100 text-blue-600" },
+  subscription_updated: { dark: "bg-blue-500/20 text-blue-400", light: "bg-blue-100 text-blue-600" },
+  subscription_canceled: { dark: "bg-slate-500/20 text-slate-400", light: "bg-slate-100 text-slate-600" },
+  payment_failed: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
+  security_alert: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
 };
 
 export default function NotificationCenter({ userId, isDark }) {
   const [open, setOpen] = useState(false);
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   // ── Base44 source (always fetched; is the default and fallback) ──
-  const { data: base44Notifications = [] } = useQuery({
+  const { data: base44Notifications = [], isLoading, isError } = useQuery({
     queryKey: ["bingoo-notifications", userId],
     queryFn: () => base44.entities.BingooNotification.filter({ user_id: userId }, "-created_date", 50),
     enabled: !!userId,
@@ -86,8 +98,12 @@ export default function NotificationCenter({ userId, isDark }) {
 
   const handleClick = (n) => {
     if (!n.is_read) markReadMutation.mutate(n.id);
-    if (n.action_url) window.location.href = n.action_url;
     setOpen(false);
+    if (n.action_url) {
+      // In-app navigation preserves session/state and supports deep links like
+      // /bingoo?view=leads&profileId=...&leadId=... or /billing?subscriptionId=...
+      navigate(n.action_url);
+    }
   };
 
   const panelBg = isDark ? "#0f1628" : "#ffffff";
@@ -141,7 +157,21 @@ export default function NotificationCenter({ userId, isDark }) {
 
             {/* Notification list */}
             <div className="max-h-96 overflow-y-auto">
-              {notifications.length === 0 ? (
+              {isLoading && notifications.length === 0 ? (
+                <div className={`text-center py-10 ${mutedText}`}>
+                  <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin opacity-40" />
+                  <p className="text-sm font-medium">Loading…</p>
+                </div>
+              ) : isError && notifications.length === 0 ? (
+                <div className={`text-center py-10 ${mutedText}`}>
+                  <AlertTriangle className="w-7 h-7 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm font-medium">Couldn't load notifications</p>
+                  <button onClick={() => qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] })}
+                    className={`text-xs mt-1 font-semibold underline ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+                    Retry
+                  </button>
+                </div>
+              ) : notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
                   <p className="text-sm font-medium">No notifications yet</p>

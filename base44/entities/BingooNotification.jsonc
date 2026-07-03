@@ -21,7 +21,12 @@
         "nfc_activated",
         "lost_device_reported",
         "new_review",
-        "new_contact"
+        "new_contact",
+        "subscription_created",
+        "subscription_updated",
+        "subscription_canceled",
+        "payment_failed",
+        "security_alert"
       ],
       "description": "Type of notification event"
     },

@@ -61,16 +61,19 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    await base44.entities.ProspectLead.create({
-      source_profile_id: profileId,
-      source_device_code: deviceCode || "",
-      visitor_name: form.name,
-      visitor_email: form.email,
-      visitor_phone: form.phone,
-      interested_in: form.interested_in,
-      status: "new",
-      created_at: new Date().toISOString(),
-    });
+    try {
+      await base44.functions.invoke("createPublicProspect", {
+        source_profile_id: profileId,
+        source_device_code: deviceCode || "",
+        visitor_name: form.name,
+        visitor_email: form.email,
+        visitor_phone: form.phone,
+        interested_in: form.interested_in,
+      });
+    } catch (e) {
+      // Non-blocking: the prospect may still have been created server-side; continue to register.
+      console.error("createPublicProspect failed (non-blocking):", e?.message);
+    }
     if (profileId) trackProspect("prospect_lead_submitted", profileId);
     setDone(true);
     setTimeout(() => {

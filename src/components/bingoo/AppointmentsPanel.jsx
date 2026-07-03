@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -44,7 +44,7 @@ const FILTER_TABS = [
   { id: "cancelled", label: "Cancelled" },
 ];
 
-export default function AppointmentsPanel({ profileId, userId }) {
+export default function AppointmentsPanel({ profileId, userId, highlightId }) {
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
   const [filterTab, setFilterTab] = useState("all");
@@ -54,6 +54,8 @@ export default function AppointmentsPanel({ profileId, userId }) {
   const [rescheduleTime, setRescheduleTime] = useState("");
   const [noteFor, setNoteFor] = useState(null);
   const [noteText, setNoteText] = useState("");
+  const [flashId, setFlashId] = useState(null);
+  const listRef = useRef(null);
 
   useEffect(() => {
     if (!profileId) return;

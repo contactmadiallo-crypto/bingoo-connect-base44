@@ -10,8 +10,10 @@ const SUB_TABS = [
   { id: "settings", label: "Booking Setup", icon: Settings    },
 ];
 
-export default function AppointmentsTabMerged({ profileId, userId, isDark, onSaved }) {
-  const [sub, setSub] = useState("list");
+export default function AppointmentsTabMerged({ profileId, userId, isDark, highlightId, onSaved }) {
+  // A deep-linked appointment should always land on the list view, even if the user
+  // previously had the calendar/settings sub-tab open.
+  const [sub, setSub] = useState(highlightId ? "list" : "list");
 
   const headText = isDark ? "text-white" : "text-slate-900";
 
@@ -45,7 +47,7 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, onSav
       </div>
 
       {/* Sub-tab content */}
-      {sub === "list"     && <AppointmentsPanel profileId={profileId} userId={userId} onSaved={onSaved} />}
+      {sub === "list"     && <AppointmentsPanel profileId={profileId} userId={userId} highlightId={highlightId} onSaved={onSaved} />}
       {sub === "calendar" && <CalendarView profileId={profileId} />}
       {sub === "settings" && <AppointmentSettings profileId={profileId} onSaved={onSaved} />}
     </div>

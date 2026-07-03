@@ -30,6 +30,8 @@ Deno.serve(async (req) => {
       console.error('Profile lookup failed:', e.message);
     }
 
+    const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
+
     // Build appointment record
     const appointmentData = {
       profile_id,
@@ -53,6 +55,9 @@ Deno.serve(async (req) => {
     if (case_number) appointmentData.case_number = case_number;
 
     const appointment = await base44.asServiceRole.entities.Appointment.create(appointmentData);
+
+    // Deep link to the Appointments page with the profile selected and the appointment highlighted
+    const actionUrl = `/bingoo?view=appointments&profileId=${profile_id}&appointmentId=${appointment.id}`;
 
     // Add event to Google Calendar (non-blocking)
     try {
@@ -119,7 +124,7 @@ Deno.serve(async (req) => {
           title: `New booking from ${visitor_name}`,
           message: `${date || ''} ${time_slot || ''}${service_name ? ` · ${service_name}` : ''}`.trim(),
           is_read: false,
-          action_url: '/bingoo?tab=appointments',
+          action_url: actionUrl,
           related_id: appointment.id,
           actor_name: visitor_name,
         });
@@ -128,16 +133,16 @@ Deno.serve(async (req) => {
       }
     }
 
+    const isRestaurant = profile?.plan === "restaurant";
+    const isLawFirm = profile?.plan === "lawfirm";
+    const isSalon = profile?.plan === "salon";
+    const subjectEmoji = isRestaurant ? "🍽️" : isLawFirm ? "⚖️" : "📅";
+    const actionLabel = isRestaurant ? "Reservation" : "Appointment";
+    const ownerCtaUrl = `${appOrigin}${actionUrl}`;
+
     // Notification email to profile owner
     try {
       if (profile?.email) {
-        const isRestaurant = profile?.plan === "restaurant";
-        const isLawFirm = profile?.plan === "lawfirm";
-        const isSalon = profile?.plan === "salon";
-
-        const subjectEmoji = isRestaurant ? "🍽️" : isLawFirm ? "⚖️" : "📅";
-        const actionLabel = isRestaurant ? "Reservation" : "Appointment";
-
         let detailsHtml = `
           <tr><td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">👤 ${isLawFirm ? "Client" : "Visitor"}</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${visitor_name}</td></tr>
           <tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📧 Email</td><td style="padding:8px 0;font-size:14px;"><a href="mailto:${visitor_email}" style="color:#3b82f6;">${visitor_email}</a></td></tr>
@@ -166,7 +171,7 @@ Deno.serve(async (req) => {
     <table style="width:100%;border-collapse:collapse;">${detailsHtml}</table>
   </div>
   <div style="text-align:center;">
-    <a href="${'https://bingooconnect.com'}/bingoo?tab=appointments" 
+    <a href="${ownerCtaUrl}" 
        style="display:inline-block;background:#0B2E6B;color:white;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;">
       View in Dashboard →
     </a>
@@ -177,7 +182,33 @@ Deno.serve(async (req) => {
         });
       }
     } catch (notifErr) {
-      console.error('Notification email failed (non-blocking):', notifErr.message);
+      console.error('Owner notification email failed (non-blocking):', notifErr.message);
+    }
+
+    // Confirmation email to the visitor (customer-facing)
+    try {
+      const whenStr = [date, time_slot].filter(Boolean).join(' at ');
+      const bizName = profile?.display_name || profile?.company_name || 'the business';
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: visitor_email,
+        from_name: 'Bingoo Connect',
+        subject: `${subjectEmoji} Your ${actionLabel} request was received`,
+        body: `
+<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#f8fafc;padding:24px;border-radius:16px;">
+  <div style="background:linear-gradient(135deg,#0B2E6B,#1a4a9e);border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
+    <h1 style="color:white;margin:0;font-size:20px;">${subjectEmoji} ${actionLabel} Request Received</h1>
+    <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;">Hi ${visitor_name}, we got your request!</p>
+  </div>
+  <div style="background:white;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #e2e8f0;">
+    <p style="margin:0 0 8px;color:#1e293b;font-size:14px;">You requested a ${actionLabel.toLowerCase()} with <strong>${bizName}</strong>${whenStr ? ` for <strong>${whenStr}</strong>` : ''}${service_name ? ` (${service_name})` : ''}.</p>
+    <p style="margin:0;color:#64748b;font-size:14px;">Your request is pending confirmation. You'll receive an update once it's reviewed.</p>
+  </div>
+  <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:20px;">Bingoo Connect · Sent on behalf of ${bizName}</p>
+</div>
+        `,
+      });
+    } catch (visitorEmailErr) {
+      console.error('Visitor confirmation email failed (non-blocking):', visitorEmailErr.message);
     }
 
     return Response.json({ success: true, appointment });
