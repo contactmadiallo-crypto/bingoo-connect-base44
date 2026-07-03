@@ -109,6 +109,16 @@ Deno.serve(async (req) => {
     // Truncate to keep text short and prevent mobile overflow
     const truncate = (str, max) => str && str.length > max ? str.slice(0, max) + '…' : str || '';
     const cleanWebsite = (url) => (url || '').replace(/^https?:\/\//, '').replace(/\/$/, '');
+    // Convert all-caps names to readable title case; leave mixed-case names untouched
+    const toTitleCase = (str) => {
+      if (!str) return '';
+      const upper = (str.match(/[A-Z]/g) || []).length;
+      const lower = (str.match(/[a-z]/g) || []).length;
+      if (upper > lower && upper > 1) {
+        return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+      }
+      return str;
+    };
 
     const textModules = [];
     if (profile.phone) textModules.push({ id: 'phone', header: 'Phone', body: truncate(profile.phone, 30) });
@@ -119,6 +129,7 @@ Deno.serve(async (req) => {
 
     // Subheader: prefer company name, fall back to job title
     const subheaderValue = profile.company_name || profile.job_title || '';
+    const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
 
     const objectBody = {
       id: objectId,
@@ -131,11 +142,15 @@ Deno.serve(async (req) => {
         },
       },
       cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
-      header: { defaultValue: { language: 'en', value: truncate(profile.display_name || 'Bingoo Profile', 25) } },
+      header: { defaultValue: { language: 'en', value: truncate(displayName, 25) } },
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 30) } } } : {}),
+      // Branded image module — official Bingoo brand image only, no user photos
+      imageModulesData: [
+        { id: 'brand_banner', mainImage: { sourceUri: { uri: BINGOO_LOGO_URL } } },
+      ],
       textModulesData: textModules,
       linksModuleData: {
-        uris: [{ uri: profileUrl, description: 'View Profile', id: 'profile_url' }],
+        uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
       },
       barcode: {
         type: 'qrCode',
