@@ -92,7 +92,6 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         id: classId,
         logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
-        heroImage: { sourceUri: { uri: BINGOO_LOGO_URL } },
       }),
     });
     if (!classResponse.ok && classResponse.status !== 409) {
@@ -113,7 +112,6 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           id: classId,
           logo: { sourceUri: { uri: BINGOO_LOGO_URL } },
-          heroImage: { sourceUri: { uri: BINGOO_LOGO_URL } },
         }),
       });
     }
@@ -133,33 +131,40 @@ Deno.serve(async (req) => {
       return str;
     };
 
-    // Brand tagline modules — premium "digital profile card" identity in the details panel
+    // Premium Bingoo brand accent — navy card (the only pass-level color Google Wallet supports)
+    const BINGOO_NAVY = '#0B2E6B';
+
+    // Subheader: prefer profession/title, then company, for a business-card feel
+    const subheaderValue = profile.job_title || profile.company_name || '';
+    const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
+
+    // Premium text modules — brand identity + taglines (no personal photos)
     const textModules = [
       { id: 'card_type', header: 'Bingoo Connect', body: 'Digital Profile Card' },
       { id: 'tagline', header: '', body: 'Connect • Share • Grow' },
+      { id: 'powered_by', header: '', body: 'Powered by Bingoo Connect' },
     ];
 
-    // Contact info — clean label/value rows render like a premium business card
+    // infoModuleData — clean label/value rows for the details panel (only non-empty fields)
+    const websiteClean = cleanWebsite(profile.website);
     const infoColumns = [];
     if (profile.phone) infoColumns.push({ label: 'Phone', value: truncate(profile.phone, 30) });
     if (profile.email) infoColumns.push({ label: 'Email', value: truncate(profile.email, 40) });
-    const websiteClean = cleanWebsite(profile.website);
     if (websiteClean) infoColumns.push({ label: 'Website', value: truncate(websiteClean, 40) });
     if (profile.location) infoColumns.push({ label: 'Location', value: truncate(profile.location, 40) });
+    if (profile.company_name && profile.company_name !== subheaderValue) {
+      infoColumns.push({ label: 'Company', value: truncate(profile.company_name, 40) });
+    }
     const infoModuleData = infoColumns.length
       ? { labelValueRows: [{ columns: infoColumns }] }
       : undefined;
-
-    // Subheader: prefer company name, fall back to profession/job title
-    const subheaderValue = profile.company_name || profile.job_title || '';
-    const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
 
     const objectBody = {
       id: objectId,
       classId,
       genericType: 'GENERIC_TYPE_UNSPECIFIED',
       // Premium Bingoo navy background — fixed brand color, never user-supplied
-      hexBackgroundColor: '#0B2E6B',
+      hexBackgroundColor: BINGOO_NAVY,
       logo: {
         sourceUri: {
           uri: BINGOO_LOGO_URL,
