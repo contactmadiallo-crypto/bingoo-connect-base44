@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
 
 const FONT_BODY = "'Inter', system-ui, sans-serif";
 
@@ -56,21 +57,19 @@ export default function WalletPassButtons({ profile, color, isDark }) {
     setLoading("google");
     setError(null);
     try {
-      const response = await fetch("/api/functions/generateGoogleWalletPass", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile_id: profile.id, username: profile.username }),
+      // Use the SDK so the Base44 auth token is injected — raw fetch() does not
+      // send it, which makes the backend ownership check (auth.me()) fail with
+      // "Authentication required to view users".
+      const response = await base44.functions.invoke("generateGoogleWalletPass", {
+        profile_id: profile.id,
+        username: profile.username,
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate pass");
-      }
-      if (data.save_url) {
-        window.open(data.save_url, "_blank");
-      }
+      const saveUrl = response?.data?.save_url;
+      if (!saveUrl) throw new Error("No save URL returned");
+      window.open(saveUrl, "_blank");
     } catch (err) {
       console.error("Google Wallet error:", err);
-      setError("Google Wallet pass unavailable — try again later.");
+      setError(err?.response?.data?.error || err?.message || "Google Wallet pass unavailable — try again later.");
     } finally {
       setLoading(null);
     }
