@@ -37,19 +37,14 @@ Deno.serve(async (req) => {
 
     const googleKey = Deno.env.get("GOOGLE_INDEXING_KEY");
 
-    if (!googleKey) {
-      // No key configured — still ping Bing/IndexNow as a free fallback
-      console.log("[notifyGoogleIndex] No GOOGLE_INDEXING_KEY set, trying IndexNow fallback.");
-      try {
-        const indexNowRes = await fetch(`https://api.indexnow.org/indexnow?url=${encodeURIComponent(profileUrl)}&key=bingooconnect`, {
-          method: "GET",
-        });
-        console.log(`[notifyGoogleIndex] IndexNow response: ${indexNowRes.status}`);
-      } catch (e) {
-        console.log("[notifyGoogleIndex] IndexNow ping failed:", e.message);
-      }
-      return Response.json({ ok: true, method: "indexnow_fallback" });
-    }
+   if (!googleKey) {
+  console.log("[notifyGoogleIndex] No GOOGLE_INDEXING_KEY set, skipping indexing");
+  return Response.json({
+    ok: true,
+    skipped: true,
+    reason: "GOOGLE_INDEXING_KEY missing"
+  });
+}
 
     // Use Google Indexing API (requires service account key JSON in GOOGLE_INDEXING_KEY)
     // Parse the service account key
