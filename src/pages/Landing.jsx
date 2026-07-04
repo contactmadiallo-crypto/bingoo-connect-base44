@@ -442,14 +442,170 @@ const industryGroups = [
   }
 ];
 
-// Documentation CTA buttons shown under the industry grid
-const docCtas = [
-  { label: "Individual", route: "/bingoo", icon: "👤" },
-  { label: "Business", route: "/plans", icon: "🏢" },
-  { label: "Lost Item", route: "/activate-device", icon: "📍" },
-  { label: "Wallet Passes", route: "/bingoo", icon: "💳" },
-  { label: "Lead CRM", route: "/bingoo", icon: "📈" },
-  { label: "Appointment Booking", route: "/plans", icon: "📅" }
+// Informational detail cards for the "Explore Bingoo use cases" buttons.
+// These open a documentation modal — they never navigate to a personal profile/dashboard.
+const docDetails = [
+  {
+    label: "Individual",
+    icon: "👤",
+    accent: B.orange,
+    badge: "Personal",
+    title: "Bingoo for individuals",
+    subtitle: "Your professional identity, on one tap",
+    overview: "Create a single, always-current digital business card. Share contact, social, payment links and your schedule with one NFC tap or QR scan — no app needed for the person you meet.",
+    useCases: [
+      "Consultants and freelancers sharing contact fast",
+      "Job seekers linking a resume and portfolio",
+      "Creators consolidating social and payment links",
+      "Coaches and trainers sharing booking links"
+    ],
+    implemented: [
+      "Custom profile layouts and themes",
+      "QR sharing with custom colors",
+      "Multi-language profiles (EN/FR)",
+      "Lead capture from visitors",
+      "Appointment booking"
+    ],
+    whyItMatters: "You never run out of cards, your info is always current, and every new connection is saved automatically.",
+    ctas: [
+      { label: "See plans", route: "/plans" },
+      { label: "Get an NFC device", route: "/shop" }
+    ]
+  },
+  {
+    label: "Business",
+    icon: "🏢",
+    accent: B.navy,
+    badge: "Teams & companies",
+    title: "Bingoo for business",
+    subtitle: "One identity for your whole team",
+    overview: "Equip every team member with a branded NFC card pointing to a shared business profile. Manage leads, appointments and analytics from one dashboard.",
+    useCases: [
+      "Law firms routing case inquiries",
+      "Salons managing stylists and bookings",
+      "Restaurants sharing menus and reservations",
+      "Realtors showcasing listings",
+      "Consultancies tracking lead pipelines"
+    ],
+    implemented: [
+      "Shared business profile with team members",
+      "Lead CRM with status pipeline",
+      "Appointment scheduling per service",
+      "Real-time analytics across the team",
+      "Corporate attendance tracking"
+    ],
+    whyItMatters: "Standardize how every employee represents your business — and measure every connection they make.",
+    ctas: [
+      { label: "See business plans", route: "/plans" },
+      { label: "Bulk NFC cards", route: "/shop" }
+    ]
+  },
+  {
+    label: "Lost Item",
+    icon: "📍",
+    accent: "#ef4444",
+    badge: "Asset recovery",
+    title: "Lost item mode",
+    subtitle: "Help the right thing happen when something is lost",
+    overview: "Assign an NFC device to anything — keys, luggage, a pet, a product. If found, a tap opens a recovery page with your safe contact info and a finder report form.",
+    useCases: [
+      "Pet profiles with finder reporting",
+      "Suitcases and bags",
+      "Keychains and electronics",
+      "Branded products with digital identity"
+    ],
+    implemented: [
+      "Lost mode toggle per device",
+      "Finder report with location and message",
+      "Owner notifications",
+      "Safe contact info display"
+    ],
+    whyItMatters: "Recover what matters without exposing your private phone number or address.",
+    ctas: [
+      { label: "Get an NFC device", route: "/shop" },
+      { label: "See plans", route: "/plans" }
+    ]
+  },
+  {
+    label: "Wallet Passes",
+    icon: "💳",
+    accent: B.gold,
+    badge: "Wallet",
+    title: "Google Wallet passes",
+    subtitle: "Your profile, in their wallet",
+    overview: "Generate a branded Google Wallet pass from any profile so contacts can save your business card straight to their phone wallet.",
+    useCases: [
+      "Trade shows and conferences",
+      "Client handouts",
+      "Returning customers saving your card",
+      "Branded corporate team passes"
+    ],
+    implemented: [
+      "One-tap pass generation",
+      "Branded colors and logo",
+      "Contact and link details on the pass"
+    ],
+    futureVision: "Apple Wallet passes are on the near-term roadmap for iPhone owners.",
+    whyItMatters: "Staying in someone's wallet is the most durable place your business card can be.",
+    ctas: [
+      { label: "See plans", route: "/plans" },
+      { label: "Get an NFC device", route: "/shop" }
+    ]
+  },
+  {
+    label: "Lead CRM",
+    icon: "📈",
+    accent: "#16a34a",
+    badge: "CRM",
+    title: "Lead CRM",
+    subtitle: "Turn every tap into a tracked lead",
+    overview: "Every contact form submission from a profile is captured as a lead with source, status and notes — so you can follow up without losing track.",
+    useCases: [
+      "Law firms capturing case inquiries",
+      "Salons booking first appointments",
+      "Realtors logging property interest",
+      "Consultants qualifying prospects"
+    ],
+    implemented: [
+      "Lead capture from any public profile",
+      "Source tracking (profile, NFC, QR, referral)",
+      "Pipeline statuses (new → contacted → won/lost)",
+      "Internal CRM notes",
+      "Legal intake fields for law firms"
+    ],
+    whyItMatters: "Most connections are lost because nobody follows up. Bingoo makes the follow-up automatic.",
+    ctas: [
+      { label: "See plans", route: "/plans" },
+      { label: "Get an NFC device", route: "/shop" }
+    ]
+  },
+  {
+    label: "Appointment Booking",
+    icon: "📅",
+    accent: "#2563eb",
+    badge: "Booking",
+    title: "Appointment booking",
+    subtitle: "Let visitors book you in one tap",
+    overview: "Add a booking button to any profile. Visitors pick a service, date and time slot — you approve, reschedule or decline from your dashboard.",
+    useCases: [
+      "Salons and barbers",
+      "Law firm consultations",
+      "Realtor showings",
+      "Coach and consultant sessions"
+    ],
+    implemented: [
+      "Service-based booking",
+      "Time-slot selection",
+      "Owner approval workflow",
+      "Reminder notifications",
+      "Calendar view in dashboard"
+    ],
+    whyItMatters: "Bookings happen at the moment of interest — no phone tag, no back-and-forth.",
+    ctas: [
+      { label: "See plans", route: "/plans" },
+      { label: "Get an NFC device", route: "/shop" }
+    ]
+  }
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
@@ -886,10 +1042,10 @@ export default function Landing() {
               Jump straight to the part of Bingoo that fits your goal.
             </p>
             <div className="flex flex-wrap justify-center gap-2.5">
-              {docCtas.map((d) => (
+              {docDetails.map((d) => (
                 <motion.button
                   key={d.label}
-                  onClick={() => { window.location.href = d.route; }}
+                  onClick={() => setActiveDetail(d)}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition-colors"
