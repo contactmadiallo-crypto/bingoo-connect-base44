@@ -23,6 +23,7 @@ import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
+import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 import {
   PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
@@ -837,7 +838,7 @@ function LostModePanel({ profileId, user, isDark, effectivePlan }) {
 }
 
 // ── SETTINGS PANEL ────────────────────────────────────────────────────────
-function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, onDeleted }) {
+function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, user, onDeleted }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
@@ -889,6 +890,12 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
             );
           })}
         </div>
+      </div>
+
+      {/* Phone Alerts — account/device-level push notifications (not profile-specific) */}
+      <div>
+        <p className={`text-xs ${mutedText} mb-2 px-1`}>Account-level · applies to your device, not this profile specifically.</p>
+        <PhoneAlertsSection user={user} />
       </div>
 
       <div className={`rounded-2xl border border-red-200 ${isDark ? "bg-red-900/10" : "bg-red-50"} p-5 space-y-3`}>
@@ -1211,7 +1218,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             )}
             {innerTab === "settings" && (
               <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set}
-                profile={profile} onDeleted={onBack} />
+                profile={profile} user={user} onDeleted={onBack} />
             )}
           </div>
 
