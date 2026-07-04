@@ -33,11 +33,15 @@ export default function PhoneAlertsSection({ user }) {
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
   const [testing, setTesting] = useState(false);
-  const supported =
-    typeof navigator !== "undefined" &&
-    "serviceWorker" in navigator &&
-    "PushManager" in window;
+  // Robust push support detection: PushManager may be exposed on window OR only on
+  // ServiceWorkerRegistration.prototype (Safari/iOS). Check both to avoid false negatives.
+  const hasSW = typeof navigator !== "undefined" && "serviceWorker" in navigator;
+  const hasPushGlobal = typeof window !== "undefined" && "PushManager" in window;
+  const hasPushProto = typeof ServiceWorkerRegistration !== "undefined" && "pushManager" in ServiceWorkerRegistration.prototype;
+  const supported = hasSW && (hasPushGlobal || hasPushProto);
   const inIframe = typeof window !== "undefined" && window.self !== window.top;
+  // iOS requires "Add to Home Screen" (PWA install) for web push to actually work
+  const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent);
   const [permission, setPermission] = useState(
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
@@ -194,6 +198,13 @@ export default function PhoneAlertsSection({ user }) {
         <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <span>Push notifications only work in the published app, not inside this preview. Open your live site to enable them.</span>
+        </div>
+      )}
+
+      {supported && isIOS && !inIframe && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+          <Info className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>On iPhone/iPad, tap the Share button and choose <strong>Add to Home Screen</strong> first — Apple only allows web push from installed apps.</span>
         </div>
       )}
 
