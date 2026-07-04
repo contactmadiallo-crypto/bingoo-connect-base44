@@ -6,6 +6,8 @@ import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
 import FeedbackSection from "../components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
+import BrandIcon3D from "@/components/landing/BrandIcon3D";
+import ProjectFutureSection from "@/components/landing/ProjectFutureSection";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
 
@@ -704,6 +706,15 @@ export default function Landing() {
               transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}>
               <NFCTapMockup />
 
+              {/* 3D brand badge */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+                className="hidden lg:flex">
+                <BrandIcon3D size={120} />
+              </motion.div>
+
               {/* Product showcase strip */}
               <motion.div
                 className="flex items-center gap-3 px-5 py-3 rounded-2xl"
@@ -871,7 +882,7 @@ export default function Landing() {
           <ScrollReveal delay={0.1} className="mt-12 rounded-3xl p-7 md:p-9 text-center"
             style={{ background: `linear-gradient(135deg, ${B.navy} 0%, ${B.navyLight} 100%)` }}>
             <h3 className="font-black text-xl md:text-2xl text-white mb-2">Explore Bingoo use cases</h3>
-            <p className="text-white/60 text-sm mb-6 max-w-xl mx-auto">
+            <p className="text-white/80 text-sm mb-6 max-w-xl mx-auto">
               Jump straight to the part of Bingoo that fits your goal.
             </p>
             <div className="flex flex-wrap justify-center gap-2.5">
@@ -881,8 +892,8 @@ export default function Landing() {
                   onClick={() => { window.location.href = d.route; }}
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.96 }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-colors"
-                  style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition-colors"
+                  style={{ background: B.orange, color: "#fff", border: "none", boxShadow: "0 6px 18px rgba(255,122,0,0.35)" }}>
                   <span>{d.icon}</span>
                   {d.label}
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -892,6 +903,9 @@ export default function Landing() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* ── PROJECT & FUTURE */}
+      <ProjectFutureSection />
 
       {/* ── PRICING */}
       <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 bg-white">
