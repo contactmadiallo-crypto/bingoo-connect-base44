@@ -23,7 +23,7 @@ export default function ContactSupport() {
     e.preventDefault();
     setSubmitting(true);
     await base44.integrations.Core.SendEmail({
-      to: "support@bingooconnect.com",
+      to: "info.contact@bingooconnect.com",
       subject: `[Support] ${form.topic} — ${form.name}`,
       body: `Name: ${form.name}\nEmail: ${form.email}\nTopic: ${form.topic}\n\nMessage:\n${form.message}`,
     }).catch(() => {});
@@ -49,7 +49,7 @@ export default function ContactSupport() {
             { icon: <Shield size={20} color="#2563eb" />, label: "Privacy Policy", desc: "How we handle your data", to: "/privacy" },
             { icon: <FileText size={20} color="#7c3aed" />, label: "Terms of Service", desc: "Rules & agreements", to: "/terms" },
             { icon: <Mail size={20} color="#dc2626" />, label: "Data Deletion", desc: "Delete your account & data", to: "/data-deletion" },
-            { icon: <MessageSquare size={20} color="#059669" />, label: "Email Us", desc: "support@bingooconnect.com", href: "mailto:support@bingooconnect.com" },
+            { icon: <MessageSquare size={20} color="#059669" />, label: "Email Us", desc: "info.contact@bingooconnect.com", href: "mailto:info.contact@bingooconnect.com" },
           ].map(({ icon, label, desc, to, href }) => {
             const inner = (
               <div style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", border: "1px solid #e2e8f0", display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", transition: "box-shadow 0.15s" }}

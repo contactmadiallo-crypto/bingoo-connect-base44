@@ -56,9 +56,9 @@ export default function Contact() {
               </div>
               <div>
                 <p className="font-bold text-slate-800 mb-1">Email</p>
-                <a href="mailto:support@bingooconnect.com"
+                <a href="mailto:info.contact@bingooconnect.com"
                   className="text-sm hover:underline" style={{ color: B.orange }}>
-                  support@bingooconnect.com
+                  info.contact@bingooconnect.com
                 </a>
               </div>
             </div>

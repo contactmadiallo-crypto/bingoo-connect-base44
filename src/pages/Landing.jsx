@@ -58,7 +58,7 @@ const features = [
       "Owner-managed device list with lost-mode and replacement support"
     ],
     whyItMatters: "Paper business cards get lost, outdated, and thrown away. One Bingoo device shares your entire, always-current professional identity — forever.",
-    ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+    ctas: [{ label: "Get an NFC device", route: "/shop" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <BarChart3 className="w-6 h-6" />,
@@ -79,7 +79,7 @@ const features = [
       "Recent activity feed and engagement trend charts"
     ],
     whyItMatters: "You can't grow what you can't measure. Bingoo analytics turn every tap and click into a decision about where to invest next.",
-    ctas: [{ label: "View dashboard", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <Calendar className="w-6 h-6" />,
@@ -100,7 +100,7 @@ const features = [
       "Automatic appointment notifications and reminders"
     ],
     whyItMatters: "Every missed call or email thread is a lost client. Letting visitors book themselves means you capture interest the moment it happens.",
-    ctas: [{ label: "Start with this feature", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+    ctas: [{ label: "Start with this feature", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <Users className="w-6 h-6" />,
@@ -121,7 +121,7 @@ const features = [
       "Internal CRM notes and lead source tracking"
     ],
     whyItMatters: "Most business cards get you a name and number in a pocket. Bingoo captures a structured lead the moment someone is interested, so nothing slips through the cracks.",
-    ctas: [{ label: "View dashboard", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <Globe className="w-6 h-6" />,
@@ -143,7 +143,7 @@ const features = [
     futureVision: "Arabic, Spanish and additional languages are on the roadmap, along with automatic visitor-language detection.",
     futureLabel: "Future vision",
     whyItMatters: "Visitors engage more when content speaks their language. Multi-language profiles help you win clients in every market you serve.",
-    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "Learn more", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "Learn more", route: "/plans" }]
   },
   {
     icon: <Shield className="w-6 h-6" />,
@@ -164,7 +164,7 @@ const features = [
       "Clear separation between public profile and private dashboard"
     ],
     whyItMatters: "Trust is everything for professionals. Bingoo keeps sensitive client data private while letting you share a public, always-on profile.",
-    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <MapPin className="w-6 h-6" />,
@@ -186,7 +186,7 @@ const features = [
       "Owner notifications when a finder reports a found item"
     ],
     whyItMatters: "A lost item is stressful. Bingoo gives finders a safe, private way to reach you — and gives you a real chance of getting it back.",
-    ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+    ctas: [{ label: "Get an NFC device", route: "/shop" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <QrCode className="w-6 h-6" />,
@@ -207,7 +207,7 @@ const features = [
       "Custom QR color to match your branding"
     ],
     whyItMatters: "Not everyone has NFC on their phone. A QR code makes your profile reachable from any printed surface, anywhere.",
-    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <Wallet className="w-6 h-6" />,
@@ -228,7 +228,7 @@ const features = [
       "Branded pass design with Bingoo identity"
     ],
     whyItMatters: "A wallet pass means your professional identity lives where people already keep their most important cards — always available, always up to date.",
-    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
   },
   {
     icon: <Apple className="w-6 h-6" />,
@@ -250,7 +250,7 @@ const features = [
     futureVision: "Public Apple Wallet pass availability after Apple Developer signing is configured. Owners will see an 'Add to Apple Wallet' button next to the Google Wallet button.",
     futureLabel: "Coming next",
     whyItMatters: "Most professionals carry an iPhone. An Apple Wallet pass makes Bingoo a natural part of their everyday carry, on every platform.",
-    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "Learn more", route: "/plans" }]
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "Learn more", route: "/plans" }]
   }
 ];
 
@@ -312,7 +312,7 @@ const industryGroups = [
         overview: "Entrepreneurs use Bingoo to share every link, capture leads and track who's engaging — all from one profile and one NFC device.",
         useCases: ["Pitch meetings and investor intros", "Pop-ups and community events", "Social media bio link replacement"],
         implemented: ["All-in-one link profile", "Lead capture and CRM", "Real-time analytics"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "📸", role: "Influencers", value: "One profile, every platform, measurable reach",
@@ -321,7 +321,7 @@ const industryGroups = [
         overview: "Influencers consolidate every social platform, collab link and booking option into one tap-friendly profile, and see exactly which channels drive clicks.",
         useCases: ["Brand collabs and sponsorships", "Event meetups and fan links", "Link-in-bio with analytics"],
         implemented: ["Instagram, TikTok, YouTube, Facebook links", "Custom link store", "Per-link click analytics"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🧑‍💻", role: "Freelancers", value: "Share services, book clients, get paid",
@@ -330,7 +330,7 @@ const industryGroups = [
         overview: "Freelancers show their services, portfolio and rates on one profile, let clients book directly, and accept payments through linked payment options.",
         useCases: ["Client onboarding and discovery calls", "Portfolio and service showcase", "Direct booking and payment links"],
         implemented: ["Portfolio items", "Appointment booking", "Payment links (CashApp, Wave, Orange Money, custom)"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🎯", role: "Professionals", value: "Consultants, lawyers, advisors and coaches",
@@ -339,7 +339,7 @@ const industryGroups = [
         overview: "Independent professionals use Bingoo as a credible, always-current business identity — sharing credentials, services and booking with one tap.",
         useCases: ["Consultations and discovery calls", "Speaking engagements and panels", "Credentials and bio sharing"],
         implemented: ["Bio and credentials", "Appointment booking", "Lead capture CRM"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       }
     ]
   },
@@ -354,7 +354,7 @@ const industryGroups = [
         overview: "Law firms use Bingoo to capture qualified leads with case-type, urgency and consultation preferences, manage the intake pipeline, and present attorneys, practice areas and office locations publicly.",
         useCases: ["Immigration, civil and criminal intake", "Attorney profiles and bar admissions", "Office locations and consultation booking"],
         implemented: ["Practice areas and legal services", "Team members and attorneys", "Office locations", "Legal lead intake with case details"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🏠", role: "Real Estate", value: "Share listings and book property viewings",
@@ -365,7 +365,7 @@ const industryGroups = [
         implemented: ["Profile with contact and WhatsApp", "QR codes for signage", "Lead capture and booking"],
         futureVision: "Listing galleries and property-specific QR codes are planned for real estate teams.",
         futureLabel: "Future vision",
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "💇", role: "Salons and Barbers", value: "Booking, portfolio and loyalty",
@@ -374,7 +374,7 @@ const industryGroups = [
         overview: "Salons showcase services, stylists and portfolios, let clients book the service and stylist they want, and display Instagram work and Google reviews — all from one profile.",
         useCases: ["Service menu and pricing", "Stylist profiles and booking", "Instagram showcase and Google reviews"],
         implemented: ["Salon service menu", "Team and stylist profiles", "Appointment booking", "WhatsApp booking button"],
-        ctas: [{ label: "See plans", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🍽️", role: "Restaurants", value: "Digital menu, reservations and QR ordering",
@@ -385,7 +385,7 @@ const industryGroups = [
         implemented: ["QR code sharing", "Appointment/booking widget", "Location, hours and social links"],
         futureVision: "Full digital menu builder and table-side ordering are planned for restaurant plans.",
         futureLabel: "Future vision",
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🏥", role: "Medical Offices", value: "Appointments, intake forms and records",
@@ -394,7 +394,7 @@ const industryGroups = [
         overview: "Medical offices use Bingoo to share services and providers, accept appointment requests 24/7, and keep intake data private and owner-scoped.",
         useCases: ["Patient appointment requests", "Provider and service profiles", "Secure, private intake"],
         implemented: ["Appointment booking", "Team members and services", "Owner-scoped, secure dashboard records"],
-        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🏢", role: "Business Teams", value: "Corporate teams, agencies and multi-profile orgs",
@@ -403,7 +403,7 @@ const industryGroups = [
         overview: "Corporate teams manage employee profiles, issue NFC cards in bulk, track attendance, and view team-wide analytics from a central dashboard with admin controls.",
         useCases: ["Employee profiles and team NFC cards", "Clock in / clock out attendance", "Team analytics and admin roles"],
         implemented: ["Multi-profile management", "Admin role controls", "Attendance and team analytics"],
-        ctas: [{ label: "See plans", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "See plans", route: "/plans" }]
       }
     ]
   },
@@ -418,7 +418,7 @@ const industryGroups = [
         overview: "Attach a Bingoo NFC tag or QR code to a pet's collar. If the pet is lost, anyone who finds it can tap to report they found it — with their contact and location — without seeing your private details.",
         useCases: ["Dogs and cats collars", "Travel and outdoor pets", "Found-pet reporting"],
         implemented: ["NFC/QR device assignment", "Lost-mode toggle", "Found-item report page with finder details"],
-        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+        ctas: [{ label: "Get an NFC device", route: "/shop" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "🧳", role: "Suitcase / Bag", value: "Recover lost luggage without exposing private info",
@@ -427,7 +427,7 @@ const industryGroups = [
         overview: "Tag a suitcase, backpack, or laptop bag with a Bingoo device. If it's lost in transit, whoever finds it can tap to report they found it — you get notified with their message and location.",
         useCases: ["Airline luggage and carry-ons", "Backpacks and laptop bags", "Conference swag bags"],
         implemented: ["Device assignment to any item", "Lost-mode with owner notifications", "Finder report page"],
-        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+        ctas: [{ label: "Get an NFC device", route: "/shop" }, { label: "See plans", route: "/plans" }]
       },
       {
         icon: "📦", role: "NFC Product / Device", value: "Attach a digital identity to any product",
@@ -436,7 +436,7 @@ const industryGroups = [
         overview: "Attach a Bingoo NFC device to a product or asset so anyone who taps it sees the profile, instructions, or ownership information you choose to publish — and can report it found if it's lost.",
         useCases: ["High-value equipment and assets", "Product authenticity and info", "Rental and loaned items"],
         implemented: ["Device-to-profile assignment", "Public profile or lost-item page", "Device lifecycle management"],
-        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+        ctas: [{ label: "Get an NFC device", route: "/shop" }, { label: "See plans", route: "/plans" }]
       }
     ]
   }

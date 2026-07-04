@@ -2,7 +2,7 @@
  * ProfileContentSections — Circo-inspired modern layout.
  * Custom links are routed to their correct category row via getLinkCategory().
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
 import ProfileResumeSection from "@/components/bingoo/ProfileResumeSection";
@@ -276,6 +276,14 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const [bookService, setBookService] = useState(null);
   const [bookStylist, setBookStylist] = useState(null);
   const [shared, setShared] = useState(false);
+
+  // Allow the public profile's sticky bottom bar (and other surfaces) to open
+  // the booking modal without having to scroll down to the inline Book button.
+  useEffect(() => {
+    const openBooking = () => setBookOpen(true);
+    window.addEventListener("bingoo-open-booking", openBooking);
+    return () => window.removeEventListener("bingoo-open-booking", openBooking);
+  }, []);
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isLawFirmProfile = profile.plan === "lawfirm";
