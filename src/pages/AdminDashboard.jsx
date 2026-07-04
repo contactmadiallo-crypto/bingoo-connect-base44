@@ -129,14 +129,17 @@ export default function AdminDashboard() {
 
       const existingSubs = await base44.entities.Subscription.filter({ customer_email: email });
       const existing = existingSubs?.[0];
-      if (existing?.stripe_subscription_id) {
-        throw new Error("This customer has a real Stripe subscription. Manage their plan from the Stripe dashboard, not here.");
-      }
 
-      const status = plan === "free" ? "free" : "active";
-      if (existing) {
+      if (existing?.stripe_subscription_id) {
+        // Subscribed user: override entitlement LOCALLY without touching Stripe billing.
+        // Keep stripe_subscription_id, stripe_customer_id and status intact so the real
+        // Stripe link is preserved — only plan + plan_source change.
+        await base44.entities.Subscription.update(existing.id, { plan, plan_source: "admin_override" });
+      } else if (existing) {
+        const status = plan === "free" ? "free" : "active";
         await base44.entities.Subscription.update(existing.id, { plan, status, plan_source: "admin_override" });
       } else {
+        const status = plan === "free" ? "free" : "active";
         await base44.entities.Subscription.create({
           customer_email: email,
           customer_name: profile.display_name || owner?.full_name || "",
@@ -159,19 +162,53 @@ export default function AdminDashboard() {
   // realSubscription is the TRUE entitlement source (Subscription entity, keyed by email) —
   // Profile.plan can be stale, so the admin table must never rely on it alone to show status.
   const subsByEmail = new Map(subscriptions.map(s => [s.customer_email?.toLowerCase(), s]));
-  const userProfileRows = allUsers.map(u => {
-    const profile = profiles.find(p =>
+  // Build a roster with ONE ROW PER PROFILE so users with multiple profiles
+  // (e.g. a default profile + a business profile) all show up in the admin table.
+  // Users with no profile get a single row (profile=null) so they remain listed.
+  // Orphan profiles (owner not in the user list) are appended at the end.
+  const userProfileRows = [];
+  const matchedProfileIds = new Set();
+  const findOwner = (p) => allUsers.find(u =>
+    u.id === p.created_by_id ||
+    (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id)) ||
+    (p.email && p.email === u.email)
+  );
+  allUsers.forEach(u => {
+    const userProfiles = profiles.filter(p =>
       p.created_by_id === u.id ||
       (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id)) ||
       (p.email && p.email === u.email)
-    ) || null;
-    const email = (profile?.email || u.email || "").toLowerCase();
-    const realSubscription = subsByEmail.get(email) || null;
-    const hasRealStripeSub = !!realSubscription?.stripe_subscription_id;
-    // Real plan shown to the admin: Stripe subscription wins when present (source of truth),
-    // otherwise fall back to whatever plan is on the profile (admin override or free).
-    const realPlan = hasRealStripeSub ? realSubscription.plan : (profile?.plan || "free");
-    return { user: u, profile, realSubscription, hasRealStripeSub, realPlan };
+    );
+    if (userProfiles.length === 0) {
+      const email = (u.email || "").toLowerCase();
+      const realSubscription = subsByEmail.get(email) || null;
+      const hasRealStripeSub = !!realSubscription?.stripe_subscription_id;
+      const realPlan = hasRealStripeSub ? realSubscription.plan : "free";
+      userProfileRows.push({ user: u, profile: null, realSubscription, hasRealStripeSub, realPlan });
+    } else {
+      userProfiles.forEach(p => {
+        matchedProfileIds.add(p.id);
+        const email = (p.email || u.email || "").toLowerCase();
+        const realSubscription = subsByEmail.get(email) || null;
+        const hasRealStripeSub = !!realSubscription?.stripe_subscription_id;
+        const realPlan = hasRealStripeSub ? realSubscription.plan : (p.plan || "free");
+        userProfileRows.push({ user: u, profile: p, realSubscription, hasRealStripeSub, realPlan });
+      });
+    }
+  });
+  // Orphan profiles whose owner isn't in the user list
+  profiles.forEach(p => {
+    if (!matchedProfileIds.has(p.id)) {
+      const owner = findOwner(p);
+      const email = (p.email || "").toLowerCase();
+      const realSubscription = subsByEmail.get(email) || null;
+      const hasRealStripeSub = !!realSubscription?.stripe_subscription_id;
+      const realPlan = hasRealStripeSub ? realSubscription.plan : (p.plan || "free");
+      userProfileRows.push({
+        user: owner || { id: null, full_name: null, email: p.email || "—", role: "—", created_date: null },
+        profile: p, realSubscription, hasRealStripeSub, realPlan,
+      });
+    }
   });
 
   const filteredUserRows = userProfileRows
@@ -412,7 +449,7 @@ export default function AdminDashboard() {
             <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-xs mb-2"
               style={{ background: "rgba(253,186,33,0.08)", border: "1px solid rgba(253,186,33,0.2)", color: "rgba(253,186,33,0.8)" }}>
               <span className="flex-shrink-0 mt-0.5">⚠️</span>
-              <span><strong>Manual app-plan override for testing/internal use.</strong> Changing the plan here creates/updates an admin-only <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Subscription</code> record marked <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>admin_override</code>. This does <em>not</em> change Stripe billing, cancel subscriptions, or affect a customer's real Stripe subscription.</span>
+              <span><strong>Admin plan override.</strong> Changing the plan here updates the <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Subscription</code> record's <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>plan</code> field (marked <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>admin_override</code>) — this changes the user's entitlement immediately. For users with a real Stripe subscription the link to Stripe is preserved, but Stripe billing itself is <em>not</em> changed from here; use the Stripe dashboard for real billing changes.</span>
             </div>
 
             <div className="rounded-2xl overflow-hidden border"
@@ -428,7 +465,7 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {filteredUserRows.map(({ user: u, profile: p, hasRealStripeSub, realPlan }) => (
-                      <tr key={u.id} className="transition-colors"
+                      <tr key={p?.id || u.id} className="transition-colors"
                         style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
                         onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
@@ -457,28 +494,29 @@ export default function AdminDashboard() {
                                 style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
                                 {PLAN_LABELS[realPlan] || realPlan}
                               </span>
+                              <select value={realPlan} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
+                                disabled={updatePlan.isPending}
+                                className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer mt-1 disabled:opacity-50"
+                                style={hasRealStripeSub
+                                  ? { background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }
+                                  : { background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
+                                <option value="free">Free</option>
+                                <option value="pro">Pro (legacy)</option>
+                                <option value="professional">Professional</option>
+                                <option value="business">Business</option>
+                                <option value="salon">Salon</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="lawfirm">Law Firm</option>
+                                <option value="corporate">Corporate</option>
+                              </select>
                               {hasRealStripeSub ? (
                                 <span className="text-[9px] leading-tight font-semibold" style={{ color: "#06b6d4" }}>
-                                  💳 Real Stripe subscription — manage in Stripe dashboard
+                                  ⚠️ Overrides entitlement locally — Stripe billing unchanged
                                 </span>
                               ) : (
-                                <>
-                                  <select value={p.plan || "free"} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
-                                    className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer mt-1"
-                                    style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
-                                    <option value="free">Free</option>
-                                    <option value="pro">Pro (legacy)</option>
-                                    <option value="professional">Professional</option>
-                                    <option value="business">Business</option>
-                                    <option value="salon">Salon</option>
-                                    <option value="restaurant">Restaurant</option>
-                                    <option value="lawfirm">Law Firm</option>
-                                    <option value="corporate">Corporate</option>
-                                  </select>
-                                  <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
-                                    App-plan override · no Stripe change
-                                  </span>
-                                </>
+                                <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                  App-plan override · no Stripe change
+                                </span>
                               )}
                             </div>
                           ) : <span className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
