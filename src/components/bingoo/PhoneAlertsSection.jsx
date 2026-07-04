@@ -43,7 +43,7 @@ export default function PhoneAlertsSection({ user }) {
   // iOS requires "Add to Home Screen" (PWA install) for web push to actually work
   const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent);
   const [permission, setPermission] = useState(
-    typeof Notification !== "undefined" ? Notification.permission : "denied"
+    typeof Notification !== "undefined" ? Notification.permission : "default"
   );
 
   const fetchSubs = useCallback(async () => {
@@ -72,12 +72,16 @@ export default function PhoneAlertsSection({ user }) {
     }
     setSubscribing(true);
     try {
-      const perm = await Notification.requestPermission();
-      setPermission(perm);
-      if (perm !== "granted") {
-        toast.error("Notification permission was denied. Enable it in your browser settings to get alerts.");
-        setSubscribing(false);
-        return;
+      // On iOS non-PWA Safari, Notification is undefined — skip the permission prompt
+      // and let pushManager.subscribe surface the appropriate error feedback.
+      if (typeof Notification !== "undefined") {
+        const perm = await Notification.requestPermission();
+        setPermission(perm);
+        if (perm !== "granted") {
+          toast.error("Notification permission was denied. Enable it in your browser settings to get alerts.");
+          setSubscribing(false);
+          return;
+        }
       }
 
       // Register the service worker (the published app already serves /sw.js)
