@@ -187,17 +187,17 @@ export default function PhoneAlertsSection({ user }) {
         </div>
       </div>
 
-      {!supported && (
-        <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+      {inIframe && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>Push notifications aren't supported in this browser. Try Chrome, Safari, or Edge on a mobile device or desktop.</span>
+          <span>Push notifications only work in the published app, not inside this preview. Open your live site (bingooconnect.com) in a browser tab to enable them.</span>
         </div>
       )}
 
-      {supported && inIframe && (
-        <div className="mt-4 flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+      {!supported && !inIframe && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>Push notifications only work in the published app, not inside this preview. Open your live site to enable them.</span>
+          <span>Push notifications aren't supported in this browser. Try Chrome, Safari, or Edge on a mobile device or desktop.</span>
         </div>
       )}
 
