@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe } from "lucide-react";
+import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe, QrCode, MapPin, Wallet, Apple, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
 import FeedbackSection from "../components/bingoo/FeedbackSection";
+import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
 
@@ -33,13 +34,222 @@ const goActivate = async () => {
   else base44.auth.redirectToLogin('/activate-device');
 };
 
+// Each feature card opens a detail panel (LandingDetailModal) with overview,
+// use cases, what's implemented, why it matters, and CTA buttons.
 const features = [
-  { icon: <Wifi className="w-6 h-6" />, title: "NFC One-Tap Share", desc: "Tap your card or bracelet — instantly share your entire professional profile." },
-  { icon: <BarChart3 className="w-6 h-6" />, title: "Real-Time Analytics", desc: "Track every profile view, link click, lead, and conversion in real-time." },
-  { icon: <Calendar className="w-6 h-6" />, title: "Appointment Booking", desc: "Let clients book directly from your profile. No back-and-forth emails." },
-  { icon: <Users className="w-6 h-6" />, title: "Lead Generation CRM", desc: "Capture visitor info automatically and manage your pipeline from your dashboard." },
-  { icon: <Globe className="w-6 h-6" />, title: "Multi-Language Profiles", desc: "Serve global clients with profiles in English, French, Arabic, and more." },
-  { icon: <Shield className="w-6 h-6" />, title: "Enterprise Security", desc: "Bank-level encryption, GDPR compliant, and built for law firms and medical offices." }
+  {
+    icon: <Wifi className="w-6 h-6" />,
+    title: "NFC One-Tap Share",
+    desc: "Tap your card or bracelet — instantly share your entire professional profile.",
+    accent: B.navy,
+    badge: "Core",
+    subtitle: "Replace paper business cards with one tap",
+    overview: "A visitor taps their phone against your Bingoo NFC card, keychain, bracelet, or sticker and your full digital profile opens instantly — no app to install, no link to type. Update your profile anytime and every tap reflects the change immediately.",
+    useCases: [
+      "Networking events and conferences — share your profile in seconds",
+      "Salons, law offices and clinics — hand a card to every new client",
+      "Countertop stands let visitors tap to view your services without typing"
+    ],
+    implemented: [
+      "NFC cards, keychains, bracelets, stickers and desk stands",
+      "Device activation flow that links a physical device to your profile",
+      "Owner-managed device list with lost-mode and replacement support"
+    ],
+    whyItMatters: "Paper business cards get lost, outdated, and thrown away. One Bingoo device shares your entire, always-current professional identity — forever.",
+    ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+  },
+  {
+    icon: <BarChart3 className="w-6 h-6" />,
+    title: "Real-Time Analytics",
+    desc: "Track every profile view, link click, lead, and conversion in real-time.",
+    accent: B.orange,
+    badge: "Dashboard",
+    subtitle: "See what's working and what to improve",
+    overview: "Your dashboard shows live profile views, link clicks (WhatsApp, phone, email, social), QR scans, NFC taps, leads and appointments — broken down by source and device so you know which profiles and campaigns perform best.",
+    useCases: [
+      "Compare which NFC device or QR placement drives the most views",
+      "Track which social links get clicked most by visitors",
+      "Measure how many profile views turn into leads and bookings"
+    ],
+    implemented: [
+      "Profile view, tap, scan and link-click tracking",
+      "Per-profile and per-device breakdowns",
+      "Recent activity feed and engagement trend charts"
+    ],
+    whyItMatters: "You can't grow what you can't measure. Bingoo analytics turn every tap and click into a decision about where to invest next.",
+    ctas: [{ label: "View dashboard", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+  },
+  {
+    icon: <Calendar className="w-6 h-6" />,
+    title: "Appointment Booking",
+    desc: "Let clients book directly from your profile. No back-and-forth emails.",
+    accent: B.gold,
+    badge: "Plan feature",
+    subtitle: "Let clients book from your public profile",
+    overview: "Visitors pick a date, time and service straight from your public profile and the request lands in your dashboard. You confirm, reschedule, or decline — and the client is notified. No phone tag, no scheduling software to buy separately.",
+    useCases: [
+      "Salons and barbers — clients book the stylist and service they want",
+      "Law firms — prospects request consultations with intake details",
+      "Medical offices and clinics — patients request appointments 24/7"
+    ],
+    implemented: [
+      "Booking widget on the public profile (date, time, service, contact)",
+      "Owner dashboard to confirm, reschedule, decline or mark completed",
+      "Automatic appointment notifications and reminders"
+    ],
+    whyItMatters: "Every missed call or email thread is a lost client. Letting visitors book themselves means you capture interest the moment it happens.",
+    ctas: [{ label: "Start with this feature", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+  },
+  {
+    icon: <Users className="w-6 h-6" />,
+    title: "Lead Generation CRM",
+    desc: "Capture visitor info automatically and manage your pipeline from your dashboard.",
+    accent: B.navy,
+    badge: "Dashboard",
+    subtitle: "Turn visitors into a managed pipeline",
+    overview: "When a visitor submits their name, phone, email and interest on your profile, the lead is saved to your dashboard with its source (NFC, QR, profile, referral) and a status. You track follow-ups, add notes, and move leads through your pipeline.",
+    useCases: [
+      "Law firms — capture case type, urgency and consultation preferences",
+      "Real estate — qualify buyers and sellers before the first call",
+      "Salons and consultants — log every inquiry and never lose a follow-up"
+    ],
+    implemented: [
+      "Lead capture form on the public profile",
+      "Pipeline statuses: new, contacted, qualified, won, lost",
+      "Internal CRM notes and lead source tracking"
+    ],
+    whyItMatters: "Most business cards get you a name and number in a pocket. Bingoo captures a structured lead the moment someone is interested, so nothing slips through the cracks.",
+    ctas: [{ label: "View dashboard", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+  },
+  {
+    icon: <Globe className="w-6 h-6" />,
+    title: "Multi-Language Profiles",
+    desc: "Serve global clients with profiles in English, French, Arabic, and more.",
+    accent: B.orange,
+    badge: "Available",
+    subtitle: "English and French today, more coming",
+    overview: "Switch your profile language between English and French so visitors see your content in the language they're most comfortable with. More languages are planned as Bingoo expands across Africa and globally.",
+    useCases: [
+      "Consultants and agencies serving bilingual clients",
+      "Businesses in multilingual regions (West Africa, Canada, Europe)",
+      "International teams that want one profile per language"
+    ],
+    implemented: [
+      "Profile language toggle (English / French)",
+      "In-app language switcher in the dashboard and landing page"
+    ],
+    futureVision: "Arabic, Spanish and additional languages are on the roadmap, along with automatic visitor-language detection.",
+    futureLabel: "Future vision",
+    whyItMatters: "Visitors engage more when content speaks their language. Multi-language profiles help you win clients in every market you serve.",
+    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "Learn more", route: "/plans" }]
+  },
+  {
+    icon: <Shield className="w-6 h-6" />,
+    title: "Enterprise Security",
+    desc: "Bank-level encryption, GDPR compliant, and built for law firms and medical offices.",
+    accent: B.navy,
+    badge: "Built-in",
+    subtitle: "Owner-based access and private controls",
+    overview: "Each profile belongs to its owner. Dashboard records (leads, appointments, analytics, devices) are private and only visible to the profile owner or admins. Public visitors only see what you choose to publish. Row-level security keeps every record scoped to its owner.",
+    useCases: [
+      "Law firms handling confidential client intake",
+      "Medical offices protecting patient appointment data",
+      "Corporate teams managing employee profiles centrally"
+    ],
+    implemented: [
+      "Owner-scoped access to leads, appointments and analytics",
+      "Admin-only controls for users, devices and billing",
+      "Clear separation between public profile and private dashboard"
+    ],
+    whyItMatters: "Trust is everything for professionals. Bingoo keeps sensitive client data private while letting you share a public, always-on profile.",
+    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+  },
+  {
+    icon: <MapPin className="w-6 h-6" />,
+    title: "Lost Item Mode",
+    desc: "Attach a Bingoo profile to bags, keys, or pets so finders can report safely.",
+    accent: B.orange,
+    badge: "Available",
+    subtitle: "Recover lost items without exposing private data",
+    overview: "Assign a Bingoo NFC device to a suitcase, keychain, pet collar, or product. If someone finds it and taps, they see a lost-item page where they can report they found it — with their contact details and location — without ever seeing your private owner information.",
+    useCases: [
+      "Luggage and suitcases for travelers",
+      "Keys, wallets and backpacks",
+      "Pet collars so a found pet can be returned home",
+      "Products and high-value assets"
+    ],
+    implemented: [
+      "Lost-mode toggle per device from your dashboard",
+      "Public lost-item report page (finder name, contact, message, location)",
+      "Owner notifications when a finder reports a found item"
+    ],
+    whyItMatters: "A lost item is stressful. Bingoo gives finders a safe, private way to reach you — and gives you a real chance of getting it back.",
+    ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+  },
+  {
+    icon: <QrCode className="w-6 h-6" />,
+    title: "QR Code Sharing",
+    desc: "Scannable profile access for flyers, menus, counters, events, and printed cards.",
+    accent: B.gold,
+    badge: "Available",
+    subtitle: "Share your profile anywhere — no NFC needed",
+    overview: "Every Bingoo profile includes a downloadable QR code. Print it on flyers, menus, business cards, storefronts, or event signs so anyone with a phone camera can open your profile instantly — even without an NFC tap.",
+    useCases: [
+      "Restaurant menus and reservation signs",
+      "Salon counters and front-desk displays",
+      "Event booths, flyers and printed marketing material"
+    ],
+    implemented: [
+      "Profile QR code with your custom label",
+      "Downloadable QR image with optional logo watermark",
+      "Custom QR color to match your branding"
+    ],
+    whyItMatters: "Not everyone has NFC on their phone. A QR code makes your profile reachable from any printed surface, anywhere.",
+    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+  },
+  {
+    icon: <Wallet className="w-6 h-6" />,
+    title: "Google Wallet",
+    desc: "Save the digital profile pass to Google Wallet for easy sharing.",
+    accent: B.navy,
+    badge: "Available",
+    subtitle: "Your profile pass, saved on Android",
+    overview: "Owners can generate a Google Wallet pass from their dashboard. The pass carries their name, title, company, contact actions and QR code — so on Android devices, the profile is always one swipe away in the wallet, ready to share.",
+    useCases: [
+      "Professionals who want their profile pass alongside payment cards",
+      "Teams issuing a consistent digital identity to every member",
+      "Sharing your profile quickly from the Android wallet"
+    ],
+    implemented: [
+      "Google Wallet pass generation from the dashboard (owner only)",
+      "Pass includes name, title, company, contact and QR",
+      "Branded pass design with Bingoo identity"
+    ],
+    whyItMatters: "A wallet pass means your professional identity lives where people already keep their most important cards — always available, always up to date.",
+    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+  },
+  {
+    icon: <Apple className="w-6 h-6" />,
+    title: "Apple Wallet",
+    desc: "Coming next — save the Bingoo profile pass to Apple Wallet on iPhone.",
+    accent: B.slate,
+    badge: "Coming next",
+    subtitle: "Apple Wallet pass — in progress",
+    overview: "Bingoo is preparing an Apple Wallet pass so iPhone owners can carry their digital profile pass in the Apple Wallet, just like the Google Wallet pass today. This requires an Apple Developer account and pass signing setup.",
+    useCases: [
+      "iPhone-toting professionals who want the pass in Apple Wallet",
+      "Teams standardizing on one digital identity across iOS and Android",
+      "Quick profile sharing from the iOS wallet"
+    ],
+    implemented: [
+      "Apple Wallet pass generation backend (in development)",
+      "Pass design aligned with the Google Wallet experience"
+    ],
+    futureVision: "Public Apple Wallet pass availability after Apple Developer signing is configured. Owners will see an 'Add to Apple Wallet' button next to the Google Wallet button.",
+    futureLabel: "Coming next",
+    whyItMatters: "Most professionals carry an iPhone. An Apple Wallet pass makes Bingoo a natural part of their everyday carry, on every platform.",
+    ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "Learn more", route: "/plans" }]
+  }
 ];
 
 const plans = [
@@ -85,13 +295,159 @@ const plans = [
   }
 ];
 
-const useCases = [
-  { icon: "⚖️", role: "Law Firms", value: "Case intake, consultations and client pipeline" },
-  { icon: "🏠", role: "Real Estate", value: "Share listings and book property viewings" },
-  { icon: "💇", role: "Salons and Barbers", value: "Booking, portfolio and loyalty program" },
-  { icon: "🍽️", role: "Restaurants", value: "Digital menu, reservations and QR ordering" },
-  { icon: "🏥", role: "Medical Offices", value: "Appointments, intake forms and records" },
-  { icon: "📱", role: "Entrepreneurs", value: "All links, leads and audience analytics" }
+// Industries grouped into clear categories. Each card opens a detail panel
+// (LandingDetailModal) explaining who it's for, how they use Bingoo, which
+// features apply, and any future vision.
+const industryGroups = [
+  {
+    label: "Pro Individual",
+    accent: B.orange,
+    items: [
+      {
+        icon: "💡", role: "Entrepreneurs", value: "All links, leads and audience analytics",
+        accent: B.orange, badge: "Individual",
+        subtitle: "Solo founders and builders",
+        overview: "Entrepreneurs use Bingoo to share every link, capture leads and track who's engaging — all from one profile and one NFC device.",
+        useCases: ["Pitch meetings and investor intros", "Pop-ups and community events", "Social media bio link replacement"],
+        implemented: ["All-in-one link profile", "Lead capture and CRM", "Real-time analytics"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "📸", role: "Influencers", value: "One profile, every platform, measurable reach",
+        accent: B.orange, badge: "Individual",
+        subtitle: "Creators and content makers",
+        overview: "Influencers consolidate every social platform, collab link and booking option into one tap-friendly profile, and see exactly which channels drive clicks.",
+        useCases: ["Brand collabs and sponsorships", "Event meetups and fan links", "Link-in-bio with analytics"],
+        implemented: ["Instagram, TikTok, YouTube, Facebook links", "Custom link store", "Per-link click analytics"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "🧑‍💻", role: "Freelancers", value: "Share services, book clients, get paid",
+        accent: B.orange, badge: "Individual",
+        subtitle: "Independent professionals",
+        overview: "Freelancers show their services, portfolio and rates on one profile, let clients book directly, and accept payments through linked payment options.",
+        useCases: ["Client onboarding and discovery calls", "Portfolio and service showcase", "Direct booking and payment links"],
+        implemented: ["Portfolio items", "Appointment booking", "Payment links (CashApp, Wave, Orange Money, custom)"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "🎯", role: "Professionals", value: "Consultants, lawyers, advisors and coaches",
+        accent: B.orange, badge: "Individual",
+        subtitle: "Consultants and advisors",
+        overview: "Independent professionals use Bingoo as a credible, always-current business identity — sharing credentials, services and booking with one tap.",
+        useCases: ["Consultations and discovery calls", "Speaking engagements and panels", "Credentials and bio sharing"],
+        implemented: ["Bio and credentials", "Appointment booking", "Lead capture CRM"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      }
+    ]
+  },
+  {
+    label: "Business",
+    accent: B.navy,
+    items: [
+      {
+        icon: "⚖️", role: "Law Firms", value: "Case intake, consultations and client pipeline",
+        accent: B.navy, badge: "Business",
+        subtitle: "Attorneys and legal teams",
+        overview: "Law firms use Bingoo to capture qualified leads with case-type, urgency and consultation preferences, manage the intake pipeline, and present attorneys, practice areas and office locations publicly.",
+        useCases: ["Immigration, civil and criminal intake", "Attorney profiles and bar admissions", "Office locations and consultation booking"],
+        implemented: ["Practice areas and legal services", "Team members and attorneys", "Office locations", "Legal lead intake with case details"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "🏠", role: "Real Estate", value: "Share listings and book property viewings",
+        accent: B.navy, badge: "Business",
+        subtitle: "Agents and brokerages",
+        overview: "Realtors share their listings, contact and booking links from one profile, and capture interested buyers and sellers as structured leads.",
+        useCases: ["Open house signage with QR codes", "Agent profile and specialties", "Property viewing booking"],
+        implemented: ["Profile with contact and WhatsApp", "QR codes for signage", "Lead capture and booking"],
+        futureVision: "Listing galleries and property-specific QR codes are planned for real estate teams.",
+        futureLabel: "Future vision",
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "💇", role: "Salons and Barbers", value: "Booking, portfolio and loyalty",
+        accent: B.navy, badge: "Business",
+        subtitle: "Hair, beauty and wellness",
+        overview: "Salons showcase services, stylists and portfolios, let clients book the service and stylist they want, and display Instagram work and Google reviews — all from one profile.",
+        useCases: ["Service menu and pricing", "Stylist profiles and booking", "Instagram showcase and Google reviews"],
+        implemented: ["Salon service menu", "Team and stylist profiles", "Appointment booking", "WhatsApp booking button"],
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+      },
+      {
+        icon: "🍽️", role: "Restaurants", value: "Digital menu, reservations and QR ordering",
+        accent: B.navy, badge: "Business",
+        subtitle: "Dining and hospitality",
+        overview: "Restaurants share a digital menu via QR, take reservations, and present their location, hours and reviews — turning every table and flyer into a booking opportunity.",
+        useCases: ["QR menu on tables and counters", "Reservations and waitlist", "Reviews and social showcase"],
+        implemented: ["QR code sharing", "Appointment/booking widget", "Location, hours and social links"],
+        futureVision: "Full digital menu builder and table-side ordering are planned for restaurant plans.",
+        futureLabel: "Future vision",
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "🏥", role: "Medical Offices", value: "Appointments, intake forms and records",
+        accent: B.navy, badge: "Business",
+        subtitle: "Clinics and practices",
+        overview: "Medical offices use Bingoo to share services and providers, accept appointment requests 24/7, and keep intake data private and owner-scoped.",
+        useCases: ["Patient appointment requests", "Provider and service profiles", "Secure, private intake"],
+        implemented: ["Appointment booking", "Team members and services", "Owner-scoped, secure dashboard records"],
+        ctas: [{ label: "Create profile", route: "/bingoo" }, { label: "See plans", route: "/plans" }]
+      },
+      {
+        icon: "🏢", role: "Business Teams", value: "Corporate teams, agencies and multi-profile orgs",
+        accent: B.navy, badge: "Business",
+        subtitle: "Teams and enterprises",
+        overview: "Corporate teams manage employee profiles, issue NFC cards in bulk, track attendance, and view team-wide analytics from a central dashboard with admin controls.",
+        useCases: ["Employee profiles and team NFC cards", "Clock in / clock out attendance", "Team analytics and admin roles"],
+        implemented: ["Multi-profile management", "Admin role controls", "Attendance and team analytics"],
+        ctas: [{ label: "See plans", route: "/plans" }, { label: "Create profile", route: "/bingoo" }]
+      }
+    ]
+  },
+  {
+    label: "Asset & Lost Item",
+    accent: B.gold,
+    items: [
+      {
+        icon: "🐾", role: "Pet Profiles", value: "Help a lost pet find its way home",
+        accent: B.gold, badge: "Lost Item",
+        subtitle: "Pet collars and tags",
+        overview: "Attach a Bingoo NFC tag or QR code to a pet's collar. If the pet is lost, anyone who finds it can tap to report they found it — with their contact and location — without seeing your private details.",
+        useCases: ["Dogs and cats collars", "Travel and outdoor pets", "Found-pet reporting"],
+        implemented: ["NFC/QR device assignment", "Lost-mode toggle", "Found-item report page with finder details"],
+        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+      },
+      {
+        icon: "🧳", role: "Suitcase / Bag", value: "Recover lost luggage without exposing private info",
+        accent: B.gold, badge: "Lost Item",
+        subtitle: "Luggage and bags",
+        overview: "Tag a suitcase, backpack, or laptop bag with a Bingoo device. If it's lost in transit, whoever finds it can tap to report they found it — you get notified with their message and location.",
+        useCases: ["Airline luggage and carry-ons", "Backpacks and laptop bags", "Conference swag bags"],
+        implemented: ["Device assignment to any item", "Lost-mode with owner notifications", "Finder report page"],
+        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+      },
+      {
+        icon: "📦", role: "NFC Product / Device", value: "Attach a digital identity to any product",
+        accent: B.gold, badge: "Asset",
+        subtitle: "Products and devices",
+        overview: "Attach a Bingoo NFC device to a product or asset so anyone who taps it sees the profile, instructions, or ownership information you choose to publish — and can report it found if it's lost.",
+        useCases: ["High-value equipment and assets", "Product authenticity and info", "Rental and loaned items"],
+        implemented: ["Device-to-profile assignment", "Public profile or lost-item page", "Device lifecycle management"],
+        ctas: [{ label: "Activate a device", route: "/activate-device" }, { label: "Create profile", route: "/bingoo" }]
+      }
+    ]
+  }
+];
+
+// Documentation CTA buttons shown under the industry grid
+const docCtas = [
+  { label: "Individual", route: "/bingoo", icon: "👤" },
+  { label: "Business", route: "/plans", icon: "🏢" },
+  { label: "Lost Item", route: "/activate-device", icon: "📍" },
+  { label: "Wallet Passes", route: "/bingoo", icon: "💳" },
+  { label: "Lead CRM", route: "/bingoo", icon: "📈" },
+  { label: "Appointment Booking", route: "/plans", icon: "📅" }
 ];
 
 const fadeUp = { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } } };
@@ -157,6 +513,9 @@ function FloatingOrb({ style, delay = 0 }) {
 export default function Landing() {
   const [authed, setAuthed] = useState(false);
   useEffect(() => { base44.auth.isAuthenticated().then(setAuthed); }, []);
+
+  // Active detail item for the landing-page modals (features + industries share one modal)
+  const [activeDetail, setActiveDetail] = useState(null);
 
   // Language state — reads from localStorage (auto-detects on first visit via getLang)
   const [lang, setLangState] = useState(() => getLang());
@@ -421,20 +780,40 @@ export default function Landing() {
             </h2>
             <p className="text-slate-500 text-lg max-w-xl mx-auto">From one NFC tap to a complete business growth platform.</p>
           </ScrollReveal>
-          <motion.div className="grid md:grid-cols-3 gap-6"
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
             variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
             {features.map((f, i) => (
-              <motion.div key={f.title} variants={fadeUp}
+              <motion.button
+                key={f.title}
+                variants={fadeUp}
                 whileHover={{ y: -6, boxShadow: "0 24px 48px rgba(11,46,107,0.12)" }}
-                className="rounded-2xl p-7 border transition-all cursor-default"
-                style={{ borderColor: "#e2e8f0", background: "#fff" }}>
+                whileFocus={{ y: -4 }}
+                onClick={() => setActiveDetail(f)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActiveDetail(f); } }}
+                aria-label={`Learn more about ${f.title}`}
+                className="text-left rounded-2xl p-7 border transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                style={{ borderColor: "#e2e8f0", background: "#fff", outlineColor: f.accent }}>
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                  style={{ background: [B.navy, B.orange, B.gold, B.navy, B.orange, B.gold][i] + "15", color: [B.navy, B.orange, B.gold, B.navy, B.orange, B.gold][i] }}>
+                  style={{ background: (f.accent || B.navy) + "15", color: f.accent || B.navy }}>
                   {f.icon}
                 </div>
-                <h3 className="font-bold text-lg mb-2" style={{ color: B.navy }}>{f.title}</h3>
+                <div className="flex items-center gap-2 mb-1.5">
+                  {f.badge && (
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+                      style={{ background: (f.accent || B.navy) + "12", color: f.accent || B.navy }}>
+                      {f.badge}
+                    </span>
+                  )}
+                </div>
+                <h3 className="font-bold text-lg mb-2 flex items-center gap-1.5" style={{ color: B.navy }}>
+                  {f.title}
+                  <ArrowRight className="w-3.5 h-3.5 opacity-40" />
+                </h3>
                 <p className="text-slate-500 text-sm leading-relaxed">{f.desc}</p>
-              </motion.div>
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold" style={{ color: f.accent || B.orange }}>
+                  Learn more <ArrowRight className="w-3 h-3" />
+                </span>
+              </motion.button>
             ))}
           </motion.div>
         </div>
@@ -452,21 +831,65 @@ export default function Landing() {
               Built for every industry
             </h2>
           </ScrollReveal>
-          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
-            variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            {useCases.map((u) => (
-              <motion.div key={u.role} variants={fadeUp}
-                whileHover={{ scale: 1.03, borderColor: B.orange }}
-                className="flex items-center gap-4 bg-white rounded-2xl p-5 border-2 cursor-default transition-all"
-                style={{ borderColor: "#e2e8f0" }}>
-                <span className="text-4xl">{u.icon}</span>
-                <div>
-                  <p className="font-bold text-sm" style={{ color: B.navy }}>{u.role}</p>
-                  <p className="text-slate-500 text-xs mt-0.5">{u.value}</p>
-                </div>
+          {industryGroups.map((group, gi) => (
+            <div key={group.label} className="mb-10 last:mb-0">
+              <ScrollReveal delay={gi * 0.05} className="flex items-center gap-3 mb-5">
+                <span className="inline-block h-2 w-2 rounded-full" style={{ background: group.accent }} />
+                <h3 className="font-black text-lg" style={{ color: B.navy }}>{group.label}</h3>
+                <span className="text-xs font-semibold text-slate-400">
+                  {group.items.length} {group.items.length === 1 ? "use case" : "use cases"}
+                </span>
+              </ScrollReveal>
+              <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
+                {group.items.map((u) => (
+                  <motion.button
+                    key={u.role}
+                    variants={fadeUp}
+                    whileHover={{ y: -4, borderColor: group.accent }}
+                    whileFocus={{ y: -2 }}
+                    onClick={() => setActiveDetail(u)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActiveDetail(u); } }}
+                    aria-label={`Learn how Bingoo works for ${u.role}`}
+                    className="flex items-start gap-4 bg-white rounded-2xl p-5 border-2 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                    style={{ borderColor: "#e2e8f0", outlineColor: group.accent }}>
+                    <span className="text-4xl shrink-0">{u.icon}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <p className="font-bold text-sm" style={{ color: B.navy }}>{u.role}</p>
+                        <ArrowRight className="w-3 h-3 opacity-40" />
+                      </div>
+                      <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">{u.value}</p>
+                    </div>
+                  </motion.button>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
+            </div>
+          ))}
+
+          {/* Documentation CTA area */}
+          <ScrollReveal delay={0.1} className="mt-12 rounded-3xl p-7 md:p-9 text-center"
+            style={{ background: `linear-gradient(135deg, ${B.navy} 0%, ${B.navyLight} 100%)` }}>
+            <h3 className="font-black text-xl md:text-2xl text-white mb-2">Explore Bingoo use cases</h3>
+            <p className="text-white/60 text-sm mb-6 max-w-xl mx-auto">
+              Jump straight to the part of Bingoo that fits your goal.
+            </p>
+            <div className="flex flex-wrap justify-center gap-2.5">
+              {docCtas.map((d) => (
+                <motion.button
+                  key={d.label}
+                  onClick={() => { window.location.href = d.route; }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-colors"
+                  style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}>
+                  <span>{d.icon}</span>
+                  {d.label}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </motion.button>
+              ))}
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -721,6 +1144,13 @@ export default function Landing() {
           <p className="text-white/30 text-xs">© {new Date().getFullYear()} Bingoo Connect · bingoo.africa</p>
         </div>
       </footer>
+
+      {/* Shared detail modal for feature + industry cards */}
+      <LandingDetailModal
+        open={!!activeDetail}
+        onClose={() => setActiveDetail(null)}
+        item={activeDetail}
+      />
     </div>
   );
 }
