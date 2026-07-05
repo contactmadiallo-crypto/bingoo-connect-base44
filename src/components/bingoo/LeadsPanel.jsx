@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Download, Phone, Mail, MessageSquare, Inbox, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Full CRM pipeline statuses
 const CRM_STATUSES = [
@@ -74,6 +75,20 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
 
   const updateLead = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await qc.cancelQueries({ queryKey });
+      const previousLeads = qc.getQueryData(queryKey);
+      qc.setQueryData(queryKey, (old = []) =>
+        old.map(lead => lead.id === id ? { ...lead, ...data } : lead)
+      );
+      return { previousLeads };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousLeads) {
+        qc.setQueryData(queryKey, context.previousLeads);
+      }
+      toast.error("Failed to update lead");
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
       toast.success("Lead updated");
@@ -216,14 +231,18 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
                     <p className={`text-xs ${mutedText}`}>{lead.created_date?.slice(0,10)}{lead.source ? ` · ${lead.source}` : ""}</p>
                   </div>
                 </div>
-                <select
+                <Select
                   value={lead.status || "new"}
-                  onChange={e => updateLead.mutate({ id: lead.id, data: { status: e.target.value } })}
-                  className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer outline-none ${getStatusStyle(lead.status || "new", isDark)}`}
-                  style={isDark ? { background: "rgba(15,23,42,0.9)" } : {}}
+                  onValueChange={(v) => updateLead.mutate({ id: lead.id, data: { status: v } })}
                 >
-                  {CRM_STATUSES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-                </select>
+                  <SelectTrigger className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer outline-none h-auto ${getStatusStyle(lead.status || "new", isDark)}`}
+                    style={isDark ? { background: "rgba(15,23,42,0.9)" } : {}}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CRM_STATUSES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Contact info */}

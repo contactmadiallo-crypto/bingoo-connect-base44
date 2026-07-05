@@ -7,6 +7,7 @@ import { X, Phone, Mail, MessageSquare, FileText, User, ChevronDown, ChevronUp, 
 import { toast } from "sonner";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 import { LEGAL_LEAD_STAGES, URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const LEGAL_CRM_STAGES = [
   { id: "new",                    label: "New Lead",              color: "#6366f1" },
@@ -109,18 +110,24 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Status</p>
-              <select value={editStatus} onChange={e => setEditStatus(e.target.value)}
-                className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}>
-                {LEGAL_CRM_STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-              </select>
+              <MobileSelect
+                value={editStatus}
+                onValueChange={(v) => setEditStatus(v)}
+                options={LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: s.label }))}
+                className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}
+              />
             </div>
             <div>
               <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Assign Attorney</p>
-              <select value={editAtty} onChange={e => setEditAtty(e.target.value)}
-                className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}>
-                <option value="">Unassigned</option>
-                {attorneys.map(a => <option key={a.id} value={a.id}>{a.name}{a.role ? ` – ${a.role}` : ""}</option>)}
-              </select>
+              <MobileSelect
+                value={editAtty || "none"}
+                onValueChange={(v) => setEditAtty(v === "none" ? "" : v)}
+                options={[
+                  { value: "none", label: "Unassigned" },
+                  ...attorneys.map(a => ({ value: a.id, label: `${a.name}${a.role ? ` – ${a.role}` : ""}` }))
+                ]}
+                className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}
+              />
             </div>
             <div>
               <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Internal Notes</p>
@@ -327,16 +334,24 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
         <input value={search} onChange={e => setSearch(e.target.value)}
           placeholder="Search leads…"
           className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors flex-1 min-w-[160px] ${inp}`} />
-        <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
-          className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}>
-          <option value="all">All Categories</option>
-          {LEGAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select value={filterStage} onChange={e => setFilterStage(e.target.value)}
-          className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}>
-          <option value="all">All Stages</option>
-          {LEGAL_CRM_STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-        </select>
+        <MobileSelect
+          value={filterCat}
+          onValueChange={(v) => setFilterCat(v)}
+          options={[
+            { value: "all", label: "All Categories" },
+            ...LEGAL_CATEGORIES.map(c => ({ value: c, label: c }))
+          ]}
+          className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}
+        />
+        <MobileSelect
+          value={filterStage}
+          onValueChange={(v) => setFilterStage(v)}
+          options={[
+            { value: "all", label: "All Stages" },
+            ...LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: s.label }))
+          ]}
+          className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}
+        />
       </div>
 
       {/* Leads */}

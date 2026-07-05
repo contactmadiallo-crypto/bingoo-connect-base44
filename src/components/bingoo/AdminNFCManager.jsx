@@ -209,7 +209,7 @@ export default function AdminNFCManager({ profiles = [] }) {
         <div className="rounded-2xl border p-6" style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.15)" }}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-white">Bulk Generate Device Codes</h3>
-            <button onClick={() => setShowBulkForm(false)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
+            <button onClick={() => setShowBulkForm(false)} aria-label="Close"><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
           </div>
           <div className="grid sm:grid-cols-4 gap-4 mb-4">
             <div>
@@ -258,7 +258,7 @@ export default function AdminNFCManager({ profiles = [] }) {
         <div className="rounded-2xl border p-6" style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.2)" }}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-bold text-white">Edit: <span className="font-mono text-orange-400">{editingDevice.device_code}</span></h3>
-            <button onClick={() => setEditingDevice(null)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
+            <button onClick={() => setEditingDevice(null)} aria-label="Close"><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
           </div>
           <div className="grid sm:grid-cols-3 gap-4 mb-4">
             <div>
@@ -343,17 +343,17 @@ export default function AdminNFCManager({ profiles = [] }) {
                     <td className="px-4 py-3 text-xs text-white/35">{d.assigned_at?.slice(0, 10) || "—"}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10" aria-label="Edit device"
                           onClick={() => setEditingDevice({ ...d })}>
                           <Edit className="w-3.5 h-3.5 text-blue-400" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
+                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10" aria-label="Delete device"
                           onClick={() => setDeleteConfirm(d)}>
                           <Trash2 className="w-3.5 h-3.5 text-red-400" />
                         </Button>
                         {d.status === "active" && d.profile_id && (
                           <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
-                            title="Reset to unclaimed"
+                            title="Reset to unclaimed" aria-label="Reset to unclaimed"
                             onClick={() => updateDevice.mutate({ id: d.id, data: { status: "inactive", profile_id: null, assigned_at: null } })}>
                             <RefreshCw className="w-3.5 h-3.5 text-yellow-400" />
                           </Button>

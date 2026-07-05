@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, ChevronDown, Phone, Mail, MessageSquare, ArrowRight } from "lucide-react";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { toast } from "sonner";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
@@ -117,10 +118,12 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
             <input value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" className={`rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`} />
             <input value={form.email || ""} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" className={`rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`} />
             <input value={form.phone || ""} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" className={`rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`} />
-            <select value={form.status || "new"} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              className={`rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`}>
-              {STAGES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-            </select>
+            <MobileSelect
+              value={form.status || "new"}
+              onValueChange={(v) => setForm(f => ({ ...f, status: v }))}
+              options={STAGES.map(s => ({ value: s.id, label: s.label }))}
+              className={`rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`}
+            />
           </div>
           <textarea value={form.description || ""} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
             placeholder="Notes / matter description…" rows={2}
