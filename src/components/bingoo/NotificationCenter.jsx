@@ -117,7 +117,7 @@ export default function NotificationCenter({ userId, isDark }) {
     <div className="relative">
       <button
         onClick={open ? handleClose : handleOpen}
-        className={`relative p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-700"}`}
+        className={`relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-700"}`}
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
