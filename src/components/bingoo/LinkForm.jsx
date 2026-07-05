@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 const linkTypes = [
@@ -37,16 +37,13 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
         <div className="space-y-4">
           <div>
             <Label>Type</Label>
-            <Select value={form.type} onValueChange={v => setForm({ ...form, type: v })}>
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {linkTypes.map(t => (
-                  <SelectItem key={t.value} value={t.value}>{t.icon} {t.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MobileSelect
+              value={form.type}
+              onValueChange={v => setForm({ ...form, type: v })}
+              options={linkTypes.map(t => ({ value: t.value, label: t.icon + ' ' + t.label }))}
+              ariaLabel="Link type"
+              className="mt-1"
+            />
           </div>
           <div>
             <Label>Title</Label>

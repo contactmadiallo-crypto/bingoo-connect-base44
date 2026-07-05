@@ -105,6 +105,7 @@ export default function NotificationBell({ user }) {
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 -mt-1 -mr-2"
+                            aria-label="Delete notification"
                             onClick={(e) => {
                               e.stopPropagation();
                               deleteNotificationMutation.mutate(notification.id);

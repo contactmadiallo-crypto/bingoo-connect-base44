@@ -301,7 +301,7 @@ export default function AdminNFCManager({ profiles = [] }) {
       )}
 
       {/* Devices Table */}
-      <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+      <div className="hidden md:block rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -375,6 +375,59 @@ export default function AdminNFCManager({ profiles = [] }) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden space-y-3">
+        {filteredDevices.length === 0 ? (
+          <div className="text-center py-16 text-white/20">
+            <QrCode className="w-10 h-10 mx-auto mb-2 opacity-20" />
+            <p>No devices found</p>
+            <p className="text-xs mt-1">Generate devices using "Bulk Generate"</p>
+          </div>
+        ) : filteredDevices.map(d => {
+          const profile = profiles.find(p => p.id === d.profile_id);
+          return (
+            <div key={d.id} className="rounded-2xl border p-4 space-y-3" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-bold border capitalize ${STATUS_COLORS[d.status] || "bg-white/10 text-white/40"}`}>{d.status}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-white/60 capitalize">
+                <span className="text-lg">{DEVICE_EMOJIS[d.device_type] || "📱"}</span>
+                {d.device_type}
+              </div>
+              <div>
+                {profile ? (
+                  <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                    className="hover:underline text-orange-400 font-bold text-sm">{profile.display_name}</a>
+                ) : <span className="text-white/25 italic text-sm">Unclaimed</span>}
+              </div>
+              <a href={`/n/${d.device_code}`} target="_blank" rel="noopener noreferrer"
+                className="text-xs font-mono hover:underline block" style={{ color: orange }}>
+                /n/{d.device_code}
+              </a>
+              {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
+              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10" aria-label="Edit device"
+                  onClick={() => setEditingDevice({ ...d })}>
+                  <Edit className="w-3.5 h-3.5 text-blue-400" />
+                </Button>
+                <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10" aria-label="Delete device"
+                  onClick={() => setDeleteConfirm(d)}>
+                  <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                </Button>
+                {d.status === "active" && d.profile_id && (
+                  <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10"
+                    title="Reset to unclaimed" aria-label="Reset to unclaimed"
+                    onClick={() => updateDevice.mutate({ id: d.id, data: { status: "inactive", profile_id: null, assigned_at: null } })}>
+                    <RefreshCw className="w-3.5 h-3.5 text-yellow-400" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Delete Confirm */}

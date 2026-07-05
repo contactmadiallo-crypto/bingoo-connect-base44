@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Globe } from "lucide-react";
 
 const languages = [
@@ -17,19 +17,13 @@ const languages = [
 
 export default function LanguageSwitcher({ language, onLanguageChange, compact = false }) {
   return (
-    <Select value={language} onValueChange={onLanguageChange}>
-      <SelectTrigger className={compact ? "w-[120px]" : "w-[160px]"}>
-        <Globe className="w-4 h-4 mr-2" />
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {languages.map((lang) => (
-          <SelectItem key={lang.code} value={lang.code}>
-            <span className="mr-2">{lang.flag}</span>
-            {lang.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <MobileSelect
+      value={language}
+      onValueChange={onLanguageChange}
+      options={languages.map(lang => ({ value: lang.code, label: lang.flag + ' ' + lang.name }))}
+      placeholder="Language"
+      ariaLabel="Select language"
+      className={compact ? "w-[120px]" : "w-[160px]"}
+    />
   );
 }

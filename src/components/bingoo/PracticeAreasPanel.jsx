@@ -16,16 +16,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const RENDER_KEY = ["practice-areas", profileId];
-  console.log(">>> PA-FILE-VERSION-3 <<<");
-  console.log(`%c[PA-RENDER] ── RENDER ── profileId=${JSON.stringify(profileId)} type=${typeof profileId} key=${JSON.stringify(RENDER_KEY)}`, "color:purple;font-weight:bold");
-
   const { data: areas = [], isFetching } = useQuery({
     queryKey: ["practice-areas", profileId],
     queryFn: async () => {
-      console.log(`%c[PA-QUERY] FETCH EXECUTING — profileId=${JSON.stringify(profileId)}`, "color:blue;font-weight:bold");
       const result = await base44.entities.PracticeArea.filter({ profile_id: profileId }, "order");
-      console.log(`%c[PA-QUERY] DB RETURNED ${result.length} rows:`, "color:blue", result.map(a => ({ id: a.id, name: a.name })));
       return result;
     },
     enabled: !!profileId,
@@ -33,39 +27,11 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     gcTime: 0,
   });
 
-  console.log(`%c[PA-RENDER] areas.length=${areas.length} | isFetching=${isFetching}`, "color:purple");
-
-  if (!profileId) console.warn("%c[PA-WARN] QUERY DISABLED — no profileId passed as prop", "color:red;font-weight:bold");
-
   const refetchAreas = () => qc.refetchQueries({ queryKey: ["practice-areas", profileId] });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("PA-RLS-CHECK VERSION 2");
       const payload = { profile_id: profileId, ...data };
-
-      // ── LIVE SESSION COMPARISON ──
-      let me = null;
-      try { me = await base44.auth.me(); } catch(e) { console.error("[PA-AUTH] Failed to fetch me():", e); }
-
-      const ownedIds = me?.owned_profile_ids ?? null;
-      const payloadProfileId = payload.profile_id;
-      const includesResult = Array.isArray(ownedIds) ? ownedIds.includes(payloadProfileId) : false;
-
-      console.log("%c[PA-RLS-CHECK] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "color:red;font-weight:bold;font-size:13px");
-      console.log("%cowned_profile_ids:", "font-weight:bold", JSON.stringify(ownedIds));
-      console.log("%cpayload.profile_id:", "font-weight:bold", JSON.stringify(payloadProfileId));
-      console.log("%ctypeof payload.profile_id:", "font-weight:bold", typeof payloadProfileId);
-      console.log("%cincludes() result:", "font-weight:bold", includesResult);
-      console.log("%cuser.id:", "font-weight:bold", me?.id);
-      console.log("%cuser.role:", "font-weight:bold", me?.role);
-      if (Array.isArray(ownedIds)) {
-        ownedIds.forEach((id, i) => {
-          const match = id === payloadProfileId;
-          console.log(`  [${i}] "${id}" (${typeof id}) === "${payloadProfileId}" (${typeof payloadProfileId}) → ${match}`);
-        });
-      }
-      console.log("%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "color:red;font-weight:bold");
 
       // Server-side plan entitlement check — free/unentitled plans are rejected even via direct API calls.
       const res = await base44.functions.invoke('createGatedRecord', {
@@ -75,28 +41,13 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     },
     onSuccess: (newRecord) => {
       const WRITE_KEY = ["practice-areas", profileId];
-      console.log(`%c[PA-SUCCESS] ── MUTATION SUCCESS ──`, "color:green;font-weight:bold");
-      console.log("[PA-SUCCESS] newRecord:", newRecord);
-      console.log(`[PA-SUCCESS] writing to cache key: ${JSON.stringify(WRITE_KEY)}`);
-      const before = qc.getQueryData(WRITE_KEY);
-      console.log(`[PA-SUCCESS] cache BEFORE setQueryData:`, before, "length:", before?.length ?? "undefined/null");
-      qc.setQueryData(WRITE_KEY, (old = []) => {
-        const updated = [...old, newRecord];
-        console.log(`%c[PA-CACHE] setQueryData called — old.length=${old.length} → new.length=${updated.length}`, "color:orange;font-weight:bold");
-        return updated;
-      });
-      const after = qc.getQueryData(WRITE_KEY);
-      console.log(`[PA-SUCCESS] cache AFTER setQueryData:`, after, "length:", after?.length ?? "undefined/null");
-      console.log(`[PA-SUCCESS] RENDER_KEY used at render time was: ${JSON.stringify(RENDER_KEY)}`);
-      console.log(`[PA-SUCCESS] WRITE_KEY used now: ${JSON.stringify(WRITE_KEY)}`);
-      console.log(`[PA-SUCCESS] Keys match: ${JSON.stringify(RENDER_KEY) === JSON.stringify(WRITE_KEY)}`);
+      qc.setQueryData(WRITE_KEY, (old = []) => [...old, newRecord]);
       qc.invalidateQueries({ queryKey: WRITE_KEY });
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
       toast.success("Saved Successfully");
     },
     onError: (err) => {
-      console.error("%c[PA-ERROR] ── MUTATION FAILED ──", "color:red;font-weight:bold", err);
       toast.error(`Failed to add: ${err.message}`);
     },
   });
@@ -114,7 +65,6 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       toast.success("Saved Successfully");
     },
     onError: (err) => {
-      console.error("[PracticeAreasPanel] Update error:", err);
       toast.error(`Failed to update: ${err.message}`);
     },
   });
@@ -131,17 +81,12 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(`%c[PA-CLICK] ── SAVE CLICKED ── name="${form.name}" profileId=${JSON.stringify(profileId)} editId=${editId}`, "color:darkgreen;font-weight:bold;font-size:14px");
     if (!form.name.trim()) {
-      console.warn("[PA-CLICK] VALIDATION FAILED — name is empty");
       return toast.error("Name required");
     }
-    console.log("[PA-CLICK] VALIDATION PASSED");
     if (editId) {
-      console.log("[PA-CLICK] → calling updateMutation");
       updateMutation.mutate(form);
     } else {
-      console.log("[PA-CLICK] → calling createMutation");
       createMutation.mutate(form);
     }
   };
@@ -216,7 +161,6 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       )}
 
       <div className="space-y-2">
-        {console.log(`%c[PA-LIST] ── LIST RENDER ── areas.length=${areas.length} | ids=${JSON.stringify(areas.map(a=>a.id))}`, "color:darkorange;font-weight:bold")}
         {areas.map(area => (
           <div key={area.id} className={`rounded-2xl border p-4 flex items-center gap-3 ${card}`}>
             <GripVertical className={`w-4 h-4 flex-shrink-0 ${sub}`} />

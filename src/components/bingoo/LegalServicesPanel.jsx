@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { LEGAL_CATEGORIES } from "@/lib/legalData";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
@@ -18,14 +18,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const [form, setForm] = useState({ name: "", description: "", legal_category: "Immigration" });
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  console.log("[LegalServicesPanel] PANEL LOAD — profileId:", profileId);
-
   const { data: services = [] } = useQuery({
     queryKey: ["legal-services", profileId],
     queryFn: async () => {
-      console.log("[LegalServicesPanel] QUERY EXECUTED — profileId:", profileId);
       const result = await base44.entities.LegalService.filter({ profile_id: profileId }, "order");
-      console.log("[LegalServicesPanel] ROWS RETURNED:", result.length);
       return result;
     },
     enabled: !!profileId,
@@ -131,14 +127,14 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Category</label>
-              <Select value={form.legal_category} onValueChange={(v) => setForm(f => ({ ...f, legal_category: v }))}>
-                <SelectTrigger className={`w-full rounded-xl text-sm border outline-none transition-colors ${inp}`} style={isDark ? { background: "#1a2235" } : {}}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEGAL_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <MobileSelect
+                value={form.legal_category}
+                onValueChange={(v) => setForm(f => ({ ...f, legal_category: v }))}
+                options={LEGAL_CATEGORIES.map(c => ({ value: c, label: c }))}
+                ariaLabel="Legal category"
+                className={`w-full rounded-xl text-sm border outline-none transition-colors ${inp}`}
+                style={isDark ? { background: "#1a2235" } : {}}
+              />
             </div>
             <div>
               <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Service Name *</label>

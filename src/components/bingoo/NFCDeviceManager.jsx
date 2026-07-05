@@ -417,7 +417,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             </div>
           </div>
 
-          <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+          <div className="hidden md:block rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[600px]">
                 <thead>
@@ -486,6 +486,62 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {filteredDevices.length === 0 ? (
+              <div className="text-center py-16 text-white/20">
+                <QrCode className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                <p>No devices found</p>
+              </div>
+            ) : filteredDevices.map(d => {
+              const profile = profiles.find(p => p.id === d.profile_id);
+              return (
+                <div key={d.id} className="rounded-2xl border p-4 space-y-3" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
+                    <StatusBadge status={d.status} />
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-white/60 capitalize">
+                    <span className="text-lg">{DEVICE_EMOJIS[d.device_type] || "📱"}</span>
+                    {d.device_type}
+                  </div>
+                  {d.replaced_by_code && <p className="text-xs text-purple-400">→ {d.replaced_by_code}</p>}
+                  <div>
+                    {profile ? (
+                      <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-bold hover:underline" style={{ color: orange }}>{profile.display_name}</a>
+                    ) : <span className="text-white/25 text-xs italic">Unassigned</span>}
+                  </div>
+                  {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
+                  <div className="flex items-center gap-1 flex-wrap pt-1">
+                    <button aria-label="Edit device" onClick={() => setEditingDevice({ ...d })}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
+                      <Edit className="w-4 h-4 text-blue-400" />
+                    </button>
+                    <button aria-label="Assign device" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
+                      <ArrowRightLeft className="w-4 h-4 text-purple-400" />
+                    </button>
+                    {d.profile_id && (
+                      <button aria-label="Unassign device" onClick={() => handleUnassign(d)}
+                        className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
+                        <RotateCcw className="w-4 h-4 text-yellow-400" />
+                      </button>
+                    )}
+                    <button aria-label="Replace device" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
+                      <RefreshCw className="w-4 h-4 text-cyan-400" />
+                    </button>
+                    <button aria-label="Delete device" onClick={() => setDeleteConfirm(d)}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Inline Edit */}

@@ -130,7 +130,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Accent Color</p>
             <div className="flex gap-2 flex-wrap">
               {COVER_COLORS.map(c => (
-                <button type="button" key={c} onClick={() => setVal("cover_color", c)}
+                <button type="button" key={c} onClick={() => setVal("cover_color", c)} aria-label={c + ' color'}
                   className="relative w-9 h-9 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center"
                   style={{
                     background: c,

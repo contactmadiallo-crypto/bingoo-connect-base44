@@ -162,14 +162,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const cardBg = isDark ? "bg-white/5 border-white/8" : "bg-white border-slate-100";
 
-  console.log("[SalonServicesPanel] PANEL LOAD — profileId:", profileId);
-
   const { data: services = [], isLoading } = useQuery({
     queryKey: ["salon-services", profileId],
     queryFn: async () => {
-      console.log("[SalonServicesPanel] QUERY EXECUTED — profileId:", profileId);
       const result = await base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100);
-      console.log("[SalonServicesPanel] ROWS RETURNED:", result?.length || 0);
       return result || [];
     },
     enabled: !!profileId,
