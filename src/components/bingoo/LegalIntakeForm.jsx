@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Upload, X, AlertTriangle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LEGAL_CATEGORIES, LEGAL_SERVICES, URGENCY_LABELS, CATEGORY_COLORS } from "@/lib/legalData";
 
 const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
@@ -144,7 +145,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
                     <p className="text-blue-200 text-xs">Confidential & Secure</p>
                   </div>
                 </div>
-                <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-white/80 hover:bg-white/30 transition-colors text-sm">✕</button>
+                <button onClick={() => setOpen(false)} aria-label="Close form" className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white/80 hover:bg-white/30 transition-colors text-sm">✕</button>
               </div>
             </div>
 
@@ -199,16 +200,28 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
                 </div>
 
                 {cat && (
-                  <select className={sel} value={form.legal_service} onChange={set("legal_service")}>
-                    <option value="">-- Select Service Needed --</option>
-                    {services.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  <Select value={form.legal_service || "none"} onValueChange={(v) => setVal("legal_service", v === "none" ? "" : v)}>
+                    <SelectTrigger className={inp}>
+                      <SelectValue placeholder="-- Select Service Needed --" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">-- Select Service Needed --</SelectItem>
+                      {services.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 )}
 
                 <div className="grid grid-cols-2 gap-3">
-                  <select className={sel} value={form.urgency} onChange={set("urgency")}>
-                    {Object.entries(URGENCY_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label} Urgency</option>)}
-                  </select>
+                  <Select value={form.urgency} onValueChange={(v) => setVal("urgency", v)}>
+                    <SelectTrigger className={inp}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(URGENCY_LABELS).map(([k, v]) => (
+                        <SelectItem key={k} value={k}>{v.label} Urgency</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <textarea className={inp + " resize-none"} placeholder="Briefly describe your legal situation…" rows={3} value={form.message} onChange={set("message")} />
@@ -305,7 +318,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
                     {form.document_urls.map((url, i) => (
                       <div key={i} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
                         <span className="text-xs text-blue-700 truncate">📎 Document {i + 1}</span>
-                        <button type="button" onClick={() => removeDoc(i)} className="text-red-400 hover:text-red-600 ml-2"><X className="w-3.5 h-3.5" /></button>
+                        <button type="button" onClick={() => removeDoc(i)} aria-label="Remove document" className="text-red-400 hover:text-red-600 ml-2 flex items-center justify-center"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -320,7 +333,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
                 {loading ? "Submitting…" : "Submit Legal Request →"}
               </motion.button>
 
-              <p className="text-center text-[11px] text-slate-400 leading-relaxed">
+              <p className="text-center text-xs text-slate-400 leading-relaxed">
                 🔒 Submitting this form does not create an attorney-client relationship. All information is kept strictly confidential.
               </p>
             </form>

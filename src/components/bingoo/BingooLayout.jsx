@@ -92,7 +92,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           {item.label}
         </span>
         {badge > 0 && (
-          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[10px] font-black text-white flex-shrink-0"
+          <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-xs font-black text-white flex-shrink-0"
             style={{ background: "#F97316" }}>
             {badge > 9 ? "9+" : badge}
           </span>
@@ -111,7 +111,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           <img
             src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
             alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-          <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">
+          <div className="text-xs uppercase tracking-widest mt-2 font-bold text-white/30">
             CONNECT • SHARE • GROW
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       {/* ── MOBILE SLIDE-OUT DRAWER (same navItems, plan-gated) ── */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-40 backdrop-blur-sm bg-black/60"
-          onClick={() => setMobileOpen(false)}>
+          onClick={() => setMobileOpen(false)} role="dialog" aria-label="Navigation menu">
           <div className="flex flex-col w-72 h-full shadow-2xl" onClick={e => e.stopPropagation()}
             style={{
               background: sidebarBg,
@@ -258,7 +258,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
-              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
                 {item.label}
               </span>
             </Link>
@@ -266,18 +266,18 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
         })()}
 
         {/* 2. More — opens full sidebar drawer */}
-        <button onClick={() => setMobileOpen(true)}
+        <button onClick={() => setMobileOpen(true)} aria-label="More navigation options"
           className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <Menu className="w-5 h-5 text-white/40" />
           </div>
           {totalUnread > 0 && (
-            <span className="absolute top-1.5 right-[calc(50%-24px)] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-black text-white"
+            <span className="absolute top-1.5 right-[calc(50%-24px)] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-xs font-black text-white"
               style={{ background: "#F97316" }}>
               {totalUnread > 9 ? "9+" : totalUnread}
             </span>
           )}
-          <span className="text-[10px] font-semibold text-white/40">{t("more", lang)}</span>
+          <span className="text-xs font-semibold text-white/40">{t("more", lang)}</span>
         </button>
 
         {/* 3. Profiles */}
@@ -293,7 +293,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
-              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
                 {item.label}
               </span>
             </Link>
@@ -312,7 +312,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
               </div>
-              <span className="text-[10px] font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
                 {item.label}
               </span>
             </Link>
@@ -325,7 +325,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <LogOut className="w-5 h-5 text-red-400" />
           </div>
-          <span className="text-[10px] font-semibold text-red-400">{t("logout", lang)}</span>
+          <span className="text-xs font-semibold text-red-400">{t("logout", lang)}</span>
         </button>
       </nav>
 

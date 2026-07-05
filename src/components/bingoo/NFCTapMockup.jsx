@@ -5,7 +5,7 @@ const profileRows = [
   { delay: 0.04, content: (
     <div className="flex flex-col items-center pt-2 pb-1 px-2">
       <p className="font-black text-slate-800 text-xs mt-1 leading-tight">Bingoo Connect</p>
-      <p className="text-[9px] font-semibold mt-0.5" style={{ color: "#6b7280" }}>Digital Business Platform</p>
+      <p className="text-[11px] font-semibold mt-0.5" style={{ color: "#6b7280" }}>Digital Business Platform</p>
     </div>
   )},
   { delay: 0.10, content: (
@@ -21,7 +21,7 @@ const profileRows = [
   { delay: 0.16, content: (
     <div className="px-3 space-y-1">
       {["📅 Book Appointment","🔗 View Profile","📍 Location"].map(b => (
-        <div key={b} className="rounded-xl py-1 px-2 text-[9px] font-semibold text-center"
+        <div key={b} className="rounded-xl py-1 px-2 text-[11px] font-semibold text-center"
           style={{ background: "rgba(255,255,255,0.5)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.65)", color: "#374151", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
           {b}
         </div>

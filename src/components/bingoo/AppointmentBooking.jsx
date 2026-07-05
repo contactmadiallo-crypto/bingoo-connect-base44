@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X, CalendarDays, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
@@ -184,7 +185,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               <p className="text-xs text-slate-500 dark:text-slate-400">with {profile.display_name}</p>
             </div>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} aria-label="Close" className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
@@ -218,7 +219,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                       onClick={() => { setSelectedDate(ds); setSelectedSlot(null); }}
                       className={`flex flex-col items-center py-2 rounded-xl text-xs font-semibold transition-all ${selected ? "text-white shadow-md" : available && !isPast ? "bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" : "bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"}`}
                       style={selected ? { background: color } : {}}>
-                      <span className="text-[10px] font-bold uppercase opacity-60">{d.toLocaleDateString("en", { weekday: "short" })}</span>
+                      <span className="text-xs font-bold uppercase opacity-60">{d.toLocaleDateString("en", { weekday: "short" })}</span>
                       <span>{d.getDate()}</span>
                     </button>
                   );
@@ -287,13 +288,17 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                   <div>
                     <Label>Preferred Stylist (optional)</Label>
                     {teamMembers.length > 0 ? (
-                      <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white outline-none"
-                        value={form.stylist_name} onChange={set("stylist_name")}>
-                        <option value="">No preference</option>
-                        {teamMembers.map(m => (
-                          <option key={m.id} value={m.name}>{m.name}{m.role ? ` — ${m.role}` : ""}</option>
-                        ))}
-                      </select>
+                      <Select value={form.stylist_name || "none"} onValueChange={(v) => setForm(f => ({ ...f, stylist_name: v === "none" ? "" : v }))}>
+                        <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
+                          <SelectValue placeholder="No preference" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No preference</SelectItem>
+                          {teamMembers.map(m => (
+                            <SelectItem key={m.id} value={m.name}>{m.name}{m.role ? ` — ${m.role}` : ""}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <Input className="mt-1" placeholder="Stylist name or 'No preference'" value={form.stylist_name} onChange={set("stylist_name")} />
                     )}
@@ -305,10 +310,16 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {profileType === "restaurant" && (
                 <div>
                   <Label>Number of Guests *</Label>
-                  <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white outline-none"
-                    value={form.guest_count} onChange={set("guest_count")}>
-                    {[1,2,3,4,5,6,7,8,10,12,15,20].map(n => <option key={n} value={n}>{n} {n === 1 ? "guest" : "guests"}</option>)}
-                  </select>
+                  <Select value={String(form.guest_count)} onValueChange={(v) => setForm(f => ({ ...f, guest_count: parseInt(v) }))}>
+                    <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1,2,3,4,5,6,7,8,10,12,15,20].map(n => (
+                        <SelectItem key={n} value={String(n)}>{n} {n === 1 ? "guest" : "guests"}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               )}
 
@@ -317,10 +328,16 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                 <>
                   <div>
                     <Label>Case Type *</Label>
-                    <select className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white outline-none"
-                      value={form.case_type} onChange={set("case_type")}>
-                      {LAW_CASE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                    <Select value={form.case_type} onValueChange={(v) => setForm(f => ({ ...f, case_type: v }))}>
+                      <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LAW_CASE_TYPES.map(t => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   {form.case_type === "Immigration" && (
                     <div>
