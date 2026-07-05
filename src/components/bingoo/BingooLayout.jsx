@@ -230,8 +230,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
               paddingBottom: "env(safe-area-inset-bottom)",
             }}>
             <div className="flex justify-end px-4 pt-3 pb-1">
-              <button onClick={() => setMobileOpen(false)}
-                className="p-2 rounded-xl hover:bg-white/10 text-white/60">
+              <button onClick={() => setMobileOpen(false)} aria-label="Close navigation menu"
+                className="min-h-[44px] min-w-[44px] p-2 rounded-xl hover:bg-white/10 text-white/60 flex items-center justify-center focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none">
                 <X className="w-5 h-5" />
               </button>
             </div>

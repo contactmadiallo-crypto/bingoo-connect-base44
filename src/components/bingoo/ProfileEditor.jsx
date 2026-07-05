@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
 import { syncProfileToFirestore } from "@/hooks/useFirestoreProfileSync";
@@ -613,19 +613,20 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             <div className="space-y-5 border-t border-slate-100 pt-5">
               <div>
                 <Label className="font-semibold">Slot Duration</Label>
-                <Select value={String(form.booking_slot_duration)} onValueChange={v => setForm(f => ({ ...f, booking_slot_duration: Number(v) }))}>
-                  <SelectTrigger className="mt-1 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15">15 minutes</SelectItem>
-                    <SelectItem value="30">30 minutes</SelectItem>
-                    <SelectItem value="45">45 minutes</SelectItem>
-                    <SelectItem value="60">1 hour</SelectItem>
-                    <SelectItem value="90">1.5 hours</SelectItem>
-                    <SelectItem value="120">2 hours</SelectItem>
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={String(form.booking_slot_duration)}
+                  onValueChange={v => setForm(f => ({ ...f, booking_slot_duration: Number(v) }))}
+                  options={[
+                    { value: "15", label: "15 minutes" },
+                    { value: "30", label: "30 minutes" },
+                    { value: "45", label: "45 minutes" },
+                    { value: "60", label: "1 hour" },
+                    { value: "90", label: "1.5 hours" },
+                    { value: "120", label: "2 hours" }
+                  ]}
+                  ariaLabel="Booking slot duration"
+                  className="mt-1 w-full"
+                />
               </div>
               <div>
                 <Label className="font-semibold block mb-2">Business Hours</Label>

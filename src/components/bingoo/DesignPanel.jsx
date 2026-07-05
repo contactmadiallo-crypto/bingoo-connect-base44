@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Check, Upload, Sparkles, Palette, Layout, User } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { getEffectiveProfilePlan } from "@/lib/planPermissions";
 import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
@@ -70,10 +71,14 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const border    = isDark ? "border-white/8" : "border-slate-200";
   const rowCls    = `rounded-2xl border ${border} ${bg} p-4 space-y-3`;
 
-  const handleSave = () => {
-    onSave();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleSave = async () => {
+    try {
+      await onSave();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      toast.error("Failed to save. Please try again.");
+    }
   };
 
   const handleCoverUpload = async (e) => {
@@ -105,8 +110,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
       <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
         {SECTIONS.map(s => (
-          <button key={s.id} type="button" onClick={() => setSection(s.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all ${
+          <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
               section === s.id
                 ? "text-white shadow-sm"
                 : isDark ? "text-white/40 hover:text-white/70" : "text-slate-500 hover:text-slate-700"
@@ -332,8 +337,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
       {/* ── Save bar — mobile safe area ── */}
       <div className="flex items-center gap-4 pt-4 pb-safe" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-        <button type="button" onClick={handleSave} disabled={isPending}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0"
+        <button type="button" onClick={handleSave} disabled={isPending} aria-label="Save design changes"
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none"
           style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
           {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
         </button>

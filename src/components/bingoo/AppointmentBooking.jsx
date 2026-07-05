@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X, CalendarDays, Clock, ChevronLeft, ChevronRight } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
@@ -288,17 +288,17 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                   <div>
                     <Label>Preferred Stylist (optional)</Label>
                     {teamMembers.length > 0 ? (
-                      <Select value={form.stylist_name || "none"} onValueChange={(v) => setForm(f => ({ ...f, stylist_name: v === "none" ? "" : v }))}>
-                        <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
-                          <SelectValue placeholder="No preference" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No preference</SelectItem>
-                          {teamMembers.map(m => (
-                            <SelectItem key={m.id} value={m.name}>{m.name}{m.role ? ` — ${m.role}` : ""}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <MobileSelect
+                        value={form.stylist_name || "none"}
+                        onValueChange={(v) => setForm(f => ({ ...f, stylist_name: v === "none" ? "" : v }))}
+                        options={[
+                          { value: "none", label: "No preference" },
+                          ...teamMembers.map(m => ({ value: m.name, label: m.role ? `${m.name} — ${m.role}` : m.name }))
+                        ]}
+                        placeholder="No preference"
+                        ariaLabel="Preferred stylist"
+                        className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+                      />
                     ) : (
                       <Input className="mt-1" placeholder="Stylist name or 'No preference'" value={form.stylist_name} onChange={set("stylist_name")} />
                     )}
@@ -310,16 +310,13 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {profileType === "restaurant" && (
                 <div>
                   <Label>Number of Guests *</Label>
-                  <Select value={String(form.guest_count)} onValueChange={(v) => setForm(f => ({ ...f, guest_count: parseInt(v) }))}>
-                    <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1,2,3,4,5,6,7,8,10,12,15,20].map(n => (
-                        <SelectItem key={n} value={String(n)}>{n} {n === 1 ? "guest" : "guests"}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MobileSelect
+                    value={String(form.guest_count)}
+                    onValueChange={(v) => setForm(f => ({ ...f, guest_count: parseInt(v) }))}
+                    options={[1,2,3,4,5,6,7,8,10,12,15,20].map(n => ({ value: String(n), label: `${n} ${n === 1 ? "guest" : "guests"}` }))}
+                    ariaLabel="Number of guests"
+                    className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+                  />
                 </div>
               )}
 
@@ -328,16 +325,13 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                 <>
                   <div>
                     <Label>Case Type *</Label>
-                    <Select value={form.case_type} onValueChange={(v) => setForm(f => ({ ...f, case_type: v }))}>
-                      <SelectTrigger className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {LAW_CASE_TYPES.map(t => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <MobileSelect
+                      value={form.case_type}
+                      onValueChange={(v) => setForm(f => ({ ...f, case_type: v }))}
+                      options={LAW_CASE_TYPES.map(t => ({ value: t, label: t }))}
+                      ariaLabel="Case type"
+                      className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
+                    />
                   </div>
                   {form.case_type === "Immigration" && (
                     <div>
