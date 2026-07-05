@@ -86,11 +86,15 @@ export default function Register() {
   };
 
   const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", getNextUrl());
+    const nextUrl = getNextUrl();
+    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    base44.auth.loginWithProvider("google", callbackUrl);
   };
 
   const handleApple = () => {
-    base44.auth.loginWithProvider("apple", getNextUrl());
+    const nextUrl = getNextUrl();
+    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    base44.auth.loginWithProvider("apple", callbackUrl);
   };
 
   if (showOtp) {
