@@ -1,5 +1,5 @@
 import './App.css'
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -9,11 +9,11 @@ import { NavigationStackProvider } from '@/components/mobile/NavigationStack'
 import RouteTransition from '@/components/mobile/RouteTransition'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-import Landing from './pages/Landing';
+const Landing = lazy(() => import('./pages/Landing'));
 import AppHub from './pages/AppHub';
 import PublicProfile from './pages/PublicProfile';
-import BingooDashboard from './pages/BingooDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+const BingooDashboard = lazy(() => import('./pages/BingooDashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 import SubscriberMonitoring from './pages/SubscriberMonitoring';
 import Pricing from './pages/Pricing';
 // Shop/Commerce pages are imported below ActivateDevice
@@ -77,6 +77,8 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
+    <RouteTransition>
     <Routes>
       {/* ── AUTH ROUTES (public) ── */}
       <Route path="/login" element={<Login />} />
@@ -126,6 +128,8 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </RouteTransition>
+    </Suspense>
   );
 };
 
