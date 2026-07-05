@@ -141,15 +141,16 @@ export default function NotificationCenter({ userId, isDark }) {
       {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-16 right-3 z-[60] w-[calc(100vw-24px)] max-w-sm rounded-2xl shadow-2xl overflow-hidden"
+          <div className="fixed top-16 right-3 z-[60] w-[calc(100vw-24px)] max-w-sm rounded-2xl shadow-xl overflow-hidden"
             style={{
-              background: isDark ? "rgba(15,22,40,0.72)" : "rgba(255,255,255,0.78)",
-              backdropFilter: "blur(20px) saturate(160%)",
-              WebkitBackdropFilter: "blur(20px) saturate(160%)",
-              border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
+              background: isDark ? "rgba(15,22,40,0.42)" : "rgba(255,255,255,0.45)",
+              backdropFilter: "blur(24px) saturate(180%)",
+              WebkitBackdropFilter: "blur(24px) saturate(180%)",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.55)"}`,
+              boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
             }}>
             {/* Header */}
-            <div className={`px-4 py-3 flex items-center justify-between border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
+            <div className={`px-4 py-3 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-white/40"}`}>
               <div className="flex items-center gap-2">
                 <h3 className={`font-black text-sm ${headText}`}>Notifications</h3>
                 {unreadCount > 0 && (
@@ -201,8 +202,8 @@ export default function NotificationCenter({ userId, isDark }) {
                     <button
                       key={n.id}
                       onClick={() => handleClick(n)}
-                      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors border-b ${isDark ? "border-white/5 hover:bg-white/5" : "border-slate-50 hover:bg-slate-50"}`}
-                      style={isUnread ? { background: isDark ? "rgba(59,130,246,0.06)" : "rgba(59,130,246,0.04)" } : {}}
+                      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors border-b ${isDark ? "border-white/6 hover:bg-white/8" : "border-white/30 hover:bg-white/55"}`}
+                      style={isUnread ? { background: isDark ? "rgba(59,130,246,0.10)" : "rgba(59,130,246,0.08)" } : {}}
                     >
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${colorCls}`}>
                         <Icon className="w-4 h-4" />
