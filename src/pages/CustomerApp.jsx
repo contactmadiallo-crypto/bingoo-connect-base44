@@ -343,7 +343,7 @@ export default function CustomerApp() {
                     <Bell className="w-4 h-4" />
                   </Button>
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs sm:text-xs">
                       {unreadNotifications}
                     </Badge>
                   )}
@@ -353,7 +353,7 @@ export default function CustomerApp() {
                     <MessageCircle className="w-4 h-4" />
                   </Button>
                   {totalUnreadMessages > 0 && (
-                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-[10px] sm:text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs sm:text-xs">
                       {totalUnreadMessages}
                     </Badge>
                   )}

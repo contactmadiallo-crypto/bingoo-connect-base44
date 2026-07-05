@@ -11,5 +11,17 @@ export default defineConfig({
       legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === 'true'
     }),
     react(),
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three': ['three'],
+          'pdf-tools': ['html2canvas', 'jspdf'],
+          'editor': ['react-quill'],
+          'maps': ['react-leaflet', 'leaflet'],
+        }
+      }
+    }
+  }
 });

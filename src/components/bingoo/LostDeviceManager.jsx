@@ -338,7 +338,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                                 <div className="flex-1 min-w-0 space-y-1.5">
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className={`font-bold text-sm ${headText}`}>{report.finder_name || "Anonymous"}</p>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                                       report.status === "recovered"
                                         ? "bg-emerald-100 text-emerald-700"
                                         : report.status === "contacted"
@@ -380,7 +380,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                                       <MapPin className="w-3 h-3" /> View GPS on Map
                                     </a>
                                   )}
-                                  <p className={`flex items-center gap-1 text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}>
+                                  <p className={`flex items-center gap-1 text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>
                                     <Clock className="w-3 h-3" />
                                     {report.scan_time ? new Date(report.scan_time).toLocaleString() : "Unknown time"}
                                   </p>
@@ -395,7 +395,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                                           updateReport.mutate({ id: report.id, data: { status: "contacted" } });
                                           toast.success("Marked as contacted");
                                         }}
-                                        className="rounded-lg text-[10px] bg-blue-600 hover:bg-blue-500 text-white font-bold h-7 px-2">
+                                        className="rounded-lg text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold h-7 px-2">
                                         Mark Contacted
                                       </Button>
                                     )}
@@ -404,7 +404,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                                         updateReport.mutate({ id: report.id, data: { status: "recovered" } });
                                         toast.success("Item marked as recovered!");
                                       }}
-                                      className="rounded-lg text-[10px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-7 px-2">
+                                      className="rounded-lg text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-7 px-2">
                                       Recovered ✓
                                     </Button>
                                   </div>

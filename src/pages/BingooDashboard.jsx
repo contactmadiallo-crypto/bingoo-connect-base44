@@ -475,7 +475,7 @@ export default function BingooDashboard() {
               style={{ background: activeProfile.cover_color || "#2563eb" }}>{activeProfile.display_name?.charAt(0)}</div>
         }
         <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">
+        <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">
           {PLAN_LABELS[getEffectiveProfilePlan(userPlan, activeProfile)] || "Free"}
         </span>
       </div>

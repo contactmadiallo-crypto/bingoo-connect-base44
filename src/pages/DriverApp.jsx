@@ -506,7 +506,7 @@ export default function DriverApp() {
                 <Button variant="outline" size="icon" onClick={() => setShowNotificationCenter(true)} className="h-8 w-8 sm:h-10 sm:w-10">
                   <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
                   {unreadNotifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-[10px] sm:text-xs animate-pulse">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-red-500 text-white text-xs sm:text-xs animate-pulse">
                       {unreadNotifications}
                     </Badge>
                   )}
@@ -516,7 +516,7 @@ export default function DriverApp() {
                 <Button variant="outline" size="icon" onClick={() => setShowConversations(true)} className="h-8 w-8 sm:h-10 sm:w-10">
                   <MessageCircle className="w-3 h-3 sm:w-4 sm:h-4" />
                   {totalUnreadMessages > 0 && (
-                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-[10px] sm:text-xs">
+                    <Badge className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-4 w-4 sm:h-5 sm:w-5 p-0 flex items-center justify-center bg-blue-500 text-white text-xs sm:text-xs">
                       {totalUnreadMessages}
                     </Badge>
                   )}
@@ -577,21 +577,21 @@ export default function DriverApp() {
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-2 sm:p-3 border border-green-200">
               <div className="flex items-center gap-1 sm:gap-2 mb-1">
                 <DollarSign className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                <p className="text-[10px] sm:text-xs text-slate-600">Aujourd'hui</p>
+                <p className="text-xs sm:text-xs text-slate-600">Aujourd'hui</p>
               </div>
               <p className="text-sm sm:text-xl font-bold text-green-700">{todayEarnings.toFixed(0)} CFA</p>
             </div>
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-3 border border-blue-200">
               <div className="flex items-center gap-1 sm:gap-2 mb-1">
                 <Package className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                <p className="text-[10px] sm:text-xs text-slate-600">Actif</p>
+                <p className="text-xs sm:text-xs text-slate-600">Actif</p>
               </div>
               <p className="text-sm sm:text-xl font-bold text-blue-700">{activeOrders.length}</p>
             </div>
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-2 sm:p-3 border border-purple-200">
               <div className="flex items-center gap-1 sm:gap-2 mb-1">
                 <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
-                <p className="text-[10px] sm:text-xs text-slate-600">Terminé</p>
+                <p className="text-xs sm:text-xs text-slate-600">Terminé</p>
               </div>
               <p className="text-sm sm:text-xl font-bold text-purple-700">{completedToday.length}</p>
             </div>

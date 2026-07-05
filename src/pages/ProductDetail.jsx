@@ -61,7 +61,7 @@ export default function ProductDetail() {
               <ShoppingCart className="w-4 h-4" />
               Cart
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center" style={{ background: '#FF7A00' }}>
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-xs font-black flex items-center justify-center" style={{ background: '#FF7A00' }}>
                   {cartCount}
                 </span>
               )}

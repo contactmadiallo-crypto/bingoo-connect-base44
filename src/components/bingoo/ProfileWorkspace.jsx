@@ -240,7 +240,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               {[["center","●"],["top","↑"],["bottom","↓"],["left center","←"],["right center","→"]].map(([pos, icon]) => (
                 <button key={pos} type="button" onClick={() => setVal("cover_position", pos)}
                   title={pos}
-                  className={`w-6 h-6 rounded-full text-[10px] font-black transition-all flex items-center justify-center ${(liveForm.cover_position||"center")===pos ? "bg-orange-500 text-white" : "bg-black/40 text-white/70 hover:bg-black/60"}`}>
+                  className={`w-6 h-6 rounded-full text-xs font-black transition-all flex items-center justify-center ${(liveForm.cover_position||"center")===pos ? "bg-orange-500 text-white" : "bg-black/40 text-white/70 hover:bg-black/60"}`}>
                   {icon}
                 </button>
               ))}
@@ -278,7 +278,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                 const ep = getEffectiveProfilePlan(userPlan, profile);
                 const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
                 return (
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide"
+                  <span className="text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide"
                     style={{ background: colors.bg, color: colors.text }}>
                     {PLAN_LABELS[ep] || "Free"}
                   </span>
@@ -309,7 +309,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                         : <span style={{ color: "#fff", fontWeight: 900, fontSize: 16 }}>{liveForm.display_name?.charAt(0) || "?"}</span>
                       }
                     </div>
-                    <span className={`text-[10px] font-bold ${sel ? "text-orange-500" : mutedText}`}>{label}</span>
+                    <span className={`text-xs font-bold ${sel ? "text-orange-500" : mutedText}`}>{label}</span>
                   </button>
                 );
               })}
@@ -365,7 +365,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                     setVal("company_logo", file_url);
                   }} />
                 </label>
-                <p className={`text-[10px] mt-1 ${mutedText}`}>PNG, SVG or JPG · shown on your public profile</p>
+                <p className={`text-xs mt-1 ${mutedText}`}>PNG, SVG or JPG · shown on your public profile</p>
               </div>
             </div>
           </div>
@@ -475,7 +475,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
         <div className="px-4 py-3 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
           <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Active Links</p>
-          <p className={`text-[10px] mt-0.5 ${mutedText}`}>Toggle to show/hide on public profile</p>
+          <p className={`text-xs mt-0.5 ${mutedText}`}>Toggle to show/hide on public profile</p>
         </div>
         {totalCount === 0 ? (
           <p className={`px-4 py-6 text-center text-sm ${mutedText}`}>No links added yet. Tap "Add Links" above.</p>
@@ -489,9 +489,9 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                   <r.Icon size={14} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-bold ${headText} truncate`}>{r.label}</p>
-                    <p className={`text-[10px] truncate ${mutedText}`}>{liveForm[r.key]}</p>
+                    <p className={`text-xs truncate ${mutedText}`}>{liveForm[r.key]}</p>
                   </div>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
+                  <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
                     {r.category}
                   </span>
                   <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
@@ -511,9 +511,9 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                   <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-bold ${headText} truncate`}>{link.label}</p>
-                    <p className={`text-[10px] truncate ${mutedText}`}>{link.url}</p>
+                    <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
                   </div>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
+                  <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
                     {catLabel}
                   </span>
                   <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
@@ -685,7 +685,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                     <span className={`text-xs ${mutedText}`}>Generating preview…</span>
                   </div>
                 )}
-                <p className={`text-[10px] mt-2 ${mutedText}`}>Preview matches the downloaded QR exactly.</p>
+                <p className={`text-xs mt-2 ${mutedText}`}>Preview matches the downloaded QR exactly.</p>
               </div>
             </div>
 
@@ -728,7 +728,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                 onChange={e => setCustomLabel(e.target.value)}
                 className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
               />
-              <p className={`text-[10px] mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
+              <p className={`text-xs mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
             </div>
 
             {/* Logo Watermark — Pro feature */}
@@ -737,9 +737,9 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
-                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>PRO</span>
+                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>PRO</span>
                   </div>
-                  <p className={`text-[10px] mt-0.5 ${mutedText}`}>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>
                     {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
                       : !hasLogo ? "Upload a company logo in the Info tab first."
                       : "Your business logo will appear centered on the QR code."}
@@ -754,7 +754,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
               {isPro && hasLogo && logoWatermark && (
                 <div className="mt-2 flex items-center gap-2">
                   <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
-                  <p className={`text-[10px] ${mutedText}`}>This logo will be embedded in the downloaded QR code.</p>
+                  <p className={`text-xs ${mutedText}`}>This logo will be embedded in the downloaded QR code.</p>
                 </div>
               )}
             </div>
@@ -1129,7 +1129,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             const ep = getEffectiveProfilePlan(userPlan, profile);
             const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
             return (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
                 style={{ background: colors.bg, color: colors.text }}>
                 {PLAN_LABELS[ep] || "Free"}
               </span>
@@ -1285,7 +1285,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           {/* Live preview — desktop only, inline phone frame */}
           <div className="hidden xl:block flex-shrink-0" style={{ width: 240 }}>
             <div style={{ position: "sticky", top: 0 }}>
-              <p className={`text-[10px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
               <div style={{ background: "#0f172a", borderRadius: 32, padding: "10px 12px", boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", width: "fit-content" }}>
                 {/* Notch */}
@@ -1307,7 +1307,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                   <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
                 </div>
               </div>
-              <p className={`text-[10px] text-center mt-2 ${mutedText}`}>Updates as you type</p>
+              <p className={`text-xs text-center mt-2 ${mutedText}`}>Updates as you type</p>
             </div>
           </div>
         </div>

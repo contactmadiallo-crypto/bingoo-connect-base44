@@ -108,7 +108,7 @@ export default function PWAInstallBanner() {
                 <div key={s.step} className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ background: "rgba(255,122,0,0.3)" }}>
-                    <span className="text-[10px] font-black text-orange-300">{s.step}</span>
+                    <span className="text-xs font-black text-orange-300">{s.step}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {s.icon}

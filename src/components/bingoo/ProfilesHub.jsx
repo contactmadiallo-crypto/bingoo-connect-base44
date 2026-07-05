@@ -165,7 +165,7 @@ export default function ProfilesHub({
     if (!selected && !def) return null;
     if (selected && def) {
       return (
-        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+        <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
           style={{ background: "rgba(251,191,36,0.95)", color: "#7c2d12" }}>
           <CheckCircle2 className="w-3 h-3" /> Default
         </span>
@@ -173,14 +173,14 @@ export default function ProfilesHub({
     }
     if (selected) {
       return (
-        <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+        <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
           style={{ background: "rgba(11,46,107,0.95)", color: "#fff" }}>
           <CheckCircle2 className="w-3 h-3" /> Selected
         </span>
       );
     }
     return (
-      <span className="flex items-center gap-1 text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
+      <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
         style={{ background: "rgba(251,191,36,0.92)", color: "#7c2d12" }}>
         <Star className="w-3 h-3 fill-current" /> Default
       </span>
@@ -312,10 +312,10 @@ export default function ProfilesHub({
             {profile.is_active && (
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-semibold text-emerald-500">Live</span>
+                <span className="text-xs font-semibold text-emerald-500">Live</span>
               </span>
             )}
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
               style={{ background: planStyle.bg, color: planStyle.text }}>
               {planLabel}
             </span>
@@ -404,7 +404,7 @@ export default function ProfilesHub({
             <div className={`mt-3 pt-3 border-t text-center ${isDark ? "border-white/8" : "border-slate-100"}`}
               onClick={(e) => e.stopPropagation()}>
               <img src={getQrUrl(profile)} alt="QR" className="w-28 h-28 mx-auto rounded-xl" />
-              <p className={`text-[10px] mt-1.5 ${mutedText}`}>Scan to open profile</p>
+              <p className={`text-xs mt-1.5 ${mutedText}`}>Scan to open profile</p>
             </div>
           )}
         </div>
@@ -433,7 +433,7 @@ export default function ProfilesHub({
           <Star className="w-4 h-4" />
           {trialLoading ? "Loading…" : "Start Free 14-Day Trial"}
         </button>
-        <p className={`text-[10px] ${mutedText}`}>$4.99/mo after trial · cancel anytime</p>
+        <p className={`text-xs ${mutedText}`}>$4.99/mo after trial · cancel anytime</p>
       </div>
     </div>
   ) : (

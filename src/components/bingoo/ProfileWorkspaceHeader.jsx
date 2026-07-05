@@ -52,13 +52,13 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-black text-sm text-white truncate">{profile.display_name}</p>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/15 text-white/70 uppercase tracking-wide">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/15 text-white/70 uppercase tracking-wide">
                 {planLabels[profile.plan] || profile.plan || "Free"}
               </span>
               {profile.is_active && (
                 <span className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[10px] text-white/50 font-semibold">Live</span>
+                  <span className="text-xs text-white/50 font-semibold">Live</span>
                 </span>
               )}
             </div>

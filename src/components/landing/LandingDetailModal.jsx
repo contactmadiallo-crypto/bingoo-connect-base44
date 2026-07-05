@@ -71,7 +71,7 @@ export default function LandingDetailModal({ open, onClose, item }) {
               <div className="flex-1 min-w-0">
                 {item.badge && (
                   <span
-                    className="inline-block text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1.5"
+                    className="inline-block text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-full mb-1.5"
                     style={{ background: (item.accent || B.navy) + "15", color: item.accent || B.navy }}>
                     {item.badge}
                   </span>

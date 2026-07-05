@@ -450,7 +450,7 @@ export default function AdminDashboard() {
             <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl text-xs mb-2"
               style={{ background: "rgba(253,186,33,0.08)", border: "1px solid rgba(253,186,33,0.2)", color: "rgba(253,186,33,0.8)" }}>
               <span className="flex-shrink-0 mt-0.5">⚠️</span>
-              <span><strong>Admin plan override.</strong> Changing the plan here updates the <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Subscription</code> record's <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>plan</code> field (marked <code className="text-[10px] px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>admin_override</code>) — this changes the user's entitlement immediately. For users with a real Stripe subscription the link to Stripe is preserved, but Stripe billing itself is <em>not</em> changed from here; use the Stripe dashboard for real billing changes.</span>
+              <span><strong>Admin plan override.</strong> Changing the plan here updates the <code className="text-xs px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>Subscription</code> record's <code className="text-xs px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>plan</code> field (marked <code className="text-xs px-1 py-0.5 rounded" style={{ background: "rgba(253,186,33,0.15)" }}>admin_override</code>) — this changes the user's entitlement immediately. For users with a real Stripe subscription the link to Stripe is preserved, but Stripe billing itself is <em>not</em> changed from here; use the Stripe dashboard for real billing changes.</span>
             </div>
 
             <div className="rounded-2xl overflow-hidden border"
@@ -479,7 +479,7 @@ export default function AdminDashboard() {
                             <div>
                               <p className="font-bold text-white text-sm">{p?.display_name || u.full_name || "—"}</p>
                               <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{u.email}</p>
-                              {!p && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block" style={{ background: "rgba(148,163,184,0.15)", color: "#94a3b8" }}>No profile yet</span>}
+                              {!p && <span className="text-xs font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block" style={{ background: "rgba(148,163,184,0.15)", color: "#94a3b8" }}>No profile yet</span>}
                             </div>
                           </div>
                         </td>
@@ -514,11 +514,11 @@ export default function AdminDashboard() {
                                 </SelectContent>
                               </Select>
                               {hasRealStripeSub ? (
-                                <span className="text-[9px] leading-tight font-semibold" style={{ color: "#06b6d4" }}>
+                                <span className="text-[11px] leading-tight font-semibold" style={{ color: "#06b6d4" }}>
                                   ⚠️ Overrides entitlement locally — Stripe billing unchanged
                                 </span>
                               ) : (
-                                <span className="text-[9px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
+                                <span className="text-[11px] leading-tight" style={{ color: "rgba(255,255,255,0.25)" }}>
                                   App-plan override · no Stripe change
                                 </span>
                               )}
@@ -970,7 +970,7 @@ export default function AdminDashboard() {
                               </div>
                               <div>
                                 <p className="font-bold text-white text-sm">{u.full_name || "—"}</p>
-                                {isNew && <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">{t.newBadge}</span>}
+                                {isNew && <span className="text-xs font-black text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">{t.newBadge}</span>}
                               </div>
                             </div>
                           </td>

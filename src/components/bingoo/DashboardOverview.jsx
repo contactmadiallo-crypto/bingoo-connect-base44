@@ -44,7 +44,7 @@ export default function DashboardOverview({
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.3)" }}>
             <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,255,255,0.15)" }} />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{leadsThisMonth}</p>
             <p className="text-sm font-semibold text-white/80 mt-0.5">New Leads</p>
             <p className="text-[11px] text-white/50 mt-1">{leads.length} total · Tap to manage</p>
@@ -53,7 +53,7 @@ export default function DashboardOverview({
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", boxShadow: "0 4px 20px rgba(11,46,107,0.35)", border: "1px solid rgba(255,122,0,0.2)" }}>
             <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,122,0,0.12)" }} />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{apptsThisMonth}</p>
             <p className="text-sm font-semibold text-white/80 mt-0.5">Appointments</p>
             <p className="text-[11px] text-white/40 mt-1">{appointments.filter(a => a.status === "pending").length} pending · Tap to manage</p>
@@ -97,7 +97,7 @@ export default function DashboardOverview({
                 style={{ background: s.bg, border: `1px solid ${s.color}25` }}>
                 <span className="text-lg">{s.icon}</span>
                 <p className="text-xl font-black" style={{ color: s.color }}>{s.value}</p>
-                <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>{s.label}</p>
+                <p className={`text-xs font-bold uppercase tracking-wide ${mutedText}`}>{s.label}</p>
               </Tag>
             );
           })}
@@ -220,7 +220,7 @@ export default function DashboardOverview({
                       <p className={`font-semibold text-xs ${headText}`}>{l.name || "Anonymous"}</p>
                       <p className={`text-xs truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
                     </div>
-                    <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
+                    <span className={`text-xs flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
                       l.status === "new" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
                       l.status === "retained" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
                       (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
@@ -256,7 +256,7 @@ export default function DashboardOverview({
                       <p className={`font-semibold text-xs ${headText}`}>{a.visitor_name || "Guest"}</p>
                       <p className={`text-xs truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
                     </div>
-                    <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
+                    <span className={`text-xs flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
                       a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
                       a.status === "pending" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
                       (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
@@ -290,11 +290,11 @@ export default function DashboardOverview({
           <div className="px-4 pb-4">
             <div className="grid grid-cols-2 gap-2.5 mb-3">
               <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Active Devices</p>
+                <p className={`text-xs font-bold uppercase tracking-wide ${mutedText}`}>Active Devices</p>
                 <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{activeNfc.length}</p>
               </div>
               <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wide ${mutedText}`}>Total NFC Taps</p>
+                <p className={`text-xs font-bold uppercase tracking-wide ${mutedText}`}>Total NFC Taps</p>
                 <p className={`text-2xl font-black mt-0.5 ${isDark ? "text-violet-400" : "text-violet-600"}`}>{totalNfcTaps}</p>
               </div>
             </div>

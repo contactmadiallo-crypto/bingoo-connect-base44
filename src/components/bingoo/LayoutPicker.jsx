@@ -118,7 +118,7 @@ function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
           }}>
             <span style={{ fontSize: 22 }}>🔒</span>
             <span style={{
-              marginTop: 4, fontSize: 9, fontWeight: 900,
+              marginTop: 4, fontSize: 11, fontWeight: 900,
               color: "#92400e", background: "#fef3c7",
               padding: "2px 8px", borderRadius: 999,
             }}>PRO</span>
@@ -150,7 +150,7 @@ function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
           {layout.name}
         </p>
         <p style={{
-          fontSize: 10, margin: "1px 0 0",
+          fontSize: 12, margin: "1px 0 0",
           color: "#94a3b8",
           whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
         }}>

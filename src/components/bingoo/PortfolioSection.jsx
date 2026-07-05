@@ -35,7 +35,7 @@ export default function PortfolioSection({ profileId, color = "#2563eb" }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="relative p-3">
               <p className="text-white font-bold text-xs leading-tight line-clamp-2">{item.title}</p>
-              {item.category && <p className="text-white/50 text-[10px] mt-0.5">{item.category}</p>}
+              {item.category && <p className="text-white/50 text-xs mt-0.5">{item.category}</p>}
               {item.link && <ExternalLink className="w-3 h-3 text-white/50 mt-1" />}
             </div>
           </a>

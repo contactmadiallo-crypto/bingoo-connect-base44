@@ -156,7 +156,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                     style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.08)" } : {}}>
                     <div className="flex-1">
                       <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
-                      <p className={`text-[10px] ${mutedText}`}>{o.desc}</p>
+                      <p className={`text-xs ${mutedText}`}>{o.desc}</p>
                     </div>
                     {active && <Check className="w-3.5 h-3.5 text-orange-500 flex-shrink-0 mt-0.5" />}
                   </button>
@@ -180,7 +180,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${liveForm.cover_color || "#2563eb"}99 100%)` }}>
                     <p className="text-xs font-bold text-white/60">No cover photo</p>
-                    <p className="text-[10px] text-white/40">Using accent color</p>
+                    <p className="text-xs text-white/40">Using accent color</p>
                   </div>
               }
             </div>
@@ -215,7 +215,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 })()}
                 {liveForm.profile_photo && (
                   <button type="button" onClick={() => setVal("profile_photo", "")}
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow">
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-black shadow">
                     ×
                   </button>
                 )}
@@ -226,7 +226,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                   {uploading ? "Uploading…" : liveForm.profile_photo ? "Change Photo" : "Upload Photo"}
                   <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploading} />
                 </label>
-                <p className={`text-[10px] mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shape matches your "Avatar Shape" selection.</p>
+                <p className={`text-xs mt-1.5 ${mutedText}`}>Square or portrait image recommended. Shape matches your "Avatar Shape" selection.</p>
               </div>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           {/* Avatar Focal Point */}
           <div className={rowCls}>
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Photo Focal Point</p>
-            <p className={`text-[10px] mb-2 ${mutedText}`}>Where to crop when zooming in</p>
+            <p className={`text-xs mb-2 ${mutedText}`}>Where to crop when zooming in</p>
             <div className="flex gap-2 flex-wrap">
               {AVATAR_FOCAL.map(o => {
                 const active = sel(o.v, liveForm.avatar_position || "center top");
@@ -271,7 +271,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           {/* Avatar Placement */}
           <div className={rowCls}>
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Profile Photo Placement</p>
-            <p className={`text-[10px] mb-2 ${mutedText}`}>How avatar overlaps the cover</p>
+            <p className={`text-xs mb-2 ${mutedText}`}>How avatar overlaps the cover</p>
             <div className="grid grid-cols-1 gap-2">
               {AVATAR_PLACEMENTS.map(o => {
                 const active = sel(o.v, liveForm.avatar_placement || "center_overlap");
@@ -281,7 +281,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                     style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.08)" } : {}}>
                     <div className="flex-1">
                       <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
-                      <p className={`text-[10px] ${mutedText}`}>{o.desc}</p>
+                      <p className={`text-xs ${mutedText}`}>{o.desc}</p>
                     </div>
                     {active && <Check className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />}
                   </button>

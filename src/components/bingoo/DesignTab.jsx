@@ -23,7 +23,7 @@ function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardB
         : ""
     }`} onClick={() => onSelect(layout.id)}>
       {isPremiumTheme && !isActive && (
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow">
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow">
           <Sparkles className="w-2.5 h-2.5" /> PRO
         </div>
       )}
@@ -162,7 +162,7 @@ export default function DesignTab({ profile, user, onSaved }) {
             <Sparkles className="w-5 h-5 text-amber-500" />
             <h3 className={`text-base font-black ${headText}`}>Premium Themes</h3>
           </div>
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${isDark ? "text-amber-300 bg-amber-500/20" : "text-amber-600 bg-amber-100"}`}>NEW</span>
+          <span className={`text-xs font-black px-2 py-0.5 rounded-full ${isDark ? "text-amber-300 bg-amber-500/20" : "text-amber-600 bg-amber-100"}`}>NEW</span>
           <p className={`text-xs ml-auto ${subText}`}>Exclusive animated & luxury designs</p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

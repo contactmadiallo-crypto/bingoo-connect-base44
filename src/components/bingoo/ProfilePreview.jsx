@@ -713,7 +713,7 @@ export default function ProfilePreview({ profile }) {
         {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-white text-xs font-semibold text-center" style={{ background: "rgba(255,122,0,0.2)", border: "1px solid rgba(255,122,0,0.4)" }}>{l}</div>)}
         <div className="w-full py-2.5 rounded-xl text-xs font-black text-white text-center" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21)" }}>💾 Save Contact</div>
         <div className="w-full py-2 rounded border text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,122,0,0.3)" }}>
-          <span className="text-[10px] font-black tracking-widest" style={{ color: "#FF7A00" }}>CHAMPIONSHIP EDITION</span>
+          <span className="text-xs font-black tracking-widest" style={{ color: "#FF7A00" }}>CHAMPIONSHIP EDITION</span>
         </div>
       </div>
     </div>
@@ -741,7 +741,7 @@ export default function ProfilePreview({ profile }) {
         {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-white text-xs font-semibold text-center" style={{ background: "rgba(212,175,55,0.2)", border: "1px solid rgba(212,175,55,0.4)" }}>{l}</div>)}
         <div className="w-full py-2.5 rounded-xl text-xs font-black text-black text-center" style={{ background: "linear-gradient(90deg,#D4AF37,#FDEF42)" }}>💾 Save Contact</div>
         <div className="w-full py-2 rounded border text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(212,175,55,0.3)" }}>
-          <span className="text-[10px] font-black tracking-widest" style={{ color: "#FDEF42" }}>LIONS DE LA TÉRANGA</span>
+          <span className="text-xs font-black tracking-widest" style={{ color: "#FDEF42" }}>LIONS DE LA TÉRANGA</span>
         </div>
       </div>
     </div>

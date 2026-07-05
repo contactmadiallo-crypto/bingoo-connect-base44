@@ -649,6 +649,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         </div>
                         <StatusBadge status={d.status} />
                         <button onClick={() => handleUnassign(d)}
+                          aria-label={`Unassign device ${d.device_code}`}
                           className="text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
                           style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>
                           Unassign
@@ -670,6 +671,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <p className="text-xs text-white/40 capitalize">{d.device_type}</p>
                       </div>
                       <button onClick={() => { setAssignDevice(d); setAssignProfileId(""); }}
+                        aria-label={`Assign device ${d.device_code}`}
                         className="text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
                         style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
                         Assign
@@ -827,11 +829,13 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                       await writeAuditLog({ device_id: d.id, device_code: d.device_code, action: "recovered", performed_by: currentUser?.id, performed_by_name: currentUser?.full_name, old_status: "lost", new_status: "active" });
                       queryClient.invalidateQueries({ queryKey: ["device-audit-logs"] });
                     }}
+                      aria-label={`Mark device ${d.device_code} as recovered`}
                       className="text-xs font-bold px-3 py-1.5 rounded-lg"
                       style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
                       Mark Recovered
                     </button>
                     <button onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); setSubTab("replacement"); }}
+                      aria-label={`Replace device ${d.device_code}`}
                       className="text-xs font-bold px-3 py-1.5 rounded-lg"
                       style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.25)" }}>
                       Replace

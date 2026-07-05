@@ -33,7 +33,7 @@ function DetailRow({ label, value }) {
 function YesNoBadge({ value }) {
   if (!value) return null;
   return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${value === "yes" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-500"}`}>
+    <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${value === "yes" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-500"}`}>
       {value === "yes" ? "Yes" : "No"}
     </span>
   );
@@ -80,11 +80,11 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             <div className="flex items-center gap-2 flex-wrap">
               <p className={`font-bold text-sm ${head}`}>{lead.name || "Anonymous"}</p>
               {lead.legal_category && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: catColor }}>{lead.legal_category}</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: catColor }}>{lead.legal_category}</span>
               )}
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: stage.color }}>{stage.label}</span>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: stage.color }}>{stage.label}</span>
               {urgency && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: urgency.color }}>{urgency.label}</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: urgency.color }}>{urgency.label}</span>
               )}
             </div>
 
@@ -110,7 +110,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
           {/* Admin controls */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Status</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Status</p>
               <MobileSelect
                 value={editStatus}
                 onValueChange={(v) => setEditStatus(v)}
@@ -119,7 +119,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
               />
             </div>
             <div>
-              <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Assign Attorney</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Assign Attorney</p>
               <MobileSelect
                 value={editAtty || "none"}
                 onValueChange={(v) => setEditAtty(v === "none" ? "" : v)}
@@ -131,7 +131,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
               />
             </div>
             <div>
-              <p className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Internal Notes</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Internal Notes</p>
               <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2}
                 placeholder="Add notes…"
                 className={`w-full rounded-xl px-3 py-2 text-sm border outline-none resize-none transition-colors ${inp}`} />
@@ -151,14 +151,14 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
           {/* All intake details */}
           <div className={`rounded-xl border p-3 space-y-1.5 ${dark ? "border-white/8 bg-white/3" : "border-slate-100 bg-slate-50"}`}>
-            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${sub}`}>Client Intake Details</p>
+            <p className={`text-xs font-black uppercase tracking-wider mb-2 ${sub}`}>Client Intake Details</p>
             <DetailRow label="Preferred Language" value={lead.preferred_language} />
             <DetailRow label="Preferred Contact" value={lead.preferred_contact_method} />
             <DetailRow label="Consult Date" value={lead.preferred_consult_date} />
             <DetailRow label="Message" value={lead.message} />
 
             {lead.legal_category === "Immigration" && <>
-              <div className={`text-[10px] font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-blue-300" : "text-blue-700"}`}>Immigration Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-blue-300" : "text-blue-700"}`}>Immigration Details</div>
               <DetailRow label="A-Number" value={lead.immigration_a_number} />
               <DetailRow label="USCIS Account #" value={lead.immigration_uscis_account} />
               <DetailRow label="Receipt #" value={lead.immigration_receipt_number} />
@@ -182,7 +182,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </>}
 
             {lead.legal_category === "Civil" && <>
-              <div className={`text-[10px] font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-purple-300" : "text-purple-700"}`}>Civil Matter Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-purple-300" : "text-purple-700"}`}>Civil Matter Details</div>
               <DetailRow label="Matter Type" value={lead.civil_matter_type} />
               <DetailRow label="Incident Date" value={lead.civil_incident_date} />
               <DetailRow label="Incident Location" value={lead.civil_incident_location} />
@@ -194,7 +194,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </>}
 
             {lead.legal_category === "Criminal" && <>
-              <div className={`text-[10px] font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-red-300" : "text-red-700"}`}>Criminal Matter Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-red-300" : "text-red-700"}`}>Criminal Matter Details</div>
               <DetailRow label="Charge" value={lead.criminal_charge} />
               <DetailRow label="Arrest Date" value={lead.criminal_arrest_date} />
               <DetailRow label="Court Date" value={lead.criminal_court_date} />
@@ -210,7 +210,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
             {lead.document_urls?.length > 0 && (
               <div className="mt-2">
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Uploaded Documents</p>
+                <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">Uploaded Documents</p>
                 <div className="flex flex-wrap gap-2">
                   {lead.document_urls.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer"

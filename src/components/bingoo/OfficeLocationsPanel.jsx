@@ -177,7 +177,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`font-bold text-sm ${head}`}>{loc.name}</p>
-                  {loc.is_primary && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"}`}>Primary</span>}
+                  {loc.is_primary && <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"}`}>Primary</span>}
                 </div>
                 <p className={`text-xs mt-0.5 ${sub}`}>{loc.address}</p>
                 {(loc.city || loc.state) && <p className={`text-xs ${sub}`}>{loc.city}, {loc.state} {loc.zip_code}</p>}

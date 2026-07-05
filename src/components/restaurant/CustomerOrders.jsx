@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Filter, Search } from "lucide-react";
 import { useTranslation } from "../translations";
@@ -350,27 +350,31 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
 
           <TabsContent value="history" className="space-y-4">
             <div className="flex gap-2 mb-4 flex-wrap">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder={t('filter_by_status')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="delivered">{t('delivered')}</SelectItem>
-                  <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={dateFilter} onValueChange={setDateFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder={t('filter_by_date')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('all_dates')}</SelectItem>
-                  <SelectItem value="today">{t('today')}</SelectItem>
-                  <SelectItem value="week">{t('this_week')}</SelectItem>
-                  <SelectItem value="month">{t('this_month')}</SelectItem>
-                </SelectContent>
-              </Select>
+              <MobileSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                options={[
+                  { value: "all", label: t('all') },
+                  { value: "delivered", label: t('delivered') },
+                  { value: "cancelled", label: t('cancelled') }
+                ]}
+                placeholder={t('filter_by_status')}
+                ariaLabel="Filter by status"
+                className="w-40"
+              />
+              <MobileSelect
+                value={dateFilter}
+                onValueChange={setDateFilter}
+                options={[
+                  { value: "all", label: t('all_dates') },
+                  { value: "today", label: t('today') },
+                  { value: "week", label: t('this_week') },
+                  { value: "month", label: t('this_month') }
+                ]}
+                placeholder={t('filter_by_date')}
+                ariaLabel="Filter by date"
+                className="w-40"
+              />
             </div>
 
             {completedOrders.length === 0 ? (

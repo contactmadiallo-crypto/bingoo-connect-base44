@@ -130,7 +130,7 @@ export default function NotificationCenter({ userId, isDark }) {
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span
-            className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-red-500/50 ring-2 ${isDark ? "ring-[#0f1117]" : "ring-white"}`}
+            className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-xs font-black rounded-full flex items-center justify-center shadow-lg shadow-red-500/50 ring-2 ${isDark ? "ring-[#0f1117]" : "ring-white"}`}
             style={{ animation: "bell-pulse 2s ease-in-out infinite" }}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -154,7 +154,7 @@ export default function NotificationCenter({ userId, isDark }) {
               <div className="flex items-center gap-2">
                 <h3 className={`font-black text-sm ${headText}`}>Notifications</h3>
                 {unreadCount > 0 && (
-                  <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                  <span className="bg-red-500 text-white text-[11px] font-black px-1.5 py-0.5 rounded-full">
                     {unreadCount}
                   </span>
                 )}
@@ -211,7 +211,7 @@ export default function NotificationCenter({ userId, isDark }) {
                       <div className="flex-1 min-w-0">
                         <p className={`text-xs font-bold leading-snug ${headText}`}>{n.title}</p>
                         {n.message && <p className={`text-xs mt-0.5 truncate ${mutedText}`}>{n.message}</p>}
-                        <p className={`text-[10px] mt-1 ${mutedText}`}>
+                        <p className={`text-xs mt-1 ${mutedText}`}>
                           {n.created_date ? new Date(n.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
                         </p>
                       </div>

@@ -58,14 +58,14 @@ export default function PortfolioComments({ itemId, user }) {
             <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
               {comments.map(c => (
                 <div key={c.id} className="flex gap-2 group">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-[10px] font-black flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white text-xs font-black flex-shrink-0 mt-0.5">
                     {c.author_name?.charAt(0) || "?"}
                   </div>
                   <div className="flex-1 min-w-0 rounded-xl px-3 py-2" style={{ background: "rgba(255,255,255,0.05)" }}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[11px] font-bold text-white/70">{c.author_name || "Anonymous"}</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-[10px] text-white/25">
+                        <span className="text-xs text-white/25">
                           {c.created_date ? formatDistanceToNow(new Date(c.created_date), { addSuffix: true }) : ""}
                         </span>
                         {c.created_by_id === user?.id && (

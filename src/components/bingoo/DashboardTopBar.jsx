@@ -89,6 +89,7 @@ export default function DashboardTopBar({
           
           <motion.button
             whileHover={{ scale: 1.05 }}
+            aria-label="Layout grid"
             className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
           >
             <Grid3x3 className="w-5 h-5" />
@@ -96,6 +97,7 @@ export default function DashboardTopBar({
 
           <motion.button
             whileHover={{ scale: 1.05 }}
+            aria-label="Edit mode"
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-300' : 'hover:bg-slate-100 text-slate-700'}`}
           >
             <Wand2 className="w-4 h-4" /> Edit
@@ -103,6 +105,7 @@ export default function DashboardTopBar({
 
           <motion.button
             whileHover={{ scale: 1.05 }}
+            aria-label="Refresh"
             className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
           >
             <RotateCw className="w-5 h-5" />
@@ -116,6 +119,7 @@ export default function DashboardTopBar({
         <div className="flex items-center gap-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
+            aria-label="Desktop view"
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
           >
             <Monitor className="w-4 h-4" />
@@ -123,6 +127,7 @@ export default function DashboardTopBar({
 
           <motion.button
             whileHover={{ scale: 1.05 }}
+            aria-label="Fullscreen"
             className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'}`}
           >
             <Maximize className="w-5 h-5" />
@@ -166,6 +171,7 @@ export default function DashboardTopBar({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={onCopyLink}
+                    aria-label={copied ? "Link copied" : "Copy profile link"}
                     className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
                   >
                     {copied ? (

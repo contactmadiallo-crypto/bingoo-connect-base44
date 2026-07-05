@@ -162,11 +162,11 @@ export function DesignPreview({ profile }) {
     <div className="min-h-screen p-3" style={{ background: bgMap[bgStyle] || bgMap.clean }}>
       {/* Layout + color badge */}
       <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <span className="text-[10px] font-black uppercase tracking-widest bg-white/80 border border-slate-200 text-slate-600 px-2 py-1 rounded-lg">
+        <span className="text-xs font-black uppercase tracking-widest bg-white/80 border border-slate-200 text-slate-600 px-2 py-1 rounded-lg">
           {layout}
         </span>
         <span className="w-5 h-5 rounded-full border-2 border-white shadow flex-shrink-0" style={{ background: color }} />
-        <span className="text-[10px] font-bold text-slate-500">{color}</span>
+        <span className="text-xs font-bold text-slate-500">{color}</span>
       </div>
 
       <div className="bg-white rounded-2xl overflow-hidden shadow-md mb-3">
@@ -239,7 +239,7 @@ export function TeamPreview({ profileId, isDark }) {
 
   return (
     <div className="min-h-screen p-3" style={{ background: bg }}>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Team Members</p>
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Team Members</p>
       <div className="space-y-2">
         {members.slice(0, 6).map(m => (
           <div key={m.id} className="flex items-center gap-2.5 p-2.5 rounded-xl" style={{ background: cardBg }}>
@@ -251,7 +251,7 @@ export function TeamPreview({ profileId, isDark }) {
             }
             <div className="min-w-0">
               <p className="font-black text-xs" style={{ color: isDark ? "#fff" : "#0f172a" }}>{m.name}</p>
-              {m.role && <p className="text-[10px] text-teal-500 font-semibold truncate">{m.role}</p>}
+              {m.role && <p className="text-xs text-teal-500 font-semibold truncate">{m.role}</p>}
             </div>
             {m.status === "active" && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />}
           </div>
@@ -290,10 +290,10 @@ export function ServicesPreview({ profileId, isDark, isLawFirm }) {
 
   return (
     <div className="min-h-screen p-3" style={{ background: bg }}>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Services</p>
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Services</p>
       {categories.length > 0 ? categories.map(cat => (
         <div key={cat} className="mb-3">
-          <p className="text-[10px] font-black uppercase tracking-widest text-green-500 mb-1.5">{cat}</p>
+          <p className="text-xs font-black uppercase tracking-widest text-green-500 mb-1.5">{cat}</p>
           <div className="space-y-1.5">
             {services.filter(s => s.category === cat).slice(0, 4).map(s => (
               <div key={s.id} className="flex items-center gap-2 p-2 rounded-xl" style={{ background: cardBg }}>
@@ -303,7 +303,7 @@ export function ServicesPreview({ profileId, isDark, isLawFirm }) {
                 }
                 <div className="min-w-0 flex-1">
                   <p className="font-black text-xs truncate" style={{ color: isDark ? "#fff" : "#0f172a" }}>{s.name}</p>
-                  {s.duration_minutes && <p className="text-[10px] text-slate-400">{s.duration_minutes}min</p>}
+                  {s.duration_minutes && <p className="text-xs text-slate-400">{s.duration_minutes}min</p>}
                 </div>
                 {s.price_label && <p className="text-xs font-black text-green-600 flex-shrink-0">{s.price_label}</p>}
               </div>
@@ -348,14 +348,14 @@ export function PracticeAreasPreview({ profileId, isDark }) {
 
   return (
     <div className="min-h-screen p-3" style={{ background: bg }}>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Practice Areas</p>
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Practice Areas</p>
       <div className="space-y-2">
         {areas.slice(0, 8).map(a => (
           <div key={a.id} className="flex items-start gap-2.5 p-2.5 rounded-xl" style={{ background: cardBg }}>
             <span className="text-base flex-shrink-0">{a.icon || "⚖️"}</span>
             <div className="min-w-0">
               <p className="font-black text-xs" style={{ color: isDark ? "#fff" : "#0f172a" }}>{a.name}</p>
-              {a.description && <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-2">{a.description}</p>}
+              {a.description && <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{a.description}</p>}
             </div>
           </div>
         ))}
@@ -388,7 +388,7 @@ export function OfficeLocationsPreview({ profileId, isDark }) {
 
   return (
     <div className="min-h-screen p-3" style={{ background: bg }}>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Office Locations</p>
+      <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Office Locations</p>
       <div className="space-y-2.5">
         {locations.map(loc => (
           <div key={loc.id} className="p-3 rounded-xl" style={{ background: cardBg }}>
@@ -396,11 +396,11 @@ export function OfficeLocationsPreview({ profileId, isDark }) {
               <span className="text-base flex-shrink-0">{loc.is_primary ? "🏢" : "📍"}</span>
               <div>
                 <p className="font-black text-xs" style={{ color: isDark ? "#fff" : "#0f172a" }}>{loc.name}</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">{loc.address}</p>
-                {loc.city && <p className="text-[10px] text-slate-400">{loc.city}{loc.state ? `, ${loc.state}` : ""}</p>}
-                {loc.hours && <p className="text-[10px] text-red-400 font-semibold mt-0.5">🕐 {loc.hours}</p>}
+                <p className="text-xs text-slate-400 mt-0.5">{loc.address}</p>
+                {loc.city && <p className="text-xs text-slate-400">{loc.city}{loc.state ? `, ${loc.state}` : ""}</p>}
+                {loc.hours && <p className="text-xs text-red-400 font-semibold mt-0.5">🕐 {loc.hours}</p>}
               </div>
-              {loc.is_primary && <span className="ml-auto text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">PRIMARY</span>}
+              {loc.is_primary && <span className="ml-auto text-[11px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-black flex-shrink-0">PRIMARY</span>}
             </div>
           </div>
         ))}

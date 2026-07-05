@@ -174,7 +174,7 @@ export default function SubscriptionPricing() {
               >
                 <span>{cfg.flag}</span>
                 <span>{currency}</span>
-                {isManualOverride && <span className="text-[10px] text-yellow-300 font-black">MANUAL</span>}
+                {isManualOverride && <span className="text-xs text-yellow-300 font-black">MANUAL</span>}
                 <ChevronDown className="w-3.5 h-3.5 text-white/50" />
               </button>
               <AnimatePresence>
@@ -197,7 +197,7 @@ export default function SubscriptionPricing() {
                             <span>{c}</span>
                             <span className="font-normal text-white/40 text-xs ml-2">{cc.name}</span>
                           </div>
-                          {isDetected && <span className="text-[10px] text-green-400 font-black">AUTO</span>}
+                          {isDetected && <span className="text-xs text-green-400 font-black">AUTO</span>}
                           {isSelected && <Check className="w-3.5 h-3.5" style={{ color: B.orange }} />}
                         </button>
                       );

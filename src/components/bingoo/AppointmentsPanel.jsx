@@ -316,7 +316,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
                 color: filterTab === f.id ? "#10b981" : isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
               }}>
               {f.label}
-              {count !== null && count > 0 && <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-[9px] font-black">{count}</span>}
+              {count !== null && count > 0 && <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-[11px] font-black">{count}</span>}
             </button>
           );
         })}

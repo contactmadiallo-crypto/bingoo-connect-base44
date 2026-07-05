@@ -524,7 +524,7 @@ export default function MyNFCDevices() {
                               { label: "Status", value: device.status },
                             ].map(item => (
                               <div key={item.label} className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                                <p className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>{item.label}</p>
+                                <p className={`text-xs font-bold uppercase tracking-wider ${mutedText}`}>{item.label}</p>
                                 <p className={`text-sm font-black mt-1 ${headText} capitalize`}>{item.value}</p>
                               </div>
                             ))}

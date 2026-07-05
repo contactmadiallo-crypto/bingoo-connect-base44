@@ -52,7 +52,7 @@ export default function DashboardNav({ tabs, activeTab, setTab, leads, appointme
             <Icon style={{ color: isActive ? theme.color : isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.30)", width: 13, height: 13, flexShrink: 0 }} />
             {t.label}
             {badgeCount && (
-              <span className="min-w-[16px] h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center px-1"
+              <span className="min-w-[16px] h-4 rounded-full text-white text-[11px] font-black flex items-center justify-center px-1"
                 style={{ background: t.id === "leads" ? "#f59e0b" : "#10b981" }}>
                 {badgeCount}
               </span>

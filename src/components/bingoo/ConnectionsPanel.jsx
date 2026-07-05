@@ -110,7 +110,7 @@ export default function ConnectionsPanel({ isDark, profileId }) {
                 <p className={`font-bold text-sm truncate ${t.text}`}>{conn.profile_display_name}</p>
                 {conn.profile_job_title && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_job_title}</p>}
                 {conn.profile_company && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_company}</p>}
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${t.badge}`}>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${t.badge}`}>
                   {sourceLabel[conn.source] || "👆 Manual"}
                 </span>
               </div>

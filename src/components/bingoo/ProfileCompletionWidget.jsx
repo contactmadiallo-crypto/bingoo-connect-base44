@@ -126,7 +126,7 @@ export default function ProfileCompletionWidget({ profile, extraData = {}, onNav
             {nfcBonus.label}
           </span>
           {!nfcBonus.done && (
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-500"}`}>
+            <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-500"}`}>
               Bonus
             </span>
           )}

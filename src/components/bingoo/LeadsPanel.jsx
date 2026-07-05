@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Download, Phone, Mail, MessageSquare, Inbox, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 // Full CRM pipeline statuses
 const CRM_STATUSES = [
@@ -231,18 +231,14 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
                     <p className={`text-xs ${mutedText}`}>{lead.created_date?.slice(0,10)}{lead.source ? ` · ${lead.source}` : ""}</p>
                   </div>
                 </div>
-                <Select
+                <MobileSelect
                   value={lead.status || "new"}
                   onValueChange={(v) => updateLead.mutate({ id: lead.id, data: { status: v } })}
-                >
-                  <SelectTrigger className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer outline-none h-auto ${getStatusStyle(lead.status || "new", isDark)}`}
-                    style={isDark ? { background: "rgba(15,23,42,0.9)" } : {}}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CRM_STATUSES.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                  options={CRM_STATUSES.map(s => ({ value: s.id, label: s.label }))}
+                  ariaLabel={`Change status for lead ${lead.name || lead.id}`}
+                  className={`text-xs font-bold px-2.5 py-1 rounded-full border cursor-pointer outline-none h-auto ${getStatusStyle(lead.status || "new", isDark)}`}
+                  style={isDark ? { background: "rgba(15,23,42,0.9)" } : {}}
+                />
               </div>
 
               {/* Contact info */}

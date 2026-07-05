@@ -966,7 +966,7 @@ export default function Landing() {
                 </div>
                 <div className="flex items-center gap-2 mb-1.5">
                   {f.badge && (
-                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
+                    <span className="text-xs font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
                       style={{ background: (f.accent || B.navy) + "12", color: f.accent || B.navy }}>
                       {f.badge}
                     </span>
