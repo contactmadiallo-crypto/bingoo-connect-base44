@@ -102,7 +102,13 @@ export default function ProfilesHub({
 
   // Effective account plan — used for entitlement decisions
   const isFree = !accountPlan || accountPlan === "free";
-  const hasReachedFreeLimit = isFree && profiles.length >= 1;
+  // A 14-day trial CTA is only valid for a genuinely free account.
+  // If any profile already carries a paid plan (manual/legacy override or subscription),
+  // the user is not "free" from their perspective — hide the trial card.
+  const anyPaidProfile = profiles.some(
+    (p) => getEffectiveProfilePlan(accountPlan, p) !== "free"
+  );
+  const hasReachedFreeLimit = isFree && profiles.length >= 1 && !anyPaidProfile;
   const canReorder = items.length > 1 && !!onReorder;
 
   const copyLink = (profile) => {
