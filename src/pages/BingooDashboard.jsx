@@ -25,7 +25,7 @@ import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
-import { getEffectiveProfilePlan, PLAN_LABELS } from "@/lib/planPermissions";
+import { getEffectiveProfilePlan, PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
   Zap, Briefcase, FileText, Users, AlertTriangle,
@@ -215,12 +215,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isBusiness, isFree, canAccess, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
-
-  const hasServiceMenu  = !planLoading && canAccess("service_menu");
-  const hasTeam         = !planLoading && (canAccess("staff_profiles") || canAccess("attorney_profiles") || canAccess("employee_profiles"));
-  const hasCRM          = !planLoading && canAccess("crm_pipeline");
-  const hasAttendance   = !planLoading && canAccess("attendance");
+  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -296,6 +291,21 @@ export default function BingooDashboard() {
   const activeProfile = selectedProfileId
     ? (orderedProfiles.find(p => p.id === selectedProfileId) ?? orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0])
     : (orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0]);
+
+  // Profile-aware feature gating: a profile may carry a paid plan (admin override or
+  // legacy grant) even when the account subscription is free. Treat that plan as real so
+  // feature gates match the plan badge shown on the profile chip.
+  const activeProfilePlan = activeProfile
+    ? getEffectiveProfilePlan(userPlan, activeProfile)
+    : normalizePlan(userPlan);
+  const canAccessFeature = (featureKey) => {
+    if (planLoading) return true;
+    return canAccessForPlan(activeProfilePlan, featureKey);
+  };
+  const hasServiceMenu  = !planLoading && canAccessFeature("service_menu");
+  const hasTeam         = !planLoading && (canAccessFeature("staff_profiles") || canAccessFeature("attorney_profiles") || canAccessFeature("employee_profiles"));
+  const hasCRM          = !planLoading && canAccessFeature("crm_pipeline");
+  const hasAttendance   = !planLoading && canAccessFeature("attendance");
 
   // Mark a profile as the default (auto-selected on dashboard load). Only meaningful when the
   // user owns more than one profile.
@@ -581,7 +591,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("appointment_booking") ? (
+              ) : !planLoading && !canAccessFeature("appointment_booking") ? (
                 <PlanGateScreen feature="appointment_booking" isDark={isDark} />
               ) : (
                 <AppointmentsTabMerged
@@ -603,7 +613,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("lead_collection") ? (
+              ) : !planLoading && !canAccessFeature("lead_collection") ? (
                 <PlanGateScreen feature="lead_collection" isDark={isDark} />
               ) : (
                 <LeadsPanel
@@ -625,7 +635,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("analytics") ? (
+              ) : !planLoading && !canAccessFeature("analytics") ? (
                 <PlanGateScreen feature="analytics" isDark={isDark} />
               ) : (
                 <AnalyticsPanel profileId={activeProfile.id} />
@@ -641,7 +651,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("lost_mode") ? (
+              ) : !planLoading && !canAccessFeature("lost_mode") ? (
                 <PlanGateScreen feature="lost_mode" isDark={isDark} />
               ) : (
                 <LostDeviceManager
@@ -673,7 +683,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("crm_pipeline") ? (
+              ) : !planLoading && !canAccessFeature("crm_pipeline") ? (
                 <PlanGateScreen feature="crm_pipeline" isDark={isDark} />
               ) : isLawFirm ? (
                 <LegalLeadsDashboard profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -697,7 +707,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("services") ? (
+              ) : !planLoading && !canAccessFeature("services") ? (
                 <PlanGateScreen feature="services" isDark={isDark} />
               ) : (
                 <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -713,7 +723,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("business_hours") ? (
+              ) : !planLoading && !canAccessFeature("business_hours") ? (
                 <PlanGateScreen feature="business_hours" isDark={isDark} />
               ) : (
                 <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -729,7 +739,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("practice_areas") ? (
+              ) : !planLoading && !canAccessFeature("practice_areas") ? (
                 <PlanGateScreen feature="practice_areas" isDark={isDark} />
               ) : (
                 <PracticeAreasPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -745,7 +755,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("legal_services") ? (
+              ) : !planLoading && !canAccessFeature("legal_services") ? (
                 <PlanGateScreen feature="legal_services" isDark={isDark} />
               ) : (
                 <LegalServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -761,7 +771,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("office_locations") ? (
+              ) : !planLoading && !canAccessFeature("office_locations") ? (
                 <PlanGateScreen feature="office_locations" isDark={isDark} />
               ) : (
                 <OfficeLocationsPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -777,7 +787,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("team_members") ? (
+              ) : !planLoading && !canAccessFeature("team_members") ? (
                 <PlanGateScreen feature="team_members" isDark={isDark} />
               ) : (
                 <TeamMembersPanel
@@ -798,7 +808,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccess("attendance") ? (
+              ) : !planLoading && !canAccessFeature("attendance") ? (
                 <PlanGateScreen feature="attendance" isDark={isDark} />
               ) : (
                 <AttendancePanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
@@ -812,7 +822,7 @@ export default function BingooDashboard() {
           {view === VIEW_RESUME && (
             <div>
               <ProfileChip />
-              {!planLoading && !canAccess("digital_resume") ? (
+              {!planLoading && !canAccessFeature("digital_resume") ? (
                 <PlanGateScreen feature="digital_resume" isDark={isDark} />
               ) : (
                 <ResumePanel user={user} profileId={activeProfile?.id} />
