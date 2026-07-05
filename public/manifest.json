@@ -1,57 +1,40 @@
 {
   "name": "Bingoo Connect",
   "short_name": "Bingoo",
-  "description": "NFC-Powered Business Identity Platform. One tap to share your entire business world.",
-  "start_url": "/bingoo",
+  "description": "One tap to share your entire business world. NFC-powered digital profiles for every professional.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#071d47",
+  "background_color": "#0B2E6B",
   "theme_color": "#0B2E6B",
-  "categories": ["business", "productivity", "networking"],
   "lang": "en",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
+      "purpose": "any"
+    },
     {
-      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png",
-      "sizes": "1280x720",
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "form_factor": "wide"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "My Dashboard",
-      "short_name": "Dashboard",
-      "description": "Open your Bingoo dashboard",
-      "url": "/bingoo",
-      "icons": [{ "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "My Profile",
-      "short_name": "Profile",
-      "description": "Edit your digital profile",
-      "url": "/bingoo?tab=profile",
-      "icons": [{ "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Activate Device",
-      "short_name": "Activate",
-      "description": "Activate your NFC device",
-      "url": "/activate-device",
-      "icons": [{ "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png", "sizes": "96x96" }]
+      "purpose": "maskable"
     }
   ]
 }
