@@ -350,7 +350,7 @@ export default function BingooDashboard() {
   // Queries scoped to activeProfile
   const { data: leads = [] } = useQuery({
     queryKey: ["leads", activeProfile?.id],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: activeProfile.id }, "-created_date"),
+    queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: activeProfile.id }).then(res => res.data.leads),
     enabled: !!activeProfile?.id,
     staleTime: 0,
     refetchOnMount: true,

@@ -39,7 +39,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey,
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
+    queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: profileId }).then(res => res.data.leads),
     enabled: !!profileId,
     staleTime: 0,
     refetchOnMount: true,
