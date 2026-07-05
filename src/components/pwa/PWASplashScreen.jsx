@@ -51,7 +51,7 @@ export default function PWASplashScreen() {
           ))}
 
           <motion.img
-            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+            src="/favicon.svg"
             alt="Bingoo Connect"
             className="w-28 h-28 object-contain relative z-10"
             initial={{ scale: 0.7, opacity: 0 }}

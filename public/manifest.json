@@ -1,7 +1,7 @@
 {
   "name": "Bingoo Connect",
   "short_name": "Bingoo",
-  "description": "One tap to share your entire business world. NFC-powered digital profiles for every professional.",
+  "description": "One tap to share your entire business world. NFC-powered digital profiles for professionals.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -9,29 +9,34 @@
   "background_color": "#0B2E6B",
   "theme_color": "#0B2E6B",
   "lang": "en",
-  "dir": "ltr",
-  "categories": ["business", "productivity", "lifestyle"],
+  "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png",
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

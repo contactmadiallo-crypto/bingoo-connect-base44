@@ -84,7 +84,7 @@ export default function PWAInstallBanner() {
 
           <div className="flex items-start gap-3">
             <img
-              src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+              src="/favicon.svg"
               alt="Bingoo"
               className="w-12 h-12 rounded-xl object-contain flex-shrink-0"
               style={{ background: "rgba(255,255,255,0.1)" }}
@@ -134,7 +134,7 @@ export default function PWAInstallBanner() {
         }}
       >
         <img
-          src="https://media.base44.com/images/public/692bd9007b93ba81de543346/c1fc2bab8_bingooLogoNfc.png"
+          src="/favicon.svg"
           alt="Bingoo"
           className="w-12 h-12 rounded-xl object-contain flex-shrink-0"
           style={{ background: "rgba(255,255,255,0.1)" }}
