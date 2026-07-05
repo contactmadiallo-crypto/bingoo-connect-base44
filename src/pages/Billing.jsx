@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, getEffectiveProfilePlan } from '@/lib/planPermissions';
+import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 
@@ -49,12 +50,31 @@ export default function Billing() {
     meta.setAttribute("content", "noindex, nofollow");
     return () => { meta.setAttribute("content", "index, follow"); };
   }, []);
-  const { plan, subscription, isLoading } = usePlan();
+  const { user, plan, subscription, isLoading } = usePlan();
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
-  const statusKey = subscription?.status || 'free';
+  // A profile may carry a paid plan (admin override or legacy grant) even without
+  // a Stripe subscription. Treat that as a real, active plan on Billing — consistent
+  // with the plan badge shown on the dashboard profile cards.
+  const { data: profiles } = useQuery({
+    queryKey: ['my-profiles-billing', user?.id],
+    queryFn: () => base44.entities.Profile.filter({}),
+    enabled: !!user?.id,
+  });
+
+  const subPlan = normalizePlan(plan);
+  const effectivePlan = (profiles || []).reduce(
+    (best, p) => {
+      const eff = getEffectiveProfilePlan(subPlan, p);
+      return (PLAN_HIERARCHY[eff] ?? 0) > (PLAN_HIERARCHY[best] ?? 0) ? eff : best;
+    },
+    subPlan,
+  );
+
+  // No Stripe subscription but a paid profile plan → treat as active (manually granted).
+  const statusKey = subscription?.status || (effectivePlan !== 'free' ? 'active' : 'free');
   const status = STATUS_CONFIG[statusKey] || STATUS_CONFIG.free;
   const StatusIcon = status.icon;
 
@@ -108,8 +128,7 @@ export default function Billing() {
     }
   };
 
-  const normalizedPlan = normalizePlan(plan);
-  const planFeatures = PLAN_FEATURES[normalizedPlan] || PLAN_FEATURES.free;
+  const planFeatures = PLAN_FEATURES[effectivePlan] || PLAN_FEATURES.free;
 
   return (
     <BingooLayout>
@@ -131,12 +150,12 @@ export default function Billing() {
           <div className="flex items-center gap-4 flex-wrap">
             <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: `${B.navy}15`, color: B.navy }}>
-              {PLAN_ICONS[normalizedPlan] || PLAN_ICONS.free}
+              {PLAN_ICONS[effectivePlan] || PLAN_ICONS.free}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-3 flex-wrap">
                 <h3 className="text-2xl font-black" style={{ color: B.navy }}>
-                  {PLAN_LABELS[normalizedPlan] || 'Free'} Plan
+                  {PLAN_LABELS[effectivePlan] || 'Free'} Plan
                 </h3>
                 <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
                   style={{ background: status.bg, color: status.color }}>
@@ -189,13 +208,13 @@ export default function Billing() {
         </div>
 
         {/* Upgrade options */}
-        {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[normalizedPlan] ?? 0)).length > 0 && (
+        {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[effectivePlan] ?? 0)).length > 0 && (
           <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
             <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>
-              {normalizedPlan === 'free' ? 'Upgrade Your Plan' : 'Upgrade to a Higher Plan'}
+              {effectivePlan === 'free' ? 'Upgrade Your Plan' : 'Upgrade to a Higher Plan'}
             </h2>
             <div className="space-y-3">
-              {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[normalizedPlan] ?? 0)).map(p => (
+              {ALL_PLANS.filter(p => (PLAN_HIERARCHY[p.id] ?? 0) > (PLAN_HIERARCHY[effectivePlan] ?? 0)).map(p => (
                 <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl border-2 transition-all"
                   style={{ borderColor: p.id === 'professional' ? B.orange : '#e2e8f0', background: p.id === 'professional' ? `${B.orange}06` : '#fafafa' }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
