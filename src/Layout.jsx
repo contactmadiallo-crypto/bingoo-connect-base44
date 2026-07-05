@@ -2,7 +2,7 @@ import React from "react";
 import { PullToRefreshContainer } from '@/components/mobile/PullToRefreshContainer';
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Briefcase, UtensilsCrossed, ChefHat, Settings, MapPin, ShoppingBag, Package, Store, TrendingUp, UserPlus, Navigation, Wallet, Building2, Radio, ClipboardList, LineChart, LogOut, User } from "lucide-react";
 import {
   Sidebar,
@@ -67,6 +67,7 @@ export default function Layout({ children, currentPageName }) {
     queryKey: ['user'],
     queryFn: () => base44.auth.me(),
   });
+  const queryClient = useQueryClient();
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -255,8 +256,8 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto dark:bg-slate-900">
-            <PullToRefreshContainer>
+          <div className="flex-1 overflow-auto dark:bg-slate-900 pb-safe">
+            <PullToRefreshContainer onRefresh={async () => { await queryClient.invalidateQueries(); }}>
               {children}
             </PullToRefreshContainer>
           </div>

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
 import { Clock, LogIn, LogOut, Calendar, Users, Download, ChevronDown } from "lucide-react";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { format, parseISO, differenceInMinutes } from "date-fns";
 
 function hoursWorked(clockIn, clockOut) {
@@ -109,11 +110,15 @@ export default function AttendancePanel({ profileId, isDark: propDark }) {
       <div className={`rounded-2xl border p-5 ${card}`}>
         <p className={`font-bold text-sm mb-3 ${head}`}>Clock In / Out</p>
         <div className="flex gap-2 flex-wrap">
-          <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
-            className={`flex-1 min-w-[160px] rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`}>
-            <option value="">Select team member…</option>
-            {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-          </select>
+          <MobileSelect
+            value={selectedMember || "none"}
+            onValueChange={(v) => setSelectedMember(v === "none" ? "" : v)}
+            options={[
+              { value: "none", label: "Select team member…" },
+              ...members.map(m => ({ value: m.id, label: m.name }))
+            ]}
+            className={`flex-1 min-w-[160px] rounded-xl px-3 py-2.5 text-sm border outline-none ${inp}`}
+          />
           <Button size="sm" onClick={() => clockInMutation.mutate()} disabled={!selectedMember || clockInMutation.isPending}
             className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#10b981" }}>
             <LogIn className="w-3.5 h-3.5" /> Clock In

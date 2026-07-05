@@ -31,9 +31,6 @@ self.addEventListener('fetch', (event) => {
   if (
     event.request.method !== 'GET' ||
     isDevChunk(url) ||
-    url.includes('.js') ||
-    url.includes('.jsx') ||
-    url.includes('.css') ||
     !url.startsWith(self.location.origin)
   ) {
     return; // fall through to network

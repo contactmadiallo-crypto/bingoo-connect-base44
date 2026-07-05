@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
+import { useNavigationStack } from "@/components/mobile/NavigationStack";
 import { t, getLang } from "@/lib/i18n";
 
 /**
@@ -21,6 +22,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
+  const { switchTab, resetStack } = useNavigationStack();
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');
@@ -252,8 +254,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
-              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
@@ -267,7 +269,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 2. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)} aria-label="More navigation options"
-          className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+          className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <Menu className="w-5 h-5 text-white/40" />
           </div>
@@ -287,8 +289,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
-              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
@@ -306,8 +308,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
-              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
+              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
                 <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
@@ -321,7 +323,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 5. Logout */}
         <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <LogOut className="w-5 h-5 text-red-400" />
           </div>

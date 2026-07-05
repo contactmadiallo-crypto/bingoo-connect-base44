@@ -120,10 +120,10 @@ export default function ConnectionsPanel({ isDark, profileId }) {
                 <span className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-colors ${isDark ? "bg-blue-500/15 text-blue-400 hover:bg-blue-500/25" : "bg-blue-50 text-blue-600 hover:bg-blue-100"}`}>
                   <ExternalLink className="w-3 h-3" /> View
                 </span>
-                <Button size="icon" variant="ghost"
+                <Button size="icon" variant="ghost" aria-label="Delete connection"
                   onClick={(e) => { e.preventDefault(); deleteMut.mutate(conn.id); }}
-                  className={`w-8 h-8 rounded-xl ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
-                  <Trash2 className="w-3.5 h-3.5" />
+                  className={`w-11 h-11 rounded-xl ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
+                  <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </a>
