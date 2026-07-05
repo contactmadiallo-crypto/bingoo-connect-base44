@@ -182,14 +182,26 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const createService = useMutation({
     mutationFn: (data) => dbOp("SalonService", "create", profileId,
       () => base44.entities.SalonService.create({ ...data, profile_id: profileId })),
-    onSuccess: (newRecord) => {
-      qc.setQueryData(["salon-services", profileId], (old = []) => [...old, newRecord]);
+    onMutate: async (data) => {
+      await qc.cancelQueries({ queryKey: ["salon-services", profileId] });
+      const prev = qc.getQueryData(["salon-services", profileId]);
+      const tempId = `temp-${Date.now()}`;
+      const optimistic = { ...data, id: tempId, profile_id: profileId, created_date: new Date().toISOString() };
+      qc.setQueryData(["salon-services", profileId], (old = []) => [...old, optimistic]);
+      return { prev, tempId };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["salon-services", profileId], ctx.prev);
+      toast.error("Failed to save: " + (_err?.message || "Permission denied"));
+    },
+    onSuccess: (newRecord, _vars, ctx) => {
+      qc.setQueryData(["salon-services", profileId], (old = []) =>
+        old.map(s => s.id === ctx?.tempId ? newRecord : s));
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
       toast.success("Saved Successfully");
       setEditingId(null);
       setForm(EMPTY_SERVICE);
     },
-    onError: (err) => toast.error("Failed to save: " + (err?.message || "Permission denied")),
   });
 
   const updateService = useMutation({
@@ -208,8 +220,17 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const deleteService = useMutation({
     mutationFn: (id) => dbOp("SalonService", "delete", profileId,
       () => base44.entities.SalonService.delete(id)),
-    onSuccess: (_, deletedId) => {
+    onMutate: async (deletedId) => {
+      await qc.cancelQueries({ queryKey: ["salon-services", profileId] });
+      const prev = qc.getQueryData(["salon-services", profileId]);
       qc.setQueryData(["salon-services", profileId], (old = []) => old.filter(s => s.id !== deletedId));
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["salon-services", profileId], ctx.prev);
+      toast.error("Failed to delete service");
+    },
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["salon-services", profileId] });
       toast.success("Service removed");
     },

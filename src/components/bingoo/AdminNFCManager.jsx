@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Plus, Download, Printer, Search, Edit, Trash2, Wifi, QrCode, RefreshCw, X, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker"];
 const DEVICE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫", sticker: "🏷️" };
@@ -232,11 +233,12 @@ export default function AdminNFCManager({ profiles = [] }) {
             </div>
             <div>
               <label className="text-white/50 text-xs font-bold block mb-1">Device Type</label>
-              <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
-                value={bulkType} onChange={e => setBulkType(e.target.value)}>
-                {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{DEVICE_EMOJIS[t]} {t}</option>)}
-              </select>
+              <MobileSelect
+                value={bulkType}
+                onValueChange={setBulkType}
+                options={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+              />
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -263,21 +265,21 @@ export default function AdminNFCManager({ profiles = [] }) {
           <div className="grid sm:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="text-white/50 text-xs font-bold block mb-1">Type</label>
-              <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+              <MobileSelect
                 value={editingDevice.device_type}
-                onChange={e => setEditingDevice(d => ({ ...d, device_type: e.target.value }))}>
-                {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{t}</option>)}
-              </select>
+                onValueChange={(v) => setEditingDevice(d => ({ ...d, device_type: v }))}
+                options={DEVICE_TYPES.map(t => ({ value: t, label: t }))}
+                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+              />
             </div>
             <div>
               <label className="text-white/50 text-xs font-bold block mb-1">Status</label>
-              <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+              <MobileSelect
                 value={editingDevice.status}
-                onChange={e => setEditingDevice(d => ({ ...d, status: e.target.value }))}>
-                {STATUS_OPTIONS.map(s => <option key={s} value={s} style={{ background: navyCard }}>{s}</option>)}
-              </select>
+                onValueChange={(v) => setEditingDevice(d => ({ ...d, status: v }))}
+                options={STATUS_OPTIONS.map(s => ({ value: s, label: s }))}
+                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+              />
             </div>
             <div>
               <label className="text-white/50 text-xs font-bold block mb-1">Assign to Profile ID</label>

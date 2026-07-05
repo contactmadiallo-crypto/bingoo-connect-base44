@@ -32,6 +32,7 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
   const [newAddress, setNewAddress] = useState({ label: "", address: "" });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -487,14 +488,20 @@ export default function CustomerProfile({ user, onBack, onUserUpdate, language =
                   <Button variant="outline" onClick={() => { setShowDeleteConfirm(false); setDeleteInput(""); }}
                     className="flex-1">Cancel</Button>
                   <Button
-                    disabled={deleteInput !== "DELETE"}
-                    onClick={() => {
-                      if (deleteInput === "DELETE") {
-                        base44.auth.logout();
+                    disabled={deleteInput !== "DELETE" || deleting}
+                    onClick={async () => {
+                      if (deleteInput !== "DELETE") return;
+                      setDeleting(true);
+                      try {
+                        await base44.auth.deleteAccount();
+                        await base44.auth.logout();
+                      } catch (err) {
+                        setDeleting(false);
+                        alert("Account deletion failed: " + (err?.message || "Please try again or contact support."));
                       }
                     }}
                     className="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:opacity-40">
-                    Confirm Delete
+                    {deleting ? "Deleting..." : "Confirm Delete"}
                   </Button>
                 </div>
               </div>

@@ -160,11 +160,14 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           </div>
           <button
             onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
-            title="Logout"
+            title="Logout" aria-label="Logout"
             className="p-2 rounded-lg transition-colors hover:bg-white/10">
             <LogOut className="w-4 h-4 text-red-400" />
           </button>
         </div>
+        <a href="/account-settings#delete" className="text-xs text-red-400/60 hover:text-red-400 transition-colors px-3 py-1">
+          Delete Account
+        </a>
       </div>
     </div>
   );
