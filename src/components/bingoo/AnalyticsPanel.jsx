@@ -143,8 +143,8 @@ export default function AnalyticsPanel({ profileId }) {
       {/* Period selector */}
       <div className="flex gap-2 flex-wrap">
         {PERIODS.map(p => (
-          <button key={p.label} onClick={() => setPeriod(p.days)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+          <button key={p.label} onClick={() => setPeriod(p.days)} aria-label={p.label}
+            className={`min-h-[44px] px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
               period === p.days
                 ? "bg-blue-600 text-white shadow-md"
                 : isDark ? "bg-white/8 text-white/50 hover:bg-white/12 hover:text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -158,7 +158,7 @@ export default function AnalyticsPanel({ profileId }) {
       </div>
 
       {/* NFC/QR block — always dark gradient, readable. Pulls from Analytics entity (live source of truth) */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-r from-indigo-600 to-blue-700 rounded-2xl p-4 sm:p-5 text-white">
         <p className="text-xs font-bold uppercase tracking-widest opacity-70 mb-3">📡 NFC Taps & QR Scans</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
@@ -199,7 +199,7 @@ export default function AnalyticsPanel({ profileId }) {
 
       {/* Social clicks */}
       {hasSocial && (
-        <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+        <div className="rounded-2xl p-4 sm:p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
           <h3 className={`font-bold mb-3 text-sm ${headText}`}>Social Media Clicks</h3>
           <div className="space-y-2">
             {socialKeys.map(key => counts[key] ? (
@@ -213,7 +213,7 @@ export default function AnalyticsPanel({ profileId }) {
       )}
 
       {/* Chart */}
-      <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+      <div className="rounded-2xl p-4 sm:p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
         <h3 className={`font-bold mb-4 text-sm ${headText}`}>Last 7 Days Activity</h3>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={chartData}>
@@ -227,7 +227,7 @@ export default function AnalyticsPanel({ profileId }) {
       </div>
 
       {/* Recent activity feed — from Analytics entity (live source of truth) */}
-      <div className="rounded-2xl p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+      <div className="rounded-2xl p-4 sm:p-5" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
         <h3 className={`font-bold mb-3 text-sm flex items-center gap-2 ${headText}`}>
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           Recent Activity

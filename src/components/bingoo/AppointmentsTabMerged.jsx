@@ -28,7 +28,8 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
             <button
               key={t.id}
               onClick={() => setSub(t.id)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+              aria-label={t.label}
+              className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
               style={{
                 background: isActive
                   ? isDark ? "rgba(16,185,129,0.15)" : "rgba(16,185,129,0.1)"

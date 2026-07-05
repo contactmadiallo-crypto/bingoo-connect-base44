@@ -165,7 +165,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             <LogOut className="w-4 h-4 text-red-400" />
           </button>
         </div>
-        <a href="/account-settings#delete" className="text-xs text-red-400/60 hover:text-red-400 transition-colors px-3 py-1">
+        <a href="/account-settings#delete" aria-label="Delete account" className="text-xs text-red-400/60 hover:text-red-400 transition-colors min-h-[44px] flex items-center px-3">
           Delete Account
         </a>
       </div>

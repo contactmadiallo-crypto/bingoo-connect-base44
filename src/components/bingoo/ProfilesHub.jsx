@@ -216,19 +216,19 @@ export default function ProfilesHub({
             aria-label="Move profile up"
             disabled={index === 0}
             onClick={(e) => { e.stopPropagation(); moveBy(index, -1); }}
-            className="w-7 h-7 flex items-center justify-center disabled:opacity-30 transition-colors"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-30 transition-colors"
             style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
-            <ChevronUp className="w-3.5 h-3.5" />
+            <ChevronUp className="w-4 h-4" />
           </button>
-          <div style={{ width: 1, height: 18, background: isDark ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)" }} />
+          <div style={{ width: 1, height: 24, background: isDark ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)" }} />
           <button
             type="button"
             aria-label="Move profile down"
             disabled={index === items.length - 1}
             onClick={(e) => { e.stopPropagation(); moveBy(index, 1); }}
-            className="w-7 h-7 flex items-center justify-center disabled:opacity-30 transition-colors"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-30 transition-colors"
             style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
-            <ChevronDown className="w-3.5 h-3.5" />
+            <ChevronDown className="w-4 h-4" />
           </button>
         </div>
       )}

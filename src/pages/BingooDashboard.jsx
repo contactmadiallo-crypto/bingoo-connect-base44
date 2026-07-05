@@ -502,7 +502,7 @@ export default function BingooDashboard() {
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-16 pt-3 sm:pt-6">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-3 sm:pt-6">
 
           {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-5">
@@ -519,13 +519,14 @@ export default function BingooDashboard() {
             </div>
             <div className="flex items-center gap-2">
               <NotificationCenter userId={user?.id} isDark={isDark} />
-              <button onClick={toggleLang}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
+              <button onClick={toggleLang} aria-label="Toggle language"
+                className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
                 {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
               </button>
               <Link to="/account-settings">
-                <button className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isDark ? "bg-white/8 text-white/40 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
-                  <Shield className="w-3.5 h-3.5" />
+                <button aria-label="Account settings"
+                  className={`min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-all ${isDark ? "bg-white/8 text-white/40 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
+                  <Shield className="w-4 h-4" />
                 </button>
               </Link>
             </div>

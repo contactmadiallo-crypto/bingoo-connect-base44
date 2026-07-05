@@ -27,7 +27,7 @@ function AccountTypeSection({ user, onUpdated }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+    <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
       <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
         <User className="w-5 h-5 text-blue-600" /> Account Type
       </h2>
@@ -194,7 +194,7 @@ export default function AccountSettings() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: "rgba(11,46,107,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/bingoo" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
+          <Link to="/bingoo" aria-label="Back to dashboard" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
             <ArrowLeft className="w-4 h-4" /> Back
           </Link>
           <div className="h-5 w-px bg-white/10 mx-1" />
@@ -212,7 +212,7 @@ export default function AccountSettings() {
         <PhoneAlertsSection user={user} />
 
         {/* Account info */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
             <Shield className="w-5 h-5 text-blue-600" /> Account Information
           </h2>
@@ -237,7 +237,7 @@ export default function AccountSettings() {
         </div>
 
         {/* Security status */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-green-600" /> Security Status
           </h2>
@@ -260,7 +260,7 @@ export default function AccountSettings() {
         </div>
 
         {/* Activity log */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
             <Activity className="w-5 h-5 text-blue-600" /> Recent Activity
           </h2>
@@ -291,7 +291,7 @@ export default function AccountSettings() {
         </div>
 
         {/* Export data */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-2 flex items-center gap-2">
             <Download className="w-5 h-5 text-blue-600" /> Export My Data
           </h2>
