@@ -32,7 +32,7 @@ import {
   Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft,
   AlertOctagon
 } from "lucide-react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 
@@ -201,6 +201,7 @@ const NoProfileState = ({ isDark, onGoToProfiles }) => (
 
 export default function BingooDashboard() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const view = resolveView(searchParams);
@@ -408,24 +409,26 @@ export default function BingooDashboard() {
   // IMPORTANT: none of these change selectedProfileId unless explicitly navigating to a new profile
   const openHub = () => {
     setLiveFormOverride(null);
-    setSearchParams({});
+    navigate('/bingoo', { replace: false });
   };
 
   const openWorkspace = (profileId) => {
     setSelectedProfileId(profileId);
     setLiveFormOverride(null);
-    setSearchParams({ view: VIEW_WORKSPACE });
+    navigate(`/bingoo?view=${VIEW_WORKSPACE}`, { replace: false });
   };
 
   const openNewProfile = () => {
     setSelectedProfileId(null);
     setLiveFormOverride(null);
-    setSearchParams({ view: VIEW_WORKSPACE, newprofile: "1" });
+    navigate(`/bingoo?view=${VIEW_WORKSPACE}&newprofile=1`, { replace: false });
   };
 
   const openView = (v) => {
     setLiveFormOverride(null);
-    setSearchParams({ view: v });
+    // Use navigate with replace: false so each tab visit creates a browser history entry.
+    // This ensures Android hardware back / browser back steps through tabs predictably.
+    navigate(`/bingoo?view=${v}`, { replace: false });
   };
 
   const launchAI = () => {

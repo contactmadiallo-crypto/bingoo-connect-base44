@@ -208,12 +208,12 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
-          <button onClick={toggle}
-            className="p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white">
+          <button onClick={toggle} aria-label="Toggle dark mode"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white flex items-center justify-center">
             {isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}
           </button>
-          <button onClick={() => setMobileOpen(!mobileOpen)}
-            className="p-2.5 rounded-xl transition-colors hover:bg-white/10 text-white">
+          <button onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation menu"
+            className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors hover:bg-white/10 text-white flex items-center justify-center">
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>

@@ -497,7 +497,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="rounded-2xl border p-5" style={{ background: "rgba(255,255,255,0.07)", borderColor: "rgba(255,255,255,0.2)" }}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-white">Edit: <span className="font-mono text-orange-400">{editingDevice.device_code}</span></h3>
-                <button onClick={() => setEditingDevice(null)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
+                <button onClick={() => setEditingDevice(null)} aria-label="Close edit dialog" className="min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
               </div>
               <div className="grid sm:grid-cols-3 gap-4 mb-4">
                 <div>
@@ -1056,7 +1056,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 <h3 className="font-black text-white">Assign Device</h3>
                 <p className="text-xs text-white/40 font-mono mt-0.5">{assignDevice.device_code}</p>
               </div>
-              <button onClick={() => setAssignDevice(null)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
+              <button onClick={() => setAssignDevice(null)} aria-label="Close assign dialog" className="min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
             </div>
             <label className="text-white/50 text-xs font-bold block mb-1">Select Profile</label>
             <div className="mb-4">

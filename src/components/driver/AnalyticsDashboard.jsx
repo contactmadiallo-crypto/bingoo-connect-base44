@@ -141,7 +141,7 @@ export default function AnalyticsDashboard({ driver }) {
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between mb-2">
               <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-              <Badge variant="outline" className="text-[10px] sm:text-xs">Moy.</Badge>
+              <Badge variant="outline" className="text-xs sm:text-xs">Moy.</Badge>
             </div>
             <p className="text-xl sm:text-3xl font-bold text-blue-600">{analytics.avgDeliveryTime}</p>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">minutes/livraison</p>
@@ -152,7 +152,7 @@ export default function AnalyticsDashboard({ driver }) {
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
-              <Badge variant="outline" className="text-[10px] sm:text-xs">Total</Badge>
+              <Badge variant="outline" className="text-xs sm:text-xs">Total</Badge>
             </div>
             <p className="text-xl sm:text-3xl font-bold text-green-600">{analytics.totalEarnings}</p>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">CFA gagnés</p>
@@ -163,7 +163,7 @@ export default function AnalyticsDashboard({ driver }) {
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between mb-2">
               <Star className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600" />
-              <Badge variant="outline" className="text-[10px] sm:text-xs">Note</Badge>
+              <Badge variant="outline" className="text-xs sm:text-xs">Note</Badge>
             </div>
             <p className="text-xl sm:text-3xl font-bold text-yellow-600">{analytics.avgRating}</p>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">sur {analytics.ratedOrdersCount} avis</p>
@@ -174,7 +174,7 @@ export default function AnalyticsDashboard({ driver }) {
           <CardContent className="pt-4 sm:pt-6">
             <div className="flex items-center justify-between mb-2">
               <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
-              <Badge variant="outline" className="text-[10px] sm:text-xs">Total</Badge>
+              <Badge variant="outline" className="text-xs sm:text-xs">Total</Badge>
             </div>
             <p className="text-xl sm:text-3xl font-bold text-purple-600">{analytics.totalOrders}</p>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">livraisons</p>

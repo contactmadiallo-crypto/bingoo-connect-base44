@@ -345,16 +345,16 @@ export default function AdminNFCManager({ profiles = [] }) {
                     <td className="px-4 py-3 text-xs text-white/35">{d.assigned_at?.slice(0, 10) || "—"}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10" aria-label="Edit device"
+                        <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10" aria-label="Edit device"
                           onClick={() => setEditingDevice({ ...d })}>
                           <Edit className="w-3.5 h-3.5 text-blue-400" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10" aria-label="Delete device"
+                        <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10" aria-label="Delete device"
                           onClick={() => setDeleteConfirm(d)}>
                           <Trash2 className="w-3.5 h-3.5 text-red-400" />
                         </Button>
                         {d.status === "active" && d.profile_id && (
-                          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-white/10"
+                          <Button size="sm" variant="ghost" className="min-h-[44px] min-w-[44px] p-0 hover:bg-white/10"
                             title="Reset to unclaimed" aria-label="Reset to unclaimed"
                             onClick={() => updateDevice.mutate({ id: d.id, data: { status: "inactive", profile_id: null, assigned_at: null } })}>
                             <RefreshCw className="w-3.5 h-3.5 text-yellow-400" />
