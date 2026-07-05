@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useSearchParams, Link } from "react-router-dom";
 import BingooLogo from "@/components/bingoo/BingooLogo";
+import NotificationCenter from "@/components/bingoo/NotificationCenter";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -504,6 +505,7 @@ export default function BingooDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <NotificationCenter userId={user?.id} isDark={isDark} />
               <button onClick={toggleLang}
                 className={`px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
                 {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}

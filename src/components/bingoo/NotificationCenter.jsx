@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -96,6 +97,14 @@ export default function NotificationCenter({ userId, isDark }) {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const handleClick = (n) => {
     if (!n.is_read) markReadMutation.mutate(n.id);
     setOpen(false);
@@ -106,8 +115,6 @@ export default function NotificationCenter({ userId, isDark }) {
     }
   };
 
-  const panelBg = isDark ? "#0f1628" : "#ffffff";
-  const panelBorder = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
 
@@ -117,13 +124,13 @@ export default function NotificationCenter({ userId, isDark }) {
     <div className="relative">
       <button
         onClick={open ? handleClose : handleOpen}
-        className={`relative h-9 w-9 flex items-center justify-center rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/50 hover:text-white" : "hover:bg-slate-100 text-slate-500 hover:text-slate-700"}`}
+        className={`relative h-8 w-8 flex items-center justify-center rounded-full transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-red-500/50 ring-2 ring-[#0f1117]"
+            className={`absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-red-500/50 ring-2 ${isDark ? "ring-[#0f1117]" : "ring-white"}`}
             style={{ animation: "bell-pulse 2s ease-in-out infinite" }}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -131,11 +138,16 @@ export default function NotificationCenter({ userId, isDark }) {
         )}
       </button>
 
-      {open && (
+      {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-[68px] right-2 z-[60] w-[calc(100vw-16px)] max-w-sm rounded-2xl shadow-2xl overflow-hidden"
-            style={{ background: panelBg, border: `1px solid ${panelBorder}` }}>
+          <div className="fixed top-16 right-3 z-[60] w-[calc(100vw-24px)] max-w-sm rounded-2xl shadow-2xl overflow-hidden"
+            style={{
+              background: isDark ? "rgba(15,22,40,0.72)" : "rgba(255,255,255,0.78)",
+              backdropFilter: "blur(20px) saturate(160%)",
+              WebkitBackdropFilter: "blur(20px) saturate(160%)",
+              border: `1px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
+            }}>
             {/* Header */}
             <div className={`px-4 py-3 flex items-center justify-between border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
               <div className="flex items-center gap-2">
@@ -215,7 +227,7 @@ export default function NotificationCenter({ userId, isDark }) {
               </div>
             )}
           </div>
-        </>
+        </>, document.body
       )}
     </div>
   );

@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
 import { t, getLang } from "@/lib/i18n";
@@ -102,17 +101,15 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     );
   };
 
+  // Sidebar header — notification bell removed; bell now lives in the dashboard top bar
   const renderSidebarContent = (onNav) => (
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
         <div className="px-5 py-5" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
-          <div className="flex items-center justify-between">
-            <img
-              src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-              alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-            <NotificationCenter userId={effectiveUserId} isDark={true} />
-          </div>
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
+            alt="Bingoo Connect" className="h-10 w-auto object-contain" />
           <div className="text-[10px] uppercase tracking-widest mt-2 font-bold text-white/30">
             CONNECT • SHARE • GROW
           </div>
@@ -205,7 +202,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
           alt="Bingoo Connect" className="h-8 w-auto object-contain" />
         <div className="flex items-center gap-1">
-          <NotificationCenter userId={effectiveUserId} isDark={true} />
           <button onClick={toggle}
             className="p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white">
             {isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}
