@@ -11,7 +11,6 @@ import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampi
 import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
-import { Calendar } from "lucide-react";
 import { isLayoutDark } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
@@ -274,7 +273,6 @@ export default function PublicProfile() {
   const color = profile.cover_color || B.navy;
   const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
-  const canBook = profile.booking_enabled && ["pro","professional","business","corporate","salon","restaurant","lawfirm"].includes(profile.plan);
 
   // ── Render championship full-page layouts — pass all content as children
   const effectiveLayout = profile.layout || profile.profile_layout || "default";
@@ -369,7 +367,7 @@ export default function PublicProfile() {
       </div>
 
       {/* ── STICKY BOTTOM BAR ── */}
-      {(profile.phone || profile.whatsapp_number || canBook) && (
+      {(profile.phone || profile.whatsapp_number) && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
@@ -382,30 +380,20 @@ export default function PublicProfile() {
             boxShadow: "0 -8px 40px rgba(0,0,0,0.08)",
           }}
         >
-          <div style={{
-            maxWidth: 480, margin: "0 auto", display: "grid",
-            gridTemplateColumns: `repeat(${[profile.phone, profile.whatsapp_number, canBook].filter(Boolean).length}, 1fr)`,
-            gap: 10,
-          }}>
+          <div style={{ maxWidth: 440, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && profile.whatsapp_number ? "1fr 1fr" : "1fr", gap: 10 }}>
             {profile.phone && (
               <a href={`tel:${profile.phone}`}
                 onClick={() => track("phone_click")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 12px", borderRadius: 16, background: "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(22,163,74,0.35)", letterSpacing: "0.01em" }}>
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(22,163,74,0.35)", letterSpacing: "0.01em" }}>
                 <PhoneIcon size={18} /> Call Now
               </a>
             )}
             {profile.whatsapp_number && (
               <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
                 onClick={() => track("whatsapp_click")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 12px", borderRadius: 16, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(37,211,102,0.35)", letterSpacing: "0.01em" }}>
-                <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book WA" : "WhatsApp"}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(37,211,102,0.35)", letterSpacing: "0.01em" }}>
+                <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book via WA" : "WhatsApp"}
               </a>
-            )}
-            {canBook && (
-              <button onClick={() => { track("appointment_booked"); window.dispatchEvent(new CustomEvent("bingoo-open-booking")); }}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 12px", borderRadius: 16, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.85)})`, color: "#fff", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", boxShadow: `0 8px 24px ${hexRgb(color, 0.4)}`, letterSpacing: "0.01em" }}>
-                <Calendar size={18} /> Book
-              </button>
             )}
           </div>
         </motion.div>
@@ -421,7 +409,7 @@ export default function PublicProfile() {
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => { topRef.current?.scrollIntoView({ behavior: "smooth" }); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             whileHover={{ scale: 1.1 }}
-            style={{ position: "fixed", bottom: (profile.phone || profile.whatsapp_number || canBook) ? 100 : 24, right: 20, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: color, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: `0 6px 20px ${hexRgb(color, 0.5)}` }}
+            style={{ position: "fixed", bottom: (profile.phone || profile.whatsapp_number) ? 100 : 24, right: 20, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: color, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, boxShadow: `0 6px 20px ${hexRgb(color, 0.5)}` }}
           >
             ↑
           </motion.button>
