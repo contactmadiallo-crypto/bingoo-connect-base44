@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
+import AppleIcon from "@/components/AppleIcon";
 
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
@@ -55,6 +56,12 @@ export default function Login() {
     base44.auth.loginWithProvider("google", callbackUrl);
   };
 
+  const handleApple = () => {
+    const nextUrl = getNextUrl();
+    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    base44.auth.loginWithProvider("apple", callbackUrl);
+  };
+
   const nextParam = new URLSearchParams(window.location.search).get("next");
   const registerHref = nextParam ? `/register?next=${encodeURIComponent(nextParam)}` : "/register";
 
@@ -78,6 +85,15 @@ export default function Login() {
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continue with Google
+      </Button>
+
+      <Button
+        variant="outline"
+        className="w-full h-12 text-sm font-medium mb-6 bg-white/10 border-white/30 text-white hover:bg-white/20"
+        onClick={handleApple}
+      >
+        <AppleIcon className="w-5 h-5 mr-2" />
+        Continue with Apple
       </Button>
 
       <div className="relative mb-6">
