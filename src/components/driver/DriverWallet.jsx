@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Wallet, CreditCard, Plus, CheckCircle, Clock, XCircle, TrendingUp, ArrowUpRight, Smartphone } from "lucide-react";
 import { format } from "date-fns";
 
@@ -178,17 +180,23 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
 
   const isMobileMoney = ['wave', 'orange_money', 'free_money'].includes(paymentMethodForm.type);
 
+  const isMobile = useIsMobile();
+  const Wrapper = isMobile ? Drawer : Dialog;
+  const WrapperContent = isMobile ? DrawerContent : DialogContent;
+  const WrapperHeader = isMobile ? DrawerHeader : DialogHeader;
+  const WrapperTitle = isMobile ? DrawerTitle : DialogTitle;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <Wrapper open={open} onOpenChange={onOpenChange}>
+      <WrapperContent className={isMobile ? "max-h-[90vh] overflow-y-auto" : "max-w-4xl max-h-[90vh] overflow-y-auto"}>
+        <WrapperHeader>
+          <WrapperTitle className="flex items-center gap-2">
             <Wallet className="w-6 h-6 text-green-600" />
             Portefeuille Chauffeur
-          </DialogTitle>
-        </DialogHeader>
+          </WrapperTitle>
+        </WrapperHeader>
 
-        <div className="space-y-6">
+        <div className={`space-y-6 ${isMobile ? "px-4 pb-safe" : ""}`}>
           {/* Balance Overview */}
           <div className="grid md:grid-cols-3 gap-4">
             <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
@@ -472,7 +480,7 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
             </TabsContent>
           </Tabs>
         </div>
-      </DialogContent>
-    </Dialog>
+      </WrapperContent>
+    </Wrapper>
   );
 }

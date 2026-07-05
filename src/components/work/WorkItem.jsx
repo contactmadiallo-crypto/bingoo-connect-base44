@@ -61,6 +61,7 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onSta
               {isTimerActive ? (
                 <Button
                   size="icon"
+                  aria-label="Stop timer"
                   onClick={() => onStopTimer(work)}
                   className="h-8 w-8 bg-red-500 hover:bg-red-600 text-white"
                 >
@@ -69,6 +70,7 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onSta
               ) : (
                 <Button
                   size="icon"
+                  aria-label="Start timer"
                   onClick={() => onStartTimer(work)}
                   className="h-8 w-8 bg-green-500 hover:bg-green-600 text-white"
                 >
@@ -78,6 +80,7 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onSta
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Edit work item"
                 onClick={() => onEdit(work)}
                 className="h-8 w-8 text-slate-400 hover:text-blue-600 hover:bg-blue-50"
               >
@@ -86,6 +89,7 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onSta
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Delete work item"
                 onClick={() => onDelete(work.id)}
                 className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
               >
@@ -104,6 +108,7 @@ export default function WorkItem({ work, onEdit, onDelete, onStatusChange, onSta
             </Badge>
             <button
               onClick={() => onStatusChange(work)}
+              aria-label="Change status"
               className="transition-all duration-200 hover:scale-105"
             >
               <Badge 

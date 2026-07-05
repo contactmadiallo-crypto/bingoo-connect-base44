@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { X, Zap, ArrowRight } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const STORAGE_KEY = "bingoo_prospect_closed";
 const INTERESTS = ["NFC Card", "Business Profile", "Resume Profile", "Restaurant Menu", "Appointment Booking", "Team Cards"];
@@ -155,14 +155,14 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
                 </div>
                 <input placeholder="Email address" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required
                   style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600, outline: "none", marginBottom: 8 }} />
-                <Select value={form.interested_in} onValueChange={(v) => setForm(f => ({ ...f, interested_in: v }))}>
-                  <SelectTrigger style={{ width: "100%", padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600, outline: "none", marginBottom: 12 }}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INTERESTS.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={form.interested_in}
+                  onValueChange={(v) => setForm(f => ({ ...f, interested_in: v }))}
+                  options={INTERESTS.map(i => ({ value: i, label: i }))}
+                  placeholder="Select interest"
+                  ariaLabel="Area of interest"
+                  style={{ width: "100%", padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600, outline: "none", marginBottom: 12 }}
+                />
                 <button type="submit" disabled={saving}
                   style={{ width: "100%", padding: "12px", borderRadius: 14, background: "#FF7A00", border: "none", color: "#fff", fontWeight: 800, fontSize: 13.5, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 20px rgba(255,122,0,0.4)", opacity: saving ? 0.7 : 1 }}>
                   {saving ? "Saving..." : <><span>Create My Free Profile</span><ArrowRight style={{ width: 15, height: 15 }} /></>}

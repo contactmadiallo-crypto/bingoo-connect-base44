@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -16,48 +16,54 @@ export default function WorkFilters({ filters, onFilterChange }) {
         />
       </div>
       
-      <Select value={filters.status} onValueChange={(value) => onFilterChange({ ...filters, status: value })}>
-        <SelectTrigger className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="pending">Pending</SelectItem>
-          <SelectItem value="in_progress">In Progress</SelectItem>
-          <SelectItem value="completed">Completed</SelectItem>
-        </SelectContent>
-      </Select>
+      <MobileSelect
+        value={filters.status}
+        onValueChange={(value) => onFilterChange({ ...filters, status: value })}
+        options={[
+          { value: "all", label: "All Status" },
+          { value: "pending", label: "Pending" },
+          { value: "in_progress", label: "In Progress" },
+          { value: "completed", label: "Completed" },
+        ]}
+        placeholder="Status"
+        ariaLabel="Filter by status"
+        className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200"
+      />
 
-      <Select value={filters.priority} onValueChange={(value) => onFilterChange({ ...filters, priority: value })}>
-        <SelectTrigger className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200">
-          <SelectValue placeholder="Priority" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Priority</SelectItem>
-          <SelectItem value="urgent">Urgent</SelectItem>
-          <SelectItem value="high">High</SelectItem>
-          <SelectItem value="medium">Medium</SelectItem>
-          <SelectItem value="low">Low</SelectItem>
-        </SelectContent>
-      </Select>
+      <MobileSelect
+        value={filters.priority}
+        onValueChange={(value) => onFilterChange({ ...filters, priority: value })}
+        options={[
+          { value: "all", label: "All Priority" },
+          { value: "urgent", label: "Urgent" },
+          { value: "high", label: "High" },
+          { value: "medium", label: "Medium" },
+          { value: "low", label: "Low" },
+        ]}
+        placeholder="Priority"
+        ariaLabel="Filter by priority"
+        className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200"
+      />
 
-      <Select value={filters.category} onValueChange={(value) => onFilterChange({ ...filters, category: value })}>
-        <SelectTrigger className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200">
-          <SelectValue placeholder="Category" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Categories</SelectItem>
-          <SelectItem value="development">Development</SelectItem>
-          <SelectItem value="design">Design</SelectItem>
-          <SelectItem value="meeting">Meeting</SelectItem>
-          <SelectItem value="documentation">Documentation</SelectItem>
-          <SelectItem value="bug_fix">Bug Fix</SelectItem>
-          <SelectItem value="testing">Testing</SelectItem>
-          <SelectItem value="review">Review</SelectItem>
-          <SelectItem value="research">Research</SelectItem>
-          <SelectItem value="other">Other</SelectItem>
-        </SelectContent>
-      </Select>
+      <MobileSelect
+        value={filters.category}
+        onValueChange={(value) => onFilterChange({ ...filters, category: value })}
+        options={[
+          { value: "all", label: "All Categories" },
+          { value: "development", label: "Development" },
+          { value: "design", label: "Design" },
+          { value: "meeting", label: "Meeting" },
+          { value: "documentation", label: "Documentation" },
+          { value: "bug_fix", label: "Bug Fix" },
+          { value: "testing", label: "Testing" },
+          { value: "review", label: "Review" },
+          { value: "research", label: "Research" },
+          { value: "other", label: "Other" },
+        ]}
+        placeholder="Category"
+        ariaLabel="Filter by category"
+        className="w-full md:w-40 bg-white/80 backdrop-blur-sm border-slate-200"
+      />
     </div>
   );
 }

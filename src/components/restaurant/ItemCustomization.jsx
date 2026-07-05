@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +14,13 @@ export default function ItemCustomization({ item, open, onClose, onAddToCart, la
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [specialInstructions, setSpecialInstructions] = useState("");
+
+  const isMobile = useIsMobile();
+  const Wrapper = isMobile ? Drawer : Dialog;
+  const WrapperContent = isMobile ? DrawerContent : DialogContent;
+  const WrapperHeader = isMobile ? DrawerHeader : DialogHeader;
+  const WrapperTitle = isMobile ? DrawerTitle : DialogTitle;
+  const WrapperFooter = isMobile ? DrawerFooter : DialogFooter;
 
   const handleOptionChange = (optionName, value, isMultiple = false) => {
     if (isMultiple) {
@@ -99,13 +108,13 @@ export default function ItemCustomization({ item, open, onClose, onAddToCart, la
   const t = (key) => translations[language]?.[key] || translations.en[key] || key;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t("customize")}</DialogTitle>
-        </DialogHeader>
+    <Wrapper open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <WrapperContent className={isMobile ? "max-h-[90vh] overflow-y-auto" : "max-w-2xl max-h-[90vh] overflow-y-auto"}>
+        <WrapperHeader>
+          <WrapperTitle>{t("customize")}</WrapperTitle>
+        </WrapperHeader>
         
-        <div className="space-y-6">
+        <div className={`space-y-6 ${isMobile ? "px-4 pb-safe" : ""}`}>
           {/* Item Info */}
           <div className="flex gap-4">
             {item.image_url && (
@@ -184,6 +193,7 @@ export default function ItemCustomization({ item, open, onClose, onAddToCart, la
               <Button
                 variant="outline"
                 size="icon"
+                aria-label="Decrease quantity"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
               >
                 <Minus className="w-4 h-4" />
@@ -192,6 +202,7 @@ export default function ItemCustomization({ item, open, onClose, onAddToCart, la
               <Button
                 variant="outline"
                 size="icon"
+                aria-label="Increase quantity"
                 onClick={() => setQuantity(quantity + 1)}
               >
                 <Plus className="w-4 h-4" />
@@ -211,15 +222,15 @@ export default function ItemCustomization({ item, open, onClose, onAddToCart, la
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <WrapperFooter className={`flex-col sm:flex-row gap-2 ${isMobile ? "px-4 pb-safe" : ""}`}>
           <Button variant="outline" onClick={onClose} className="flex-1">
             Annuler
           </Button>
           <Button onClick={handleAddToCart} className="flex-1 bg-orange-600 hover:bg-orange-700">
             {t("add_to_cart")} • ${calculatePrice().toFixed(2)}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </WrapperFooter>
+      </WrapperContent>
+    </Wrapper>
   );
 }

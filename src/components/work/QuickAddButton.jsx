@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,36 +57,30 @@ export default function QuickAddButton({ onQuickAdd, isSubmitting }) {
             />
             
             <div className="grid grid-cols-2 gap-3">
-              <Select 
-                value={quickData.priority} 
+              <MobileSelect
+                value={quickData.priority}
                 onValueChange={(value) => setQuickData({ ...quickData, priority: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { value: "low", label: "Low" },
+                  { value: "medium", label: "Medium" },
+                  { value: "high", label: "High" },
+                  { value: "urgent", label: "Urgent" },
+                ]}
+                ariaLabel="Priority"
+              />
 
-              <Select 
-                value={quickData.category} 
+              <MobileSelect
+                value={quickData.category}
                 onValueChange={(value) => setQuickData({ ...quickData, category: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="development">💻 Dev</SelectItem>
-                  <SelectItem value="design">🎨 Design</SelectItem>
-                  <SelectItem value="meeting">👥 Meeting</SelectItem>
-                  <SelectItem value="bug_fix">🐛 Bug</SelectItem>
-                  <SelectItem value="other">📌 Other</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { value: "development", label: "💻 Dev" },
+                  { value: "design", label: "🎨 Design" },
+                  { value: "meeting", label: "👥 Meeting" },
+                  { value: "bug_fix", label: "🐛 Bug" },
+                  { value: "other", label: "📌 Other" },
+                ]}
+                ariaLabel="Category"
+              />
             </div>
 
             <Button

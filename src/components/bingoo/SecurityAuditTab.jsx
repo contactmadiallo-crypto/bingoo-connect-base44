@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Shield, Flag, Activity, AlertTriangle, CheckCircle2, Clock, Eye, Ban, Users } from "lucide-react";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const STATUS_COLORS = {
   pending: { bg: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "rgba(253,186,33,0.3)" },
@@ -205,21 +205,19 @@ export default function SecurityAuditTab() {
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <Select
+                          <MobileSelect
                             value={r.status}
                             onValueChange={(v) => updateReport.mutate({ id: r.id, status: v })}
-                          >
-                            <SelectTrigger className="px-2 py-1 rounded-lg text-xs font-bold cursor-pointer min-h-[44px]" aria-label="Report status"
-                              style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#0B2E6B] border-white/15">
-                              <SelectItem value="pending" className="text-white/80 focus:bg-white/10 focus:text-white">Pending</SelectItem>
-                              <SelectItem value="reviewed" className="text-white/80 focus:bg-white/10 focus:text-white">Reviewed</SelectItem>
-                              <SelectItem value="actioned" className="text-white/80 focus:bg-white/10 focus:text-white">Actioned</SelectItem>
-                              <SelectItem value="dismissed" className="text-white/80 focus:bg-white/10 focus:text-white">Dismissed</SelectItem>
-                            </SelectContent>
-                          </Select>
+                            options={[
+                              { value: "pending", label: "Pending" },
+                              { value: "reviewed", label: "Reviewed" },
+                              { value: "actioned", label: "Actioned" },
+                              { value: "dismissed", label: "Dismissed" },
+                            ]}
+                            ariaLabel="Report status"
+                            className="px-2 py-1 rounded-lg text-xs font-bold cursor-pointer outline-none min-h-[44px]"
+                            style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}
+                          />
                         </td>
                       </tr>
                     );
