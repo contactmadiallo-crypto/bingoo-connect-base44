@@ -104,11 +104,29 @@ const PLAN_FEATURES = {
   corporate:    CORPORATE,
 };
 
+// Hierarchy used to pick the higher entitlement between a subscription-derived plan
+// and a profile-level plan (admin override / legacy grant). MUST stay in sync with
+// PLAN_HIERARCHY in lib/planPermissions.js.
+const PLAN_HIERARCHY = {
+  free:         0,
+  professional: 1,
+  pro:          1,
+  business:     2,
+  salon:        2,
+  restaurant:   2,
+  lawfirm:      3,
+  corporate:    4,
+};
+
 function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
   if (PLAN_FEATURES[plan]) return plan;
   return 'free'; // unknown plan → free (secure default)
+}
+
+function planScore(plan) {
+  return PLAN_HIERARCHY[normalizePlan(plan)] ?? 0;
 }
 
 // Industry/business-tier plans fall back to Professional (not Free) when payment fails
@@ -134,20 +152,40 @@ Deno.serve(async (req) => {
     });
 
     const subscription = subscriptions?.[0] || null;
-    let planName = 'free';
+    let subPlan = 'free';
 
     if (subscription) {
       if (subscription.status === 'active' || subscription.status === 'trialing') {
-        planName = normalizePlan(subscription.plan);
+        subPlan = normalizePlan(subscription.plan);
       } else if (subscription.status === 'past_due') {
         // Grace period — keep current plan access
-        planName = normalizePlan(subscription.plan);
+        subPlan = normalizePlan(subscription.plan);
       } else {
         // 'canceled' or any other terminal status: apply the tiered downgrade policy —
         // Business/Salon/Restaurant/Law Firm/Corporate → Professional, Professional → Free.
-        planName = downgradedPlan(normalizePlan(subscription.plan));
+        subPlan = downgradedPlan(normalizePlan(subscription.plan));
       }
     }
+
+    // Profile-level plans: an admin may grant a paid plan on a specific profile
+    // (admin_override / legacy grant) without a Stripe subscription. To honor the
+    // product policy that Pro/Business/industry profiles open their features, treat
+    // the highest owned-profile plan as a floor — the effective plan is the max of
+    // the subscription-derived plan and the best profile plan.
+    const profiles = await base44.asServiceRole.entities.Profile.filter({
+      created_by_id: user.id,
+    });
+
+    let bestProfilePlan = 'free';
+    for (const p of profiles || []) {
+      if (planScore(p?.plan) > planScore(bestProfilePlan)) {
+        bestProfilePlan = normalizePlan(p?.plan);
+      }
+    }
+
+    // Effective plan = higher of subscription plan and best profile plan.
+    // Free stays free only when BOTH are free (i.e. no paid sub AND no paid profile grant).
+    const planName = planScore(bestProfilePlan) > planScore(subPlan) ? bestProfilePlan : subPlan;
 
     const features = PLAN_FEATURES[planName] || FREE;
 
@@ -155,6 +193,8 @@ Deno.serve(async (req) => {
       user_id: user.id,
       plan: planName,
       features,
+      subscription_plan: subPlan,
+      profile_plan: bestProfilePlan,
     });
   } catch (error) {
     console.error('getUserFeatures error:', error);
