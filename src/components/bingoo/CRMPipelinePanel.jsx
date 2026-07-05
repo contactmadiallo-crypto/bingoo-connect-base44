@@ -161,7 +161,7 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
                     <p className={`font-bold text-sm ${head}`}>{l.name || "Anonymous"}</p>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: stage.color }}>{stage.label}</span>
                   </div>
-                  <div className={`flex items-center gap-3 mt-1 text-[11px] ${sub}`}>
+                  <div className={`flex items-center gap-3 mt-1 text-xs ${sub}`}>
                     {l.email && <span className="flex items-center gap-0.5 truncate"><Mail className="w-3 h-3" /> {l.email}</span>}
                     {l.phone && <span className="flex items-center gap-0.5 flex-shrink-0"><Phone className="w-3 h-3" /> {l.phone}</span>}
                   </div>

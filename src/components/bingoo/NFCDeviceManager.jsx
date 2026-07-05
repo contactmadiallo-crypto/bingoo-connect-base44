@@ -423,7 +423,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
           <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[600px]">
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                     {["QR", "Device Code", "Type", "Status", "Owner", "Assigned", "Actions"].map(h => (
@@ -852,7 +852,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <h3 className="font-bold text-white">Finder Reports</h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[600px]">
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                     {["Device Code", "Finder", "Contact", "Location", "Found At", "Status"].map(h => (
@@ -964,7 +964,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <span className="text-white/30 text-xs">{auditLogs.length} entries</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[600px]">
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                     {["Device Code", "Action", "Performed By", "Profile", "Status Change", "Date"].map(h => (

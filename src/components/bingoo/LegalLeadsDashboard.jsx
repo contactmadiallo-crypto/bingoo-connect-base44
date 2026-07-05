@@ -90,11 +90,11 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
             {lead.legal_service && <p className={`text-xs font-semibold mt-0.5 ${sub}`}>{lead.legal_service}</p>}
 
-            <div className={`flex items-center gap-3 mt-1 text-[11px] flex-wrap ${sub}`}>
+            <div className={`flex items-center gap-3 mt-1 text-xs flex-wrap ${sub}`}>
               {lead.email && <span className="flex items-center gap-0.5"><Mail className="w-3 h-3" /> {lead.email}</span>}
               {lead.phone && <span className="flex items-center gap-0.5"><Phone className="w-3 h-3" /> {lead.phone}</span>}
               {lead.assigned_attorney_name && <span className="flex items-center gap-0.5"><User className="w-3 h-3" /> {lead.assigned_attorney_name}</span>}
-              <span className={`text-[10px] ${dark ? "text-white/25" : "text-slate-300"}`}>{lead.created_date?.slice(0, 10)}</span>
+              <span className={`text-xs ${dark ? "text-white/25" : "text-slate-300"}`}>{lead.created_date?.slice(0, 10)}</span>
             </div>
           </div>
 

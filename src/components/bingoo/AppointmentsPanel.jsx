@@ -90,6 +90,22 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
 
   const update = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
+    onMutate: async ({ id, data }) => {
+      const keys = [];
+      if (profileId) keys.push(["appointments", profileId]);
+      if (userId) keys.push(["appointments-owner", userId]);
+      await Promise.all(keys.map(k => qc.cancelQueries({ queryKey: k })));
+      const prevs = {};
+      keys.forEach(k => {
+        const key = k.join("|");
+        prevs[key] = qc.getQueryData(k);
+        qc.setQueryData(k, (old = []) => old.map(a => a.id === id ? { ...a, ...data } : a));
+      });
+      return { prevs, keys };
+    },
+    onError: (_e, _vars, ctx) => {
+      if (ctx?.keys) ctx.keys.forEach(k => qc.setQueryData(k, ctx.prevs[k.join("|")]));
+    },
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["appointments", profileId] });
       qc.invalidateQueries({ queryKey: ["appointments-owner", userId] });

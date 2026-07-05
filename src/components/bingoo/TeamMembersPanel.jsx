@@ -133,8 +133,16 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.TeamMember.delete(id),
-    onSuccess: (_, id) => {
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: ["team-members", profileId] });
+      const prev = qc.getQueryData(["team-members", profileId]);
       qc.setQueryData(["team-members", profileId], (old = []) => old.filter(m => m.id !== id));
+      return { prev };
+    },
+    onError: (_e, _id, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["team-members", profileId], ctx.prev);
+    },
+    onSuccess: (_, id) => {
       qc.invalidateQueries({ queryKey: ["team-members", profileId] });
     },
   });

@@ -160,7 +160,7 @@ export default function AttendancePanel({ profileId, isDark: propDark }) {
               <s.icon className="w-4 h-4" style={{ color: s.color }} />
             </div>
             <p className={`text-xl font-black ${head}`}>{s.value}</p>
-            <p className={`text-[11px] mt-0.5 ${sub}`}>{s.label}</p>
+            <p className={`text-xs mt-0.5 ${sub}`}>{s.label}</p>
           </div>
         ))}
       </div>

@@ -218,7 +218,7 @@ export default function DashboardOverview({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className={`font-semibold text-xs ${headText}`}>{l.name || "Anonymous"}</p>
-                      <p className={`text-[10px] truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
+                      <p className={`text-xs truncate ${mutedText}`}>{l.email || l.phone || "No contact"}</p>
                     </div>
                     <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
                       l.status === "new" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
@@ -232,7 +232,7 @@ export default function DashboardOverview({
               <div className={`text-center py-8 px-4 ${mutedText}`}>
                 <Star className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
                 <p className="text-xs font-semibold">No leads yet</p>
-                <p className="text-[11px] mt-1">They'll appear here when visitors contact you</p>
+                <p className="text-xs mt-1">They'll appear here when visitors contact you</p>
               </div>
             )}
           </div>
@@ -254,7 +254,7 @@ export default function DashboardOverview({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className={`font-semibold text-xs ${headText}`}>{a.visitor_name || "Guest"}</p>
-                      <p className={`text-[10px] truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
+                      <p className={`text-xs truncate ${mutedText}`}>{a.date} · {a.time_slot}</p>
                     </div>
                     <span className={`text-[10px] flex-shrink-0 px-2 py-0.5 rounded-full font-bold ${
                       a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
@@ -305,9 +305,9 @@ export default function DashboardOverview({
                     <span className="text-base">📲</span>
                     <div className="flex-1 min-w-0">
                       <p className={`text-xs font-semibold ${headText}`}>NFC Tap</p>
-                      <p className={`text-[10px] ${mutedText}`}>{e.visitor_device || "Unknown device"}</p>
+                      <p className={`text-xs ${mutedText}`}>{e.visitor_device || "Unknown device"}</p>
                     </div>
-                    <p className={`text-[10px] ${mutedText}`}>{e.created_at?.slice(0, 10)}</p>
+                    <p className={`text-xs ${mutedText}`}>{e.created_at?.slice(0, 10)}</p>
                   </div>
                 ))}
               </div>
@@ -322,7 +322,7 @@ export default function DashboardOverview({
                 <span className="text-lg flex-shrink-0">📦</span>
                 <div className="flex-1 min-w-0">
                   <p className={`font-bold text-xs ${headText}`}>No NFC Device Yet</p>
-                  <p className={`text-[10px] ${mutedText}`}>Tap to share your profile instantly with any smartphone.</p>
+                  <p className={`text-xs ${mutedText}`}>Tap to share your profile instantly with any smartphone.</p>
                 </div>
                 <div className="flex gap-1.5 flex-shrink-0">
                   <a href="/my-nfc-devices">

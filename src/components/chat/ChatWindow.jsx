@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -376,6 +375,7 @@ Return ONLY the translation, nothing else.`;
                   size="icon"
                   variant={showQuickMessages ? "default" : "ghost"}
                   title="Messages rapides"
+                  aria-label="Quick messages"
                 >
                   <Zap className="w-4 h-4" />
                 </Button>
@@ -386,10 +386,10 @@ Return ONLY the translation, nothing else.`;
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                   className="flex-1"
                 />
-                <Button onClick={() => setShowVoiceRecorder(true)} size="icon" variant="ghost">
+                <Button onClick={() => setShowVoiceRecorder(true)} size="icon" variant="ghost" aria-label="Voice recorder">
                   <span className="text-xl">🎤</span>
                 </Button>
-                <Button onClick={handleSend} disabled={!message.trim() || sendMessageMutation.isPending}>
+                <Button onClick={handleSend} disabled={!message.trim() || sendMessageMutation.isPending} aria-label="Send message">
                   {sendMessageMutation.isPending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (

@@ -496,7 +496,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                     <Phone className="w-4 h-4 mr-2" />
                     Call
                   </Button>
-                  <Button variant="outline" size="icon" className="md:hidden">
+                  <Button variant="outline" size="icon" className="md:hidden" aria-label="Call restaurant">
                     <Phone className="w-4 h-4" />
                   </Button>
                 </a>
@@ -631,6 +631,7 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                         e.stopPropagation();
                         toggleMenuFavoriteMutation.mutate(item);
                       }}
+                      aria-label={isMenuItemFavorite(item.id) ? "Remove from favorites" : "Add to favorites"}
                       className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-10"
                     >
                       <span className="text-xl">{isMenuItemFavorite(item.id) ? '❤️' : '🤍'}</span>
@@ -850,11 +851,11 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-start gap-3 flex-1">
                         <div className="flex gap-1">
-                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, -1, item.cartId)}>
+                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, -1, item.cartId)} aria-label="Decrease quantity">
                             <Minus className="w-3 h-3" />
                           </Button>
                           <span className="px-3 py-1 border rounded">{item.quantity}</span>
-                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, 1, item.cartId)}>
+                          <Button size="sm" variant="outline" onClick={() => updateQuantity(item.id, 1, item.cartId)} aria-label="Increase quantity">
                             <Plus className="w-3 h-3" />
                           </Button>
                         </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Flag } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { MobileSelect } from "@/components/ui/mobile-select";
 
 const REASONS = [
   { value: "spam", label: "Spam" },
@@ -70,15 +71,13 @@ export default function ReportAbuseButton({ profileId, username }) {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Reason *</label>
-                <select
+                <MobileSelect
                   value={reason}
-                  onChange={e => setReason(e.target.value)}
-                  required
+                  onValueChange={setReason}
+                  options={REASONS}
+                  placeholder="Select a reason…"
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none bg-slate-50"
-                >
-                  <option value="">Select a reason…</option>
-                  {REASONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-                </select>
+                />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Details (optional)</label>

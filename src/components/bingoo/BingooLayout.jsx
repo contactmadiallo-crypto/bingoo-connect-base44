@@ -142,7 +142,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
         )}
       </nav>
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
-        <button onClick={toggle}
+        <button onClick={toggle} aria-label="Toggle dark mode"
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all text-white border border-white/10"
           style={{ background: "rgba(255,255,255,0.08)" }}>
           {isDark
