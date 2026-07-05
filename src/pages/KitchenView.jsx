@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Clock, CheckCircle, AlertCircle, ChefHat, Flame, Package, Search, Filter } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { format } from "date-fns";
 
 const statusColors = {
@@ -174,11 +175,8 @@ export default function KitchenView() {
     updateStatus(order, statusFlow[order.status]);
   };
 
-  const cancelOrder = (order) => {
-    if (confirm(`Cancel order ${order.order_number}?`)) {
-      cancelOrderMutation.mutate(order);
-    }
-  };
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const cancelOrder = (order) => setCancelTarget(order);
 
   const filteredActiveOrders = activeOrders.filter(order => {
     const matchSearch = !searchQuery.trim() || 
@@ -438,6 +436,14 @@ export default function KitchenView() {
         </div>
         </>
         )}
+      <ConfirmDialog
+        open={!!cancelTarget}
+        onOpenChange={(o) => !o && setCancelTarget(null)}
+        title={`Cancel order ${cancelTarget?.order_number}?`}
+        description="This will cancel the order and notify the customer."
+        confirmLabel="Cancel Order"
+        onConfirm={() => { cancelOrderMutation.mutate(cancelTarget); setCancelTarget(null); }}
+      />
       </div>
     </div>
   );

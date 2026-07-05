@@ -43,7 +43,7 @@ export function useNavBadges(userId, profileId) {
         50
       ),
     enabled: !!userId,
-    refetchInterval: 15000,
+    refetchInterval: 30000,
     staleTime: 0,
   });
 

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, X, GripVertical } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const PRACTICE_AREA_EMOJIS = ["⚖️", "🌎", "🔒", "👨‍👩‍👧‍👦", "🏠", "💼", "💰", "📋", "🚗", "📄"];
@@ -13,6 +14,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const RENDER_KEY = ["practice-areas", profileId];
   console.log(">>> PA-FILE-VERSION-3 <<<");
@@ -228,13 +230,20 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
                 Edit
               </button>
-              <button onClick={() => { if (confirm("Delete this practice area?")) deleteMutation.mutate(area.id); }}
+              <button onClick={() => setDeleteTarget(area.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
                 Delete
               </button>
             </div>
           </div>
         ))}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this practice area?"
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
       </div>
     </div>
   );

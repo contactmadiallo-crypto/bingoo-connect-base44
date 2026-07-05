@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, MapPin, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
@@ -11,6 +12,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   console.log("[OfficeLocationsPanel] PANEL LOAD — profileId:", profileId);
 
@@ -190,7 +192,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
                   className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
                   Edit
                 </button>
-                <button onClick={() => { if (confirm("Delete?")) deleteMutation.mutate(loc.id); }}
+                <button onClick={() => setDeleteTarget(loc.id)}
                   className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
                   Delete
                 </button>
@@ -199,6 +201,13 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
           </div>
         ))}
       </div>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this location?"
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

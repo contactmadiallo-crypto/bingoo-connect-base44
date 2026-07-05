@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Edit2, Eye, Link2, Download, Trash2, Plus, CheckCircle, Globe, EyeOff, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const FIELD_LABELS = {
   display_name: "Full Name",
@@ -107,14 +108,15 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
 function ResumeCard({ resume, onEdit, origin }) {
   const qc = useQueryClient();
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const publicUrl = `${origin}/resume/${resume.id}`;
 
   const del = async () => {
-    if (!confirm("Delete this resume?")) return;
     setDeleting(true);
     await base44.entities.Resume.delete(resume.id);
     qc.invalidateQueries({ queryKey: ["my-resumes"] });
     toast.success("Resume deleted");
+    setConfirmDelete(false);
   };
 
   const copyLink = () => {
@@ -200,10 +202,17 @@ function ResumeCard({ resume, onEdit, origin }) {
         <Button size="sm" variant="outline" onClick={downloadPDF} className="gap-1.5 text-xs rounded-xl font-semibold text-blue-600 border-blue-200 hover:bg-blue-50">
           <Download className="w-3.5 h-3.5" /> PDF
         </Button>
-        <Button size="sm" variant="outline" onClick={del} disabled={deleting} className="gap-1.5 text-xs rounded-xl font-semibold text-red-500 border-red-200 hover:bg-red-50 ml-auto">
+        <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)} disabled={deleting} className="gap-1.5 text-xs rounded-xl font-semibold text-red-500 border-red-200 hover:bg-red-50 ml-auto">
           <Trash2 className="w-3.5 h-3.5" /> Delete
         </Button>
       </div>
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={setConfirmDelete}
+        title="Delete this resume?"
+        description="This action cannot be undone."
+        onConfirm={del}
+      />
     </div>
   );
 }

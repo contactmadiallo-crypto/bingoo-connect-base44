@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, ChevronDown, Phone, Mail, MessageSquare, ArrowRight } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const STAGES = [
@@ -26,6 +27,7 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
   const [activeStage, setActiveStage] = useState("all");
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({});
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Query ONLY by the active profileId — same as the badge count in BingooDashboard.
   const queryKey = ["crm-leads", profileId];
@@ -168,13 +170,20 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
                 </div>
                 <div className="flex flex-col gap-1 flex-shrink-0">
                   <button onClick={() => openEdit(l)} aria-label="Edit lead" className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => { if (confirm("Delete lead?")) deleteMutation.mutate(l.id); }} aria-label="Delete lead" className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleteTarget(l.id)} aria-label="Delete lead" className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this lead?"
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

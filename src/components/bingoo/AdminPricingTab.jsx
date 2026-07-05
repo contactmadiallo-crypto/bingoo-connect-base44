@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Edit2, Trash2, Save, X, Check } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { CURRENCY_CONFIG, SUPPORTED_CURRENCIES } from '@/hooks/useCurrency';
 
@@ -108,15 +109,25 @@ export default function AdminPricingTab() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div>
               <label className="text-white/50 text-xs mb-1 block">Plan</label>
-              <select style={selectStyle} value={newForm.plan_name} onChange={e => setNewForm(f => ({ ...f, plan_name: e.target.value }))}>
-                {PLANS.map(p => <option key={p} value={p}>{PLAN_LABELS[p]}</option>)}
-              </select>
+              <Select value={newForm.plan_name} onValueChange={v => setNewForm(f => ({ ...f, plan_name: v }))}>
+                <SelectTrigger className="w-full rounded-xl text-sm" style={selectStyle}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLANS.map(p => <SelectItem key={p} value={p}>{PLAN_LABELS[p]}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-white/50 text-xs mb-1 block">Currency</label>
-              <select style={selectStyle} value={newForm.currency} onChange={e => setNewForm(f => ({ ...f, currency: e.target.value }))}>
-                {SUPPORTED_CURRENCIES.map(c => <option key={c} value={c}>{CURRENCY_CONFIG[c].flag} {c} — {CURRENCY_CONFIG[c].name}</option>)}
-              </select>
+              <Select value={newForm.currency} onValueChange={v => setNewForm(f => ({ ...f, currency: v }))}>
+                <SelectTrigger className="w-full rounded-xl text-sm" style={selectStyle}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_CURRENCIES.map(c => <SelectItem key={c} value={c}>{CURRENCY_CONFIG[c].flag} {c} — {CURRENCY_CONFIG[c].name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-white/50 text-xs mb-1 block">Amount</label>
@@ -176,18 +187,28 @@ export default function AdminPricingTab() {
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td className="px-4 py-3">
                         {isEditing ? (
-                          <select style={{ ...selectStyle, width: 'auto' }} value={editForm.plan_name} onChange={e => setEditForm(f => ({ ...f, plan_name: e.target.value }))}>
-                            {PLANS.map(p => <option key={p} value={p}>{PLAN_LABELS[p]}</option>)}
-                          </select>
+                          <Select value={editForm.plan_name} onValueChange={v => setEditForm(f => ({ ...f, plan_name: v }))}>
+                            <SelectTrigger className="rounded-xl text-sm" style={{ ...selectStyle, width: 'auto' }}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {PLANS.map(p => <SelectItem key={p} value={p}>{PLAN_LABELS[p]}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <span className="text-white font-bold text-sm">{PLAN_LABELS[cfg.plan_name] || cfg.plan_name}</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         {isEditing ? (
-                          <select style={{ ...selectStyle, width: 'auto' }} value={editForm.currency} onChange={e => setEditForm(f => ({ ...f, currency: e.target.value }))}>
-                            {SUPPORTED_CURRENCIES.map(c => <option key={c} value={c}>{CURRENCY_CONFIG[c].flag} {c}</option>)}
-                          </select>
+                          <Select value={editForm.currency} onValueChange={v => setEditForm(f => ({ ...f, currency: v }))}>
+                            <SelectTrigger className="rounded-xl text-sm" style={{ ...selectStyle, width: 'auto' }}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {SUPPORTED_CURRENCIES.map(c => <SelectItem key={c} value={c}>{CURRENCY_CONFIG[c].flag} {c}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <span className="font-bold text-sm" style={{ color: gold }}>{currCfg?.flag} {cfg.currency}</span>
                         )}

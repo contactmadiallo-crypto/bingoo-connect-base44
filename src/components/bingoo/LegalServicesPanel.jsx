@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { LEGAL_CATEGORIES } from "@/lib/legalData";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const CATEGORY_COLORS = { Immigration: "#0369a1", Civil: "#7c3aed", Criminal: "#dc2626" };
@@ -14,6 +16,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState({ name: "", description: "", legal_category: "Immigration" });
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   console.log("[LegalServicesPanel] PANEL LOAD — profileId:", profileId);
 
@@ -128,11 +131,14 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Category</label>
-              <select value={form.legal_category} onChange={(e) => setForm(f => ({ ...f, legal_category: e.target.value }))}
-                className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`}
-                style={isDark ? { background: "#1a2235" } : {}}>
-                {LEGAL_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <Select value={form.legal_category} onValueChange={(v) => setForm(f => ({ ...f, legal_category: v }))}>
+                <SelectTrigger className={`w-full rounded-xl text-sm border outline-none transition-colors ${inp}`} style={isDark ? { background: "#1a2235" } : {}}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LEGAL_CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Service Name *</label>
@@ -184,7 +190,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
                         className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
                         Edit
                       </button>
-                      <button onClick={() => { if (confirm("Delete?")) deleteMutation.mutate(service.id); }}
+                      <button onClick={() => setDeleteTarget(service.id)}
                         className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
                         Delete
                       </button>
@@ -196,6 +202,13 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
           );
         })}
       </div>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this service?"
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

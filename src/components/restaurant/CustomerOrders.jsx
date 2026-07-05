@@ -58,7 +58,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
     queryFn: () => base44.entities.Order.filter({ created_by: user.email }, '-created_date'),
     initialData: [],
     enabled: !!user,
-    refetchInterval: 3000, // Auto-refresh every 3 seconds
+    refetchInterval: 10000, // Auto-refresh every 10 seconds
   });
 
   const { data: myRestaurantReviews = [] } = useQuery({

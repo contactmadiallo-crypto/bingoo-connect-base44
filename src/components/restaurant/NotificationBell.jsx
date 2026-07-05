@@ -17,7 +17,7 @@ export default function NotificationBell({ user }) {
     queryKey: ['notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }, '-created_date'),
     enabled: !!user?.email,
-    refetchInterval: 10000,
+    refetchInterval: 30000,
   });
 
   const markAsReadMutation = useMutation({
@@ -60,6 +60,7 @@ export default function NotificationBell({ user }) {
         size="icon"
         onClick={() => setShowNotifications(true)}
         className="relative"
+        aria-label="Open notifications"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (

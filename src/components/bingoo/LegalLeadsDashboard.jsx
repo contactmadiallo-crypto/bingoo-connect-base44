@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 import { LEGAL_LEAD_STAGES, URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const LEGAL_CRM_STAGES = [
   { id: "new",                    label: "New Lead",              color: "#6366f1" },
@@ -97,7 +98,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </div>
           </div>
 
-          <button onClick={() => setExpanded(e => !e)} className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
+          <button onClick={() => setExpanded(e => !e)} aria-label={expanded ? "Collapse lead details" : "Expand lead details"} className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
@@ -234,6 +235,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
   const [filterStage, setFilterStage] = useState("all");
   const [filterCat, setFilterCat] = useState("all");
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["legal-leads", profileId],
@@ -366,10 +368,17 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
           {filtered.map(l => (
             <LeadCard key={l.id} lead={l} dark={dark} attorneys={attorneys}
               onUpdate={(id, data) => updateMutation.mutateAsync({ id, data })}
-              onDelete={(id) => { if (confirm("Delete this lead?")) deleteMutation.mutate(id); }} />
+              onDelete={(id) => setDeleteTarget(id)} />
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this lead?"
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

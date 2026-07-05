@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Trash2, AlertTriangle, Loader2, Shield, Nfc, Calendar, Users, ArrowRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 /**
  * DeleteProfileModal — safe confirmation flow before removing a profile.
@@ -138,12 +139,16 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold ${headText}`}>Reassign to another profile</p>
                         <p className={`text-xs ${mutedText} mb-2`}>Devices keep working — they'll point to the selected profile.</p>
-                        <select value={reassignTo} onChange={(e) => setReassignTo(e.target.value)}
-                          className={`w-full px-3 py-2 rounded-lg text-sm border ${isDark ? "bg-[#1a2235] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"}`}>
-                          {summary.other_profiles.map((p) => (
-                            <option key={p.id} value={p.id}>{p.display_name} — /p/{p.username}</option>
-                          ))}
-                        </select>
+                        <Select value={reassignTo} onValueChange={setReassignTo}>
+                          <SelectTrigger className={`w-full rounded-lg text-sm ${isDark ? "bg-[#1a2235] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"}`}>
+                            <SelectValue placeholder="Select a profile" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {summary.other_profiles.map((p) => (
+                              <SelectItem key={p.id} value={p.id}>{p.display_name} — /p/{p.username}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </label>
                   )}

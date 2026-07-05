@@ -11,12 +11,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Loader2, Sparkles, Zap, Image as ImageIcon, DollarSign, Clock } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export default function MenuManagement({ restaurant, menuItems }) {
   const [menuDialog, setMenuDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   
   const [menuForm, setMenuForm] = useState({
     name: "",
@@ -264,9 +266,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
                             >
                               {item.available ? "🚫" : "✓"}
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => {
-                              if (confirm('Supprimer cet article?')) deleteMenuMutation.mutate(item.id);
-                            }}>
+                            <Button size="sm" variant="outline" onClick={() => setDeleteTarget(item.id)}>
                               <Trash2 className="w-3 h-3 text-red-500" />
                             </Button>
                           </div>
@@ -395,6 +395,16 @@ export default function MenuManagement({ restaurant, menuItems }) {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Supprimer cet article?"
+        description="Cette action ne peut pas être annulée."
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        onConfirm={() => { deleteMenuMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

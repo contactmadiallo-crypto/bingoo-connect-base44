@@ -1,12 +1,12 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, lazy, Suspense } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrendingUp, Clock, DollarSign, Star, CheckCircle, XCircle, MapPin, Award, Calendar } from "lucide-react";
-import { MapContainer, TileLayer, Circle, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+
+const AnalyticsDashboardMapInner = lazy(() => import("./AnalyticsDashboardMapInner"));
 
 export default function AnalyticsDashboard({ driver }) {
   const [timeRange, setTimeRange] = useState("week");
@@ -309,41 +309,9 @@ export default function AnalyticsDashboard({ driver }) {
           </CardHeader>
           <CardContent>
             <div className="h-64 sm:h-96 rounded-lg overflow-hidden">
-              <MapContainer
-                center={analytics.mapCenter}
-                zoom={12}
-                style={{ height: '100%', width: '100%' }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; OpenStreetMap contributors'
-                />
-                {analytics.topZones.map((zone, idx) => {
-                  const maxCount = Math.max(...analytics.topZones.map(z => z.count));
-                  const radius = 100 + (zone.count / maxCount) * 400;
-                  const opacity = 0.3 + (zone.count / maxCount) * 0.4;
-                  
-                  return (
-                    <Circle
-                      key={idx}
-                      center={[zone.lat, zone.lng]}
-                      radius={radius}
-                      pathOptions={{
-                        color: '#ef4444',
-                        fillColor: '#ef4444',
-                        fillOpacity: opacity
-                      }}
-                    >
-                      <Popup>
-                        <div className="text-sm">
-                          <p className="font-semibold">{zone.count} livraisons</p>
-                          <p className="text-green-600">{zone.earnings.toFixed(0)} CFA gagnés</p>
-                        </div>
-                      </Popup>
-                    </Circle>
-                  );
-                })}
-              </MapContainer>
+              <Suspense fallback={<div className="h-full flex items-center justify-center text-slate-400 text-sm">Chargement de la carte…</div>}>
+                <AnalyticsDashboardMapInner topZones={analytics.topZones} mapCenter={analytics.mapCenter} />
+              </Suspense>
             </div>
             <p className="text-xs text-slate-500 mt-3 text-center">
               Les zones rouges indiquent vos livraisons les plus fréquentes

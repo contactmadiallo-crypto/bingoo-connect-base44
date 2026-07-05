@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, Check, User, Phone, Mail, Upload } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { TYPE_LAWFIRM, TYPE_SALON, TYPE_CORPORATE, TYPE_BUSINESS } from "@/lib/sidebarConfig";
 
 // ── Role options by profile type ──────────────────────────────────────────────
@@ -83,6 +84,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [uploading, setUploading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // Determine type — default to business if not specified
   const type = profileType || TYPE_BUSINESS;
@@ -403,7 +405,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                   className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => { if (confirm(`Remove ${labels.memberSingular.toLowerCase()}?`)) deleteMutation.mutate(m.id); }} aria-label={`Delete ${m.name}`}
+                <button onClick={() => setDeleteTarget(m.id)} aria-label={`Delete ${m.name}`}
                   className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -412,6 +414,13 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title={`Remove ${labels.memberSingular.toLowerCase()}?`}
+        description="This action cannot be undone."
+        onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { usePlan } from '@/hooks/usePlan';
 import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, getEffectiveProfilePlan } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
@@ -110,8 +111,9 @@ export default function Billing() {
     }
   };
 
-  const handleCancelSubscription = async () => {
-    if (!window.confirm('Cancel your subscription? You will keep access until the end of your current billing period.')) return;
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const handleCancelSubscription = () => setShowCancelConfirm(true);
+  const doCancelSubscription = async () => {
     setCancelLoading(true);
     try {
       const res = await base44.functions.invoke('cancelSubscription', {});
@@ -125,6 +127,7 @@ export default function Billing() {
       toast({ title: 'Cancellation Failed', description: err.message, variant: 'destructive' });
     } finally {
       setCancelLoading(false);
+      setShowCancelConfirm(false);
     }
   };
 
@@ -261,6 +264,14 @@ export default function Billing() {
         )}
       </div>
       )}
+      <ConfirmDialog
+        open={showCancelConfirm}
+        onOpenChange={setShowCancelConfirm}
+        title="Cancel your subscription?"
+        description="You will keep access until the end of your current billing period."
+        confirmLabel="Cancel Subscription"
+        onConfirm={doCancelSubscription}
+      />
     </div>
     </BingooLayout>
   );

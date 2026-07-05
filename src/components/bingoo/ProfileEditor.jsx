@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import LayoutPicker from "./LayoutPicker";
 import BusinessHoursEditor from "./BusinessHoursEditor";
 import { syncProfileToFirestore } from "@/hooks/useFirestoreProfileSync";
@@ -612,15 +613,19 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             <div className="space-y-5 border-t border-slate-100 pt-5">
               <div>
                 <Label className="font-semibold">Slot Duration</Label>
-                <select value={form.booking_slot_duration} onChange={e => setForm(f => ({ ...f, booking_slot_duration: Number(e.target.value) }))}
-                  className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white">
-                  <option value={15}>15 minutes</option>
-                  <option value={30}>30 minutes</option>
-                  <option value={45}>45 minutes</option>
-                  <option value={60}>1 hour</option>
-                  <option value={90}>1.5 hours</option>
-                  <option value={120}>2 hours</option>
-                </select>
+                <Select value={String(form.booking_slot_duration)} onValueChange={v => setForm(f => ({ ...f, booking_slot_duration: Number(v) }))}>
+                  <SelectTrigger className="mt-1 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 minutes</SelectItem>
+                    <SelectItem value="30">30 minutes</SelectItem>
+                    <SelectItem value="45">45 minutes</SelectItem>
+                    <SelectItem value="60">1 hour</SelectItem>
+                    <SelectItem value="90">1.5 hours</SelectItem>
+                    <SelectItem value="120">2 hours</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label className="font-semibold block mb-2">Business Hours</Label>

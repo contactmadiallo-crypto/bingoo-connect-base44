@@ -29,7 +29,7 @@ export default function NotificationProvider({ children, user, userType = "custo
       return [];
     },
     enabled: !!user,
-    refetchInterval: 3000, // Check every 3 seconds
+    refetchInterval: 15000, // Check every 15 seconds
   });
 
   const unreadCount = notifications.filter(n => !n.read).length;

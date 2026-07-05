@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FolderKanban, DollarSign, Calendar, Users, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -130,11 +131,8 @@ export default function Projects() {
     setDialogOpen(true);
   };
 
-  const handleDelete = (id) => {
-    if (confirm("Are you sure you want to delete this project? Work items will not be deleted.")) {
-      deleteProjectMutation.mutate(id);
-    }
-  };
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const handleDelete = (id) => setDeleteTarget(id);
 
   const getProjectStats = (projectId) => {
     const projectWork = allWork.filter(w => w.project_id === projectId);
@@ -380,6 +378,13 @@ export default function Projects() {
             </form>
           </DialogContent>
         </Dialog>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(o) => !o && setDeleteTarget(null)}
+        title="Delete this project?"
+        description="Are you sure you want to delete this project? Work items will not be deleted."
+        onConfirm={() => { deleteProjectMutation.mutate(deleteTarget); setDeleteTarget(null); }}
+      />
       </div>
     </div>
   );

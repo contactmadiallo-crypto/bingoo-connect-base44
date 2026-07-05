@@ -30,7 +30,7 @@ export default function NotificationCenter({ user, open, onOpenChange }) {
     queryKey: ['customer-notifications', user?.email],
     queryFn: () => base44.entities.Notification.filter({ customer_email: user.email }, '-created_date'),
     enabled: !!user?.email,
-    refetchInterval: 3000,
+    refetchInterval: 15000,
   });
 
   const markAsReadMutation = useMutation({

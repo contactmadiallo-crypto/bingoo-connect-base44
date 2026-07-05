@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Users, BarChart3, Star, Shield, Search, CreditCard, Clock, RotateCcw, AlertTriangle, CheckCircle2, XCircle, UserPlus2, Globe, QrCode } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
 import AdminPricingTab from "@/components/bingoo/AdminPricingTab";
 import NFCDeviceManager from "@/components/bingoo/NFCDeviceManager";
@@ -494,21 +495,24 @@ export default function AdminDashboard() {
                                 style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
                                 {PLAN_LABELS[realPlan] || realPlan}
                               </span>
-                              <select value={realPlan} onChange={e => updatePlan.mutate({ profile: p, plan: e.target.value })}
-                                disabled={updatePlan.isPending}
-                                className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer mt-1 disabled:opacity-50"
-                                style={hasRealStripeSub
-                                  ? { background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }
-                                  : { background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
-                                <option value="free">Free</option>
-                                <option value="pro">Pro (legacy)</option>
-                                <option value="professional">Professional</option>
-                                <option value="business">Business</option>
-                                <option value="salon">Salon</option>
-                                <option value="restaurant">Restaurant</option>
-                                <option value="lawfirm">Law Firm</option>
-                                <option value="corporate">Corporate</option>
-                              </select>
+                              <Select value={realPlan} onValueChange={v => updatePlan.mutate({ profile: p, plan: v })} disabled={updatePlan.isPending}>
+                                <SelectTrigger className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer mt-1 disabled:opacity-50 h-7"
+                                  style={hasRealStripeSub
+                                    ? { background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }
+                                    : { background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="free">Free</SelectItem>
+                                  <SelectItem value="pro">Pro (legacy)</SelectItem>
+                                  <SelectItem value="professional">Professional</SelectItem>
+                                  <SelectItem value="business">Business</SelectItem>
+                                  <SelectItem value="salon">Salon</SelectItem>
+                                  <SelectItem value="restaurant">Restaurant</SelectItem>
+                                  <SelectItem value="lawfirm">Law Firm</SelectItem>
+                                  <SelectItem value="corporate">Corporate</SelectItem>
+                                </SelectContent>
+                              </Select>
                               {hasRealStripeSub ? (
                                 <span className="text-[9px] leading-tight font-semibold" style={{ color: "#06b6d4" }}>
                                   ⚠️ Overrides entitlement locally — Stripe billing unchanged
