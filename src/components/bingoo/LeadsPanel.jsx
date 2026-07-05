@@ -260,12 +260,12 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
               <div className="flex gap-2 pt-1">
                 {lead.phone && (
                   <a href={`https://wa.me/${lead.phone.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
-                    className="flex-1 py-1.5 rounded-xl text-xs font-bold text-center bg-green-600 hover:bg-green-500 text-white transition-colors">
+                    className="flex-1 min-h-[44px] flex items-center justify-center py-2.5 rounded-xl text-xs font-bold text-center bg-green-600 hover:bg-green-500 text-white transition-colors">
                     💬 WhatsApp
                   </a>
                 )}
                 {lead.phone && (
-                  <a href={`tel:${lead.phone}`} className={`flex-1 py-1.5 rounded-xl text-xs font-bold text-center transition-colors ${isDark ? "bg-white/8 hover:bg-white/12 text-white/70" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}>
+                  <a href={`tel:${lead.phone}`} className={`flex-1 min-h-[44px] flex items-center justify-center py-2.5 rounded-xl text-xs font-bold text-center transition-colors ${isDark ? "bg-white/8 hover:bg-white/12 text-white/70" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}>
                     📞 Call
                   </a>
                 )}

@@ -5,11 +5,16 @@ import { useNavigationStack } from '@/components/mobile/NavigationStack';
 export default function BottomNav({ tabs = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { pushRoute } = useNavigationStack();
+  const { pushRoute, resetStack } = useNavigationStack();
 
-  const handleTabPress = (path) => {
-    pushRoute(path);
-    navigate(path);
+  const handleTabPress = (tab) => {
+    const isActive = location.pathname === tab.path || location.pathname.startsWith(tab.path + '/');
+    if (isActive) {
+      // Already active — reset to root URL
+      resetStack(tab.id || tab.path, tab.path);
+    } else {
+      pushRoute(tab.path);
+    }
   };
 
   return (
@@ -25,8 +30,10 @@ export default function BottomNav({ tabs = [] }) {
           return (
             <button
               key={tab.path}
-              onClick={() => handleTabPress(tab.path)}
-              className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
+              onClick={() => handleTabPress(tab)}
+              aria-label={tab.label}
+              aria-current={isActive ? 'page' : undefined}
+              className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 min-h-[60px] transition-colors ${
                 isActive
                   ? 'text-blue-600'
                   : 'text-slate-600 hover:text-slate-900'

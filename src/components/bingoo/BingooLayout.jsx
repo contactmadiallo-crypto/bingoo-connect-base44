@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
@@ -18,6 +18,7 @@ import { t, getLang } from "@/lib/i18n";
  */
 export default function BingooLayout({ children, selectedProfile, accountPlan, lang = "en", userId }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
 
@@ -251,6 +252,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
+              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
@@ -285,6 +287,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
+              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
@@ -303,6 +306,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           const active = isActive(item.href);
           return (
             <Link to={item.href}
+              onClick={(e) => { if (active) { e.preventDefault(); navigate(item.href, { replace: true }); } }}
               className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity">
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>

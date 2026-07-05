@@ -138,22 +138,22 @@ export default function PortfolioPanel({ profileId, user }) {
                   ? <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
                   : <div className={`w-full h-full flex items-center justify-center text-4xl ${isDark ? "bg-white/5 opacity-30" : "bg-slate-100"}`}>🖼️</div>
                 }
-                <button onClick={() => remove.mutate(item.id)}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button onClick={() => remove.mutate(item.id)} aria-label="Delete portfolio item"
+                  className="absolute top-2 right-2 w-11 h-11 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500">
+                  <Trash2 className="w-4 h-4" />
                 </button>
                 {item.link && (
-                  <a href={item.link} target="_blank" rel="noopener noreferrer"
-                    className="absolute top-2 left-2 w-7 h-7 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70">
-                    <ExternalLink className="w-3.5 h-3.5" />
+                  <a href={item.link} target="_blank" rel="noopener noreferrer" aria-label="Open external link"
+                    className="absolute top-2 left-2 w-11 h-11 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70">
+                    <ExternalLink className="w-4 h-4" />
                   </a>
                 )}
               </div>
               {/* Info + comments */}
               <div className="p-3 flex-1 flex flex-col">
                 <p className={`font-bold text-xs ${headText}`}>{item.title}</p>
-                {item.category && <p className={`text-[10px] mt-0.5 ${mutedText}`}>{item.category}</p>}
-                {item.description && <p className={`text-[10px] mt-1 line-clamp-2 ${isDark ? "text-white/30" : "text-slate-400"}`}>{item.description}</p>}
+                {item.category && <p className={`text-xs mt-0.5 ${mutedText}`}>{item.category}</p>}
+                {item.description && <p className={`text-xs mt-1 line-clamp-2 ${isDark ? "text-white/30" : "text-slate-400"}`}>{item.description}</p>}
                 <div className="mt-auto">
                   <PortfolioComments itemId={item.id} user={user} />
                 </div>

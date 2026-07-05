@@ -5,6 +5,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, Check, User, Phone, Mail, Upload } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TYPE_LAWFIRM, TYPE_SALON, TYPE_CORPORATE, TYPE_BUSINESS } from "@/lib/sidebarConfig";
 
 // ── Role options by profile type ──────────────────────────────────────────────
@@ -219,9 +220,9 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
             <p className={`font-bold text-sm ${head}`}>
               {editing === "new" ? labels.addButton : `Edit ${labels.memberSingular}`}
             </p>
-            <button onClick={() => setEditing(null)}
-              className={`w-7 h-7 rounded-full flex items-center justify-center ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
-              <X className="w-3.5 h-3.5" />
+            <button onClick={() => setEditing(null)} aria-label="Close form"
+              className={`w-11 h-11 rounded-full flex items-center justify-center ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
+              <X className="w-4 h-4" />
             </button>
           </div>
 
@@ -244,14 +245,20 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
             {field("name", "Full Name *")}
 
             {/* Role type dropdown */}
-            <select
+            <Select
               value={form.role_type || ""}
-              onChange={e => setForm(f => ({ ...f, role_type: e.target.value }))}
-              className={`rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inputCls}`}
-              style={dark ? { background: "#1a2235" } : {}}>
-              <option value="">Select Role...</option>
-              {roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+              onValueChange={(v) => setForm(f => ({ ...f, role_type: v }))}>
+              <SelectTrigger className={`rounded-xl text-sm border ${inputCls}`} style={dark ? { background: "#1a2235" } : {}}>
+                <SelectValue placeholder="Select Role..." />
+              </SelectTrigger>
+              <SelectContent className={dark ? "bg-[#1a2235] border-white/10" : ""}>
+                {roleOptions.map(r => (
+                  <SelectItem key={r} value={r} className={dark ? "text-white/80 focus:bg-white/10 focus:text-white" : ""}>
+                    {r}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {field("email", "Email")}
             {field("phone", "Phone")}
@@ -369,7 +376,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <p className={`font-bold text-sm truncate ${head}`}>{m.name}</p>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${m.status === "active" ? (dark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-700") : (dark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")}`}>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${m.status === "active" ? (dark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-700") : (dark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")}`}>
                     {m.status}
                   </span>
                 </div>
@@ -378,27 +385,27 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                   <div className="flex flex-wrap gap-1 mt-1">
                     {(m.practice_categories || []).map(c => {
                       const catColors = { Immigration: "#0B2E6B", Civil: "#7c3aed", Criminal: "#b91c1c" };
-                      return <span key={c} className="text-[10px] px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0B2E6B" }}>{c}</span>;
+                      return <span key={c} className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0B2E6B" }}>{c}</span>;
                     })}
                   </div>
                 )}
-                {isLawFirm && m.bar_states && <p className={`text-[11px] mt-1 ${sub}`}>Bar: {m.bar_states}</p>}
-                {m.languages && <p className={`text-[11px] ${sub}`}>Languages: {m.languages}</p>}
-                {isSalon && m.practice_areas && <p className={`text-[11px] mt-1 ${sub}`}>Specialties: {m.practice_areas}</p>}
-                {isCorporate && m.department && <p className={`text-[11px] mt-1 ${sub}`}>Dept: {m.department}</p>}
-                <div className={`flex items-center gap-2 mt-1 text-[11px] ${sub}`}>
+                {isLawFirm && m.bar_states && <p className={`text-xs mt-1 ${sub}`}>Bar: {m.bar_states}</p>}
+                {m.languages && <p className={`text-xs ${sub}`}>Languages: {m.languages}</p>}
+                {isSalon && m.practice_areas && <p className={`text-xs mt-1 ${sub}`}>Specialties: {m.practice_areas}</p>}
+                {isCorporate && m.department && <p className={`text-xs mt-1 ${sub}`}>Dept: {m.department}</p>}
+                <div className={`flex items-center gap-2 mt-1 text-xs ${sub}`}>
                   {m.email && <span className="flex items-center gap-0.5 truncate"><Mail className="w-3 h-3" /> {m.email}</span>}
                   {m.phone && <span className="flex items-center gap-0.5 flex-shrink-0"><Phone className="w-3 h-3" /> {m.phone}</span>}
                 </div>
               </div>
               <div className="flex flex-col gap-1 flex-shrink-0">
-                <button onClick={() => openEdit(m)}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
-                  <Pencil className="w-3.5 h-3.5" />
+                <button onClick={() => openEdit(m)} aria-label={`Edit ${m.name}`}
+                  className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
+                  <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => { if (confirm(`Remove ${labels.memberSingular.toLowerCase()}?`)) deleteMutation.mutate(m.id); }}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button onClick={() => { if (confirm(`Remove ${labels.memberSingular.toLowerCase()}?`)) deleteMutation.mutate(m.id); }} aria-label={`Delete ${m.name}`}
+                  className={`w-11 h-11 rounded-lg flex items-center justify-center transition-colors ${dark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>

@@ -37,8 +37,8 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
             {editingId === "new" ? "New Service" : "Edit Service"}
           </h3>
         </div>
-        <button onClick={onCancel}
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-200 text-slate-400 hover:text-slate-600"}`}>
+        <button onClick={onCancel} aria-label="Close"
+          className={`w-11 h-11 rounded-full flex items-center justify-center transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-200 text-slate-400 hover:text-slate-600"}`}>
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -254,7 +254,7 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
         <div>
           <h2 className={`font-black text-lg ${headText}`}>✂️ Service Menu</h2>
           <p className={`text-xs mt-0.5 ${mutedText}`}>Add your salon services — they'll appear on your public profile</p>
-          <p className={`text-[11px] mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Profile ID: {profileId || "loading..."}</p>
+          <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Profile ID: {profileId || "loading..."}</p>
         </div>
         {editingId !== "new" && (
           <Button onClick={startNew} size="sm" className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl">
@@ -289,7 +289,7 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
         <div className="space-y-5">
           {categories.map(cat => (
             <div key={cat}>
-              <p className={`text-[11px] font-black uppercase tracking-widest mb-2 px-1 ${mutedText}`}>{cat}</p>
+              <p className={`text-xs font-black uppercase tracking-widest mb-2 px-1 ${mutedText}`}>{cat}</p>
               <div className="space-y-2">
                 {services.filter(s => (s.category || "General") === cat).map(service => (
                   <div key={service.id}>
@@ -316,12 +316,12 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          <button onClick={() => startEdit(service)}
-                            className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
+                          <button onClick={() => startEdit(service)} aria-label="Edit service"
+                            className={`w-11 h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
                             <Edit2 className="w-4 h-4" />
                           </button>
-                          <button onClick={() => deleteService.mutate(service.id)}
-                            className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
+                          <button onClick={() => deleteService.mutate(service.id)} aria-label="Delete service"
+                            className={`w-11 h-11 flex items-center justify-center rounded-xl transition-colors ${isDark ? "hover:bg-red-500/15 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>

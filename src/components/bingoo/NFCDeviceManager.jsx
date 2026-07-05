@@ -2,6 +2,7 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
@@ -59,6 +60,24 @@ const SUB_TABS = [
 
 const inputSt = { background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" };
 const cardSt  = { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" };
+
+function DarkSelect({ value, onValueChange, items, placeholder }) {
+  return (
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger className="w-full rounded-xl text-sm"
+        style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent className="bg-[#0B2E6B] border-white/15 max-h-60 overflow-y-auto">
+        {items.map(item => (
+          <SelectItem key={item.value} value={item.value} className="text-white/80 focus:bg-white/10 focus:text-white">
+            {item.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 async function writeAuditLog(fields) {
   try {
@@ -435,27 +454,27 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <td className="px-4 py-3 text-xs text-white/35">{d.assigned_at?.slice(0, 10) || "—"}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
-                            <button title="Edit" onClick={() => setEditingDevice({ ...d })}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10">
-                              <Edit className="w-3.5 h-3.5 text-blue-400" />
+                            <button title="Edit" aria-label="Edit device" onClick={() => setEditingDevice({ ...d })}
+                              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/10">
+                              <Edit className="w-4 h-4 text-blue-400" />
                             </button>
-                            <button title="Assign" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10">
-                              <ArrowRightLeft className="w-3.5 h-3.5 text-purple-400" />
+                            <button title="Assign" aria-label="Assign device" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
+                              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/10">
+                              <ArrowRightLeft className="w-4 h-4 text-purple-400" />
                             </button>
                             {d.profile_id && (
-                              <button title="Unassign" onClick={() => handleUnassign(d)}
-                                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10">
-                                <RotateCcw className="w-3.5 h-3.5 text-yellow-400" />
+                              <button title="Unassign" aria-label="Unassign device" onClick={() => handleUnassign(d)}
+                                className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/10">
+                                <RotateCcw className="w-4 h-4 text-yellow-400" />
                               </button>
                             )}
-                            <button title="Replace" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10">
-                              <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+                            <button title="Replace" aria-label="Replace device" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
+                              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/10">
+                              <RefreshCw className="w-4 h-4 text-cyan-400" />
                             </button>
-                            <button title="Delete" onClick={() => setDeleteConfirm(d)}
-                              className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10">
-                              <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                            <button title="Delete" aria-label="Delete device" onClick={() => setDeleteConfirm(d)}
+                              className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/10">
+                              <Trash2 className="w-4 h-4 text-red-400" />
                             </button>
                           </div>
                         </td>
@@ -483,17 +502,19 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <div className="grid sm:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="text-white/50 text-xs font-bold block mb-1">Type</label>
-                  <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                    value={editingDevice.device_type} onChange={e => setEditingDevice(d => ({ ...d, device_type: e.target.value }))}>
-                    {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{DEVICE_EMOJIS[t]} {t}</option>)}
-                  </select>
+                  <DarkSelect
+                    value={editingDevice.device_type}
+                    onValueChange={(v) => setEditingDevice(d => ({ ...d, device_type: v }))}
+                    items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                  />
                 </div>
                 <div>
                   <label className="text-white/50 text-xs font-bold block mb-1">Status</label>
-                  <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                    value={editingDevice.status} onChange={e => setEditingDevice(d => ({ ...d, status: e.target.value }))}>
-                    {ALL_STATUSES.map(s => <option key={s} value={s} style={{ background: navyCard }}>{s}</option>)}
-                  </select>
+                  <DarkSelect
+                    value={editingDevice.status}
+                    onValueChange={(v) => setEditingDevice(d => ({ ...d, status: v }))}
+                    items={ALL_STATUSES.map(s => ({ value: s, label: s }))}
+                  />
                 </div>
                 <div>
                   <label className="text-white/50 text-xs font-bold block mb-1">Notes</label>
@@ -534,10 +555,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
                 <div>
                   <label className="text-white/50 text-xs font-bold block mb-1">Device Type</label>
-                  <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                    value={singleType} onChange={e => setSingleType(e.target.value)}>
-                    {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{DEVICE_EMOJIS[t]} {t}</option>)}
-                  </select>
+                  <DarkSelect
+                    value={singleType}
+                    onValueChange={setSingleType}
+                    items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                  />
                 </div>
                 <Button onClick={() => createDevice.mutate({ device_code: singleCode || padCode(nextBgNumber()), device_type: singleType, status: "available" })}
                   disabled={createDevice.isPending}
@@ -566,10 +588,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
                 <div className="col-span-2">
                   <label className="text-white/50 text-xs font-bold block mb-1">Device Type</label>
-                  <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                    value={bulkType} onChange={e => setBulkType(e.target.value)}>
-                    {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{DEVICE_EMOJIS[t]} {t}</option>)}
-                  </select>
+                  <DarkSelect
+                    value={bulkType}
+                    onValueChange={setBulkType}
+                    items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                  />
                 </div>
               </div>
               <p className="text-white/30 text-xs mb-3">
@@ -597,7 +620,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               {devices.slice(0, 16).map(d => (
                 <div key={d.id} className="rounded-xl p-2 text-center border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
                   <QRCell code={d.device_code} />
-                  <p className="font-mono text-[9px] text-white mt-1 font-bold truncate">{d.device_code}</p>
+                  <p className="font-mono text-xs text-white mt-1 font-bold truncate">{d.device_code}</p>
                 </div>
               ))}
             </div>
@@ -674,18 +697,19 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="space-y-3">
               <div>
                 <label className="text-white/50 text-xs font-bold block mb-1">Select Device to Replace</label>
-                <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                  value={replaceDevice?.id || ""} onChange={e => {
-                    const d = devices.find(x => x.id === e.target.value);
+                <DarkSelect
+                  value={replaceDevice?.id || ""}
+                  onValueChange={(v) => {
+                    const d = devices.find(x => x.id === v);
                     setReplaceDevice(d || null);
                     if (d) { setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }
-                  }}>
-                  <option value="" style={{ background: navyCard }}>— Select a device —</option>
-                  {devices.filter(d => d.status !== "replaced" && d.status !== "disabled").map(d => {
+                  }}
+                  placeholder="— Select a device —"
+                  items={devices.filter(d => d.status !== "replaced" && d.status !== "disabled").map(d => {
                     const profile = profiles.find(p => p.id === d.profile_id);
-                    return <option key={d.id} value={d.id} style={{ background: navyCard }}>{d.device_code} — {profile?.display_name || "Unassigned"} ({d.device_type})</option>;
+                    return { value: d.id, label: `${d.device_code} — ${profile?.display_name || "Unassigned"} (${d.device_type})` };
                   })}
-                </select>
+                />
               </div>
 
               {replaceDevice && (
@@ -711,10 +735,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     </div>
                     <div>
                       <label className="text-white/50 text-xs font-bold block mb-1">New Device Type</label>
-                      <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none" style={inputSt}
-                        value={replaceType} onChange={e => setReplaceType(e.target.value)}>
-                        {DEVICE_TYPES.map(t => <option key={t} value={t} style={{ background: navyCard }}>{DEVICE_EMOJIS[t]} {t}</option>)}
-                      </select>
+                      <DarkSelect
+                        value={replaceType}
+                        onValueChange={setReplaceType}
+                        items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                      />
                     </div>
                   </div>
 
@@ -1034,11 +1059,14 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <button onClick={() => setAssignDevice(null)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
             </div>
             <label className="text-white/50 text-xs font-bold block mb-1">Select Profile</label>
-            <select className="w-full px-3 py-2.5 rounded-xl text-sm outline-none mb-4" style={inputSt}
-              value={assignProfileId} onChange={e => setAssignProfileId(e.target.value)}>
-              <option value="" style={{ background: navyCard }}>— Select a profile —</option>
-              {profiles.map(p => <option key={p.id} value={p.id} style={{ background: navyCard }}>{p.display_name} (@{p.username})</option>)}
-            </select>
+            <div className="mb-4">
+              <DarkSelect
+                value={assignProfileId}
+                onValueChange={setAssignProfileId}
+                placeholder="— Select a profile —"
+                items={profiles.map(p => ({ value: p.id, label: `${p.display_name} (@${p.username})` }))}
+              />
+            </div>
             <div className="flex gap-2">
               <Button onClick={handleAssign} disabled={!assignProfileId || updateDevice.isPending}
                 style={{ background: orange, color: "#fff" }} className="flex-1 font-bold">
