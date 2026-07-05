@@ -209,7 +209,7 @@ export default function SecurityAuditTab() {
                             value={r.status}
                             onValueChange={(v) => updateReport.mutate({ id: r.id, status: v })}
                           >
-                            <SelectTrigger className="px-2 py-1 rounded-lg text-xs font-bold cursor-pointer"
+                            <SelectTrigger className="px-2 py-1 rounded-lg text-xs font-bold cursor-pointer min-h-[44px]" aria-label="Report status"
                               style={{ background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.1)" }}>
                               <SelectValue />
                             </SelectTrigger>

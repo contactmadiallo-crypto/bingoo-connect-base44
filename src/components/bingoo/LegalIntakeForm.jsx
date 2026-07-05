@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { Upload, X, AlertTriangle } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { LEGAL_CATEGORIES, LEGAL_SERVICES, URGENCY_LABELS, CATEGORY_COLORS } from "@/lib/legalData";
 
 const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
@@ -200,28 +200,27 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
                 </div>
 
                 {cat && (
-                  <Select value={form.legal_service || "none"} onValueChange={(v) => setVal("legal_service", v === "none" ? "" : v)}>
-                    <SelectTrigger className={inp}>
-                      <SelectValue placeholder="-- Select Service Needed --" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">-- Select Service Needed --</SelectItem>
-                      {services.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <MobileSelect
+                    value={form.legal_service || "none"}
+                    onValueChange={(v) => setVal("legal_service", v === "none" ? "" : v)}
+                    options={[
+                      { value: "none", label: "-- Select Service Needed --" },
+                      ...services.map(s => ({ value: s, label: s })),
+                    ]}
+                    placeholder="-- Select Service Needed --"
+                    ariaLabel="Legal service needed"
+                    className={inp}
+                  />
                 )}
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Select value={form.urgency} onValueChange={(v) => setVal("urgency", v)}>
-                    <SelectTrigger className={inp}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(URGENCY_LABELS).map(([k, v]) => (
-                        <SelectItem key={k} value={k}>{v.label} Urgency</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <MobileSelect
+                    value={form.urgency}
+                    onValueChange={(v) => setVal("urgency", v)}
+                    options={Object.entries(URGENCY_LABELS).map(([k, v]) => ({ value: k, label: `${v.label} Urgency` }))}
+                    ariaLabel="Urgency level"
+                    className={inp}
+                  />
                 </div>
 
                 <textarea className={inp + " resize-none"} placeholder="Briefly describe your legal situation…" rows={3} value={form.message} onChange={set("message")} />

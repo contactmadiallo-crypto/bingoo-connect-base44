@@ -7,7 +7,7 @@
  * Tier 1 fields only — no complex arrays/objects/QR blobs.
  */
 
-import { db, isConfigured } from "@/lib/firebase";
+import { getFirebaseDb, isConfigured } from "@/lib/firebase";
 import { PROFILES_COLLECTION } from "@/lib/firestorePaths";
 
 const TIER1_FIELDS = [
@@ -51,10 +51,16 @@ export async function syncProfileToFirestore(savedProfile) {
   }
 
   // [DEBUG] Step 7+8: Firebase config state
-  console.log("[FirestoreProfileSync:DEBUG] isConfigured:", isConfigured, "| db exists:", !!db);
+  console.log("[FirestoreProfileSync:DEBUG] isConfigured:", isConfigured);
 
-  if (!isConfigured || !db) {
-    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — Firebase not configured or db is null. Check [Firebase:DEBUG] logs above.");
+  if (!isConfigured) {
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — Firebase not configured. Check [Firebase:DEBUG] logs above.");
+    return;
+  }
+
+  const db = await getFirebaseDb();
+  if (!db) {
+    console.warn("[FirestoreProfileSync:DEBUG] STOPPED — Firebase db is null after init.");
     return;
   }
 

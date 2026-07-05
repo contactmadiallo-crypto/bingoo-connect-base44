@@ -2,7 +2,7 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { toast } from "sonner";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
@@ -61,21 +61,17 @@ const SUB_TABS = [
 const inputSt = { background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" };
 const cardSt  = { background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" };
 
-function DarkSelect({ value, onValueChange, items, placeholder }) {
+function DarkSelect({ value, onValueChange, items, placeholder, ariaLabel }) {
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="w-full rounded-xl text-sm"
-        style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent className="bg-[#0B2E6B] border-white/15 max-h-60 overflow-y-auto">
-        {items.map(item => (
-          <SelectItem key={item.value} value={item.value} className="text-white/80 focus:bg-white/10 focus:text-white">
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <MobileSelect
+      value={value}
+      onValueChange={onValueChange}
+      options={items}
+      placeholder={placeholder}
+      ariaLabel={ariaLabel}
+      className="w-full rounded-xl text-sm"
+      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
+    />
   );
 }
 

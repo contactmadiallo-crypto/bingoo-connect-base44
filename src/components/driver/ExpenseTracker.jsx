@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, FileText, Fuel, Wrench, Shield, CreditCard, ParkingCircle, Receipt } from "lucide-react";
@@ -187,24 +187,12 @@ export default function ExpenseTracker({ driver }) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Type de Dépense *</Label>
-              <Select value={newExpense.expense_type} onValueChange={(value) => setNewExpense({...newExpense, expense_type: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {expenseTypes.map((type) => {
-                    const Icon = type.icon;
-                    return (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="w-4 h-4" />
-                          {type.label}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              <MobileSelect
+                value={newExpense.expense_type}
+                onValueChange={(value) => setNewExpense({...newExpense, expense_type: value})}
+                options={expenseTypes.map((type) => ({ value: type.value, label: type.label }))}
+                ariaLabel="Expense type"
+              />
             </div>
 
             <div className="space-y-2">

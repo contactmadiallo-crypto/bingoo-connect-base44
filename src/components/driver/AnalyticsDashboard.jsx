@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { TrendingUp, Clock, DollarSign, Star, CheckCircle, XCircle, MapPin, Award, Calendar } from "lucide-react";
 
 const AnalyticsDashboardMapInner = lazy(() => import("./AnalyticsDashboardMapInner"));
@@ -123,17 +123,18 @@ export default function AnalyticsDashboard({ driver }) {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
         <h2 className="text-xl sm:text-2xl font-bold text-slate-900">📊 Mes Statistiques</h2>
-        <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-full sm:w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="day">Aujourd'hui</SelectItem>
-            <SelectItem value="week">Cette Semaine</SelectItem>
-            <SelectItem value="month">Ce Mois</SelectItem>
-            <SelectItem value="all">Tout</SelectItem>
-          </SelectContent>
-        </Select>
+        <MobileSelect
+          value={timeRange}
+          onValueChange={setTimeRange}
+          options={[
+            { value: "day", label: "Aujourd'hui" },
+            { value: "week", label: "Cette Semaine" },
+            { value: "month", label: "Ce Mois" },
+            { value: "all", label: "Tout" },
+          ]}
+          ariaLabel="Time range"
+          className="w-full sm:w-40"
+        />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

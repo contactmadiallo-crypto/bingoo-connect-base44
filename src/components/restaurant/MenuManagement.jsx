@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Loader2, Sparkles, Zap, Image as ImageIcon, DollarSign, Clock } from "lucide-react";
@@ -226,7 +226,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
                   </h3>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {items.map((item) => (
-                      <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                      <Card key={item.id} className="hover:shadow-lg transition-shadow overflow-hidden">
                         {item.image_url && (
                           <div className="h-40 overflow-hidden relative">
                             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
@@ -313,14 +313,13 @@ export default function MenuManagement({ restaurant, menuItems }) {
               </div>
               <div className="space-y-2">
                 <Label>Catégorie *</Label>
-                <Select value={menuForm.category} onValueChange={(value) => setMenuForm({ ...menuForm, category: value })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(categories).map(([value, { label, emoji }]) => (
-                      <SelectItem key={value} value={value}>{emoji} {label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MobileSelect
+                  value={menuForm.category}
+                  onValueChange={(value) => setMenuForm({ ...menuForm, category: value })}
+                  options={Object.entries(categories).map(([value, { label, emoji }]) => ({ value, label: `${emoji} ${label}` }))}
+                  placeholder="Select category"
+                  ariaLabel="Menu category"
+                />
               </div>
             </div>
 

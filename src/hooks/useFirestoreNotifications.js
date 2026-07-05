@@ -8,40 +8,47 @@
 
 import { useEffect, useState } from "react";
 import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
-import { db, isConfigured } from "@/lib/firebase";
+import { getFirebaseDb, isConfigured } from "@/lib/firebase";
 
 export function useFirestoreNotifications(userId) {
   const [notifications, setNotifications] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!userId || !isConfigured || !db) return;
+    if (!userId || !isConfigured) return;
 
     let unsubscribe = null;
+    let active = true;
 
-    try {
-      const notifRef = collection(db, "notificationsFB", userId, "items");
-      const q = query(notifRef, orderBy("created_date", "desc"), limit(50));
+    (async () => {
+      const db = await getFirebaseDb();
+      if (!active || !db) return;
 
-      unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setNotifications(docs);
-          setError(null);
-        },
-        (err) => {
-          console.warn("[Firebase Notifications] onSnapshot error:", err.message);
-          setError(err.message);
-          setNotifications([]);
-        }
-      );
-    } catch (e) {
-      console.warn("[Firebase Notifications] Setup error:", e.message);
-      setError(e.message);
-    }
+      try {
+        const notifRef = collection(db, "notificationsFB", userId, "items");
+        const q = query(notifRef, orderBy("created_date", "desc"), limit(50));
+
+        unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setNotifications(docs);
+            setError(null);
+          },
+          (err) => {
+            console.warn("[Firebase Notifications] onSnapshot error:", err.message);
+            setError(err.message);
+            setNotifications([]);
+          }
+        );
+      } catch (e) {
+        console.warn("[Firebase Notifications] Setup error:", e.message);
+        setError(e.message);
+      }
+    })();
 
     return () => {
+      active = false;
       if (unsubscribe) unsubscribe();
     };
   }, [userId]);

@@ -51,7 +51,7 @@ export default function ChatWindow({ order, user, userType, open, onOpenChange }
     queryKey: ['messages', conversation?.id],
     queryFn: () => base44.entities.Message.filter({ conversation_id: conversation.id }, '-created_date'),
     enabled: !!conversation?.id && open,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   });
 
   const createConversationMutation = useMutation({

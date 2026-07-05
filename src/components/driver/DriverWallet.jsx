@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Wallet, CreditCard, Plus, CheckCircle, Clock, XCircle, TrendingUp, ArrowUpRight, Smartphone } from "lucide-react";
@@ -251,19 +251,16 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
 
                   <div className="space-y-2">
                     <Label>Moyen de Paiement</Label>
-                    <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez un moyen de paiement" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paymentMethods.map((method) => (
-                          <SelectItem key={method.id} value={method.id}>
-                            {getPaymentMethodDisplay(method)}
-                            {method.is_default && " (Par défaut)"}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <MobileSelect
+                      value={selectedPaymentMethod}
+                      onValueChange={setSelectedPaymentMethod}
+                      options={paymentMethods.map((method) => ({
+                        value: method.id,
+                        label: `${getPaymentMethodDisplay(method)}${method.is_default ? " (Par défaut)" : ""}`
+                      }))}
+                      placeholder="Sélectionnez un moyen de paiement"
+                      ariaLabel="Payment method"
+                    />
                     {paymentMethods.length === 0 && (
                       <p className="text-sm text-amber-600">Aucun moyen de paiement ajouté. Ajoutez-en un dans l'onglet Moyens de Paiement.</p>
                     )}
@@ -381,17 +378,17 @@ export default function DriverWallet({ driver, open, onOpenChange }) {
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <Label>Type</Label>
-                      <Select value={paymentMethodForm.type} onValueChange={(value) => setPaymentMethodForm({...paymentMethodForm, type: value})}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="wave">🌊 Wave</SelectItem>
-                          <SelectItem value="orange_money">🍊 Orange Money</SelectItem>
-                          <SelectItem value="free_money">📱 Free Money</SelectItem>
-                          <SelectItem value="bank_account">🏦 Compte Bancaire</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <MobileSelect
+                        value={paymentMethodForm.type}
+                        onValueChange={(value) => setPaymentMethodForm({...paymentMethodForm, type: value})}
+                        options={[
+                          { value: "wave", label: "🌊 Wave" },
+                          { value: "orange_money", label: "🍊 Orange Money" },
+                          { value: "free_money", label: "📱 Free Money" },
+                          { value: "bank_account", label: "🏦 Compte Bancaire" },
+                        ]}
+                        ariaLabel="Payment method type"
+                      />
                     </div>
 
                     <div className="space-y-2">
