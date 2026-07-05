@@ -403,22 +403,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </motion.p>
       )}
 
-      {/* ── Prominent Book Appointment CTA (high on the page, no scrolling needed) ── */}
-      {canBook && (
-        <motion.button
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-          onClick={() => setBookOpen(true)}
-          style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            padding: "15px 16px", borderRadius: 16, marginBottom: 20, cursor: "pointer",
-            background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.82)})`,
-            color: "#fff", fontWeight: 800, fontSize: 15, border: "none",
-            boxShadow: `0 10px 28px ${hexRgb(color, 0.4)}`, fontFamily: FONT_BODY }}
-        >
-          <BICalendar size={20} /> Book Appointment
-        </motion.button>
-      )}
-
       {/* ── Contact row: Call / WhatsApp / Email / Book ── */}
       <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
 
