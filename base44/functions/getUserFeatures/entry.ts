@@ -167,26 +167,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Profile-level plans: an admin may grant a paid plan on a specific profile
-    // (admin_override / legacy grant) without a Stripe subscription. To honor the
-    // product policy that Pro/Business/industry profiles open their features, treat
-    // the highest owned-profile plan as a floor — the effective plan is the max of
-    // the subscription-derived plan and the best profile plan.
-    const profiles = await base44.asServiceRole.entities.Profile.filter({
-      created_by_id: user.id,
-    });
-
-    let bestProfilePlan = 'free';
-    for (const p of profiles || []) {
-      if (planScore(p?.plan) > planScore(bestProfilePlan)) {
-        bestProfilePlan = normalizePlan(p?.plan);
-      }
-    }
-
-    // Effective plan = higher of subscription plan and best profile plan.
-    // Free stays free only when BOTH are free (i.e. no paid sub AND no paid profile grant).
-    const planName = planScore(bestProfilePlan) > planScore(subPlan) ? bestProfilePlan : subPlan;
-
+    // The Subscription entity is the SOLE source of truth for entitlement.
+    // Profile.plan is owner-writable via the client SDK and must NEVER be used to
+    // compute entitlement — otherwise a user can unlock paid features by editing their
+    // own profile in the browser console. Admin overrides are stored on the Subscription
+    // entity (plan_source='admin_override'), not on Profile.plan.
+    const planName = subPlan;
     const features = PLAN_FEATURES[planName] || FREE;
 
     return Response.json({
@@ -194,7 +180,6 @@ Deno.serve(async (req) => {
       plan: planName,
       features,
       subscription_plan: subPlan,
-      profile_plan: bestProfilePlan,
     });
   } catch (error) {
     console.error('getUserFeatures error:', error);

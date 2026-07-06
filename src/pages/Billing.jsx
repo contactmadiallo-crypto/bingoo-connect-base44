@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, getEffectiveProfilePlan } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -56,25 +56,11 @@ export default function Billing() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
-  // A profile may carry a paid plan (admin override or legacy grant) even without
-  // a Stripe subscription. Treat that as a real, active plan on Billing — consistent
-  // with the plan badge shown on the dashboard profile cards.
-  const { data: profiles } = useQuery({
-    queryKey: ['my-profiles-billing', user?.id],
-    queryFn: () => base44.entities.Profile.filter({}),
-    enabled: !!user?.id,
-  });
-
-  const subPlan = normalizePlan(plan);
-  const effectivePlan = (profiles || []).reduce(
-    (best, p) => {
-      const eff = getEffectiveProfilePlan(subPlan, p);
-      return (PLAN_HIERARCHY[eff] ?? 0) > (PLAN_HIERARCHY[best] ?? 0) ? eff : best;
-    },
-    subPlan,
-  );
-
-  // No Stripe subscription but a paid profile plan → treat as active (manually granted).
+  // The Subscription entity (server-side, admin-controlled) is the SOLE source of truth
+  // for the user's plan. Profile.plan is owner-writable via the SDK and is NEVER used to
+  // compute entitlement — using it caused every user to see "Law Firm" because the Billing
+  // page was taking the MAX plan across all RLS-visible profiles in the system.
+  const effectivePlan = normalizePlan(plan);
   const statusKey = subscription?.status || (effectivePlan !== 'free' ? 'active' : 'free');
   const status = STATUS_CONFIG[statusKey] || STATUS_CONFIG.free;
   const StatusIcon = status.icon;
