@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import BingooLogo from "@/components/bingoo/BingooLogo";
 
 /**
  * Splash screen shown only once when the app is opened from home screen (standalone mode).
@@ -50,14 +51,14 @@ export default function PWASplashScreen() {
             />
           ))}
 
-          <motion.img
-            src="/favicon.svg"
-            alt="Bingoo Connect"
-            className="w-28 h-28 object-contain relative z-10"
+          <motion.div
+            className="relative z-10"
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          />
+          >
+            <BingooLogo className="w-28 h-28" animated />
+          </motion.div>
 
           <motion.p
             className="mt-5 text-sm font-black tracking-[0.3em] uppercase relative z-10"
