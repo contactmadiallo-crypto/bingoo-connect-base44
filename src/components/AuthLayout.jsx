@@ -25,9 +25,14 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
       />
 
       <div className="relative w-full max-w-md">
-        {/* Bingoo Connect Branding */}
+        {/* Bingoo Connect Branding — logo blends with navy bg, no white box */}
         <div className="flex flex-col items-center mb-8">
-          <BingooLogo className="h-12 w-auto mb-4 object-contain" />
+          <div
+            className="rounded-2xl overflow-hidden mb-4"
+            style={{ background: "transparent", border: "none", boxShadow: "none" }}
+          >
+            <BingooLogo className="h-14 w-14 object-cover" />
+          </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">{title}</h1>
           {subtitle && (
             <p className="mt-1.5 text-sm" style={{ color: "rgba(249, 115, 22, 0.85)" }}>
