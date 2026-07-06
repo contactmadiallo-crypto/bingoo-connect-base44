@@ -110,14 +110,14 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
-        <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+        <Link to="/" className="px-5 py-5 flex items-center gap-3 transition-opacity hover:opacity-80" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
           <BingooLogo className="h-12 w-12 flex-shrink-0" animated />
           <div>
             <div className="text-white/30 text-[10px] uppercase tracking-widest font-bold leading-tight">
               CONNECT • SHARE • GROW
             </div>
           </div>
-        </div>
+        </Link>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navItems.map(item => renderNavLink(item, onNav))}
@@ -205,7 +205,9 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           paddingTop: "env(safe-area-inset-top)",
           height: "calc(56px + env(safe-area-inset-top))",
         }}>
-        <BingooLogo className="h-8 w-8" animated={false} />
+        <Link to="/" aria-label="Bingoo Connect home" className="transition-opacity hover:opacity-80">
+          <BingooLogo className="h-8 w-8" animated={false} />
+        </Link>
         <div className="flex items-center gap-1">
           <button onClick={toggle} aria-label="Toggle dark mode"
             className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white flex items-center justify-center">

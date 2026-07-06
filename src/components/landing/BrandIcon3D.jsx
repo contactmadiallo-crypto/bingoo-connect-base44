@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
+import BingooLogo from "@/components/bingoo/BingooLogo";
 
 const B = {
   navy: "#0B2E6B",
@@ -8,8 +9,6 @@ const B = {
   orange: "#FF7A00",
   gold: "#FDBA21"
 };
-
-const BRAND_LOGO = "https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png";
 
 /**
  * Premium interactive 3D Bingoo brand icon.
@@ -108,12 +107,10 @@ export default function BrandIcon3D({ size = 160, className = "" }) {
           }}
         />
         {/* Brand logo */}
-        <img
-          src={BRAND_LOGO}
-          alt="Bingoo Connect"
-          className="relative z-10 object-contain"
-          style={{ width: size * 0.62, height: size * 0.62, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.45))" }}
-        />
+        <div className="relative z-10 flex items-center justify-center"
+          style={{ width: size * 0.62, height: size * 0.62, filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.45))" }}>
+          <BingooLogo className="w-full h-full" animated={false} />
+        </div>
         {/* Inner gold ring */}
         <div
           className="absolute rounded-full pointer-events-none"

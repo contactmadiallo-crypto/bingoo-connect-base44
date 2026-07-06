@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight, Rocket, Globe2, Wallet, Languages, Sparkles, ShieldCheck, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -66,9 +67,11 @@ export default function ProjectFutureSection() {
 
       <div className="max-w-6xl mx-auto relative">
         <ScrollReveal className="text-center mb-12">
-          <div className="flex justify-center mb-6">
-            <BrandIcon3D size={130} />
-          </div>
+          <Link to="/" className="flex justify-center mb-6 cursor-pointer" aria-label="Bingoo Connect home">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+              <BrandIcon3D size={130} />
+            </motion.div>
+          </Link>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.35)", color: B.gold }}>
             <Rocket className="w-4 h-4" /> The project & the future

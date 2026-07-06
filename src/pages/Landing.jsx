@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe, QrCode, MapPin, Wallet, Apple, Search } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "../components/bingoo/NFCTapMockup";
 import FeedbackSection from "../components/bingoo/FeedbackSection";
@@ -715,9 +716,11 @@ export default function Landing() {
         
         <div className="max-w-7xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
           {/* Logo */}
-          <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
-            <BingooLogo className="h-10 w-10" animated={false} />
-          </motion.div>
+          <Link to="/" className="flex items-center gap-3" aria-label="Bingoo Connect home">
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <BingooLogo className="h-10 w-10" animated={false} />
+            </motion.div>
+          </Link>
 
           {/* Nav links */}
           <div className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70">
