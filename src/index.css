@@ -1,24 +1,25 @@
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: 0 0% 3.9%;
+    /* Bingoo brand: Navy backgrounds + Orange accents */
+    --background: 11 33 73;        /* #0b2149 deep navy */
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 19 40 79;             /* #13284f navy-light */
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    --popover: 19 40 79;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary: 249 115 22;        /* #f97316 orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 19 40 79;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --muted: 19 40 79;
+    --muted-foreground: 0 0% 70%;
+    --accent: 249 115 22;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 19 40 79;
+    --input: 19 40 79;
+    --ring: 249 115 22;
   }
 }
 
@@ -176,38 +177,39 @@ button:focus-visible {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 0 0% 3.9%;
+    /* Bingoo brand dark theme: Navy backgrounds + Orange accents */
+    --background: 11 33 73;        /* #0b2149 deep navy */
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 19 40 79;             /* #13284f navy-light */
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    --popover: 19 40 79;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary: 249 115 22;        /* #f97316 orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 19 40 79;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --muted: 19 40 79;
+    --muted-foreground: 0 0% 70%;
+    --accent: 249 115 22;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 19 40 79;
+    --input: 19 40 79;
+    --ring: 249 115 22;
+    --chart-1: 249 115 22;
+    --chart-2: 251 146 60;
+    --chart-3: 11 33 73;
+    --chart-4: 19 40 79;
+    --chart-5: 220 70% 50%;
+    --sidebar-background: 11 33 73;
+    --sidebar-foreground: 0 0% 95.9%;
+    --sidebar-primary: 249 115 22;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 19 40 79;
+    --sidebar-accent-foreground: 0 0% 95.9%;
+    --sidebar-border: 19 40 79;
+    --sidebar-ring: 249 115 22;
   }
 }
 

@@ -10,6 +10,13 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			/* Official Bingoo brand palette */
+  			brand: {
+  				navy: '#0b2149',
+  				'navy-light': '#13284f',
+  				orange: '#f97316',
+  				'orange-light': '#fb923c',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

@@ -3,31 +3,22 @@
   "short_name": "Bingoo",
   "description": "One tap to share your entire business world. NFC-powered digital profiles for professionals.",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
+  "background_color": "#0b2149",
+  "theme_color": "#0b2149",
   "orientation": "portrait",
-  "background_color": "#0B2E6B",
-  "theme_color": "#0B2E6B",
-  "lang": "en",
-  "categories": ["business", "productivity"],
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/favicon.svg",
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/d4eb4836d_generated_image.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
+      "src": "https://media.base44.com/images/public/692bd9007b93ba81de543346/d4eb4836d_generated_image.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
