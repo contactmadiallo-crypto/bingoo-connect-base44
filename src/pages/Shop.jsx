@@ -7,30 +7,32 @@ import { addToCart, getCartCount } from '@/lib/cartStore';
 const CATEGORIES = [
   { id: 'all',      label: 'All Products' },
   { id: 'card',     label: 'Cards' },
-  { id: 'keychain', label: 'Keychains' },
+  { id: 'keychain', label: 'Keychains & Fobs' },
+  { id: 'tag',      label: 'Tags' },
   { id: 'sticker',  label: 'Stickers' },
   { id: 'stand',    label: 'Stands' },
   { id: 'bracelet', label: 'Bracelets' },
-  { id: 'bundle',   label: 'Bundles' },
-  { id: 'bulk',     label: 'Corporate' },
 ];
 
 // Map URL ?category= param values to internal category IDs
 const CATEGORY_PARAM_MAP = {
   cards: 'card', card: 'card',
   keychains: 'keychain', keychain: 'keychain',
+  fobs: 'keychain', fob: 'keychain',
+  tags: 'tag', tag: 'tag',
   stickers: 'sticker', sticker: 'sticker',
   stands: 'stand', stand: 'stand',
   bracelets: 'bracelet', bracelet: 'bracelet',
-  bundles: 'bundle', bundle: 'bundle',
-  corporate: 'bulk', bulk: 'bulk',
 };
 
 const BADGE_STYLES = {
   'Best Seller': { background: '#FF7A00', color: '#fff' },
   'New':         { background: '#0B2E6B', color: '#fff' },
-  'Save $13':    { background: '#16a34a', color: '#fff' },
-  'Corporate':   { background: '#1e293b', color: '#fff' },
+  'Premium':     { background: '#1e293b', color: '#fbbf24' },
+  'Eco':         { background: '#16a34a', color: '#fff' },
+  'Wearable':    { background: '#7c3aed', color: '#fff' },
+  'Counter':     { background: '#0B2E6B', color: '#fff' },
+  'Desk':        { background: '#0B2E6B', color: '#fff' },
 };
 
 export default function Shop() {

@@ -7,13 +7,16 @@ import Stripe from 'npm:stripe@14.21.0';
  * Keys must exactly match product.id values in lib/shopProducts.js.
  */
 const NFC_PRODUCTS = {
-  'nfc-card':     { productId: 'prod_UdL2gP4j6Q9aP2', amount: 1999,  label: 'NFC Business Card' },
-  'nfc-keychain': { productId: 'prod_UdL2pKDQZQrBJ1', amount: 1499,  label: 'NFC Keychain' },
-  'nfc-sticker':  { productId: 'prod_UdL2IyT1qYzxw4', amount: 799,   label: 'NFC Sticker' },
-  'nfc-stand':    { productId: 'prod_UdL2yIz4V7V9db', amount: 3499,  label: 'NFC Counter Stand' },
-  'nfc-bracelet': { productId: 'prod_UdL2v8wEYP0JQp', amount: 2499,  label: 'NFC Bracelet' },
-  'nfc-bundle':   { productId: null,                  amount: 2999,  label: 'NFC Starter Bundle' },
-  'nfc-bulk-10':  { productId: 'prod_UdL2zv4avSmTJo', amount: 9999,  label: '10-Pack NFC Cards' },
+  'nfc-card':         { productId: 'prod_UdL2gP4j6Q9aP2',  amount: 1999, label: 'NFC Card' },
+  'nfc-keychain':     { productId: 'prod_UdL2pKDQZQrBJ1',  amount: 1499, label: 'NFC Keychain' },
+  'nfc-metal-card':   { productId: 'prod_UpruIOuKBCAvw4',  amount: 2999, label: 'NFC Metal Card' },
+  'nfc-wood-card':    { productId: 'prod_Upru8nxVv85aYY',  amount: 2799, label: 'NFC Wood Card' },
+  'nfc-sticker':      { productId: 'prod_UdL2IyT1qYzxw4',  amount: 799,  label: 'NFC Sticker' },
+  'nfc-bracelet':     { productId: 'prod_UdL2v8wEYP0JQp',  amount: 2499, label: 'NFC Bracelet' },
+  'nfc-silicone-tag': { productId: 'prod_Upru56GYFSd40q',  amount: 1299, label: 'NFC Silicone Tag' },
+  'nfc-key-fob':      { productId: 'prod_Upru6EFzCOzX4U',  amount: 1199, label: 'NFC Key Fob' },
+  'nfc-table-stand':  { productId: 'prod_UdL2yIz4V7V9db',  amount: 3499, label: 'NFC Table Stand' },
+  'nfc-phone-stand':  { productId: 'prod_Upru71ZAVU5PZg',  amount: 2299, label: 'NFC Phone Stand' },
 };
 
 const SHIPPING_COST_CENTS = 500; // $5.00 — fixed on server, never trusted from client
