@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bingoo Connect — Play Store Mockups</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    background: #0b2149;
+    color: #fff;
+    padding: 40px 20px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .header p {
+    color: #fb923c;
+    margin-top: 8px;
+    font-size: 15px;
+  }
+  .header .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .header .logo-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 22px; color: #0b2149;
+  }
+  .grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+  }
+  .mockup-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .mockup-label {
+    font-size: 13px;
+    color: #94a3b8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .download-btn {
+    background: #f97316;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .download-btn:hover { transform: translateY(-1px); }
+  .download-btn:disabled { opacity: 0.6; cursor: default; }
+
+  /* The actual Play Store frame — 1080 x 1920 */
+  .ps-frame {
+    width: 540px;  /* displayed at half scale; downloads at 1080x1920 via scale 2 */
+    height: 960px;
+    background: linear-gradient(160deg, #0b2149 0%, #13284f 60%, #0b2149 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+  }
+  .ps-frame::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -120px;
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(249,115,22,0.18), transparent 70%);
+    border-radius: 50%;
+  }
+  .ps-frame::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; right: -100px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(251,146,60,0.12), transparent 70%);
+    border-radius: 50%;
+  }
+  .ps-brand {
+    position: absolute;
+    top: 36px;
+    left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    z-index: 2;
+  }
+  .ps-brand .mark {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #0b2149;
+  }
+  .ps-brand .word {
+    font-size: 18px; font-weight: 800; color: #fff; letter-spacing: 0.5px;
+  }
+
+  .phone {
+    width: 300px;
+    height: 620px;
+    background: #000;
+    border-radius: 42px;
+    padding: 8px;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.5),
+      0 0 0 2px rgba(255,255,255,0.08),
+      0 0 80px rgba(249,115,22,0.15);
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 34px;
+    overflow: hidden;
+    background: #000;
+    position: relative;
+  }
+  .phone-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+  .phone-notch {
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 90px; height: 24px;
+    background: #000;
+    border-radius: 14px;
+    z-index: 3;
+  }
+
+  .caption-bar {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f97316;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    text-align: center;
+    max-width: 460px;
+    z-index: 2;
+    box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+    white-space: nowrap;
+  }
+
+  .footer-tag {
+    position: absolute;
+    bottom: 14px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 3px;
+    z-index: 2;
+  }
+
+  .download-all {
+    background: #f97316;
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 0 auto 40px;
+    display: block;
+    transition: transform 0.15s;
+  }
+  .download-all:hover { transform: translateY(-1px); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">∞</div>
+    <span style="font-size:20px;font-weight:800;">Bingoo Connect</span>
+  </div>
+  <h1>Google Play Store Mockups</h1>
+  <p>8 ready-to-download screenshots · 1080 × 1920 · Bingoo brand frames</p>
+</div>
+
+<button class="download-all" onclick="downloadAll()">⬇ Download All 8 (one by one)</button>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const mockups = [
+  {
+    id: 1,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/225261f8a_IMG_2061.png',
+    caption: 'Your Digital Identity — One Tap to Connect',
+    label: 'Slot 1 · Hero · Public Profile'
+  },
+  {
+    id: 2,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/3aa4fca5b_IMG_2325.png',
+    caption: 'Manage Multiple Profiles',
+    label: 'Slot 2 · Profiles Hub'
+  },
+  {
+    id: 3,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/bd20e9803_image.png',
+    caption: 'Appointments & Bookings — All in One Place',
+    label: 'Slot 3 · Appointments'
+  },
+  {
+    id: 4,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/347f9fac8_image.png',
+    caption: 'Capture Leads. Manage Your Pipeline.',
+    label: 'Slot 4 · Leads CRM'
+  },
+  {
+    id: 5,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/703143d5c_image.png',
+    caption: 'Real-Time Analytics — Every Tap & View',
+    label: 'Slot 5 · Analytics'
+  },
+  {
+    id: 6,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/efc9045c5_image.png',
+    caption: 'Smart QR + Apple & Google Wallet',
+    label: 'Slot 6 · QR + Wallet'
+  },
+  {
+    id: 7,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/286315a20_IMG_2329.png',
+    caption: 'Save to Google Wallet — Always With You',
+    label: 'Slot 7 · Wallet Pass'
+  },
+  {
+    id: 8,
+    img: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/a9fc69969_IMG_2295.png',
+    caption: 'Lost Mode — Help Finders Return Your Device',
+    label: 'Slot 8 · Lost Mode'
+  }
+];
+
+const grid = document.getElementById('grid');
+
+mockups.forEach((m) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'mockup-wrapper';
+  wrap.innerHTML = `
+    <div class="mockup-label">${m.label}</div>
+    <div class="ps-frame" id="frame-${m.id}">
+      <div class="ps-brand">
+        <div class="mark">∞</div>
+        <span class="word">Bingoo Connect</span>
+      </div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <img src="${m.img}" crossorigin="anonymous" alt="screenshot ${m.id}" />
+        </div>
+      </div>
+      <div class="caption-bar">${m.caption}</div>
+      <div class="footer-tag">CONNECT · SHARE · GROW · SUCCEED</div>
+    </div>
+    <button class="download-btn" onclick="downloadOne(${m.id})">⬇ Download PNG (1080×1920)</button>
+  `;
+  grid.appendChild(wrap);
+});
+
+async function captureFrame(id) {
+  const node = document.getElementById('frame-' + id);
+  const canvas = await html2canvas(node, {
+    scale: 2,
+    backgroundColor: null,
+    useCORS: true,
+    allowTaint: true,
+    logging: false
+  });
+  return canvas.toDataURL('image/png');
+}
+
+async function downloadOne(id) {
+  const btn = document.querySelector(`#frame-${id}`).parentElement.querySelector('.download-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Generating…';
+  btn.disabled = true;
+  try {
+    const dataUrl = await captureFrame(id);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `bingoo-playstore-screenshot-${id}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) {
+    alert('Download failed (image CORS issue). Right-click the frame → screenshot instead. ' + e.message);
+  }
+  btn.textContent = orig;
+  btn.disabled = false;
+}
+
+async function downloadAll() {
+  for (const m of mockups) {
+    await downloadOne(m.id);
+    await new Promise(r => setTimeout(r, 600));
+  }
+}
+</script>
+
+</body>
+</html>
