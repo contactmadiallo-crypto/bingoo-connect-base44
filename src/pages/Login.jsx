@@ -9,6 +9,9 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 
+const BINGOO_NAVY = "#0b2149";
+const BINGOO_ORANGE = "#f97316";
+
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
   return params.get("next") || "/bingoo";
@@ -47,10 +50,6 @@ export default function Login() {
   };
 
   const handleGoogle = () => {
-    // fromUrl must be a full absolute URL pointing to our /auth callback handler.
-    // The platform appends ?access_token=... to this URL after OAuth completes.
-    // We encode the intended post-auth destination as a `next` param so AuthCallback
-    // can forward the user there after the session is established.
     const nextUrl = getNextUrl();
     const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
     base44.auth.loginWithProvider("google", callbackUrl);
@@ -71,8 +70,12 @@ export default function Login() {
       subtitle="Sign in to your Bingoo Connect account"
       footer={
         <>
-          <span className="text-white/60">Don't have an account?</span>{" "}
-          <Link to={registerHref} className="text-blue-400 font-medium hover:underline">
+          <span style={{ color: "rgba(255,255,255,0.6)" }}>Don't have an account?</span>{" "}
+          <Link
+            to={registerHref}
+            className="font-semibold hover:underline"
+            style={{ color: BINGOO_ORANGE }}
+          >
             Create one
           </Link>
         </>
@@ -80,8 +83,15 @@ export default function Login() {
     >
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6 bg-white/10 border-white/30 text-white hover:bg-white/20"
+        className="w-full h-12 text-sm font-medium mb-3 border-0"
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          color: "#ffffff",
+        }}
         onClick={handleGoogle}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(${0xf9}, 115, 22, 0.5)`)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continue with Google
@@ -89,8 +99,15 @@ export default function Login() {
 
       <Button
         variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6 bg-white/10 border-white/30 text-white hover:bg-white/20"
+        className="w-full h-12 text-sm font-medium mb-6 border-0"
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          color: "#ffffff",
+        }}
         onClick={handleApple}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(${0xf9}, 115, 22, 0.5)`)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
       >
         <AppleIcon className="w-5 h-5 mr-2" />
         Continue with Apple
@@ -98,24 +115,39 @@ export default function Login() {
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/20" />
+          <div className="w-full border-t" style={{ borderColor: "rgba(255,255,255,0.12)" }} />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-transparent px-3 text-white/50">or</span>
+          <span className="px-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+            or
+          </span>
         </div>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-400/30 text-red-200 text-sm">
+        <div
+          className="mb-4 p-3 rounded-lg text-sm"
+          style={{
+            background: "rgba(239, 68, 68, 0.12)",
+            border: "1px solid rgba(239, 68, 68, 0.3)",
+            color: "#fca5a5",
+          }}
+        >
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-white/80">Email</Label>
+          <Label htmlFor="email" style={{ color: "rgba(255,255,255,0.8)" }}>
+            Email
+          </Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" aria-hidden="true" />
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+              style={{ color: "rgba(249, 115, 22, 0.6)" }}
+              aria-hidden="true"
+            />
             <Input
               id="email"
               type="email"
@@ -124,20 +156,37 @@ export default function Login() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-blue-400"
+              className="pl-10 h-12 border-0"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#ffffff",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = BINGOO_ORANGE)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
               required
             />
           </div>
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-white/80">Password</Label>
-            <Link to="/forgot-password" className="text-xs text-blue-400 hover:underline">
+            <Label htmlFor="password" style={{ color: "rgba(255,255,255,0.8)" }}>
+              Password
+            </Label>
+            <Link
+              to="/forgot-password"
+              className="text-xs font-medium hover:underline"
+              style={{ color: BINGOO_ORANGE }}
+            >
               Forgot password?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" aria-hidden="true" />
+            <Lock
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+              style={{ color: "rgba(249, 115, 22, 0.6)" }}
+              aria-hidden="true"
+            />
             <Input
               id="password"
               type="password"
@@ -145,12 +194,28 @@ export default function Login() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12 bg-white/10 border-white/20 text-white placeholder:text-white/30 focus:border-blue-400"
+              className="pl-10 h-12 border-0"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#ffffff",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = BINGOO_ORANGE)}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
               required
             />
           </div>
         </div>
-        <Button type="submit" className="w-full h-12 font-medium bg-blue-500 hover:bg-blue-600 text-white border-0" disabled={loading}>
+        <Button
+          type="submit"
+          className="w-full h-12 font-semibold border-0 transition-all hover:shadow-lg"
+          style={{
+            background: BINGOO_ORANGE,
+            color: "#ffffff",
+            boxShadow: `0 4px 14px 0 rgba(249, 115, 22, 0.35)`,
+          }}
+          disabled={loading}
+        >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
