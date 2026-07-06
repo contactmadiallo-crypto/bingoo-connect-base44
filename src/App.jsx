@@ -48,6 +48,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import AuthCallback from '@/pages/AuthCallback';
 import AccountSettings from '@/pages/AccountSettings';
+import PlaystoreMockups from '@/pages/PlaystoreMockups';
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
@@ -102,6 +103,7 @@ const AuthenticatedApp = () => {
       <Route path="/data-deletion" element={<DataDeletion />} />
       <Route path="/contact-support" element={<ContactSupport />} />
       <Route path="/about" element={<About />} />
+      <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
