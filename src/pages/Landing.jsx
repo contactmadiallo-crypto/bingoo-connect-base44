@@ -8,6 +8,7 @@ import FeedbackSection from "../components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
 import ProjectFutureSection from "@/components/landing/ProjectFutureSection";
+import BingooLogo from "@/components/bingoo/BingooLogo";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
 
@@ -715,9 +716,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
           {/* Logo */}
           <motion.div className="flex items-center gap-3" whileHover={{ scale: 1.02 }}>
-            <img src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-              alt="Bingoo Connect"
-              className="h-10 w-auto object-contain" />
+            <BingooLogo className="h-10 w-10" animated={false} />
           </motion.div>
 
           {/* Nav links */}
@@ -1299,7 +1298,10 @@ export default function Landing() {
       {/* ── FOOTER */}
       <footer className="py-10 px-6 text-sm" style={{ background: B.navyDark }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-white/40 text-xs font-semibold tracking-wider">Connect • Share • Grow • Succeed</span>
+          <div className="flex items-center gap-3">
+            <BingooLogo className="h-9 w-9" animated={false} />
+            <span className="text-white/40 text-xs font-semibold tracking-wider">Connect • Share • Grow • Succeed</span>
+          </div>
           <div className="flex flex-wrap justify-center gap-5 text-white/40 text-xs">
             <a href="/shop" className="hover:text-white/70 transition-colors">{t("lp_shop", lang)}</a>
             <a href="/plans" className="hover:text-white/70 transition-colors">{t("lp_pricing", lang)}</a>

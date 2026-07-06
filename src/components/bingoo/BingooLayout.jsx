@@ -8,6 +8,7 @@ import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
 import { useNavigationStack } from "@/components/mobile/NavigationStack";
 import { t, getLang } from "@/lib/i18n";
+import BingooLogo from "@/components/bingoo/BingooLogo";
 
 /**
  * BingooLayout
@@ -109,12 +110,12 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0">
         <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
-        <div className="px-5 py-5" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
-          <img
-            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-            alt="Bingoo Connect" className="h-10 w-auto object-contain" />
-          <div className="text-xs uppercase tracking-widest mt-2 font-bold text-white/30">
-            CONNECT • SHARE • GROW
+        <div className="px-5 py-5 flex items-center gap-3" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+          <BingooLogo className="h-12 w-12 flex-shrink-0" animated />
+          <div>
+            <div className="text-white/30 text-[10px] uppercase tracking-widest font-bold leading-tight">
+              CONNECT • SHARE • GROW
+            </div>
           </div>
         </div>
       </div>
@@ -204,9 +205,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           paddingTop: "env(safe-area-inset-top)",
           height: "calc(56px + env(safe-area-inset-top))",
         }}>
-        <img
-          src="https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png"
-          alt="Bingoo Connect" className="h-8 w-auto object-contain" />
+        <BingooLogo className="h-8 w-8" animated={false} />
         <div className="flex items-center gap-1">
           <button onClick={toggle} aria-label="Toggle dark mode"
             className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white flex items-center justify-center">
