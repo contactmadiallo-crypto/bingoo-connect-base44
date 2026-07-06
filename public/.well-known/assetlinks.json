@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.bingooconnect.app",
+      "sha256_cert_fingerprints": [
+        "2D:53:74:25:7C:D5:B1:0C:B0:57:C2:9F:AE:26:2C:1C:68:78:EA:20:B5:A2:D5:1C:87:8A:4C:0E:FB:C1:ED:ED"
+      ]
+    }
+  }
+]
