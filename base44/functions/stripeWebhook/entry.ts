@@ -186,17 +186,22 @@ Deno.serve(async (req) => {
           console.log('Order marked as paid:', order_id, '| session:', session.id);
         }
 
-      } else if (session.mode === 'subscription' && plan) {
+      } else if (session.mode === 'subscription') {
         const customerEmail = session.customer_email || user_email;
+        const metadataPlan = plan; // from session metadata — a hint, NOT the source of truth
 
-        // Get subscription details for period end
+        // Get subscription details for period end AND resolve the real plan from the
+        // actual Stripe product/price. The metadata plan can be wrong if someone
+        // checked out via a stale or mismatched session; the Stripe product is truth.
         let periodEnd = null;
         let stripeSubId = session.subscription || '';
+        let resolvedPlan = metadataPlan;
         if (session.subscription) {
           try {
             const sub = await stripe.subscriptions.retrieve(session.subscription);
             periodEnd = new Date(sub.current_period_end * 1000).toISOString();
             stripeSubId = sub.id;
+            resolvedPlan = resolvePlanFromSubscriptionItem(sub.items?.data?.[0], metadataPlan);
           } catch (e) { console.error('retrieve sub error:', e.message); }
         }
 
@@ -212,7 +217,7 @@ Deno.serve(async (req) => {
         await upsertSubscription(base44, {
           customer_email: customerEmail,
           customer_name: customerName,
-          plan,
+          plan: resolvedPlan,
           status: 'active',
           stripe_subscription_id: stripeSubId,
           stripe_customer_id: session.customer || '',
@@ -223,17 +228,17 @@ Deno.serve(async (req) => {
         await updateProfilePlan(base44, {
           customerEmail,
           userId: user_id,
-          plan,
+          plan: resolvedPlan,
         });
 
         // Activity log + in-app notification + confirmation email (all non-blocking)
         const billingUrl = stripeSubId ? `${appOrigin}/billing?subscriptionId=${stripeSubId}` : `${appOrigin}/billing`;
-        const planLabel = plan.charAt(0).toUpperCase() + plan.slice(1);
+        const planLabel = resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1);
         const subscriberUserId = user_id || await findUserIdByEmail(base44, customerEmail);
 
         await logSubscriptionActivity(base44, {
           customer_email: customerEmail, customer_name: customerName,
-          plan, action: 'created', status: 'active',
+          plan: resolvedPlan, action: 'created', status: 'active',
           stripe_subscription_id: stripeSubId,
           details: `Subscribed to ${planLabel} via checkout`,
         });
