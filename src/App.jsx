@@ -49,6 +49,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import AuthCallback from '@/pages/AuthCallback';
 import AccountSettings from '@/pages/AccountSettings';
 import PlaystoreMockups from '@/pages/PlaystoreMockups';
+import Bingoo2Mockups from '@/pages/Bingoo2Mockups';
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
@@ -104,6 +105,7 @@ const AuthenticatedApp = () => {
       <Route path="/contact-support" element={<ContactSupport />} />
       <Route path="/about" element={<About />} />
       <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
+      <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
