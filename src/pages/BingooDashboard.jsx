@@ -499,10 +499,10 @@ export default function BingooDashboard() {
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-3 sm:pt-6">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-1 sm:pt-2">
 
           {/* ── Global top bar ── */}
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2.5">
               <BingooLogo className="h-8 w-auto object-contain hidden sm:block" />
               <div>

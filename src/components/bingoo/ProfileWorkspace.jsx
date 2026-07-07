@@ -1108,7 +1108,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   return (
     <div className="flex flex-col h-full relative">
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
+      <div className="flex items-center gap-3 mb-2 flex-wrap" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
         <button type="button" onClick={onBack} aria-label="Back to profiles"
           className={`flex items-center gap-1.5 text-xs font-semibold min-h-[44px] px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
           <ChevronLeft className="w-4 h-4" /> {t("back_profiles", lang)}
