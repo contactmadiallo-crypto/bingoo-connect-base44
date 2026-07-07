@@ -1,0 +1,44 @@
+{
+  "name": "VapidKeyPair",
+  "type": "object",
+  "properties": {
+    "public_key": {
+      "type": "string",
+      "description": "VAPID public key (base64url, 87 chars) \u2014 safe to expose to browsers"
+    },
+    "private_key": {
+      "type": "string",
+      "description": "VAPID private key (base64url, 43 chars) \u2014 used to sign push payloads"
+    },
+    "label": {
+      "type": "string",
+      "default": "default"
+    }
+  },
+  "required": [
+    "public_key",
+    "private_key"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
