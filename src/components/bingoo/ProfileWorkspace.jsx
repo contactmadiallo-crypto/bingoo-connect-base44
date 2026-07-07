@@ -1107,8 +1107,11 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
   return (
     <div className="flex flex-col h-full relative">
+      {/* ── Sticky header (top bar + tabs) — fixed below mobile header on scroll ── */}
+      <div className="sticky z-30 top-[calc(56px+env(safe-area-inset-top))] md:top-0 -mx-3 sm:-mx-6 px-3 sm:px-6 pt-1 pb-2"
+        style={{ background: isDark ? "#0a0c14" : "#f5f7fb", pointerEvents: "auto" }}>
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 mb-2 flex-wrap" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
+      <div className="flex items-center gap-3 mb-2 flex-wrap" style={{ position: "relative", zIndex: 30 }}>
         <button type="button" onClick={onBack} aria-label="Back to profiles"
           className={`flex items-center gap-1.5 text-xs font-semibold min-h-[44px] px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
           <ChevronLeft className="w-4 h-4" /> {t("back_profiles", lang)}
@@ -1156,7 +1159,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs ── */}
-      <div className="md:hidden flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30, pointerEvents: "auto" }}>
+      <div className="md:hidden flex gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30 }}>
         {INNER_TABS.map(tab => (
           <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)} aria-label={tab.label}
             className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
@@ -1167,6 +1170,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             {tab.label}
           </button>
         ))}
+      </div>
       </div>
 
       {/* ── Main layout ── */}
