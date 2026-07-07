@@ -27,7 +27,7 @@ import { normalizeProfileType } from "@/lib/sidebarConfig";
 import { getEffectiveProfilePlan, PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
-  Zap, Briefcase, FileText, Users, AlertTriangle,
+  Zap, Briefcase, Users, AlertTriangle,
   Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft,
   AlertOctagon
 } from "lucide-react";
@@ -817,9 +817,6 @@ export default function BingooDashboard() {
             </div>
           )}
 
-          {/* ════════════════════════════════════
-              RESUME — Pro individual / Pro plans
-          ════════════════════════════════════ */}
         </div>
       </div>
 
