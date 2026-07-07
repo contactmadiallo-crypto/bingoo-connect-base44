@@ -24,8 +24,8 @@ const plans = [
     highlight: false,
   },
   {
-    id: "pro",
-    name: "Pro",
+    id: "professional",
+    name: "Professional",
     price: "$4.99",
     period: "/month",
     icon: Zap,
@@ -40,7 +40,7 @@ const plans = [
       "Priority support",
     ],
     missing: ["Multiple team profiles", "NFC device management", "Export leads as CSV"],
-    cta: "Start Pro",
+    cta: "Start Professional",
     href: "/bingoo",
     highlight: true,
   },
@@ -63,9 +63,10 @@ const plans = [
       "Dedicated account manager",
     ],
     missing: [],
-    cta: "Start Business",
+    cta: "Coming Soon",
     href: "/bingoo",
     highlight: false,
+    comingSoon: true,
   },
 ];
 
@@ -86,6 +87,11 @@ export default function Pricing() {
                 {plan.highlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                     <span className="bg-blue-600 text-white text-xs font-black px-4 py-1.5 rounded-full shadow">Most Popular</span>
+                  </div>
+                )}
+                {plan.comingSoon && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                    <span className="bg-slate-400 text-white text-xs font-black px-4 py-1.5 rounded-full shadow">Coming Soon</span>
                   </div>
                 )}
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${plan.color === "blue" ? "bg-blue-100" : plan.color === "purple" ? "bg-purple-100" : "bg-slate-100"}`}>
@@ -111,12 +117,18 @@ export default function Pricing() {
                   ))}
                 </ul>
 
-                <Link to={plan.href}>
-                  <Button className={`w-full h-12 font-bold text-base ${plan.highlight ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200" : plan.color === "purple" ? "bg-purple-600 hover:bg-purple-700 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
+                {plan.comingSoon ? (
+                  <Button disabled className="w-full h-12 font-bold text-base bg-slate-100 text-slate-400 cursor-not-allowed">
                     {plan.cta}
                   </Button>
-                </Link>
-                {plan.id !== "free" && (
+                ) : (
+                  <Link to={plan.href}>
+                    <Button className={`w-full h-12 font-bold text-base ${plan.highlight ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200" : plan.color === "purple" ? "bg-purple-600 hover:bg-purple-700 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-800"}`}>
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                )}
+                {plan.id !== "free" && !plan.comingSoon && (
                   <p className="text-center text-xs text-slate-400 mt-3">Payment integration coming soon — start using now free</p>
                 )}
               </div>

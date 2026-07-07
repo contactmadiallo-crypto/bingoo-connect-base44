@@ -49,6 +49,7 @@ const PLAN_DEFS = [
     icon: <Building2 className="w-5 h-5" />,
     color: '#7c3aed',
     cta: 'Get Business Plan',
+    comingSoon: true,
   },
   {
     id: 'lawfirm',
@@ -67,6 +68,7 @@ export default function SubscriptionPricing() {
   const [currentPlan, setCurrentPlan] = useState('free');
   const [successMsg, setSuccessMsg] = useState('');
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [billingCycle, setBillingCycle] = useState('monthly');
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
   const { features, plan: featurePlan } = useFeatures();
@@ -116,6 +118,13 @@ export default function SubscriptionPricing() {
     return convertPrice(plan.priceUSD, currency);
   };
 
+  // Annual price: monthly × 12 × 0.9 (10% discount, server-side enforced)
+  const getAnnualPrice = (planId) => {
+    const plan = PLAN_DEFS.find(p => p.id === planId);
+    if (!plan || plan.priceUSD === 0) return 0;
+    return convertPrice(plan.priceUSD * 12 * 0.9, currency);
+  };
+
   const isCurrent = (planId) => {
     const normalized = currentPlan === 'pro' ? 'professional' : currentPlan;
     return normalized === planId || currentPlan === planId;
@@ -136,6 +145,7 @@ export default function SubscriptionPricing() {
         plan: plan.id,
         currency: stripeCheckoutCurrency,
         display_currency: currency,
+        billing_cycle: billingCycle,
       });
       if (res.data?.url) {
         window.location.href = res.data.url;
@@ -248,6 +258,31 @@ export default function SubscriptionPricing() {
             <span>{cfg.flag}</span>
             <span>Showing prices in <strong>{cfg.name} ({currency})</strong></span>
           </div>
+
+          {/* Billing cycle toggle */}
+          <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-2xl"
+            style={{ background: 'rgba(11,46,107,0.06)' }}>
+            <button onClick={() => setBillingCycle('monthly')}
+              className="px-5 py-2 rounded-xl text-sm font-bold transition-all"
+              style={{
+                background: billingCycle === 'monthly' ? B.navy : 'transparent',
+                color: billingCycle === 'monthly' ? '#fff' : B.navy,
+              }}>
+              Monthly
+            </button>
+            <button onClick={() => setBillingCycle('annual')}
+              className="px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5"
+              style={{
+                background: billingCycle === 'annual' ? B.navy : 'transparent',
+                color: billingCycle === 'annual' ? '#fff' : B.navy,
+              }}>
+              Annual
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-black"
+                style={{ background: billingCycle === 'annual' ? B.gold : B.gold + '30', color: billingCycle === 'annual' ? '#fff' : '#b45309' }}>
+                -10%
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Plans grid */}
@@ -278,6 +313,12 @@ export default function SubscriptionPricing() {
                     Most Popular
                   </div>
                 )}
+                {plan.comingSoon && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black text-white"
+                    style={{ background: '#94a3b8' }}>
+                    Coming Soon
+                  </div>
+                )}
                 {current && !isHighlight && (
                   <div className="absolute -top-3.5 right-4 px-3 py-1 rounded-full text-xs font-black text-white"
                     style={{ background: plan.color }}>
@@ -300,10 +341,12 @@ export default function SubscriptionPricing() {
                 {/* Price */}
                 <div className="mb-5">
                   <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
-                    {plan.priceUSD === 0 ? 'Free' : formatPrice(displayPrice, currency)}
+                    {plan.priceUSD === 0 ? 'Free' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
                   </span>
                   {plan.priceUSD > 0 && (
-                    <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>/mo</span>
+                    <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>
+                      /{billingCycle === 'annual' ? 'yr' : 'mo'}
+                    </span>
                   )}
                 </div>
 
@@ -323,25 +366,34 @@ export default function SubscriptionPricing() {
                 {/* CTA */}
                 <Button
                   onClick={() => handleSubscribe(plan)}
-                  disabled={plan.id === 'free' || loading === plan.id || current}
+                  disabled={plan.comingSoon || plan.id === 'free' || loading === plan.id || current}
                   className="w-full font-bold flex items-center justify-center gap-1.5"
                   style={{
-                    background: current
+                    background: plan.comingSoon
+                      ? '#f1f5f9'
+                      : current
                       ? (isHighlight ? 'rgba(255,255,255,0.15)' : '#f1f5f9')
                       : plan.id === 'free' ? '#f1f5f9'
                       : isHighlight ? B.orange
                       : plan.color,
-                    color: current
+                    color: plan.comingSoon
+                      ? '#94a3b8'
+                      : current
                       ? (isHighlight ? 'rgba(255,255,255,0.5)' : '#94a3b8')
                       : plan.id === 'free' ? '#94a3b8'
                       : '#fff',
                     border: 'none',
                   }}
                 >
-                  {loading === plan.id ? 'Redirecting...' : current ? '✓ Current Plan' : (
+                  {plan.comingSoon ? (
+                    <><Lock className="w-3.5 h-3.5" /> Coming Soon</>
+                  ) : loading === plan.id ? 'Redirecting...' : current ? '✓ Current Plan' : (
                     <>{plan.cta} <ArrowRight className="w-3.5 h-3.5" /></>
                   )}
                 </Button>
+                {plan.comingSoon && (
+                  <p className="text-center text-xs text-slate-400 mt-2">This plan is under construction</p>
+                )}
               </motion.div>
             );
           })}

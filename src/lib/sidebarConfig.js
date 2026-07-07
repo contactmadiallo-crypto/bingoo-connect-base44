@@ -14,13 +14,13 @@
  *   - LAWFIRM never sees services / hours / attendance
  *   - CORPORATE never sees services / hours / practice_areas / legal_services / offices
  *   - FREE_INDIVIDUAL never sees any business/pro tools
- *   - PRO_INDIVIDUAL sees analytics / nfc_devices / lost_mode / resume / portfolio but NO business verticals
+ *   - PRO_INDIVIDUAL sees analytics / nfc_devices / lost_mode / portfolio but NO business verticals
  */
 
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
   Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
-  ClipboardList, Link2, CreditCard, HeadphonesIcon, FileText, Home,
+  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home,
 } from "lucide-react";
 import { t } from "@/lib/i18n";
 
@@ -242,11 +242,6 @@ export const SIDEBAR_NAV_MAP = {
     id: "attendance", label: "Attendance", labelFr: "Présence",
     icon: ClipboardList, href: "/bingoo?view=attendance",
     iconColor: "#15803d", iconBg: "rgba(21,128,61,0.18)",
-  },
-  resume: {
-    id: "resume", label: "Resume", labelFr: "CV",
-    icon: FileText, href: "/bingoo?view=resume",
-    iconColor: "#0284c7", iconBg: "rgba(2,132,199,0.18)",
   },
   connections: {
     id: "connections", label: "Connections", labelFr: "Connexions",
