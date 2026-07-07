@@ -46,7 +46,6 @@ const PROFESSIONAL_FEATURES = new Set([
   'portfolio',
   'custom_branding',      // canonical key (replaces custom_colors / custom_design)
   'qr_download',
-  'digital_resume',
   'instagram_integration',
   'business_hours',
   'calendar',
@@ -225,7 +224,7 @@ export const PLAN_STRIPE_PRODUCTS = {
 
 export const PLAN_FEATURES = {
   free:         ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass', 'Business Hours', 'Digital Resume'],
+  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass', 'Business Hours'],
   business:     ['Everything in Professional', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
@@ -509,3 +508,8 @@ export const PLAN_HIERARCHY = {
   lawfirm:      3,
   corporate:    4,
 };
+
+// ── Purchasable vs Coming Soon Plans ──────────────────────────────────────────
+// Only these plans can be purchased right now. Others are under construction.
+export const PURCHASABLE_PLANS = ['professional', 'salon', 'lawfirm'];
+export const COMING_SOON_PLANS = ['business', 'restaurant', 'corporate'];

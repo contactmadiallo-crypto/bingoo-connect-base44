@@ -8,7 +8,27 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
  * - Industry plans inherit Professional but NOT each other
  * - Canonical feature keys are used (aliases listed in comments)
  * - Unknown plan → resolves to FREE (closed default)
+ * - digital_resume removed from all plans (Resume module deprecated)
  */
+
+// ── Test Account Overrides ──────────────────────────────────────────────────
+// MUST stay in sync with src/lib/testAccounts.js
+// Protected test accounts never get downgraded, regardless of Stripe status.
+// The admin_switcher account reads its plan from the Subscription entity so the
+// admin can switch plans for testing without Stripe payment.
+const TEST_ACCOUNT_OVERRIDES = {
+  'contact.madiallo@gmail.com':              { plan: null,           role: 'admin_switcher', protected: true },
+  'mdiallo9225@gmail.com':                   { plan: 'lawfirm',      protected: true },
+  'msfall0510@gmail.com':                    { plan: 'salon',        protected: true },
+  'skilibeng110@gmail.com':                  { plan: 'professional', protected: true },
+  '9ztjvf42zs@privaterelay.appleid.com':     { plan: 'professional', protected: true },
+  'kvartz.alexander@googlemail.com':         { plan: 'professional', protected: true },
+};
+
+function getTestOverride(email) {
+  if (!email) return null;
+  return TEST_ACCOUNT_OVERRIDES[email.toLowerCase()] || null;
+}
 
 const FREE = [
   'profile', 'public_profile', 'qr_code', 'contact_sharing', 'social_links', 'whatsapp_button',
@@ -18,16 +38,16 @@ const PROFESSIONAL = [
   ...FREE,
   'nfc_devices', 'lost_mode',
   'lead_collection', 'analytics', 'appointment_booking', 'save_contact',
-  'portfolio', 'custom_branding', 'qr_download', 'digital_resume',
+  'portfolio', 'custom_branding', 'qr_download',
   'instagram_integration', 'business_hours', 'calendar',
   'google_wallet_pass', 'apple_wallet_pass',
 ];
 
 const BUSINESS = [
   ...PROFESSIONAL,
-  'services',           // canonical (was service_menu / menu_services)
+  'services',
   'nfc_counter_stand',
-  'google_reviews',     // canonical (was google_review_link)
+  'google_reviews',
   'whatsapp_booking',
   'team_members',
   'advanced_analytics',
@@ -39,7 +59,7 @@ const SALON = [
   'salon_profile',
   'staff_profiles',
   'services',
-  'instagram_gallery',  // canonical (was instagram_showcase)
+  'instagram_gallery',
   'google_reviews',
   'whatsapp_booking',
   'nfc_counter_stand',
@@ -52,12 +72,12 @@ const RESTAURANT = [
   ...PROFESSIONAL,
   'restaurant_profile',
   'digital_menu',
-  'delivery_links',     // canonical (was delivery_link)
-  'food_ordering',      // canonical (was food_order_link)
+  'delivery_links',
+  'food_ordering',
   'google_reviews',
   'reservations',
   'whatsapp_ordering',
-  'whatsapp_booking',   // kept for backward compat
+  'whatsapp_booking',
   'nfc_table_stand',
   'nfc_counter_stand',
   'team_members',
@@ -74,7 +94,7 @@ const LAWFIRM = [
   'legal_services',
   'office_locations',
   'team_members',
-  'lead_intake_forms',  // canonical (was consultation_form / client_intake)
+  'lead_intake_forms',
   'crm_pipeline',
   'case_dashboard',
   'admin_roles',
@@ -96,7 +116,7 @@ const CORPORATE = [
 const PLAN_FEATURES = {
   free:         FREE,
   professional: PROFESSIONAL,
-  pro:          PROFESSIONAL,   // legacy alias
+  pro:          PROFESSIONAL,
   business:     BUSINESS,
   salon:        SALON,
   restaurant:   RESTAURANT,
@@ -104,9 +124,6 @@ const PLAN_FEATURES = {
   corporate:    CORPORATE,
 };
 
-// Hierarchy used to pick the higher entitlement between a subscription-derived plan
-// and a profile-level plan (admin override / legacy grant). MUST stay in sync with
-// PLAN_HIERARCHY in lib/planPermissions.js.
 const PLAN_HIERARCHY = {
   free:         0,
   professional: 1,
@@ -122,16 +139,13 @@ function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
   if (PLAN_FEATURES[plan]) return plan;
-  return 'free'; // unknown plan → free (secure default)
+  return 'free';
 }
 
 function planScore(plan) {
   return PLAN_HIERARCHY[normalizePlan(plan)] ?? 0;
 }
 
-// Industry/business-tier plans fall back to Professional (not Free) when payment fails
-// or a trial ends unpaid — they're built on top of Professional, so losing the paid
-// upgrade should not strip the base Professional tier. Professional itself falls back to Free.
 const INDUSTRY_PLANS = ['salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
 function downgradedPlan(plan) {
   return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
@@ -146,7 +160,24 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch subscription — it is the billing authority
+    // ── 1. Check test account overrides first ──────────────────────────────
+    const override = getTestOverride(user.email);
+
+    // Protected accounts with a hardcoded plan always get that plan,
+    // regardless of Subscription entity or Stripe status.
+    if (override && override.protected && override.plan) {
+      const planName = normalizePlan(override.plan);
+      const features = PLAN_FEATURES[planName] || FREE;
+      return Response.json({
+        user_id: user.id,
+        plan: planName,
+        features,
+        subscription_plan: planName,
+        is_test_account: true,
+      });
+    }
+
+    // ── 2. Fetch subscription ──────────────────────────────────────────────
     const subscriptions = await base44.entities.Subscription.filter({
       customer_email: user.email,
     });
@@ -159,19 +190,35 @@ Deno.serve(async (req) => {
         subPlan = normalizePlan(subscription.plan);
       } else if (subscription.status === 'past_due') {
         // Grace period — keep current plan access
+        // Protected test accounts always keep their plan regardless
         subPlan = normalizePlan(subscription.plan);
       } else {
-        // 'canceled' or any other terminal status: apply the tiered downgrade policy —
-        // Business/Salon/Restaurant/Law Firm/Corporate → Professional, Professional → Free.
-        subPlan = downgradedPlan(normalizePlan(subscription.plan));
+        // 'canceled' or terminal status: apply tiered downgrade policy
+        // BUT protected test accounts never downgrade
+        if (override?.protected) {
+          subPlan = normalizePlan(subscription.plan);
+        } else {
+          subPlan = downgradedPlan(normalizePlan(subscription.plan));
+        }
+      }
+    } else {
+      // No subscription record.
+      // Existing users who already have profiles → Professional (temporary,
+      // so current testing is not blocked).
+      // New users with no profiles → Free (normal subscription rules).
+      // Test accounts use their override above, so they skip this block.
+      if (!override) {
+        try {
+          const profiles = await base44.entities.Profile.filter({ created_by_id: user.id });
+          if (profiles.length > 0) {
+            subPlan = 'professional';
+          }
+        } catch (e) {
+          // If profile query fails, default to free
+        }
       }
     }
 
-    // The Subscription entity is the SOLE source of truth for entitlement.
-    // Profile.plan is owner-writable via the client SDK and must NEVER be used to
-    // compute entitlement — otherwise a user can unlock paid features by editing their
-    // own profile in the browser console. Admin overrides are stored on the Subscription
-    // entity (plan_source='admin_override'), not on Profile.plan.
     const planName = subPlan;
     const features = PLAN_FEATURES[planName] || FREE;
 
@@ -180,6 +227,7 @@ Deno.serve(async (req) => {
       plan: planName,
       features,
       subscription_plan: subPlan,
+      is_test_account: !!override,
     });
   } catch (error) {
     console.error('getUserFeatures error:', error);

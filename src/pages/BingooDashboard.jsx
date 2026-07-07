@@ -6,7 +6,6 @@ import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
-import ResumePanel from "@/components/bingoo/ResumePanel";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
@@ -52,7 +51,6 @@ const VIEW_LEGAL_SVC    = "legalservices";
 const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
-const VIEW_RESUME       = "resume";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -72,7 +70,6 @@ const TAB_TO_VIEW = {
   offices: VIEW_OFFICES,
   team: VIEW_TEAM,
   attendance: VIEW_ATTENDANCE,
-  resume: VIEW_RESUME,
   workspace: VIEW_WORKSPACE,
   hub: VIEW_HUB,
 };
@@ -823,17 +820,6 @@ export default function BingooDashboard() {
           {/* ════════════════════════════════════
               RESUME — Pro individual / Pro plans
           ════════════════════════════════════ */}
-          {view === VIEW_RESUME && (
-            <div>
-              <ProfileChip />
-              {!planLoading && !canAccessFeature("digital_resume") ? (
-                <PlanGateScreen feature="digital_resume" isDark={isDark} />
-              ) : (
-                <ResumePanel user={user} profileId={activeProfile?.id} />
-              )}
-            </div>
-          )}
-
         </div>
       </div>
 

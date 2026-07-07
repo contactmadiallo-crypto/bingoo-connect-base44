@@ -10,6 +10,23 @@ const PRODUCT_TO_PLAN = {
   'prod_UdL2NqVtcHwKb2': 'business',
 };
 
+// ── Test Account Overrides ──────────────────────────────────────────────────
+// MUST stay in sync with src/lib/testAccounts.js and getUserFeatures/entry.ts
+// Protected test accounts never get downgraded by Stripe events.
+const TEST_ACCOUNT_OVERRIDES = {
+  'contact.madiallo@gmail.com':              { protected: true },
+  'mdiallo9225@gmail.com':                   { protected: true },
+  'msfall0510@gmail.com':                    { protected: true },
+  'skilibeng110@gmail.com':                  { protected: true },
+  '9ztjvf42zs@privaterelay.appleid.com':     { protected: true },
+  'kvartz.alexander@googlemail.com':         { protected: true },
+};
+
+function isProtectedTestAccount(email) {
+  if (!email) return false;
+  return !!TEST_ACCOUNT_OVERRIDES[email.toLowerCase()]?.protected;
+}
+
 // Industry/business-tier plans fall back to Professional (not Free) when payment fails
 // or a trial ends unpaid — they're built on top of Professional. Professional itself
 // falls back to Free. Mirrors the same policy in getUserFeatures.
@@ -313,22 +330,27 @@ Deno.serve(async (req) => {
           }
         } else if (newStatus === 'canceled' || newStatus === 'unpaid' || newStatus === 'incomplete_expired') {
           // Payment failed permanently or trial ended unpaid — apply tiered downgrade policy.
-          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(resolvedPlan) });
+          // BUT protected test accounts never get downgraded.
+          if (isProtectedTestAccount(prev.customer_email)) {
+            console.log('Skipping downgrade for protected test account:', prev.customer_email);
+          } else {
+            await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(resolvedPlan) });
 
-          await logSubscriptionActivity(base44, {
-            customer_email: prev.customer_email, customer_name: prev.customer_name,
-            plan: resolvedPlan, action: 'canceled', old_plan: prev.plan, old_status: prev.status, status: newStatus,
-            stripe_subscription_id: sub.id,
-            details: `Subscription ended (${newStatus})`,
-          });
+            await logSubscriptionActivity(base44, {
+              customer_email: prev.customer_email, customer_name: prev.customer_name,
+              plan: resolvedPlan, action: 'canceled', old_plan: prev.plan, old_status: prev.status, status: newStatus,
+              stripe_subscription_id: sub.id,
+              details: `Subscription ended (${newStatus})`,
+            });
 
-          await notifyUser(base44, {
-            userId: await findUserIdByEmail(base44, prev.customer_email),
-            eventType: 'subscription_canceled',
-            title: 'Subscription ended',
-            message: 'Your premium features have been adjusted.',
-            actionUrl: billingUrl, relatedId: sub.id,
-          });
+            await notifyUser(base44, {
+              userId: await findUserIdByEmail(base44, prev.customer_email),
+              eventType: 'subscription_canceled',
+              title: 'Subscription ended',
+              message: 'Your premium features have been adjusted.',
+              actionUrl: billingUrl, relatedId: sub.id,
+            });
+          }
         }
         // past_due / incomplete: keep current plan (grace period) — no profile change
       }
@@ -348,23 +370,28 @@ Deno.serve(async (req) => {
         });
         const billingUrl = `${appOrigin}/billing?subscriptionId=${sub.id}`;
         // Subscription fully deleted — apply tiered downgrade policy based on what plan they had.
-        await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(prev.plan) });
-        console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(prev.plan));
+        // BUT protected test accounts never get downgraded.
+        if (isProtectedTestAccount(prev.customer_email)) {
+          console.log('Skipping deletion downgrade for protected test account:', prev.customer_email);
+        } else {
+          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(prev.plan) });
+          console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(prev.plan));
 
-        await logSubscriptionActivity(base44, {
-          customer_email: prev.customer_email, customer_name: prev.customer_name,
-          plan: prev.plan, action: 'canceled', old_status: prev.status, status: 'canceled',
-          stripe_subscription_id: sub.id,
-          details: 'Subscription deleted',
-        });
+          await logSubscriptionActivity(base44, {
+            customer_email: prev.customer_email, customer_name: prev.customer_name,
+            plan: prev.plan, action: 'canceled', old_status: prev.status, status: 'canceled',
+            stripe_subscription_id: sub.id,
+            details: 'Subscription deleted',
+          });
 
-        await notifyUser(base44, {
-          userId: await findUserIdByEmail(base44, prev.customer_email),
-          eventType: 'subscription_canceled',
-          title: 'Subscription canceled',
-          message: 'Your plan has been canceled.',
-          actionUrl: billingUrl, relatedId: sub.id,
-        });
+          await notifyUser(base44, {
+            userId: await findUserIdByEmail(base44, prev.customer_email),
+            eventType: 'subscription_canceled',
+            title: 'Subscription canceled',
+            message: 'Your plan has been canceled.',
+            actionUrl: billingUrl, relatedId: sub.id,
+          });
+        }
       }
     }
 
