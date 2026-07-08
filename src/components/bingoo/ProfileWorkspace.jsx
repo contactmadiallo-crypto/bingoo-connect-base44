@@ -23,7 +23,6 @@ import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
-import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import BusinessToolsPanel from "@/components/bingoo/BusinessToolsPanel";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
