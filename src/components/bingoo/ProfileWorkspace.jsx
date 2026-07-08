@@ -24,6 +24,7 @@ import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
+import BusinessToolsPanel from "@/components/bingoo/BusinessToolsPanel";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
@@ -1214,7 +1215,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <PortfolioPanel profileId={profileId} user={user} />
             )}
             {innerTab === "business" && (
-              <BusinessHoursTab profileId={profileId} isDark={isDark} onSaved={() => {}} />
+              <BusinessToolsPanel profileId={profileId} isDark={isDark} userPlan={userPlan} profile={profile} onSaved={() => {}} />
             )}
             {innerTab === "share" && (
               <SharePanel
