@@ -25,15 +25,22 @@ export function InfinityMark({ size = 24, color = ORANGE, strokeWidth = 2.5, fil
 
 // ── Full Bingoo Wordmark ──
 // "Bing" + infinity mark replacing "oo"
-export function BingooWordmark({ size = 'text-xl', textColor = NAVY, infinityColor = ORANGE, fontWeight = 'black', light = false }) {
+export function BingooWordmark({ size = 'text-xl', textColor = NAVY, infinityColor = ORANGE, fontWeight = 'black', light = false, showConnect = false }) {
   const sizeMap = { 'text-sm': 14, 'text-base': 16, 'text-lg': 18, 'text-xl': 20, 'text-2xl': 24, 'text-3xl': 30, 'text-4xl': 36 };
   const px = sizeMap[size] || 20;
-  return (
+  const wordmark = (
     <div className="flex items-baseline gap-0">
       <span className={`font-${fontWeight} ${size} tracking-tight`} style={{ color: light ? '#FFFFFF' : textColor }}>Bing</span>
       <div className="flex items-center" style={{ marginLeft: -1, marginBottom: px * 0.12 }}>
         <InfinityMark size={px * 1.1} color={light ? '#FFFFFF' : infinityColor} strokeWidth={2.5} glow={!light} />
       </div>
+    </div>
+  );
+  if (!showConnect) return wordmark;
+  return (
+    <div className="flex flex-col items-center">
+      {wordmark}
+      <span className="font-bold tracking-[0.3em] uppercase" style={{ color: light ? 'rgba(255,255,255,0.5)' : `${textColor}99`, fontSize: Math.max(px * 0.28, 8), marginTop: 1 }}>Connect</span>
     </div>
   );
 }

@@ -19,6 +19,9 @@ const PRODUCTS = [
   { name: 'NFC Event Badge', price: '$14.99', type: 'badge', desc: 'Conference badge', color: '#fbbf24' },
   { name: 'Business Starter Kit', price: '$99.99', type: 'bundle', desc: '5 cards + 5 keychains + stand', color: NAVY, bundle: true },
   { name: 'Event Bundle (10x)', price: '$149.99', type: 'bundle', desc: '10 badges + QR display', color: ORANGE, bundle: true },
+  { name: 'NFC Phone Tag', price: '$9.99', type: 'tag', desc: 'Stick on phone case', color: '#3b82f6' },
+  { name: 'NFC Table Stand', price: '$34.99', type: 'stand', desc: 'Restaurant table display', color: '#22C55E' },
+  { name: 'NFC Desk Stand', price: '$39.99', type: 'stand', desc: 'Premium office display', color: '#8b5cf6' },
 ];
 
 function ProductCard({ p }) {

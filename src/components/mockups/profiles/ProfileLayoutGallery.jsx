@@ -273,10 +273,10 @@ function DesktopProfilePreview() {
           </div>
           {/* Profile Card */}
           <div className="bg-white rounded-3xl overflow-hidden shadow-2xl">
-            <div className="h-28" style={{ background: `linear-gradient(135deg, ${NAVY}, #13284f)` }}>
+            <div className="h-32" style={{ background: `linear-gradient(135deg, ${NAVY}, #13284f)` }}>
               <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-20" style={{ background: ORANGE, filter: 'blur(50px)' }} />
             </div>
-            <div className="px-8 pb-8 -mt-12 relative">
+            <div className="px-8 pt-5 pb-8 -mt-8 relative">
               <div className="flex items-end gap-4 mb-4">
                 <div className="w-20 h-20 rounded-3xl border-4 border-white shadow-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
                   <span className="font-black text-xl" style={{ color: ORANGE }}>DL</span>

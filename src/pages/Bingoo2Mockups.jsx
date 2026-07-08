@@ -48,6 +48,9 @@ import BrandShowcase from '@/components/mockups/brand/BrandShowcase';
 import MockupStrategicConcepts from '@/components/mockups/strategic/MockupStrategicConcepts';
 import MockupLandingImproved from '@/components/mockups/MockupLandingImproved';
 import MockupTranslationUX from '@/components/mockups/i18n/MockupTranslationUX';
+import AssetProtectionShowcase from '@/components/mockups/strategic/AssetProtectionShowcase';
+import StrategicVision from '@/components/mockups/strategic/StrategicVision';
+import PlanJourneys from '@/components/mockups/strategic/PlanJourneys';
 
 const NAVY = '#0b2149', ORANGE = '#f97316';
 
@@ -63,6 +66,9 @@ const SECTIONS = [
   { id: 'strategic', label: 'Strategic Vision', icon: 'zap' },
   { id: 'homepage', label: 'Homepage', icon: 'home' },
   { id: 'i18n', label: 'Translation', icon: 'globe' },
+  { id: 'protection', label: 'Asset Protection', icon: 'shield' },
+  { id: 'vision', label: 'Strategic Vision', icon: 'zap' },
+  { id: 'plans', label: 'Plan Journeys', icon: 'briefcase' },
 ];
 
 // Original numbered screens
@@ -118,6 +124,9 @@ const CONCEPT_SECTIONS = [
   { id: 'shop-catalog', label: 'NFC Shop Catalog — Branded Products', subtitle: '10 products with 3D renders, color options, full detail pages', component: <MockupShopCatalog /> },
   { id: 'strategic', label: 'Strategic Product Direction', subtitle: 'AI builder, quality score, verified badges, ROI, event mode, concierge', component: <MockupStrategicConcepts /> },
   { id: 'homepage', label: 'Improved Homepage', subtitle: 'Full product story: what, how, model, mission, services, plans, privacy', component: <MockupLandingImproved /> },
+  { id: 'asset-protection', label: 'Asset Protection — Pets & Travel', subtitle: 'Pet NFC collar tags, travel QR luggage tags, finder flow', component: <AssetProtectionShowcase /> },
+  { id: 'strategic-vision', label: 'Strategic Vision — Global Ecosystem', subtitle: 'Worldwide marketplace, 7 pillars, roadmap, future direction', component: <StrategicVision /> },
+  { id: 'plan-journeys', label: 'Plan Journeys — All Subscription Paths', subtitle: 'Free, Pro $4.99, Salon, Law Firm, Business, Admin', component: <PlanJourneys /> },
   { id: 'i18n', label: 'French Translation Coverage', subtitle: 'Bilingual EN/FR screens, coverage matrix, translation audit', component: <MockupTranslationUX /> },
 ];
 
@@ -138,6 +147,9 @@ export default function Bingoo2Mockups() {
     strategic: ['strategic'],
     homepage: ['homepage'],
     i18n: ['i18n'],
+    protection: ['asset-protection'],
+    vision: ['strategic-vision'],
+    plans: ['plan-journeys'],
   };
 
   const visibleConcepts = activeSection === 'all'
@@ -153,7 +165,7 @@ export default function Bingoo2Mockups() {
         <div className="relative z-10 max-w-3xl mx-auto">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BingooAppIcon size={56} glow={true} imageUrl="https://media.base44.com/images/public/692bd9007b93ba81de543346/8792d3cda_generated_image.png" />
-            <BingooWordmark size="text-4xl" textColor="#FFFFFF" infinityColor={ORANGE} light />
+            <BingooWordmark size="text-4xl" textColor="#FFFFFF" infinityColor={ORANGE} light showConnect />
           </div>
           <p className="text-white/60 text-sm mb-2">The Operating System for Professional Identity</p>
           <div className="inline-flex items-center gap-3 px-5 py-2.5 bg-white/10 rounded-xl border border-white/20 backdrop-blur-sm mb-6">
@@ -226,12 +238,9 @@ export default function Bingoo2Mockups() {
 
       {/* Footer */}
       <div className="py-12 text-center" style={{ background: 'linear-gradient(160deg, #0b2149, #071A3D)' }}>
-        <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="flex flex-col items-center gap-2 mb-4">
           <BingooAppIcon size={40} glow={true} imageUrl="https://media.base44.com/images/public/692bd9007b93ba81de543346/8792d3cda_generated_image.png" />
-          <div>
-            <span className="font-black text-base text-white">Bing</span>
-            <InfinityMark size={16} color={ORANGE} strokeWidth={2.5} className="inline-block ml-0.5" />
-          </div>
+          <BingooWordmark size="text-base" light showConnect />
         </div>
         <p className="text-white/50 text-xs mb-2">Bingoo 2.0 — {SCREENS.length} Screens + {CONCEPT_SECTIONS.length} Concept Sections</p>
         <p className="text-white/30 text-[10px] mb-6 max-w-md mx-auto">These are visual design previews only. No database, Stripe, auth, route, or logic changes have been made.</p>

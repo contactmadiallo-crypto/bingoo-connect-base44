@@ -169,7 +169,7 @@ export default function MockupLandingImproved() {
       <Section title="Subscription Plans" subtitle="Choose the plan that fits your professional needs">
         <div className="grid grid-cols-4 gap-3 max-w-3xl mx-auto">
           {[
-            { name: 'Professional', price: '$9.99', features: ['Unlimited profiles', 'NFC + QR + Wallet', 'Analytics + CRM'], color: ORANGE, popular: true },
+            { name: 'Professional', price: '$4.99', features: ['Unlimited profiles', 'NFC + QR + Wallet', 'Analytics + CRM'], color: ORANGE, popular: true },
             { name: 'Business', price: '$14.99', features: ['Everything in Pro', 'Team management', 'Design Studio'], color: '#22C55E' },
             { name: 'Salon', price: '$19.99', features: ['Service menu', 'Loyalty program', 'Portfolio gallery'], color: '#ec4899' },
             { name: 'Law Firm', price: '$49.00', features: ['Legal intake forms', 'Practice areas', 'Team + offices'], color: NAVY },

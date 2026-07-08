@@ -8,7 +8,7 @@ const NAVY = '#0b2149', ORANGE = '#f97316', BG = '#F7F9FC', MUTED = '#64748B', I
 // Plan-specific tool sets — exactly matches subscription plan features
 const PLAN_TOOLS = {
   professional: {
-    name: 'Professional', price: '$9.99/mo', color: ORANGE,
+    name: 'Professional', price: '$4.99/mo', color: ORANGE,
     tools: [
       { icon: 'users', label: 'Profiles', desc: 'Unlimited', locked: false },
       { icon: 'nfc', label: 'NFC Devices', desc: '5 devices', locked: false },

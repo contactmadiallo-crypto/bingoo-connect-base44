@@ -13,7 +13,7 @@ function OAuthLoginMockup() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <BingooAppIcon size={72} glow={true} />
-          <div className="mt-4"><BingooWordmark size="text-2xl" light textColor="#FFFFFF" infinityColor={ORANGE} /></div>
+          <div className="mt-4"><BingooWordmark size="text-2xl" light textColor="#FFFFFF" infinityColor={ORANGE} showConnect /></div>
           <p className="text-white/40 text-[10px] mt-1.5 font-medium">The Operating System for Professional Identity</p>
         </div>
         {/* Login Card */}
@@ -47,7 +47,7 @@ function LoadingScreenMockup() {
         <div className="absolute top-10 right-10 w-32 h-32 rounded-full opacity-20" style={{ background: ORANGE, filter: 'blur(60px)' }} />
         <div className="relative z-10 text-center">
           <BingooAppIcon size={80} glow={true} />
-          <div className="mt-5"><BingooWordmark size="text-2xl" light textColor="#FFFFFF" infinityColor={ORANGE} /></div>
+          <div className="mt-5"><BingooWordmark size="text-2xl" light textColor="#FFFFFF" infinityColor={ORANGE} showConnect /></div>
           <div className="mt-6 flex justify-center"><LoadingDots color={ORANGE} size={10} /></div>
           <p className="text-white/40 text-[10px] mt-4 font-medium">Loading your digital identity...</p>
         </div>
@@ -147,9 +147,9 @@ export default function BrandShowcase() {
           <InfinityMark size={16} color={ORANGE} />
           <span className="text-xs font-black tracking-wider" style={{ color: ORANGE }}>OFFICIAL BRAND IDENTITY</span>
         </div>
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <BingooAppIcon size={56} glow={true} />
-          <BingooWordmark size="text-4xl" textColor={NAVY} infinityColor={ORANGE} />
+        <div className="flex flex-col items-center gap-3 mb-3">
+          <BingooAppIcon size={56} glow={true} imageUrl="https://media.base44.com/images/public/692bd9007b93ba81de543346/8792d3cda_generated_image.png" />
+          <BingooWordmark size="text-4xl" textColor={NAVY} infinityColor={ORANGE} showConnect />
         </div>
         <p className="text-[#64748B] text-sm max-w-lg mx-auto">The "oo" in Bingoo forms an infinity symbol — representing endless connections, limitless professional identity, and the permanent link between you and your network.</p>
       </div>
