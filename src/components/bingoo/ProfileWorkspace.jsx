@@ -37,6 +37,11 @@ import {
   ThreadsIcon as BIThreads, VenmoIcon as BIVenmo, SpotifyIcon as BISpotify,
   ShopIcon as BIShop, PortfolioIcon as BIPortfolio, CalendarIcon as BICalendar,
 } from "@/components/bingoo/BrandIcons";
+import { usePlan } from "@/hooks/usePlan";
+import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
+import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
+import { toast } from "sonner";
+import { t, getLang } from "@/lib/i18n";
 
 // Resolve a brand icon from a custom_link by _catalog_id or URL domain
 function getLinkIcon(link, size = 14) {
@@ -100,11 +105,6 @@ function getLinkIcon(link, size = 14) {
 
   return <Icon size={size} />;
 }
-import { usePlan } from "@/hooks/usePlan";
-import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
-import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
-import { toast } from "sonner";
-import { t, getLang } from "@/lib/i18n";
 
 // Only these fields are sent to the backend — no system fields (id, created_date, etc.)
 const EDITABLE_FIELDS = [
