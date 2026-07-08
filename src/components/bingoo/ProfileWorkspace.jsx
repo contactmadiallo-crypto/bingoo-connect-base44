@@ -5,7 +5,8 @@ import {
   ChevronLeft, Eye, QrCode, Copy, Check, Download, Info, Link2,
   Palette, Share2, Settings, ExternalLink, Plus, Trash2, GripVertical,
   Save, Shield, AlertTriangle, Globe, Mail, Phone, Instagram, Linkedin,
-  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star, X
+  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star, X,
+  Image as ImageIcon, Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,8 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
+import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
@@ -236,7 +239,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           </div>
           {/* Cover position controls */}
           {liveForm.cover_photo && (
-            <div className="absolute bottom-2 left-2 flex gap-1" onClick={e => e.stopPropagation()}>
+            <div className="absolute bottom-2 right-2 flex gap-1" onClick={e => e.stopPropagation()}>
               {[["center","●"],["top","↑"],["bottom","↓"],["left center","←"],["right center","→"]].map(([pos, icon]) => (
                 <button key={pos} type="button" onClick={() => setVal("cover_position", pos)}
                   title={pos}
@@ -941,8 +944,10 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
   const INNER_TABS = [
     { id: "info",      label: t("info", lang),      icon: Info },
-    { id: "links",     label: t("links", lang),     icon: Link2 },
     { id: "design",    label: t("design", lang),    icon: Palette },
+    { id: "links",     label: t("links", lang),     icon: Link2 },
+    { id: "media",     label: "Media",              icon: ImageIcon },
+    { id: "business",  label: "Business",           icon: Briefcase },
     { id: "share",     label: t("share", lang),     icon: Share2 },
     { id: "lostmode",  label: t("lost_mode", lang), icon: AlertOctagon },
     { id: "settings",  label: t("settings", lang),  icon: Settings },
@@ -1204,6 +1209,12 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} lang={lang}
                 onLayoutChange={() => handleSave("design")}
               />
+            )}
+            {innerTab === "media" && (
+              <PortfolioPanel profileId={profileId} user={user} />
+            )}
+            {innerTab === "business" && (
+              <BusinessHoursTab profileId={profileId} isDark={isDark} onSaved={() => {}} />
             )}
             {innerTab === "share" && (
               <SharePanel
