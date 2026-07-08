@@ -103,7 +103,7 @@ export function MockupAccountSetup() {
         <p className="text-[10px] text-[#64748B] mb-5">Step 1 of 4 — Account credentials</p>
         <div className="space-y-3 mb-5">
           <FormField label="Full Name" value="Mamadou Diallo" icon="users" />
-          <FormField label="Email" value="mamadou@bingoo.co" icon="mail" />
+          <FormField label="Email" value="mamadou@bingooconnect.com" icon="mail" />
           <FormField label="Password" value="••••••••••" icon="lock" />
           <FormField label="Confirm Password" value="••••••••••" icon="lock" />
         </div>
@@ -178,7 +178,7 @@ export function MockupCreateProfile() {
             <p className="text-[10px] font-bold text-[#64748B] mb-1.5">Username (URL)</p>
             <div className="flex items-center gap-2 px-3 py-2.5 bg-white rounded-xl border-2 border-[#22C55E]">
               <Icon name="link" size={14} color={MUTED} />
-              <span className="text-[10px] text-[#64748B] font-medium">bingoo.co/</span>
+              <span className="text-[10px] text-[#64748B] font-medium">bingooconnect.com/</span>
               <span className="text-xs font-black text-[#0F172A]">diallo-law</span>
               <div className="ml-auto"><Icon name="checkCircle" size={14} color="#22C55E" /></div>
             </div>
@@ -202,7 +202,7 @@ export function MockupCreateProfile() {
             </div>
             <div className="flex-1">
               <p className="text-[10px] font-black text-[#0F172A]">Diallo Law Firm</p>
-              <p className="text-[8px] text-[#64748B]">bingoo.co/diallo-law</p>
+              <p className="text-[8px] text-[#64748B]">bingooconnect.com/diallo-law</p>
             </div>
           </div>
         </div>

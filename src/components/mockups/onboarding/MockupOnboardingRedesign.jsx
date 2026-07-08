@@ -66,7 +66,7 @@ export default function MockupOnboardingRedesign() {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-[#64748B] mb-1">Email</p>
-                <div className="px-3 py-2.5 bg-white rounded-xl border border-[#E5EAF2] text-[11px] font-medium text-[#0F172A]">mamadou@bingoo.co</div>
+                <div className="px-3 py-2.5 bg-white rounded-xl border border-[#E5EAF2] text-[11px] font-medium text-[#0F172A]">mamadou@bingooconnect.com</div>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-[#64748B] mb-1">Password</p>
@@ -109,7 +109,7 @@ export default function MockupOnboardingRedesign() {
               <div>
                 <p className="text-[10px] font-bold text-[#64748B] mb-1">Profile URL</p>
                 <div className="flex items-center gap-1.5 px-3 py-2.5 bg-white rounded-xl border-2 border-[#22C55E]">
-                  <span className="text-[10px] text-[#64748B]">bingoo.co/</span>
+                  <span className="text-[10px] text-[#64748B]">bingooconnect.com/</span>
                   <span className="text-[11px] font-black text-[#0F172A]">diallo-law</span>
                   <div className="ml-auto"><Icon name="checkCircle" size={14} color="#22C55E" /></div>
                 </div>

@@ -217,7 +217,7 @@ export function MockupOnboardingComplete() {
               </div>
               <div className="flex-1">
                 <p className="font-black text-sm text-[#0F172A]">Diallo Law Firm</p>
-                <p className="text-[10px] text-[#64748B]">bingoo.co/diallo-law</p>
+                <p className="text-[10px] text-[#64748B]">bingooconnect.com/diallo-law</p>
               </div>
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${NAVY}10` }}>
                 <Icon name="copy" size={14} color={NAVY} />

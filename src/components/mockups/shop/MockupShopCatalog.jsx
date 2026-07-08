@@ -6,7 +6,7 @@ import { Icon } from '@/components/mockups/BingooIcons';
 const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316', BG = '#F7F9FC', MUTED = '#64748B', INK = '#0F172A';
 
 const APP_ICON_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/8792d3cda_generated_image.png';
-const NFC_CARD_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/49bd24382_generated_image.png';
+const NFC_CARD_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7b03546a4_generated_image.png';
 
 const PRODUCTS = [
   { name: 'NFC Business Card', price: '$19.99', type: 'card', desc: 'Premium matte card', color: NAVY, img: NFC_CARD_URL },
@@ -115,7 +115,7 @@ export default function MockupShopCatalog() {
               {/* Activation Steps */}
               <div className="bg-white rounded-2xl p-3 border border-[#E5EAF2] mb-3">
                 <p className="text-[9px] font-bold text-[#64748B] mb-2">ACTIVATION STEPS</p>
-                {['1. Receive your card in mail', '2. Enter device code at bingoo.co/activate', '3. Link to your profile', '4. Tap to share — done!'].map((s) => (
+                {['1. Receive your card in mail', '2. Enter device code at bingooconnect.com/activate', '3. Link to your profile', '4. Tap to share — done!'].map((s) => (
                   <p key={s} className="text-[9px] text-[#0F172A] font-medium mb-1">{s}</p>
                 ))}
               </div>

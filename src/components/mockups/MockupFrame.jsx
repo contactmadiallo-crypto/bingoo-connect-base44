@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon } from './BingooIcons';
+import { InfinityMark } from './brand/InfinityMark';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -90,25 +91,40 @@ export function MobileBottomNav({ active = 'Home' }) {
   );
 }
 
-// ── Product Visuals ──────────────────────────────────────────
+// ── Product Visuals — Premium 3D-style with Bingoo Connect branding ──
 
-export function NFCCardVisual({ name = 'Bingoo', role = '', color = NAVY, accent = ORANGE, width = 240 }) {
+const PREMIUM_SHADOW = `0 8px 24px rgba(11,33,73,0.35), 0 2px 8px rgba(11,33,73,0.18), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.2)`;
+const METAL_SHEEN = 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.12) 50%, transparent 70%)';
+const CARD_3D_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7b03546a4_generated_image.png';
+
+export function NFCCardVisual({ name = 'Bingoo Connect', role = '', color = NAVY, accent = ORANGE, width = 240, imageUrl = null }) {
   const h = width * 0.63;
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt="Bingoo Connect NFC Business Card — 3D product render"
+        className="rounded-2xl object-cover"
+        style={{ width, height: h, boxShadow: `0 10px 28px ${NAVY}44, 0 2px 8px ${NAVY}22` }}
+      />
+    );
+  }
   return (
     <div
-      className="rounded-2xl shadow-2xl relative overflow-hidden flex flex-col justify-between p-5"
-      style={{ width, height: h, background: `linear-gradient(135deg, ${color}, ${NAVY_DEEP})` }}
+      className="rounded-2xl relative overflow-hidden flex flex-col justify-between p-5"
+      style={{ width, height: h, background: `linear-gradient(135deg, ${color}, ${NAVY_DEEP})`, boxShadow: PREMIUM_SHADOW }}
     >
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style={{ background: accent, filter: 'blur(40px)' }} />
+      <div className="absolute inset-0 opacity-30" style={{ background: METAL_SHEEN }} />
+      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-15" style={{ background: accent, filter: 'blur(40px)' }} />
       <div className="flex justify-between items-start relative z-10">
         <div>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-2" style={{ background: accent }}>
-            <span className="text-white font-bold text-sm">B</span>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-2 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${accent}, #fb923c)`, boxShadow: `0 2px 8px ${accent}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+            <InfinityMark size={16} color="#FFFFFF" strokeWidth={3} glow={true} />
           </div>
           <p className="text-white font-bold text-sm">{name}</p>
           {role && <p className="text-white/50 text-[10px]">{role}</p>}
         </div>
-        <div className="w-12 h-12 bg-white rounded-lg p-1.5">
+        <div className="w-12 h-12 bg-white/95 rounded-lg p-1.5" style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)' }}>
           <div className="w-full h-full rounded grid grid-cols-5 gap-px p-0.5" style={{ background: NAVY }}>
             {Array.from({ length: 25 }).map((_, i) => (
               <div key={i} className={`rounded-[1px] ${Math.random() > 0.4 ? 'bg-white' : 'bg-transparent'}`} />
@@ -117,8 +133,8 @@ export function NFCCardVisual({ name = 'Bingoo', role = '', color = NAVY, accent
         </div>
       </div>
       <div className="flex items-center justify-between relative z-10">
-        <span className="font-bold text-[10px] tracking-wider" style={{ color: accent }}>BING∞ CONNECT</span>
-        <Icon name="nfc" size={14} color="rgba(255,255,255,0.3)" />
+        <span className="font-bold text-[10px] tracking-wider" style={{ color: accent, textShadow: `0 0 8px ${accent}44` }}>BING∞ CONNECT</span>
+        <Icon name="nfc" size={14} color="rgba(255,255,255,0.4)" />
       </div>
     </div>
   );
@@ -128,12 +144,13 @@ export function NFCKeychainVisual({ width = 100 }) {
   const h = width * 1.4;
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="rounded-2xl shadow-xl relative overflow-hidden p-3 flex flex-col items-center gap-2" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
-        <div className="w-4 h-4 rounded-full border-2 border-white/20" />
-        <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-          <span className="text-white font-bold text-[10px]">B</span>
+      <div className="rounded-2xl relative overflow-hidden p-3 flex flex-col items-center gap-2" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, boxShadow: PREMIUM_SHADOW }}>
+        <div className="absolute inset-0 opacity-25" style={{ background: METAL_SHEEN }} />
+        <div className="w-4 h-4 rounded-full border-2 border-white/20 relative z-10" />
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center relative z-10" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+          <InfinityMark size={12} color="#FFFFFF" strokeWidth={3} />
         </div>
-        <Icon name="nfc" size={20} color="rgba(255,255,255,0.4)" />
+        <Icon name="nfc" size={20} color="rgba(255,255,255,0.4)" className="relative z-10" />
       </div>
     </div>
   );
@@ -141,11 +158,12 @@ export function NFCKeychainVisual({ width = 100 }) {
 
 export function NFCStickerVisual({ width = 90 }) {
   return (
-    <div className="rounded-full shadow-xl flex flex-col items-center justify-center gap-1 relative overflow-hidden" style={{ width, height: width, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-        <span className="text-white font-bold text-xs">B</span>
+    <div className="rounded-full flex flex-col items-center justify-center gap-1 relative overflow-hidden" style={{ width, height: width, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, boxShadow: PREMIUM_SHADOW }}>
+      <div className="absolute inset-0 opacity-25" style={{ background: METAL_SHEEN }} />
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center relative z-10" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+        <InfinityMark size={14} color="#FFFFFF" strokeWidth={3} />
       </div>
-      <Icon name="nfc" size={18} color="rgba(255,255,255,0.4)" />
+      <Icon name="nfc" size={18} color="rgba(255,255,255,0.4)" className="relative z-10" />
     </div>
   );
 }
@@ -153,11 +171,12 @@ export function NFCStickerVisual({ width = 90 }) {
 export function NFCBraceletVisual({ width = 120 }) {
   const h = width * 0.45;
   return (
-    <div className="rounded-full shadow-xl flex items-center justify-center gap-2 px-4" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
-      <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-        <span className="text-white font-bold text-[8px]">B</span>
+    <div className="rounded-full flex items-center justify-center gap-2 px-4 relative overflow-hidden" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, boxShadow: PREMIUM_SHADOW }}>
+      <div className="absolute inset-0 opacity-25" style={{ background: METAL_SHEEN }} />
+      <div className="w-6 h-6 rounded-lg flex items-center justify-center relative z-10" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+        <InfinityMark size={10} color="#FFFFFF" strokeWidth={3.5} />
       </div>
-      <Icon name="nfc" size={14} color="rgba(255,255,255,0.4)" />
+      <Icon name="nfc" size={14} color="rgba(255,255,255,0.4)" className="relative z-10" />
     </div>
   );
 }
@@ -165,11 +184,12 @@ export function NFCBraceletVisual({ width = 120 }) {
 export function NFCStandVisual({ width = 100 }) {
   const h = width * 0.7;
   return (
-    <div className="shadow-xl relative overflow-hidden rounded-lg flex flex-col items-center justify-center gap-1" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0% 100%)' }}>
-      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-        <span className="text-white font-bold text-[10px]">B</span>
+    <div className="relative overflow-hidden rounded-lg flex flex-col items-center justify-center gap-1" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0% 100%)', filter: `drop-shadow(0 6px 14px ${NAVY}44)` }}>
+      <div className="absolute inset-0 opacity-25" style={{ background: METAL_SHEEN }} />
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center relative z-10" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+        <InfinityMark size={12} color="#FFFFFF" strokeWidth={3} />
       </div>
-      <Icon name="nfc" size={16} color="rgba(255,255,255,0.4)" />
+      <Icon name="nfc" size={16} color="rgba(255,255,255,0.4)" className="relative z-10" />
     </div>
   );
 }
@@ -177,12 +197,13 @@ export function NFCStandVisual({ width = 100 }) {
 export function NFCBadgeVisual({ width = 90 }) {
   const h = width * 1.3;
   return (
-    <div className="rounded-xl shadow-xl relative overflow-hidden flex flex-col items-center justify-center gap-2 p-2" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
-      <div className="w-1 h-3 bg-white/20 rounded" />
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-        <span className="text-white font-bold text-[10px]">B</span>
+    <div className="rounded-xl relative overflow-hidden flex flex-col items-center justify-center gap-2 p-2" style={{ width, height: h, background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, boxShadow: PREMIUM_SHADOW }}>
+      <div className="absolute inset-0 opacity-25" style={{ background: METAL_SHEEN }} />
+      <div className="w-1 h-3 bg-white/20 rounded relative z-10" />
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center relative z-10" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+        <InfinityMark size={14} color="#FFFFFF" strokeWidth={3} />
       </div>
-      <Icon name="nfc" size={16} color="rgba(255,255,255,0.4)" />
+      <Icon name="nfc" size={16} color="rgba(255,255,255,0.4)" className="relative z-10" />
     </div>
   );
 }
@@ -195,8 +216,8 @@ export function WalletPassVisual({ type = 'google', name = 'Mamadou Diallo', rol
         <div className="flex justify-between items-start mb-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: ORANGE }}>
-                <span className="text-white font-bold text-[10px]">B</span>
+              <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 1px 4px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+                <svg width="11" height="6" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg>
               </div>
               <span className="text-white font-bold text-xs">Bingoo Connect</span>
             </div>

@@ -174,7 +174,7 @@ export default function MockupProfileStudio() {
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="bg-white rounded-lg p-2 text-center border border-[#E5EAF2]">
               <p className="text-[8px] font-bold text-[#64748B]">Profile URL</p>
-              <p className="text-[9px] font-bold" style={{ color: ORANGE }}>bingoo.co/diallo</p>
+              <p className="text-[9px] font-bold" style={{ color: ORANGE }}>bingooconnect.com/diallo</p>
             </div>
             <div className="bg-white rounded-lg p-2 text-center border border-[#E5EAF2]">
               <p className="text-[8px] font-bold text-[#64748B]">Layout</p>

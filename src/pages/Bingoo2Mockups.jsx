@@ -54,6 +54,7 @@ import PlanJourneys from '@/components/mockups/strategic/PlanJourneys';
 import ExpandedProfileLayouts from '@/components/mockups/profiles/ExpandedProfileLayouts';
 import ExpandedAssetProtection from '@/components/mockups/strategic/ExpandedAssetProtection';
 import { MockupWelcomeSplash, MockupOTPVerification, MockupPlanSelection, MockupProfileActivation, MockupProfileEditorInfo, MockupDesignCustomization, MockupLinkManager, MockupProfileAnalytics, MockupNFCDeviceDetails, MockupWalletPassPreview, MockupBatchActivation, MockupLeadPipelineKanban, MockupAppointmentConfirmation, MockupSalonServicesManager, MockupOrderTracking, MockupRevenueAnalytics } from '@/components/mockups/expanded/MockupExpandedScreens';
+import MockupDocumentWallet, { MockupMyAssets, DocumentWalletShowcase } from '@/components/mockups/strategic/MockupDocumentWallet';
 
 const NAVY = '#0b2149', ORANGE = '#f97316';
 
@@ -130,6 +131,8 @@ const SCREENS = [
   { num: '52', section: 'business', title: 'Salon Services Manager — Add & Edit', component: <MockupSalonServicesManager /> },
   { num: '53', section: 'shop', title: 'Order Tracking — Shipment Status', component: <MockupOrderTracking /> },
   { num: '54', section: 'admin', title: 'Admin Revenue Analytics — MRR, Churn, LTV', component: <MockupRevenueAnalytics /> },
+  { num: '55', section: 'business', title: 'Document Wallet — Identity & Business Docs', component: <MockupDocumentWallet /> },
+  { num: '56', section: 'protection', title: 'My Assets — Protected Physical Items', component: <MockupMyAssets /> },
 ];
 
 // New concept sections — richer multi-screen showcases
@@ -149,6 +152,7 @@ const CONCEPT_SECTIONS = [
   { id: 'i18n', label: 'French Translation Coverage', subtitle: 'Bilingual EN/FR screens, coverage matrix, translation audit', component: <MockupTranslationUX /> },
   { id: 'expanded-layouts', label: 'Expanded Layout Gallery — Industry-Specific', subtitle: 'Restaurant, Real Estate, Medical, Musician, Nonprofit, Fitness — unique layouts', component: <ExpandedProfileLayouts /> },
   { id: 'expanded-protection', label: 'Expanded Asset Protection — Bikes, Keys, Documents', subtitle: 'Bike frame NFC, key finder tags, document wallet QR, asset dashboard', component: <ExpandedAssetProtection /> },
+  { id: 'document-wallet', label: 'Document Wallet & My Assets', subtitle: 'Owner-controlled document organization + protected physical items: pets, luggage, keys, equipment', component: <DocumentWalletShowcase /> },
 ];
 
 export default function Bingoo2Mockups() {

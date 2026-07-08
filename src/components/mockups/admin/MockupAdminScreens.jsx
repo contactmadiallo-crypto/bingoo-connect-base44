@@ -13,8 +13,8 @@ export function MockupAdminDashboard() {
         <div className="w-48 border-r border-[#E5EAF2] bg-[#F7F9FC] py-4">
           <div className="px-4 mb-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: ORANGE }}><span className="text-white font-black text-xs">B</span></div>
-              <div><p className="font-black text-xs text-[#0F172A]">Bingoo</p><p className="text-[8px] text-[#f97316] font-bold">ADMIN</p></div>
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}><svg width="14" height="7" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg></div>
+              <div><p className="font-black text-xs text-[#0F172A]">Bing<span style={{ color: ORANGE }}>∞</span> Connect</p><p className="text-[8px] text-[#f97316] font-bold">ADMIN</p></div>
             </div>
           </div>
           {[
@@ -101,7 +101,7 @@ export function MockupAdminDashboard() {
 // ── Screen 40: Admin Users / Accounts ──
 export function MockupAdminUsers() {
   const users = [
-    { name: 'Mamadou Diallo', email: 'mamadou@bingoo.co', plan: 'Law Firm', status: 'active', profiles: 3, joined: 'Jan 2026', initial: 'M', color: NAVY },
+    { name: 'Mamadou Diallo', email: 'mamadou@bingooconnect.com', plan: 'Law Firm', status: 'active', profiles: 3, joined: 'Jan 2026', initial: 'M', color: NAVY },
     { name: 'Sarah Johnson', email: 'sarah@salon.com', plan: 'Salon', status: 'active', profiles: 2, joined: 'Feb 2026', initial: 'S', color: '#ec4899' },
     { name: 'David Chen', email: 'david@techstart.io', plan: 'Business', status: 'trial', profiles: 5, joined: 'Mar 2026', initial: 'D', color: '#22C55E' },
     { name: 'Lisa Brown', email: 'lisa@personal.me', plan: 'Free', status: 'active', profiles: 1, joined: 'Apr 2026', initial: 'L', color: '#8b5cf6' },
@@ -311,9 +311,9 @@ export function MockupAdminOrderDetail() {
                 <div className="text-center">
                   <div className="rounded-2xl shadow-xl p-4 mb-2" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})`, height: 120 }}>
                     <div className="flex justify-between items-start">
-                      <div><div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: ORANGE }}><span className="text-white font-black text-xs">B</span></div><p className="text-white font-black text-[10px]">Diallo Law Firm</p></div>
+                      <div><div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 2px 6px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}><svg width="14" height="7" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg></div><p className="text-white font-black text-[10px]">Diallo Law Firm</p></div>
                     </div>
-                    <div className="flex justify-between items-end mt-8"><span className="text-[8px] font-bold" style={{ color: ORANGE }}>BINGOO</span><Icon name="nfc" size={12} color="rgba(255,255,255,0.3)" /></div>
+                    <div className="flex justify-between items-end mt-8"><span className="text-[8px] font-bold" style={{ color: ORANGE, textShadow: `0 0 6px ${ORANGE}44` }}>BING∞ CONNECT</span><Icon name="nfc" size={12} color="rgba(255,255,255,0.3)" /></div>
                   </div>
                   <p className="text-[9px] font-bold text-[#64748B]">FRONT</p>
                 </div>
@@ -370,10 +370,10 @@ export function MockupAdminOrderDetail() {
 // ── Screen 44: Admin Subscription / Test Account Controls ──
 export function MockupAdminSubscriptions() {
   const subs = [
-    { email: 'mamadou@bingoo.co', plan: 'Law Firm', status: 'active', source: 'stripe', amount: '$49.00', cycle: 'Monthly', initial: 'M', color: NAVY },
+    { email: 'mamadou@bingooconnect.com', plan: 'Law Firm', status: 'active', source: 'stripe', amount: '$49.00', cycle: 'Monthly', initial: 'M', color: NAVY },
     { email: 'sarah@salon.com', plan: 'Salon', status: 'active', source: 'stripe', amount: '$19.99', cycle: 'Monthly', initial: 'S', color: '#ec4899' },
     { email: 'david@techstart.io', plan: 'Business', status: 'trial', source: 'admin_override', amount: '$0.00', cycle: '—', initial: 'D', color: '#22C55E' },
-    { email: 'test1@bingoo.co', plan: 'Professional', status: 'active', source: 'admin_override', amount: '$0.00', cycle: '—', initial: 'T', color: ORANGE },
+    { email: 'test1@bingooconnect.com', plan: 'Professional', status: 'active', source: 'admin_override', amount: '$0.00', cycle: '—', initial: 'T', color: ORANGE },
     { email: 'rob@realtor.co', plan: 'Professional', status: 'past_due', source: 'stripe', amount: '$9.99', cycle: 'Monthly', initial: 'R', color: '#3b82f6' },
   ];
   return (
@@ -408,7 +408,7 @@ export function MockupAdminSubscriptions() {
           <div className="grid grid-cols-4 gap-3">
             <div>
               <p className="text-[9px] font-bold text-[#64748B] mb-1.5">EMAIL</p>
-              <div className="px-3 py-2 bg-[#F7F9FC] rounded-lg text-[10px] font-bold text-[#0F172A]">newtest@bingoo.co</div>
+              <div className="px-3 py-2 bg-[#F7F9FC] rounded-lg text-[10px] font-bold text-[#0F172A]">newtest@bingooconnect.com</div>
             </div>
             <div>
               <p className="text-[9px] font-bold text-[#64748B] mb-1.5">PLAN</p>
@@ -457,7 +457,7 @@ export function MockupAdminSubscriptions() {
           <p className="text-xs font-black text-[#0F172A] mb-3">Recent Activity Log</p>
           <div className="space-y-2">
             {[
-              { text: 'Admin granted Law Firm override to test1@bingoo.co', time: '10m ago', icon: 'shield', color: ORANGE },
+              { text: 'Admin granted Law Firm override to test1@bingooconnect.com', time: '10m ago', icon: 'shield', color: ORANGE },
               { text: 'Subscription canceled for rob@realtor.co (past_due)', time: '1h ago', icon: 'alert', color: '#EF4444' },
               { text: 'New subscription: Salon plan — sarah@salon.com', time: '3h ago', icon: 'wallet', color: '#22C55E' },
               { text: 'Test account created: david@techstart.io (Business)', time: '5h ago', icon: 'lock', color: '#8b5cf6' },

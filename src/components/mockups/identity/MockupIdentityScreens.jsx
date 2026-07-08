@@ -25,7 +25,7 @@ export function MockupProfileDetails() {
                 <p className="text-white font-black text-base">Diallo Law Firm</p>
                 <Badge color={ORANGE}>DEFAULT</Badge>
               </div>
-              <p className="text-white/50 text-[10px]">Law Firm Plan · bingoo.co/diallo-law</p>
+              <p className="text-white/50 text-[10px]">Law Firm Plan · bingooconnect.com/diallo-law</p>
             </div>
           </div>
         </div>
@@ -158,8 +158,8 @@ export function MockupPublicProfilePreview() {
               </div>
             </div>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background: ORANGE }}>
-                <span className="text-white font-black text-[8px]">B</span>
+              <div className="w-4 h-4 rounded flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)` }}>
+                <svg width="8" height="4" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg>
               </div>
               <span className="text-[9px] font-bold text-[#64748B]">Scan Me</span>
             </div>

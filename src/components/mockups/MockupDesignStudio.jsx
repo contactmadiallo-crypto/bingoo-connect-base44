@@ -97,8 +97,8 @@ export default function MockupDesignStudio() {
               <div className="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10" style={{ background: ORANGE, filter: 'blur(50px)' }} />
               <div className="flex justify-between items-start relative z-10">
                 <div>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 shadow-lg" style={{ background: ORANGE }}>
-                    <span className="text-white font-black text-lg">B</span>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 3px 8px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+                    <svg width="20" height="11" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.4))' }}><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg>
                   </div>
                   <p className="text-white font-black text-lg">Diallo Law Firm</p>
                   <p className="text-white/50 text-xs">Immigration · Civil · Criminal</p>
@@ -112,7 +112,7 @@ export default function MockupDesignStudio() {
                 </div>
               </div>
               <div className="flex items-center justify-between relative z-10">
-                <span className="font-black text-xs tracking-wider" style={{ color: ORANGE }}>BINGOO</span>
+                <span className="font-black text-xs tracking-wider" style={{ color: ORANGE, textShadow: `0 0 8px ${ORANGE}44` }}>BING∞ CONNECT</span>
                 <Icon name="nfc" size={18} color="rgba(255,255,255,0.3)" />
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function MockupDesignStudio() {
                   <Icon name="nfc" size={28} color={NAVY} />
                 </div>
                 <p className="text-[10px] font-bold text-[#64748B]">Tap your phone here to share</p>
-                <p className="text-[8px] text-[#64748B] mt-1">bingoo.co/diallo</p>
+                <p className="text-[8px] text-[#64748B] mt-1">bingooconnect.com/diallo</p>
               </div>
             </div>
             <p className="text-center text-[10px] font-bold text-[#64748B] mt-2">BACK</p>

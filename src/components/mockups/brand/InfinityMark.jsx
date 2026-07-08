@@ -74,18 +74,25 @@ export function LoadingDots({ color = ORANGE, size = 8, className = '' }) {
 // Square icon with gradient background + infinity mark
 export function BingooAppIcon({ size = 48, rounded = true, glow = true, imageUrl = null }) {
   if (imageUrl) {
-    return <img src={imageUrl} alt="Bingoo" style={{ width: size, height: size }} className={rounded ? 'rounded-xl' : ''} />;
+    return <img src={imageUrl} alt="Bingoo Connect app icon" style={{ width: size, height: size }} className={rounded ? 'rounded-2xl' : ''} />;
   }
   return (
     <div
       className={`${rounded ? 'rounded-2xl' : ''} flex items-center justify-center relative overflow-hidden`}
       style={{
         width: size, height: size,
-        background: `linear-gradient(135deg, ${NAVY}, #071A3D)`,
-        boxShadow: glow ? `0 ${size * 0.1}px ${size * 0.3}px ${NAVY}44, inset 0 1px 0 rgba(255,255,255,0.1)` : 'none',
+        background: `linear-gradient(145deg, ${NAVY}, #061530)`,
+        boxShadow: glow
+          ? `0 ${size * 0.12}px ${size * 0.35}px ${NAVY}55, 0 ${size * 0.04}px ${size * 0.1}px ${NAVY}33, inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.3)`
+          : `inset 0 1px 0 rgba(255,255,255,0.1)`,
       }}
     >
-      <div className="absolute top-0 right-0 rounded-full opacity-30" style={{ width: size * 0.6, height: size * 0.6, background: ORANGE, filter: `blur(${size * 0.3}px)` }} />
+      {/* Glossy top highlight */}
+      <div className="absolute top-0 left-0 right-0 h-1/2 opacity-30" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.25), transparent)' }} />
+      {/* Orange ambient glow */}
+      <div className="absolute top-0 right-0 rounded-full opacity-35" style={{ width: size * 0.65, height: size * 0.65, background: ORANGE, filter: `blur(${size * 0.35}px)` }} />
+      {/* Bottom edge light */}
+      <div className="absolute bottom-0 left-0 right-0 h-px opacity-50" style={{ background: `linear-gradient(90deg, transparent, ${ORANGE}66, transparent)` }} />
       <InfinityMark size={size * 0.55} color={ORANGE} strokeWidth={size * 0.08} glow={true} className="relative z-10" />
     </div>
   );

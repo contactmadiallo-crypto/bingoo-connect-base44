@@ -150,9 +150,9 @@ function UsersTab() {
           <div className="col-span-3">USER</div><div className="col-span-2">PLAN</div><div className="col-span-2">STATUS</div><div className="col-span-2">BILLING</div><div className="col-span-1">OVERRIDE</div><div className="col-span-2 text-right">ACTIONS</div>
         </div>
         {[
-          { name: 'Mamadou Diallo', email: 'mamadou@bingoo.co', plan: 'Law Firm', status: 'active', billing: 'Monthly $49', override: '—', color: NAVY },
+          { name: 'Mamadou Diallo', email: 'mamadou@bingooconnect.com', plan: 'Law Firm', status: 'active', billing: 'Monthly $49', override: '—', color: NAVY },
           { name: 'Sarah Johnson', email: 'sarah@salon.com', plan: 'Salon', status: 'active', billing: 'Annual $215', override: '—', color: '#ec4899' },
-          { name: 'Test User 1', email: 'test1@bingoo.co', plan: 'Law Firm', status: 'active', billing: '—', override: 'Admin', color: ORANGE },
+          { name: 'Test User 1', email: 'test1@bingooconnect.com', plan: 'Law Firm', status: 'active', billing: '—', override: 'Admin', color: ORANGE },
           { name: 'Robert Wilson', email: 'rob@realtor.co', plan: 'Pro', status: 'past_due', billing: 'Monthly $9.99', override: '—', color: '#3b82f6' },
         ].map((u) => (
           <div key={u.email} className="grid grid-cols-12 px-3 py-2.5 border-b border-[#E5EAF2] items-center">
@@ -331,7 +331,7 @@ function SupportTab() {
           <div className="col-span-2">TICKET</div><div className="col-span-3">USER</div><div className="col-span-3">ISSUE</div><div className="col-span-2">PRIORITY</div><div className="col-span-2">STATUS</div>
         </div>
         {[
-          ['#2047', 'mamadou@bingoo.co', 'NFC device not tapping', 'High', 'Open'],
+          ['#2047', 'mamadou@bingooconnect.com', 'NFC device not tapping', 'High', 'Open'],
           ['#2046', 'sarah@salon.com', 'Subscription billing error', 'Medium', 'In Progress'],
           ['#2045', 'rob@realtor.co', 'Profile layout broken', 'Low', 'Resolved'],
         ].map((t) => (
@@ -390,7 +390,7 @@ function AuditTab() {
           <div className="col-span-2">TIME</div><div className="col-span-2">ADMIN</div><div className="col-span-3">ACTION</div><div className="col-span-3">TARGET</div><div className="col-span-2">DETAILS</div>
         </div>
         {[
-          ['10:42 AM', 'admin@bingoo', 'Plan Override', 'test1@bingoo.co', 'Granted Law Firm'],
+          ['10:42 AM', 'admin@bingoo', 'Plan Override', 'test1@bingooconnect.com', 'Granted Law Firm'],
           ['09:15 AM', 'admin@bingoo', 'User Suspend', 'spam@user.com', 'Abuse report'],
           ['Yesterday', 'admin@bingoo', 'Batch Generate', 'BG-05000–05100', '100 NFC Cards'],
           ['Yesterday', 'admin@bingoo', 'Order Advance', 'MFG-2402', 'Production → QC'],

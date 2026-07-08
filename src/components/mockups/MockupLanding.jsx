@@ -98,7 +98,7 @@ export default function MockupLanding() {
       {/* ── PILLARS: Connect / Share / Grow / Succeed ── */}
       <div className="px-8 py-14" style={{ background: BG }}>
         <div className="text-center mb-10">
-          <span className="text-[10px] font-bold text-[#f97316] tracking-widest">THE BINGOO WAY</span>
+          <span className="text-[10px] font-bold text-[#f97316] tracking-widest">THE BING∞ CONNECT WAY</span>
           <h2 className="text-2xl font-black text-[#0F172A] mt-1">Connect. Share. Grow. Succeed.</h2>
         </div>
         <div className="grid grid-cols-4 gap-4 max-w-4xl mx-auto">
@@ -142,8 +142,9 @@ export default function MockupLanding() {
             { icon: 'building', title: 'Team Tools', desc: 'Multi-profile, attorneys, stylists, staff' },
           ].map((f) => (
             <div key={f.title} className="bg-[#F7F9FC] rounded-xl p-4 border border-[#E5EAF2] hover:border-[#f97316] transition-colors">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3" style={{ background: NAVY }}>
-                <Icon name={f.icon} size={18} color={ORANGE} />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${NAVY}, #071A3D)`, boxShadow: `0 3px 8px ${NAVY}33, inset 0 1px 0 rgba(255,255,255,0.08)` }}>
+                <div className="absolute top-0 right-0 w-5 h-5 rounded-full opacity-20" style={{ background: ORANGE, filter: 'blur(8px)' }} />
+                <Icon name={f.icon} size={18} color={ORANGE} className="relative z-10" />
               </div>
               <p className="font-bold text-xs text-[#0F172A] mb-1">{f.title}</p>
               <p className="text-[9px] text-[#64748B] leading-relaxed">{f.desc}</p>
@@ -159,9 +160,18 @@ export default function MockupLanding() {
           <h2 className="text-2xl font-black text-white mt-1">Tap to Connect</h2>
           <p className="text-xs text-white/50 mt-2">Designer-grade NFC devices, manufactured in-house</p>
         </div>
+        {/* 3D Hero Product Render */}
+        <div className="flex justify-center mb-10">
+          <img
+            src="https://media.base44.com/images/public/692bd9007b93ba81de543346/966ce6bd0_generated_image.png"
+            alt="Bingoo Connect NFC product collection — premium 3D render of cards, keychains, bracelets, and stickers"
+            className="rounded-2xl max-w-sm w-full"
+            style={{ filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' }}
+          />
+        </div>
         <div className="flex justify-center items-end gap-6 flex-wrap max-w-3xl mx-auto">
           {[
-            { vis: <NFCCardVisual name="Business Card" width={160} />, label: 'NFC Card', price: '$19.99' },
+            { vis: <NFCCardVisual name="Business Card" width={160} imageUrl="https://media.base44.com/images/public/692bd9007b93ba81de543346/7b03546a4_generated_image.png" />, label: 'NFC Card', price: '$19.99' },
             { vis: <NFCKeychainVisual width={70} />, label: 'Keychain', price: '$11.99' },
             { vis: <NFCBraceletVisual width={100} />, label: 'Bracelet', price: '$24.99' },
             { vis: <NFCStickerVisual width={70} />, label: 'Sticker', price: '$12.99' },
@@ -205,7 +215,7 @@ export default function MockupLanding() {
       {/* ── COMPARISON ── */}
       <div className="px-8 py-14" style={{ background: BG }}>
         <div className="text-center mb-10">
-          <span className="text-[10px] font-bold text-[#f97316] tracking-widest">WHY BINGOO</span>
+          <span className="text-[10px] font-bold text-[#f97316] tracking-widest">WHY BING∞ CONNECT</span>
           <h2 className="text-2xl font-black text-[#0F172A] mt-1">Beyond a Business Card</h2>
           <p className="text-xs text-[#64748B] mt-2">Competitors share contacts. Bingoo runs your business.</p>
         </div>

@@ -34,8 +34,8 @@ export default function MockupQRWallet() {
               </div>
             </div>
             <div className="flex items-center justify-center gap-1 mt-3">
-              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: ORANGE }}>
-                <span className="text-white font-black text-[10px]">B</span>
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)`, boxShadow: `0 1px 4px ${ORANGE}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+                <svg width="11" height="6" viewBox="0 0 48 24" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" /></svg>
               </div>
               <span className="text-[10px] font-bold text-[#64748B]">Scan Me</span>
             </div>

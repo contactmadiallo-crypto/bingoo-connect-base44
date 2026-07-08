@@ -105,7 +105,7 @@ export function MockupAssignDevice() {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-sm text-[#0F172A]">{p.name}</p>
-                    <p className="text-[10px] text-[#64748B]">{p.type} · bingoo.co/{p.initial.toLowerCase()}</p>
+                    <p className="text-[10px] text-[#64748B]">{p.type} · bingooconnect.com/{p.initial.toLowerCase()}</p>
                   </div>
                   {p.selected ? (
                     <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: ORANGE }}>
@@ -127,7 +127,7 @@ export function MockupAssignDevice() {
               </div>
               <div>
                 <p className="font-black text-xs text-[#0F172A]">Diallo Law Firm</p>
-                <p className="text-[9px] text-[#64748B]">bingoo.co/diallo-law</p>
+                <p className="text-[9px] text-[#64748B]">bingooconnect.com/diallo-law</p>
               </div>
             </div>
           </div>
