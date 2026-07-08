@@ -7,10 +7,19 @@ const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316', BG = '#F7F9FC
 function Logo({ light }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg" style={{ background: `linear-gradient(135deg, ${ORANGE}, #fb923c)` }}>
-        <span className="text-white font-black text-base">B</span>
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
+        <div className="absolute top-0 right-0 w-6 h-6 rounded-full opacity-25" style={{ background: ORANGE, filter: 'blur(12px)' }} />
+        <svg width="20" height="10" viewBox="0 0 48 24" fill="none" stroke={ORANGE} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="relative z-10" style={{ filter: `drop-shadow(0 0 4px ${ORANGE}66)` }}>
+          <path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" />
+        </svg>
       </div>
-      <div><span className={`font-black text-base ${light ? 'text-white' : 'text-[#0b2149]'}`}>Bingoo</span><span className={`text-[10px] font-bold ml-1 ${light ? 'text-white/50' : 'text-[#f97316]'}`}>CONNECT</span></div>
+      <div className="flex items-baseline gap-0.5">
+        <span className={`font-black text-base tracking-tight ${light ? 'text-white' : 'text-[#0b2149]'}`}>Bing</span>
+        <svg width="14" height="7" viewBox="0 0 48 24" fill="none" stroke={light ? '#FFFFFF' : ORANGE} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 2 }}>
+          <path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" />
+        </svg>
+        <span className={`text-[10px] font-bold ml-1.5 ${light ? 'text-white/50' : 'text-[#f97316]'}`}>CONNECT</span>
+      </div>
     </div>
   );
 }

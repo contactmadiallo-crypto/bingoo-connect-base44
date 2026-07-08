@@ -25,7 +25,7 @@ export default function MockupShop() {
         <div className="px-5 pt-10 pb-6" style={{ background: `linear-gradient(160deg, ${NAVY}, #071A3D)` }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/40 text-[10px] font-medium">Bingoo</p>
+              <p className="text-white/40 text-[10px] font-medium">Bingoo Connect</p>
               <p className="text-white font-black text-xl">Shop</p>
             </div>
             <div className="relative">

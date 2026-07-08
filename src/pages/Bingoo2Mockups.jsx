@@ -51,6 +51,9 @@ import MockupTranslationUX from '@/components/mockups/i18n/MockupTranslationUX';
 import AssetProtectionShowcase from '@/components/mockups/strategic/AssetProtectionShowcase';
 import StrategicVision from '@/components/mockups/strategic/StrategicVision';
 import PlanJourneys from '@/components/mockups/strategic/PlanJourneys';
+import ExpandedProfileLayouts from '@/components/mockups/profiles/ExpandedProfileLayouts';
+import ExpandedAssetProtection from '@/components/mockups/strategic/ExpandedAssetProtection';
+import { MockupWelcomeSplash, MockupOTPVerification, MockupPlanSelection, MockupProfileActivation, MockupProfileEditorInfo, MockupDesignCustomization, MockupLinkManager, MockupProfileAnalytics, MockupNFCDeviceDetails, MockupWalletPassPreview, MockupBatchActivation, MockupLeadPipelineKanban, MockupAppointmentConfirmation, MockupSalonServicesManager, MockupOrderTracking, MockupRevenueAnalytics } from '@/components/mockups/expanded/MockupExpandedScreens';
 
 const NAVY = '#0b2149', ORANGE = '#f97316';
 
@@ -111,6 +114,22 @@ const SCREENS = [
   { num: '36', section: 'admin', title: 'Admin Manufacturing Orders — Pipeline & Table', component: <MockupAdmin /> },
   { num: '37', section: 'admin', title: 'Admin Order Detail — Timeline, Artwork, Supplier', component: <MockupAdminOrderDetail /> },
   { num: '38', section: 'admin', title: 'Admin Subscriptions & Test Account Controls', component: <MockupAdminSubscriptions /> },
+  { num: '39', section: 'onboarding', title: 'Welcome Splash — Infinity + Loading Dots', component: <MockupWelcomeSplash /> },
+  { num: '40', section: 'onboarding', title: 'OTP Verification — Code Entry', component: <MockupOTPVerification /> },
+  { num: '41', section: 'onboarding', title: 'Plan Selection — Choose Your Plan', component: <MockupPlanSelection /> },
+  { num: '42', section: 'onboarding', title: 'Profile Live — Activation Success', component: <MockupProfileActivation /> },
+  { num: '43', section: 'identity', title: 'Profile Editor — Edit Info Tab', component: <MockupProfileEditorInfo /> },
+  { num: '44', section: 'identity', title: 'Design Studio — Layout & Color', component: <MockupDesignCustomization /> },
+  { num: '45', section: 'identity', title: 'Link Manager — Add & Reorder', component: <MockupLinkManager /> },
+  { num: '46', section: 'business', title: 'Profile Analytics — Insights & Sources', component: <MockupProfileAnalytics /> },
+  { num: '47', section: 'nfc', title: 'NFC Device Details — Tap Stats & History', component: <MockupNFCDeviceDetails /> },
+  { num: '48', section: 'nfc', title: 'Wallet Pass Preview — Apple & Google', component: <MockupWalletPassPreview /> },
+  { num: '49', section: 'nfc', title: 'Batch NFC Activation — Multiple Devices', component: <MockupBatchActivation /> },
+  { num: '50', section: 'business', title: 'Lead Pipeline — Kanban Board', component: <MockupLeadPipelineKanban /> },
+  { num: '51', section: 'business', title: 'Appointment Confirmation — Visitor View', component: <MockupAppointmentConfirmation /> },
+  { num: '52', section: 'business', title: 'Salon Services Manager — Add & Edit', component: <MockupSalonServicesManager /> },
+  { num: '53', section: 'shop', title: 'Order Tracking — Shipment Status', component: <MockupOrderTracking /> },
+  { num: '54', section: 'admin', title: 'Admin Revenue Analytics — MRR, Churn, LTV', component: <MockupRevenueAnalytics /> },
 ];
 
 // New concept sections — richer multi-screen showcases
@@ -128,6 +147,8 @@ const CONCEPT_SECTIONS = [
   { id: 'strategic-vision', label: 'Strategic Vision — Global Ecosystem', subtitle: 'Worldwide marketplace, 7 pillars, roadmap, future direction', component: <StrategicVision /> },
   { id: 'plan-journeys', label: 'Plan Journeys — All Subscription Paths', subtitle: 'Free, Pro $4.99, Salon, Law Firm, Business, Admin', component: <PlanJourneys /> },
   { id: 'i18n', label: 'French Translation Coverage', subtitle: 'Bilingual EN/FR screens, coverage matrix, translation audit', component: <MockupTranslationUX /> },
+  { id: 'expanded-layouts', label: 'Expanded Layout Gallery — Industry-Specific', subtitle: 'Restaurant, Real Estate, Medical, Musician, Nonprofit, Fitness — unique layouts', component: <ExpandedProfileLayouts /> },
+  { id: 'expanded-protection', label: 'Expanded Asset Protection — Bikes, Keys, Documents', subtitle: 'Bike frame NFC, key finder tags, document wallet QR, asset dashboard', component: <ExpandedAssetProtection /> },
 ];
 
 export default function Bingoo2Mockups() {
@@ -139,7 +160,7 @@ export default function Bingoo2Mockups() {
   const conceptFilterMap = {
     brand: ['brand'],
     onboarding: ['onboarding-fix'],
-    identity: ['identity-layouts'],
+    identity: ['identity-layouts', 'expanded-layouts'],
     nfc: [],
     business: ['plan-features', 'connections-improved'],
     shop: ['shop-catalog'],
@@ -147,7 +168,7 @@ export default function Bingoo2Mockups() {
     strategic: ['strategic'],
     homepage: ['homepage'],
     i18n: ['i18n'],
-    protection: ['asset-protection'],
+    protection: ['asset-protection', 'expanded-protection'],
     vision: ['strategic-vision'],
     plans: ['plan-journeys'],
   };

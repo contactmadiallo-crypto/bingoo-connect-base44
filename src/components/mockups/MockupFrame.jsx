@@ -117,7 +117,7 @@ export function NFCCardVisual({ name = 'Bingoo', role = '', color = NAVY, accent
         </div>
       </div>
       <div className="flex items-center justify-between relative z-10">
-        <span className="font-bold text-[10px] tracking-wider" style={{ color: accent }}>BINGOO</span>
+        <span className="font-bold text-[10px] tracking-wider" style={{ color: accent }}>BING∞ CONNECT</span>
         <Icon name="nfc" size={14} color="rgba(255,255,255,0.3)" />
       </div>
     </div>

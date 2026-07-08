@@ -34,7 +34,7 @@ function ProductCard({ p }) {
         ) : (
           <div className="rounded-xl shadow-xl p-3 flex flex-col items-center gap-1" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
             <BingooStamp size={28} color={p.color} showText={false} variant="outline" />
-            <span className="text-white font-bold text-[7px]">BING∞</span>
+            <span className="text-white font-bold text-[7px]">BING∞ CONNECT</span>
           </div>
         )}
         {p.bundle && <div className="absolute top-2 right-2"><Badge color={ORANGE}>BUNDLE</Badge></div>}

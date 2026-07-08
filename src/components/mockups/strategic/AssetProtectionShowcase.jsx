@@ -56,7 +56,7 @@ function PetProtection() {
             <p className="text-[9px] font-bold text-[#64748B] mb-2">NFC COLLAR TAG</p>
             <div className="inline-block rounded-2xl p-3 shadow-xl" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
               <BingooStamp size={28} color={ORANGE} showText={false} variant="outline" />
-              <p className="text-white font-bold text-[7px] mt-1">BING∞</p>
+              <p className="text-white font-bold text-[7px] mt-1">BING∞ CONNECT</p>
             </div>
             <p className="text-[8px] text-[#64748B] mt-2">Tap this tag with any phone to view Buddy's profile</p>
             <div className="flex items-center justify-center gap-1 mt-1"><InfinityMark size={14} color={ORANGE} strokeWidth={2} /><span className="text-[7px] font-bold" style={{ color: ORANGE }}>BINGOO CONNECT</span></div>

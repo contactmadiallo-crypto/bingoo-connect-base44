@@ -19,7 +19,7 @@ function OAuthLoginMockup() {
         {/* Login Card */}
         <div className="w-full max-w-[260px] bg-white rounded-2xl p-5 shadow-2xl">
           <p className="text-xs font-black text-[#0F172A] mb-1">Welcome Back</p>
-          <p className="text-[9px] text-[#64748B] mb-4">Sign in to your Bingoo account</p>
+          <p className="text-[9px] text-[#64748B] mb-4">Sign in to your Bingoo Connect account</p>
           <div className="space-y-2 mb-3">
             <div className="px-3 py-2.5 bg-[#F7F9FC] rounded-xl text-[10px] font-medium text-[#cbd5e1]">Email address</div>
             <div className="px-3 py-2.5 bg-[#F7F9FC] rounded-xl text-[10px] font-medium text-[#cbd5e1]">Password</div>
@@ -79,7 +79,7 @@ function DashboardShellMockup() {
             <BingooAppIcon size={36} glow={false} />
             <div className="flex-1">
               <p className="font-black text-sm text-[#0F172A]">Diallo Law Firm</p>
-              <p className="text-[10px] text-[#64748B]">Law Firm Plan · bingoo.co/diallo-law</p>
+              <p className="text-[10px] text-[#64748B]">Law Firm Plan · bingooconnect.com/diallo-law</p>
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ function NFCProductMockup() {
                 </div>
               </div>
               <div className="flex items-center justify-between relative z-10">
-                <span className="font-bold text-[8px] tracking-wider" style={{ color: ORANGE }}>BING∞</span>
+                <span className="font-bold text-[8px] tracking-wider" style={{ color: ORANGE }}>BING∞ CONNECT</span>
                 <Icon name="nfc" size={14} color="rgba(255,255,255,0.3)" />
               </div>
             </div>

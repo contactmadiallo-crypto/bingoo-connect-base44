@@ -112,7 +112,7 @@ export function BingooStamp({ size = 60, color = NAVY, showText = true, variant 
         />
       </div>
       {showText && (
-        <span className="font-black text-[8px] tracking-widest" style={{ color }}>BING∞</span>
+        <span className="font-black text-[8px] tracking-widest" style={{ color }}>BING∞ CONNECT</span>
       )}
     </div>
   );
