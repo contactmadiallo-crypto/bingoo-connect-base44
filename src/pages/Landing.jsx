@@ -4,8 +4,8 @@ import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
-import NFCTapMockup from "../components/bingoo/NFCTapMockup";
-import FeedbackSection from "../components/bingoo/FeedbackSection";
+import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
+import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
 import ProjectFutureSection from "@/components/landing/ProjectFutureSection";
