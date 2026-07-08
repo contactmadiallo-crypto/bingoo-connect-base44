@@ -12,3 +12,4 @@ export { default as BingooSection } from './BingooSection';
 export { default as BingooDeviceCard } from './BingooDeviceCard';
 export { default as BingooProfileCard } from './BingooProfileCard';
 export { default as BingooLogo, InfinityMark } from './BingooBrand';
+export { default as BingooLoadingDots } from './BingooLoadingDots';

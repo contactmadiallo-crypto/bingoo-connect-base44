@@ -34,6 +34,7 @@ import {
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
+import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -817,6 +818,8 @@ export default function BingooDashboard() {
             </div>
           )}
 
+          {/* Bingoo loading indicator */}
+          <BingooLoadingDots />
         </div>
       </div>
 

@@ -1,11 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Shield, Menu, X, Sun, Moon } from "lucide-react";
+import { LogOut, Shield, Menu, X, Sun, Moon, Home, User, Smartphone, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavItems } from "@/lib/sidebarConfig";
+import { getVisibleNavSections } from "@/lib/sidebarConfigV2";
 import { useNavigationStack } from "@/components/mobile/NavigationStack";
 import { t, getLang } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
@@ -49,6 +50,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
   // All sidebar items derived from selected profile + effective account plan — isAdmin unlocks everything
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
+  const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan || null);
 
   // Unread notification badges mapped to nav item IDs
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
@@ -119,8 +121,17 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           </div>
         </Link>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {navItems.map(item => renderNavLink(item, onNav))}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        {navSections.map(section => (
+          <div key={section.id} className="mb-2">
+            <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
+              {section.label}
+            </p>
+            <div className="space-y-0.5">
+              {section.items.map(item => renderNavLink(item, onNav))}
+            </div>
+          </div>
+        ))}
         {isAdmin && (
           <Link to="/admin" onClick={onNav}
             className="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all"
@@ -242,7 +253,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       )}
 
       {/* ── MOBILE BOTTOM TAB BAR ── */}
-      {/* Order: Landing | More | Profiles | Appointments/Analytics | Logout */}
+      {/* Phase 3: Home · Profiles · NFC · Business · More */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center"
         style={{
           background: "linear-gradient(180deg, #0a2558 0%, #071b47 100%)",
@@ -251,27 +262,59 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
 
-        {/* 1. Landing Page */}
-        {(() => {
-          const item = navItems.find(i => i.id === "landing");
-          if (!item) return null;
-          const active = isActive(item.href);
-          return (
-            <Link to={item.href}
-              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
-              </div>
-              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
-                {item.label}
-              </span>
-            </Link>
-          );
-        })()}
+        {/* 1. Home — dashboard hub */}
+        <Link to="/bingoo"
+          onClick={(e) => { e.preventDefault(); const href = '/bingoo'; if (isActive(href)) { resetStack('bingoo', href); } else { switchTab('bingoo', href); } }}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: isActive('/bingoo') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Home className="w-5 h-5" style={{ color: isActive('/bingoo') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+          </div>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+            {lang === 'fr' ? 'Accueil' : 'Home'}
+          </span>
+        </Link>
 
-        {/* 2. More — opens full sidebar drawer */}
+        {/* 2. Profiles — profile workspace */}
+        <Link to="/bingoo?view=workspace"
+          onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=workspace'; if (isActive(href)) { resetStack('workspace', href); } else { switchTab('workspace', href); } }}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: isActive('/bingoo?view=workspace') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <User className="w-5 h-5" style={{ color: isActive('/bingoo?view=workspace') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+          </div>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=workspace') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+            {lang === 'fr' ? 'Profils' : 'Profiles'}
+          </span>
+        </Link>
+
+        {/* 3. NFC — device management */}
+        <Link to="/my-nfc-devices"
+          onClick={(e) => { e.preventDefault(); const href = '/my-nfc-devices'; if (isActive(href)) { resetStack('nfc', href); } else { switchTab('nfc', href); } }}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: isActive('/my-nfc-devices') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Smartphone className="w-5 h-5" style={{ color: isActive('/my-nfc-devices') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+          </div>
+          <span className="text-xs font-semibold" style={{ color: isActive('/my-nfc-devices') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+            NFC
+          </span>
+        </Link>
+
+        {/* 4. Business — leads CRM */}
+        <Link to="/bingoo?view=leads"
+          onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=leads'; if (isActive(href)) { resetStack('leads', href); } else { switchTab('leads', href); } }}
+          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: isActive('/bingoo?view=leads') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Briefcase className="w-5 h-5" style={{ color: isActive('/bingoo?view=leads') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+          </div>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=leads') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+            {lang === 'fr' ? 'Business' : 'Business'}
+          </span>
+        </Link>
+
+        {/* 5. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)} aria-label="More navigation options"
           className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
@@ -284,54 +327,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             </span>
           )}
           <span className="text-xs font-semibold text-white/40">{t("more", lang)}</span>
-        </button>
-
-        {/* 3. Profiles */}
-        {(() => {
-          const item = navItems.find(i => i.id === "profiles");
-          if (!item) return null;
-          const active = isActive(item.href);
-          return (
-            <Link to={item.href}
-              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
-              </div>
-              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
-                {item.label}
-              </span>
-            </Link>
-          );
-        })()}
-
-        {/* 4. Appointments (if available) or Analytics */}
-        {fourthBottomItem && (() => {
-          const item = fourthBottomItem;
-          const active = isActive(item.href);
-          return (
-            <Link to={item.href}
-              onClick={(e) => { e.preventDefault(); const tid = item.href.split('?')[0].split('/')[1] || 'home'; if (active) { resetStack(tid, item.href); } else { switchTab(tid, item.href); } }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: active ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-                <item.icon className="w-5 h-5" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
-              </div>
-              <span className="text-xs font-semibold" style={{ color: active ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
-                {item.label}
-              </span>
-            </Link>
-          );
-        })()}
-
-        {/* 5. Logout */}
-        <button onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-            <LogOut className="w-5 h-5 text-red-400" />
-          </div>
-          <span className="text-xs font-semibold text-red-400">{t("logout", lang)}</span>
         </button>
       </nav>
 
