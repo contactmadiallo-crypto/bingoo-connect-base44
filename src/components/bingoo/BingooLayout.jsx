@@ -262,15 +262,15 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
 
-        {/* 1. Home — dashboard hub */}
-        <Link to="/bingoo"
-          onClick={(e) => { e.preventDefault(); const href = '/bingoo'; if (isActive(href)) { resetStack('bingoo', href); } else { switchTab('bingoo', href); } }}
+        {/* 1. Home — premium dashboard overview */}
+        <Link to="/bingoo?view=home"
+          onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=home'; if (isActive(href)) { resetStack('home', href); } else { switchTab('home', href); } }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Home className="w-5 h-5" style={{ color: isActive('/bingoo') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+            style={{ background: isActive('/bingoo?view=home') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Home className="w-5 h-5" style={{ color: isActive('/bingoo?view=home') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
           </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=home') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
             {lang === 'fr' ? 'Accueil' : 'Home'}
           </span>
         </Link>

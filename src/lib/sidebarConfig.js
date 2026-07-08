@@ -169,8 +169,8 @@ export const ADMIN_SIDEBAR_ITEMS = [
 // ── Full item definitions ─────────────────────────────────────────────────────
 export const SIDEBAR_NAV_MAP = {
   landing: {
-    id: "landing", label: "Landing Page", labelFr: "Page d'accueil",
-    icon: Home, href: "/",
+    id: "landing", label: "Dashboard", labelFr: "Tableau de bord",
+    icon: Home, href: "/bingoo?view=home",
     iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",
   },
   profiles: {

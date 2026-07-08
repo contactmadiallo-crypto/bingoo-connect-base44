@@ -35,6 +35,7 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
+import PremiumHomeDashboard from "@/components/bingoo/PremiumHomeDashboard";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -52,6 +53,7 @@ const VIEW_LEGAL_SVC    = "legalservices";
 const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
+const VIEW_HOME         = "home";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -73,6 +75,7 @@ const TAB_TO_VIEW = {
   attendance: VIEW_ATTENDANCE,
   workspace: VIEW_WORKSPACE,
   hub: VIEW_HUB,
+  home: VIEW_HOME,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -405,6 +408,11 @@ export default function BingooDashboard() {
 
   // ── Navigation helpers ──
   // IMPORTANT: none of these change selectedProfileId unless explicitly navigating to a new profile
+  const openHome = () => {
+    setLiveFormOverride(null);
+    navigate(`/bingoo?view=${VIEW_HOME}`, { replace: false });
+  };
+
   const openHub = () => {
     setLiveFormOverride(null);
     navigate('/bingoo', { replace: false });
@@ -529,6 +537,32 @@ export default function BingooDashboard() {
               </Link>
             </div>
           </div>
+
+          {/* ════════════════════════════════════
+              HOME — Premium Dashboard Overview
+          ════════════════════════════════════ */}
+          {view === VIEW_HOME && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <PremiumHomeDashboard
+                  profile={activeProfile}
+                  user={user}
+                  isDark={isDark}
+                  leads={leads}
+                  appointments={appointments}
+                  analytics={analytics}
+                  nfcDevices={myNfcDevices}
+                  plan={activeProfilePlan}
+                  canAccessFeature={canAccessFeature}
+                  onNavigate={openView}
+                  profileUrl={profileAbsoluteUrl}
+                />
+              )}
+            </div>
+          )}
 
           {/* ════════════════════════════════════
               HUB — My Profiles
