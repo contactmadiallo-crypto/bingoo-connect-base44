@@ -82,7 +82,7 @@ function resolveView(searchParams) {
   if (v) return v;
   const tab = searchParams.get("tab");
   if (tab && TAB_TO_VIEW[tab]) return TAB_TO_VIEW[tab];
-  return VIEW_HUB;
+  return VIEW_HOME;
 }
 // ── NewProfileForm ──────────────────────────────────────────────────────────
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
@@ -350,7 +350,7 @@ export default function BingooDashboard() {
   }, [qProfileId, qLeadId, qApptId, qNotifId, profiles]);
 
   // Queries scoped to activeProfile
-  const { data: leads = [] } = useQuery({
+  const { data: leads = [], isLoading: leadsLoading } = useQuery({
     queryKey: ["leads", activeProfile?.id],
     queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: activeProfile.id }).then(res => res.data.leads),
     enabled: !!activeProfile?.id,
@@ -358,7 +358,7 @@ export default function BingooDashboard() {
     refetchOnMount: true,
     refetchInterval: 5000,
   });
-  const { data: analytics = [] } = useQuery({
+  const { data: analytics = [], isLoading: analyticsLoading } = useQuery({
     queryKey: ["analytics-all", activeProfile?.id],
     queryFn: () => base44.entities.Analytics.filter({ profile_id: activeProfile.id }),
     enabled: !!activeProfile?.id && ownershipReady,
@@ -415,7 +415,7 @@ export default function BingooDashboard() {
 
   const openHub = () => {
     setLiveFormOverride(null);
-    navigate('/bingoo', { replace: false });
+    navigate('/bingoo?view=hub', { replace: false });
   };
 
   const openWorkspace = (profileId) => {
@@ -559,6 +559,7 @@ export default function BingooDashboard() {
                   canAccessFeature={canAccessFeature}
                   onNavigate={openView}
                   profileUrl={profileAbsoluteUrl}
+                  isLoading={leadsLoading || analyticsLoading}
                 />
               )}
             </div>

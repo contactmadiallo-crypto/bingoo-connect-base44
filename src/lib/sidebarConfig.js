@@ -175,7 +175,7 @@ export const SIDEBAR_NAV_MAP = {
   },
   profiles: {
     id: "profiles", label: "Profiles", labelFr: "Profils",
-    icon: User, href: "/bingoo",
+    icon: User, href: "/bingoo?view=hub",
     iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",
   },
   appointments: {

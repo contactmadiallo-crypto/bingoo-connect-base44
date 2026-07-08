@@ -65,14 +65,18 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       const sp  = new URLSearchParams(location.search);
       const hsp = new URLSearchParams(hQuery);
       const viewMatch = hsp.get("view");
-      if (viewMatch) return location.pathname === hPath && sp.get("view") === viewMatch;
+      if (viewMatch) {
+      // /bingoo with no view defaults to "home" — match the Dashboard nav item
+      if (hPath === "/bingoo" && viewMatch === "home" && location.pathname === "/bingoo" && !sp.get("view")) return true;
+      return location.pathname === hPath && sp.get("view") === viewMatch;
+    }
       return location.pathname === hPath && location.search === "?" + hQuery;
     }
     if (href === "/bingoo") {
       if (location.pathname !== "/bingoo") return false;
       const sp = new URLSearchParams(location.search);
       const v  = sp.get("view");
-      return !v || v === "workspace" || v === "hub";
+      return !v || v === "workspace" || v === "hub" || v === "home";
     }
     return location.pathname === href && !location.search;
   };

@@ -5,6 +5,7 @@ import {
   CalendarDays, Users, Eye, ArrowRight,
   Check, QrCode, Zap,
 } from "lucide-react";
+import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 
 const PLAN_LABELS = {
   free: "Free", professional: "Professional", pro: "Professional",
@@ -13,7 +14,7 @@ const PLAN_LABELS = {
 
 export default function PremiumHomeDashboard({
   profile, user, isDark, leads, appointments, analytics, nfcDevices,
-  plan, canAccessFeature, onNavigate, profileUrl,
+  plan, canAccessFeature, onNavigate, profileUrl, isLoading,
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -62,9 +63,18 @@ export default function PremiumHomeDashboard({
   const quickActions = [
     { icon: Share2,      label: "Share",    color: "#FF7A00", onClick: handleShare },
     { icon: BarChart3,   label: "Analytics", color: "#3b82f6", onClick: () => onNavigate("analytics") },
-    { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/my-nfc-devices" },
-    { icon: Settings,    label: "Edit",      color: "#64748b", onClick: () => onNavigate("workspace") },
+    { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/activate-device" },
+    { icon: Users,       label: "Leads",     color: "#f59e0b", onClick: () => onNavigate("leads") },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <BingooLoadingDots />
+        <p className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-slate-400"}`}>Loading your dashboard…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5">
@@ -265,7 +275,7 @@ export default function PremiumHomeDashboard({
               <h3 className="text-base font-black mb-0.5 text-white flex items-center gap-2">
                 <Zap className="w-4 h-4 text-orange-400" /> Unlock Premium
               </h3>
-              <p className="text-sm text-white/60">Get NFC, analytics, leads, appointments & more</p>
+              <p className="text-sm text-white/60">Professional from $4.99/mo — NFC, analytics, leads & more</p>
             </div>
             <Link to="/plans" className="flex-shrink-0">
               <button className="rounded-xl font-bold text-sm px-5 py-2.5 text-white" style={{ background: "#FF7A00" }}>
