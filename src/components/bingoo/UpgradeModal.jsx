@@ -8,7 +8,7 @@ const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
 export default function UpgradeModal({ featureKey, onClose }) {
   const info = FEATURE_DESCRIPTIONS[featureKey] || {
     title: 'Premium Feature',
-    upgradeTarget: 'Pro',
+    upgradeTarget: 'Professional',
     message: 'Upgrade your plan to unlock this feature.',
   };
 
