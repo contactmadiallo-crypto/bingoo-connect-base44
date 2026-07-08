@@ -101,8 +101,8 @@ function getLinkIcon(link, size = 14) {
   return <Icon size={size} />;
 }
 import { usePlan } from "@/hooks/usePlan";
-import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
-import { isProtectedTestAccount } from "@/lib/testAccounts";
+import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
+import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
 
@@ -940,11 +940,15 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon, lang: langProp }) {
   const qc = useQueryClient();
   const { plan: userPlan, subscription } = usePlan();
-  // Business Tools entitlement must come from the runtime Subscription record
-  // or a protected test-account override only — never from profile.plan, and
-  // never from the getUserFeatures "has-profile → Professional" elevation.
-  // Free / loading / unknown → 'free' (closed), so no paid forms leak to Free users.
-  const businessGatingPlan = (subscription || isProtectedTestAccount(user?.email)) ? userPlan : 'free';
+  // Business Tools entitlement must come from the user's OWN runtime Subscription
+  // record or a protected test-account override only — never from profile.plan,
+  // never from getUserFeatures' "has-profile → Professional" elevation, and never
+  // from another user's subscription (admin RLS may surface others' records).
+  // Free / loading / unknown / email-mismatched → 'free' (closed): no paid forms leak.
+  const ownSub = subscription && subscription.customer_email === user?.email ? subscription : null;
+  const businessGatingPlan = ownSub
+    ? resolveActivePlan(ownSub)
+    : (isProtectedTestAccount(user?.email) ? normalizePlan(getOverridePlan(user?.email) || 'free') : 'free');
 
   const lang = langProp || getLang();
 
