@@ -102,6 +102,7 @@ function getLinkIcon(link, size = 14) {
 }
 import { usePlan } from "@/hooks/usePlan";
 import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess } from "@/lib/planPermissions";
+import { isProtectedTestAccount } from "@/lib/testAccounts";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
 
@@ -938,7 +939,12 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 // ─────────────────────────────────────────────────────────────────────────
 export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon, lang: langProp }) {
   const qc = useQueryClient();
-  const { plan: userPlan } = usePlan();
+  const { plan: userPlan, subscription } = usePlan();
+  // Business Tools entitlement must come from the runtime Subscription record
+  // or a protected test-account override only — never from profile.plan, and
+  // never from the getUserFeatures "has-profile → Professional" elevation.
+  // Free / loading / unknown → 'free' (closed), so no paid forms leak to Free users.
+  const businessGatingPlan = (subscription || isProtectedTestAccount(user?.email)) ? userPlan : 'free';
 
   const lang = langProp || getLang();
 
@@ -1214,7 +1220,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <PortfolioPanel profileId={profileId} user={user} />
             )}
             {innerTab === "business" && (
-              <BusinessToolsPanel profileId={profileId} isDark={isDark} userPlan={userPlan} profile={profile} onSaved={() => {}} />
+              <BusinessToolsPanel profileId={profileId} isDark={isDark} userPlan={businessGatingPlan} profile={profile} onSaved={() => {}} />
             )}
             {innerTab === "share" && (
               <SharePanel
