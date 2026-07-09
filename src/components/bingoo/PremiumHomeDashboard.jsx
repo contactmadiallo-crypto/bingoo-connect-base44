@@ -6,6 +6,7 @@ import {
   Check, QrCode, Zap,
 } from "lucide-react";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
+import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
 
 const PLAN_LABELS = {
   free: "Free", professional: "Professional", pro: "Professional",
@@ -229,11 +230,7 @@ export default function PremiumHomeDashboard({
               ))}
             </div>
           ) : (
-            <div className={`text-center py-6 px-4 ${muted}`}>
-              <CalendarDays className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-              <p className="text-xs font-semibold">No appointments today</p>
-              <p className="text-[11px] mt-1">Enjoy the calm — or share your profile to get bookings</p>
-            </div>
+            <BingooEmptyState compact icon={CalendarDays} title="No appointments today" message="Enjoy the calm — or share your profile to get bookings" isDark={isDark} />
           )}
         </div>
       )}
@@ -267,11 +264,7 @@ export default function PremiumHomeDashboard({
               ))}
             </div>
           ) : (
-            <div className={`text-center py-6 px-4 ${muted}`}>
-              <Users className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-              <p className="text-xs font-semibold">No leads yet</p>
-              <p className="text-[11px] mt-1">They'll appear here when visitors contact you</p>
-            </div>
+            <BingooEmptyState compact icon={Users} title="No leads yet" message="They'll appear here when visitors contact you" isDark={isDark} />
           )}
         </div>
       )}

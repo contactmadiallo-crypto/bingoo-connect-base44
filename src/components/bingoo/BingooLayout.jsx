@@ -321,15 +321,15 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
         {/* 5. More — opens full sidebar drawer */}
         <button onClick={() => setMobileOpen(true)} aria-label="More navigation options"
           className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
+          <div className="relative w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
             <Menu className="w-5 h-5 text-white/40" />
+            {totalUnread > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
+                style={{ background: "#F97316", border: "2px solid #0a2558" }}>
+                {totalUnread > 9 ? "9+" : totalUnread}
+              </span>
+            )}
           </div>
-          {totalUnread > 0 && (
-            <span className="absolute top-1.5 right-[calc(50%-24px)] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-xs font-black text-white"
-              style={{ background: "#F97316" }}>
-              {totalUnread > 9 ? "9+" : totalUnread}
-            </span>
-          )}
           <span className="text-xs font-semibold text-white/40">{t("more", lang)}</span>
         </button>
       </nav>

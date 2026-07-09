@@ -6,7 +6,7 @@ export { default as BingooBadge } from './BingooBadge';
 export { default as BingooModal } from './BingooModal';
 export { default as BingooPageHeader } from './BingooPageHeader';
 export { default as BingooEmptyState } from './BingooEmptyState';
-export { default as BingooSkeleton, BingooSkeletonCard, BingooSkeletonList } from './BingooLoadingSkeleton';
+export { default as BingooSkeleton, BingooSkeletonCard, BingooSkeletonList, BingooSkeletonStatCard, BingooSkeletonStatGrid, BingooSkeletonProfileCard, BingooSkeletonProfileGrid, BingooSkeletonQuickActions } from './BingooLoadingSkeleton';
 export { default as BingooStatCard } from './BingooStatCard';
 export { default as BingooSection } from './BingooSection';
 export { default as BingooDeviceCard } from './BingooDeviceCard';

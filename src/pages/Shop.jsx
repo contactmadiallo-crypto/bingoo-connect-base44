@@ -50,9 +50,9 @@ function ProductTile({ product, idx, onAdd, added }) {
         <span className="text-base font-black text-slate-900">${product.price.toFixed(2)}</span>
         <button
           onClick={() => onAdd(product)}
-          className="text-[11px] font-bold px-3 py-1.5 rounded-lg text-white transition-all flex items-center gap-1"
+          className="text-xs font-bold px-3.5 py-2 rounded-lg text-white transition-all flex items-center gap-1 active:scale-95"
           style={{ background: added ? '#16a34a' : ORANGE }}>
-          {added ? <><Check className="w-3 h-3" /> Added</> : '+ Cart'}
+          {added ? <><Check className="w-3.5 h-3.5" /> Added</> : '+ Cart'}
         </button>
       </div>
     </div>
@@ -77,11 +77,11 @@ export default function Shop() {
       {/* ── Nav ── */}
       <div className="sticky top-0 z-20 bg-white border-b border-slate-200">
         <div className="max-w-[1400px] mx-auto px-4 py-3 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <InfinityIcon className="w-5 h-5" style={{ color: ORANGE }} />
-            <span className="text-sm font-bold text-slate-800 group-hover:text-slate-600 transition-colors">← Bingoo Connect</span>
-            <span className="text-slate-300">|</span>
-            <h1 className="text-sm font-black uppercase tracking-wider" style={{ color: NAVY }}>NFC Product Shop</h1>
+          <Link to="/" className="flex items-center gap-2 group min-w-0">
+            <InfinityIcon className="w-5 h-5 flex-shrink-0" style={{ color: ORANGE }} />
+            <span className="text-sm font-bold text-slate-800 group-hover:text-slate-600 transition-colors whitespace-nowrap">← Bingoo Connect</span>
+            <span className="text-slate-300 hidden sm:inline">|</span>
+            <h1 className="text-sm font-black uppercase tracking-wider hidden sm:block" style={{ color: NAVY }}>NFC Product Shop</h1>
           </Link>
           <Link to="/cart">
             <button className="relative flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-slate-400 transition-colors">
@@ -135,7 +135,7 @@ export default function Shop() {
             <InfinityIcon className="w-5 h-5" style={{ color: ORANGE }} />
             <span className="text-sm font-black text-white tracking-wide">BING<span style={{ color: ORANGE }}>∞</span> CONNECT</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="hidden sm:flex items-center gap-6">
             {FOOTER_FEATURES.map((f) => (
               <div key={f.label} className="flex items-center gap-1.5">
                 <f.icon className="w-4 h-4" style={{ color: ORANGE }} />

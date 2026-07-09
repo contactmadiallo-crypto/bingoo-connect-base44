@@ -5,6 +5,7 @@ import TeamMembersPanel from "./TeamMembersPanel";
 import { getEffectiveProfilePlan, canAccess } from "@/lib/planPermissions";
 import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE } from "@/lib/sidebarConfig";
 import { Clock, Scissors, Users } from "lucide-react";
+import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
 
 const PLAN_TO_TYPE = {
   salon: TYPE_SALON,
@@ -51,11 +52,7 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
 
   if (visible.length === 0) {
     return (
-      <div className="text-center py-16 rounded-2xl" style={{ background: isDark ? "rgba(255,255,255,0.03)" : "#f8fafc", border: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"}` }}>
-        <Clock className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-        <p className={`font-bold ${headText}`}>Business tools require a paid plan</p>
-        <p className={`text-sm mt-1 max-w-xs mx-auto ${mutedText}`}>Upgrade to Professional or higher to access business hours, services, and team management.</p>
-      </div>
+      <BingooEmptyState icon={Clock} title="Business tools require a paid plan" message="Upgrade to Professional or higher to access business hours, services, and team management." isDark={isDark} />
     );
   }
 
