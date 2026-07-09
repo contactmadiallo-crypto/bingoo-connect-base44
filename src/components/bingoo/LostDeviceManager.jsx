@@ -17,6 +17,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   const qc = useQueryClient();
   const [activeSection, setActiveSection] = useState("devices"); // "devices" | "reports"
   const [expandedReportDevice, setExpandedReportDevice] = useState(null);
+  const [expandedDeviceId, setExpandedDeviceId] = useState(null);
 
   const headText = isDark ? "text-white" : "text-slate-900";
   const subText = isDark ? "text-white/60" : "text-slate-500";
@@ -33,7 +34,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   });
 
   const { data: devices = [], isLoading: devicesLoading } = useQuery({
-    queryKey: ["my-devices-lost", userId, userProfiles.map(p => p.id).join(",")],
+    queryKey: ["my-devices-lost", userId, [...userProfiles.map(p => p.id)].sort().join(",")],
     queryFn: async () => {
       if (!userProfiles.length) return [];
       const all = await Promise.all(
@@ -208,37 +209,23 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
               const Icon = DEVICE_ICONS[device.device_type] || Smartphone;
               const lost = isLost(device);
               const deviceReports = getReportsForDevice(device.device_code);
+              const isCardExpanded = expandedDeviceId === device.id;
 
               return (
                 <div key={device.id} className={`rounded-2xl ${cardCls} overflow-hidden transition-all`}>
-                  <div className="p-4 flex items-center gap-3">
-
-                    {/* Icon with lost pulse */}
-                    <div className={`relative w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
-                      lost ? "bg-red-100" : "bg-blue-50"
-                    }`}>
+                  <div
+                    className="p-4 flex items-center gap-3 cursor-pointer select-none"
+                    onClick={() => setExpandedDeviceId(isCardExpanded ? null : device.id)}
+                  >
+                    <div className={`relative w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${lost ? "bg-red-100" : "bg-blue-50"}`}>
                       <Icon className={`w-5 h-5 ${lost ? "text-red-500" : "text-blue-600"}`} />
-                      {lost && (
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse" />
-                      )}
+                      {lost && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white animate-pulse" />}
                     </div>
-
-                    {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className={`font-bold text-sm ${headText}`}>
-                          {device.device_code}
-                        </p>
-                        {/* ── STATUS LABEL ── */}
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black border ${
-                          lost
-                            ? "bg-red-100 text-red-600 border-red-300"
-                            : "bg-emerald-100 text-emerald-700 border-emerald-200"
-                        }`}>
-                          {lost
-                            ? <><AlertTriangle className="w-3 h-3" /> LOST</>
-                            : <><CheckCircle2 className="w-3 h-3" /> ACTIVE</>
-                          }
+                        <p className={`font-bold text-sm ${headText}`}>{device.device_code}</p>
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black border ${lost ? "bg-red-100 text-red-600 border-red-300" : "bg-emerald-100 text-emerald-700 border-emerald-200"}`}>
+                          {lost ? <><AlertTriangle className="w-3 h-3" /> LOST</> : <><CheckCircle2 className="w-3 h-3" /> ACTIVE</>}
                         </span>
                         {deviceReports.length > 0 && (
                           <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full text-xs font-bold">
@@ -247,29 +234,82 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                         )}
                       </div>
                       <p className={`text-xs font-mono mt-0.5 ${subText}`}>
-                        {device.device_type}
-                        {" · "}
-                        {device.assigned_at
-                          ? `Since ${new Date(device.assigned_at).toLocaleDateString()}`
-                          : ""}
+                        {device.device_type}{" · "}{device.assigned_at ? `Since ${new Date(device.assigned_at).toLocaleDateString()}` : ""}
                       </p>
                     </div>
-
-                    {/* Toggle */}
-                    <div className="shrink-0">
+                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                       {lost ? (
-                        <Button size="sm" onClick={() => markActive(device)}
-                          className="rounded-xl text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-8 px-3 gap-1">
+                        <Button size="sm" onClick={() => markActive(device)} className="rounded-xl text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-8 px-3 gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Recovered
                         </Button>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => markLost(device)}
-                          className="rounded-xl text-xs border-red-200 text-red-600 hover:bg-red-50 font-bold h-8 px-3 gap-1">
+                        <Button size="sm" variant="outline" onClick={() => markLost(device)} className="rounded-xl text-xs border-red-200 text-red-600 hover:bg-red-50 font-bold h-8 px-3 gap-1">
                           <AlertTriangle className="w-3 h-3" /> Mark Lost
                         </Button>
                       )}
                     </div>
+                    {isCardExpanded ? <ChevronUp className={`w-4 h-4 ${subText} shrink-0`} /> : <ChevronDown className={`w-4 h-4 ${subText} shrink-0`} />}
                   </div>
+
+                  {isCardExpanded && (
+                    <div className={`px-4 pb-4 border-t ${isDark ? "border-white/10" : "border-slate-100"} space-y-4`}>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3">
+                        <div className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                          <p className={`text-xs font-bold uppercase tracking-wider ${subText}`}>Type</p>
+                          <p className={`text-sm font-black mt-1 ${headText} capitalize`}>{device.device_type}</p>
+                        </div>
+                        <div className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                          <p className={`text-xs font-bold uppercase tracking-wider ${subText}`}>Status</p>
+                          <p className={`text-sm font-black mt-1 capitalize ${lost ? "text-red-500" : "text-emerald-600"}`}>{device.status}</p>
+                        </div>
+                        <div className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                          <p className={`text-xs font-bold uppercase tracking-wider ${subText}`}>Reports</p>
+                          <p className={`text-sm font-black mt-1 ${headText}`}>{deviceReports.length}</p>
+                        </div>
+                      </div>
+
+                      <div className={`rounded-xl p-4 ${lost ? (isDark ? "bg-red-500/10 border border-red-500/25" : "bg-red-50 border border-red-200") : (isDark ? "bg-white/5" : "bg-slate-50")}`}>
+                        <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${lost ? "text-red-400" : subText}`}>🔒 Lost Mode</p>
+                        {lost ? (
+                          <div className="space-y-2">
+                            <p className={`text-xs ${isDark ? "text-white/60" : "text-slate-600"}`}>Scans show a recovery page. Reactivate to resume normal scans.</p>
+                            <button onClick={() => markActive(device)} className="text-xs font-bold px-4 py-2 rounded-xl" style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>✓ Reactivate Device</button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className={`text-xs ${subText}`}>If lost or stolen, activate Lost Mode to disable scans and show a recovery page to finders.</p>
+                            <button onClick={() => markLost(device)} className="text-xs font-bold px-3 py-1.5 rounded-xl" style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}>🔒 Activate Lost Mode</button>
+                          </div>
+                        )}
+                      </div>
+
+                      {deviceReports.length > 0 && (
+                        <div className="space-y-2">
+                          <p className={`text-xs font-bold uppercase tracking-wider ${subText}`}>Finder Reports</p>
+                          {deviceReports.map(report => (
+                            <div key={report.id} className={`p-3 rounded-xl ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <p className={`font-bold text-sm ${headText}`}>{report.finder_name || "Anonymous"}</p>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${report.status === "recovered" ? "bg-emerald-100 text-emerald-700" : report.status === "contacted" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
+                                  {report.status === "recovered" ? "✓ Recovered" : report.status === "contacted" ? "Contacted" : "New"}
+                                </span>
+                              </div>
+                              {report.finder_phone && <a href={`tel:${report.finder_phone}`} className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold mt-1.5"><Phone className="w-3 h-3" /> {report.finder_phone}</a>}
+                              {report.finder_email && <a href={`mailto:${report.finder_email}`} className="flex items-center gap-1.5 text-xs text-blue-500 font-semibold"><Mail className="w-3 h-3" /> {report.finder_email}</a>}
+                              {report.finder_location && <p className={`flex items-center gap-1.5 text-xs ${subText} mt-1`}><MapPin className="w-3 h-3 shrink-0" /> {report.finder_location}</p>}
+                              {report.finder_message && <p className={`text-xs ${subText} italic mt-1`}>"{report.finder_message}"</p>}
+                              {report.status !== "recovered" && (
+                                <div className="flex gap-1 mt-2">
+                                  {report.status === "new" && <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success("Marked as contacted"); }} className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 text-white">Mark Contacted</button>}
+                                  <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success("Item marked as recovered!"); }} className="text-xs font-bold px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white">Recovered ✓</button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })
