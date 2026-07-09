@@ -227,7 +227,7 @@ export const PLAN_STRIPE_PRODUCTS = {
 
 export const PLAN_FEATURES = {
   free:         ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass'],
+  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Instagram Integration', 'Calendar View', 'Google Wallet Pass', 'Apple Wallet Pass'],
   business:     ['Everything in Professional', 'Business Hours', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
@@ -344,23 +344,23 @@ export const FEATURE_DESCRIPTIONS = {
   instagram_integration:{ title: 'Instagram Integration',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to connect your Instagram to your profile.' },
   google_wallet_pass:   { title: 'Google Wallet Pass',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate a Google Wallet digital card.' },
   apple_wallet_pass:    { title: 'Apple Wallet Pass',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate an Apple Wallet digital card.' },
-  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Business',     message: 'Upgrade to a Business plan to display your business hours.' },
+  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to display your business hours.' },
   calendar:             { title: 'Calendar View',              upgradeTarget: 'Professional', message: 'Upgrade to Professional to access the calendar view.' },
   // Aliases for backward compat — same gate as canonical
   custom_colors:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
   custom_design:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
 
-  // ── Business / Industry shared tier ──
-  team_members:         { title: 'Team Members',               upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, Restaurant, or Law Firm plan to manage team members.' },
-  google_reviews:       { title: 'Google Review Link',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a Google review link.' },
-  google_review_link:   { title: 'Google Review Link',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a Google review link.' },
-  whatsapp_booking:     { title: 'WhatsApp Booking Button',    upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to add a WhatsApp booking button.' },
-  advanced_analytics:   { title: 'Advanced Analytics',         upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan for advanced analytics.' },
-  lead_export:          { title: 'Lead Export',                upgradeTarget: 'Business',     message: 'Upgrade to a Business or industry plan to export leads as CSV.' },
-  services:             { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
-  service_menu:         { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
-  menu_services:        { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan to showcase services or a menu.' },
-  nfc_counter_stand:    { title: 'NFC Counter Stand',          upgradeTarget: 'Business',     message: 'Upgrade to a Business, Salon, or Restaurant plan for NFC counter stand support.' },
+  // ── Business / Industry shared tier (cheapest purchasable = Salon) ──
+  team_members:         { title: 'Team Members',               upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to manage team members.' },
+  google_reviews:       { title: 'Google Review Link',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a Google review link.' },
+  google_review_link:   { title: 'Google Review Link',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a Google review link.' },
+  whatsapp_booking:     { title: 'WhatsApp Booking Button',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a WhatsApp booking button.' },
+  advanced_analytics:   { title: 'Advanced Analytics',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan for advanced analytics.' },
+  lead_export:          { title: 'Lead Export',                upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to export leads as CSV.' },
+  services:             { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
+  service_menu:         { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
+  menu_services:        { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
+  nfc_counter_stand:    { title: 'NFC Counter Stand',          upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for NFC counter stand support.' },
 
   // ── Salon-specific ──
   salon_profile:        { title: 'Salon Business Profile',     upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full salon business profile.' },
@@ -515,3 +515,18 @@ export const PLAN_HIERARCHY = {
 // Only these plans can be purchased right now. Others are under construction.
 export const PURCHASABLE_PLANS = ['professional', 'salon', 'lawfirm'];
 export const COMING_SOON_PLANS = ['business', 'restaurant', 'corporate'];
+
+// UI metadata for Coming Soon plans (no Stripe product, no feature set — display only)
+export const COMING_SOON_PLAN_META = [
+  { id: 'business',        name: 'Business',         priceUSD: 14.99, tagline: 'Small business essentials' },
+  { id: 'restaurant',      name: 'Restaurant',       priceUSD: 29.99, tagline: 'Digital menus & reservations' },
+  { id: 'corporate',       name: 'Corporate',        priceUSD: 99,    tagline: 'Enterprise & attendance' },
+  { id: 'ngo',             name: 'NGO',              priceUSD: null,  tagline: 'Non-profit organizations' },
+  { id: 'event_planner',   name: 'Event Planner',    priceUSD: null,  tagline: 'Event management' },
+  { id: 'bulk_enterprise', name: 'Bulk / Enterprise',priceUSD: null,  tagline: 'Large volume & custom' },
+];
+
+// Helper: is this plan purchasable right now?
+export function isPurchasable(planId) {
+  return PURCHASABLE_PLANS.includes(planId);
+}

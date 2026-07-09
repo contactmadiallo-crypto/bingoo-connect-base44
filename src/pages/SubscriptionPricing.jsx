@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock } from 'lucide-react';
+import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -60,6 +60,56 @@ const PLAN_DEFS = [
     color: '#0369a1',
     cta: 'Get Law Firm Plan',
   },
+  {
+    id: 'restaurant',
+    name: 'Restaurant',
+    priceUSD: 29.99,
+    tagline: 'Digital menus & reservations',
+    icon: <UtensilsCrossed className="w-5 h-5" />,
+    color: '#c2410c',
+    cta: 'Get Restaurant Plan',
+    comingSoon: true,
+  },
+  {
+    id: 'corporate',
+    name: 'Corporate',
+    priceUSD: 99,
+    tagline: 'Enterprise & attendance',
+    icon: <Crown className="w-5 h-5" />,
+    color: '#15803d',
+    cta: 'Get Corporate Plan',
+    comingSoon: true,
+  },
+  {
+    id: 'ngo',
+    name: 'NGO',
+    priceUSD: null,
+    tagline: 'Non-profit organizations',
+    icon: <Users className="w-5 h-5" />,
+    color: '#0891b2',
+    cta: 'Notify Me',
+    comingSoon: true,
+  },
+  {
+    id: 'event_planner',
+    name: 'Event Planner',
+    priceUSD: null,
+    tagline: 'Event management',
+    icon: <Calendar className="w-5 h-5" />,
+    color: '#7c3aed',
+    cta: 'Notify Me',
+    comingSoon: true,
+  },
+  {
+    id: 'bulk_enterprise',
+    name: 'Bulk / Enterprise',
+    priceUSD: null,
+    tagline: 'Large volume & custom',
+    icon: <Building2 className="w-5 h-5" />,
+    color: '#475569',
+    cta: 'Contact Sales',
+    comingSoon: true,
+  },
 ];
 
 export default function SubscriptionPricing() {
@@ -108,7 +158,7 @@ export default function SubscriptionPricing() {
   // Resolve display price for a plan in current currency
   const getPlanPrice = (planId) => {
     const plan = PLAN_DEFS.find(p => p.id === planId);
-    if (!plan || plan.priceUSD === 0) return 0;
+    if (!plan || plan.priceUSD === 0 || plan.priceUSD == null) return 0;
 
     // Check DB config first
     const dbConfig = pricingConfigs.find(c => c.plan_name === planId && c.currency === currency);
@@ -121,7 +171,7 @@ export default function SubscriptionPricing() {
   // Annual price: monthly × 12 × 0.9 (10% discount, server-side enforced)
   const getAnnualPrice = (planId) => {
     const plan = PLAN_DEFS.find(p => p.id === planId);
-    if (!plan || plan.priceUSD === 0) return 0;
+    if (!plan || plan.priceUSD === 0 || plan.priceUSD == null) return 0;
     return convertPrice(plan.priceUSD * 12 * 0.9, currency);
   };
 
@@ -291,7 +341,7 @@ export default function SubscriptionPricing() {
             const current = isCurrent(plan.id);
             const isHighlight = plan.highlight || (highlightPlan && plan.id === highlightPlan.toLowerCase());
             const displayPrice = getPlanPrice(plan.id);
-            const planFeatures = PLAN_FEATURES[plan.id] || PLAN_FEATURES.free;
+            const planFeatures = PLAN_FEATURES[plan.id] || (plan.comingSoon ? [] : PLAN_FEATURES.free);
 
             return (
               <motion.div
@@ -341,7 +391,7 @@ export default function SubscriptionPricing() {
                 {/* Price */}
                 <div className="mb-5">
                   <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
-                    {plan.priceUSD === 0 ? 'Free' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
+                    {plan.priceUSD === 0 ? 'Free' : plan.priceUSD == null ? 'TBD' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
                   </span>
                   {plan.priceUSD > 0 && (
                     <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>
@@ -353,15 +403,23 @@ export default function SubscriptionPricing() {
                 <div className="h-px mb-5" style={{ background: isHighlight ? 'rgba(255,255,255,0.1)' : '#f1f5f9' }} />
 
                 {/* Features */}
-                <ul className="space-y-2 mb-7 flex-1">
-                  {planFeatures.map((f, fi) => (
-                    <li key={fi} className="flex items-start gap-2 text-sm"
-                      style={{ color: isHighlight ? 'rgba(255,255,255,0.78)' : '#475569' }}>
-                      <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: isHighlight ? B.gold : plan.color }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
+                {planFeatures.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center mb-7">
+                    <p className="text-sm text-center py-6" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#94a3b8' }}>
+                      Features to be announced.<br />This plan is under development.
+                    </p>
+                  </div>
+                ) : (
+                  <ul className="space-y-2 mb-7 flex-1">
+                    {planFeatures.map((f, fi) => (
+                      <li key={fi} className="flex items-start gap-2 text-sm"
+                        style={{ color: isHighlight ? 'rgba(255,255,255,0.78)' : '#475569' }}>
+                        <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: isHighlight ? B.gold : plan.color }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
                 {/* CTA */}
                 <Button

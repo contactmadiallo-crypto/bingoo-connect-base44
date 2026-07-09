@@ -1,7 +1,7 @@
 import { X, Zap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FEATURE_DESCRIPTIONS } from '@/lib/planPermissions';
+import { FEATURE_DESCRIPTIONS, COMING_SOON_PLANS } from '@/lib/planPermissions';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
 
@@ -45,13 +45,19 @@ export default function UpgradeModal({ featureKey, onClose }) {
             {info.message}
           </p>
 
-          <Link to={`/plans?highlight=${targetPlan}`} onClick={onClose}>
-            <Button className="w-full font-bold flex items-center justify-center gap-2"
-              style={{ background: B.orange, color: '#fff', border: 'none' }}>
-              Upgrade to {info.upgradeTarget}
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </Link>
+          {COMING_SOON_PLANS.includes(targetPlan) ? (
+            <div className="w-full py-3 rounded-xl text-center text-sm font-bold" style={{ background: '#f1f5f9', color: '#64748b' }}>
+              This plan is coming soon — we'll notify you when it launches.
+            </div>
+          ) : (
+            <Link to={`/plans?highlight=${targetPlan}`} onClick={onClose}>
+              <Button className="w-full font-bold flex items-center justify-center gap-2"
+                style={{ background: B.orange, color: '#fff', border: 'none' }}>
+                Upgrade to {info.upgradeTarget}
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          )}
 
           <button onClick={onClose}
             className="w-full mt-3 text-sm text-slate-400 hover:text-slate-600 transition-colors font-medium">

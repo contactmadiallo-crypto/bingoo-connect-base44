@@ -1,7 +1,7 @@
 import { Lock, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FEATURE_DESCRIPTIONS, PLAN_LABELS } from '@/lib/planPermissions';
+import { FEATURE_DESCRIPTIONS, PLAN_LABELS, COMING_SOON_PLANS } from '@/lib/planPermissions';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
 
@@ -46,13 +46,19 @@ export default function PlanGateScreen({ feature, isDark = false }) {
       </p>
 
       {/* CTA */}
-      <Link to={`/plans?highlight=${targetPlan}`}>
-        <Button className="font-bold flex items-center gap-2 px-6 py-3 text-base rounded-xl"
-          style={{ background: B.orange, color: '#fff', border: 'none' }}>
-          Upgrade to {info.upgradeTarget}
-          <ArrowRight className="w-4 h-4" />
-        </Button>
-      </Link>
+      {COMING_SOON_PLANS.includes(targetPlan) ? (
+        <div className="px-6 py-3 rounded-xl text-sm font-bold" style={{ background: '#f1f5f9', color: '#64748b' }}>
+          This plan is coming soon — we'll notify you when it launches.
+        </div>
+      ) : (
+        <Link to={`/plans?highlight=${targetPlan}`}>
+          <Button className="font-bold flex items-center gap-2 px-6 py-3 text-base rounded-xl"
+            style={{ background: B.orange, color: '#fff', border: 'none' }}>
+            Upgrade to {info.upgradeTarget}
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      )}
 
       <Link to="/billing" className="mt-4 text-sm font-semibold hover:underline"
         style={{ color: isDark ? 'rgba(255,255,255,0.35)' : '#94a3b8' }}>
