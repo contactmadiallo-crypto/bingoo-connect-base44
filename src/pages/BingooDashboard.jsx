@@ -9,6 +9,7 @@ import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import QrWalletCenter from "@/components/bingoo/QrWalletCenter";
+import DesignStudio from "@/components/bingoo/DesignStudio";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
@@ -56,6 +57,7 @@ const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
 const VIEW_HOME         = "home";
 const VIEW_QR           = "qrwallet";
+const VIEW_DESIGN       = "designstudio";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -79,6 +81,7 @@ const TAB_TO_VIEW = {
   hub: VIEW_HUB,
   home: VIEW_HOME,
   qrwallet: VIEW_QR,
+  designstudio: VIEW_DESIGN,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -729,6 +732,20 @@ export default function BingooDashboard() {
                   isDark={isDark}
                   effectivePlan={activeProfilePlan}
                 />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              DESIGN STUDIO — Custom NFC Card Designer
+          ════════════════════════════════════ */}
+          {view === VIEW_DESIGN && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <DesignStudio isDark={isDark} />
               )}
             </div>
           )}

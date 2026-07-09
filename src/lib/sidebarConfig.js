@@ -20,7 +20,7 @@
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
   Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
-  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode,
+  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode, PenTool,
 } from "lucide-react";
 import { t } from "@/lib/i18n";
 
@@ -92,6 +92,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "hours",
     "analytics",
     "devices",
+    "designstudio",
     "lostmode",
     "team",
     "connections",
@@ -108,6 +109,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "hours",
     "analytics",
     "devices",
+    "designstudio",
     "lostmode",
     "team",
     "connections",
@@ -125,6 +127,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "offices",
     "analytics",
     "devices",
+    "designstudio",
     "lostmode",
     "team",
     "crm",
@@ -140,6 +143,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "leads",
     "analytics",
     "devices",
+    "designstudio",
     "lostmode",
     "team",
     "crm",
@@ -259,6 +263,11 @@ export const SIDEBAR_NAV_MAP = {
     id: "qrwallet", label: "QR & Wallet", labelFr: "QR & Wallet",
     icon: QrCode, href: "/bingoo?view=qrwallet",
     iconColor: "#0B2E6B", iconBg: "rgba(11,46,107,0.18)",
+  },
+  designstudio: {
+    id: "designstudio", label: "Design Studio", labelFr: "Studio Design",
+    icon: PenTool, href: "/bingoo?view=designstudio",
+    iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },
   billing: {
     id: "billing", label: "Billing", labelFr: "Facturation",

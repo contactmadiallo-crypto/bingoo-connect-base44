@@ -173,3 +173,86 @@ export const PRODUCTS = [
     ],
   },
 ];
+
+// ── Color & Material Options per product category ───────────────────────────
+export const PRODUCT_OPTIONS = {
+  card: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'Orange', value: '#f97316' },
+      { name: 'White', value: '#F1F5F9' },
+    ],
+    materials: [
+      { name: 'Matte PVC', value: 'matte' },
+      { name: 'Brushed Metal', value: 'metal' },
+      { name: 'Wood', value: 'wood' },
+      { name: 'Frosted', value: 'frosted' },
+    ],
+  },
+  keychain: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'Orange', value: '#f97316' },
+    ],
+    materials: [
+      { name: 'Silicone', value: 'silicone' },
+      { name: 'Metal', value: 'metal' },
+    ],
+  },
+  sticker: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'Orange', value: '#f97316' },
+      { name: 'White', value: '#F1F5F9' },
+    ],
+    materials: [{ name: 'Vinyl', value: 'vinyl' }],
+  },
+  bracelet: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'Orange', value: '#f97316' },
+    ],
+    materials: [{ name: 'Silicone', value: 'silicone' }],
+  },
+  tag: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'Orange', value: '#f97316' },
+    ],
+    materials: [{ name: 'Silicone', value: 'silicone' }],
+  },
+  stand: {
+    colors: [
+      { name: 'Navy', value: '#0b2149' },
+      { name: 'Black', value: '#0F172A' },
+      { name: 'White', value: '#F1F5F9' },
+    ],
+    materials: [
+      { name: 'ABS Plastic', value: 'abs' },
+      { name: 'Metal', value: 'metal' },
+    ],
+  },
+};
+
+// ── "Perfect For" audience tags per product category ─────────────────────────
+export const PERFECT_FOR = {
+  card:     ['Attorneys', 'Realtors', 'Consultants', 'Agents', 'Executives'],
+  keychain: ['Drivers', 'Field Reps', 'Students', 'Event Staff'],
+  sticker:  ['Retailers', 'Cafés', 'Gyms', 'Startups'],
+  bracelet: ['Event Planners', 'Festivals', 'Sports Teams', 'Staff'],
+  tag:      ['Travelers', 'Lanyard Users', 'Teachers', 'Coaches'],
+  stand:    ['Salons', 'Restaurants', 'Reception', 'Retail Counters'],
+};
+
+// ── Shared activation steps ──────────────────────────────────────────────────
+export const ACTIVATION_STEPS = [
+  'Receive your device in the mail',
+  'Enter device code at bingooconnect.com/activate',
+  'Link to your Bingoo profile',
+  'Tap to share — done!',
+];
