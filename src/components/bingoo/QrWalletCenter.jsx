@@ -120,6 +120,18 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         qr_label: qrLabel,
         qr_watermark: logoWatermark,
       });
+      // Optimistically update cached profile data so the saved QR settings are
+      // reflected immediately when the user returns to this page — without
+      // waiting for the background refetch to complete (which races with
+      // navigation and can leave stale values on remount).
+      const qrPatch = { qr_color: qrColor, qr_label: qrLabel, qr_watermark: logoWatermark };
+      qc.setQueriesData(
+        { queryKey: ["my-profile"] },
+        (old) => Array.isArray(old)
+          ? old.map(p => p.id === profile.id ? { ...p, ...qrPatch } : p)
+          : old
+      );
+      qc.setQueryData(["profile-ws", profile.id], (old) => old ? { ...old, ...qrPatch } : old);
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       qc.invalidateQueries({ queryKey: ["profile-ws", profile.id] });
       setSaved(true);
