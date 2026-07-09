@@ -33,9 +33,9 @@ export default function FeatureGate({ feature, children, showLock = true }) {
         <div style={{ pointerEvents: 'none', opacity: 0.4 }}>{children}</div>
         {showLock && (
           <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
-            style={{ background: 'rgba(11,46,107,0.07)', border: '1.5px dashed #0B2E6B30' }}>
-            <Lock className="w-6 h-6 mb-1.5" style={{ color: '#0B2E6B' }} />
-            <p className="text-xs font-bold text-center px-3" style={{ color: '#0B2E6B' }}>
+            style={{ background: 'rgba(11,33,73,0.07)', border: '1.5px dashed #0b214930' }}>
+            <Lock className="w-6 h-6 mb-1.5" style={{ color: '#0b2149' }} />
+            <p className="text-xs font-bold text-center px-3" style={{ color: '#0b2149' }}>
               {info?.upgradeTarget} Plan
             </p>
           </div>

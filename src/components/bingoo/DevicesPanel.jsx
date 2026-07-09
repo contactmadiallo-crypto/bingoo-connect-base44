@@ -42,7 +42,7 @@ export default function DevicesPanel({ profileId }) {
           <p className="text-slate-400 text-sm mt-1 mb-5">Order a Bingoo NFC device and activate it to link it here.</p>
           <a href="/shop?category=cards"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-colors"
-            style={{ background: '#FF7A00' }}>
+            style={{ background: '#f97316' }}>
             Order a personal NFC card →
           </a>
         </div>

@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
 
 const B = {
-  navy: "#0B2E6B",
-  navyDark: "#071d47",
-  navyLight: "#1a4a9e",
-  orange: "#FF7A00",
+  navy: "#0b2149",
+  navyDark: "#071A3D",
+  navyLight: "#13284f",
+  orange: "#f97316",
   gold: "#FDBA21",
   slate: "#64748b"
 };

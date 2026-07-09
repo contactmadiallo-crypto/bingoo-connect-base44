@@ -103,17 +103,17 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
         >
           <div style={{
             maxWidth: 480, margin: "0 auto", borderRadius: 24, overflow: "hidden",
-            background: "linear-gradient(145deg, #0B2E6B 0%, #1a4a9e 100%)",
-            boxShadow: "0 -4px 0 rgba(255,122,0,0.6), 0 -20px 60px rgba(11,46,107,0.5), 0 0 0 1px rgba(255,255,255,0.1)",
+            background: "linear-gradient(145deg, #0b2149 0%, #13284f 100%)",
+            boxShadow: "0 -4px 0 rgba(249,115,22,0.6), 0 -20px 60px rgba(11,33,73,0.5), 0 0 0 1px rgba(255,255,255,0.1)",
           }}>
-            <div style={{ height: 3, background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
+            <div style={{ height: 3, background: "linear-gradient(90deg, #f97316, #FDBA21, #f97316)" }} />
 
             {step === "banner" && (
               <div style={{ padding: "16px 18px 18px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-                    <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(255,122,0,0.2)", border: "1.5px solid rgba(255,122,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      <Zap style={{ width: 20, height: 20, color: "#FF7A00" }} />
+                    <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(249,115,22,0.2)", border: "1.5px solid rgba(249,115,22,0.4)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Zap style={{ width: 20, height: 20, color: "#f97316" }} />
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ margin: 0, fontSize: 13, fontWeight: 900, color: "#fff", lineHeight: 1.3 }}>
@@ -129,7 +129,7 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
                   </button>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 14 }}>
-                  <button onClick={handleSignup} style={{ padding: "11px 14px", borderRadius: 14, background: "#FF7A00", border: "none", color: "#fff", fontWeight: 800, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 20px rgba(255,122,0,0.45)" }}>
+                  <button onClick={handleSignup} style={{ padding: "11px 14px", borderRadius: 14, background: "#f97316", border: "none", color: "#fff", fontWeight: 800, fontSize: 12.5, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 20px rgba(249,115,22,0.45)" }}>
                     Create Free Profile <ArrowRight style={{ width: 14, height: 14 }} />
                   </button>
                   <button onClick={handleLearnMore} style={{ padding: "11px 14px", borderRadius: 14, background: "rgba(255,255,255,0.1)", border: "1.5px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.85)", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
@@ -164,7 +164,7 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
                   style={{ width: "100%", padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600, outline: "none", marginBottom: 12 }}
                 />
                 <button type="submit" disabled={saving}
-                  style={{ width: "100%", padding: "12px", borderRadius: 14, background: "#FF7A00", border: "none", color: "#fff", fontWeight: 800, fontSize: 13.5, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 20px rgba(255,122,0,0.4)", opacity: saving ? 0.7 : 1 }}>
+                  style={{ width: "100%", padding: "12px", borderRadius: 14, background: "#f97316", border: "none", color: "#fff", fontWeight: 800, fontSize: 13.5, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, boxShadow: "0 6px 20px rgba(249,115,22,0.4)", opacity: saving ? 0.7 : 1 }}>
                   {saving ? "Saving..." : <><span>Create My Free Profile</span><ArrowRight style={{ width: 15, height: 15 }} /></>}
                 </button>
               </form>

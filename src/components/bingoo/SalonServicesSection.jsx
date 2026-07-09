@@ -8,7 +8,7 @@ const hexRgb = (hex, a = 1) => {
 };
 
 // Called from parent with onBookService(service) to open booking with pre-filled service
-export default function SalonServicesSection({ profileId, color = "#0B2E6B", isDark, onBookService }) {
+export default function SalonServicesSection({ profileId, color = "#0b2149", isDark, onBookService }) {
   const { data: allServices = [], isLoading } = useQuery({
     queryKey: ["public-salon-services", profileId],
     queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),

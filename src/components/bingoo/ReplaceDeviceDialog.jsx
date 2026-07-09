@@ -96,7 +96,7 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
                     <span className="font-mono font-bold">{device.device_code}</span> is now retired.
                     Your new device <span className="font-mono font-bold">{newCode.trim().toUpperCase()}</span> is active.
                   </p>
-                  <Button onClick={handleClose} className="w-full font-bold rounded-xl" style={{ background: "#FF7A00", color: "#fff" }}>Done</Button>
+                  <Button onClick={handleClose} className="w-full font-bold rounded-xl" style={{ background: "#f97316", color: "#fff" }}>Done</Button>
                 </div>
               ) : (
                 <>

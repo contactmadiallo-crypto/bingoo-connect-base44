@@ -47,10 +47,10 @@ export default function NFCRedirect() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #071d47 0%, #0B2E6B 100%)" }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #071A3D 0%, #0b2149 100%)" }}>
         <div className="text-center">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse"
-            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
             <span className="text-white font-black text-2xl">B</span>
           </div>
           <p className="text-white/60 font-semibold">Checking device...</p>
@@ -62,7 +62,7 @@ export default function NFCRedirect() {
   // Unknown device
   if (!device) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(135deg, #071d47 0%, #0B2E6B 100%)" }}>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(135deg, #071A3D 0%, #0b2149 100%)" }}>
         <div className="text-center">
           <div className="text-6xl mb-4">📵</div>
           <h2 className="text-2xl font-bold text-white mb-2">Device Not Found</h2>
@@ -85,10 +85,10 @@ export default function NFCRedirect() {
 
   // While redirecting
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #071d47 0%, #0B2E6B 100%)" }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #071A3D 0%, #0b2149 100%)" }}>
       <div className="text-center">
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           <span className="text-white font-black text-2xl">B</span>
         </div>
         <p className="text-white/60">Redirecting to profile...</p>

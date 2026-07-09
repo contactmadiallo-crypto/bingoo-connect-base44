@@ -28,7 +28,7 @@ function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardB
         </div>
       )}
       {isActive && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 text-white text-xs font-black px-2.5 py-1 rounded-full shadow" style={{ background: "#FF7A00" }}>
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 text-white text-xs font-black px-2.5 py-1 rounded-full shadow" style={{ background: "#f97316" }}>
           <Check className="w-3 h-3" /> Active
         </div>
       )}

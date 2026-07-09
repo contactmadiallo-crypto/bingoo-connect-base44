@@ -10,6 +10,7 @@ import { getVisibleNavSections } from "@/lib/sidebarConfigV2";
 import { useNavigationStack } from "@/components/mobile/NavigationStack";
 import { t, getLang } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
+import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 
 /**
  * BingooLayout
@@ -55,7 +56,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   // Unread notification badges mapped to nav item IDs
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
-  const sidebarBg     = "linear-gradient(180deg, #0B2E6B 0%, #0a2558 60%, #071b47 100%)";
+  const sidebarBg     = "linear-gradient(180deg, #0b2149 0%, #0a1d3f 60%, #071A3D 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";
 
   const isActive = (href) => {
@@ -115,12 +116,13 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const renderSidebarContent = (onNav) => (
     <div className="flex flex-col h-full">
       <div className="flex-shrink-0">
-        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
-        <Link to="/" className="px-5 py-5 flex items-center gap-3 transition-opacity hover:opacity-80" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
-          <BingooLogo className="h-12 w-12 flex-shrink-0" animated />
-          <div>
-            <div className="text-white/30 text-[10px] uppercase tracking-widest font-bold leading-tight">
-              CONNECT • SHARE • GROW
+        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #f97316, #FDBA21, #f97316)" }} />
+        <Link to="/" className="px-5 py-4 flex items-center gap-3 transition-opacity hover:opacity-80" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
+          <BingooLogo className="h-11 w-11 flex-shrink-0" animated />
+          <div className="flex flex-col">
+            <BingooWordmark size="text-lg" light stacked={false} />
+            <div className="text-white/30 text-[9px] uppercase tracking-widest font-bold leading-tight mt-0.5">
+              Connect • Share • Grow
             </div>
           </div>
         </Link>
@@ -167,7 +169,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
         </button>
         <div className="flex items-center gap-3 px-3 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
-            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
             {user?.full_name?.charAt(0) || "U"}
           </div>
           <div className="flex-1 min-w-0">
@@ -215,13 +217,14 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       {/* ── MOBILE TOP HEADER ── */}
       <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4"
         style={{
-          background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 100%)",
-          borderBottom: "2px solid #FF7A00",
+        background: "linear-gradient(135deg, #0b2149 0%, #13284f 100%)",
+        borderBottom: "2px solid #f97316",
           paddingTop: "env(safe-area-inset-top)",
           height: "calc(56px + env(safe-area-inset-top))",
         }}>
-        <Link to="/" aria-label="Bingoo Connect home" className="transition-opacity hover:opacity-80">
-          <BingooLogo className="h-8 w-8" animated={false} />
+        <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+          <BingooLogo className="h-7 w-7" animated={false} />
+          <BingooWordmark size="text-base" light stacked={false} />
         </Link>
         <div className="flex items-center gap-1">
           <button onClick={toggle} aria-label="Toggle dark mode"
@@ -260,8 +263,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       {/* Phase 3: Home · Profiles · NFC · Business · More */}
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center overflow-hidden"
         style={{
-          background: "linear-gradient(180deg, #0a2558 0%, #071b47 100%)",
-          borderTop: "1px solid rgba(255,122,0,0.4)",
+          background: "linear-gradient(180deg, #0a1d3f 0%, #071A3D 100%)",
+          borderTop: "1px solid rgba(249,115,22,0.4)",
           paddingBottom: "env(safe-area-inset-bottom)",
           height: "calc(60px + env(safe-area-inset-bottom))",
         }}>
@@ -271,10 +274,10 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=home'; if (isActive(href)) { resetStack('home', href); } else { switchTab('home', href); } }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=home') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Home className="w-5 h-5" style={{ color: isActive('/bingoo?view=home') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+            style={{ background: isActive('/bingoo?view=home') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Home className="w-5 h-5" style={{ color: isActive('/bingoo?view=home') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
           </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=home') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=home') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
             {lang === 'fr' ? 'Accueil' : 'Home'}
           </span>
         </Link>
@@ -284,10 +287,10 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=workspace'; if (isActive(href)) { resetStack('workspace', href); } else { switchTab('workspace', href); } }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=workspace') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <User className="w-5 h-5" style={{ color: isActive('/bingoo?view=workspace') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+            style={{ background: isActive('/bingoo?view=workspace') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <User className="w-5 h-5" style={{ color: isActive('/bingoo?view=workspace') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
           </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=workspace') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=workspace') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
             {lang === 'fr' ? 'Profils' : 'Profiles'}
           </span>
         </Link>
@@ -297,10 +300,10 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           onClick={(e) => { e.preventDefault(); const href = '/my-nfc-devices'; if (isActive(href)) { resetStack('nfc', href); } else { switchTab('nfc', href); } }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/my-nfc-devices') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Smartphone className="w-5 h-5" style={{ color: isActive('/my-nfc-devices') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+            style={{ background: isActive('/my-nfc-devices') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Smartphone className="w-5 h-5" style={{ color: isActive('/my-nfc-devices') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
           </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/my-nfc-devices') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+          <span className="text-xs font-semibold" style={{ color: isActive('/my-nfc-devices') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
             NFC
           </span>
         </Link>
@@ -310,10 +313,10 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
           onClick={(e) => { e.preventDefault(); const href = '/bingoo?view=leads'; if (isActive(href)) { resetStack('leads', href); } else { switchTab('leads', href); } }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=leads') ? "rgba(255,122,0,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Briefcase className="w-5 h-5" style={{ color: isActive('/bingoo?view=leads') ? "#FF7A00" : "rgba(255,255,255,0.4)" }} />
+            style={{ background: isActive('/bingoo?view=leads') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
+            <Briefcase className="w-5 h-5" style={{ color: isActive('/bingoo?view=leads') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
           </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=leads') ? "#FF7A00" : "rgba(255,255,255,0.4)" }}>
+          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=leads') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
             {lang === 'fr' ? 'Business' : 'Business'}
           </span>
         </Link>
@@ -325,7 +328,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             <Menu className="w-5 h-5 text-white/40" />
             {totalUnread > 0 && (
               <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
-                style={{ background: "#F97316", border: "2px solid #0a2558" }}>
+                style={{ background: "#F97316", border: "2px solid #0a1d3f" }}>
                 {totalUnread > 9 ? "9+" : totalUnread}
               </span>
             )}

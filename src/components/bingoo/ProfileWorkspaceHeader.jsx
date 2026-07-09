@@ -24,11 +24,11 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
   return (
     <div className="rounded-2xl overflow-hidden mb-5"
       style={{
-        background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 60%, #0f3080 100%)",
-        boxShadow: "0 4px 24px rgba(11,46,107,0.3)"
+        background: "linear-gradient(135deg, #0b2149 0%, #13284f 60%, #0f3080 100%)",
+        boxShadow: "0 4px 24px rgba(11,33,73,0.3)"
       }}>
       {/* Orange accent bar */}
-      <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #FF7A00, #FDBA21, #FF7A00)" }} />
+      <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #f97316, #FDBA21, #f97316)" }} />
 
       <div className="p-4">
         <div className="flex items-center gap-3">
@@ -74,7 +74,7 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
             </button>
             <a href={profileUrl} target="_blank" rel="noopener noreferrer">
               <button className="flex items-center gap-1 text-xs font-bold px-2.5 py-1.5 rounded-xl text-white transition-all hover:opacity-90"
-                style={{ background: "#FF7A00" }}>
+                style={{ background: "#f97316" }}>
                 <Eye className="w-3 h-3" />
                 <span className="hidden sm:inline">Preview</span>
               </button>

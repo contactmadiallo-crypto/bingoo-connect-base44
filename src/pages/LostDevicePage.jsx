@@ -213,7 +213,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
             <Button
               type="submit"
               disabled={submitting || (!form.name && !form.phone && !form.email)}
-              className="w-full rounded-xl bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] text-white font-bold gap-2 h-12"
+              className="w-full rounded-xl bg-gradient-to-r from-[#0b2149] to-[#13284f] text-white font-bold gap-2 h-12"
             >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               {submitting ? "Sending..." : "Send Recovery Message"}

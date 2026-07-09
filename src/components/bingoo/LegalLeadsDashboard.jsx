@@ -140,7 +140,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving}
-              className="rounded-xl font-bold text-white" style={{ background: "#0B2E6B" }}>
+              className="rounded-xl font-bold text-white" style={{ background: "#0b2149" }}>
               {saving ? "Saving…" : "Save Changes"}
             </Button>
             <button onClick={() => onDelete(lead.id)}

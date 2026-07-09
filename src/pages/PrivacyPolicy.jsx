@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       {/* Header */}
-      <div style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", padding: "40px 24px 32px", textAlign: "center" }}>
+      <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "40px 24px 32px", textAlign: "center" }}>
         <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
           ← Bingoo Connect
         </Link>

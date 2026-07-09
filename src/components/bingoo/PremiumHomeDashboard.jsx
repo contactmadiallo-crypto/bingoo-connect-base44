@@ -62,7 +62,7 @@ export default function PremiumHomeDashboard({
 
   // ── Quick actions ──
   const quickActions = [
-    { icon: Share2,      label: "Share",    color: "#FF7A00", onClick: handleShare },
+    { icon: Share2,      label: "Share",    color: "#f97316", onClick: handleShare },
     { icon: BarChart3,   label: "Analytics", color: "#3b82f6", onClick: () => onNavigate("analytics") },
     { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/activate-device" },
     { icon: Users,       label: "Leads",     color: "#f59e0b", onClick: () => onNavigate("leads") },
@@ -125,19 +125,19 @@ export default function PremiumHomeDashboard({
     <div className="space-y-5">
       {/* ── Profile Summary ── */}
       <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: shadow.boxShadow }}>
-        <div className="h-20" style={{ background: `linear-gradient(135deg, ${profile.cover_color || "#0B2E6B"}, ${profile.cover_color || "#0B2E6B"}cc)` }} />
+        <div className="h-20" style={{ background: `linear-gradient(135deg, ${profile.cover_color || "#0b2149"}, ${profile.cover_color || "#0b2149"}cc)` }} />
         <div className={`px-4 pb-4 ${isDark ? "bg-white/5" : "bg-white"}`}>
           <div className="flex items-end gap-3 -mt-8">
             {profile.profile_photo
               ? <img src={profile.profile_photo} className="w-16 h-16 rounded-2xl object-cover shadow-lg flex-shrink-0" style={{ border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }} alt="" />
-              : <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-xl flex-shrink-0" style={{ background: profile.cover_color || "#0B2E6B", border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }}>{profile.display_name?.charAt(0)}</div>
+              : <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-xl flex-shrink-0" style={{ background: profile.cover_color || "#0b2149", border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }}>{profile.display_name?.charAt(0)}</div>
             }
             <div className="flex-1 min-w-0 pb-1">
               <h2 className={`font-black text-base leading-tight ${head}`}>{profile.display_name}</h2>
               <p className={`text-xs font-semibold ${sub}`}>{profile.job_title || profile.company_name || ""}</p>
             </div>
             <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full text-white flex-shrink-0"
-              style={{ background: isFree ? "#64748b" : "#FF7A00" }}>
+              style={{ background: isFree ? "#64748b" : "#f97316" }}>
               {planLabel}
             </span>
           </div>
@@ -188,14 +188,14 @@ export default function PremiumHomeDashboard({
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => onNavigate("leads")}
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.3)" }}>
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
             <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{leadsThisMonth}</p>
             <p className="text-xs font-bold text-white/80">New Leads</p>
           </button>
           <button onClick={() => onNavigate("appointments")}
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", boxShadow: "0 4px 20px rgba(11,46,107,0.35)", border: "1px solid rgba(255,122,0,0.2)" }}>
+            style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", boxShadow: "0 4px 20px rgba(11,33,73,0.35)", border: "1px solid rgba(249,115,22,0.2)" }}>
             <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{apptsThisMonth}</p>
             <p className="text-xs font-bold text-white/80">Appointments</p>
@@ -305,8 +305,8 @@ export default function PremiumHomeDashboard({
       {/* ── Plan Status / Upgrade CTA ── */}
       {isFree ? (
         <div className="relative rounded-2xl p-5 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", border: "1px solid rgba(255,122,0,0.3)", boxShadow: "0 8px 32px rgba(11,46,107,0.3)" }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(255,122,0,0.15)" }} />
+          style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", border: "1px solid rgba(249,115,22,0.3)", boxShadow: "0 8px 32px rgba(11,33,73,0.3)" }}>
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(249,115,22,0.15)" }} />
           <div className="relative flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
               <h3 className="text-base font-black mb-0.5 text-white flex items-center gap-2">
@@ -315,7 +315,7 @@ export default function PremiumHomeDashboard({
               <p className="text-sm text-white/60">Professional from $4.99/mo — NFC, analytics, leads & more</p>
             </div>
             <Link to="/plans" className="flex-shrink-0">
-              <button className="rounded-xl font-bold text-sm px-5 py-2.5 text-white" style={{ background: "#FF7A00" }}>
+              <button className="rounded-xl font-bold text-sm px-5 py-2.5 text-white" style={{ background: "#f97316" }}>
                 View Plans
               </button>
             </Link>
@@ -328,7 +328,7 @@ export default function PremiumHomeDashboard({
               <p className={`font-bold text-sm ${head}`}>Plan Status</p>
               <p className={`text-xs mt-0.5 ${muted}`}>Your subscription is active</p>
             </div>
-            <span className="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full text-white" style={{ background: "#FF7A00" }}>
+            <span className="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full text-white" style={{ background: "#f97316" }}>
               {planLabel}
             </span>
           </div>

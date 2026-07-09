@@ -15,8 +15,8 @@ const STATUS_COLORS = {
   lost: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-const navyCard = "#0B2E6B";
-const orange = "#FF7A00";
+const navyCard = "#0b2149";
+const orange = "#f97316";
 const gold = "#FDBA21";
 
 function generateCode(prefix, index) {

@@ -109,7 +109,7 @@ const LAYOUT_CONFIG = {
     avatar: MEMOJI_A, isDark: true,
   },
   ny_championship: {
-    color: "#0B2E6B",
+    color: "#0b2149",
     cover: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&q=80",
     name: "Marcus King", title: "Sports Director", company: "NY Champions",
     avatar: MEMOJI_B, isDark: true,
@@ -304,7 +304,7 @@ function LayoutRenderer({ layoutId }) {
     case "floating":     return <FloatingLayout {...lp} />;
     case "minimal":      return <MinimalLayout {...lp} />;
     case "card":            return <CardLayout {...lp} />;
-    case "ny_championship": return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#FF7A00" isDark={true} /></NewYorkChampionshipLayout>;
+    case "ny_championship": return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#f97316" isDark={true} /></NewYorkChampionshipLayout>;
     case "lions_teranga": return <LionsOfTerangaLayout profile={profile}><MiniContentStub color="#D4AF37" isDark={true} /></LionsOfTerangaLayout>;
     default:             return <ClassicLayout {...lp} />;
   }

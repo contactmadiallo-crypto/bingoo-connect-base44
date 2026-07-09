@@ -33,7 +33,7 @@ export default function ContactSupport() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", padding: "40px 24px 32px", textAlign: "center" }}>
+      <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "40px 24px 32px", textAlign: "center" }}>
         <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
           ← Bingoo Connect
         </Link>
@@ -79,7 +79,7 @@ export default function ContactSupport() {
             </p>
             <button
               onClick={() => { setSubmitted(false); setForm({ name: "", email: "", topic: "", message: "" }); }}
-              style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: "#0B2E6B", color: "#fff", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
+              style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: "#0b2149", color: "#fff", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
             >
               Send Another Message
             </button>
@@ -127,7 +127,7 @@ export default function ContactSupport() {
             <button
               type="submit"
               disabled={submitting || !form.name || !form.email || !form.topic || !form.message}
-              style={{ width: "100%", padding: "14px", borderRadius: 12, background: submitting || !form.name || !form.email || !form.topic || !form.message ? "#94a3b8" : "#0B2E6B", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              style={{ width: "100%", padding: "14px", borderRadius: 12, background: submitting || !form.name || !form.email || !form.topic || !form.message ? "#94a3b8" : "#0b2149", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
               {submitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Sending…</> : <><Mail size={18} /> Send Message</>}
             </button>

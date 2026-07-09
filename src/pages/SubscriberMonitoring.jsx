@@ -90,7 +90,7 @@ export default function SubscriberMonitoring() {
 
   return (
     <BingooLayout>
-      <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071d47 0%, #0B2E6B 50%, #0f3d8c 100%)" }}>
+      <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 50%, #0f3d8c 100%)" }}>
         <div className="p-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
@@ -163,7 +163,7 @@ export default function SubscriberMonitoring() {
                     <option value="canceled">Canceled</option>
                     <option value="past_due">Past Due</option>
                   </select>
-                  <Button onClick={handleExport} className="gap-2" style={{ background: "rgba(255,122,0,0.2)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                  <Button onClick={handleExport} className="gap-2" style={{ background: "rgba(249,115,22,0.2)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>
                     <Download className="w-4 h-4" /> Export
                   </Button>
                 </div>

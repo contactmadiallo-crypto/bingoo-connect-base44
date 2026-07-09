@@ -40,7 +40,7 @@ export default function PublicLawFirmProfile() {
   if (profileLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!profile || profile.plan !== "lawfirm") return <div className="min-h-screen flex items-center justify-center text-slate-500">Profile not found</div>;
 
-  const coverColor = profile.cover_color || "#0B2E6B";
+  const coverColor = profile.cover_color || "#0b2149";
 
   return (
     <div className="min-h-screen bg-slate-50">

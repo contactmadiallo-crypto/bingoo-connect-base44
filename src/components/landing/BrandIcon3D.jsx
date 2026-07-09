@@ -3,10 +3,10 @@ import { useRef } from "react";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 
 const B = {
-  navy: "#0B2E6B",
-  navyDark: "#071d47",
-  navyLight: "#1a4a9e",
-  orange: "#FF7A00",
+  navy: "#0b2149",
+  navyDark: "#071A3D",
+  navyLight: "#13284f",
+  orange: "#f97316",
   gold: "#FDBA21"
 };
 
@@ -87,8 +87,8 @@ export default function BrandIcon3D({ size = 160, className = "" }) {
           rotateY,
           background: `linear-gradient(145deg, ${B.navy} 0%, ${B.navyLight} 60%, ${B.navyDark} 100%)`,
           boxShadow: [
-            `0 24px 50px -12px rgba(11,46,107,0.6)`,
-            `0 10px 24px -8px rgba(255,122,0,0.4)`,
+            `0 24px 50px -12px rgba(11,33,73,0.6)`,
+            `0 10px 24px -8px rgba(249,115,22,0.4)`,
             `inset 0 2px 8px rgba(255,255,255,0.22)`,
             `inset 0 -10px 22px rgba(0,0,0,0.4)`,
           ].join(", "),

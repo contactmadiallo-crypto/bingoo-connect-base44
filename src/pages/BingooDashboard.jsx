@@ -181,7 +181,7 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
 
         <button onClick={handleCreate} disabled={saving}
           className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
-          style={{ background: saving ? "#64748b" : "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          style={{ background: saving ? "#64748b" : "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           {saving ? "Creating…" : "Create Profile & Open Editor →"}
         </button>
         <p className={`text-[11px] text-center ${mutedText}`}>You can add photos, links, and more after creation.</p>
@@ -194,14 +194,14 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
 const NoProfileState = ({ isDark, onGoToProfiles }) => (
   <div className={`flex flex-col items-center justify-center py-24 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-      style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.08)" }}>
+      style={{ background: isDark ? "rgba(249,115,22,0.1)" : "rgba(249,115,22,0.08)" }}>
       <span className="text-3xl">👤</span>
     </div>
     <p className={`font-bold text-base mb-1 ${isDark ? "text-white/60" : "text-slate-600"}`}>No profile selected</p>
     <p className="text-sm mb-5">Select a profile first to access this section.</p>
     <button onClick={onGoToProfiles}
       className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-      style={{ background: "#FF7A00" }}>
+      style={{ background: "#f97316" }}>
       Go to My Profiles
     </button>
   </div>

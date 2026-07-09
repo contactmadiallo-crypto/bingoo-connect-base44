@@ -29,7 +29,7 @@ function YesNo({ label, value, onChange }) {
   );
 }
 
-export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFirm = false }) {
+export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -116,7 +116,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
       {!open && !done && (
         <motion.button onClick={() => setOpen(true)} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
           className="w-full py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
-          style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 10px 28px rgba(11,46,107,0.35)` }}>
+          style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 10px 28px rgba(11,33,73,0.35)` }}>
           ⚖️ Request Legal Help
         </motion.button>
       )}
@@ -328,7 +328,7 @@ export default function LegalIntakeForm({ profileId, color = "#0B2E6B", isLawFir
 
               <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 rounded-xl font-black text-white text-sm transition-all disabled:opacity-50"
-                style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 8px 24px rgba(11,46,107,0.35)` }}>
+                style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 8px 24px rgba(11,33,73,0.35)` }}>
                 {loading ? "Submitting…" : "Submit Legal Request →"}
               </motion.button>
 

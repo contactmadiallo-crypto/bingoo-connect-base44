@@ -22,7 +22,7 @@ export default function DataDeletion() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", padding: "40px 24px 32px", textAlign: "center" }}>
+      <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "40px 24px 32px", textAlign: "center" }}>
         <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
           ← Bingoo Connect
         </Link>
@@ -41,7 +41,7 @@ export default function DataDeletion() {
             <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, maxWidth: 400, margin: "0 auto" }}>
               We've received your data deletion request. We will process it within <strong>30 days</strong> and send a confirmation to <strong>{form.email}</strong>.
             </p>
-            <Link to="/" style={{ display: "inline-block", marginTop: 24, padding: "12px 28px", borderRadius: 999, background: "#0B2E6B", color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
+            <Link to="/" style={{ display: "inline-block", marginTop: 24, padding: "12px 28px", borderRadius: 999, background: "#0b2149", color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
               ← Back to Home
             </Link>
           </div>

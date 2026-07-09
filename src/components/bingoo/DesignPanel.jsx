@@ -8,9 +8,9 @@ import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayo
 
 
 const COVER_COLORS = [
-  "#2563eb","#0B2E6B","#1a4a9e","#7c3aed",
+  "#2563eb","#0b2149","#13284f","#7c3aed",
   "#db2777","#059669","#d97706","#dc2626",
-  "#0891b2","#1e293b","#374151","#FF7A00"
+  "#0891b2","#1e293b","#374151","#f97316"
 ];
 
 
@@ -116,7 +116,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 ? "text-white shadow-sm"
                 : isDark ? "text-white/40 hover:text-white/70" : "text-slate-500 hover:text-slate-700"
             }`}
-            style={section === s.id ? { background: "#0B2E6B" } : {}}>
+            style={section === s.id ? { background: "#0b2149" } : {}}>
             <s.icon className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="truncate">{s.label}</span>
           </button>
@@ -158,7 +158,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                     className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${
                       active ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`
                     }`}
-                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.08)" } : {}}>
+                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.08)" } : {}}>
                     <div className="flex-1">
                       <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
                       <p className={`text-xs ${mutedText}`}>{o.desc}</p>
@@ -245,7 +245,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 return (
                   <button type="button" key={o.v} onClick={() => setVal("avatar_shape", o.v)}
                     className={`flex flex-col items-center gap-1 px-3 py-2.5 rounded-xl border-2 text-xs font-bold transition-all ${active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/60" : "text-slate-500"} hover:border-slate-300`}`}
-                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.1)", color: "#FF7A00" } : {}}>
+                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.1)", color: "#f97316" } : {}}>
                     <span className="text-lg leading-none">{o.icon}</span>
                     <span>{o.label}</span>
                     {active && <Check className="w-3 h-3" />}
@@ -265,7 +265,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 return (
                   <button type="button" key={o.v} onClick={() => setVal("avatar_position", o.v)}
                     className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition-all ${active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/50" : "text-slate-500"}`}`}
-                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.1)", color: "#FF7A00" } : {}}>
+                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.1)", color: "#f97316" } : {}}>
                     {active && <Check className="w-3 h-3" />}{o.label}
                   </button>
                 );
@@ -283,7 +283,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 return (
                   <button type="button" key={o.v} onClick={() => setVal("avatar_placement", o.v)}
                     className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 text-left transition-all ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10 hover:border-white/20" : "hover:border-slate-300"}`}`}
-                    style={active && isDark ? { borderColor: "#FF7A00", background: "rgba(255,122,0,0.08)" } : {}}>
+                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.08)" } : {}}>
                     <div className="flex-1">
                       <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
                       <p className={`text-xs ${mutedText}`}>{o.desc}</p>
@@ -306,7 +306,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                     className={`flex items-center gap-1 px-4 py-2 text-xs font-bold border-2 transition-all ${
                       active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/50" : "text-slate-500"} hover:border-slate-300`
                     }`}
-                    style={{ borderRadius: o.radius, ...(active && isDark ? { background: "rgba(255,122,0,0.1)", borderColor: "#FF7A00", color: "#FF7A00" } : {}) }}>
+                    style={{ borderRadius: o.radius, ...(active && isDark ? { background: "rgba(249,115,22,0.1)", borderColor: "#f97316", color: "#f97316" } : {}) }}>
                     {active && <Check className="w-3 h-3" />}{o.label}
                   </button>
                 );
@@ -339,7 +339,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       <div className="flex items-center gap-4 pt-4 pb-safe" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
         <button type="button" onClick={handleSave} disabled={isPending} aria-label="Save design changes"
           className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none"
-          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
         </button>
         {saved && (

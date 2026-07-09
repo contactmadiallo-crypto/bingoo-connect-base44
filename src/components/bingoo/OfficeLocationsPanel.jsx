@@ -173,7 +173,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
         {locations.map(loc => (
           <div key={loc.id} className={`rounded-2xl border p-4 ${card}`}>
             <div className="flex items-start gap-3">
-              <MapPin className={`w-5 h-5 flex-shrink-0 ${loc.is_primary ? "text-blue-600" : sub}`} style={loc.is_primary ? { color: "#0B2E6B" } : {}} />
+              <MapPin className={`w-5 h-5 flex-shrink-0 ${loc.is_primary ? "text-blue-600" : sub}`} style={loc.is_primary ? { color: "#0b2149" } : {}} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`font-bold text-sm ${head}`}>{loc.name}</p>

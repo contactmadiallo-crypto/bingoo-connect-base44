@@ -218,7 +218,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           <h2 className={`text-lg font-black ${head}`}>{labels.pageTitle}</h2>
           <p className={`text-xs mt-0.5 ${sub}`}>{members.length} {members.length === 1 ? labels.memberSingular : labels.memberPlural}</p>
         </div>
-        <Button onClick={openNew} size="sm" className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0B2E6B" }}>
+        <Button onClick={openNew} size="sm" className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0b2149" }}>
           <Plus className="w-3.5 h-3.5" /> {labels.addButton}
         </Button>
       </div>
@@ -292,7 +292,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                 <p className={`text-xs font-bold mb-2 ${sub}`}>Practice Categories</p>
                 <div className="flex gap-2 flex-wrap">
                   {LEGAL_PRACTICE_CATEGORIES.map(cat => {
-                    const colors = { Immigration: "#0B2E6B", Civil: "#7c3aed", Criminal: "#b91c1c" };
+                    const colors = { Immigration: "#0b2149", Civil: "#7c3aed", Criminal: "#b91c1c" };
                     const checked = (form.practice_categories || []).includes(cat);
                     return (
                       <button key={cat} type="button" onClick={() => toggleCat(cat)}
@@ -350,7 +350,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           <div className="flex gap-2 pt-1">
             <Button size="sm" onClick={() => saveMutation.mutate(form)}
               disabled={!form.name || saveMutation.isPending}
-              className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0B2E6B" }}>
+              className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0b2149" }}>
               <Check className="w-3.5 h-3.5" /> {saveMutation.isPending ? "Saving…" : "Save"}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)}
@@ -369,7 +369,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           <User className={`w-10 h-10 mx-auto mb-3 ${dark ? "text-white/10" : "text-slate-200"}`} />
           <p className={`font-semibold text-sm ${sub}`}>No {labels.memberPlural.toLowerCase()} yet</p>
           <p className={`text-xs mt-1 mb-4 ${dark ? "text-white/30" : "text-slate-400"}`}>{labels.emptyBody}</p>
-          <Button size="sm" onClick={openNew} className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0B2E6B" }}>
+          <Button size="sm" onClick={openNew} className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0b2149" }}>
             <Plus className="w-3.5 h-3.5" /> {labels.addButton}
           </Button>
         </div>
@@ -379,7 +379,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
             <div key={m.id} className={`rounded-2xl border p-4 flex gap-3 ${card}`}>
               {m.photo
                 ? <img src={m.photo} className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-blue-400/30" alt="" />
-                : <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white text-lg" style={{ background: "#0B2E6B" }}>
+                : <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white text-lg" style={{ background: "#0b2149" }}>
                     {m.name?.charAt(0)}
                   </div>
               }
@@ -390,12 +390,12 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                     {m.status}
                   </span>
                 </div>
-                {m.role && <p className="text-xs font-semibold mt-0.5 truncate" style={{ color: "#FF7A00" }}>{m.role}</p>}
+                {m.role && <p className="text-xs font-semibold mt-0.5 truncate" style={{ color: "#f97316" }}>{m.role}</p>}
                 {isLawFirm && (m.practice_categories || []).length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {(m.practice_categories || []).map(c => {
-                      const catColors = { Immigration: "#0B2E6B", Civil: "#7c3aed", Criminal: "#b91c1c" };
-                      return <span key={c} className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0B2E6B" }}>{c}</span>;
+                      const catColors = { Immigration: "#0b2149", Civil: "#7c3aed", Criminal: "#b91c1c" };
+                      return <span key={c} className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0b2149" }}>{c}</span>;
                     })}
                   </div>
                 )}

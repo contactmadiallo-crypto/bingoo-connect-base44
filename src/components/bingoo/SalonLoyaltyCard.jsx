@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Star, Gift } from "lucide-react";
 
 // Simple client-side loyalty stamp card stored in localStorage per profile
-export default function SalonLoyaltyCard({ profileId, color = "#0B2E6B", isDark }) {
+export default function SalonLoyaltyCard({ profileId, color = "#0b2149", isDark }) {
   const key = `bingoo_loyalty_${profileId}`;
   const MAX = 10;
 

@@ -11,7 +11,7 @@ export default function BingooEmptyState({ icon: Icon = Inbox, title, message, a
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
         <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-2.5"
-          style={{ background: isDark ? 'rgba(255,122,0,0.10)' : 'rgba(255,122,0,0.08)' }}>
+          style={{ background: isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.08)' }}>
           <Icon style={{ width: 24, height: 24, color: isDark ? 'rgba(255,255,255,0.25)' : '#cbd5e1' }} />
         </div>
         <p className="text-sm font-bold" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : '#94a3b8' }}>{title}</p>
@@ -29,7 +29,7 @@ export default function BingooEmptyState({ icon: Icon = Inbox, title, message, a
         <div className="relative w-20 h-20 rounded-3xl flex items-center justify-center"
           style={{
             background: isDark ? 'rgba(255,255,255,0.04)' : '#fff',
-            border: `2px solid ${isDark ? 'rgba(255,122,0,0.12)' : 'rgba(255,122,0,0.10)'}`,
+            border: `2px solid ${isDark ? 'rgba(249,115,22,0.12)' : 'rgba(249,115,22,0.10)'}`,
             boxShadow: isDark
               ? '0 8px 32px rgba(0,0,0,0.3)'
               : '0 4px 20px rgba(11,33,73,0.06)',

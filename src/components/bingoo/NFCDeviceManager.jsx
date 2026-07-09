@@ -24,9 +24,9 @@ const STATUS_COLORS = {
   replaced:  "bg-purple-500/20 text-purple-400 border-purple-500/30",
 };
 
-const orange = "#FF7A00";
+const orange = "#f97316";
 const gold = "#FDBA21";
-const navyCard = "#0B2E6B";
+const navyCard = "#0b2149";
 
 function padCode(n) { return `BG-${String(n).padStart(6, "0")}`; }
 
@@ -398,7 +398,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               {["all", ...DEVICE_TYPES].map(t => (
                 <button key={t} onClick={() => setTypeFilter(t)}
                   className="px-2.5 py-1.5 rounded-xl text-xs font-bold capitalize transition-all"
-                  style={{ background: typeFilter === t ? gold : "rgba(255,255,255,0.07)", color: typeFilter === t ? "#071d47" : "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  style={{ background: typeFilter === t ? gold : "rgba(255,255,255,0.07)", color: typeFilter === t ? "#071A3D" : "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {t === "all" ? "All" : DEVICE_EMOJIS[t]}
                 </button>
               ))}
@@ -651,7 +651,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 Range: <span className="font-mono text-orange-400">{padCode(parseInt(bulkStart) || 1)} → {padCode((parseInt(bulkStart) || 1) + bulkCount - 1)}</span>
               </p>
               <Button onClick={handleBulkGenerate} disabled={bulkGenerating}
-                style={{ background: gold, color: "#071d47" }} className="w-full font-black">
+                style={{ background: gold, color: "#071A3D" }} className="w-full font-black">
                 {bulkGenerating ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating…</> : `Generate ${bulkCount} Devices`}
               </Button>
             </div>
@@ -768,7 +768,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
               {replaceDevice && (
                 <>
-                  <div className="p-4 rounded-xl border" style={{ background: "rgba(255,122,0,0.05)", borderColor: "rgba(255,122,0,0.2)" }}>
+                  <div className="p-4 rounded-xl border" style={{ background: "rgba(249,115,22,0.05)", borderColor: "rgba(249,115,22,0.2)" }}>
                     <p className="text-white/50 text-xs font-bold mb-2">OLD DEVICE</p>
                     <div className="flex items-center gap-3">
                       <QRCell code={replaceDevice.device_code} />
@@ -1083,7 +1083,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   <h4 className="font-bold text-white text-sm">{tool.label}</h4>
                   <p className="text-xs text-white/40 mt-0.5 mb-3">{tool.desc}</p>
                   <Button onClick={tool.action} className="font-bold gap-2 text-xs"
-                    style={{ background: tool.color, color: tool.color === gold ? "#071d47" : "#fff" }}>
+                    style={{ background: tool.color, color: tool.color === gold ? "#071A3D" : "#fff" }}>
                     <Download className="w-3.5 h-3.5" /> {tool.btn}
                   </Button>
                 </div>

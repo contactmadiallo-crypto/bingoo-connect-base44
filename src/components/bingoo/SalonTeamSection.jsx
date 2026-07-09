@@ -199,7 +199,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
   );
 }
 
-export default function SalonTeamSection({ profileId, color = "#0B2E6B", isDark, canBook, onBookWithStylist }) {
+export default function SalonTeamSection({ profileId, color = "#0b2149", isDark, canBook, onBookWithStylist }) {
   const [selected, setSelected] = useState(null);
 
   const { data: members = [], isLoading } = useQuery({

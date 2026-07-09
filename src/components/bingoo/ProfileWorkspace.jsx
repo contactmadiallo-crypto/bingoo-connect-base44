@@ -130,9 +130,9 @@ function buildPayload(liveForm) {
 }
 
 const COVER_COLORS = [
-  "#2563eb","#0B2E6B","#1a4a9e","#7c3aed",
+  "#2563eb","#0b2149","#13284f","#7c3aed",
   "#db2777","#059669","#d97706","#dc2626",
-  "#0891b2","#1e293b","#374151","#FF7A00"
+  "#0891b2","#1e293b","#374151","#f97316"
 ];
 
 const Toggle = ({ value, onChange }) => (
@@ -199,7 +199,7 @@ function SaveStatus({ status, time, error, lang }) {
 function SaveBtn({ onSave, isPending, label }) {
   return (
     <Button type="button" onClick={onSave} disabled={isPending}
-      className="rounded-xl font-bold text-white px-8" style={{ background: "#FF7A00" }}>
+      className="rounded-xl font-bold text-white px-8" style={{ background: "#f97316" }}>
       {isPending ? <><Save className="w-4 h-4 mr-1.5 animate-pulse" />{label}…</> : <><Save className="w-4 h-4 mr-1.5" />{label}</>}
     </Button>
   );
@@ -307,7 +307,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                   <button key={v} type="button" onClick={() => setVal("avatar_shape", v)}
                     className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${sel ? "border-orange-400" : isDark ? "border-white/10" : "border-slate-200"}`}
                     style={{ minWidth: 64 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: r, overflow: "hidden", border: sel ? "2px solid #FF7A00" : "2px solid #e2e8f0", background: liveForm.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: r, overflow: "hidden", border: sel ? "2px solid #f97316" : "2px solid #e2e8f0", background: liveForm.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {photoSrc
                         ? <img src={photoSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
                         : <span style={{ color: "#fff", fontWeight: 900, fontSize: 16 }}>{liveForm.display_name?.charAt(0) || "?"}</span>
@@ -469,10 +469,10 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
       {/* Open Link Store button */}
       <button type="button" onClick={() => setStoreOpen(true)}
         className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border-2 border-dashed transition-all font-bold text-sm"
-        style={{ borderColor: "#FF7A00", color: "#FF7A00", background: isDark ? "rgba(255,122,0,0.05)" : "rgba(255,122,0,0.03)" }}>
+        style={{ borderColor: "#f97316", color: "#f97316", background: isDark ? "rgba(249,115,22,0.05)" : "rgba(249,115,22,0.03)" }}>
         <Plus className="w-5 h-5" />
         Add Links from Link Store
-        {totalCount > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>{totalCount}</span>}
+        {totalCount > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>{totalCount}</span>}
       </button>
 
       {/* Active Links list */}
@@ -563,7 +563,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 
 // ── SHARE PANEL with QR Customization ────────────────────────────────────
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
-const QR_COLORS = ["#1e293b","#0B2E6B","#FF7A00","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
+const QR_COLORS = ["#1e293b","#0b2149","#f97316","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
 
 function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang, profile, effectivePlan, liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
@@ -612,7 +612,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
     const drawLabelAndFooter = () => {
       ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
       ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
+      ctx.fillStyle = "#0b2149"; ctx.fillRect(0, 468, 400, 32);
       ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
       ctx.fillText("Powered by Bingoo Connect", 200, 489);
     };
@@ -660,7 +660,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
             className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
           <button type="button" onClick={onCopy}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
-            style={{ background: copiedUrl ? "#059669" : "#0B2E6B" }}>
+            style={{ background: copiedUrl ? "#059669" : "#0b2149" }}>
             {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copiedUrl ? t("copied", lang) : t("copy_link", lang)}
           </button>
@@ -700,7 +700,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                 {QR_COLORS.map(c => (
                   <button key={c} type="button" onClick={() => setQrColor(c)}
                     className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center flex-shrink-0"
-                    style={{ background: c, borderColor: qrColor === c ? "#FF7A00" : "transparent", transform: qrColor === c ? "scale(1.2)" : "scale(1)" }}>
+                    style={{ background: c, borderColor: qrColor === c ? "#f97316" : "transparent", transform: qrColor === c ? "scale(1.2)" : "scale(1)" }}>
                     {qrColor === c && <Check className="w-3 h-3 text-white" />}
                   </button>
                 ))}
@@ -720,7 +720,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                       qrLabel === l && !customLabel
                         ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
                     }`}
-                    style={qrLabel === l && !customLabel ? { background: "#FF7A00" } : {}}>
+                    style={qrLabel === l && !customLabel ? { background: "#f97316" } : {}}>
                     {l}
                   </button>
                 ))}
@@ -741,7 +741,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
-                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>PRO</span>
+                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>PRO</span>
                   </div>
                   <p className={`text-xs mt-0.5 ${mutedText}`}>
                     {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
@@ -766,7 +766,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
             {/* Download + Save */}
             <div className="flex gap-2">
               <Button type="button" onClick={handleDownloadQR} disabled={downloading}
-                className="flex-1 rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
+                className="flex-1 rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
                 <Download className="w-4 h-4" /> {downloading ? "Generating…" : t("download_qr", lang)}
               </Button>
             </div>
@@ -818,7 +818,7 @@ function LostModePanel({ profileId, user, isDark, effectivePlan }) {
         </div>
         <button onClick={startTrial} disabled={trialLoading}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
-          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           <Star className="w-4 h-4" />
           {trialLoading ? "Loading…" : "Try Professional free for 14 days"}
         </button>
@@ -1013,10 +1013,10 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
       ctx.drawImage(img, 0, 0, 400, 400);
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 400, 400, 60);
+      ctx.fillStyle = "#0b2149"; ctx.fillRect(0, 400, 400, 60);
       ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
       ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
-      ctx.fillStyle = "#FF7A00"; ctx.font = "bold 13px system-ui,sans-serif";
+      ctx.fillStyle = "#f97316"; ctx.font = "bold 13px system-ui,sans-serif";
       ctx.fillText("Scan to connect", 200, 452);
       const a = document.createElement("a");
       a.href = canvas.toDataURL("image/png");
@@ -1167,7 +1167,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
           </button>
           <button type="button" onClick={() => setInnerTab("share")} aria-label="Share profile"
             className="flex items-center gap-1.5 text-xs font-bold min-h-[44px] px-3 py-2 rounded-xl text-white hover:opacity-90 transition-all"
-            style={{ background: "#FF7A00" }}>
+            style={{ background: "#f97316" }}>
             <QrCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{t("share", lang)}</span>
           </button>
         </div>
@@ -1180,7 +1180,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
               innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
             }`}
-            style={innerTab === tab.id ? { background: "#0B2E6B" } : {}}>
+            style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
             <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
             {tab.label}
           </button>
@@ -1199,7 +1199,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                   ? (isDark ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700")
                   : (isDark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800")
               }`}
-              style={innerTab === tab.id ? { borderLeft: "3px solid #FF7A00", borderRadius: "0 12px 12px 0" } : {}}>
+              style={innerTab === tab.id ? { borderLeft: "3px solid #f97316", borderRadius: "0 12px 12px 0" } : {}}>
               <tab.icon className="w-4 h-4 flex-shrink-0" />
               {tab.label}
             </button>
@@ -1254,7 +1254,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               type="button"
               onClick={() => setMobilePreviewOpen(true)}
               className="fixed z-30 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
-              style={{ background: "#0B2E6B", boxShadow: "0 8px 28px rgba(11,46,107,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
+              style={{ background: "#0b2149", boxShadow: "0 8px 28px rgba(11,33,73,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
             >
               <Eye className="w-4 h-4" /> Preview
             </button>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { FEATURE_DESCRIPTIONS, COMING_SOON_PLANS } from '@/lib/planPermissions';
 
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function UpgradeModal({ featureKey, onClose }) {
   const info = FEATURE_DESCRIPTIONS[featureKey] || {

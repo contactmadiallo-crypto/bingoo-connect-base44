@@ -15,7 +15,7 @@ const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
 const RATE_LIMIT_KEY = "bingoo_lead_last_submit";
 const RATE_LIMIT_MS = 60_000; // 60 seconds
 
-export default function LeadCaptureSection({ profileId, color = "#0B2E6B", isLawFirm = false }) {
+export default function LeadCaptureSection({ profileId, color = "#0b2149", isLawFirm = false }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "", preferred_contact: "WhatsApp" });
   const [loading, setLoading] = useState(false);

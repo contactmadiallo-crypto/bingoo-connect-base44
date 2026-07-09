@@ -230,14 +230,14 @@ function Bubble({ msg, isAI }) {
       style={{ display: "flex", justifyContent: isAI ? "flex-start" : "flex-end", marginBottom: 12 }}
     >
       {isAI && (
-        <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#0B2E6B,#FF7A00)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0, marginRight: 8, marginTop: 2 }}>✦</div>
+        <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#0b2149,#f97316)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0, marginRight: 8, marginTop: 2 }}>✦</div>
       )}
       <div style={{
         maxWidth: "78%", padding: "12px 16px", borderRadius: isAI ? "4px 18px 18px 18px" : "18px 4px 18px 18px",
-        background: isAI ? "#f1f5f9" : "linear-gradient(135deg,#0B2E6B,#1a4a9e)",
+        background: isAI ? "#f1f5f9" : "linear-gradient(135deg,#0b2149,#13284f)",
         color: isAI ? "#1e293b" : "#fff",
         fontSize: 14, lineHeight: 1.6, fontWeight: 500,
-        boxShadow: isAI ? "0 2px 8px rgba(0,0,0,0.06)" : "0 4px 16px rgba(11,46,107,0.35)",
+        boxShadow: isAI ? "0 2px 8px rgba(0,0,0,0.06)" : "0 4px 16px rgba(11,33,73,0.35)",
       }}>
         {msg}
       </div>
@@ -391,7 +391,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
         style={{ background: "#fff", borderRadius: 28, width: "100%", maxWidth: 520, maxHeight: "92vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 40px 100px rgba(0,0,0,0.5)" }}
       >
         {/* Header */}
-        <div style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", padding: "18px 22px 16px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+        <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "18px 22px 16px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
           <div style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>✦</div>
           <div style={{ flex: 1 }}>
             <p style={{ color: "#fff", fontWeight: 900, fontSize: 15, margin: 0 }}>Bingoo AI Assistant</p>
@@ -414,7 +414,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
         {(phase === "chat") && userType && (
           <div style={{ height: 3, background: "#f1f5f9" }}>
             <motion.div
-              style={{ height: "100%", background: "linear-gradient(90deg,#0B2E6B,#FF7A00)", borderRadius: 999 }}
+              style={{ height: "100%", background: "linear-gradient(90deg,#0b2149,#f97316)", borderRadius: 999 }}
               animate={{ width: `${((qIndex) / (QUESTIONS[userType]?.length || 1)) * 100}%` }}
               transition={{ duration: 0.4 }}
             />
@@ -444,7 +444,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
               </div>
               <button
                 onClick={() => setPhase("account_type")}
-                style={{ width: "100%", padding: "15px", borderRadius: 16, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: "pointer", boxShadow: "0 8px 24px rgba(11,46,107,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                style={{ width: "100%", padding: "15px", borderRadius: 16, background: "linear-gradient(135deg,#0b2149,#13284f)", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: "pointer", boxShadow: "0 8px 24px rgba(11,33,73,0.4)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
               >
                 <Sparkles size={18} /> Get Started
               </button>
@@ -465,12 +465,12 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
                 {ACCOUNT_TYPES.map(t => (
                   <button key={t.id} onClick={() => { setSelectedAccountType(t.id); if (t.id === "individual") setSelectedBusinessType(null); }}
                     style={{
-                      padding: "18px 12px", borderRadius: 18, border: `2px solid ${selectedAccountType === t.id ? "#0B2E6B" : "#e2e8f0"}`,
-                      background: selectedAccountType === t.id ? "rgba(11,46,107,0.06)" : "#f8fafc",
+                      padding: "18px 12px", borderRadius: 18, border: `2px solid ${selectedAccountType === t.id ? "#0b2149" : "#e2e8f0"}`,
+                      background: selectedAccountType === t.id ? "rgba(11,33,73,0.06)" : "#f8fafc",
                       cursor: "pointer", textAlign: "center", transition: "all 0.2s"
                     }}>
                     <div style={{ fontSize: 26, marginBottom: 6 }}>{t.icon}</div>
-                    <div style={{ fontWeight: 800, fontSize: 13, color: selectedAccountType === t.id ? "#0B2E6B" : "#1e293b" }}>{t.label}</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, color: selectedAccountType === t.id ? "#0b2149" : "#1e293b" }}>{t.label}</div>
                   </button>
                 ))}
               </div>
@@ -483,8 +483,8 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
                     {BUSINESS_TYPES.map(t => (
                       <button key={t.id} onClick={() => setSelectedBusinessType(t.id)}
                         style={{
-                          padding: "12px 8px", borderRadius: 14, border: `2px solid ${selectedBusinessType === t.id ? "#FF7A00" : "#e2e8f0"}`,
-                          background: selectedBusinessType === t.id ? "rgba(255,122,0,0.06)" : "#f8fafc",
+                          padding: "12px 8px", borderRadius: 14, border: `2px solid ${selectedBusinessType === t.id ? "#f97316" : "#e2e8f0"}`,
+                          background: selectedBusinessType === t.id ? "rgba(249,115,22,0.06)" : "#f8fafc",
                           cursor: "pointer", textAlign: "center", transition: "all 0.2s"
                         }}>
                         <div style={{ fontSize: 18, marginBottom: 4 }}>{t.icon}</div>
@@ -543,7 +543,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                style={{ width: 56, height: 56, borderRadius: "50%", border: "4px solid #e2e8f0", borderTopColor: "#0B2E6B", margin: "0 auto 20px" }}
+                style={{ width: 56, height: 56, borderRadius: "50%", border: "4px solid #e2e8f0", borderTopColor: "#0b2149", margin: "0 auto 20px" }}
               />
               <h3 style={{ fontSize: 18, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>Building your profile...</h3>
               <p style={{ color: "#64748b", fontSize: 13 }}>AI is writing your bio, generating content & setting up your card.</p>
@@ -552,7 +552,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
                   <motion.div key={t} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.6 }}
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 10, background: "#f8fafc", fontSize: 12, color: "#475569", fontWeight: 600 }}>
                     <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity, delay: i * 0.4 }}
-                      style={{ width: 8, height: 8, borderRadius: "50%", background: "#0B2E6B", flexShrink: 0 }} />
+                      style={{ width: 8, height: 8, borderRadius: "50%", background: "#0b2149", flexShrink: 0 }} />
                     {t}
                   </motion.div>
                 ))}
@@ -563,7 +563,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
           {/* REVIEW phase */}
           {phase === "review" && editedProfile && (
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ padding: "20px 20px 8px" }}>
-              <div style={{ padding: "12px 16px", borderRadius: 14, background: "linear-gradient(135deg,rgba(11,46,107,0.07),rgba(255,122,0,0.05))", border: "1px solid rgba(11,46,107,0.15)", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ padding: "12px 16px", borderRadius: 14, background: "linear-gradient(135deg,rgba(11,33,73,0.07),rgba(249,115,22,0.05))", border: "1px solid rgba(11,33,73,0.15)", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
                 <CheckCircle size={18} style={{ color: "#16a34a", flexShrink: 0 }} />
                 <p style={{ fontSize: 12, color: "#475569", margin: 0, fontWeight: 600 }}>Your profile has been generated! Review and edit below, then publish.</p>
               </div>
@@ -677,7 +677,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                style={{ width: 46, height: 46, borderRadius: 14, background: input.trim() ? "linear-gradient(135deg,#0B2E6B,#1a4a9e)" : "#e2e8f0", border: "none", cursor: input.trim() ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.2s" }}
+                style={{ width: 46, height: 46, borderRadius: 14, background: input.trim() ? "linear-gradient(135deg,#0b2149,#13284f)" : "#e2e8f0", border: "none", cursor: input.trim() ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.2s" }}
               >
                 <Send size={18} style={{ color: input.trim() ? "#fff" : "#94a3b8" }} />
               </button>
@@ -694,7 +694,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
             <button
               onClick={handlePublish}
               disabled={!editedProfile?.display_name || !editedProfile?.suggested_username}
-              style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,46,107,0.4)", opacity: (!editedProfile?.display_name || !editedProfile?.suggested_username) ? 0.5 : 1 }}
+              style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0b2149,#13284f)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,33,73,0.4)", opacity: (!editedProfile?.display_name || !editedProfile?.suggested_username) ? 0.5 : 1 }}
             >
               <ArrowRight size={16} /> Publish My Profile
             </button>
@@ -719,8 +719,8 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
               style={{
                 flex: 2, padding: "13px", borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 800,
                 fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)",
-                boxShadow: "0 8px 24px rgba(11,46,107,0.4)",
+                background: "linear-gradient(135deg,#0b2149,#13284f)",
+                boxShadow: "0 8px 24px rgba(11,33,73,0.4)",
                 opacity: (!selectedAccountType || (selectedAccountType === "business" && !selectedBusinessType)) ? 0.45 : 1
               }}
             >
@@ -738,7 +738,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
             <button
               onClick={() => { localStorage.setItem("bingoo_onboarding_done", "1"); onComplete(manualForm); }}
               disabled={!manualForm.display_name || !manualForm.suggested_username}
-              style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,46,107,0.4)", opacity: (!manualForm.display_name || !manualForm.suggested_username) ? 0.5 : 1 }}
+              style={{ flex: 2, padding: "13px", borderRadius: 14, background: "linear-gradient(135deg,#0b2149,#13284f)", border: "none", cursor: "pointer", fontWeight: 800, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, boxShadow: "0 8px 24px rgba(11,33,73,0.4)", opacity: (!manualForm.display_name || !manualForm.suggested_username) ? 0.5 : 1 }}
             >
               <ArrowRight size={16} /> Create My Profile
             </button>

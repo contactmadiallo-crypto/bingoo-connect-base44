@@ -35,7 +35,7 @@ export default function PWASplashScreen() {
           transition={{ duration: 0.6, ease: "easeInOut" }}
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
           style={{
-            background: "linear-gradient(145deg, #071d47 0%, #0B2E6B 50%, #0f3d8c 100%)",
+            background: "linear-gradient(145deg, #071A3D 0%, #0b2149 50%, #0f3d8c 100%)",
             paddingTop: "env(safe-area-inset-top)",
             paddingBottom: "env(safe-area-inset-bottom)",
           }}
@@ -77,7 +77,7 @@ export default function PWASplashScreen() {
           >
             <motion.div
               className="h-full rounded-full"
-              style={{ background: "#FF7A00" }}
+              style={{ background: "#f97316" }}
               initial={{ width: "0%" }}
               animate={{ width: "100%" }}
               transition={{ duration: 1.6, ease: "easeInOut" }}

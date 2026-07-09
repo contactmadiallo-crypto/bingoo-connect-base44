@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
-const QR_COLORS = ["#1e293b", "#0B2E6B", "#FF7A00", "#7c3aed", "#059669", "#dc2626", "#0891b2", "#000000"];
+const QR_COLORS = ["#1e293b", "#0b2149", "#f97316", "#7c3aed", "#059669", "#dc2626", "#0891b2", "#000000"];
 
 const Toggle = ({ value, onChange }) => (
   <button type="button" onClick={() => onChange(!value)}
@@ -73,7 +73,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
     const drawLabelAndFooter = () => {
       ctx.fillStyle = qrColor; ctx.font = "bold 22px system-ui,sans-serif";
       ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
-      ctx.fillStyle = "#0B2E6B"; ctx.fillRect(0, 468, 400, 32);
+      ctx.fillStyle = "#0b2149"; ctx.fillRect(0, 468, 400, 32);
       ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
       ctx.fillText("Powered by Bingoo Connect", 200, 489);
     };
@@ -183,7 +183,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
           <button type="button" onClick={copyUrl}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[44px]"
-            style={{ background: copiedUrl ? "#059669" : "#0B2E6B" }}>
+            style={{ background: copiedUrl ? "#059669" : "#0b2149" }}>
             {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copiedUrl ? "Copied" : "Copy"}
           </button>
@@ -221,7 +221,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             {QR_COLORS.map(c => (
               <button key={c} type="button" onClick={() => setQrColor(c)}
                 className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 flex items-center justify-center flex-shrink-0"
-                style={{ background: c, borderColor: qrColor === c ? "#FF7A00" : "transparent", transform: qrColor === c ? "scale(1.2)" : "scale(1)" }}>
+                style={{ background: c, borderColor: qrColor === c ? "#f97316" : "transparent", transform: qrColor === c ? "scale(1.2)" : "scale(1)" }}>
                 {qrColor === c && <Check className="w-3 h-3 text-white" />}
               </button>
             ))}
@@ -241,7 +241,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
                   qrLabel === l && !customLabel
                     ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
                 }`}
-                style={qrLabel === l && !customLabel ? { background: "#FF7A00" } : {}}>
+                style={qrLabel === l && !customLabel ? { background: "#f97316" } : {}}>
                 {l}
               </button>
             ))}
@@ -262,7 +262,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
-                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#FF7A00" }}>PRO</span>
+                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>PRO</span>
               </div>
               <p className={`text-xs mt-0.5 ${mutedText}`}>
                 {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
@@ -287,11 +287,11 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         {/* Download + Save */}
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={handleDownloadQR} disabled={downloading}
-            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#0B2E6B" }}>
+            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
             <Download className="w-4 h-4" /> {downloading ? "Generating…" : "Download QR"}
           </Button>
           <Button type="button" onClick={handleSave} disabled={saving}
-            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#FF7A00" }}>
+            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#f97316" }}>
             {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : <><Save className="w-4 h-4" />Save QR Settings</>}
           </Button>
         </div>

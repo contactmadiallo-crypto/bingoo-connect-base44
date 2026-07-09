@@ -15,7 +15,7 @@ import { isLayoutDark } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
 // ── Brand palette
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21", teal: "#0D9488" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21", teal: "#0D9488" };
 
 // ── Analytics
 const trackEvent = (profileId, eventType) => {
@@ -57,7 +57,7 @@ const DEMO_PROFILE = {
   id: "demo", username: "demo", display_name: "Amadou Diallo",
   job_title: "Digital Marketing Expert", company_name: "Bingoo Connect",
   bio: "Helping African businesses grow their digital presence. One tap to share everything.",
-  cover_color: "#0B2E6B", layout: "classic", bg_style: "clean", button_style: "pill",
+  cover_color: "#0b2149", layout: "classic", bg_style: "clean", button_style: "pill",
   phone: "+221 77 000 0000", whatsapp_number: "221770000000",
   email: "amadou@bingooconnect.com", website: "https://bingooconnect.com",
   instagram_url: "https://instagram.com", linkedin_url: "https://linkedin.com",

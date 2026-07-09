@@ -44,7 +44,7 @@ export const URGENCY_LABELS = {
 };
 
 export const CATEGORY_COLORS = {
-  Immigration: "#0B2E6B",
+  Immigration: "#0b2149",
   Civil:       "#7c3aed",
   Criminal:    "#b91c1c",
 };

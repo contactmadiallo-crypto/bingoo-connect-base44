@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { FEATURE_DESCRIPTIONS, PLAN_LABELS, COMING_SOON_PLANS } from '@/lib/planPermissions';
 
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 /**
  * Full-page gate shown when a user tries to access a feature they don't have.
@@ -24,7 +24,7 @@ export default function PlanGateScreen({ feature, isDark = false }) {
 
       {/* Icon */}
       <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
-        style={{ background: `linear-gradient(135deg, ${B.navy}, #1a4a9e)` }}>
+        style={{ background: `linear-gradient(135deg, ${B.navy}, #13284f)` }}>
         <Lock className="w-9 h-9 text-white" />
       </div>
 

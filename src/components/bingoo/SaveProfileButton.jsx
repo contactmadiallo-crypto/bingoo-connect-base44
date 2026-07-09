@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
-export default function SaveProfileButton({ profile, source = "manual", color = "#0B2E6B" }) {
+export default function SaveProfileButton({ profile, source = "manual", color = "#0b2149" }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -38,7 +38,7 @@ export default function SaveProfileButton({ profile, source = "manual", color = 
         profile_job_title: profile.job_title || "",
         profile_company: profile.company_name || "",
         profile_photo: profile.profile_photo || "",
-        profile_cover_color: profile.cover_color || "#0B2E6B",
+        profile_cover_color: profile.cover_color || "#0b2149",
         profile_phone: profile.phone || "",
         profile_email: profile.email || "",
         profile_whatsapp: profile.whatsapp_number || "",

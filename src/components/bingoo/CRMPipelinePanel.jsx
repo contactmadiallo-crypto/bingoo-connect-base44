@@ -132,7 +132,7 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
             className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none resize-none ${inp}`} />
           <div className="flex gap-2">
             <Button size="sm" onClick={() => updateMutation.mutate({ id: editing, data: form })} disabled={updateMutation.isPending}
-              className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0B2E6B" }}>
+              className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0b2149" }}>
               {updateMutation.isPending ? "Saving…" : "Save Changes"}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)} className="rounded-xl">Cancel</Button>

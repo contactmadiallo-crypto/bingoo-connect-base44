@@ -4,7 +4,7 @@ import { ArrowLeft, Mail, MessageSquare, Instagram, Facebook } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
@@ -28,7 +28,7 @@ export default function Contact() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
-        style={{ background: 'rgba(11,46,107,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
+        style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
             <ArrowLeft className="w-4 h-4" /> Back

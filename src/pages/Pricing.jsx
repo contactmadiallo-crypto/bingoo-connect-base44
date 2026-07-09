@@ -130,7 +130,7 @@ export default function Pricing() {
       <div className="p-4 md:p-6 max-w-5xl mx-auto">
         <div className="text-center mb-10 md:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
-            style={{ background: isDark ? "rgba(255,122,0,0.12)" : "rgba(255,122,0,0.08)", color: ORANGE, border: `1px solid ${isDark ? "rgba(255,122,0,0.25)" : "rgba(255,122,0,0.2)"}` }}>
+            style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", color: ORANGE, border: `1px solid ${isDark ? "rgba(249,115,22,0.25)" : "rgba(249,115,22,0.2)"}` }}>
             Simple Pricing
           </div>
           <h1 className={`text-3xl md:text-4xl font-black mb-3 ${headText}`}>Plans for every professional</h1>
@@ -144,7 +144,7 @@ export default function Pricing() {
             const c = colorMap[plan.color] || colorMap.slate;
             return (
               <div key={plan.id} className={`relative ${cardBg} rounded-2xl md:rounded-3xl border-2 p-5 md:p-6 flex flex-col transition-all hover:shadow-xl ${plan.highlight ? "" : cardBorder}`}
-                style={plan.highlight ? { borderColor: ORANGE, boxShadow: isDark ? "0 12px 40px rgba(255,122,0,0.15)" : "0 12px 40px rgba(255,122,0,0.12)" } : {}}>
+                style={plan.highlight ? { borderColor: ORANGE, boxShadow: isDark ? "0 12px 40px rgba(249,115,22,0.15)" : "0 12px 40px rgba(249,115,22,0.12)" } : {}}>
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                     <span className="text-white text-xs font-black px-4 py-1.5 rounded-full shadow-lg" style={{ background: ORANGE }}>Most Popular</span>

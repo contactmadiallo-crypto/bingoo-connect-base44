@@ -73,7 +73,7 @@ export function Icon({ name, size = 20, className = '', color = 'currentColor', 
   );
 }
 
-export function IconBadge({ name, size = 20, bg = '#FF7A00', color = '#FFFFFF', className = '' }) {
+export function IconBadge({ name, size = 20, bg = '#f97316', color = '#FFFFFF', className = '' }) {
   return (
     <div
       className={`flex items-center justify-center rounded-xl ${className}`}

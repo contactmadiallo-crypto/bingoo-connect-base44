@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 const PLAN_ICONS = {
   free:         <Zap className="w-5 h-5" />,

@@ -9,7 +9,7 @@ import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, conver
 import { PLAN_HIERARCHY, PLAN_FEATURES } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 
-const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
+const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 const PLAN_DEFS = [
   {
@@ -217,7 +217,7 @@ export default function SubscriptionPricing() {
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
       {/* Header */}
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
-        style={{ background: 'rgba(11,46,107,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
+        style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => window.history.back()} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
             <ArrowLeft className="w-4 h-4" /> Back
@@ -239,7 +239,7 @@ export default function SubscriptionPricing() {
               {showCurrencyPicker && (
                 <div
                   className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden shadow-2xl z-50 min-w-[200px]"
-                  style={{ background: '#0B2E6B', border: '1px solid rgba(255,255,255,0.15)' }}
+                  style={{ background: '#0b2149', border: '1px solid rgba(255,255,255,0.15)' }}
                 >
                   {SUPPORTED_CURRENCIES.map(c => {
                     const cc = CURRENCY_CONFIG[c];
@@ -298,14 +298,14 @@ export default function SubscriptionPricing() {
           </p>
           {/* Currency pill */}
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm"
-            style={{ background: 'rgba(11,46,107,0.06)', color: '#0B2E6B' }}>
+            style={{ background: 'rgba(11,33,73,0.06)', color: '#0b2149' }}>
             <span>{cfg.flag}</span>
             <span>Showing prices in <strong>{cfg.name} ({currency})</strong></span>
           </div>
 
           {/* Billing cycle toggle */}
           <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-2xl"
-            style={{ background: 'rgba(11,46,107,0.06)' }}>
+            style={{ background: 'rgba(11,33,73,0.06)' }}>
             <button onClick={() => setBillingCycle('monthly')}
               className="px-5 py-2 rounded-xl text-sm font-bold transition-all"
               style={{
@@ -343,8 +343,8 @@ export default function SubscriptionPricing() {
                 className="rounded-2xl border-2 p-7 flex flex-col relative transition-all hover:-translate-y-1"
                 style={{
                   borderColor: isHighlight ? B.orange : current ? plan.color : '#e2e8f0',
-                  background: isHighlight ? `linear-gradient(145deg, ${B.navy}, #1a4a9e)` : '#fff',
-                  boxShadow: isHighlight ? '0 24px 60px rgba(255,122,0,0.2)' : current ? `0 8px 32px ${plan.color}18` : '0 2px 8px rgba(0,0,0,0.04)',
+                  background: isHighlight ? `linear-gradient(145deg, ${B.navy}, #13284f)` : '#fff',
+                  boxShadow: isHighlight ? '0 24px 60px rgba(249,115,22,0.2)' : current ? `0 8px 32px ${plan.color}18` : '0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
                 {isHighlight && (

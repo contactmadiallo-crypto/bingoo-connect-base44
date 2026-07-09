@@ -184,12 +184,12 @@ export const SIDEBAR_NAV_MAP = {
   landing: {
     id: "landing", label: "Dashboard", labelFr: "Tableau de bord",
     icon: Home, href: "/bingoo?view=home",
-    iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",
+    iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },
   profiles: {
     id: "profiles", label: "Profiles", labelFr: "Profils",
     icon: User, href: "/bingoo?view=hub",
-    iconColor: "#FF7A00", iconBg: "rgba(255,122,0,0.18)",
+    iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },
   appointments: {
     id: "appointments", label: "Appointments", labelFr: "Rendez-vous",
@@ -264,7 +264,7 @@ export const SIDEBAR_NAV_MAP = {
   qrwallet: {
     id: "qrwallet", label: "QR & Wallet", labelFr: "QR & Wallet",
     icon: QrCode, href: "/bingoo?view=qrwallet",
-    iconColor: "#0B2E6B", iconBg: "rgba(11,46,107,0.18)",
+    iconColor: "#0b2149", iconBg: "rgba(11,33,73,0.18)",
   },
   designstudio: {
     id: "designstudio", label: "Design Studio", labelFr: "Studio Design",

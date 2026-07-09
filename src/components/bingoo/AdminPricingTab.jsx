@@ -11,7 +11,7 @@ import { CURRENCY_CONFIG, SUPPORTED_CURRENCIES } from '@/hooks/useCurrency';
 const PLANS = ['professional', 'salon', 'restaurant', 'lawfirm', 'corporate'];
 const PLAN_LABELS = { professional: 'Professional', salon: 'Salon', restaurant: 'Restaurant', lawfirm: 'Law Firm', corporate: 'Corporate' };
 
-const orange = '#FF7A00';
+const orange = '#f97316';
 const gold = '#FDBA21';
 
 const EMPTY_FORM = { plan_name: 'professional', currency: 'USD', amount: '', stripe_price_id: '', country_codes: '', active: true };
@@ -101,7 +101,7 @@ export default function AdminPricingTab() {
 
       {/* New config form */}
       {showNew && (
-        <div className="rounded-2xl border p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(255,122,0,0.3)' }}>
+        <div className="rounded-2xl border p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.07)', borderColor: 'rgba(249,115,22,0.3)' }}>
           <div className="flex items-center justify-between">
             <h3 className="text-white font-bold">New Pricing Config</h3>
             <button onClick={() => setShowNew(false)}><X className="w-5 h-5 text-white/40 hover:text-white" /></button>

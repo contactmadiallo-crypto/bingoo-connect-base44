@@ -10,16 +10,17 @@ import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
 import ProjectFutureSection from "@/components/landing/ProjectFutureSection";
 import BingooLogo from "@/components/bingoo/BingooLogo";
+import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
 
-// ── Bingoo Brand Colors
+// ── Bingoo Brand Colors (official: Navy #0b2149 + Orange #f97316)
 const B = {
-  navy: "#0B2E6B",
-  navyDark: "#071d47",
-  navyLight: "#1a4a9e",
-  orange: "#FF7A00",
-  orangeLight: "#FF9A33",
+  navy: "#0b2149",
+  navyDark: "#071A3D",
+  navyLight: "#13284f",
+  orange: "#f97316",
+  orangeLight: "#fb923c",
   gold: "#FDBA21",
   goldLight: "#FFD060",
   white: "#FFFFFF",
@@ -712,14 +713,15 @@ export default function Landing() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="sticky top-0 z-50 backdrop-blur-xl border-b"
-        style={{ background: "rgba(11,46,107,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
+        style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         
         <div className="max-w-7xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3" aria-label="Bingoo Connect home">
+          <Link to="/" className="flex items-center gap-2.5" aria-label="Bingoo Connect home">
             <motion.div whileHover={{ scale: 1.02 }}>
-              <BingooLogo className="h-10 w-10" animated={false} />
+              <BingooLogo className="h-9 w-9" animated={false} />
             </motion.div>
+            <BingooWordmark size="text-xl" light stacked={false} />
           </Link>
 
           {/* Nav links */}
@@ -1272,7 +1274,7 @@ export default function Landing() {
 
       {/* ── BOTTOM CTA */}
       <section className="relative py-20 px-4 md:px-6 text-center overflow-hidden"
-        style={{ background: `linear-gradient(145deg, ${B.navyDark} 0%, ${B.navy} 50%, #0f3d8c 100%)` }}>
+        style={{ background: `linear-gradient(145deg, ${B.navyDark} 0%, ${B.navy} 50%, ${B.navyLight} 100%)` }}>
         <ConnectionLines />
         <FloatingOrb delay={0} style={{ width: 400, height: 400, top: "-20%", left: "-10%", background: `radial-gradient(circle, ${B.orange}20 0%, transparent 70%)` }} />
         <FloatingOrb delay={2} style={{ width: 350, height: 350, bottom: "-15%", right: "-5%", background: `radial-gradient(circle, ${B.gold}18 0%, transparent 70%)` }} />
@@ -1301,9 +1303,9 @@ export default function Landing() {
       {/* ── FOOTER */}
       <footer className="py-10 px-6 text-sm" style={{ background: B.navyDark }}>
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <BingooLogo className="h-9 w-9" animated={false} />
-            <span className="text-white/40 text-xs font-semibold tracking-wider">Connect • Share • Grow • Succeed</span>
+          <div className="flex items-center gap-2.5">
+            <BingooLogo className="h-8 w-8" animated={false} />
+            <BingooWordmark size="text-base" light stacked={false} />
           </div>
           <div className="flex flex-wrap justify-center gap-5 text-white/40 text-xs">
             <a href="/shop" className="hover:text-white/70 transition-colors">{t("lp_shop", lang)}</a>

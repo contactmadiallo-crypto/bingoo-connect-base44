@@ -42,7 +42,7 @@ export default function DashboardOverview({
         <div className="grid grid-cols-2 gap-3">
           <button onClick={() => setTab("leads")}
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.3)" }}>
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
             <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,255,255,0.15)" }} />
             <p className="text-xs font-bold uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{leadsThisMonth}</p>
@@ -51,8 +51,8 @@ export default function DashboardOverview({
           </button>
           <button onClick={() => setTab("appointments")}
             className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", boxShadow: "0 4px 20px rgba(11,46,107,0.35)", border: "1px solid rgba(255,122,0,0.2)" }}>
-            <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(255,122,0,0.12)" }} />
+            style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", boxShadow: "0 4px 20px rgba(11,33,73,0.35)", border: "1px solid rgba(249,115,22,0.2)" }}>
+            <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl" style={{ background: "rgba(249,115,22,0.12)" }} />
             <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
             <p className="text-3xl font-black text-white">{apptsThisMonth}</p>
             <p className="text-sm font-semibold text-white/80 mt-0.5">Appointments</p>
@@ -163,7 +163,7 @@ export default function DashboardOverview({
               <p className={`font-semibold text-sm ${subText}`}>{tr.noProfile}</p>
               <p className={`text-xs mt-1 mb-3 ${mutedText}`}>{tr.createCard}</p>
               <div className="flex gap-2 justify-center">
-                <Button onClick={launchAI} size="sm" className="rounded-xl bg-gradient-to-r from-[#0B2E6B] to-[#1a4a9e] hover:opacity-90 text-white font-bold gap-1.5">
+                <Button onClick={launchAI} size="sm" className="rounded-xl bg-gradient-to-r from-[#0b2149] to-[#13284f] hover:opacity-90 text-white font-bold gap-1.5">
                   <Zap className="w-3.5 h-3.5" /> {tr.buildAI}
                 </Button>
                 <Button onClick={() => setTab("profile")} size="sm" variant="outline" className={`rounded-xl font-bold ${isDark ? "border-white/15 text-white/70 hover:bg-white/10" : ""}`}>{tr.manual}</Button>
@@ -353,15 +353,15 @@ export default function DashboardOverview({
       {/* ── Upgrade CTA ── */}
       {profile?.plan === "free" && (
         <div className="relative rounded-2xl p-5 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)", border: "1px solid rgba(255,122,0,0.3)", boxShadow: "0 8px 32px rgba(11,46,107,0.3)" }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(255,122,0,0.15)" }} />
+          style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", border: "1px solid rgba(249,115,22,0.3)", boxShadow: "0 8px 32px rgba(11,33,73,0.3)" }}>
+          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(249,115,22,0.15)" }} />
           <div className="relative flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex-1">
               <h3 className="text-lg font-black mb-0.5 text-white">{tr.unlockPower}</h3>
               <p className="text-sm text-white/60">{tr.unlockDesc}</p>
             </div>
             <Link to="/plans" className="flex-shrink-0">
-              <Button className="rounded-xl font-bold gap-2 text-white border-none" style={{ background: "#FF7A00" }}>
+              <Button className="rounded-xl font-bold gap-2 text-white border-none" style={{ background: "#f97316" }}>
                 {tr.viewPlans} <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

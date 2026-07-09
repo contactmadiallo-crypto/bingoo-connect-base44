@@ -21,8 +21,8 @@ export default function BottomNav({ tabs = [] }) {
     <nav
       className="fixed bottom-0 left-0 right-0 md:hidden safe-bottom overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #0a2558 0%, #071b47 100%)',
-        borderTop: '1px solid rgba(255,122,0,0.35)',
+        background: 'linear-gradient(180deg, #0a1d3f 0%, #071A3D 100%)',
+        borderTop: '1px solid rgba(249,115,22,0.35)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
@@ -39,7 +39,7 @@ export default function BottomNav({ tabs = [] }) {
               style={{ touchAction: 'manipulation' }}
             >
               <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: isActive ? 'rgba(255,122,0,0.25)' : 'rgba(255,255,255,0.08)' }}>
+                style={{ background: isActive ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.08)' }}>
                 <tab.icon className="w-5 h-5" style={{ color: isActive ? ORANGE : 'rgba(255,255,255,0.4)' }} />
               </div>
               <span className="text-xs font-semibold" style={{ color: isActive ? ORANGE : 'rgba(255,255,255,0.4)' }}>

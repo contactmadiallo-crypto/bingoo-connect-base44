@@ -223,7 +223,7 @@ function CatalogRow({ item, added, valuePreview, onEdit, isDark }) {
             ? isDark ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25" : "bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100"
             : "text-white hover:opacity-90"
         }`}
-        style={!added ? { background: "#FF7A00" } : {}}>
+        style={!added ? { background: "#f97316" } : {}}>
         {added ? <><Check className="w-3 h-3" />Edit</> : <><Plus className="w-3 h-3" />Add</>}
       </button>
     </div>
@@ -367,7 +367,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
           <button
             onClick={() => setWebOpen(v => !v)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90"
-            style={{ background: "#0B2E6B" }}>
+            style={{ background: "#0b2149" }}>
             <Plus className="w-3.5 h-3.5" /> Web Link
           </button>
           <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/8 text-white/50" : "hover:bg-slate-100 text-slate-500"}`}>
@@ -382,7 +382,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
           <div className="flex gap-2">
             <input type="text" className={inputCls + " flex-1"} placeholder="Label (e.g. Book Now)" value={webLabel} onChange={e => setWebLabel(e.target.value)} />
             <input type="text" className={inputCls + " flex-1"} placeholder="https://..." value={webUrl} onChange={e => setWebUrl(e.target.value)} />
-            <button onClick={handleAddWebLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#FF7A00" }}>
+            <button onClick={handleAddWebLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#f97316" }}>
               <Plus className="w-3.5 h-3.5" />Add
             </button>
           </div>
@@ -417,7 +417,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             <button
               onClick={() => editSaveRef.current?.()}
               className="w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 20px rgba(255,122,0,0.4)" }}>
+              style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 20px rgba(249,115,22,0.4)" }}>
               Save
             </button>
           </div>
@@ -432,7 +432,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                   className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
                     cat === c.id ? "text-white" : isDark ? "bg-white/5 text-white/50 hover:bg-white/10" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                   }`}
-                  style={cat === c.id ? { background: "#0B2E6B" } : {}}>
+                  style={cat === c.id ? { background: "#0b2149" } : {}}>
                   {c.label}
                 </button>
               ))}
@@ -481,7 +481,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             <button
               onClick={onClose}
               className="w-full py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)" }}>
+              style={{ background: "linear-gradient(135deg, #0b2149, #13284f)" }}>
               Done
             </button>
           </div>

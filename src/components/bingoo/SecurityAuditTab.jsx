@@ -18,7 +18,7 @@ const ACTION_COLORS = {
   profile_update: "#06b6d4",
   device_activated: "#FDBA21",
   device_lost_toggle: "#f59e0b",
-  admin_action: "#FF7A00",
+  admin_action: "#f97316",
   account_deleted: "#ef4444",
   data_exported: "#8b5cf6",
   subscription_changed: "#22c55e",
@@ -46,7 +46,7 @@ export default function SecurityAuditTab() {
     },
   });
 
-  const orange = "#FF7A00";
+  const orange = "#f97316";
   const gold = "#FDBA21";
 
   const SUB_TABS = [

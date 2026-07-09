@@ -174,7 +174,7 @@ export default function ProfilesHub({
     if (selected) {
       return (
         <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
-          style={{ background: "rgba(11,46,107,0.95)", color: "#fff" }}>
+          style={{ background: "rgba(11,33,73,0.95)", color: "#fff" }}>
           <CheckCircle2 className="w-3 h-3" /> Selected
         </span>
       );
@@ -340,7 +340,7 @@ export default function ProfilesHub({
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 min-w-0"
-              style={{ background: "#0B2E6B" }}>
+              style={{ background: "#0b2149" }}>
               <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Manage</span>
             </button>
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
@@ -429,7 +429,7 @@ export default function ProfilesHub({
       <div className="w-full space-y-2">
         <button onClick={startTrial} disabled={trialLoading}
           className="w-full py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
-          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 12px rgba(255,122,0,0.3)" }}>
+          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
           <Star className="w-4 h-4" />
           {trialLoading ? "Loading…" : "Start Free 14-Day Trial"}
         </button>
@@ -443,8 +443,8 @@ export default function ProfilesHub({
       }`}
       style={{ minHeight: "180px" }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-        style={{ background: isDark ? "rgba(255,122,0,0.12)" : "rgba(255,122,0,0.08)", border: "1px solid rgba(255,122,0,0.2)" }}>
-        <Plus className="w-6 h-6" style={{ color: "#FF7A00" }} />
+        style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
+        <Plus className="w-6 h-6" style={{ color: "#f97316" }} />
       </div>
       <div>
         <p className={`font-bold text-sm ${headText}`}>New Profile</p>
@@ -480,7 +480,7 @@ export default function ProfilesHub({
           {!hasReachedFreeLimit && (
             <button onClick={onCreateNew}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all"
-              style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)", boxShadow: "0 4px 12px rgba(255,122,0,0.3)" }}>
+              style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
               <Plus className="w-3.5 h-3.5" /> New Profile
             </button>
           )}
@@ -548,15 +548,15 @@ export default function ProfilesHub({
       {!loading && profiles.length === 0 && (
         <div className={`rounded-2xl border-2 border-dashed text-center p-10 ${isDark ? "border-white/12" : "border-slate-200"}`}>
           <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
-            style={{ background: isDark ? "rgba(11,46,107,0.3)" : "rgba(11,46,107,0.06)", border: "1px solid rgba(11,46,107,0.15)" }}>
-            <Users className="w-8 h-8" style={{ color: "#0B2E6B" }} />
+            style={{ background: isDark ? "rgba(11,33,73,0.3)" : "rgba(11,33,73,0.06)", border: "1px solid rgba(11,33,73,0.15)" }}>
+            <Users className="w-8 h-8" style={{ color: "#0b2149" }} />
           </div>
           <h3 className={`font-black text-lg mb-1 ${headText}`}>Create your first profile</h3>
           <p className={`text-sm mb-5 ${mutedText}`}>Your digital business card, shareable via NFC, QR, or link.</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button onClick={onLaunchAI}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #0B2E6B, #1a4a9e)" }}>
+              style={{ background: "linear-gradient(135deg, #0b2149, #13284f)" }}>
               <Zap className="w-4 h-4" /> Build with AI
             </button>
             <button onClick={onCreateNew}

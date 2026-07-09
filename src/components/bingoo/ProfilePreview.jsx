@@ -696,24 +696,24 @@ export default function ProfilePreview({ profile }) {
   );
 
   if (layout === "ny_championship") return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(160deg,#020818,#0B2E6B)" }}>
-      <div className="h-1" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
+    <div className="min-h-screen" style={{ background: "linear-gradient(160deg,#020818,#0b2149)" }}>
+      <div className="h-1" style={{ background: "linear-gradient(90deg,#f97316,#FDBA21,#f97316)" }} />
       <div className="px-4 py-6 text-center">
         <div className="text-3xl mb-2">🏀</div>
         <div className="flex justify-center mb-3">
-          <div className="w-16 h-16 rounded-full border-2" style={{ borderColor: "#FF7A00", background: color }}>
+          <div className="w-16 h-16 rounded-full border-2" style={{ borderColor: "#f97316", background: color }}>
             {profile?.profile_photo ? <img src={profile.profile_photo} className="w-full h-full rounded-full object-cover" alt="" /> : <div className="w-full h-full flex items-center justify-center text-2xl font-black text-white">{profile?.display_name?.charAt(0) || "?"}</div>}
           </div>
         </div>
         <h1 className="font-black text-white text-xl">{profile?.display_name || "Your Name"}</h1>
-        {profile?.job_title && <p className="text-sm font-semibold mt-0.5" style={{ color: "#FF7A00" }}>{profile.job_title}</p>}
+        {profile?.job_title && <p className="text-sm font-semibold mt-0.5" style={{ color: "#f97316" }}>{profile.job_title}</p>}
         {profile?.bio && <p className="text-white/60 text-xs mt-2 leading-relaxed">{profile.bio}</p>}
       </div>
       <div className="px-4 space-y-2 pb-6">
-        {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-white text-xs font-semibold text-center" style={{ background: "rgba(255,122,0,0.2)", border: "1px solid rgba(255,122,0,0.4)" }}>{l}</div>)}
-        <div className="w-full py-2.5 rounded-xl text-xs font-black text-white text-center" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21)" }}>💾 Save Contact</div>
-        <div className="w-full py-2 rounded border text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,122,0,0.3)" }}>
-          <span className="text-xs font-black tracking-widest" style={{ color: "#FF7A00" }}>CHAMPIONSHIP EDITION</span>
+        {links.map(l => <div key={l} className="w-full py-2.5 rounded-xl text-white text-xs font-semibold text-center" style={{ background: "rgba(249,115,22,0.2)", border: "1px solid rgba(249,115,22,0.4)" }}>{l}</div>)}
+        <div className="w-full py-2.5 rounded-xl text-xs font-black text-white text-center" style={{ background: "linear-gradient(90deg,#f97316,#FDBA21)" }}>💾 Save Contact</div>
+        <div className="w-full py-2 rounded border text-center" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(249,115,22,0.3)" }}>
+          <span className="text-xs font-black tracking-widest" style={{ color: "#f97316" }}>CHAMPIONSHIP EDITION</span>
         </div>
       </div>
     </div>

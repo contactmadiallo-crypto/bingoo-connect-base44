@@ -106,12 +106,12 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
-      style={{ background: "linear-gradient(160deg, #071d47 0%, #0B2E6B 60%, #0f3d8c 100%)" }}>
+      style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #0f3d8c 100%)" }}>
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-          style={{ background: "linear-gradient(135deg, #FF7A00, #FDBA21)" }}>
+          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           <span className="text-white font-black text-lg">B</span>
         </div>
         <span className="text-white font-black text-xl tracking-tight">Bingoo</span>
@@ -137,7 +137,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
               <div className="space-y-3">
                 <Button onClick={handleLoginRedirect}
                   className="w-full h-13 text-base font-bold gap-3 rounded-2xl"
-                  style={{ background: "linear-gradient(135deg, #FF7A00, #e86e00)", color: "#fff" }}>
+                  style={{ background: "linear-gradient(135deg, #f97316, #e86e00)", color: "#fff" }}>
                   <LogIn className="w-5 h-5" />
                   Log In to Activate
                 </Button>
@@ -162,7 +162,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
               {/* Device banner */}
               <div className="rounded-2xl p-5 flex items-center gap-4"
-                style={{ background: "rgba(255,122,0,0.12)", border: "1px solid rgba(255,122,0,0.3)" }}>
+                style={{ background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)" }}>
                 <div className="text-3xl">{deviceEmoji}</div>
                 <div>
                   <p className="text-white font-black text-sm">Device Ready to Activate</p>
@@ -196,13 +196,13 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                       <button key={p.id} onClick={() => setSelectedProfileId(p.id)}
                         className="w-full flex items-center gap-3 p-4 rounded-2xl transition-all text-left"
                         style={{
-                          background: selectedProfileId === p.id ? "rgba(255,122,0,0.2)" : "rgba(255,255,255,0.05)",
-                          border: selectedProfileId === p.id ? "1px solid rgba(255,122,0,0.5)" : "1px solid rgba(255,255,255,0.08)"
+                          background: selectedProfileId === p.id ? "rgba(249,115,22,0.2)" : "rgba(255,255,255,0.05)",
+                          border: selectedProfileId === p.id ? "1px solid rgba(249,115,22,0.5)" : "1px solid rgba(255,255,255,0.08)"
                         }}>
                         {p.profile_photo
                           ? <img src={p.profile_photo} className="w-10 h-10 rounded-full object-cover flex-shrink-0" alt="" />
                           : <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0"
-                            style={{ background: p.cover_color || "#0B2E6B" }}>{p.display_name?.charAt(0)}</div>
+                            style={{ background: p.cover_color || "#0b2149" }}>{p.display_name?.charAt(0)}</div>
                         }
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-bold text-sm truncate">{p.display_name}</p>
@@ -251,7 +251,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
                 <Button onClick={handleActivate} disabled={activating || !selectedProfileId}
                   className="w-full h-13 text-base font-black rounded-2xl gap-2"
-                  style={{ background: "linear-gradient(135deg, #FF7A00, #e86e00)", color: "#fff" }}>
+                  style={{ background: "linear-gradient(135deg, #f97316, #e86e00)", color: "#fff" }}>
                   {activating
                     ? <><Loader2 className="w-5 h-5 animate-spin" /> Activating...</>
                     : <><Wifi className="w-5 h-5" /> Activate Device <ChevronRight className="w-5 h-5" /></>
@@ -290,7 +290,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 {successProfile?.username && (
                   <a href={`/p/${successProfile.username}`}>
                     <Button className="w-full font-bold rounded-2xl"
-                      style={{ background: "linear-gradient(135deg, #FF7A00, #e86e00)", color: "#fff" }}>
+                      style={{ background: "linear-gradient(135deg, #f97316, #e86e00)", color: "#fff" }}>
                       View My Profile →
                     </Button>
                   </a>

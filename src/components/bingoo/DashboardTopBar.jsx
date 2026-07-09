@@ -15,7 +15,7 @@ export default function DashboardTopBar({
   copied,
   onCopyLink,
 }) {
-  const color = profile?.cover_color || '#0B2E6B';
+  const color = profile?.cover_color || '#0b2149';
   
   return (
     <div className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border-b sticky top-0 z-40`}>
@@ -146,7 +146,7 @@ export default function DashboardTopBar({
         
         {/* Gradient accent line */}
         <div className="absolute top-0 left-0 right-0 h-1" 
-          style={{ background: `linear-gradient(90deg, #0B2E6B, #FF7A00, #FDBA21)` }} 
+          style={{ background: `linear-gradient(90deg, #0b2149, #f97316, #FDBA21)` }} 
         />
 
         <div className="flex items-start justify-between gap-4">

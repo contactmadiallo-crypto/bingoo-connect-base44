@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
 const B = {
-  navy: "#0B2E6B",
-  navyLight: "#1a4a9e",
-  orange: "#FF7A00",
+  navy: "#0b2149",
+  navyLight: "#13284f",
+  orange: "#f97316",
   gold: "#FDBA21",
   slate: "#64748b"
 };

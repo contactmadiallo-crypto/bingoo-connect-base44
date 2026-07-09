@@ -70,7 +70,7 @@ export default function PWAInstallBanner() {
         <div
           className="rounded-2xl p-4 shadow-2xl"
           style={{
-            background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 100%)",
+            background: "linear-gradient(135deg, #0b2149 0%, #13284f 100%)",
             border: "1px solid rgba(255,255,255,0.15)",
           }}
         >
@@ -107,7 +107,7 @@ export default function PWAInstallBanner() {
               ].map((s) => (
                 <div key={s.step} className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(255,122,0,0.3)" }}>
+                    style={{ background: "rgba(249,115,22,0.3)" }}>
                     <span className="text-xs font-black text-orange-300">{s.step}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -129,7 +129,7 @@ export default function PWAInstallBanner() {
       <div
         className="rounded-2xl p-4 shadow-2xl flex items-center gap-3"
         style={{
-          background: "linear-gradient(135deg, #0B2E6B 0%, #1a4a9e 100%)",
+          background: "linear-gradient(135deg, #0b2149 0%, #13284f 100%)",
           border: "1px solid rgba(255,255,255,0.15)",
         }}
       >
@@ -147,7 +147,7 @@ export default function PWAInstallBanner() {
           <button
             onClick={handleInstall}
             className="px-3 py-2 rounded-xl text-xs font-black text-white"
-            style={{ background: "#FF7A00" }}
+            style={{ background: "#f97316" }}
           >
             Install
           </button>

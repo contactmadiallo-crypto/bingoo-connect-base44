@@ -313,14 +313,14 @@ export default function AdminDashboard() {
   ];
 
   // Bingoo brand colors for admin
-  const navyBg = "#071d47";
-  const navyCard = "#0B2E6B";
-  const orange = "#FF7A00";
+  const navyBg = "#071A3D";
+  const navyCard = "#0b2149";
+  const orange = "#f97316";
   const gold = "#FDBA21";
 
   return (
     <BingooLayout>
-      <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071d47 0%, #0B2E6B 50%, #0f3d8c 100%)" }}>
+      <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 50%, #0f3d8c 100%)" }}>
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8 pt-2">
@@ -485,7 +485,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-5 py-4">
                           {p ? (
-                            <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{p.username}</a>
+                            <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer" className="text-sm font-mono hover:underline" style={{ color: "#f97316" }}>/p/{p.username}</a>
                           ) : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                         </td>
                         <td className="px-5 py-4">
@@ -538,7 +538,7 @@ export default function AdminDashboard() {
                           {p ? (
                             <a href={`/p/${p.username}`} target="_blank" rel="noopener noreferrer">
                               <Button size="sm" className="text-xs h-7 px-3 font-bold"
-                                style={{ background: "rgba(255,122,0,0.15)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                                style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>
                                 View
                               </Button>
                             </a>
@@ -600,7 +600,7 @@ export default function AdminDashboard() {
                   {["all","active","past_due","canceled"].map(s => (
                     <button key={s} onClick={() => setSubStatusFilter(s)}
                       className="px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
-                      style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071d47" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      style={{ background: subStatusFilter === s ? gold : "rgba(255,255,255,0.07)", color: subStatusFilter === s ? "#071A3D" : "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.08)" }}>
                       {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.replace("_"," ").slice(1)}
                     </button>
                   ))}
@@ -631,7 +631,7 @@ export default function AdminDashboard() {
                             </td>
                             <td className="px-4 py-4">
                               {s.username
-                                ? <a href={`/p/${s.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{s.username}</a>
+                                ? <a href={`/p/${s.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/p/{s.username}</a>
                                 : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                             </td>
                             <td className="px-4 py-4">
@@ -765,7 +765,7 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: lang === "fr" ? "Total" : "Total", value: allAppointments.length, color: "#FF7A00" },
+                { label: lang === "fr" ? "Total" : "Total", value: allAppointments.length, color: "#f97316" },
                 { label: lang === "fr" ? "En attente" : "Pending", value: allAppointments.filter(a => a.status === "pending").length, color: "#FDBA21" },
                 { label: lang === "fr" ? "Confirmé" : "Confirmed", value: allAppointments.filter(a => a.status === "confirmed").length, color: "#22c55e" },
                 { label: lang === "fr" ? "Complété" : "Completed", value: allAppointments.filter(a => a.status === "completed").length, color: "#06b6d4" },
@@ -807,7 +807,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-4 py-4">
                             {srcProfile ? (
-                              <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#FF7A00" }}>{srcProfile.display_name || srcProfile.username}</a>
+                              <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#f97316" }}>{srcProfile.display_name || srcProfile.username}</a>
                             ) : <span className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>{a.profile_id?.slice(0,10)}…</span>}
                           </td>
                           <td className="px-4 py-4">
@@ -840,7 +840,7 @@ export default function AdminDashboard() {
             {/* Summary row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: t.totalProspects, value: prospectLeads.length, color: "#FF7A00" },
+                { label: t.totalProspects, value: prospectLeads.length, color: "#f97316" },
                 { label: t.new, value: prospectLeads.filter(p => p.status === "new").length, color: "#FDBA21" },
                 { label: t.contacted, value: prospectLeads.filter(p => p.status === "contacted").length, color: "#06b6d4" },
                 { label: t.converted, value: prospectLeads.filter(p => p.status === "converted").length, color: "#22c55e" },
@@ -883,14 +883,14 @@ export default function AdminDashboard() {
                             {p.visitor_phone && <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>📞 {p.visitor_phone}</p>}
                           </td>
                           <td className="px-4 py-4">
-                            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "rgba(255,122,0,0.18)", color: "#FF7A00", border: "1px solid rgba(255,122,0,0.3)" }}>
+                            <span className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "rgba(249,115,22,0.18)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>
                               {p.interested_in || "—"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             {srcProfile ? (
                               <div>
-                                <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#FF7A00" }}>{srcProfile.display_name || srcProfile.username}</a>
+                                <a href={`/p/${srcProfile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold hover:underline" style={{ color: "#f97316" }}>{srcProfile.display_name || srcProfile.username}</a>
                                 {p.source_device_code && <p className="text-xs mt-0.5 font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>📟 {p.source_device_code}</p>}
                               </div>
                             ) : <span className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>{p.source_profile_id?.slice(0,10)}…</span>}
@@ -936,7 +936,7 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-2">
               {[
-                { label: t.totalUsers, value: allUsers.length, color: "#FF7A00" },
+                { label: t.totalUsers, value: allUsers.length, color: "#f97316" },
                 { label: t.last7, value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 7*24*60*60*1000)).length, color: "#22c55e" },
                 { label: t.last30, value: allUsers.filter(u => new Date(u.created_date) > new Date(Date.now() - 30*24*60*60*1000)).length, color: "#FDBA21" },
               ].map(s => (
@@ -1085,7 +1085,7 @@ export default function AdminDashboard() {
                       }
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-white truncate">{t.profile.display_name}</p>
-                        <a href={`/p/${t.profile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#FF7A00" }}>/p/{t.profile.username}</a>
+                        <a href={`/p/${t.profile.username}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/p/{t.profile.username}</a>
                       </div>
                       <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>
                         {t.count} events

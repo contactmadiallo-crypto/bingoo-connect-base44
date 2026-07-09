@@ -61,7 +61,7 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
       {visible.map((section) => (
         <div key={section.id}>
           <div className="flex items-center gap-2 mb-3">
-            <section.icon className="w-4 h-4" style={{ color: "#FF7A00" }} />
+            <section.icon className="w-4 h-4" style={{ color: "#f97316" }} />
             <h3 className={`text-sm font-black uppercase tracking-wider ${headText}`}>{section.title}</h3>
           </div>
           {section.render()}

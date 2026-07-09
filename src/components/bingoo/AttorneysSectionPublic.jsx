@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import AttorneyProfileSection from "@/components/bingoo/AttorneyProfileSection";
 import { Users } from "lucide-react";
 
-export default function AttorneysSectionPublic({ profileId, color = "#0B2E6B" }) {
+export default function AttorneysSectionPublic({ profileId, color = "#0b2149" }) {
   const { data: attorneys = [], isLoading } = useQuery({
     queryKey: ["public-attorneys", profileId],
     queryFn: () => base44.entities.TeamMember.filter({ profile_id: profileId, status: "active" }, "order"),

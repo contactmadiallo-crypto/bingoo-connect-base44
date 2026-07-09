@@ -176,7 +176,7 @@ export default function AccountSettings() {
 
   const ACTION_COLORS = {
     login: "#22c55e", logout: "#94a3b8", profile_update: "#06b6d4",
-    device_activated: "#FDBA21", admin_action: "#FF7A00",
+    device_activated: "#FDBA21", admin_action: "#f97316",
     account_deleted: "#ef4444", data_exported: "#8b5cf6",
   };
 
@@ -192,7 +192,7 @@ export default function AccountSettings() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
-        style={{ background: "rgba(11,46,107,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
+        style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/bingoo" aria-label="Back to dashboard" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
             <ArrowLeft className="w-4 h-4" /> Back

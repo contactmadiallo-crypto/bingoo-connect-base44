@@ -270,7 +270,7 @@ export default function MyNFCDevices() {
       <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
         <div className="p-6 max-w-xl mx-auto mt-12 text-center space-y-5">
           <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
-            style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
+            style={{ background: isDark ? "rgba(249,115,22,0.1)" : "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)" }}>
             📲
           </div>
           <div>
@@ -280,7 +280,7 @@ export default function MyNFCDevices() {
             </p>
           </div>
           <a href="/plans">
-            <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#FF7A00", color: "#fff" }}>
+            <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#f97316", color: "#fff" }}>
               View Plans
             </Button>
           </a>
@@ -300,13 +300,13 @@ export default function MyNFCDevices() {
 
         {/* Header */}
         <div className="relative rounded-3xl overflow-hidden p-6"
-          style={{ background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "1px solid rgba(255,122,0,0.2)" }}>
-          <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(255,122,0,0.1)" }} />
-          <div className="h-1 absolute top-0 left-0 right-0" style={{ background: "linear-gradient(90deg,#FF7A00,#FDBA21,#FF7A00)" }} />
+          style={{ background: "linear-gradient(135deg,#0b2149,#13284f)", border: "1px solid rgba(249,115,22,0.2)" }}>
+          <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(249,115,22,0.1)" }} />
+          <div className="h-1 absolute top-0 left-0 right-0" style={{ background: "linear-gradient(90deg,#f97316,#FDBA21,#f97316)" }} />
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-                style={{ background: "rgba(255,122,0,0.2)", border: "1px solid rgba(255,122,0,0.3)" }}>
+                style={{ background: "rgba(249,115,22,0.2)", border: "1px solid rgba(249,115,22,0.3)" }}>
                 📲
               </div>
               <div>
@@ -328,7 +328,7 @@ export default function MyNFCDevices() {
             <Button
               onClick={() => { setShowActivate(v => !v); setActivateMsg(null); }}
               className="font-bold gap-2 flex-shrink-0"
-              style={{ background: "#FF7A00", color: "#fff" }}
+              style={{ background: "#f97316", color: "#fff" }}
             >
               🔑 Activate Device
             </Button>
@@ -406,7 +406,7 @@ export default function MyNFCDevices() {
         {user && !devicesLoading && myDevices.length === 0 && (
           <div className="rounded-2xl p-10 text-center space-y-5" style={{ background: bg, border: `1px solid ${border}` }}>
             <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto text-5xl"
-              style={{ background: isDark ? "rgba(255,122,0,0.1)" : "rgba(255,122,0,0.05)", border: "1px solid rgba(255,122,0,0.2)" }}>
+              style={{ background: isDark ? "rgba(249,115,22,0.1)" : "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.2)" }}>
               📲
             </div>
             <div>
@@ -414,7 +414,7 @@ export default function MyNFCDevices() {
               <p className={`text-sm ${mutedText}`}>Activate your first NFC device using the code printed on your card, keychain, or bracelet.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={() => setShowActivate(true)} style={{ background: "#FF7A00", color: "#fff" }} className="font-bold gap-2">
+              <Button onClick={() => setShowActivate(true)} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
                 🔑 Activate Device
               </Button>
               <a href="/shop" target="_blank" rel="noopener noreferrer">
@@ -747,11 +747,11 @@ export default function MyNFCDevices() {
 
                   {/* Order CTA */}
         <div className="rounded-2xl p-5 text-center"
-          style={{ background: "linear-gradient(135deg,#0B2E6B,#1a4a9e)", border: "1px solid rgba(255,122,0,0.2)" }}>
+          style={{ background: "linear-gradient(135deg,#0b2149,#13284f)", border: "1px solid rgba(249,115,22,0.2)" }}>
           <p className="font-black text-white mb-1">Need more NFC devices?</p>
           <p className="text-white/50 text-xs mb-4">Cards, keychains, bracelets, counter stands — all Bingoo branded.</p>
           <a href="/shop">
-            <Button style={{ background: "#FF7A00", color: "#fff" }} className="font-bold gap-2">
+            <Button style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
               🛍️ Shop NFC Devices
             </Button>
           </a>

@@ -414,7 +414,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
         {/* Contact */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6">
-          <h3 className="font-bold text-[#0B2E6B] mb-4">Contact Information</h3>
+          <h3 className="font-bold text-[#0b2149] mb-4">Contact Information</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {field("phone", "Phone", "+221 77 000 0000")}
             {field("whatsapp_number", "WhatsApp", "+221 77 000 0000")}
@@ -434,7 +434,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             </div>
             {field("payment_link", "Payment Link", "https://paypal.me/...")}
             </div>
-            <h3 className="font-bold text-[#0B2E6B] mt-4 mb-3">Money Transfer Links</h3>
+            <h3 className="font-bold text-[#0b2149] mt-4 mb-3">Money Transfer Links</h3>
             <div className="grid md:grid-cols-2 gap-4">
             {/* Zelle: QR upload + optional link */}
             <div className="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
@@ -556,7 +556,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             {/* Custom Payment Methods */}
             <div className="mt-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-[#0B2E6B]">Other Payment Methods</h3>
+                <h3 className="font-bold text-[#0b2149]">Other Payment Methods</h3>
                 <button type="button" onClick={addCustomPayment} className="flex items-center gap-1.5 text-xs font-semibold text-green-600 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors">
                   <Plus className="w-3.5 h-3.5" /> Add Method
                 </button>
@@ -601,7 +601,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
         <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-[#0B2E6B]">Appointment Booking</h3>
+              <h3 className="font-bold text-[#0b2149]">Appointment Booking</h3>
               <p className="text-xs text-slate-400 mt-0.5">Let visitors book time with you directly from your profile</p>
             </div>
             <button type="button" onClick={() => setForm(f => ({ ...f, booking_enabled: !f.booking_enabled }))}
@@ -667,7 +667,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
 
         {/* Social */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6">
-          <h3 className="font-bold text-[#0B2E6B] mb-4">Social Media</h3>
+          <h3 className="font-bold text-[#0b2149] mb-4">Social Media</h3>
           <div className="grid md:grid-cols-2 gap-4">
             {field("instagram_url", "📸 Instagram", "https://instagram.com/...")}
             {field("facebook_url", "👤 Facebook", "https://facebook.com/...")}
@@ -682,7 +682,7 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
             {saveProfile.isPending ? "Saving..." : "💾 Save Profile"}
           </Button>
           {profile && (
-            <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0B2E6B] hover:text-[#E8671A] transition-colors">
+            <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold text-[#0b2149] hover:text-[#E8671A] transition-colors">
               <Eye className="w-4 h-4" /> View Live Profile
             </a>
           )}

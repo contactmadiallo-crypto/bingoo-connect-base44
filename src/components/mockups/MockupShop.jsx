@@ -10,7 +10,7 @@ export default function MockupShop() {
   const products = [
     { name: 'NFC Business Card', price: '$19.99', tag: 'Bestseller', visual: <NFCCardVisual name="" width={120} />, color: NAVY },
     { name: 'NFC Metal Card', price: '$29.99', tag: 'Premium', visual: <NFCCardVisual name="" width={120} color="#1a1a2e" accent="#FFD700" />, color: '#1a1a2e' },
-    { name: 'NFC Wood Card', price: '$27.99', visual: <NFCCardVisual name="" width={120} color="#8B4513" accent="#FF7A00" />, color: '#8B4513' },
+    { name: 'NFC Wood Card', price: '$27.99', visual: <NFCCardVisual name="" width={120} color="#8B4513" accent="#f97316" />, color: '#8B4513' },
     { name: 'NFC Keychain', price: '$11.99', visual: <NFCKeychainVisual width={60} /> },
     { name: 'NFC Bracelet', price: '$24.99', visual: <NFCBraceletVisual width={90} /> },
     { name: 'NFC Sticker', price: '$12.99', visual: <NFCStickerVisual width={55} /> },
