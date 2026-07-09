@@ -5,19 +5,10 @@ import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
 import { getDrafts, saveDraft, deleteDraft } from '@/lib/draftStore';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
+import { PRODUCT_TYPES, ProductTypeIcon, ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
 
 const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316', ORANGE_LIGHT = '#fb923c';
 const BG = '#F7F9FC', BORDER = '#E5EAF2', INK = '#0F172A', MUTED = '#64748B';
-
-// ── Product types with distinct preview shapes ──────────────────────────────
-const PRODUCT_TYPES = [
-  { id: 'card',     label: 'Card',     w: 340, h: 214, radius: 16,  hole: false, base: false, layout: 'standard' },
-  { id: 'keychain', label: 'Keychain', w: 220, h: 280, radius: '110px 110px 24px 24px / 80px 80px 24px 24px', hole: true,  base: false, layout: 'standard' },
-  { id: 'sticker',  label: 'Sticker',  w: 220, h: 220, radius: '50%', hole: false, base: false, layout: 'centered' },
-  { id: 'bracelet', label: 'Bracelet', w: 330, h: 140, radius: 70,   hole: false, base: false, layout: 'horizontal' },
-  { id: 'tag',      label: 'Tag',      w: 195, h: 265, radius: '98px 98px 20px 20px / 72px 72px 20px 20px', hole: true, base: false, layout: 'standard' },
-  { id: 'stand',    label: 'Stand',    w: 310, h: 195, radius: 12,   hole: false, base: true,  layout: 'standard' },
-];
 
 // ── Expanded color palette (14 options) ──────────────────────────────────────
 const CARD_COLORS = [
@@ -45,179 +36,6 @@ const SETUP_FEE = 25.00;
 const REMOVE_BRANDING_FEE = 2.50;
 const MIN_QTY = 25;
 const MAX_QTY = 500;
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function isLightHex(hex) {
-  const c = hex.replace('#', '');
-  const r = parseInt(c.substr(0, 2), 16);
-  const g = parseInt(c.substr(2, 2), 16);
-  const b = parseInt(c.substr(4, 2), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62;
-}
-
-// Deterministic QR-like pattern with proper finder patterns
-function QrPattern({ size = 84, darkColor = NAVY }) {
-  const N = 21;
-  const finders = [[0, 0], [0, N - 7], [N - 7, 0]];
-  const findFinder = (r, c) => finders.find(([fr, fc]) => r >= fr && r < fr + 7 && c >= fc && c < fc + 7);
-  const finderDark = (r, c, fr, fc) => {
-    const lr = r - fr, lc = c - fc;
-    if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return true;
-    if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return true;
-    return false;
-  };
-  const dataDark = (r, c) => (r * 7 + c * 13 + r * c * 3) % 100 > 50;
-  const isDark = (r, c) => {
-    const f = findFinder(r, c);
-    return f ? finderDark(r, c, f[0], f[1]) : dataDark(r, c);
-  };
-  return (
-    <div style={{
-      width: size, height: size, display: 'grid',
-      gridTemplateColumns: `repeat(${N}, 1fr)`, gridTemplateRows: `repeat(${N}, 1fr)`,
-      background: '#fff', gap: 0,
-    }}>
-      {Array.from({ length: N * N }).map((_, i) => {
-        const r = Math.floor(i / N), c = i % N;
-        return <div key={i} style={{ background: isDark(r, c) ? darkColor : 'transparent' }} />;
-      })}
-    </div>
-  );
-}
-
-// ── Shape-aware preview (front + back) ───────────────────────────────────────
-function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark }) {
-  const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];
-  const isFront = side === 'front';
-  const isSmall = shape.w < 240;
-  const light = isLightHex(cardColor);
-  const textColor = light ? NAVY : '#fff';
-  const subOpacity = light ? 0.65 : 0.5;
-  const bgColor = light ? cardColor : `linear-gradient(135deg, ${cardColor}, ${NAVY_DEEP})`;
-  const brandColor = light ? NAVY : accentColor;
-  const qrSize = isSmall ? 56 : shape.id === 'bracelet' ? 56 : 78;
-  const pageBg = isDark ? '#0f1226' : '#F7F9FC';
-  const label = PRODUCT_TYPES.find(p => p.id === productType)?.label || 'Card';
-
-  const Hole = () => shape.hole ? (
-    <div className="absolute left-1/2 -translate-x-1/2 z-20 rounded-full border-2"
-      style={{ width: 14, height: 14, top: 7, borderColor: 'rgba(148,163,184,0.5)', background: pageBg }} />
-  ) : null;
-
-  const Base = () => shape.base ? (
-    <div className="absolute left-1/2 -translate-x-1/2"
-      style={{ width: '55%', height: 6, bottom: -4, background: '#94a3b8', borderRadius: '0 0 4px 4px' }} />
-  ) : null;
-
-  // ── BACK ──
-  if (!isFront) {
-    return (
-      <div className="relative flex items-center justify-center" style={{ width: shape.w, height: shape.h + (shape.base ? 8 : 0) }}>
-        <Hole />
-        <div className="w-full h-full overflow-hidden shadow-2xl flex flex-col items-center justify-center relative"
-          style={{ borderRadius: shape.radius, background: '#fff', border: `1px solid ${BORDER}` }}>
-          {/* QR with 3D frame */}
-          <div className="rounded-xl p-2" style={{ background: '#fff', boxShadow: '0 6px 16px rgba(11,33,73,0.10), 0 1px 3px rgba(0,0,0,0.06)' }}>
-            <QrPattern size={qrSize} darkColor={NAVY} />
-          </div>
-          {/* NFC indicator */}
-          <div className="flex items-center gap-1 mt-2">
-            <Nfc className="w-3 h-3" style={{ color: NAVY }} />
-            <span className="text-[8px] font-bold tracking-widest" style={{ color: MUTED }}>NFC ENABLED</span>
-          </div>
-          <p className="text-[8px] font-semibold mt-0.5" style={{ color: MUTED }}>
-            bingooconnect.com/{(nameText || 'yourprofile').toLowerCase().replace(/\s+/g, '')}
-          </p>
-          {/* Powered by Bingoo Connect */}
-          {!removeBranding && (
-            <div className="absolute bottom-2 flex items-center gap-1 px-2">
-              <span className="text-[7px] font-semibold tracking-wider" style={{ color: MUTED }}>POWERED BY</span>
-              <InfinityMark size={8} color={NAVY} strokeWidth={3} />
-              <span className="text-[7px] font-black tracking-wider" style={{ color: NAVY }}>BING∞ CONNECT</span>
-            </div>
-          )}
-        </div>
-        <Base />
-      </div>
-    );
-  }
-
-  // ── FRONT ──
-  const renderLogo = (sz) => logoUrl ? (
-    <img src={logoUrl} alt="Logo" className="rounded-xl object-cover"
-      style={{ width: sz, height: sz, background: '#fff', padding: 2 }} />
-  ) : (
-    <div className="rounded-xl flex items-center justify-center"
-      style={{ width: sz, height: sz,
-        background: `linear-gradient(135deg, ${accentColor}, ${ORANGE_LIGHT})`,
-        boxShadow: `0 3px 8px ${accentColor}44, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
-      {!removeBranding && <InfinityMark size={sz * 0.45} color="#FFFFFF" strokeWidth={3.5} glow={true} />}
-    </div>
-  );
-
-  let content;
-  if (shape.layout === 'centered') {
-    content = (
-      <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
-        {renderLogo(isSmall ? 36 : 42)}
-        <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 11 : 13 }}>
-          {nameText || 'Your Business Name'}
-        </p>
-        <p className="text-[9px] mt-0.5" style={{ color: textColor, opacity: subOpacity }}>
-          {roleText || 'Your Tagline'}
-        </p>
-      </div>
-    );
-  } else if (shape.layout === 'horizontal') {
-    content = (
-      <div className="flex-1 flex items-center justify-center gap-3 relative z-10 px-4">
-        {renderLogo(38)}
-        <div className="text-left">
-          <p className="font-black leading-tight" style={{ color: textColor, fontSize: 12 }}>
-            {nameText || 'Your Business Name'}
-          </p>
-          <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>
-            {roleText || 'Your Tagline'}
-          </p>
-        </div>
-      </div>
-    );
-  } else {
-    content = (
-      <div className="flex-1 flex flex-col justify-between relative z-10">
-        <div className="flex items-start gap-2">
-          {renderLogo(isSmall ? 30 : 38)}
-          <div>
-            <p className="font-black leading-tight" style={{ color: textColor, fontSize: isSmall ? 10 : 13 }}>
-              {nameText || 'Your Business Name'}
-            </p>
-            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>
-              {roleText || 'Your Tagline'}
-            </p>
-          </div>
-        </div>
-        {!removeBranding && (
-          <span className="font-bold tracking-wider" style={{ color: brandColor, fontSize: 8, textShadow: light ? 'none' : `0 0 6px ${accentColor}33` }}>
-            BING∞ CONNECT
-          </span>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative flex items-center justify-center" style={{ width: shape.w, height: shape.h + (shape.base ? 8 : 0) }}>
-      <Hole />
-      <div className="w-full h-full overflow-hidden shadow-2xl relative flex flex-col p-4"
-        style={{ borderRadius: shape.radius, background: bgColor }}>
-        <div className="absolute top-0 right-0 w-28 h-28 rounded-full opacity-10"
-          style={{ background: accentColor, filter: 'blur(36px)' }} />
-        {content}
-      </div>
-      <Base />
-    </div>
-  );
-}
 
 // ── Main component ───────────────────────────────────────────────────────────
 export default function DesignStudio({ isDark }) {
@@ -318,14 +136,11 @@ export default function DesignStudio({ isDark }) {
             <div className="grid grid-cols-3 gap-2">
               {PRODUCT_TYPES.map((p) => (
                 <button key={p.id} onClick={() => setProductType(p.id)}
-                  className="p-2 rounded-lg border-2 text-center transition-all bg-white"
+                  className="p-2 rounded-lg border-2 text-center transition-all bg-white flex flex-col items-center justify-center min-h-[48px]"
                   style={{ borderColor: productType === p.id ? ORANGE : BORDER }}>
-                  <div className="mx-auto mb-1"
-                    style={{
-                      width: 22, height: p.id === 'sticker' ? 22 : p.id === 'bracelet' ? 12 : p.id === 'keychain' || p.id === 'tag' ? 28 : 16,
-                      borderRadius: p.id === 'sticker' ? '50%' : p.id === 'bracelet' ? 6 : p.id === 'keychain' || p.id === 'tag' ? '10px 10px 3px 3px / 7px 7px 3px 3px' : 3,
-                      background: productType === p.id ? NAVY : BORDER,
-                    }} />
+                  <div className="flex items-center justify-center h-7 mb-1">
+                    <ProductTypeIcon typeId={p.id} active={productType === p.id} />
+                  </div>
                   <span className="text-[9px] font-bold" style={{ color: productType === p.id ? ORANGE : MUTED }}>{p.label}</span>
                 </button>
               ))}
