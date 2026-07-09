@@ -24,7 +24,9 @@
         "nfc",
         "qr",
         "referral",
-        "direct"
+        "direct",
+        "manual",
+        "imported"
       ],
       "default": "profile"
     },
@@ -58,6 +60,80 @@
       "type": "string",
       "description": "Internal CRM notes",
       "maxLength": 5000
+    },
+    "where_first_met": {
+      "type": "string",
+      "description": "Location where the connection was first made"
+    },
+    "when_first_met": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the connection was first made"
+    },
+    "event_name": {
+      "type": "string",
+      "description": "Event where the connection was made"
+    },
+    "meeting_context": {
+      "type": "string",
+      "description": "Context of the first meeting"
+    },
+    "relationship_type": {
+      "type": "string",
+      "enum": [
+        "client",
+        "prospect",
+        "colleague",
+        "business_networking",
+        "vendor",
+        "friend",
+        "partner",
+        "other"
+      ],
+      "default": "prospect"
+    },
+    "category_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom tags for grouping and filtering"
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next follow-up date"
+    },
+    "latest_interaction": {
+      "type": "string",
+      "description": "Summary of latest interaction"
+    },
+    "timeline_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "note",
+              "call",
+              "email",
+              "meeting",
+              "whatsapp",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Chronological timeline of interactions with this connection"
     },
     "legal_category": {
       "type": "string",

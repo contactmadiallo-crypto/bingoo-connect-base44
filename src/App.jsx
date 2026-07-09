@@ -50,6 +50,8 @@ import AuthCallback from '@/pages/AuthCallback';
 import AccountSettings from '@/pages/AccountSettings';
 import PlaystoreMockups from '@/pages/PlaystoreMockups';
 import Bingoo2Mockups from '@/pages/Bingoo2Mockups';
+import AdvancedAdmin from '@/pages/AdvancedAdmin';
+import AssetFinder from '@/pages/AssetFinder';
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
@@ -110,6 +112,7 @@ const AuthenticatedApp = () => {
       <Route path="/about" element={<About />} />
       <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
       <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
+      <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
@@ -130,6 +133,7 @@ const AuthenticatedApp = () => {
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/account-settings" element={<AccountSettings />} />
+        <Route path="/advanced-admin" element={<AdvancedAdmin />} />
         <Route path="/pricing" element={<Pricing />} />
 
         {/* ── FOODHUB legacy routes disabled (files preserved for rollback) ── */}      </Route>

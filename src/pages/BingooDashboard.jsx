@@ -39,6 +39,9 @@ import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 import PremiumHomeDashboard from "@/components/bingoo/PremiumHomeDashboard";
+import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
+import MyAssetsPanel from "@/components/bingoo/MyAssetsPanel";
+import ProfileQualityScore from "@/components/bingoo/ProfileQualityScore";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -59,6 +62,9 @@ const VIEW_ATTENDANCE   = "attendance";
 const VIEW_HOME         = "home";
 const VIEW_QR           = "qrwallet";
 const VIEW_DESIGN       = "designstudio";
+const VIEW_DOCWALLET    = "docwallet";
+const VIEW_MYASSETS     = "myassets";
+const VIEW_QUALITY      = "quality";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -83,6 +89,9 @@ const TAB_TO_VIEW = {
   home: VIEW_HOME,
   qrwallet: VIEW_QR,
   designstudio: VIEW_DESIGN,
+  docwallet: VIEW_DOCWALLET,
+  myassets: VIEW_MYASSETS,
+  quality: VIEW_QUALITY,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -890,6 +899,48 @@ export default function BingooDashboard() {
                 <PlanGateScreen feature="attendance" isDark={isDark} />
               ) : (
                 <AttendancePanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              DOCUMENT WALLET — Secure private document storage
+          ════════════════════════════════════ */}
+          {view === VIEW_DOCWALLET && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <DocumentWalletPanel profile={activeProfile} isDark={isDark} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              MY ASSETS — Asset protection & tracking
+          ════════════════════════════════════ */}
+          {view === VIEW_MYASSETS && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <MyAssetsPanel profile={activeProfile} isDark={isDark} />
+              )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              PROFILE QUALITY SCORE — AI/Strategic MVP
+          ════════════════════════════════════ */}
+          {view === VIEW_QUALITY && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <ProfileQualityScore profile={activeProfile} isDark={isDark} />
               )}
             </div>
           )}

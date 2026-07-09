@@ -1,0 +1,68 @@
+{
+  "name": "AdminAuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "description": "Admin action performed (e.g. plan_override, user_deleted, product_updated)"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Admin user ID"
+    },
+    "performed_by_name": {
+      "type": "string"
+    },
+    "performed_by_email": {
+      "type": "string"
+    },
+    "target_type": {
+      "type": "string",
+      "description": "Entity type affected (User, Subscription, NFCDevice, ProductCatalogItem, etc.)"
+    },
+    "target_id": {
+      "type": "string"
+    },
+    "target_name": {
+      "type": "string"
+    },
+    "old_value": {
+      "type": "string",
+      "description": "Previous value (JSON string or label)"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "New value (JSON string or label)"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "required": [
+    "action",
+    "performed_by"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

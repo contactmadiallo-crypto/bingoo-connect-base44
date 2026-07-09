@@ -1,0 +1,99 @@
+{
+  "name": "ManufacturingOrder",
+  "type": "object",
+  "properties": {
+    "order_number": {
+      "type": "string",
+      "description": "Unique manufacturing order number e.g. MFG-000001"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "card",
+        "metal_card",
+        "keychain",
+        "bracelet",
+        "sticker",
+        "tag",
+        "stand",
+        "badge",
+        "bundle"
+      ]
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "supplier": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "supplier_cost": {
+      "type": "number",
+      "description": "Per-unit cost from supplier in USD cents"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Selling price per unit in USD cents"
+    },
+    "margin": {
+      "type": "number",
+      "description": "Profit margin per unit in USD cents"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "ordered",
+        "in_production",
+        "quality_check",
+        "shipped",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "design_id": {
+      "type": "string",
+      "description": "Linked DeviceDesign ID if custom design"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "estimated_delivery": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_delivery": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "order_number",
+    "product_type",
+    "quantity"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

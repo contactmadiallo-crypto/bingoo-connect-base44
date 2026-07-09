@@ -551,7 +551,7 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
         <div style={{ position: "absolute", top: 16, left: 16, padding: "4px 12px",
           background: color, borderRadius: 4, zIndex: 2 }}>
           <span style={{ fontSize: 9, fontWeight: 900, color: "#fff", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-            {({ free: "Free", pro: "Pro", professional: "Professional", salon: "Salon", restaurant: "Restaurant", lawfirm: "Law Firm", business: "Business", corporate: "Corporate" })[profile?.plan] || "Profile"}
+            {({ free: "Free", pro: "Professional", professional: "Professional", salon: "Salon", restaurant: "Restaurant", lawfirm: "Law Firm", business: "Business", corporate: "Corporate" })[profile?.plan] || "Profile"}
           </span>
         </div>
       </div>

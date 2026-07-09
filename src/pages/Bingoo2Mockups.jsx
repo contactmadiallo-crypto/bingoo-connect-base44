@@ -71,7 +71,6 @@ const SECTIONS = [
   { id: 'homepage', label: 'Homepage', icon: 'home' },
   { id: 'i18n', label: 'Translation', icon: 'globe' },
   { id: 'protection', label: 'Asset Protection', icon: 'shield' },
-  { id: 'vision', label: 'Strategic Vision', icon: 'zap' },
   { id: 'plans', label: 'Plan Journeys', icon: 'briefcase' },
 ];
 

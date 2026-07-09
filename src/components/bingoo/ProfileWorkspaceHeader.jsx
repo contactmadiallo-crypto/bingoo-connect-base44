@@ -16,7 +16,7 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
   };
 
   const planLabels = {
-    free: "Free", pro: "Pro", professional: "Professional",
+    free: "Free", pro: "Professional", professional: "Professional",
     salon: "Salon", restaurant: "Restaurant", lawfirm: "Law Firm",
     business: "Business", corporate: "Corporate"
   };

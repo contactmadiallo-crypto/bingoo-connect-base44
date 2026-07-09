@@ -1,0 +1,129 @@
+{
+  "name": "DeviceDesign",
+  "type": "object",
+  "properties": {
+    "owner_user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Optional linked profile"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "card",
+        "metal_card",
+        "keychain",
+        "bracelet",
+        "sticker",
+        "tag",
+        "stand",
+        "badge",
+        "bundle"
+      ]
+    },
+    "color": {
+      "type": "string",
+      "description": "Selected color hex or name"
+    },
+    "finish": {
+      "type": "string",
+      "enum": [
+        "matte",
+        "glossy",
+        "brushed",
+        "mirror",
+        "wood"
+      ],
+      "default": "matte"
+    },
+    "custom_text": {
+      "type": "string",
+      "description": "Engraved or printed text on product"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Uploaded logo URL"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "approved",
+        "in_production",
+        "shipped",
+        "rejected"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "design_data": {
+      "type": "object",
+      "description": "Full design configuration JSON"
+    }
+  },
+  "required": [
+    "owner_user_id",
+    "product_type"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
