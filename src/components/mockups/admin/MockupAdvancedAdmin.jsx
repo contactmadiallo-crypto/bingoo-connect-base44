@@ -95,7 +95,7 @@ function OverviewTab() {
             { plan: 'Law Firm', amount: '$15.8K', pct: 33, color: NAVY },
             { plan: 'Salon', amount: '$8.4K', pct: 17, color: '#ec4899' },
             { plan: 'Business', amount: '$7.2K', pct: 15, color: '#22C55E' },
-            { plan: 'Pro', amount: '$5.8K', pct: 12, color: ORANGE },
+            { plan: 'Professional', amount: '$5.8K', pct: 12, color: ORANGE },
             { plan: 'Free', amount: '$0', pct: 0, color: MUTED },
           ].map((p) => (
             <div key={p.plan} className="mb-2">
@@ -153,7 +153,7 @@ function UsersTab() {
           { name: 'Mamadou Diallo', email: 'mamadou@bingooconnect.com', plan: 'Law Firm', status: 'active', billing: 'Monthly $49', override: '—', color: NAVY },
           { name: 'Sarah Johnson', email: 'sarah@salon.com', plan: 'Salon', status: 'active', billing: 'Annual $215', override: '—', color: '#ec4899' },
           { name: 'Test User 1', email: 'test1@bingooconnect.com', plan: 'Law Firm', status: 'active', billing: '—', override: 'Admin', color: ORANGE },
-          { name: 'Robert Wilson', email: 'rob@realtor.co', plan: 'Pro', status: 'past_due', billing: 'Monthly $9.99', override: '—', color: '#3b82f6' },
+          { name: 'Robert Wilson', email: 'rob@realtor.co', plan: 'Professional', status: 'past_due', billing: 'Monthly $9.99', override: '—', color: '#3b82f6' },
         ].map((u) => (
           <div key={u.email} className="grid grid-cols-12 px-3 py-2.5 border-b border-[#E5EAF2] items-center">
             <div className="col-span-3"><p className="text-[9px] font-bold text-[#0F172A]">{u.name}</p><p className="text-[8px] text-[#64748B]">{u.email}</p></div>
