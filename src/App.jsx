@@ -92,6 +92,10 @@ const AuthenticatedApp = () => {
       {/* ── PUBLIC ROUTES (no login needed) ── */}
       <Route path="/" element={<Landing />} />
       <Route path="/bingoo-home" element={<Landing />} />
+      {/* Legacy page-name URL redirects → real routes (helps deep links & automation) */}
+      <Route path="/LostDevicePage" element={<Navigate to="/my-nfc-devices" replace />} />
+      <Route path="/Dashboard" element={<Navigate to="/bingoo" replace />} />
+      <Route path="/DeviceActivationPage" element={<Navigate to="/activate-device" replace />} />
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
