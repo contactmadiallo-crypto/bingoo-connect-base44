@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
-import { PLAN_HIERARCHY, PLAN_FEATURES, normalizePlan } from '@/lib/planPermissions';
+import { PLAN_HIERARCHY, PLAN_FEATURES } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 
 const B = { navy: "#0B2E6B", orange: "#FF7A00", gold: "#FDBA21" };
@@ -126,16 +125,19 @@ export default function SubscriptionPricing() {
   // Load admin-configured pricing
   const { data: pricingConfigs = [] } = useQuery({
     queryKey: ['pricing-configs-public'],
-    queryFn: () => base44.entities.PricingConfig.filter({ active: true }),
+    queryFn: async () => {
+      try {
+        return await base44.entities.PricingConfig.filter({ active: true });
+      } catch {
+        return [];
+      }
+    },
   });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === '1';
 
-    // Plan is always read from the server (Profile / Subscription records).
-    // It is NEVER set from URL params — only a verified Stripe webhook or an
-    // admin manual override may change Profile.plan.
     base44.auth.me().then(user => {
       if (!user?.id) return;
       Promise.all([
@@ -188,9 +190,6 @@ export default function SubscriptionPricing() {
     }
     setLoading(plan.id);
     try {
-      // Only plan + display currency are sent — the backend always resolves the
-      // actual charge amount server-side via a fixed Stripe Price. The client
-      // can never influence what gets charged.
       const res = await base44.functions.invoke('createSubscriptionSession', {
         plan: plan.id,
         currency: stripeCheckoutCurrency,
@@ -237,34 +236,31 @@ export default function SubscriptionPricing() {
                 {isManualOverride && <span className="text-xs text-yellow-300 font-black">MANUAL</span>}
                 <ChevronDown className="w-3.5 h-3.5 text-white/50" />
               </button>
-              <AnimatePresence>
-                {showCurrencyPicker && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                    className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden shadow-2xl z-50 min-w-[200px]"
-                    style={{ background: '#0B2E6B', border: '1px solid rgba(255,255,255,0.15)' }}
-                  >
-                    {SUPPORTED_CURRENCIES.map(c => {
-                      const cc = CURRENCY_CONFIG[c];
-                      const isDetected = c === detectedCurrency;
-                      const isSelected = c === currency;
-                      return (
-                        <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold transition-colors hover:bg-white/10"
-                          style={{ color: isSelected ? B.orange : 'rgba(255,255,255,0.75)' }}>
-                          <span className="text-base">{cc.flag}</span>
-                          <div className="flex-1">
-                            <span>{c}</span>
-                            <span className="font-normal text-white/40 text-xs ml-2">{cc.name}</span>
-                          </div>
-                          {isDetected && <span className="text-xs text-green-400 font-black">AUTO</span>}
-                          {isSelected && <Check className="w-3.5 h-3.5" style={{ color: B.orange }} />}
-                        </button>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {showCurrencyPicker && (
+                <div
+                  className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden shadow-2xl z-50 min-w-[200px]"
+                  style={{ background: '#0B2E6B', border: '1px solid rgba(255,255,255,0.15)' }}
+                >
+                  {SUPPORTED_CURRENCIES.map(c => {
+                    const cc = CURRENCY_CONFIG[c];
+                    const isDetected = c === detectedCurrency;
+                    const isSelected = c === currency;
+                    return (
+                      <button key={c} onClick={() => { setCurrency(c); setShowCurrencyPicker(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold transition-colors hover:bg-white/10"
+                        style={{ color: isSelected ? B.orange : 'rgba(255,255,255,0.75)' }}>
+                        <span className="text-base">{cc.flag}</span>
+                        <div className="flex-1">
+                          <span>{c}</span>
+                          <span className="font-normal text-white/40 text-xs ml-2">{cc.name}</span>
+                        </div>
+                        {isDetected && <span className="text-xs text-green-400 font-black">AUTO</span>}
+                        {isSelected && <Check className="w-3.5 h-3.5" style={{ color: B.orange }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <Link to="/billing" className="text-white/60 hover:text-white text-sm font-semibold transition-colors">
               Manage Billing →
@@ -275,20 +271,18 @@ export default function SubscriptionPricing() {
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         {successMsg && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-5 rounded-2xl text-center font-bold text-white text-lg"
+          <div className="mb-8 p-5 rounded-2xl text-center font-bold text-white text-lg"
             style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)' }}>
             {successMsg}
-          </motion.div>
+          </div>
         )}
 
         {/* XOF notice */}
         {currency === 'XOF' && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 rounded-2xl text-sm font-medium"
+          <div className="mb-6 p-4 rounded-2xl text-sm font-medium"
             style={{ background: 'rgba(253,186,33,0.12)', border: '1px solid rgba(253,186,33,0.3)', color: '#b45309' }}>
             🌍 Prices shown in CFA Francs are an estimate only. Your card will be charged the equivalent amount in USD by Stripe — never the raw CFA number shown.
-          </motion.div>
+          </div>
         )}
 
         <div className="text-center mb-12">
@@ -337,20 +331,16 @@ export default function SubscriptionPricing() {
 
         {/* Plans grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
-          {PLAN_DEFS.map((plan, i) => {
+          {PLAN_DEFS.map((plan) => {
             const current = isCurrent(plan.id);
             const isHighlight = plan.highlight || (highlightPlan && plan.id === highlightPlan.toLowerCase());
             const displayPrice = getPlanPrice(plan.id);
-            const planFeatures = PLAN_FEATURES[plan.id] || (plan.comingSoon ? [] : PLAN_FEATURES.free);
+            const planFeatures = (PLAN_FEATURES || {})[plan.id] || (plan.comingSoon ? [] : (PLAN_FEATURES || {}).free || []);
 
             return (
-              <motion.div
+              <div
                 key={plan.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.45 }}
-                whileHover={{ y: -4 }}
-                className="rounded-2xl border-2 p-7 flex flex-col relative"
+                className="rounded-2xl border-2 p-7 flex flex-col relative transition-all hover:-translate-y-1"
                 style={{
                   borderColor: isHighlight ? B.orange : current ? plan.color : '#e2e8f0',
                   background: isHighlight ? `linear-gradient(145deg, ${B.navy}, #1a4a9e)` : '#fff',
@@ -452,7 +442,7 @@ export default function SubscriptionPricing() {
                 {plan.comingSoon && (
                   <p className="text-center text-xs text-slate-400 mt-2">This plan is under construction</p>
                 )}
-              </motion.div>
+              </div>
             );
           })}
         </div>

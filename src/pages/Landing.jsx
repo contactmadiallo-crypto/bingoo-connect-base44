@@ -288,14 +288,14 @@ const plans = [
     color: B.navy
   },
   {
-    name: "Corporate Team",
-    price: "$99",
+    name: "Law Firm",
+    price: "$49",
     period: "/mo",
-    desc: "Teams, enterprises and orgs",
-    features: ["Employee profiles", "Team NFC cards (up to 50)", "Clock in / clock out", "Attendance dashboard", "Team analytics", "Admin role management", "CRM pipeline", "Lead export", "Advanced analytics", "Priority support"],
+    desc: "Legal services and attorneys",
+    features: ["Law firm profile", "Practice areas", "Attorney profiles", "Legal services", "Office locations", "Lead intake forms", "CRM pipeline", "Case dashboard", "Advanced analytics", "Lead export"],
     highlight: false,
-    cta: "Get Corporate Plan",
-    color: B.navyDark
+    cta: "Get Law Firm Plan",
+    color: B.navy
   }
 ];
 
