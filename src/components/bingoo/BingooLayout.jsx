@@ -258,7 +258,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
       {/* ── MOBILE BOTTOM TAB BAR ── */}
       {/* Phase 3: Home · Profiles · NFC · Business · More */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center"
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center overflow-hidden"
         style={{
           background: "linear-gradient(180deg, #0a2558 0%, #071b47 100%)",
           borderTop: "1px solid rgba(255,122,0,0.4)",

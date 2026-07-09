@@ -519,18 +519,18 @@ export default function BingooDashboard() {
 
           {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
               <BingooLogo className="h-8 w-auto object-contain hidden sm:block" />
-              <div>
-                <h1 className={`text-base font-black leading-none ${isDark ? "text-white" : "text-slate-900"}`}>
+              <div className="min-w-0">
+                <h1 className={`text-base font-black leading-none truncate ${isDark ? "text-white" : "text-slate-900"}`}>
                   {user?.full_name?.split(" ")[0] || "Dashboard"}
                 </h1>
-                <p className={`text-[11px] font-semibold mt-0.5 ${isDark ? "text-white/35" : "text-slate-400"}`}>
+                <p className={`text-[11px] font-semibold mt-0.5 truncate ${isDark ? "text-white/35" : "text-slate-400"}`}>
                   {activeProfile ? activeProfile.display_name : "My Profiles"}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <NotificationCenter userId={user?.id} isDark={isDark} />
               <button onClick={toggleLang} aria-label="Toggle language"
                 className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>

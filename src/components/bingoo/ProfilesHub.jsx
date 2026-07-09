@@ -346,7 +346,7 @@ export default function ProfilesHub({
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
               aria-label="View public profile"
-              className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.07)",
                 borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(59,130,246,0.2)",
@@ -357,7 +357,7 @@ export default function ProfilesHub({
             <button
               onClick={(e) => { e.stopPropagation(); setExpandedQR(expandedQR === profile.id ? null : profile.id); }}
               aria-label="Show QR code"
-              className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(255,255,255,0.06)" : "rgba(99,102,241,0.07)",
                 borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(99,102,241,0.2)",
@@ -368,7 +368,7 @@ export default function ProfilesHub({
             <button
               onClick={(e) => { e.stopPropagation(); copyLink(profile); }}
               aria-label="Copy profile link"
-              className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(255,255,255,0.06)" : "rgba(16,185,129,0.07)",
                 borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(16,185,129,0.2)",
@@ -382,7 +382,7 @@ export default function ProfilesHub({
                 disabled={settingDefault === profile.id}
                 title={isDefault(profile) ? "Default profile" : "Set as default profile"}
                 aria-label={isDefault(profile) ? "Default profile" : "Set as default profile"}
-                className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0 disabled:opacity-50"
+                className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0 disabled:opacity-50"
                 style={{
                   background: isDefault(profile)
                     ? (isDark ? "rgba(251,191,36,0.18)" : "rgba(251,191,36,0.12)")

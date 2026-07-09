@@ -69,9 +69,53 @@ export default function PremiumHomeDashboard({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <BingooLoadingDots />
-        <p className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-slate-400"}`}>Loading your dashboard…</p>
+      <div className="space-y-5">
+        {/* Profile summary skeleton */}
+        <div className={`rounded-2xl overflow-hidden ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
+          <div className={`h-20 animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+          <div className="px-4 pb-4">
+            <div className="flex items-end gap-3 -mt-8">
+              <div className={`w-16 h-16 rounded-2xl flex-shrink-0 animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`}
+                style={{ border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }} />
+              <div className="flex-1 space-y-2 pb-1">
+                <div className={`h-4 w-2/3 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+                <div className={`h-3 w-1/2 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Quick actions skeleton */}
+        <div className="grid grid-cols-4 gap-2.5">
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className={`rounded-2xl p-3 flex flex-col items-center gap-2 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
+              <div className={`w-9 h-9 rounded-xl animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+              <div className={`h-2.5 w-10 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+            </div>
+          ))}
+        </div>
+        {/* Metrics skeleton */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {[0, 1, 2].map(i => (
+            <div key={i} className={`rounded-2xl p-3 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
+              <div className={`w-7 h-7 rounded-lg mb-2 animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+              <div className={`h-5 w-1/2 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+              <div className={`h-2.5 w-2/3 mt-1.5 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
+            </div>
+          ))}
+        </div>
+        {/* Card skeleton */}
+        <div className={`rounded-2xl p-4 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
+          <div className={`h-4 w-1/3 mb-3 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+          {[0, 1].map(i => (
+            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
+              <div className={`w-7 h-7 rounded-full animate-pulse ${isDark ? "bg-white/8" : "bg-slate-200"}`} />
+              <div className="flex-1 space-y-1.5">
+                <div className={`h-3 w-1/2 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-200"}`} />
+                <div className={`h-2.5 w-1/3 rounded animate-pulse ${isDark ? "bg-white/6" : "bg-slate-100"}`} />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
