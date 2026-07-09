@@ -6,6 +6,7 @@ import { Search, Download, Phone, Mail, MessageSquare, Inbox, TrendingUp } from 
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import ConnectionEditModal from "@/components/bingoo/ConnectionEditModal";
 
 // Full CRM pipeline statuses
 const CRM_STATUSES = [
@@ -30,6 +31,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
   const [noteFor, setNoteFor] = useState(null);
   const [noteText, setNoteText] = useState("");
   const [flashId, setFlashId] = useState(null);
+  const [editLead, setEditLead] = useState(null);
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
   const listRef = useRef(null);
@@ -247,6 +249,25 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
                 {lead.email && <div className={`flex items-center gap-2 text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}><Mail className={`w-3.5 h-3.5 ${mutedText}`} /><a href={`mailto:${lead.email}`} className="hover:text-blue-500 truncate">{lead.email}</a></div>}
                 {lead.message && <div className={`flex items-start gap-2 text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}><MessageSquare className={`w-3.5 h-3.5 ${mutedText} mt-0.5 flex-shrink-0`} /><span className="line-clamp-2">{lead.message}</span></div>}
                 {lead.legal_category && <span className={`inline-block text-xs px-2 py-0.5 rounded-full font-medium ${isDark ? "bg-indigo-500/15 text-indigo-300" : "bg-indigo-50 text-indigo-700"}`}>{lead.legal_category}{lead.urgency ? ` · ${lead.urgency}` : ""}</span>}
+                {/* Connection context badges */}
+                {(lead.relationship_type || lead.event_name || lead.follow_up_date) && (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {lead.relationship_type && lead.relationship_type !== 'prospect' && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-orange-500/15 text-orange-300" : "bg-orange-50 text-orange-700"}`}>{lead.relationship_type.replace(/_/g, ' ')}</span>
+                    )}
+                    {lead.event_name && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-purple-500/15 text-purple-300" : "bg-purple-50 text-purple-700"}`}>📍 {lead.event_name}</span>
+                    )}
+                    {lead.follow_up_date && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${new Date(lead.follow_up_date) <= new Date() ? "bg-red-100 text-red-700" : isDark ? "bg-amber-500/15 text-amber-300" : "bg-amber-50 text-amber-700"}`}>
+                        ⏰ {new Date(lead.follow_up_date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {lead.where_first_met && (
+                  <p className={`text-xs ${mutedText} mt-1`}>Met at: {lead.where_first_met}{lead.when_first_met ? ` · ${lead.when_first_met}` : ""}</p>
+                )}
                 {lead.preferred_contact_method && (
                   <div className={`text-xs font-semibold mt-1 pt-2 border-t ${isDark ? "text-white/35 border-white/8" : "text-slate-500 border-slate-100"}`}>
                     Prefers: {lead.preferred_contact_method === "WhatsApp" ? "💬" : lead.preferred_contact_method === "Phone" ? "📞" : "📧"} {lead.preferred_contact_method}
@@ -271,6 +292,11 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
               )}
               {lead.description && <p className={`text-xs rounded-xl p-3 ${isDark ? "text-blue-300 bg-blue-500/10" : "text-blue-600 bg-blue-50"}`}>📝 {lead.description}</p>}
 
+              {/* Edit connection details */}
+              <button onClick={() => setEditLead(lead)} className={`flex items-center gap-1.5 text-xs transition-colors w-full ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-700"}`}>
+                ✏️ Edit connection details
+              </button>
+
               {/* Quick actions */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {lead.phone && (
@@ -293,6 +319,11 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
             </div>
           ))}
         </div>
+      )}
+
+      {/* Connection edit modal */}
+      {editLead && (
+        <ConnectionEditModal lead={editLead} isDark={isDark} onClose={() => setEditLead(null)} />
       )}
     </div>
   );

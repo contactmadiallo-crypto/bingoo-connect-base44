@@ -42,6 +42,7 @@ import PremiumHomeDashboard from "@/components/bingoo/PremiumHomeDashboard";
 import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
 import MyAssetsPanel from "@/components/bingoo/MyAssetsPanel";
 import ProfileQualityScore from "@/components/bingoo/ProfileQualityScore";
+import PlanJourneyPanel from "@/components/bingoo/PlanJourneyPanel";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -65,6 +66,7 @@ const VIEW_DESIGN       = "designstudio";
 const VIEW_DOCWALLET    = "docwallet";
 const VIEW_MYASSETS     = "myassets";
 const VIEW_QUALITY      = "quality";
+const VIEW_PLANJOURNEY  = "planjourney";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -92,6 +94,7 @@ const TAB_TO_VIEW = {
   docwallet: VIEW_DOCWALLET,
   myassets: VIEW_MYASSETS,
   quality: VIEW_QUALITY,
+  planjourney: VIEW_PLANJOURNEY,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -942,6 +945,16 @@ export default function BingooDashboard() {
               ) : (
                 <ProfileQualityScore profile={activeProfile} isDark={isDark} />
               )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              PLAN JOURNEYS — Full plan exploration
+          ════════════════════════════════════ */}
+          {view === VIEW_PLANJOURNEY && (
+            <div>
+              <ProfileChip />
+              <PlanJourneyPanel isDark={isDark} currentPlan={getEffectiveProfilePlan(activeProfile, userPlan)} />
             </div>
           )}
 

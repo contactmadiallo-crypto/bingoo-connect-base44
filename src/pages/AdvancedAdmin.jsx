@@ -7,19 +7,25 @@ import AdminOverviewTab from '@/components/admin/AdminOverviewTab';
 import AdminUsersEntitlementsTab from '@/components/admin/AdminUsersEntitlementsTab';
 import AdminInventoryTab from '@/components/admin/AdminInventoryTab';
 import AdminTicketsTab from '@/components/admin/AdminTicketsTab';
+import AdminManufacturingTab from '@/components/admin/AdminManufacturingTab';
+import AdminProductsTab from '@/components/admin/AdminProductsTab';
+import AdminDesignApprovalsTab from '@/components/admin/AdminDesignApprovalsTab';
+import AdminLostReportsTab from '@/components/admin/AdminLostReportsTab';
+import AdminAuditLogTab from '@/components/admin/AdminAuditLogTab';
+import AdminEntitlementsTab from '@/components/admin/AdminEntitlementsTab';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, component: AdminOverviewTab },
   { id: 'users', label: 'Users & Subscriptions', icon: Users, component: AdminUsersEntitlementsTab },
   { id: 'inventory', label: 'NFC Inventory', icon: Package, component: AdminInventoryTab },
-  { id: 'manufacturing', label: 'Manufacturing', icon: Factory, component: AdminInventoryTab },
-  { id: 'products', label: 'Products', icon: CreditCard, component: AdminInventoryTab },
-  { id: 'designs', label: 'Design Approvals', icon: Palette, component: AdminInventoryTab },
+  { id: 'manufacturing', label: 'Manufacturing', icon: Factory, component: AdminManufacturingTab },
+  { id: 'products', label: 'Products', icon: CreditCard, component: AdminProductsTab },
+  { id: 'designs', label: 'Design Approvals', icon: Palette, component: AdminDesignApprovalsTab },
   { id: 'support', label: 'Support', icon: HeadphonesIcon, component: AdminTicketsTab },
-  { id: 'lost', label: 'Lost Reports', icon: MapPin, component: AdminTicketsTab },
-  { id: 'audit', label: 'Audit Log', icon: ScrollText, component: AdminTicketsTab },
-  { id: 'entitlements', label: 'Manual Entitlements', icon: KeyRound, component: AdminUsersEntitlementsTab },
+  { id: 'lost', label: 'Lost Reports', icon: MapPin, component: AdminLostReportsTab },
+  { id: 'audit', label: 'Audit Log', icon: ScrollText, component: AdminAuditLogTab },
+  { id: 'entitlements', label: 'Manual Entitlements', icon: KeyRound, component: AdminEntitlementsTab },
 ];
 
 export default function AdvancedAdmin() {
