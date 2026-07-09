@@ -8,6 +8,7 @@ import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
+import QrWalletCenter from "@/components/bingoo/QrWalletCenter";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
@@ -54,6 +55,7 @@ const VIEW_OFFICES      = "offices";
 const VIEW_TEAM         = "team";
 const VIEW_ATTENDANCE   = "attendance";
 const VIEW_HOME         = "home";
+const VIEW_QR           = "qrwallet";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -76,6 +78,7 @@ const TAB_TO_VIEW = {
   workspace: VIEW_WORKSPACE,
   hub: VIEW_HUB,
   home: VIEW_HOME,
+  qrwallet: VIEW_QR,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -709,6 +712,24 @@ export default function BingooDashboard() {
             <div>
               <ProfileChip />
               <ConnectionsPanel isDark={isDark} profileId={activeProfile?.id} />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              QR & WALLET CENTER — first-class page
+          ════════════════════════════════════ */}
+          {view === VIEW_QR && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <QrWalletCenter
+                  profile={activeProfile}
+                  isDark={isDark}
+                  effectivePlan={activeProfilePlan}
+                />
+              )}
             </div>
           )}
 

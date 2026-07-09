@@ -20,7 +20,7 @@
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
   Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
-  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home,
+  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode,
 } from "lucide-react";
 import { t } from "@/lib/i18n";
 
@@ -66,6 +66,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "landing",
     "profiles",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -78,6 +79,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "devices",
     "lostmode",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -93,6 +95,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "lostmode",
     "team",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -108,6 +111,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "lostmode",
     "team",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -125,6 +129,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "team",
     "crm",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -140,6 +145,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "crm",
     "attendance",
     "connections",
+    "qrwallet",
     "billing",
     "support",
   ],
@@ -162,6 +168,7 @@ export const ADMIN_SIDEBAR_ITEMS = [
   "crm",
   "attendance",
   "connections",
+  "qrwallet",
   "billing",
   "support",
 ];
@@ -247,6 +254,11 @@ export const SIDEBAR_NAV_MAP = {
     id: "connections", label: "Connections", labelFr: "Connexions",
     icon: Link2, href: "/bingoo?view=connections",
     iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",
+  },
+  qrwallet: {
+    id: "qrwallet", label: "QR & Wallet", labelFr: "QR & Wallet",
+    icon: QrCode, href: "/bingoo?view=qrwallet",
+    iconColor: "#0B2E6B", iconBg: "rgba(11,46,107,0.18)",
   },
   billing: {
     id: "billing", label: "Billing", labelFr: "Facturation",
