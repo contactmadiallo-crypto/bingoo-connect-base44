@@ -39,12 +39,13 @@ const PROFESSIONAL = [
   'nfc_devices', 'lost_mode',
   'lead_collection', 'analytics', 'appointment_booking', 'save_contact',
   'portfolio', 'custom_branding', 'qr_download',
-  'instagram_integration', 'business_hours', 'calendar',
+  'instagram_integration', 'calendar',
   'google_wallet_pass', 'apple_wallet_pass',
 ];
 
 const BUSINESS = [
   ...PROFESSIONAL,
+  'business_hours',
   'services',
   'nfc_counter_stand',
   'google_reviews',
@@ -56,6 +57,7 @@ const BUSINESS = [
 
 const SALON = [
   ...PROFESSIONAL,
+  'business_hours',
   'salon_profile',
   'staff_profiles',
   'services',
@@ -70,6 +72,7 @@ const SALON = [
 
 const RESTAURANT = [
   ...PROFESSIONAL,
+  'business_hours',
   'restaurant_profile',
   'digital_menu',
   'delivery_links',
@@ -87,6 +90,7 @@ const RESTAURANT = [
 
 const LAWFIRM = [
   ...PROFESSIONAL,
+  'business_hours',
   'law_firm_profile',
   'practice_areas',
   'attorney_profiles',

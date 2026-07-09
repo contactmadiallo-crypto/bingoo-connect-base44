@@ -47,7 +47,6 @@ const PROFESSIONAL_FEATURES = new Set([
   'custom_branding',      // canonical key (replaces custom_colors / custom_design)
   'qr_download',
   'instagram_integration',
-  'business_hours',
   'calendar',
   // Wallet passes
   'google_wallet_pass',
@@ -56,6 +55,7 @@ const PROFESSIONAL_FEATURES = new Set([
 
 const SALON_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
+  'business_hours',
   'salon_profile',
   'staff_profiles',
   'services',             // canonical key (replaces service_menu / menu_services)
@@ -70,6 +70,7 @@ const SALON_FEATURES = new Set([
 
 const RESTAURANT_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
+  'business_hours',
   'restaurant_profile',
   'digital_menu',
   'delivery_links',       // canonical key (replaces delivery_link)
@@ -87,6 +88,7 @@ const RESTAURANT_FEATURES = new Set([
 
 const LAWFIRM_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
+  'business_hours',
   'law_firm_profile',
   'practice_areas',
   'attorney_profiles',
@@ -109,6 +111,7 @@ const LAWFIRM_FEATURES = new Set([
 
 const BUSINESS_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
+  'business_hours',
   'services',
   'nfc_counter_stand',
   'google_reviews',
@@ -224,8 +227,8 @@ export const PLAN_STRIPE_PRODUCTS = {
 
 export const PLAN_FEATURES = {
   free:         ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass', 'Business Hours'],
-  business:     ['Everything in Professional', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
+  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Google Wallet Pass', 'Apple Wallet Pass'],
+  business:     ['Everything in Professional', 'Business Hours', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
   lawfirm:      ['Everything in Professional', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
@@ -341,7 +344,7 @@ export const FEATURE_DESCRIPTIONS = {
   instagram_integration:{ title: 'Instagram Integration',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to connect your Instagram to your profile.' },
   google_wallet_pass:   { title: 'Google Wallet Pass',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate a Google Wallet digital card.' },
   apple_wallet_pass:    { title: 'Apple Wallet Pass',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate an Apple Wallet digital card.' },
-  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Professional', message: 'Upgrade to Professional to display your business hours.' },
+  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Business',     message: 'Upgrade to a Business plan to display your business hours.' },
   calendar:             { title: 'Calendar View',              upgradeTarget: 'Professional', message: 'Upgrade to Professional to access the calendar view.' },
   // Aliases for backward compat — same gate as canonical
   custom_colors:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
