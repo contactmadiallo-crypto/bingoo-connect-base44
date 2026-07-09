@@ -262,7 +262,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
-                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>PRO</span>
+                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>Professional</span>
               </div>
               <p className={`text-xs mt-0.5 ${mutedText}`}>
                 {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."

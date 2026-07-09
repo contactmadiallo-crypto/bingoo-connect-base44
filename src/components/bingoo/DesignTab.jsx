@@ -24,7 +24,7 @@ function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardB
     }`} onClick={() => onSelect(layout.id)}>
       {isPremiumTheme && !isActive && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow">
-          <Sparkles className="w-2.5 h-2.5" /> PRO
+          <Sparkles className="w-2.5 h-2.5" /> Professional
         </div>
       )}
       {isActive && (

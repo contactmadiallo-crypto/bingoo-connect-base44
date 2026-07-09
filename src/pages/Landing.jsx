@@ -305,7 +305,7 @@ const plans = [
 // features apply, and any future vision.
 const industryGroups = [
   {
-    label: "Pro Individual",
+    label: "Professional Individual",
     accent: B.orange,
     items: [
       {

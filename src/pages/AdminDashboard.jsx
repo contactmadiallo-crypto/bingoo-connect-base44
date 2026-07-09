@@ -504,7 +504,7 @@ export default function AdminDashboard() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="free">Free</SelectItem>
-                                  <SelectItem value="pro">Pro (legacy)</SelectItem>
+                                  <SelectItem value="pro">Professional (legacy)</SelectItem>
                                   <SelectItem value="professional">Professional</SelectItem>
                                   <SelectItem value="business">Business</SelectItem>
                                   <SelectItem value="salon">Salon</SelectItem>

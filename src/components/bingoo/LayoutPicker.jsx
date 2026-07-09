@@ -69,7 +69,7 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
         <div className="mt-3 flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
           <span className="text-sm">✨</span>
           <p className="text-xs text-amber-700 font-semibold flex-1">
-            Upgrade to <strong>Pro</strong> to unlock 12 premium layouts.
+            Upgrade to <strong>Professional</strong> to unlock 12 premium layouts.
           </p>
           <Link to="/pricing" className="text-xs font-black text-amber-600 hover:text-amber-700 whitespace-nowrap">
             Upgrade →
@@ -121,7 +121,7 @@ function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
               marginTop: 4, fontSize: 11, fontWeight: 900,
               color: "#92400e", background: "#fef3c7",
               padding: "2px 8px", borderRadius: 999,
-            }}>PRO</span>
+            }}>Professional</span>
           </div>
         )}
 
