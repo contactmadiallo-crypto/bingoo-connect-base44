@@ -128,7 +128,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   const newReports = reports.filter(r => r.status === "new");
   const getReportsForDevice = (code) => reports.filter(r => r.device_code === code);
 
-  if (!userId || devicesLoading) return (
+  if (!userId || (devicesLoading && devices.length === 0)) return (
     <div className="flex justify-center py-16">
       <div className="w-6 h-6 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
     </div>
