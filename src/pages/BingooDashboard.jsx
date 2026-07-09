@@ -10,6 +10,7 @@ import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import QrWalletCenter from "@/components/bingoo/QrWalletCenter";
 import DesignStudio from "@/components/bingoo/DesignStudio";
+import DesignStudioLocked from "@/components/bingoo/DesignStudioLocked";
 import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
 import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
 import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
@@ -744,6 +745,8 @@ export default function BingooDashboard() {
               <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : userPlan === 'professional' ? (
+                <DesignStudioLocked isDark={isDark} />
               ) : (
                 <DesignStudio isDark={isDark} />
               )}

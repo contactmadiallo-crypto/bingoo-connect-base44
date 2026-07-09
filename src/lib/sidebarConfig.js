@@ -78,6 +78,7 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "analytics",
     "devices",
     "lostmode",
+    "designstudio",
     "connections",
     "qrwallet",
     "billing",
