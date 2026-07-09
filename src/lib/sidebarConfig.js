@@ -169,6 +169,7 @@ export const ADMIN_SIDEBAR_ITEMS = [
   "analytics",
   "devices",
   "lostmode",
+  "designstudio",
   "team",
   "crm",
   "attendance",
