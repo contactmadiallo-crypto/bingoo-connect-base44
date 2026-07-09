@@ -5,10 +5,13 @@ import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
 import LostModeInfoBanner from "@/components/bingoo/LostModeInfoBanner";
 import ReportLostDialog from "@/components/bingoo/ReportLostDialog";
+import ReplaceDeviceDialog from "@/components/bingoo/ReplaceDeviceDialog";
+import ReassignDeviceDialog from "@/components/bingoo/ReassignDeviceDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
-  CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, AlertTriangle, Layers
+  CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, AlertTriangle, Layers,
+  RefreshCw, ArrowRightLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
@@ -58,6 +61,8 @@ export default function MyNFCDevices() {
    const [nfcWriting, setNfcWriting] = useState(null);
    const [nfcMsg, setNfcMsg] = useState(null);
    const [lostDialogDevice, setLostDialogDevice] = useState(null);
+  const [replaceDialogDevice, setReplaceDialogDevice] = useState(null);
+  const [reassignDialogDevice, setReassignDialogDevice] = useState(null);
 
    const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
 
@@ -228,7 +233,18 @@ export default function MyNFCDevices() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const getProfile = (id) => profiles.find(p => p.id === id) || { display_name: id?.slice(0, 8) + "…" };
+  const getProfile = (id) => {
+    const p = profiles.find(p => p.id === id);
+    if (p) return p;
+    // profile_id set but profile no longer in the user's list (deleted/orphaned) → unassigned state
+    if (id) return { display_name: "Unassigned", orphaned: true };
+    return { display_name: "Unassigned", orphaned: false };
+  };
+  // Per-device tap counts from nfc_tap analytics (matched by device_id)
+  const tapsByDevice = nfcAnalytics.reduce((acc, a) => {
+    if (a.device_id) acc[a.device_id] = (acc[a.device_id] || 0) + 1;
+    return acc;
+  }, {});
   const activeCount = myDevices.filter(d => d.status === "active").length;
   const lostCount = myDevices.filter(d => d.status === "lost").length;
   const totalCount = myDevices.length;
@@ -470,10 +486,11 @@ export default function MyNFCDevices() {
                         <StatusBadge status={device.status} isDark={isDark} />
                         {isLost && <span className="text-xs text-red-500 font-bold">⚠️ Scans disabled</span>}
                       </div>
-                      <p className={`text-xs mt-0.5 ${mutedText}`}>
-                        {typeInfo.label}
-                        {profile && <> · <span className="font-semibold">{profile.display_name}</span></>}
-                        {device.assigned_at && <> · Activated {device.assigned_at.slice(0, 10)}</>}
+                      <p className={`text-xs mt-0.5 ${mutedText} flex items-center gap-1.5 flex-wrap`}>
+                        <span>{typeInfo.label}</span>
+                        {profile && <span>· <span className={`font-semibold ${profile.orphaned ? "text-amber-500" : ""}`}>{profile.display_name}{profile.orphaned ? " (removed)" : ""}</span></span>}
+                        {device.assigned_at && <span>· Activated {device.assigned_at.slice(0, 10)}</span>}
+                        <span className="flex items-center gap-0.5">· <Zap className="w-3 h-3" style={{ color: "#FDBA21" }} /> {tapsByDevice[device.id] || 0} taps</span>
                       </p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -516,12 +533,13 @@ export default function MyNFCDevices() {
                         <div className={`px-4 pb-6 pt-2 border-t space-y-5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
 
                           {/* Info Grid */}
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                             {[
                               { label: "Device Code", value: device.device_code },
                               { label: "Type", value: typeInfo.label },
-                              { label: "Profile", value: profile?.display_name || "—" },
+                              { label: "Profile", value: profile?.orphaned ? "Unassigned" : (profile?.display_name || "—") },
                               { label: "Status", value: device.status },
+                              { label: "Taps", value: tapsByDevice[device.id] || 0 },
                             ].map(item => (
                               <div key={item.label} className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                                 <p className={`text-xs font-bold uppercase tracking-wider ${mutedText}`}>{item.label}</p>
@@ -600,6 +618,40 @@ export default function MyNFCDevices() {
                             </div>
                           )}
 
+                          {/* Manage: Replace & Reassign */}
+                          {!isDisabled && (
+                            <div className={`rounded-xl p-4 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
+                              <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${mutedText}`}>Manage Device</p>
+                              {profile?.orphaned && (
+                                <div className={`flex items-start gap-2 p-3 rounded-xl mb-3 text-xs ${isDark ? "bg-amber-500/10 border border-amber-500/25 text-amber-300" : "bg-amber-50 border border-amber-200 text-amber-700"}`}>
+                                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                  <p>This device's profile was removed. Reassign it to an active profile to resume scans.</p>
+                                </div>
+                              )}
+                              <div className="flex flex-col sm:flex-row gap-3">
+                                {!profile?.orphaned && (
+                                  <button onClick={() => setReplaceDialogDevice(device)}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                                    style={{ background: "rgba(6,182,212,0.12)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>
+                                    <RefreshCw className="w-4 h-4" /> Replace Device
+                                  </button>
+                                )}
+                                {(profiles.length > 1 || profile?.orphaned) && (
+                                  <button onClick={() => setReassignDialogDevice(device)}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
+                                    style={{ background: "rgba(168,85,247,0.12)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
+                                    <ArrowRightLeft className="w-4 h-4" /> Reassign Profile
+                                  </button>
+                                )}
+                              </div>
+                              {!profile?.orphaned && (
+                                <p className={`text-[11px] mt-2 ${mutedText}`}>
+                                  Replace retires this card and activates a new one. Reassign moves it to another profile.
+                                </p>
+                              )}
+                            </div>
+                          )}
+
                           {/* Write NFC Tag */}
                           {!isDisabled && !isLost && (
                             <div>
@@ -663,6 +715,34 @@ export default function MyNFCDevices() {
                   isPending={reportLost.isPending}
                   onClose={() => setLostDialogDevice(null)}
                   onConfirm={() => lostDialogDevice && reportLost.mutate(lostDialogDevice)}
+                  />
+
+                  {/* Replace Device Dialog */}
+                  <ReplaceDeviceDialog
+                    open={!!replaceDialogDevice}
+                    device={replaceDialogDevice}
+                    profile={replaceDialogDevice ? getProfile(replaceDialogDevice.profile_id) : null}
+                    user={user}
+                    isDark={isDark}
+                    onClose={() => setReplaceDialogDevice(null)}
+                    onSuccess={() => {
+                      qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
+                      qc.invalidateQueries({ queryKey: ["my-nfc-devices"] });
+                      qc.invalidateQueries({ queryKey: ["nfc-analytics-page"] });
+                    }}
+                  />
+
+                  {/* Reassign Device Dialog */}
+                  <ReassignDeviceDialog
+                    open={!!reassignDialogDevice}
+                    device={reassignDialogDevice}
+                    profiles={profiles}
+                    isDark={isDark}
+                    onClose={() => setReassignDialogDevice(null)}
+                    onSuccess={() => {
+                      qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
+                      qc.invalidateQueries({ queryKey: ["my-nfc-devices"] });
+                    }}
                   />
 
                   {/* Order CTA */}
