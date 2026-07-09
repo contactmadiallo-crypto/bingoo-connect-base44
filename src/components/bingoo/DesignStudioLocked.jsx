@@ -13,11 +13,14 @@ const ELIGIBLE_PLANS = [
 
 const PREVIEW_FEATURES = [
   'Upload your logo & branding',
-  'Choose from 8 card colors',
+  '14 premium card colors',
+  '6 product types: cards, keychains, stickers & more',
   'Custom name, tagline & accent',
   'Matte, Glossy or Frosted finish',
+  'Save & reload design drafts anytime',
+  'Optional remove-branding (+$2.50)',
   'Bulk ordering (25–500 units)',
-  'Live front & back card preview',
+  'Realistic 3D live preview',
 ];
 
 export default function DesignStudioLocked({ isDark }) {
