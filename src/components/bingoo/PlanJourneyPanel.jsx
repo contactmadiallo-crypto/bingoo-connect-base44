@@ -1,166 +1,95 @@
 import React, { useState } from 'react';
 import { Check, Lock, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase, UtensilsCrossed, Users, CalendarHeart, Package } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
+import {
+  PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS,
+  PURCHASABLE_PLANS, COMING_SOON_PLANS,
+} from '@/lib/planPermissions';
 
-// Defensive filter — only customer plans appear in Plan Journeys.
-// "admin" or any non-customer plan ID can never appear here, even if a
-// future data source accidentally includes it.
+// ── Display-only metadata (icons + colors) — NOT entitlement data ──
+const PLAN_META = {
+  free:         { icon: Sparkles,        color: '#64748B' },
+  professional: { icon: Crown,           color: '#f97316' },
+  salon:        { icon: Scissors,        color: '#8b5cf6' },
+  lawfirm:      { icon: Scale,           color: '#3b82f6' },
+  business:     { icon: Briefcase,       color: '#0b2149' },
+  restaurant:   { icon: UtensilsCrossed, color: '#f97316' },
+  corporate:    { icon: Building2,       color: '#15803d' },
+  ngo:          { icon: Users,           color: '#10b981' },
+  event:        { icon: CalendarHeart,   color: '#ec4899' },
+  enterprise:   { icon: Package,         color: '#475569' },
+};
+
+// Customer plan IDs only — "admin" can NEVER appear here
 const CUSTOMER_PLAN_IDS = new Set([
-  'free', 'professional', 'salon', 'lawfirm',           // active/purchasable
-  'business', 'restaurant', 'corporate',                 // coming soon
-  'ngo', 'event', 'enterprise',                          // roadmap / contact sales
+  'free', 'professional', 'salon', 'lawfirm',
+  'business', 'restaurant', 'corporate',
+  'ngo', 'event', 'enterprise',
 ]);
 
-const PLAN_JOURNEYS = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    icon: Sparkles,
-    color: '#64748B',
-    status: 'active',
-    included: ['1 Profile', 'Basic NFC activation', 'QR code', 'Public profile link', 'Basic analytics'],
-    locked: ['Custom layouts', 'Appointment booking', 'CRM pipeline', 'Team members', 'Advanced analytics', 'Design Studio'],
-    nextAction: null,
-    dashboardPreview: 'Basic profile with standard layout, QR sharing, and view counter.',
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    price: '$4.99',
-    period: '/month',
-    icon: Crown,
-    color: '#f97316',
-    status: 'active',
-    included: ['3 Profiles', 'All layout options', 'Appointment booking', 'CRM pipeline', 'Advanced analytics', 'Custom branding', 'QR wallet customization'],
-    locked: ['Team members', 'Office locations', 'Salon services', 'Legal services', 'Attendance tracking'],
-    nextAction: 'Upgrade from Free to unlock layouts, booking, and CRM.',
-    dashboardPreview: 'Multi-profile workspace with analytics, lead pipeline, appointment calendar, and design customization.',
-  },
-  {
-    id: 'salon',
-    name: 'Salon',
-    price: '$19.99',
-    period: '/month',
-    icon: Scissors,
-    color: '#8b5cf6',
-    status: 'active',
-    included: ['Everything in Professional', 'Salon service catalog', 'Stylist/team management', 'Salon-specific layout', 'Loyalty cards', 'Business hours'],
-    locked: ['Legal services', 'Practice areas', 'Office locations'],
-    nextAction: 'Perfect for hair salons, nail studios, and beauty professionals.',
-    dashboardPreview: 'Service menu, stylist calendar, loyalty program, and salon-branded profile layout.',
-  },
-  {
-    id: 'lawfirm',
-    name: 'Law Firm',
-    price: '$49.00',
-    period: '/month',
-    icon: Scale,
-    color: '#3b82f6',
-    status: 'active',
-    included: ['Everything in Professional', 'Practice areas', 'Attorney profiles', 'Legal intake forms', 'Case management', 'Office locations', 'Immigration/civil/criminal fields'],
-    locked: ['Salon services'],
-    nextAction: 'Built for law firms handling immigration, civil, and criminal cases.',
-    dashboardPreview: 'Practice area catalog, attorney directory, legal lead intake with case fields, and multi-office management.',
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    price: 'Coming Soon',
-    period: '',
-    icon: Briefcase,
-    color: '#0b2149',
-    status: 'coming_soon',
-    included: [],
-    locked: ['Full business suite', 'Team dashboards', 'Advanced CRM', 'Bulk NFC ordering', 'White-label branding'],
-    nextAction: 'Coming Soon — join the waitlist to be notified when Business launches.',
-    dashboardPreview: 'Full business operations suite with team management, bulk ordering, and white-label options.',
-  },
-  {
-    id: 'restaurant',
-    name: 'Restaurant',
-    price: 'Coming Soon',
-    period: '',
-    icon: UtensilsCrossed,
-    color: '#f97316',
-    status: 'coming_soon',
-    included: [],
-    locked: ['Menu management', 'Table reservations', 'Customer reviews', 'Loyalty program', 'Special offers'],
-    nextAction: 'Coming Soon — restaurant management tools in development.',
-    dashboardPreview: 'Digital menu, reservation system, customer reviews, and restaurant-branded profile.',
-  },
-  {
-    id: 'corporate',
-    name: 'Corporate',
-    price: 'Coming Soon',
-    period: '',
-    icon: Building2,
-    color: '#0b2149',
-    status: 'coming_soon',
-    included: [],
-    locked: ['Enterprise team management', 'SSO authentication', 'Bulk provisioning', 'Advanced compliance', 'Custom integrations'],
-    nextAction: 'Coming Soon — contact sales for enterprise pilot access.',
-    dashboardPreview: 'Enterprise-grade identity management with SSO, bulk NFC provisioning, and compliance controls.',
-  },
-  {
-    id: 'ngo',
-    name: 'NGO',
-    price: 'Coming Soon',
-    period: '',
-    icon: Users,
-    color: '#10b981',
-    status: 'coming_soon',
-    included: [],
-    locked: ['Donor management', 'Event registration', 'Volunteer coordination', 'Impact tracking'],
-    nextAction: 'Coming Soon — nonprofit tools in development.',
-    dashboardPreview: 'Donor CRM, event registration, volunteer coordination, and impact analytics.',
-  },
-  {
-    id: 'event',
-    name: 'Event Planner',
-    price: 'Coming Soon',
-    period: '',
-    icon: CalendarHeart,
-    color: '#ec4899',
-    status: 'coming_soon',
-    included: [],
-    locked: ['Event mode', 'Bulk attendee profiles', 'Networking connections', 'Event analytics'],
-    nextAction: 'Coming Soon — event networking features in development.',
-    dashboardPreview: 'Event mode with bulk attendee profile creation, networking hub, and real-time event analytics.',
-  },
-  {
-    id: 'enterprise',
-    name: 'Bulk / Enterprise',
-    price: 'Custom',
-    period: '',
-    icon: Package,
-    color: '#0b2149',
-    status: 'contact_sales',
-    included: ['Custom volume pricing', 'Dedicated account manager', 'Custom branding', 'API access', 'Bulk NFC manufacturing', 'Priority support'],
-    locked: [],
-    nextAction: 'Contact sales for custom pricing and volume NFC orders.',
-    dashboardPreview: 'Custom enterprise portal with bulk ordering, API integration, and dedicated support.',
-  },
-];
+// ── Display order ──
+const PLAN_ORDER = ['free', 'professional', 'salon', 'lawfirm', 'business', 'restaurant', 'corporate', 'ngo', 'event', 'enterprise'];
+
+// ── Generate plan journeys from planPermissions.js — single source of truth ──
+// Prices come from PLAN_PRICES_USD, features from PLAN_FEATURES, status from PURCHASABLE/COMING_SOON.
+// No hardcoded prices or feature lists — everything derives from the capability map.
+function buildPlanJourneys(currentPlan) {
+  return PLAN_ORDER.map(planId => {
+    const meta = PLAN_META[planId] || PLAN_META.free;
+    const isPurchasable = PURCHASABLE_PLANS.includes(planId);
+    const isComingSoon = COMING_SOON_PLANS.includes(planId);
+    const price = PLAN_PRICES_USD[planId];
+    const features = PLAN_FEATURES[planId] || [];
+    const isCurrentPlan = currentPlan === planId;
+
+    const status = isPurchasable ? 'active' : isComingSoon ? 'coming_soon' : 'contact_sales';
+
+    let priceStr, period;
+    if (price === 0) { priceStr = '$0'; period = 'forever'; }
+    else if (price > 0) { priceStr = `$${price}`; period = '/month'; }
+    else { priceStr = isComingSoon ? 'Coming Soon' : 'Custom'; period = ''; }
+
+    // Dashboard preview: first 4 feature labels
+    const dashboardPreview = features.length > 0
+      ? features.slice(0, 4).join(' · ') + (features.length > 4 ? '…' : '')
+      : 'Features to be announced.';
+
+    // Next action: context-aware guidance
+    let nextAction = null;
+    if (isComingSoon) {
+      nextAction = `Coming Soon — join the waitlist to be notified when ${PLAN_LABELS[planId] || planId} launches.`;
+    } else if (planId === 'enterprise') {
+      nextAction = 'Contact sales for custom pricing and volume NFC orders.';
+    } else if (!isCurrentPlan && isPurchasable) {
+      nextAction = `Upgrade to unlock: ${features.slice(0, 3).join(', ')}${features.length > 3 ? '…' : ''}`;
+    }
+
+    return {
+      id: planId,
+      name: PLAN_LABELS[planId] || planId.charAt(0).toUpperCase() + planId.slice(1),
+      price: priceStr,
+      period,
+      icon: meta.icon,
+      color: meta.color,
+      status,
+      included: features,
+      locked: [],
+      nextAction,
+      dashboardPreview,
+      isCurrentPlan,
+    };
+  }).filter(p => CUSTOMER_PLAN_IDS.has(p.id));
+}
 
 export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSource }) {
   const [selected, setSelected] = useState(currentPlan || 'free');
 
-  // Filter to customer plans only — "admin" can never appear in this list
-  const VISIBLE_PLANS = PLAN_JOURNEYS.filter(p => CUSTOMER_PLAN_IDS.has(p.id));
+  // Build plan journeys dynamically from planPermissions.js
+  const VISIBLE_PLANS = buildPlanJourneys(currentPlan);
   const active = VISIBLE_PLANS.find(p => p.id === selected) || VISIBLE_PLANS[0];
 
-  // Debug panel is admin-only — non-admin users never see role/plan source diagnostics.
+  // Debug: admin-only, ?debug=1
   const showDebug = userRole === 'admin' && new URLSearchParams(window.location.search).get('debug') === '1';
-  if (showDebug) {
-    console.log('[PlanJourneyPanel] Audit:', {
-      currentPlan, userRole, planSource,
-      visiblePlanIds: VISIBLE_PLANS.map(p => p.id),
-      adminInList: VISIBLE_PLANS.some(p => p.id === 'admin'),
-      totalPlans: VISIBLE_PLANS.length,
-    });
-  }
 
   const t = {
     card: isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200',
@@ -180,15 +109,16 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
         </div>
       </div>
 
-      {/* Temporary debug output — add ?debug=1 to URL to see */}
+      {/* Admin-only debug */}
       {showDebug && (
         <div className={`rounded-xl border border-dashed p-3 text-[11px] font-mono space-y-0.5 ${isDark ? 'border-orange-400/40 bg-orange-500/10 text-orange-200' : 'border-orange-300 bg-orange-50 text-orange-900'}`}>
-          <p className="font-bold">DEBUG — Plan Journey Audit</p>
+          <p className="font-bold">DEBUG — Plan Journey Audit (admin only)</p>
           <p>userRole: <strong>{userRole || 'unknown'}</strong></p>
           <p>currentPlan: <strong>{currentPlan || 'free'}</strong></p>
           <p>planSource: <strong>{planSource || 'none'}</strong></p>
           <p>visiblePlans: <strong>{VISIBLE_PLANS.map(p => p.id).join(', ')}</strong></p>
           <p>adminInList: <strong>{String(VISIBLE_PLANS.some(p => p.id === 'admin'))}</strong></p>
+          <p>dataDriven: <strong>true</strong> (prices from PLAN_PRICES_USD, features from PLAN_FEATURES)</p>
         </div>
       )}
 
@@ -202,6 +132,7 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
             style={selected === p.id ? { background: p.color } : {}}>
             <p.icon className="w-3.5 h-3.5" />
             {p.name}
+            {p.isCurrentPlan && <span className="text-[9px] opacity-90">●</span>}
             {p.status === 'coming_soon' && <span className="text-[9px] opacity-70">Soon</span>}
           </button>
         ))}
@@ -222,12 +153,17 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
               </p>
             </div>
           </div>
-          {active.status === 'coming_soon' && (
-            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">Coming Soon</span>
-          )}
-          {active.status === 'active' && currentPlan === active.id && (
-            <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-green-100 text-green-700">Your Plan</span>
-          )}
+          <div className="flex flex-col gap-1.5 items-end">
+            {active.status === 'coming_soon' && (
+              <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">Coming Soon</span>
+            )}
+            {active.isCurrentPlan && (
+              <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-green-100 text-green-700">Your Plan</span>
+            )}
+            {active.status === 'active' && !active.isCurrentPlan && (
+              <span className="text-[10px] font-black px-2.5 py-1 rounded-full" style={{ background: `${active.color}15`, color: active.color }}>Available</span>
+            )}
+          </div>
         </div>
 
         {/* Dashboard preview */}
@@ -236,10 +172,12 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
           <p className={`text-xs ${t.sub}`}>{active.dashboardPreview}</p>
         </div>
 
-        {/* Included tools */}
+        {/* Included tools — from PLAN_FEATURES */}
         {active.included.length > 0 && (
           <div>
-            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>Included Tools</p>
+            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>
+              Included Tools {active.isCurrentPlan && <span className="text-green-500 normal-case font-bold">(Unlocked)</span>}
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
               {active.included.map(tool => (
                 <div key={tool} className="flex items-center gap-2 text-xs">
@@ -251,18 +189,12 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
           </div>
         )}
 
-        {/* Locked tools */}
-        {active.locked.length > 0 && (
-          <div>
-            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>Locked / Not Included</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-              {active.locked.map(tool => (
-                <div key={tool} className="flex items-center gap-2 text-xs">
-                  <Lock className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                  <span className={t.sub}>{tool}</span>
-                </div>
-              ))}
-            </div>
+        {/* Coming soon placeholder */}
+        {active.included.length === 0 && active.status !== 'contact_sales' && (
+          <div className={`rounded-xl p-4 ${t.locked}`}>
+            <p className={`text-xs text-center ${t.sub}`}>
+              This plan is under development.<br />Features will be announced soon.
+            </p>
           </div>
         )}
 

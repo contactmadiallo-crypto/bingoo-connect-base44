@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, X, Check, User, Palette, Rocket, Briefcase, Scissors, Scale, Users, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InfinityMark } from "@/components/mockups/brand/InfinityMark";
+import LayoutFamilyPreview from "./LayoutFamilyPreview";
 
 const PROFILE_TYPES = [
   { id: 'professional', label: 'Professional', icon: Briefcase, desc: 'Consultant, freelancer, executive' },
@@ -74,7 +75,7 @@ export default function OnboardingWizard({ userName, onCreateProfile, onDismiss 
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
       >
         {/* Brand bar */}
         <div className="h-1.5 w-full" style={{ background: 'linear-gradient(to right, #0b2149, #f97316)' }} />
@@ -117,7 +118,7 @@ export default function OnboardingWizard({ userName, onCreateProfile, onDismiss 
         </div>
 
         {/* Step content */}
-        <div className="overflow-hidden" style={{ minHeight: 360 }}>
+        <div className="overflow-y-auto flex-1 scrollbar-hide" style={{ minHeight: 320 }}>
           <AnimatePresence custom={dir} mode="wait">
             {/* Step 1: Account */}
             {step === 0 && (
@@ -177,16 +178,12 @@ export default function OnboardingWizard({ userName, onCreateProfile, onDismiss 
                 className="px-8 pt-4 pb-6">
                 <h2 className="text-xl font-black text-slate-900 mb-1 text-center">Pick your layout</h2>
                 <p className="text-sm text-slate-500 text-center mb-4">Choose how your profile looks — you can change this anytime</p>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 max-h-[260px] overflow-y-auto scrollbar-hide rounded-lg pr-1">
                   {LAYOUT_PREVIEWS.map(l => (
                     <button key={l.id} onClick={() => setLayoutChoice(l.id)}
-                      className={`p-3 rounded-xl border-2 transition-all text-left ${layoutChoice === l.id ? 'border-orange-500 bg-orange-50' : 'border-slate-100 hover:border-slate-200'}`}>
-                      <div className={`w-full h-16 rounded-lg mb-2 ${layoutChoice === l.id ? 'bg-orange-100' : 'bg-slate-100'}`}>
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className={`w-8 h-8 rounded-full ${layoutChoice === l.id ? 'bg-orange-300' : 'bg-slate-300'}`} />
-                        </div>
-                      </div>
-                      <p className={`font-bold text-xs ${layoutChoice === l.id ? 'text-slate-900' : 'text-slate-700'}`}>{l.name}</p>
+                      className={`p-2.5 rounded-xl border-2 transition-all text-left ${layoutChoice === l.id ? 'border-orange-500 bg-orange-50' : 'border-slate-100 hover:border-slate-200'}`}>
+                      <LayoutFamilyPreview familyId={l.id} isSelected={layoutChoice === l.id} />
+                      <p className={`font-bold text-xs mt-2 ${layoutChoice === l.id ? 'text-slate-900' : 'text-slate-700'}`}>{l.name}</p>
                       <p className="text-[10px] text-slate-400 leading-tight">{l.desc}</p>
                     </button>
                   ))}

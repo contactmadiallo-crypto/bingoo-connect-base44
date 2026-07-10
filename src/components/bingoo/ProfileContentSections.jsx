@@ -566,7 +566,42 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </>
       )}
 
-      {/* ── Resume ── */}
+      {/* ── Careers (Business / Corporate only) ── */}
+      {isBusinessProfile && (
+        <>
+          <Div isDark={isDark} />
+          <SLabel isDark={isDark}>Careers</SLabel>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            style={{
+              display: "flex", alignItems: "center", gap: 14, padding: "16px",
+              borderRadius: 16,
+              background: isDark ? "rgba(255,255,255,0.05)" : "#f7f8fa",
+              border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ebebeb",
+            }}>
+            <div style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center",
+              background: `${color}15` }}>
+              <span style={{ fontSize: 20 }}>💼</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: 14, fontFamily: FONT_BODY, color: isDark ? "rgba(255,255,255,0.9)" : "#1e293b" }}>
+                Join Our Team
+              </p>
+              <p style={{ margin: 0, fontSize: 11, color: isDark ? "rgba(255,255,255,0.4)" : "#64748b", fontFamily: FONT_BODY }}>
+                We're always looking for talented people
+              </p>
+            </div>
+            {profile.email && (
+              <a href={`mailto:${profile.email}?subject=Career Opportunity at ${encodeURIComponent(profile.company_name || profile.display_name)}`}
+                style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 10, background: color, color: "#fff",
+                  fontWeight: 700, fontSize: 11, textDecoration: "none", fontFamily: FONT_BODY }}>
+                Apply →
+              </a>
+            )}
+          </motion.div>
+        </>
+      )}
+
+      {/* ── Resume / Portfolio ── */}
       <ProfileResumeSection profileId={profile.id} color={color} isDark={isDark} showDivider />
 
       {/* ── Attorneys ── */}
