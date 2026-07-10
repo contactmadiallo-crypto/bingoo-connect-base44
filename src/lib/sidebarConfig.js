@@ -264,7 +264,7 @@ export const SIDEBAR_NAV_MAP = {
   qrwallet: {
     id: "qrwallet", label: "QR & Wallet", labelFr: "QR & Wallet",
     icon: QrCode, href: "/bingoo?view=qrwallet",
-    iconColor: "#0b2149", iconBg: "rgba(11,33,73,0.18)",
+    iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)",
   },
   designstudio: {
     id: "designstudio", label: "Design Studio", labelFr: "Studio Design",

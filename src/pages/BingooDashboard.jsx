@@ -91,13 +91,14 @@ const TAB_TO_VIEW = {
   home: VIEW_HOME,
   qrwallet: VIEW_QR,
   designstudio: VIEW_DESIGN,
-  docwallet: VIEW_DOCWALLET,
+  docwallet: VIEW_QR,
   myassets: VIEW_MYASSETS,
   quality: VIEW_QUALITY,
   planjourney: VIEW_PLANJOURNEY,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
+  if (v === "docwallet") return VIEW_QR; // Document Wallet consolidated into QR & Wallet
   if (v) return v;
   const tab = searchParams.get("tab");
   if (tab && TAB_TO_VIEW[tab]) return TAB_TO_VIEW[tab];

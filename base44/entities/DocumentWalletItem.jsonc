@@ -12,15 +12,27 @@
     },
     "file_url": {
       "type": "string",
-      "description": "Uploaded document file URL"
+      "description": "Uploaded document file URL (front side for ID-type documents)"
     },
     "file_name": {
       "type": "string",
-      "description": "Original file name"
+      "description": "Original file name (front side)"
     },
     "file_size": {
       "type": "number",
-      "description": "File size in bytes"
+      "description": "File size in bytes (front side)"
+    },
+    "file_url_back": {
+      "type": "string",
+      "description": "Back side file URL for ID-type documents (ID card, passport, SSN, work authorization, visa, license)"
+    },
+    "file_name_back": {
+      "type": "string",
+      "description": "Back side file name"
+    },
+    "file_size_back": {
+      "type": "number",
+      "description": "Back side file size in bytes"
     },
     "document_type": {
       "type": "string",
