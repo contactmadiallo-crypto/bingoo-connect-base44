@@ -179,6 +179,15 @@ export default function Pricing() {
           })}
         </div>
 
+        {/* View All Plans link */}
+        <div className="text-center mt-8 md:mt-10">
+          <Link to="/plans">
+            <Button className="h-11 font-bold text-sm text-white border-none" style={{ background: NAVY }}>
+              View All Plans →
+            </Button>
+          </Link>
+        </div>
+
         {/* Coming Soon Plans */}
         <div className="mt-10 md:mt-12">
           <div className="text-center mb-6">
