@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
+import { useAuth } from '@/lib/AuthContext';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
 import { PLAN_HIERARCHY, PLAN_FEATURES } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
@@ -121,8 +122,9 @@ export default function SubscriptionPricing() {
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
   const { features, plan: featurePlan } = useFeatures();
+  const { user } = useAuth();
 
-  // Load admin-configured pricing
+  // Load admin-configured pricing — cached, non-blocking
   const { data: pricingConfigs = [] } = useQuery({
     queryKey: ['pricing-configs-public'],
     queryFn: async () => {
@@ -132,30 +134,37 @@ export default function SubscriptionPricing() {
         return [];
       }
     },
+    staleTime: 60_000,
+  });
+
+  // Resolve current plan from profile + subscription — cached via React Query
+  const { data: profiles = [] } = useQuery({
+    queryKey: ['my-profiles', user?.id],
+    queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
+    enabled: !!user?.id,
+    staleTime: 30_000,
+  });
+
+  const { data: subscriptions = [] } = useQuery({
+    queryKey: ['my-subscription', user?.email],
+    queryFn: () => base44.entities.Subscription.filter({ customer_email: user.email }),
+    enabled: !!user?.email,
+    staleTime: 30_000,
   });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === '1';
-
-    base44.auth.me().then(user => {
-      if (!user?.id) return;
-      Promise.all([
-        base44.entities.Profile.filter({ created_by_id: user.id }).catch(() => []),
-        base44.entities.Subscription.filter({ customer_email: user.email }).catch(() => []),
-      ]).then(([profiles, subscriptions]) => {
-        const profilePlan = profiles?.[0]?.plan || 'free';
-        const sub = subscriptions?.[0];
-        const subPlan = (sub?.status === 'active' || sub?.status === 'past_due') ? (sub.plan || 'free') : 'free';
-        const activePlan = (PLAN_HIERARCHY[subPlan] || 0) >= (PLAN_HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
-
-        if (isSuccess) {
-          setSuccessMsg('🎉 Payment received! Your plan is being activated — this can take up to a minute to reflect here.');
-        }
-        setCurrentPlan(activePlan);
-      });
-    }).catch(() => {});
-  }, []);
+    if (isSuccess) {
+      setSuccessMsg('🎉 Payment received! Your plan is being activated — this can take up to a minute to reflect here.');
+    }
+    if (!user?.id) return;
+    const profilePlan = profiles?.[0]?.plan || 'free';
+    const sub = subscriptions?.[0];
+    const subPlan = (sub?.status === 'active' || sub?.status === 'past_due') ? (sub.plan || 'free') : 'free';
+    const activePlan = (PLAN_HIERARCHY[subPlan] || 0) >= (PLAN_HIERARCHY[profilePlan] || 0) ? subPlan : profilePlan;
+    setCurrentPlan(activePlan);
+  }, [user?.id, profiles, subscriptions]);
 
   // Resolve display price for a plan in current currency
   const getPlanPrice = (planId) => {

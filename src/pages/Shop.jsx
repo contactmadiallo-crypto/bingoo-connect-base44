@@ -30,8 +30,9 @@ function ProductTile({ product, idx, onAdd, added }) {
         <div className="relative flex items-center justify-center px-3 overflow-hidden"
           style={{ minHeight: '180px', background: `linear-gradient(135deg, ${NAVY}08, ${ORANGE}06)` }}>
           <img src={product.image} alt={product.name}
+            loading="lazy" decoding="async"
             className="w-full object-contain transition-transform duration-300 hover:scale-105"
-            style={{ maxHeight: '180px' }} />
+            style={{ maxHeight: '180px', aspectRatio: '1' }} />
           {product.badge && (
             <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide text-white"
               style={{ background: ORANGE }}>

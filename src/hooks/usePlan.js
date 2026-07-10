@@ -15,8 +15,9 @@ import { canAccess, maxNFCDevices, maxTeamMembers, normalizePlan } from '@/lib/p
  */
 export function usePlan() {
   const { data: user, isLoading: loadingUser } = useQuery({
-    queryKey: ['me'],
+    queryKey: ['auth-me'],
     queryFn: () => base44.auth.me(),
+    staleTime: 60_000,
   });
 
   const { data: subscriptions, isLoading: loadingSub, isFetching: fetchingSub } = useQuery({
@@ -46,17 +47,6 @@ export function usePlan() {
   // Derive plan source for debug/audit: stripe | admin_override | test_account | none
   const planSource = subscription?.plan_source
     || (subscription?.stripe_subscription_id ? 'stripe' : (featuresData?.is_test_account ? 'test_account' : 'none'));
-
-  // Debug logging — verifies the app receives correct role/plan/subscription data
-  console.log('[usePlan] Audit:', {
-    userEmail: user?.email,
-    userRole: user?.role,
-    resolvedPlan: normalizedPlan,
-    rawPlan: featuresData?.plan,
-    isTestAccount: featuresData?.is_test_account || false,
-    subscriptionStatus: subscription?.status || 'none',
-    planSource,
-  });
 
   return {
     user,

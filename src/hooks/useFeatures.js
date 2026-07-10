@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 
 /**
  * Hook to load and cache user features from the backend.
@@ -8,30 +9,31 @@ import { base44 } from '@/api/base44Client';
 export function useFeatures() {
   const [data, setData] = useState({ features: [], plan: 'free', loading: true, error: null });
 
-  useEffect(() => {
-    const loadFeatures = async () => {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (!isAuth) {
-          setData({ features: [], plan: 'free', loading: false, error: null });
-          return;
-        }
+  const { isAuthenticated } = useAuth();
 
-        const result = await base44.functions.invoke('getUserFeatures', {});
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setData({ features: [], plan: 'free', loading: false, error: null });
+      return;
+    }
+    let cancelled = false;
+    setData(prev => ({ ...prev, loading: true }));
+    base44.functions.invoke('getUserFeatures', {})
+      .then(result => {
+        if (cancelled) return;
         setData({
           features: result.data.features || [],
           plan: result.data.plan || 'free',
           loading: false,
           error: null
         });
-      } catch (err) {
-        console.error('Failed to load features:', err);
+      })
+      .catch(err => {
+        if (cancelled) return;
         setData({ features: [], plan: 'free', loading: false, error: err.message });
-      }
-    };
-
-    loadFeatures();
-  }, []);
+      });
+    return () => { cancelled = true; };
+  }, [isAuthenticated]);
 
   return data;
 }

@@ -29,8 +29,7 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const ShopAdmin = lazy(() => import('./pages/ShopAdmin'));
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { AuthProvider } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import BingooLayoutWrapper from '@/components/bingoo/BingooLayoutWrapper';
 import { Navigate } from 'react-router-dom';
@@ -79,22 +78,8 @@ function LegacyRedirects() {
 
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
-
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (authError?.type === 'user_not_registered') {
-    return <UserNotRegisteredError />;
-  }
-
-  // Render the main app
+  // Public routes render immediately — no auth/public-settings gate.
+  // Protected routes handle their own loading state via ProtectedRoute.
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
     <Routes>
@@ -132,9 +117,7 @@ const AuthenticatedApp = () => {
       <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
-      <Route element={<BingooLayoutWrapper />}>
-        <Route path="/shop" element={<Shop />} />
-      </Route>
+      <Route path="/shop" element={<Shop />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/plans" element={<SubscriptionPricing />} />
@@ -156,7 +139,6 @@ const AuthenticatedApp = () => {
         </Route>
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
-        <Route path="/pricing" element={<Pricing />} />
 
         {/* ── FOODHUB legacy routes disabled (files preserved for rollback) ── */}      </Route>
 

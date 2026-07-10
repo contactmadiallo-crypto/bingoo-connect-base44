@@ -2,28 +2,28 @@ import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
-import LeadsPanel from "@/components/bingoo/LeadsPanel";
-import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
-import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
-import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
-import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
-import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
-import QrWalletCenter from "@/components/bingoo/QrWalletCenter";
-import DesignStudio from "@/components/bingoo/DesignStudio";
-import DesignStudioLocked from "@/components/bingoo/DesignStudioLocked";
-import SalonServicesPanel from "@/components/bingoo/SalonServicesPanel";
-import BusinessHoursTab from "@/components/bingoo/BusinessHoursTab";
-import PlanGateScreen from "@/components/bingoo/PlanGateScreen";
-import TeamMembersPanel from "@/components/bingoo/TeamMembersPanel";
-import CRMPipelinePanel from "@/components/bingoo/CRMPipelinePanel";
-import LegalLeadsDashboard from "@/components/bingoo/LegalLeadsDashboard";
-import AttendancePanel from "@/components/bingoo/AttendancePanel";
-import PracticeAreasPanel from "@/components/bingoo/PracticeAreasPanel";
-import LegalServicesPanel from "@/components/bingoo/LegalServicesPanel";
-import OfficeLocationsPanel from "@/components/bingoo/OfficeLocationsPanel";
+const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
+const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
+const OnboardingWizard = React.lazy(() => import("@/components/bingoo/OnboardingWizard"));
+const AppointmentsTabMerged = React.lazy(() => import("@/components/bingoo/AppointmentsTabMerged"));
+const ConnectionsPanel = React.lazy(() => import("@/components/bingoo/ConnectionsPanel"));
+const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
+const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
+const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio"));
+const DesignStudioLocked = React.lazy(() => import("@/components/bingoo/DesignStudioLocked"));
+const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
+const BusinessHoursTab = React.lazy(() => import("@/components/bingoo/BusinessHoursTab"));
+const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
+const TeamMembersPanel = React.lazy(() => import("@/components/bingoo/TeamMembersPanel"));
+const CRMPipelinePanel = React.lazy(() => import("@/components/bingoo/CRMPipelinePanel"));
+const LegalLeadsDashboard = React.lazy(() => import("@/components/bingoo/LegalLeadsDashboard"));
+const AttendancePanel = React.lazy(() => import("@/components/bingoo/AttendancePanel"));
+const PracticeAreasPanel = React.lazy(() => import("@/components/bingoo/PracticeAreasPanel"));
+const LegalServicesPanel = React.lazy(() => import("@/components/bingoo/LegalServicesPanel"));
+const OfficeLocationsPanel = React.lazy(() => import("@/components/bingoo/OfficeLocationsPanel"));
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import ProfilesHub from "@/components/bingoo/ProfilesHub";
-import ProfileWorkspace from "@/components/bingoo/ProfileWorkspace";
+const ProfilesHub = React.lazy(() => import("@/components/bingoo/ProfilesHub"));
+const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWorkspace"));
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
@@ -38,12 +38,12 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
-import PremiumHomeDashboard from "@/components/bingoo/PremiumHomeDashboard";
-import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
-import MyAssetsPanel from "@/components/bingoo/MyAssetsPanel";
-import ProfileQualityScore from "@/components/bingoo/ProfileQualityScore";
-import PlanJourneyPanel from "@/components/bingoo/PlanJourneyPanel";
-import StrategicHub from "@/components/bingoo/strategic/StrategicHub";
+const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
+const DocumentWalletPanel = React.lazy(() => import("@/components/bingoo/DocumentWalletPanel"));
+const MyAssetsPanel = React.lazy(() => import("@/components/bingoo/MyAssetsPanel"));
+const ProfileQualityScore = React.lazy(() => import("@/components/bingoo/ProfileQualityScore"));
+const PlanJourneyPanel = React.lazy(() => import("@/components/bingoo/PlanJourneyPanel"));
+const StrategicHub = React.lazy(() => import("@/components/bingoo/strategic/StrategicHub"));
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -520,6 +520,7 @@ export default function BingooDashboard() {
   return (
     <BingooLayout selectedProfile={activeProfile ?? null} accountPlan={userPlan} lang={lang} userId={user?.id}>
       {showOnboarding && user && (
+        <React.Suspense fallback={null}>
         <OnboardingWizard
           userName={user.full_name}
           onCreateProfile={() => {
@@ -532,6 +533,7 @@ export default function BingooDashboard() {
             else openNewProfile();
           }}
         />
+        </React.Suspense>
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
@@ -565,6 +567,7 @@ export default function BingooDashboard() {
             </div>
           </div>
 
+          <React.Suspense fallback={<div className="flex items-center justify-center py-20"><BingooLoadingDots /></div>}>
           {/* ════════════════════════════════════
               HOME — Premium Dashboard Overview
           ════════════════════════════════════ */}
@@ -993,6 +996,7 @@ export default function BingooDashboard() {
               )}
             </div>
           )}
+          </React.Suspense>
 
           {/* Bingoo loading indicator */}
           <BingooLoadingDots />

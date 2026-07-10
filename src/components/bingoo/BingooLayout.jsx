@@ -38,8 +38,9 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   }, []);
 
   const { data: user } = useQuery({
-    queryKey: ["current-user"],
+    queryKey: ['auth-me'],
     queryFn: () => base44.auth.me(),
+    staleTime: 60_000,
   });
 
   // userId prop takes priority (passed from BingooDashboard which already has the user)
