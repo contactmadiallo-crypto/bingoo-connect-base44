@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
-import AIOnboardingAssistant from "@/components/bingoo/AIOnboardingAssistant";
+import OnboardingWizard from "@/components/bingoo/OnboardingWizard";
 import AppointmentsTabMerged from "@/components/bingoo/AppointmentsTabMerged";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
@@ -135,6 +135,8 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
     if (!form.username.trim()) { setError("Username (profile URL) is required."); return; }
     setSaving(true);
     try {
+      // Read onboarding layout choice (set by OnboardingWizard step 3)
+      const onboardingLayout = localStorage.getItem("bingoo_onboarding_layout") || "classic";
       const created = await base44.entities.Profile.create({
         display_name: form.display_name.trim(),
         username: form.username.trim(),
@@ -143,7 +145,11 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
         cover_color: "#2563eb",
         is_active: true,
         plan: "free",
+        layout: onboardingLayout,
       });
+      // Clean up onboarding localStorage
+      localStorage.removeItem("bingoo_onboarding_profile_type");
+      localStorage.removeItem("bingoo_onboarding_layout");
       onCreated(created);
     } catch (err) {
       setError(err?.message || "Failed to create profile.");
@@ -510,12 +516,10 @@ export default function BingooDashboard() {
   return (
     <BingooLayout selectedProfile={activeProfile ?? null} accountPlan={userPlan} lang={lang} userId={user?.id}>
       {showOnboarding && user && (
-        <AIOnboardingAssistant
+        <OnboardingWizard
           userName={user.full_name}
-          user={user}
-          onComplete={(generatedData) => {
+          onCreateProfile={() => {
             setShowOnboarding(false);
-            setAiGeneratedProfile(generatedData);
             openNewProfile();
           }}
           onDismiss={() => {

@@ -18,8 +18,18 @@ const LAYOUT_PREVIEWS = [
   { id: 'premium_salon', name: 'Salon / Service', desc: 'Service menu, stylist showcase' },
   { id: 'modern_law', name: 'Law Firm', desc: 'Practice areas, attorney profiles' },
   { id: 'corporate', name: 'Business Team', desc: 'Team directory, company branding' },
+  { id: 'aurora', name: 'Event Networking', desc: 'Vibrant, social, eye-catching' },
   { id: 'minimal', name: 'Minimal NFC Card', desc: 'Clean, fast, contact-first' },
+  { id: 'image_hero', name: 'Rich Media', desc: 'Full-bleed photo, media-rich' },
 ];
+
+const PROFILE_TYPE_LAYOUTS = {
+  professional: 'executive',
+  salon: 'premium_salon',
+  lawfirm: 'modern_law',
+  business: 'corporate',
+  creative: 'creative',
+};
 
 const STEPS = [
   { id: 'account', num: 1, label: 'Account', icon: User },
@@ -140,7 +150,10 @@ export default function OnboardingWizard({ userName, onCreateProfile, onDismiss 
                 <p className="text-sm text-slate-500 text-center mb-4">Select your profile type to customize your experience</p>
                 <div className="space-y-2">
                   {PROFILE_TYPES.map(pt => (
-                    <button key={pt.id} onClick={() => setProfileType(pt.id)}
+                    <button key={pt.id} onClick={() => {
+                      setProfileType(pt.id);
+                      setLayoutChoice(PROFILE_TYPE_LAYOUTS[pt.id] || 'executive');
+                    }}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
                         profileType === pt.id ? 'border-orange-500 bg-orange-50' : 'border-slate-100 hover:border-slate-200'
                       }`}>

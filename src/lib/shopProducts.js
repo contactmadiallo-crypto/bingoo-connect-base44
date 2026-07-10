@@ -172,6 +172,42 @@ export const PRODUCTS = [
       'Perfect desk companion',
     ],
   },
+  {
+    id: 'nfc-pet-collar',
+    name: 'NFC Pet Collar Tag',
+    tagline: 'Keep your furry friend safe. Tap to identify.',
+    description: 'Durable navy NFC pet collar tag with Bingoo branding. Attach to any pet collar and link to your Bingoo asset profile. If your pet gets lost, anyone who taps the tag sees your recovery contact info instantly — no app required.',
+    price: 16.99,
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/9b2b123df_generated_image.png',
+    category: 'tag',
+    badge: 'Pet Safety',
+    activationCode: 'BNG-00011',
+    features: [
+      'Durable pet-safe silicone',
+      'Fits any standard collar',
+      'Links to pet asset profile',
+      'Lost mode shows recovery info',
+      'Waterproof & weather-resistant',
+    ],
+  },
+  {
+    id: 'nfc-luggage-tag',
+    name: 'NFC Luggage Tag',
+    tagline: 'Never lose your bags. Tap to track.',
+    description: 'Premium navy NFC luggage tag with QR code backup and Bingoo branding. Attach to any suitcase, backpack, or bag. If lost, anyone who taps or scans sees your safe recovery contact — no app required.',
+    price: 18.99,
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7f3c6a842_generated_image.png',
+    category: 'tag',
+    badge: 'Travel',
+    activationCode: 'BNG-00012',
+    features: [
+      'NFC tap + QR code backup',
+      'Durable travel-grade material',
+      'Links to luggage asset profile',
+      'Lost mode shows recovery info',
+      'No app required — works with any phone',
+    ],
+  },
 ];
 
 // ── Color & Material Options per product category ───────────────────────────
@@ -245,7 +281,7 @@ export const PERFECT_FOR = {
   keychain: ['Drivers', 'Field Reps', 'Students', 'Event Staff'],
   sticker:  ['Retailers', 'Cafés', 'Gyms', 'Startups'],
   bracelet: ['Event Planners', 'Festivals', 'Sports Teams', 'Staff'],
-  tag:      ['Travelers', 'Lanyard Users', 'Teachers', 'Coaches'],
+  tag:      ['Travelers', 'Pet Owners', 'Lanyard Users', 'Teachers', 'Coaches'],
   stand:    ['Salons', 'Restaurants', 'Reception', 'Retail Counters'],
 };
 

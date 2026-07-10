@@ -64,14 +64,25 @@ export default function AssetFinder() {
 
       {/* Content */}
       <main className="max-w-md mx-auto px-4 py-6 space-y-4">
-        {/* Lost Alert */}
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex items-center gap-3">
-          <AlertTriangle className="w-6 h-6 text-orange-500 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-black text-orange-800">This item has been reported lost</p>
-            <p className="text-xs text-orange-600">Please help return it to the owner.</p>
+        {/* Lost Alert — only when owner has enabled lost mode */}
+        {assetData.lost_mode_enabled && (
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-orange-500 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-black text-orange-800">This item has been reported lost</p>
+              <p className="text-xs text-orange-600">Please help return it to the owner.</p>
+            </div>
           </div>
-        </div>
+        )}
+        {!assetData.lost_mode_enabled && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center gap-3">
+            <Package className="w-6 h-6 text-blue-500 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-black text-blue-800">Asset Identified</p>
+              <p className="text-xs text-blue-600">This NFC tag is linked to a registered Bingoo asset.</p>
+            </div>
+          </div>
+        )}
 
         {/* Asset Card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

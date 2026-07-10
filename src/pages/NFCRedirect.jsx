@@ -19,31 +19,45 @@ export default function NFCRedirect() {
   const result = deviceData?.data;
   const device = result?.device;
   const profile = result?.profile;
+  const asset = result?.asset;
+  const isAsset = result?.is_asset;
   const isClaimed = result?.is_claimed;
   const isLost = result?.is_lost;
   const isUnclaimed = result?.is_unclaimed;
 
-  // Track NFC tap
+  // Track NFC tap (profile or asset context)
   useEffect(() => {
-    if (isClaimed && profile?.id && device?.id) {
-      base44.entities.Analytics.create({
-        profile_id: profile.id,
-        device_id: device.id,
-        event_type: "nfc_tap",
-        visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-        created_at: new Date().toISOString(),
-      }).catch(() => {});
+    if (isClaimed && device?.id) {
+      const trackProfileId = isAsset ? (asset?.profile_id || null) : (profile?.id || null);
+      if (trackProfileId) {
+        base44.entities.Analytics.create({
+          profile_id: trackProfileId,
+          device_id: device.id,
+          event_type: "nfc_tap",
+          visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
+          created_at: new Date().toISOString(),
+        }).catch(() => {});
+      }
     }
-  }, [isClaimed, profile?.id, device?.id]);
+  }, [isClaimed, isAsset, asset?.profile_id, profile?.id, device?.id]);
 
-  // Redirect claimed (non-lost) devices to the profile.
+  // ASSET REDIRECT: If device is assigned to an asset, route to asset finder.
+  // Asset assignment takes precedence over profile assignment.
+  // AssetFinder handles both normal and lost states.
+  useEffect(() => {
+    if (isAsset && normalizedCode) {
+      window.location.replace(`/asset/${normalizedCode}`);
+    }
+  }, [isAsset, normalizedCode]);
+
+  // Redirect claimed (non-lost, non-asset) devices to the profile.
   // Lost devices must NOT redirect — they render LostDevicePage below.
   // Include the device code so PublicProfile can re-verify it isn't lost.
   useEffect(() => {
-    if (isClaimed && !isLost && profile?.username) {
+    if (isClaimed && !isLost && !isAsset && profile?.username) {
       window.location.replace(`/p/${profile.username}?source=nfc&device=${normalizedCode}`);
     }
-  }, [isClaimed, isLost, profile?.username]);
+  }, [isClaimed, isLost, isAsset, profile?.username]);
 
   if (isLoading) {
     return (

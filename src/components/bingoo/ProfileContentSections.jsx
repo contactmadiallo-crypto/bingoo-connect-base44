@@ -279,6 +279,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const [shared, setShared] = useState(false);
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
+  const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
+  const showsServicesAndTeam = isSalonOrRestaurant || isBusinessProfile;
   const isLawFirmProfile = profile.plan === "lawfirm";
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
 
@@ -532,8 +534,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         );
       })()}
 
-      {/* ── Salon services + team + loyalty ── */}
-      {isSalonOrRestaurant && (
+      {/* ── Services + Team (salon, restaurant, business, corporate) ── */}
+      {showsServicesAndTeam && (
         <>
           <Div isDark={isDark} />
           <SalonServicesSection
@@ -541,9 +543,11 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             onBookService={canBook ? (svc) => { setBookService(svc); setBookOpen(true); } : undefined}
           />
           <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={true} onBookWithStylist={(stylistName) => { setBookService(null); setBookStylist(stylistName); setBookOpen(true); }} />
-          <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
+          {isSalonOrRestaurant && (
+            <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
+          )}
           {/* ── Prominent Google Review for salons ── */}
-          {profile.google_review_url && (
+          {profile.google_review_url && isSalonOrRestaurant && (
             <a href={profile.google_review_url} target="_blank" rel="noreferrer" style={{ display: "block", marginBottom: 20, textDecoration: "none" }}>
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,

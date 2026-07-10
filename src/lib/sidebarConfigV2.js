@@ -35,7 +35,12 @@ export function getVisibleNavSections(profile, isAdmin = false, lang = "en", eff
 
   return SECTIONS.map((section) => {
     const items = section.itemIds
-      .filter((id) => visibleIds.has(id) || EXTRA_NAV_ITEMS[id])
+      .filter((id) => {
+        if (!EXTRA_NAV_ITEMS[id] && !visibleIds.has(id)) return false;
+        // Advanced Admin is admin-only — never show to non-admins
+        if (id === "advancedAdmin" && !isAdmin) return false;
+        return true;
+      })
       .map((id) => {
         const item = allItems[id];
         if (!item) return null;
