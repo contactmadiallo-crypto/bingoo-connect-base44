@@ -65,7 +65,7 @@ export default function PremiumHomeDashboard({
   const quickActions = [
     { icon: Share2,      label: "Share",    color: "#f97316", onClick: handleShare },
     { icon: BarChart3,   label: "Analytics", color: "#3b82f6", onClick: () => onNavigate("analytics") },
-    { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/activate-device" },
+    { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/my-nfc-devices" },
     { icon: Users,       label: "Leads",     color: "#f59e0b", onClick: () => onNavigate("leads") },
   ];
 
