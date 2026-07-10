@@ -28,12 +28,13 @@
 @tailwind utilities;
 
 /* ── iOS Mobile Enhancements ─────────────────────────────── */
-html, body {
+html {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+}
+body {
   overflow-x: hidden;
   overflow-x: clip;
-  max-width: 100vw;
 }
 
 /* Disable text selection on interactive UI elements */

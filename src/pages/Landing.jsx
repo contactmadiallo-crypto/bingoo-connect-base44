@@ -705,7 +705,7 @@ export default function Landing() {
   }, [statsVisible]);
 
   return (
-    <div className="min-h-screen font-sans overflow-x-hidden" style={{ background: "#f8fafc" }}>
+    <div className="min-h-screen font-sans" style={{ background: "#f8fafc", overflowX: 'clip' }}>
 
       {/* ── NAVBAR */}
       <motion.nav

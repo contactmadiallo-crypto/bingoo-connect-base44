@@ -334,8 +334,8 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       </nav>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 md:ml-64 overflow-x-hidden overflow-y-auto"
-        style={{ background: isDark ? "#0f1117" : "#f8fafc", minHeight: "100vh" }}>
+      <main className="flex-1 md:ml-64"
+        style={{ background: isDark ? "#0f1117" : "#f8fafc", minHeight: "100vh", overflowX: 'clip' }}>
         <div className="md:hidden" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         {children}
         <div className="md:hidden" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
