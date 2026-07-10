@@ -2,12 +2,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
+    const body = await req.json().catch(() => ({}));
     const url = new URL(req.url);
-    const deviceCode = url.searchParams.get('device_code') || url.pathname.split('/').pop();
+    const rawCode = body.device_code || url.searchParams.get('device_code') || url.pathname.split('/').pop();
 
-    if (!deviceCode) {
+    if (!rawCode) {
       return Response.json({ error: 'Missing device_code parameter' }, { status: 400 });
     }
+
+    const deviceCode = rawCode.toUpperCase().trim();
 
     const base44 = createClientFromRequest(req);
 
@@ -22,14 +25,13 @@ Deno.serve(async (req) => {
 
     const device = devices[0];
 
-    // Look up any asset linked to this device
+    // Look up any asset linked to this device (regardless of lost mode)
     const assets = await base44.asServiceRole.entities.AssetItem.filter({
-      nfc_device_id: device.id,
-      lost_mode_enabled: true
+      nfc_device_id: device.id
     });
 
     if (!assets || assets.length === 0) {
-      return Response.json({ error: 'No lost asset linked to this device' }, { status: 404 });
+      return Response.json({ error: 'No asset linked to this device' }, { status: 404 });
     }
 
     const asset = assets[0];
@@ -59,6 +61,18 @@ Deno.serve(async (req) => {
       contactInfo.whatsapp = ownerProfile.whatsapp_number;
     }
 
+    // Fallback: if no contact from profile, try owner user email
+    if (Object.keys(contactInfo).length === 0 && asset.owner_user_id) {
+      try {
+        const users = await base44.asServiceRole.entities.User.filter({ id: asset.owner_user_id });
+        if (users && users.length > 0 && users[0].email) {
+          contactInfo.email = users[0].email;
+        }
+      } catch (e) {
+        // User lookup is best-effort
+      }
+    }
+
     return Response.json({
       asset: {
         name: asset.name,
@@ -67,7 +81,8 @@ Deno.serve(async (req) => {
         description: asset.description,
         finder_message: asset.finder_message,
         recovery_instructions: asset.recovery_instructions,
-        safe_contact_preference: asset.safe_contact_preference
+        safe_contact_preference: asset.safe_contact_preference,
+        lost_mode_enabled: asset.lost_mode_enabled || false
       },
       owner: {
         display_name: ownerProfile?.display_name || 'Owner',
