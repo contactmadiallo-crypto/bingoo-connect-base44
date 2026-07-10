@@ -19,7 +19,7 @@ const Pricing = lazy(() => import('./pages/Pricing'));
 const NFCRedirect = lazy(() => import('./pages/NFCRedirect'));
 const ActivateDevice = lazy(() => import('./pages/ActivateDevice'));
 const MyNFCDevices = lazy(() => import('./pages/MyNFCDevices'));
-const Shop = lazy(() => import('./pages/Shop'));
+const Shop = lazy(() => import('@/pages/Shop'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
