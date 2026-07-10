@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import { Check, Lock, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase, UtensilsCrossed, Users, CalendarHeart, Package } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 
+// Defensive filter — only customer plans appear in Plan Journeys.
+// "admin" or any non-customer plan ID can never appear here, even if a
+// future data source accidentally includes it.
+const CUSTOMER_PLAN_IDS = new Set([
+  'free', 'professional', 'salon', 'lawfirm',           // active/purchasable
+  'business', 'restaurant', 'corporate',                 // coming soon
+  'ngo', 'event', 'enterprise',                          // roadmap / contact sales
+]);
+
 const PLAN_JOURNEYS = [
   {
     id: 'free',
@@ -135,9 +144,23 @@ const PLAN_JOURNEYS = [
   },
 ];
 
-export default function PlanJourneyPanel({ isDark, currentPlan }) {
+export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSource }) {
   const [selected, setSelected] = useState(currentPlan || 'free');
-  const active = PLAN_JOURNEYS.find(p => p.id === selected) || PLAN_JOURNEYS[0];
+
+  // Filter to customer plans only — "admin" can never appear in this list
+  const VISIBLE_PLANS = PLAN_JOURNEYS.filter(p => CUSTOMER_PLAN_IDS.has(p.id));
+  const active = VISIBLE_PLANS.find(p => p.id === selected) || VISIBLE_PLANS[0];
+
+  // Debug: add ?debug=1 to URL to see validation output
+  const showDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+  if (showDebug) {
+    console.log('[PlanJourneyPanel] Audit:', {
+      currentPlan, userRole, planSource,
+      visiblePlanIds: VISIBLE_PLANS.map(p => p.id),
+      adminInList: VISIBLE_PLANS.some(p => p.id === 'admin'),
+      totalPlans: VISIBLE_PLANS.length,
+    });
+  }
 
   const t = {
     card: isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200',
@@ -157,9 +180,21 @@ export default function PlanJourneyPanel({ isDark, currentPlan }) {
         </div>
       </div>
 
+      {/* Temporary debug output — add ?debug=1 to URL to see */}
+      {showDebug && (
+        <div className={`rounded-xl border border-dashed p-3 text-[11px] font-mono space-y-0.5 ${isDark ? 'border-orange-400/40 bg-orange-500/10 text-orange-200' : 'border-orange-300 bg-orange-50 text-orange-900'}`}>
+          <p className="font-bold">DEBUG — Plan Journey Audit</p>
+          <p>userRole: <strong>{userRole || 'unknown'}</strong></p>
+          <p>currentPlan: <strong>{currentPlan || 'free'}</strong></p>
+          <p>planSource: <strong>{planSource || 'none'}</strong></p>
+          <p>visiblePlans: <strong>{VISIBLE_PLANS.map(p => p.id).join(', ')}</strong></p>
+          <p>adminInList: <strong>{String(VISIBLE_PLANS.some(p => p.id === 'admin'))}</strong></p>
+        </div>
+      )}
+
       {/* Plan selector pills */}
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-        {PLAN_JOURNEYS.map(p => (
+        {VISIBLE_PLANS.map(p => (
           <button key={p.id} onClick={() => setSelected(p.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
               selected === p.id ? 'text-white shadow-md' : isDark ? 'bg-white/5 text-white/60' : 'bg-slate-100 text-slate-500'

@@ -43,6 +43,21 @@ export function usePlan() {
     return canAccess(normalizedPlan, featureKey);
   };
 
+  // Derive plan source for debug/audit: stripe | admin_override | test_account | none
+  const planSource = subscription?.plan_source
+    || (subscription?.stripe_subscription_id ? 'stripe' : (featuresData?.is_test_account ? 'test_account' : 'none'));
+
+  // Debug logging — verifies the app receives correct role/plan/subscription data
+  console.log('[usePlan] Audit:', {
+    userEmail: user?.email,
+    userRole: user?.role,
+    resolvedPlan: normalizedPlan,
+    rawPlan: featuresData?.plan,
+    isTestAccount: featuresData?.is_test_account || false,
+    subscriptionStatus: subscription?.status || 'none',
+    planSource,
+  });
+
   return {
     user,
     subscription,
@@ -50,6 +65,8 @@ export function usePlan() {
     rawPlan: featuresData?.plan,
     isLoading,
     canAccess: canAccessFn,
+    isTestAccount: featuresData?.is_test_account || false,
+    planSource,
     maxNFCDevices: maxNFCDevices(normalizedPlan),
     maxTeamMembers: maxTeamMembers(normalizedPlan),
     // Convenience booleans — use canAccess() for feature checks, not these

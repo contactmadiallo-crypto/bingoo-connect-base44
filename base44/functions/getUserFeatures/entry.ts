@@ -226,6 +226,18 @@ Deno.serve(async (req) => {
     const planName = subPlan;
     const features = PLAN_FEATURES[planName] || FREE;
 
+    // Debug logging — verifies server-side plan resolution per user
+    console.log('[getUserFeatures] Audit:', {
+      userEmail: user.email,
+      userRole: user.role,
+      resolvedPlan: planName,
+      subscriptionStatus: subscription?.status || 'none',
+      subscriptionPlan: subscription?.plan || 'none',
+      planSource: subscription?.plan_source || 'none',
+      isTestAccount: !!override,
+      featuresCount: features.length,
+    });
+
     return Response.json({
       user_id: user.id,
       plan: planName,

@@ -242,7 +242,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading } = usePlan();
+  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource } = usePlan();
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -958,7 +958,12 @@ export default function BingooDashboard() {
           {view === VIEW_PLANJOURNEY && (
             <div>
               <ProfileChip />
-              <PlanJourneyPanel isDark={isDark} currentPlan={getEffectiveProfilePlan(activeProfile, userPlan)} />
+              <PlanJourneyPanel
+                isDark={isDark}
+                currentPlan={getEffectiveProfilePlan(activeProfile, userPlan)}
+                userRole={user?.role}
+                planSource={planSource}
+              />
             </div>
           )}
 
