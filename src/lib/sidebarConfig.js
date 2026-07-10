@@ -20,7 +20,7 @@
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
   Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
-  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode, PenTool,
+  ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode, PenTool, Sparkles,
 } from "lucide-react";
 import { t } from "@/lib/i18n";
 
@@ -281,6 +281,11 @@ export const SIDEBAR_NAV_MAP = {
     icon: HeadphonesIcon, href: "/contact-support",
     iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",
   },
+  strategic: {
+    id: "strategic", label: "Strategic", labelFr: "Stratégique",
+    icon: Sparkles, href: "/bingoo?view=strategic",
+    iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
+  },
 };
 
 /**
@@ -313,9 +318,19 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
     type = normalizeProfileType(profile);
   }
 
-  const ids = isAdmin
-    ? ADMIN_SIDEBAR_ITEMS
-    : (SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE]);
+  let ids = isAdmin
+    ? [...ADMIN_SIDEBAR_ITEMS]
+    : [...(SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE])];
+
+  // Strategic tools available for all paid plans + admin
+  if (isAdmin || (type && type !== TYPE_FREE)) {
+    if (!ids.includes("strategic")) {
+      const connIdx = ids.indexOf("connections");
+      ids = connIdx >= 0
+        ? [...ids.slice(0, connIdx), "strategic", ...ids.slice(connIdx)]
+        : [...ids, "strategic"];
+    }
+  }
 
   return ids.map(id => {
     const item = SIDEBAR_NAV_MAP[id];

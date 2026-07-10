@@ -309,6 +309,55 @@
         "type": "string"
       }
     },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this profile has verified status"
+    },
+    "verification_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "identity",
+        "business",
+        "both"
+      ],
+      "default": "none",
+      "description": "Type of verification held"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "none",
+      "description": "Current verification request status"
+    },
+    "privacy_settings": {
+      "type": "object",
+      "description": "Privacy controls for the public profile",
+      "properties": {
+        "hide_email": {
+          "type": "boolean",
+          "default": false
+        },
+        "show_phone_verified_only": {
+          "type": "boolean",
+          "default": false
+        },
+        "block_search_engines": {
+          "type": "boolean",
+          "default": false
+        },
+        "require_nfc_tap": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "language": {
       "type": "string",
       "enum": [

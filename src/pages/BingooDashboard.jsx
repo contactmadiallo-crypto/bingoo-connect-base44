@@ -43,6 +43,7 @@ import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
 import MyAssetsPanel from "@/components/bingoo/MyAssetsPanel";
 import ProfileQualityScore from "@/components/bingoo/ProfileQualityScore";
 import PlanJourneyPanel from "@/components/bingoo/PlanJourneyPanel";
+import StrategicHub from "@/components/bingoo/strategic/StrategicHub";
 
 // ── View/page constants ──
 const VIEW_HUB          = "hub";
@@ -67,6 +68,7 @@ const VIEW_DOCWALLET    = "docwallet";
 const VIEW_MYASSETS     = "myassets";
 const VIEW_QUALITY      = "quality";
 const VIEW_PLANJOURNEY  = "planjourney";
+const VIEW_STRATEGIC    = "strategic";
 
 // ── Deep-link param parsing ──
 // Notifications and emails link to the dashboard with `view` (the canonical param) plus
@@ -95,6 +97,7 @@ const TAB_TO_VIEW = {
   myassets: VIEW_MYASSETS,
   quality: VIEW_QUALITY,
   planjourney: VIEW_PLANJOURNEY,
+  strategic: VIEW_STRATEGIC,
 };
 function resolveView(searchParams) {
   const v = searchParams.get("view");
@@ -965,6 +968,29 @@ export default function BingooDashboard() {
                 userRole={user?.role}
                 planSource={planSource}
               />
+            </div>
+          )}
+
+          {/* ════════════════════════════════════
+              STRATEGIC TOOLS — AI Enhancer, ROI, Verified, Event, Concierge
+          ════════════════════════════════════ */}
+          {view === VIEW_STRATEGIC && (
+            <div>
+              <ProfileChip />
+              {!activeProfile ? (
+                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+              ) : (
+                <StrategicHub
+                  profile={activeProfile}
+                  isDark={isDark}
+                  user={user}
+                  onProfileUpdate={async (updates) => {
+                    await base44.entities.Profile.update(activeProfile.id, updates);
+                    qc.invalidateQueries({ queryKey: ["profiles"] });
+                    qc.invalidateQueries({ queryKey: ["my-profile", user?.id] });
+                  }}
+                />
+              )}
             </div>
           )}
 
