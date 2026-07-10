@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
-import { Package, Plus, Trash2, Edit2, AlertTriangle, Link2, MapPin, X, Search as SearchIcon, Wifi, Unlink } from 'lucide-react';
+import { Package, Plus, Trash2, Edit2, AlertTriangle, Link2, MapPin, X, Search as SearchIcon, Wifi, Unlink, RefreshCw } from 'lucide-react';
 import AssetDeviceAssignModal from '@/components/bingoo/AssetDeviceAssignModal';
+import ReplaceDeviceDialog from '@/components/bingoo/ReplaceDeviceDialog';
 
 const ASSET_TYPES = [
   { value: 'pet', label: 'Pet', icon: '🐾' },
@@ -36,6 +37,7 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
   });
   const [uploading, setUploading] = useState(false);
   const [assignModalAsset, setAssignModalAsset] = useState(null);
+  const [replaceAsset, setReplaceAsset] = useState(null);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
 
@@ -338,6 +340,9 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
                     <button onClick={() => setAssignModalAsset(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
                       <Link2 className="w-3 h-3" /> Change
                     </button>
+                    <button onClick={() => setReplaceAsset(asset)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#06b6d4' }}>
+                      <RefreshCw className="w-3 h-3" /> Replace
+                    </button>
                     <button onClick={() => handleUnlinkDevice(asset.id)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold border ${isDark ? 'border-white/10 text-white/60' : 'border-slate-200 text-slate-500'}`}>
                       <Unlink className="w-3 h-3" /> Unlink
                     </button>
@@ -374,6 +379,19 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
         currentAssetId={assignModalAsset?.id}
         onAssign={(deviceId) => handleAssignDevice(assignModalAsset?.id, deviceId)}
         isDark={isDark}
+      />
+
+      <ReplaceDeviceDialog
+        open={!!replaceAsset}
+        onClose={() => setReplaceAsset(null)}
+        device={replaceAsset?.nfc_device_id ? deviceMap[replaceAsset.nfc_device_id] : null}
+        profile={profile}
+        user={user}
+        isDark={isDark}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
+          queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
+        }}
       />
     </div>
   );
