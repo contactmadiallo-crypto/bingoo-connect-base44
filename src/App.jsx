@@ -33,6 +33,7 @@ const ShopAdmin = lazy(() => import('./pages/ShopAdmin'));
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import BingooLayoutWrapper from '@/components/bingoo/BingooLayoutWrapper';
 import { Navigate } from 'react-router-dom';
 const PublicResume = lazy(() => import('@/pages/PublicResume'));
 const PublicLawFirmProfile = lazy(() => import('@/pages/PublicLawFirmProfile'));
@@ -107,13 +108,17 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/data-deletion" element={<DataDeletion />} />
-      <Route path="/contact-support" element={<ContactSupport />} />
+      <Route element={<BingooLayoutWrapper />}>
+        <Route path="/contact-support" element={<ContactSupport />} />
+      </Route>
       <Route path="/about" element={<About />} />
       <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
       <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/shop" element={<Shop />} />
+      <Route element={<BingooLayoutWrapper />}>
+        <Route path="/shop" element={<Shop />} />
+      </Route>
       <Route path="/product/:productId" element={<ProductDetail />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/plans" element={<SubscriptionPricing />} />
@@ -128,11 +133,13 @@ const AuthenticatedApp = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/order-confirmation" element={<OrderConfirmation />} />
-        <Route path="/my-orders" element={<MyOrders />} />
+        <Route element={<BingooLayoutWrapper />}>
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/account-settings" element={<AccountSettings />} />
+          <Route path="/advanced-admin" element={<AdvancedAdmin />} />
+        </Route>
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
-        <Route path="/account-settings" element={<AccountSettings />} />
-        <Route path="/advanced-admin" element={<AdvancedAdmin />} />
         <Route path="/pricing" element={<Pricing />} />
 
         {/* ── FOODHUB legacy routes disabled (files preserved for rollback) ── */}      </Route>
