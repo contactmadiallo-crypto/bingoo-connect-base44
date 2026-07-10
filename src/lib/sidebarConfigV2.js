@@ -16,7 +16,7 @@ const EXTRA_NAV_ITEMS = {
 // ── Grouped sidebar sections (Phase 3 IA) ──
 const SECTIONS = [
   { id: "home",      label: "Home",      labelFr: "Accueil",    itemIds: ["landing"] },
-  { id: "identity",  label: "Identity",  labelFr: "Identité",   itemIds: ["profiles", "qrwallet", "connections", "myassets", "quality", "planjourney"] },
+  { id: "identity",  label: "Identity",  labelFr: "Identité",   itemIds: ["profiles", "qrwallet", "connections", "myassets", "planjourney"] },
   { id: "business",  label: "Business",  labelFr: "Business",   itemIds: ["appointments", "leads", "crm", "analytics", "services", "hours", "team", "practiceareas", "legalservices", "offices", "attendance"] },
   { id: "nfc",       label: "NFC",       labelFr: "NFC",        itemIds: ["devices", "designstudio", "lostmode"] },
   { id: "shop",      label: "Shop",      labelFr: "Boutique",   itemIds: ["shop", "orders"] },

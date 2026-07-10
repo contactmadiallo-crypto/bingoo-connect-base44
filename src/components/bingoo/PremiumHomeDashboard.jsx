@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
+import ProfileScoreShortcut from "@/components/bingoo/ProfileScoreShortcut";
 
 const PLAN_LABELS = {
   free: "Free", professional: "Professional", pro: "Professional",
@@ -163,6 +164,9 @@ export default function PremiumHomeDashboard({
             : <button key={a.label} onClick={a.onClick}>{inner}</button>;
         })}
       </div>
+
+      {/* ── Profile Score Shortcut (auto-hides at 100/100) ── */}
+      <ProfileScoreShortcut profile={profile} isDark={isDark} onNavigate={onNavigate} />
 
       {/* ── Core Metrics ── */}
       <div className="grid grid-cols-3 gap-2.5">
