@@ -19,7 +19,7 @@ export function usePlan() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: subscriptions, isLoading: loadingSub } = useQuery({
+  const { data: subscriptions, isLoading: loadingSub, isFetching: fetchingSub } = useQuery({
     queryKey: ['my-subscription', user?.email],
     queryFn: () => base44.entities.Subscription.filter({ customer_email: user.email }),
     enabled: !!user?.email,
@@ -64,6 +64,7 @@ export function usePlan() {
     plan: normalizedPlan,
     rawPlan: featuresData?.plan,
     isLoading,
+    isFetching: fetchingSub,
     canAccess: canAccessFn,
     isTestAccount: featuresData?.is_test_account || false,
     planSource,

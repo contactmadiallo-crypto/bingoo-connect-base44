@@ -939,7 +939,7 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 // ─────────────────────────────────────────────────────────────────────────
 export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon, lang: langProp }) {
   const qc = useQueryClient();
-  const { plan: userPlan, subscription, isLoading: planIsLoading } = usePlan();
+  const { plan: userPlan, subscription, isLoading: planIsLoading, isFetching: planIsFetching } = usePlan();
   // Business Tools entitlement must come from the user's OWN runtime Subscription
   // record or a protected test-account override only — never from profile.plan,
   // never from getUserFeatures' "has-profile → Professional" elevation, and never
@@ -988,6 +988,16 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       setSaveStatus(null);
     }
   }, [profile?.id, profileId]);
+
+  // Refresh subscription data when entering the Business tab to ensure the
+  // gating plan is current — prevents stale React Query cache from leaking
+  // paid forms (e.g. cached 'lawfirm' value showing Business Hours for a
+  // user whose subscription was since downgraded).
+  useEffect(() => {
+    if (innerTab === "business") {
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    }
+  }, [innerTab, qc]);
 
   const profileUrl    = profile ? `${window.location.origin}/p/${profile.username}` : null;
   const profileQrUrl  = profileUrl ? `${profileUrl}?source=qr` : null;
@@ -1224,7 +1234,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
               <PortfolioPanel profileId={profileId} user={user} />
             )}
             {innerTab === "business" && (
-              planIsLoading ? (
+              (planIsLoading || planIsFetching) ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
                 </div>
