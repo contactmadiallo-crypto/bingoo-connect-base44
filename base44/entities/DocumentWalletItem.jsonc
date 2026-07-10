@@ -18,14 +18,30 @@
       "type": "string",
       "description": "Original file name"
     },
+    "file_size": {
+      "type": "number",
+      "description": "File size in bytes"
+    },
     "document_type": {
       "type": "string",
       "enum": [
         "id",
+        "passport",
+        "ssn",
+        "work_authorization",
+        "visa",
         "certification",
         "license",
         "business_document",
         "contract",
+        "tax_document",
+        "insurance",
+        "medical_record",
+        "education",
+        "resume",
+        "photo",
+        "financial",
+        "legal",
         "other"
       ],
       "default": "other"

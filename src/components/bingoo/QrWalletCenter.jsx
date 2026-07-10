@@ -5,6 +5,7 @@ import { Download, Copy, Check, Lock, FileText, ExternalLink, Save, Info } from 
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
+import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
 
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
 const QR_COLORS = ["#1e293b", "#0b2149", "#f97316", "#7c3aed", "#059669", "#dc2626", "#0891b2", "#000000"];
@@ -330,23 +331,8 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         </p>
       </div>
 
-      {/* Document Wallet — placeholder (no secure backend yet) */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}>
-            <FileText className={`w-5 h-5 ${isDark ? "text-white/50" : "text-slate-400"}`} />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className={`font-bold text-sm ${headText}`}>Document Wallet</p>
-              <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase ${isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-400"}`}>Coming Soon</span>
-            </div>
-            <p className={`text-xs mt-1 leading-relaxed ${mutedText}`}>
-              Securely store and share important documents — IDs, certifications, licenses, and business documents — attached to your Bingoo profile. Document encryption and access controls are under development and will be available in a future release.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Document Wallet — functional upload, categorize, and manage */}
+      <DocumentWalletPanel profile={profile} isDark={isDark} />
     </div>
   );
 }
