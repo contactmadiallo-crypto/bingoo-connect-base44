@@ -3,6 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Shield, CheckCircle2, Clock, Lock, Upload, Loader2 } from "lucide-react";
 
+const NAVY = "#0b2149", ORANGE = "#f97316";
+
 const PRIVACY_OPTIONS = [
   { key: "hide_email", label: "Hide email from public", desc: "Visitors can't see your email address" },
   { key: "show_phone_verified_only", label: "Show phone only to verified users", desc: "Phone visible only to other verified profiles" },
@@ -192,5 +194,3 @@ export default function VerifiedBadgesPanel({ profile, isDark, user }) {
     </div>
   );
 }
-
-const NAVY = "#0b2149", ORANGE = "#f97316";
