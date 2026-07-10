@@ -97,9 +97,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     base44.auth.me().then(u => {
+      // Non-admin users are redirected BEFORE setAuthChecked(true) — they never see
+      // the admin dashboard content, only the loading spinner until the redirect completes.
+      if (u.role !== "admin" && u.role !== "super_admin") {
+        window.location.href = "/bingoo";
+        return;
+      }
       setUser(u);
       setAuthChecked(true);
-      if (u.role !== "admin" && u.role !== "super_admin") window.location.href = "/bingoo";
     }).catch(() => base44.auth.redirectToLogin());
   }, []);
 

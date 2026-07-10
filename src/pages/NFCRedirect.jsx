@@ -87,6 +87,22 @@ export default function NFCRedirect() {
     );
   }
 
+  // Asset redirect takes precedence over lost/unclaimed states.
+  // AssetFinder handles both normal and lost asset states — never show LostDevicePage for assets.
+  if (isAsset) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #071A3D 0%, #0b2149 100%)" }}>
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse"
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
+            <span className="text-white font-black text-2xl">B</span>
+          </div>
+          <p className="text-white/60 font-semibold">Opening asset recovery page...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Lost device
   if (isLost) {
     return <LostDevicePage deviceCodeProp={normalizedCode} deviceProp={device} profileProp={profile} />;

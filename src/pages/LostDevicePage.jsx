@@ -47,7 +47,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
       await base44.entities.LostItemReport.create({
         device_code: normalizedCode,
         device_id: device?.id,
-        owner_profile_id: device?.assigned_profile,
+        owner_profile_id: device?.profile_id,
         finder_name: form.name,
         finder_phone: form.phone,
         finder_email: form.email,

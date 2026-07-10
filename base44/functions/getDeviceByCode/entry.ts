@@ -55,7 +55,10 @@ Deno.serve(async (req) => {
           profile: null,
           is_asset: true,
           is_claimed: true,
-          is_lost: nfcDevice.status === 'lost',
+          // Asset lost state is managed by AssetItem.lost_mode_enabled, NOT NFCDevice.status.
+          // Setting is_lost=false here ensures NFCRedirect routes to AssetFinder (which handles
+          // both normal and lost asset states) instead of rendering LostDevicePage.
+          is_lost: false,
           is_unclaimed: false,
         });
       }

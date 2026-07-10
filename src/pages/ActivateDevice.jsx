@@ -322,12 +322,12 @@ export default function ActivateDevice() {
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-blue-400" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
                           <Smartphone className="w-4 h-4" />
                         </button>
-                        <button onClick={() => setEditingDevice({ id: device.id, nickname: device.nickname || "" })} title="Rename"
+                        <button onClick={() => setEditingDevice({ id: device.id, nickname: device.description || "" })} title="Rename"
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
                           <Pencil className="w-4 h-4" />
                         </button>
                         {profiles.length > 1 && (
-                          <button onClick={() => setReassignDevice({ device, newProfileId: device.assigned_profile })} title="Reassign Profile"
+                          <button onClick={() => setReassignDevice({ device, newProfileId: device.profile_id })} title="Reassign Profile"
                             className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-violet-400" : "hover:bg-violet-50 text-slate-400 hover:text-violet-600"}`}>
                             <RefreshCw className="w-4 h-4" />
                           </button>

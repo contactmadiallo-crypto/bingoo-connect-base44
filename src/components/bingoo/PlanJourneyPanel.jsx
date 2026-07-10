@@ -151,8 +151,8 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
   const VISIBLE_PLANS = PLAN_JOURNEYS.filter(p => CUSTOMER_PLAN_IDS.has(p.id));
   const active = VISIBLE_PLANS.find(p => p.id === selected) || VISIBLE_PLANS[0];
 
-  // Debug: add ?debug=1 to URL to see validation output
-  const showDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+  // Debug panel is admin-only — non-admin users never see role/plan source diagnostics.
+  const showDebug = userRole === 'admin' && new URLSearchParams(window.location.search).get('debug') === '1';
   if (showDebug) {
     console.log('[PlanJourneyPanel] Audit:', {
       currentPlan, userRole, planSource,

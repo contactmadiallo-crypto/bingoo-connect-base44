@@ -96,6 +96,8 @@ const AuthenticatedApp = () => {
       <Route path="/LostDevicePage" element={<Navigate to="/my-nfc-devices" replace />} />
       <Route path="/Dashboard" element={<Navigate to="/bingoo" replace />} />
       <Route path="/DeviceActivationPage" element={<Navigate to="/activate-device" replace />} />
+      <Route path="/activate" element={<Navigate to="/activate-device" replace />} />
+      <Route path="/signup" element={<Navigate to="/register" replace />} />
       <Route path="/p/:username" element={<PublicProfile />} />
       <Route path="/n/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />

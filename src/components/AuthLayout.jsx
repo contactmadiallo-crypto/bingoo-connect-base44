@@ -9,7 +9,7 @@ const BINGOO_ORANGE = "#f97316";
 export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-10"
+      className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 py-10"
       style={{
         background: `radial-gradient(ellipse at top, ${BINGOO_NAVY_LIGHT} 0%, ${BINGOO_NAVY} 55%, #050d1f 100%)`,
       }}
