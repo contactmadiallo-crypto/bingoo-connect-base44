@@ -6,7 +6,6 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { NavigationStackProvider } from '@/components/mobile/NavigationStack'
-import RouteTransition from '@/components/mobile/RouteTransition'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 const Landing = lazy(() => import('./pages/Landing'));
@@ -82,7 +81,6 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
-    <RouteTransition>
     <Routes>
       {/* ── AUTH ROUTES (public) ── */}
       <Route path="/login" element={<Login />} />
@@ -146,7 +144,6 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
-    </RouteTransition>
     </Suspense>
   );
 };

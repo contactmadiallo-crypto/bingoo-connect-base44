@@ -270,7 +270,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 1. Home — premium dashboard overview */}
         <Link to="/bingoo?view=home"
-          onClick={(e) => { e.preventDefault(); navigate('/bingoo?view=home'); }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ background: isActive('/bingoo?view=home') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
@@ -283,7 +282,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 2. Profiles — profile workspace */}
         <Link to="/bingoo?view=workspace"
-          onClick={(e) => { e.preventDefault(); navigate('/bingoo?view=workspace'); }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ background: isActive('/bingoo?view=workspace') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
@@ -296,7 +294,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 3. NFC — device management */}
         <Link to="/my-nfc-devices"
-          onClick={(e) => { e.preventDefault(); navigate('/my-nfc-devices'); }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ background: isActive('/my-nfc-devices') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
@@ -309,7 +306,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
 
         {/* 4. Business — leads CRM */}
         <Link to="/bingoo?view=leads"
-          onClick={(e) => { e.preventDefault(); navigate('/bingoo?view=leads'); }}
           className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
           <div className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{ background: isActive('/bingoo?view=leads') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
