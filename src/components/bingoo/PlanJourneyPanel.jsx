@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Lock, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase, UtensilsCrossed, Users, CalendarHeart, Package, Shield } from 'lucide-react';
+import { Check, Lock, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase, UtensilsCrossed, Users, CalendarHeart, Package } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 
 const PLAN_JOURNEYS = [
@@ -132,19 +132,6 @@ const PLAN_JOURNEYS = [
     locked: [],
     nextAction: 'Contact sales for custom pricing and volume NFC orders.',
     dashboardPreview: 'Custom enterprise portal with bulk ordering, API integration, and dedicated support.',
-  },
-  {
-    id: 'admin',
-    name: 'Admin',
-    price: 'Internal',
-    period: '',
-    icon: Shield,
-    color: '#0b2149',
-    status: 'internal',
-    included: ['Full platform access', 'User management', 'Advanced admin dashboard', 'All plan features', 'Audit logging', 'Support tickets'],
-    locked: [],
-    nextAction: null,
-    dashboardPreview: 'Full platform administration with user management, inventory, manufacturing, and audit controls.',
   },
 ];
 
