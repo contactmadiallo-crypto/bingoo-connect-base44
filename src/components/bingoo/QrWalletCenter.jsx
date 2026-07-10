@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download, Copy, Check, Lock, FileText, ExternalLink, Save, Info } from "lucide-react";
@@ -53,6 +53,20 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       setCustomLabel("");
     }
   }, [profile?.id]);
+
+  // Scroll to top when this panel mounts (e.g., returning from another view)
+  // The BingooLayout <main> preserves scroll position across view switches.
+  const rootRef = useRef(null);
+  useEffect(() => {
+    let el = rootRef.current?.parentElement;
+    while (el) {
+      if (el.scrollHeight > el.clientHeight && el.scrollTop > 0) {
+        el.scrollTo({ top: 0 });
+        break;
+      }
+      el = el.parentElement;
+    }
+  }, []);
 
   const isPro = effectivePlan && effectivePlan !== "free";
   const hasLogo = !!profile?.company_logo;
@@ -168,7 +182,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div ref={rootRef} className="space-y-5">
       {/* Header */}
       <div>
         <h2 className={`text-xl font-black ${headText}`}>QR &amp; Wallet Center</h2>
