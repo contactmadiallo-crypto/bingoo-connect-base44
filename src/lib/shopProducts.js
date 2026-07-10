@@ -290,15 +290,16 @@ export const PERFECT_FOR = {
 // ── Shared activation steps ──────────────────────────────────────────────────
 export const ACTIVATION_STEPS = [
   'Receive your device in the mail',
-  'Enter device code at bingooconnect.com/activate',
+  'Enter device code at bingooconnect.com/activate-device',
   'Link to your Bingoo profile',
   'Tap to share — done!',
 ];
 
 // Asset protection activation steps — for Pet Collar Tag and Luggage Tag
+// These tags open the asset recovery page when tapped — NOT a personal profile.
 export const ASSET_PROTECTION_STEPS = [
   'Receive your tag in the mail',
-  'Enter device code at bingooconnect.com/activate',
-  'Link to your pet or luggage asset profile',
+  'Enter device code at bingooconnect.com/activate-device',
+  'Link to your asset recovery profile (pet, luggage, or valuables)',
   'If lost, anyone who taps sees your safe recovery contact — no app required',
 ];

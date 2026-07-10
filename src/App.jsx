@@ -61,6 +61,22 @@ function SitemapRedirect() {
   return null;
 }
 
+// Hard redirect legacy URLs BEFORE auth loading — prevents 404s on live site.
+// These fire immediately on page load, no React Router or auth check needed.
+// Updated 2026-07-10: ensures /activate and /signup never 404 on live deploy.
+function LegacyRedirects() {
+  const path = window.location.pathname.toLowerCase();
+  if (path === '/activate') {
+    window.location.replace('/activate-device');
+    return null;
+  }
+  if (path === '/signup') {
+    window.location.replace('/register');
+    return null;
+  }
+  return null;
+}
+
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
@@ -160,6 +176,7 @@ function App() {
         <Router>
           <NavigationStackProvider>
             <NavigationTracker />
+            <LegacyRedirects />
             <AuthenticatedApp />
             <PWAInstallBanner />
           </NavigationStackProvider>

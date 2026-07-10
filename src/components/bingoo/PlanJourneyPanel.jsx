@@ -85,7 +85,8 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
   const [selected, setSelected] = useState(currentPlan || 'free');
 
   // Build plan journeys dynamically from planPermissions.js
-  const VISIBLE_PLANS = buildPlanJourneys(currentPlan);
+  // Extra safety: explicitly filter out 'admin' — it must NEVER appear as a plan option
+  const VISIBLE_PLANS = buildPlanJourneys(currentPlan).filter(p => p.id !== 'admin');
   const active = VISIBLE_PLANS.find(p => p.id === selected) || VISIBLE_PLANS[0];
 
   // Debug: admin-only, ?debug=1

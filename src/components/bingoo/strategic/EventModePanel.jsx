@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Infinity as InfinityIcon, QrCode, Users, Clock, TrendingUp, Zap } from "lucide-react";
+import { Radio, QrCode, Users, Clock, TrendingUp, Zap } from "lucide-react";
 
 const NAVY = "#0b2149", ORANGE = "#f97316";
 
@@ -86,7 +86,7 @@ export default function EventModePanel({ profile, isDark }) {
         >
           <div className="flex items-center gap-2">
             {eventActive ? (
-              <InfinityIcon className="w-5 h-5 text-white" />
+              <Radio className="w-5 h-5 text-white" />
             ) : (
               <Zap className="w-5 h-5 text-orange-400" />
             )}
