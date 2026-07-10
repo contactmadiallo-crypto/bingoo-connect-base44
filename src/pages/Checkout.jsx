@@ -135,7 +135,7 @@ export default function Checkout() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/20">
       <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/cart" className="text-slate-600 hover:text-slate-900 flex items-center gap-1">
@@ -226,7 +226,7 @@ export default function Checkout() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 gap-2 h-12 text-base disabled:opacity-70"
+              className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 h-12 text-base disabled:opacity-70"
             >
               <Lock className="w-4 h-4" />
               {loading ? (

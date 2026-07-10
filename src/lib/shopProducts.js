@@ -178,8 +178,9 @@ export const PRODUCTS = [
     tagline: 'Keep your furry friend safe. Tap to identify.',
     description: 'Durable navy NFC pet collar tag with Bingoo branding. Attach to any pet collar and link to your Bingoo asset profile. If your pet gets lost, anyone who taps the tag sees your recovery contact info instantly — no app required.',
     price: 16.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/9b2b123df_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/40bc29953_generated_image.png',
     category: 'tag',
+    flow: 'asset_protection',
     badge: 'Pet Safety',
     activationCode: 'BNG-00011',
     features: [
@@ -196,8 +197,9 @@ export const PRODUCTS = [
     tagline: 'Never lose your bags. Tap to track.',
     description: 'Premium navy NFC luggage tag with QR code backup and Bingoo branding. Attach to any suitcase, backpack, or bag. If lost, anyone who taps or scans sees your safe recovery contact — no app required.',
     price: 18.99,
-    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/7f3c6a842_generated_image.png',
+    image: 'https://media.base44.com/images/public/692bd9007b93ba81de543346/65ba1725c_generated_image.png',
     category: 'tag',
+    flow: 'asset_protection',
     badge: 'Travel',
     activationCode: 'BNG-00012',
     features: [
@@ -291,4 +293,12 @@ export const ACTIVATION_STEPS = [
   'Enter device code at bingooconnect.com/activate',
   'Link to your Bingoo profile',
   'Tap to share — done!',
+];
+
+// Asset protection activation steps — for Pet Collar Tag and Luggage Tag
+export const ASSET_PROTECTION_STEPS = [
+  'Receive your tag in the mail',
+  'Enter device code at bingooconnect.com/activate',
+  'Link to your pet or luggage asset profile',
+  'If lost, anyone who taps sees your safe recovery contact — no app required',
 ];

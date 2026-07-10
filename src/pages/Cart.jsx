@@ -38,19 +38,19 @@ export default function Cart() {
           <div className="text-7xl mb-4">🛒</div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Your cart is empty</h2>
           <p className="text-slate-500 mb-6">Add some NFC products to get started!</p>
-          <Link to="/shop"><Button className="bg-blue-600 hover:bg-blue-700">Browse Products</Button></Link>
+          <Link to="/shop"><Button className="bg-brand-navy hover:bg-brand-navy-light">Browse Products</Button></Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <Link to="/shop" className="text-sm text-blue-600 hover:underline">← Continue Shopping</Link>
+            <Link to="/shop" className="text-sm text-[#0b2149] hover:underline">← Continue Shopping</Link>
             <h1 className="text-2xl font-bold text-slate-900">Your Cart</h1>
           </div>
           <span className="text-slate-500 text-sm">{cart.length} item{cart.length !== 1 ? 's' : ''}</span>
@@ -77,7 +77,7 @@ export default function Cart() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-900 truncate">{item.name}</h3>
-                  <p className="text-blue-600 font-semibold">${item.price.toFixed(2)}</p>
+                  <p className="text-[#0b2149] font-semibold">${item.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
                   <button onClick={() => handleQty(item.id, item.quantity - 1)} className="px-3 py-2 hover:bg-slate-100">
@@ -120,7 +120,7 @@ export default function Cart() {
 
               <Button
                 onClick={() => navigate('/checkout')}
-                className="w-full bg-blue-600 hover:bg-blue-700 gap-2 py-3"
+                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3"
               >
                 Proceed to Checkout <ArrowRight className="w-4 h-4" />
               </Button>
@@ -129,9 +129,9 @@ export default function Cart() {
                 🔒 Secure checkout via Stripe
               </p>
 
-              <div className="mt-4 p-3 bg-blue-50 rounded-xl">
-                <p className="text-xs text-blue-700">
-                  💡 <strong>Bingoo Tip:</strong> Add a Pro subscription for just $4.99/month and unlock full analytics + lead collection.
+              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-xs text-slate-700">
+                  💡 <strong>Bingoo Tip:</strong> Add a subscription plan to unlock analytics, lead collection, and premium layouts.
                 </p>
               </div>
             </div>

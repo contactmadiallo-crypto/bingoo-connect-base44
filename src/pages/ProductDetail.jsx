@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw, Infinity as InfinityIcon, Nfc } from 'lucide-react';
-import { PRODUCTS, PRODUCT_OPTIONS, PERFECT_FOR, ACTIVATION_STEPS } from '@/lib/shopProducts';
+import { PRODUCTS, PRODUCT_OPTIONS, PERFECT_FOR, ACTIVATION_STEPS, ASSET_PROTECTION_STEPS } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
 
 const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316';
@@ -186,14 +186,41 @@ export default function ProductDetail() {
               <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5 text-orange-400" /> 30-Day Returns</span>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 p-4 bg-white">
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5"><Nfc className="w-3.5 h-3.5" /> Activation Steps</p>
-              {ACTIVATION_STEPS.map((s, i) => (
-                <p key={i} className="text-xs text-slate-700 font-medium mb-1.5 flex items-start gap-2">
-                  <span className="font-black flex-shrink-0" style={{ color: ORANGE }}>{i + 1}.</span> {s}
-                </p>
-              ))}
-            </div>
+            {product.flow === 'asset_protection' ? (
+              <>
+                {/* Asset Protection Banner */}
+                <div className="rounded-2xl p-4 mb-4" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-5 h-5 text-orange-400" />
+                    <p className="text-sm font-black text-white">Asset Protection Tag</p>
+                  </div>
+                  <p className="text-xs text-white/70 leading-relaxed">
+                    This tag uses Bingoo's <strong className="text-white">Asset Protection flow</strong> — not a personal profile.
+                    When someone taps your lost tag, they see your safe recovery contact info, not your personal details.
+                  </p>
+                  <Link to="/my-nfc-devices" className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-orange-400 hover:underline">
+                    Learn about Asset Protection →
+                  </Link>
+                </div>
+                <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5"><Shield className="w-3.5 h-3.5" /> How It Works</p>
+                  {ASSET_PROTECTION_STEPS.map((s, i) => (
+                    <p key={i} className="text-xs text-slate-700 font-medium mb-1.5 flex items-start gap-2">
+                      <span className="font-black flex-shrink-0" style={{ color: ORANGE }}>{i + 1}.</span> {s}
+                    </p>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 p-4 bg-white">
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 flex items-center gap-1.5"><Nfc className="w-3.5 h-3.5" /> Activation Steps</p>
+                {ACTIVATION_STEPS.map((s, i) => (
+                  <p key={i} className="text-xs text-slate-700 font-medium mb-1.5 flex items-start gap-2">
+                    <span className="font-black flex-shrink-0" style={{ color: ORANGE }}>{i + 1}.</span> {s}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

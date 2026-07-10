@@ -17,6 +17,8 @@ const NFC_PRODUCTS = {
   'nfc-key-fob':      { productId: 'prod_Upru6EFzCOzX4U',  amount: 1199, label: 'NFC Key Fob' },
   'nfc-table-stand':  { productId: 'prod_UdL2yIz4V7V9db',  amount: 3499, label: 'NFC Table Stand' },
   'nfc-phone-stand':  { productId: 'prod_Upru71ZAVU5PZg',  amount: 2299, label: 'NFC Phone Stand' },
+  'nfc-pet-collar':   { productId: 'prod_UrF7UD5DJJqIpk',  amount: 1699, label: 'NFC Pet Collar Tag' },
+  'nfc-luggage-tag':  { productId: 'prod_UrF7bbKOm3lsXv',  amount: 1899, label: 'NFC Luggage Tag' },
 };
 
 const SHIPPING_COST_CENTS = 500; // $5.00 — fixed on server, never trusted from client
