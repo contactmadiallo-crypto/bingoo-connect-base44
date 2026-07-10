@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe, QrCode, MapPin, Wallet, Apple, Search } from "lucide-react";
+import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe, QrCode, MapPin, Wallet, Apple, Search, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
@@ -254,6 +254,30 @@ const features = [
     futureLabel: "Coming next",
     whyItMatters: "Most professionals carry an iPhone. An Apple Wallet pass makes Bingoo a natural part of their everyday carry, on every platform.",
     ctas: [{ label: "See plans", route: "/plans" }, { label: "Learn more", route: "/plans" }]
+  },
+  {
+    icon: <FileText className="w-6 h-6" />,
+    title: "Document Wallet",
+    desc: "Securely store IDs, passports, certifications, and licenses — private by default, shareable on demand.",
+    accent: B.navy,
+    badge: "Available",
+    subtitle: "Encrypted document storage linked to your profile",
+    overview: "Upload important documents — ID cards, passports, certifications, licenses, insurance, medical records and more — to a private, owner-scoped wallet. ID-type documents support front and back sides, expiration tracking, and document-type categorization. Everything is private by default and only shared when you choose.",
+    useCases: [
+      "Professionals carrying licenses and certifications digitally",
+      "Travelers keeping passport and ID copies accessible",
+      "Law firms and medical offices managing client document intake",
+      "Teams issuing and tracking employee credentials"
+    ],
+    implemented: [
+      "Upload with front and back sides for ID-type documents",
+      "Document types: ID, passport, certification, license, insurance, medical, and more",
+      "Expiration date tracking with visual indicators",
+      "Private by default — shareable only when the owner enables it",
+      "File thumbnails for all document types"
+    ],
+    whyItMatters: "Carrying physical documents is risky and inconvenient. Bingoo keeps your important records secure, organized, and accessible from your profile — without exposing them publicly.",
+    ctas: [{ label: "See plans", route: "/plans" }, { label: "Get started", route: "/bingoo" }]
   }
 ];
 
