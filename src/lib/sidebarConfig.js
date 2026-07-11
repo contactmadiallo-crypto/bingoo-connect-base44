@@ -90,7 +90,6 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "appointments",
     "leads",
     "services",
-    "hours",
     "analytics",
     "devices",
     "designstudio",
@@ -107,7 +106,6 @@ export const SIDEBAR_ITEMS_BY_TYPE = {
     "appointments",
     "leads",
     "services",
-    "hours",
     "analytics",
     "devices",
     "designstudio",
@@ -162,7 +160,6 @@ export const ADMIN_SIDEBAR_ITEMS = [
   "appointments",
   "leads",
   "services",
-  "hours",
   "practiceareas",
   "legalservices",
   "offices",
@@ -282,7 +279,7 @@ export const SIDEBAR_NAV_MAP = {
     iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)",
   },
   strategic: {
-    id: "strategic", label: "Strategic", labelFr: "Stratégique",
+    id: "strategic", label: "Strategic Tools", labelFr: "Outils Stratégiques",
     icon: Sparkles, href: "/bingoo?view=strategic",
     iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },
@@ -322,13 +319,11 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
     ? [...ADMIN_SIDEBAR_ITEMS]
     : [...(SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE])];
 
-  // Strategic tools available for all paid plans + admin
-  if (isAdmin || (type && type !== TYPE_FREE)) {
+  // Strategic tools — secondary advanced section, only for Business/Salon/LawFirm/Corporate/admin
+  const STRATEGIC_ELIGIBLE = new Set([TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE]);
+  if (isAdmin || STRATEGIC_ELIGIBLE.has(type)) {
     if (!ids.includes("strategic")) {
-      const connIdx = ids.indexOf("connections");
-      ids = connIdx >= 0
-        ? [...ids.slice(0, connIdx), "strategic", ...ids.slice(connIdx)]
-        : [...ids, "strategic"];
+      ids = [...ids, "strategic"];
     }
   }
 

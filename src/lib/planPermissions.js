@@ -193,7 +193,7 @@ export const PLAN_LABELS = {
   salon:        'Salon',
   restaurant:   'Restaurant',
   lawfirm:      'Law Firm',
-  corporate:    'Corporate',
+  corporate:    'Enterprise / Bulk',
 };
 
 export const PLAN_COLORS = {
@@ -232,7 +232,17 @@ export const PLAN_FEATURES = {
   salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
   lawfirm:      ['Everything in Professional', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
-  corporate:    ['Everything in Law Firm', 'Employee Profiles', 'Attendance Dashboard (Clock In/Out)'],
+  corporate:    ['Everything in Law Firm', 'Custom Onboarding', 'Team Management', 'API Access', 'Bulk NFC Orders', 'Admin Support', 'Employee Profiles', 'Attendance Dashboard'],
+};
+
+// Plain-language taglines explaining what each plan is for
+export const PLAN_TAGLINES = {
+  free:         'Basic personal profile and QR sharing',
+  professional: 'Premium profile, NFC, analytics, leads, and appointments',
+  business:     'Company profile, team, services, business tools, and multi-device',
+  salon:        'Business foundation plus salon services, staff, gallery, reviews, and booking',
+  lawfirm:      'Business foundation plus attorneys, practice areas, legal intake, and offices',
+  corporate:    'Custom onboarding, teams, API, bulk NFC, and admin support',
 };
 
 // ── Core Functions ────────────────────────────────────────────────────────────
@@ -513,18 +523,12 @@ export const PLAN_HIERARCHY = {
 
 // ── Purchasable vs Coming Soon Plans ──────────────────────────────────────────
 // Only these plans can be purchased right now. Others are under construction.
-export const PURCHASABLE_PLANS = ['professional', 'salon', 'lawfirm'];
-export const COMING_SOON_PLANS = ['business', 'restaurant', 'corporate'];
+export const PURCHASABLE_PLANS = ['professional', 'business', 'salon', 'lawfirm'];
+export const COMING_SOON_PLANS = [];
+export const COMING_SOON_PLAN_META = [];
 
-// UI metadata for Coming Soon plans (no Stripe product, no feature set — display only)
-export const COMING_SOON_PLAN_META = [
-  { id: 'business',        name: 'Business',         priceUSD: 14.99, tagline: 'Small business essentials' },
-  { id: 'restaurant',      name: 'Restaurant',       priceUSD: 29.99, tagline: 'Digital menus & reservations' },
-  { id: 'corporate',       name: 'Corporate',        priceUSD: 99,    tagline: 'Enterprise & attendance' },
-  { id: 'ngo',             name: 'NGO',              priceUSD: null,  tagline: 'Non-profit organizations' },
-  { id: 'event_planner',   name: 'Event Planner',    priceUSD: null,  tagline: 'Event management' },
-  { id: 'bulk_enterprise', name: 'Bulk / Enterprise',priceUSD: null,  tagline: 'Large volume & custom' },
-];
+// Enterprise / Bulk is a contact-sales plan (no self-serve checkout)
+export const CONTACT_SALES_PLANS = ['corporate'];
 
 // Helper: is this plan purchasable right now?
 export function isPurchasable(planId) {

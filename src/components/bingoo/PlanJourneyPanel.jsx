@@ -1,34 +1,28 @@
 import React, { useState } from 'react';
-import { Check, Lock, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase, UtensilsCrossed, Users, CalendarHeart, Package } from 'lucide-react';
+import { Check, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import {
-  PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS,
-  PURCHASABLE_PLANS, COMING_SOON_PLANS,
+  PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS, PLAN_TAGLINES,
+  PURCHASABLE_PLANS, COMING_SOON_PLANS, CONTACT_SALES_PLANS,
 } from '@/lib/planPermissions';
 
 // ── Display-only metadata (icons + colors) — NOT entitlement data ──
 const PLAN_META = {
-  free:         { icon: Sparkles,        color: '#64748B' },
-  professional: { icon: Crown,           color: '#f97316' },
-  salon:        { icon: Scissors,        color: '#8b5cf6' },
-  lawfirm:      { icon: Scale,           color: '#3b82f6' },
-  business:     { icon: Briefcase,       color: '#0b2149' },
-  restaurant:   { icon: UtensilsCrossed, color: '#f97316' },
-  corporate:    { icon: Building2,       color: '#15803d' },
-  ngo:          { icon: Users,           color: '#10b981' },
-  event:        { icon: CalendarHeart,   color: '#ec4899' },
-  enterprise:   { icon: Package,         color: '#475569' },
+  free:         { icon: Sparkles,  color: '#64748B' },
+  professional: { icon: Crown,     color: '#f97316' },
+  business:     { icon: Briefcase, color: '#7c3aed' },
+  salon:        { icon: Scissors,  color: '#be185d' },
+  lawfirm:      { icon: Scale,     color: '#0369a1' },
+  corporate:    { icon: Building2, color: '#15803d' },
 };
 
 // Customer plan IDs only — "admin" can NEVER appear here
 const CUSTOMER_PLAN_IDS = new Set([
-  'free', 'professional', 'salon', 'lawfirm',
-  'business', 'restaurant', 'corporate',
-  'ngo', 'event', 'enterprise',
+  'free', 'professional', 'business', 'salon', 'lawfirm', 'corporate',
 ]);
 
 // ── Display order ──
-const PLAN_ORDER = ['free', 'professional', 'salon', 'lawfirm', 'business', 'restaurant', 'corporate', 'ngo', 'event', 'enterprise'];
+const PLAN_ORDER = ['free', 'professional', 'business', 'salon', 'lawfirm', 'corporate'];
 
 // ── Generate plan journeys from planPermissions.js — single source of truth ──
 // Prices come from PLAN_PRICES_USD, features from PLAN_FEATURES, status from PURCHASABLE/COMING_SOON.
@@ -38,14 +32,17 @@ function buildPlanJourneys(currentPlan) {
     const meta = PLAN_META[planId] || PLAN_META.free;
     const isPurchasable = PURCHASABLE_PLANS.includes(planId);
     const isComingSoon = COMING_SOON_PLANS.includes(planId);
+    const isContactSales = CONTACT_SALES_PLANS.includes(planId);
     const price = PLAN_PRICES_USD[planId];
     const features = PLAN_FEATURES[planId] || [];
+    const tagline = PLAN_TAGLINES[planId] || '';
     const isCurrentPlan = currentPlan === planId;
 
-    const status = isPurchasable ? 'active' : isComingSoon ? 'coming_soon' : 'contact_sales';
+    const status = planId === 'free' ? 'active' : isPurchasable ? 'active' : isComingSoon ? 'coming_soon' : 'contact_sales';
 
     let priceStr, period;
-    if (price === 0) { priceStr = '$0'; period = 'forever'; }
+    if (isContactSales) { priceStr = 'Custom'; period = ''; }
+    else if (price === 0) { priceStr = '$0'; period = 'forever'; }
     else if (price > 0) { priceStr = `$${price}`; period = '/month'; }
     else { priceStr = isComingSoon ? 'Coming Soon' : 'Custom'; period = ''; }
 
@@ -58,7 +55,7 @@ function buildPlanJourneys(currentPlan) {
     let nextAction = null;
     if (isComingSoon) {
       nextAction = `Coming Soon — join the waitlist to be notified when ${PLAN_LABELS[planId] || planId} launches.`;
-    } else if (planId === 'enterprise') {
+    } else if (isContactSales) {
       nextAction = 'Contact sales for custom pricing and volume NFC orders.';
     } else if (!isCurrentPlan && isPurchasable) {
       nextAction = `Upgrade to unlock: ${features.slice(0, 3).join(', ')}${features.length > 3 ? '…' : ''}`;
@@ -67,6 +64,7 @@ function buildPlanJourneys(currentPlan) {
     return {
       id: planId,
       name: PLAN_LABELS[planId] || planId.charAt(0).toUpperCase() + planId.slice(1),
+      tagline,
       price: priceStr,
       period,
       icon: meta.icon,
@@ -149,6 +147,9 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
             </div>
             <div>
               <h3 className={`text-lg font-black ${t.text}`}>{active.name}</h3>
+              {active.tagline && (
+                <p className={`text-xs ${t.sub} mb-0.5`}>{active.tagline}</p>
+              )}
               <p className={`text-sm font-bold ${active.status === 'coming_soon' ? 'text-amber-500' : active.status === 'contact_sales' ? 'text-blue-500' : ''}`} style={active.status === 'active' ? { color: active.color } : {}}>
                 {active.price}{active.period}
               </p>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowLeft, Zap, Star, Shield, Crown, Users, UtensilsCrossed, Scissors, Building2, ArrowRight, ChevronDown, Lock, Calendar } from 'lucide-react';
+import { Check, ArrowLeft, Zap, Star, Shield, Crown, Scissors, Building2, ArrowRight, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
@@ -17,7 +17,7 @@ const PLAN_DEFS = [
     id: 'free',
     name: 'Free',
     priceUSD: 0,
-    tagline: 'Get started today',
+    tagline: 'Basic personal profile and QR sharing',
     icon: <Zap className="w-5 h-5" />,
     color: '#64748b',
     cta: 'Current Plan',
@@ -26,89 +26,48 @@ const PLAN_DEFS = [
     id: 'professional',
     name: 'Professional',
     priceUSD: 4.99,
-    tagline: 'For individuals and freelancers',
+    tagline: 'Premium profile, NFC, analytics, leads, and appointments',
     icon: <Star className="w-5 h-5" />,
     color: B.orange,
     highlight: true,
     cta: 'Get Professional',
   },
   {
+    id: 'business',
+    name: 'Business',
+    priceUSD: 14.99,
+    tagline: 'Company profile, team, services, business tools, and multi-device',
+    icon: <Building2 className="w-5 h-5" />,
+    color: '#7c3aed',
+    cta: 'Get Business Plan',
+  },
+  {
     id: 'salon',
     name: 'Salon',
     priceUSD: 19.99,
-    tagline: 'Hair, beauty and wellness',
+    tagline: 'Business foundation plus salon services, staff, gallery, reviews, and booking',
     icon: <Scissors className="w-5 h-5" />,
     color: '#be185d',
     cta: 'Get Salon Plan',
   },
   {
-    id: 'business',
-    name: 'Business',
-    priceUSD: 14.99,
-    tagline: 'Small business essentials',
-    icon: <Building2 className="w-5 h-5" />,
-    color: '#7c3aed',
-    cta: 'Get Business Plan',
-    comingSoon: true,
-  },
-  {
     id: 'lawfirm',
     name: 'Law Firm',
     priceUSD: 49,
-    tagline: 'Legal services and attorneys',
+    tagline: 'Business foundation plus attorneys, practice areas, legal intake, and offices',
     icon: <Shield className="w-5 h-5" />,
     color: '#0369a1',
     cta: 'Get Law Firm Plan',
   },
   {
-    id: 'restaurant',
-    name: 'Restaurant',
-    priceUSD: 29.99,
-    tagline: 'Digital menus & reservations',
-    icon: <UtensilsCrossed className="w-5 h-5" />,
-    color: '#c2410c',
-    cta: 'Get Restaurant Plan',
-    comingSoon: true,
-  },
-  {
     id: 'corporate',
-    name: 'Corporate',
-    priceUSD: 99,
-    tagline: 'Enterprise & attendance',
+    name: 'Enterprise / Bulk',
+    priceUSD: null,
+    tagline: 'Custom onboarding, teams, API, bulk NFC, and admin support',
     icon: <Crown className="w-5 h-5" />,
     color: '#15803d',
-    cta: 'Get Corporate Plan',
-    comingSoon: true,
-  },
-  {
-    id: 'ngo',
-    name: 'NGO',
-    priceUSD: null,
-    tagline: 'Non-profit organizations',
-    icon: <Users className="w-5 h-5" />,
-    color: '#0891b2',
-    cta: 'Notify Me',
-    comingSoon: true,
-  },
-  {
-    id: 'event_planner',
-    name: 'Event Planner',
-    priceUSD: null,
-    tagline: 'Event management',
-    icon: <Calendar className="w-5 h-5" />,
-    color: '#7c3aed',
-    cta: 'Notify Me',
-    comingSoon: true,
-  },
-  {
-    id: 'bulk_enterprise',
-    name: 'Bulk / Enterprise',
-    priceUSD: null,
-    tagline: 'Large volume & custom',
-    icon: <Building2 className="w-5 h-5" />,
-    color: '#475569',
     cta: 'Contact Sales',
-    comingSoon: true,
+    contactSales: true,
   },
 ];
 
@@ -297,13 +256,13 @@ export default function SubscriptionPricing() {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + '20', color: '#b45309', border: `1px solid ${B.gold}40` }}>
-            Industry Plans and Pricing
+            Plans and Pricing
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-3" style={{ color: B.navy }}>
-            Choose Your Industry Plan
+            Choose Your Plan
           </h1>
           <p className="text-slate-500 max-w-lg mx-auto text-lg">
-            Tailored features for your profession. Billed monthly. Cancel anytime.
+            From personal profiles to full business solutions. Billed monthly. Cancel anytime.
           </p>
           {/* Currency pill */}
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm"
@@ -390,7 +349,7 @@ export default function SubscriptionPricing() {
                 {/* Price */}
                 <div className="mb-5">
                   <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
-                    {plan.priceUSD === 0 ? 'Free' : plan.priceUSD == null ? 'TBD' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
+                    {plan.contactSales ? 'Custom' : plan.priceUSD === 0 ? 'Free' : plan.priceUSD == null ? 'TBD' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
                   </span>
                   {plan.priceUSD > 0 && (
                     <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>
@@ -422,7 +381,7 @@ export default function SubscriptionPricing() {
 
                 {/* CTA */}
                 <Button
-                  onClick={() => handleSubscribe(plan)}
+                  onClick={() => plan.contactSales ? window.location.href = '/contact-support' : handleSubscribe(plan)}
                   disabled={plan.comingSoon || plan.id === 'free' || loading === plan.id || current}
                   className="w-full font-bold flex items-center justify-center gap-1.5"
                   style={{

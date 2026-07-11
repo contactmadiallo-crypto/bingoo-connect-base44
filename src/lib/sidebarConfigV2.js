@@ -17,9 +17,10 @@ const EXTRA_NAV_ITEMS = {
 const SECTIONS = [
   { id: "home",      label: "Home",      labelFr: "Accueil",    itemIds: ["landing"] },
   { id: "identity",  label: "Identity",  labelFr: "Identité",   itemIds: ["profiles", "qrwallet", "connections", "myassets", "planjourney"] },
-  { id: "business",  label: "Business",  labelFr: "Business",   itemIds: ["appointments", "leads", "crm", "analytics", "strategic", "services", "hours", "team", "practiceareas", "legalservices", "offices", "attendance"] },
+  { id: "business",  label: "Business",  labelFr: "Business",   itemIds: ["appointments", "leads", "crm", "analytics", "services", "team", "practiceareas", "legalservices", "offices", "attendance"] },
   { id: "nfc",       label: "NFC",       labelFr: "NFC",        itemIds: ["devices", "designstudio", "lostmode"] },
   { id: "shop",      label: "Shop",      labelFr: "Boutique",   itemIds: ["shop", "orders"] },
+  { id: "advanced",  label: "Advanced",  labelFr: "Avancé",     itemIds: ["strategic"] },
   { id: "settings",  label: "Settings",  labelFr: "Paramètres", itemIds: ["billing", "account", "support", "advancedAdmin"] },
 ];
 
