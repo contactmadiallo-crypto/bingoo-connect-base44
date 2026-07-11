@@ -1,3 +1,5 @@
+import { Zap, Star, Building2, Scissors, Scale, Briefcase } from 'lucide-react';
+
 /**
  * Bingoo Connect — Plan Permissions (Capability-Based Model)
  *
@@ -54,7 +56,7 @@ const PROFESSIONAL_FEATURES = new Set([
 ]);
 
 const SALON_FEATURES = new Set([
-  ...PROFESSIONAL_FEATURES,
+  ...BUSINESS_FEATURES,
   'business_hours',
   'salon_profile',
   'staff_profiles',
@@ -87,7 +89,7 @@ const RESTAURANT_FEATURES = new Set([
 ]);
 
 const LAWFIRM_FEATURES = new Set([
-  ...PROFESSIONAL_FEATURES,
+  ...BUSINESS_FEATURES,
   'business_hours',
   'law_firm_profile',
   'practice_areas',
@@ -112,17 +114,27 @@ const LAWFIRM_FEATURES = new Set([
 const BUSINESS_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
   'business_hours',
+  'business_profile',
+  'design_studio',
   'services',
+  'product_showcase',
   'nfc_counter_stand',
   'google_reviews',
   'whatsapp_booking',
   'team_members',
+  'staff_cards',
+  'customer_inquiry',
+  'multi_profile',
+  'business_qr_landing',
   'advanced_analytics',
   'lead_export',
 ]);
 
 const CORPORATE_FEATURES = new Set([
-  ...LAWFIRM_FEATURES,
+  ...BUSINESS_FEATURES,
+  'api_access',
+  'bulk_nfc_orders',
+  'custom_onboarding',
   'employee_profiles',
   'attendance',
   'attendance_dashboard',
@@ -167,6 +179,18 @@ const ALL_KNOWN_FEATURES = new Set([
   'reservations',
   'case_dashboard',
   'family_forms',
+  // Business-tier features
+  'business_profile',
+  'design_studio',
+  'product_showcase',
+  'staff_cards',
+  'customer_inquiry',
+  'multi_profile',
+  'business_qr_landing',
+  // Enterprise-tier features
+  'api_access',
+  'bulk_nfc_orders',
+  'custom_onboarding',
 ]);
 
 // Alias map: old key → canonical key that actually lives in the Sets
@@ -226,13 +250,12 @@ export const PLAN_STRIPE_PRODUCTS = {
 };
 
 export const PLAN_FEATURES = {
-  free:         ['1 profile', 'Public profile link', 'Basic contact sharing', 'Social links', 'QR code', 'WhatsApp button'],
+  free:         ['1 profile', 'Public profile link', 'Basic contact links', 'Social links', 'QR code', 'Save contact', 'Limited analytics preview'],
   professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Instagram Integration', 'Calendar View', 'Google Wallet Pass', 'Apple Wallet Pass'],
-  business:     ['Everything in Professional', 'Business Hours', 'Team Management', 'Services Section', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
-  salon:        ['Everything in Professional', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
-  restaurant:   ['Everything in Professional', 'Restaurant Business Profile', 'Digital Menu', 'Delivery Links', 'Food Ordering', 'Google Reviews', 'Reservations', 'WhatsApp Ordering', 'NFC Table Stand', 'Advanced Analytics', 'Lead Export'],
-  lawfirm:      ['Everything in Professional', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
-  corporate:    ['Everything in Law Firm', 'Custom Onboarding', 'Team Management', 'API Access', 'Bulk NFC Orders', 'Admin Support', 'Employee Profiles', 'Attendance Dashboard'],
+  business:     ['Everything in Professional', 'Business Public Profile', 'Design Studio', 'Team Management', 'Services & Product Showcase', 'WhatsApp Booking', 'NFC Counter Stand', 'Business Hours', 'Staff Cards', 'Customer Inquiry Buttons', 'Multi-Profile Management', 'Business QR/NFC Landing', 'Advanced Analytics', 'Lead Export'],
+  salon:        ['Everything in Business', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
+  lawfirm:      ['Everything in Business', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
+  corporate:    ['Everything in Business', 'Custom Onboarding', 'Team Management', 'API Access', 'Bulk NFC Orders', 'Admin Support', 'Employee Profiles', 'Attendance Dashboard'],
 };
 
 // Plain-language taglines explaining what each plan is for
@@ -354,23 +377,23 @@ export const FEATURE_DESCRIPTIONS = {
   instagram_integration:{ title: 'Instagram Integration',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to connect your Instagram to your profile.' },
   google_wallet_pass:   { title: 'Google Wallet Pass',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate a Google Wallet digital card.' },
   apple_wallet_pass:    { title: 'Apple Wallet Pass',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate an Apple Wallet digital card.' },
-  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to display your business hours.' },
+  business_hours:       { title: 'Business Hours',             upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to display your business hours.' },
   calendar:             { title: 'Calendar View',              upgradeTarget: 'Professional', message: 'Upgrade to Professional to access the calendar view.' },
   // Aliases for backward compat — same gate as canonical
   custom_colors:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
   custom_design:        { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
 
   // ── Business / Industry shared tier (cheapest purchasable = Salon) ──
-  team_members:         { title: 'Team Members',               upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to manage team members.' },
-  google_reviews:       { title: 'Google Review Link',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a Google review link.' },
+  team_members:         { title: 'Team Members',               upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to manage team members.' },
+  google_reviews:       { title: 'Google Review Link',         upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to add a Google review link.' },
   google_review_link:   { title: 'Google Review Link',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a Google review link.' },
-  whatsapp_booking:     { title: 'WhatsApp Booking Button',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to add a WhatsApp booking button.' },
-  advanced_analytics:   { title: 'Advanced Analytics',         upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan for advanced analytics.' },
-  lead_export:          { title: 'Lead Export',                upgradeTarget: 'Salon',        message: 'Upgrade to the Salon or Law Firm plan to export leads as CSV.' },
-  services:             { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
+  whatsapp_booking:     { title: 'WhatsApp Booking Button',    upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to add a WhatsApp booking button.' },
+  advanced_analytics:   { title: 'Advanced Analytics',         upgradeTarget: 'Business',     message: 'Upgrade to the Business plan for advanced analytics.' },
+  lead_export:          { title: 'Lead Export',                upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to export leads as CSV.' },
+  services:             { title: 'Services / Menu Section',    upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to showcase services or a menu.' },
   service_menu:         { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
   menu_services:        { title: 'Services / Menu Section',    upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan to showcase services or a menu.' },
-  nfc_counter_stand:    { title: 'NFC Counter Stand',          upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for NFC counter stand support.' },
+  nfc_counter_stand:    { title: 'NFC Counter Stand',          upgradeTarget: 'Business',     message: 'Upgrade to the Business plan for NFC counter stand support.' },
 
   // ── Salon-specific ──
   salon_profile:        { title: 'Salon Business Profile',     upgradeTarget: 'Salon',        message: 'Upgrade to the Salon plan for a full salon business profile.' },
@@ -405,6 +428,18 @@ export const FEATURE_DESCRIPTIONS = {
   criminal_forms:       { title: 'Criminal Case Forms',        upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for criminal case intake forms.' },
   civil_forms:          { title: 'Civil Case Forms',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for civil case intake forms.' },
   family_forms:         { title: 'Family Law Forms',           upgradeTarget: 'Law Firm',     message: 'Upgrade to the Law Firm plan for family law intake forms.' },
+
+  // ── Business-tier features ──
+  design_studio:        { title: 'Design Studio',              upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to access the Design Studio for custom NFC cards.' },
+  business_profile:     { title: 'Business Public Profile',    upgradeTarget: 'Business',     message: 'Upgrade to the Business plan for a full business public profile.' },
+  product_showcase:     { title: 'Product / Service Showcase', upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to showcase products and services.' },
+  staff_cards:          { title: 'Staff Cards',                upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to create staff NFC cards.' },
+  customer_inquiry:     { title: 'Customer Inquiry Buttons',   upgradeTarget: 'Business',     message: 'Upgrade to the Business plan for customer inquiry buttons.' },
+  multi_profile:        { title: 'Multi-Profile Management',   upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to manage multiple profiles.' },
+  business_qr_landing:  { title: 'Business QR/NFC Landing',    upgradeTarget: 'Business',     message: 'Upgrade to the Business plan for a business QR/NFC landing page.' },
+  api_access:           { title: 'API Access',                 upgradeTarget: 'Enterprise / Bulk', message: 'Contact us for API access on the Enterprise plan.' },
+  bulk_nfc_orders:      { title: 'Bulk NFC Orders',            upgradeTarget: 'Enterprise / Bulk', message: 'Contact us for bulk NFC ordering on the Enterprise plan.' },
+  custom_onboarding:    { title: 'Custom Onboarding',          upgradeTarget: 'Enterprise / Bulk', message: 'Contact us for custom onboarding on the Enterprise plan.' },
 
   // ── Corporate-specific ──
   attendance:           { title: 'Attendance Dashboard',       upgradeTarget: 'Corporate',    message: 'Upgrade to the Corporate plan for clock in/out and attendance tracking.' },
@@ -515,7 +550,7 @@ export const PLAN_HIERARCHY = {
   professional: 1,
   pro:          1,
   business:     2,
-  salon:        2,
+  salon:        3,
   restaurant:   2,
   lawfirm:      3,
   corporate:    4,
@@ -533,4 +568,118 @@ export const CONTACT_SALES_PLANS = ['corporate'];
 // Helper: is this plan purchasable right now?
 export function isPurchasable(planId) {
   return PURCHASABLE_PLANS.includes(planId);
+}
+
+// ── Unified Plan Configuration (Single Source of Truth) ───────────────────────
+// All customer-facing plan metadata lives here. Every page that displays plan
+// information — landing pricing, /plans, Plan Journeys, billing, upgrade modals,
+// onboarding, dashboard previews — should import from PLAN_CONFIG.
+// Do NOT create duplicate hardcoded plan lists elsewhere.
+
+export const PLAN_CONFIG = {
+  free: {
+    id: 'free',
+    label: 'Free',
+    tagline: PLAN_TAGLINES.free,
+    priceMonthly: 0,
+    priceAnnual: 0,
+    icon: Zap,
+    color: PLAN_COLORS.free,
+    hierarchy: 0,
+    status: 'free', // free | purchasable | contact_sales
+    features: PLAN_FEATURES.free,
+    dashboardPreview: ['1 Profile', 'Public Link', 'QR Code', 'Basic Analytics Preview'],
+    includedTools: ['Profile Editor', 'QR Code'],
+  },
+  professional: {
+    id: 'professional',
+    label: 'Professional',
+    tagline: PLAN_TAGLINES.professional,
+    priceMonthly: PLAN_PRICES_USD.professional,
+    priceAnnual: 53.89,
+    icon: Star,
+    color: PLAN_COLORS.professional,
+    stripeProductId: PLAN_STRIPE_PRODUCTS.professional,
+    hierarchy: 1,
+    status: 'purchasable',
+    features: PLAN_FEATURES.professional,
+    dashboardPreview: ['Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Appointment Booking', 'Lost Mode', 'Google & Apple Wallet'],
+    includedTools: ['Profile Editor', 'QR & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode'],
+  },
+  business: {
+    id: 'business',
+    label: 'Business',
+    tagline: PLAN_TAGLINES.business,
+    priceMonthly: PLAN_PRICES_USD.business,
+    priceAnnual: 161.89,
+    icon: Building2,
+    color: PLAN_COLORS.business,
+    stripeProductId: PLAN_STRIPE_PRODUCTS.business,
+    hierarchy: 2,
+    status: 'purchasable',
+    features: PLAN_FEATURES.business,
+    dashboardPreview: ['Business Public Profile', 'Design Studio', 'Team Management', 'Services & Products', 'WhatsApp Booking', 'Advanced Analytics', 'Lead Export', 'Multi-Profile'],
+    includedTools: ['Profile Editor', 'QR & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode', 'Design Studio', 'Business Profile', 'Team', 'Services', 'Business Hours'],
+  },
+  salon: {
+    id: 'salon',
+    label: 'Salon',
+    tagline: PLAN_TAGLINES.salon,
+    priceMonthly: PLAN_PRICES_USD.salon,
+    priceAnnual: 215.89,
+    icon: Scissors,
+    color: PLAN_COLORS.salon,
+    stripeProductId: PLAN_STRIPE_PRODUCTS.salon,
+    hierarchy: 3,
+    status: 'purchasable',
+    features: PLAN_FEATURES.salon,
+    dashboardPreview: ['Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand'],
+    includedTools: ['Everything in Business', 'Salon Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery'],
+  },
+  lawfirm: {
+    id: 'lawfirm',
+    label: 'Law Firm',
+    tagline: PLAN_TAGLINES.lawfirm,
+    priceMonthly: PLAN_PRICES_USD.lawfirm,
+    priceAnnual: 529.20,
+    icon: Scale,
+    color: PLAN_COLORS.lawfirm,
+    stripeProductId: PLAN_STRIPE_PRODUCTS.lawfirm,
+    hierarchy: 3,
+    status: 'purchasable',
+    features: PLAN_FEATURES.lawfirm,
+    dashboardPreview: ['Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Lead Intake Forms', 'CRM Pipeline'],
+    includedTools: ['Everything in Business', 'Law Firm Profile', 'Practice Areas', 'Attorneys', 'Legal Services', 'Offices', 'CRM Pipeline'],
+  },
+  corporate: {
+    id: 'corporate',
+    label: 'Enterprise / Bulk',
+    tagline: PLAN_TAGLINES.corporate,
+    priceMonthly: PLAN_PRICES_USD.corporate,
+    priceAnnual: 1069.20,
+    icon: Briefcase,
+    color: PLAN_COLORS.corporate,
+    hierarchy: 4,
+    status: 'contact_sales',
+    features: PLAN_FEATURES.corporate,
+    dashboardPreview: ['Custom Onboarding', 'API Access', 'Bulk NFC Orders', 'Employee Profiles', 'Attendance Dashboard', 'Admin Support'],
+    includedTools: ['Everything in Business', 'API Access', 'Bulk Orders', 'Employee Profiles', 'Attendance'],
+  },
+};
+
+// Ordered list of customer-facing plan IDs (excludes admin; restaurant kept for backward compat only)
+export const CUSTOMER_PLAN_IDS = ['free', 'professional', 'business', 'salon', 'lawfirm', 'corporate'];
+
+// Helper: get PLAN_CONFIG entry for a plan ID (normalized)
+export function getPlanConfig(planId) {
+  const normalized = normalizePlan(planId);
+  return PLAN_CONFIG[normalized] || PLAN_CONFIG.free;
+}
+
+// Helper: format monthly price as string
+export function formatPlanPrice(planId, cycle = 'monthly') {
+  const config = getPlanConfig(planId);
+  const price = cycle === 'annual' ? config.priceAnnual : config.priceMonthly;
+  if (price === 0) return 'Free';
+  return cycle === 'annual' ? `$${price.toFixed(2)}/yr` : `$${price.toFixed(2)}/mo`;
 }

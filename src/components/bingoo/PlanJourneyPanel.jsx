@@ -1,35 +1,21 @@
 import React, { useState } from 'react';
-import { Check, Crown, ArrowRight, Sparkles, Building2, Scissors, Scale, Briefcase } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import {
   PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS, PLAN_TAGLINES,
   PURCHASABLE_PLANS, COMING_SOON_PLANS, CONTACT_SALES_PLANS,
+  PLAN_CONFIG, CUSTOMER_PLAN_IDS, getPlanConfig,
 } from '@/lib/planPermissions';
 
-// ── Display-only metadata (icons + colors) — NOT entitlement data ──
-const PLAN_META = {
-  free:         { icon: Sparkles,  color: '#64748B' },
-  professional: { icon: Crown,     color: '#f97316' },
-  business:     { icon: Briefcase, color: '#7c3aed' },
-  salon:        { icon: Scissors,  color: '#be185d' },
-  lawfirm:      { icon: Scale,     color: '#0369a1' },
-  corporate:    { icon: Building2, color: '#15803d' },
-};
-
-// Customer plan IDs only — "admin" can NEVER appear here
-const CUSTOMER_PLAN_IDS = new Set([
-  'free', 'professional', 'business', 'salon', 'lawfirm', 'corporate',
-]);
-
-// ── Display order ──
-const PLAN_ORDER = ['free', 'professional', 'business', 'salon', 'lawfirm', 'corporate'];
+// Plan metadata (icons, colors, taglines, features, prices) is now sourced
+// from PLAN_CONFIG in planPermissions.js — single source of truth.
 
 // ── Generate plan journeys from planPermissions.js — single source of truth ──
 // Prices come from PLAN_PRICES_USD, features from PLAN_FEATURES, status from PURCHASABLE/COMING_SOON.
 // No hardcoded prices or feature lists — everything derives from the capability map.
 function buildPlanJourneys(currentPlan) {
-  return PLAN_ORDER.map(planId => {
-    const meta = PLAN_META[planId] || PLAN_META.free;
+  return CUSTOMER_PLAN_IDS.map(planId => {
+    const config = getPlanConfig(planId);
     const isPurchasable = PURCHASABLE_PLANS.includes(planId);
     const isComingSoon = COMING_SOON_PLANS.includes(planId);
     const isContactSales = CONTACT_SALES_PLANS.includes(planId);
@@ -67,8 +53,8 @@ function buildPlanJourneys(currentPlan) {
       tagline,
       price: priceStr,
       period,
-      icon: meta.icon,
-      color: meta.color,
+      icon: config.icon,
+      color: config.color.text,
       status,
       included: features,
       locked: [],
@@ -76,7 +62,7 @@ function buildPlanJourneys(currentPlan) {
       dashboardPreview,
       isCurrentPlan,
     };
-  }).filter(p => CUSTOMER_PLAN_IDS.has(p.id));
+  });
 }
 
 export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSource }) {

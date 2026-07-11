@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, CheckCircle2, AlertTriangle, XCircle, Zap, Shield, ArrowRight, RefreshCw, Star, Scissors, Building2, UtensilsCrossed, Lock } from 'lucide-react';
+import { CreditCard, CheckCircle2, AlertTriangle, XCircle, Zap, ArrowRight, RefreshCw, Star, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS, PLAN_CONFIG, getPlanConfig, formatPlanPrice } from '@/lib/planPermissions';
 import { isAdminSwitcher, isProtectedTestAccount } from '@/lib/testAccounts';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -13,25 +13,21 @@ import BingooLayout from '@/components/bingoo/BingooLayout';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
-const PLAN_ICONS = {
-  free:         <Zap className="w-5 h-5" />,
-  professional: <Star className="w-5 h-5" />,
-  pro:          <Star className="w-5 h-5" />,
-  salon:        <Scissors className="w-5 h-5" />,
-  restaurant:   <UtensilsCrossed className="w-5 h-5" />,
-  lawfirm:      <Shield className="w-5 h-5" />,
-  business:     <Shield className="w-5 h-5" />,
-  corporate:    <Building2 className="w-5 h-5" />,
-};
+// Plan icons + pricing derived from PLAN_CONFIG (single source of truth)
+// No hardcoded prices or icons — everything comes from planPermissions.js
+const PLAN_ICONS = Object.fromEntries(
+  Object.values(PLAN_CONFIG).map(c => {
+    const Icon = c.icon;
+    return [c.id, <Icon className="w-5 h-5" />];
+  })
+);
 
-const PRICING = {
-  professional: { monthly: '$4.99/mo',  annual: '$53.89/yr' },
-  salon:        { monthly: '$19.99/mo', annual: '$215.89/yr' },
-  lawfirm:      { monthly: '$49/mo',    annual: '$529.20/yr' },
-  business:     { monthly: '$14.99/mo', annual: '$161.89/yr' },
-  restaurant:   { monthly: '$29.99/mo', annual: '$323.89/yr' },
-  corporate:    { monthly: '$99/mo',    annual: '$1,069.20/yr' },
-};
+const PRICING = Object.fromEntries(
+  Object.values(PLAN_CONFIG).map(c => [c.id, {
+    monthly: formatPlanPrice(c.id, 'monthly'),
+    annual: formatPlanPrice(c.id, 'annual'),
+  }])
+);
 
 const STATUS_CONFIG = {
   active:   { label: 'Active',    icon: CheckCircle2,  color: '#16a34a', bg: '#dcfce7' },
@@ -177,7 +173,7 @@ export default function Billing() {
               <h2 className="font-bold text-sm uppercase tracking-wider mb-2" style={{ color: '#92400e' }}>Admin Test Switcher</h2>
               <p className="text-xs text-amber-700 mb-4">Switch between plans for testing. No payment required.</p>
               <div className="flex flex-wrap gap-2">
-                {['free', 'professional', 'salon', 'lawfirm', 'business', 'corporate', 'restaurant'].map(p => (
+                {['free', 'professional', 'business', 'salon', 'lawfirm', 'corporate'].map(p => (
                   <Button key={p} onClick={() => handleAdminSwitch(p)} disabled={adminSwitching === p}
                     className="font-bold text-xs"
                     variant={effectivePlan === p ? 'default' : 'outline'}>

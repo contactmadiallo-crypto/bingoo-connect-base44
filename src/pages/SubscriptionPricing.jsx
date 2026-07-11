@@ -7,69 +7,29 @@ import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
 import { useAuth } from '@/lib/AuthContext';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
-import { PLAN_HIERARCHY, PLAN_FEATURES } from '@/lib/planPermissions';
+import { PLAN_HIERARCHY, PLAN_FEATURES, PLAN_CONFIG, CUSTOMER_PLAN_IDS } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
-const PLAN_DEFS = [
-  {
-    id: 'free',
-    name: 'Free',
-    priceUSD: 0,
-    tagline: 'Basic personal profile and QR sharing',
-    icon: <Zap className="w-5 h-5" />,
-    color: '#64748b',
-    cta: 'Current Plan',
-  },
-  {
-    id: 'professional',
-    name: 'Professional',
-    priceUSD: 4.99,
-    tagline: 'Premium profile, NFC, analytics, leads, and appointments',
-    icon: <Star className="w-5 h-5" />,
-    color: B.orange,
-    highlight: true,
-    cta: 'Get Professional',
-  },
-  {
-    id: 'business',
-    name: 'Business',
-    priceUSD: 14.99,
-    tagline: 'Company profile, team, services, business tools, and multi-device',
-    icon: <Building2 className="w-5 h-5" />,
-    color: '#7c3aed',
-    cta: 'Get Business Plan',
-  },
-  {
-    id: 'salon',
-    name: 'Salon',
-    priceUSD: 19.99,
-    tagline: 'Business foundation plus salon services, staff, gallery, reviews, and booking',
-    icon: <Scissors className="w-5 h-5" />,
-    color: '#be185d',
-    cta: 'Get Salon Plan',
-  },
-  {
-    id: 'lawfirm',
-    name: 'Law Firm',
-    priceUSD: 49,
-    tagline: 'Business foundation plus attorneys, practice areas, legal intake, and offices',
-    icon: <Shield className="w-5 h-5" />,
-    color: '#0369a1',
-    cta: 'Get Law Firm Plan',
-  },
-  {
-    id: 'corporate',
-    name: 'Enterprise / Bulk',
-    priceUSD: null,
-    tagline: 'Custom onboarding, teams, API, bulk NFC, and admin support',
-    icon: <Crown className="w-5 h-5" />,
-    color: '#15803d',
-    cta: 'Contact Sales',
-    contactSales: true,
-  },
-];
+// Plan definitions derived from PLAN_CONFIG — single source of truth in planPermissions.js
+// No hardcoded prices, names, taglines, or icons. Everything comes from PLAN_CONFIG.
+const PLAN_DEFS = CUSTOMER_PLAN_IDS.map(id => {
+  const c = PLAN_CONFIG[id];
+  const Icon = c.icon;
+  return {
+    id: c.id,
+    name: c.label,
+    priceUSD: c.priceMonthly,
+    tagline: c.tagline,
+    icon: <Icon className="w-5 h-5" />,
+    color: c.color.text,
+    highlight: id === 'professional',
+    cta: c.status === 'contact_sales' ? 'Contact Sales' : `Get ${c.label}`,
+    contactSales: c.status === 'contact_sales',
+    comingSoon: c.status === 'coming_soon',
+  };
+});
 
 export default function SubscriptionPricing() {
   const { toast } = useToast();
