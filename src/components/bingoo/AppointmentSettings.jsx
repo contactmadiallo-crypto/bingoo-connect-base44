@@ -69,28 +69,28 @@ export default function AppointmentSettings({ profileId }) {
   useEffect(() => {
     if (!profile) return;
     if (profile.business_hours && Object.keys(profile.business_hours).length > 0) {
-      setHours({ ...DEFAULT_HOURS, ...profile.business_hours });
+      const { _meta, ...dayHours } = profile.business_hours;
+      if (Object.keys(dayHours).length > 0) {
+        setHours({ ...DEFAULT_HOURS, ...dayHours });
+      }
+      if (_meta) {
+        if (_meta.appt_type)  setApptType(_meta.appt_type);
+        if (_meta.holidays)   setHolidays(_meta.holidays);
+        if (_meta.buffer != null) setBuffer(_meta.buffer);
+      }
     }
     setDuration(profile.booking_slot_duration || 30);
     setBookingEnabled(profile.booking_enabled || false);
-    if (profile.description) {
-      try {
-        const meta = JSON.parse(profile.description);
-        if (meta.appt_type)  setApptType(meta.appt_type);
-        if (meta.holidays)   setHolidays(meta.holidays);
-        if (meta.buffer != null) setBuffer(meta.buffer);
-      } catch {}
-    }
   }, [profile]);
 
   const save = useMutation({
     mutationFn: () => {
-      const meta = JSON.stringify({ appt_type: apptType, holidays, buffer });
+      // Store appointment metadata inside business_hours._meta — Profile has no description field
+      const hoursWithMeta = { ...hours, _meta: { appt_type: apptType, holidays, buffer } };
       return base44.entities.Profile.update(profileId, {
-        business_hours: hours,
+        business_hours: hoursWithMeta,
         booking_slot_duration: duration,
         booking_enabled: bookingEnabled,
-        description: meta,
       });
     },
     onSuccess: () => {
@@ -99,6 +99,7 @@ export default function AppointmentSettings({ profileId }) {
       toast.success("Appointment settings saved!");
       setTimeout(() => setSaved(false), 3000);
     },
+    onError: () => toast.error("Failed to save settings. Please try again."),
   });
 
   const toggleDay    = (day) => setHours(h => ({ ...h, [day]: { ...h[day], enabled: !h[day].enabled } }));
