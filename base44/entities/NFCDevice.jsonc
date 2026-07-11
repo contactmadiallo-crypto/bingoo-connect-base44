@@ -4,23 +4,42 @@
   "properties": {
     "profile_id": {
       "type": "string",
-      "description": "Assigned profile ID (optional until activated)"
+      "description": "Assigned profile ID (personal or business profile). Optional until activated."
     },
     "device_type": {
       "type": "string",
       "enum": [
         "card",
+        "metal_card",
         "keychain",
         "bracelet",
         "stand",
         "badge",
-        "sticker"
+        "sticker",
+        "tag"
       ],
-      "default": "card"
+      "default": "card",
+      "description": "Physical product type \u2014 persists after assignment so a keychain fob stays a keychain fob regardless of what it's assigned to"
     },
     "device_code": {
       "type": "string",
       "description": "Unique identifier printed on device e.g. BG-000001"
+    },
+    "product_sku": {
+      "type": "string",
+      "description": "Shop catalog SKU for this physical product (e.g. 'nfc_key_fob', 'nfc_metal_card')"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Human-readable product name e.g. 'NFC Key Fob', 'NFC Metal Card' \u2014 persists after assignment"
+    },
+    "product_image": {
+      "type": "string",
+      "description": "Product image URL from the shop catalog \u2014 persists after assignment for consistent display"
+    },
+    "assigned_asset_id": {
+      "type": "string",
+      "description": "Direct reference to AssetItem if assigned to an asset (enables efficient recovery routing without reverse lookup)"
     },
     "status": {
       "type": "string",

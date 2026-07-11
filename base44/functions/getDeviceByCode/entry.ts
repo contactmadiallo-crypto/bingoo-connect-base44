@@ -8,9 +8,17 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 //   Do NOT write new records to Device. Do NOT remove this fallback until
 //   the Device entity is formally archived/deleted.
 //
-// ASSET PRECEDENCE: If an AssetItem has this device's ID as its nfc_device_id,
-//   the scan resolves to the public asset finder — NOT the profile.
-//   This ensures pet collars, luggage tags, etc. show recovery info.
+// RESOLVER PRIORITY:
+//   1. assigned_asset_id → asset recovery page (AssetFinder)
+//   2. profile_id        → profile page (PublicProfile — handles personal + business layouts)
+//   3. unassigned        → activation/claim page (DeviceActivationPage)
+//
+// Product identity (device_type, product_sku, product_name, product_image) persists
+//   on the NFCDevice record and is returned in the device object — a keychain fob
+//   assigned to a dog still displays as a keychain fob, not a card.
+//
+// ASSET LOOKUP: Direct assigned_asset_id first (efficient), then reverse lookup
+//   via AssetItem.nfc_device_id as fallback for legacy devices.
 // ─────────────────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -31,15 +39,25 @@ Deno.serve(async (req) => {
     const nfcDevice = nfcDevices[0] || null;
 
     if (nfcDevice) {
-      // ── ASSET CHECK: Does an AssetItem reference this device? ──
+      // ── ASSET CHECK: Direct assigned_asset_id first, then reverse lookup ──
       // Asset assignment takes precedence over profile assignment.
       let asset = null;
-      if (nfcDevice.id) {
+      // 1. Direct lookup via assigned_asset_id (new — efficient, no reverse query needed)
+      if (nfcDevice.assigned_asset_id) {
+        try {
+          const assets = await base44.asServiceRole.entities.AssetItem.filter({ id: nfcDevice.assigned_asset_id });
+          asset = assets[0] || null;
+        } catch (e) {
+          console.error('Asset lookup by assigned_asset_id error:', e);
+        }
+      }
+      // 2. Fallback: reverse lookup via nfc_device_id (legacy — for devices without assigned_asset_id)
+      if (!asset && nfcDevice.id) {
         try {
           const assets = await base44.asServiceRole.entities.AssetItem.filter({ nfc_device_id: nfcDevice.id });
           asset = assets[0] || null;
         } catch (e) {
-          console.error('Asset lookup error:', e);
+          console.error('Asset reverse lookup error:', e);
         }
       }
 
