@@ -55,6 +55,25 @@ const PROFESSIONAL_FEATURES = new Set([
   'apple_wallet_pass',
 ]);
 
+const BUSINESS_FEATURES = new Set([
+  ...PROFESSIONAL_FEATURES,
+  'business_hours',
+  'business_profile',
+  'design_studio',
+  'services',
+  'product_showcase',
+  'nfc_counter_stand',
+  'google_reviews',
+  'whatsapp_booking',
+  'team_members',
+  'staff_cards',
+  'customer_inquiry',
+  'multi_profile',
+  'business_qr_landing',
+  'advanced_analytics',
+  'lead_export',
+]);
+
 const SALON_FEATURES = new Set([
   ...BUSINESS_FEATURES,
   'business_hours',
@@ -109,25 +128,6 @@ const LAWFIRM_FEATURES = new Set([
   'criminal_forms',
   'civil_forms',
   'family_forms',
-]);
-
-const BUSINESS_FEATURES = new Set([
-  ...PROFESSIONAL_FEATURES,
-  'business_hours',
-  'business_profile',
-  'design_studio',
-  'services',
-  'product_showcase',
-  'nfc_counter_stand',
-  'google_reviews',
-  'whatsapp_booking',
-  'team_members',
-  'staff_cards',
-  'customer_inquiry',
-  'multi_profile',
-  'business_qr_landing',
-  'advanced_analytics',
-  'lead_export',
 ]);
 
 const CORPORATE_FEATURES = new Set([
