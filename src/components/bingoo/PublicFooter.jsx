@@ -1,43 +1,32 @@
 import { Link } from "react-router-dom";
 
 export default function PublicFooter({ dark = false }) {
-  const text = dark ? "rgba(255,255,255,0.35)" : "#94a3b8";
-  const hover = dark ? "rgba(255,255,255,0.65)" : "#64748b";
-  const border = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)";
+  const textColor = dark ? "text-white/35" : "text-slate-400";
+  const hoverColor = dark ? "hover:text-white/65" : "hover:text-slate-600";
+  const borderColor = dark ? "border-white/8" : "border-slate-200";
+
+  const links = [
+    { label: "Privacy Policy", to: "/privacy" },
+    { label: "Terms of Service", to: "/terms" },
+    { label: "Data Deletion", to: "/data-deletion" },
+    { label: "Contact", to: "/contact" },
+  ];
 
   return (
-    <div style={{
-      textAlign: "center",
-      padding: "16px 20px",
-      borderTop: `1px solid ${border}`,
-      marginTop: 8,
-    }}>
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "4px 16px" }}>
-        {[
-          { label: "Privacy Policy", to: "/privacy" },
-          { label: "Terms of Service", to: "/terms" },
-          { label: "Data Deletion", to: "/data-deletion" },
-          { label: "Contact Support", to: "/contact-support" },
-        ].map(({ label, to }) => (
+    <div className={`border-t ${borderColor} px-5 py-4 mt-2`}>
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+        {links.map(({ label, to }) => (
           <Link
             key={to}
             to={to}
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: text,
-              textDecoration: "none",
-              transition: "color 0.15s",
-            }}
-            onMouseEnter={e => e.target.style.color = hover}
-            onMouseLeave={e => e.target.style.color = text}
+            className={`text-[11px] font-semibold ${textColor} ${hoverColor} transition-colors no-underline`}
           >
             {label}
           </Link>
         ))}
       </div>
-      <p style={{ fontSize: 10, color: text, margin: "6px 0 0", fontWeight: 500 }}>
-        © {new Date().getFullYear()} Bingoo Connect. All rights reserved.
+      <p className={`text-center text-[10px] ${textColor} mt-1.5 font-medium`}>
+        © 2026 Bingoo Connect. All rights reserved.
       </p>
     </div>
   );

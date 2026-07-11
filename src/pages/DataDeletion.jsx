@@ -1,134 +1,253 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import LegalPageLayout from "@/components/legal/LegalPageLayout";
 import { base44 } from "@/api/base44Client";
-import { CheckCircle2, Loader2, Trash2 } from "lucide-react";
+import { CheckCircle2, Loader2, Trash2, Download, Pencil, FileX, AlertTriangle } from "lucide-react";
+
+const REQUEST_TYPES = [
+  {
+    id: "account_deletion",
+    label: "Account Deletion",
+    icon: Trash2,
+    color: "#dc2626",
+    description: "Permanently delete your account and all associated data.",
+    responseTime: "30 days",
+    irreversible: true,
+  },
+  {
+    id: "data_export",
+    label: "Data Export",
+    icon: Download,
+    color: "#2563eb",
+    description: "Receive a copy of all your data in a structured format.",
+    responseTime: "14 days",
+    irreversible: false,
+  },
+  {
+    id: "data_correction",
+    label: "Data Correction",
+    icon: Pencil,
+    color: "#f59e0b",
+    description: "Request correction of inaccurate personal data you cannot edit yourself.",
+    responseTime: "14 days",
+    irreversible: false,
+  },
+  {
+    id: "document_deletion",
+    label: "Document Deletion",
+    icon: FileX,
+    color: "#7c3aed",
+    description: "Delete specific documents from your Document Wallet without deleting your account.",
+    responseTime: "7 days",
+    irreversible: true,
+  },
+];
 
 export default function DataDeletion() {
-  const [form, setForm] = useState({ name: "", email: "", reason: "", details: "" });
+  const [requestType, setRequestType] = useState("account_deletion");
+  const [form, setForm] = useState({ name: "", email: "", details: "" });
+  const [confirmIdentity, setConfirmIdentity] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const activeType = REQUEST_TYPES.find(t => t.id === requestType);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!confirmIdentity) return;
     setSubmitting(true);
     await base44.integrations.Core.SendEmail({
       to: "privacy@bingooconnect.com",
-      subject: `Data Deletion Request — ${form.email}`,
-      body: `Name: ${form.name}\nEmail: ${form.email}\nReason: ${form.reason}\n\nDetails:\n${form.details}`,
+      subject: `${activeType.label} Request — ${form.email}`,
+      body: `Request Type: ${activeType.label}\nName: ${form.name}\nEmail: ${form.email}\nIdentity Verified: Yes\n\nDetails:\n${form.details}`,
     }).catch(() => {});
     setSubmitted(true);
     setSubmitting(false);
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "40px 24px 32px", textAlign: "center" }}>
-        <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
-          ← Bingoo Connect
-        </Link>
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Data Deletion Request</h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>Submit a request to delete your personal data</p>
-      </div>
-
-      <div style={{ maxWidth: 600, margin: "0 auto", padding: "40px 24px 60px" }}>
-
-        {submitted ? (
-          <div style={{ textAlign: "center", padding: "60px 20px" }}>
-            <div style={{ width: 80, height: 80, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-              <CheckCircle2 size={40} color="#059669" />
-            </div>
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 12px" }}>Request Received</h2>
-            <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, maxWidth: 400, margin: "0 auto" }}>
-              We've received your data deletion request. We will process it within <strong>30 days</strong> and send a confirmation to <strong>{form.email}</strong>.
-            </p>
-            <Link to="/" style={{ display: "inline-block", marginTop: 24, padding: "12px 28px", borderRadius: 999, background: "#0b2149", color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>
-              ← Back to Home
-            </Link>
+    <LegalPageLayout title="Data Deletion & Privacy Requests" subtitle="Manage your personal data" lastUpdated="July 11, 2026" maxWidth="max-w-2xl">
+      {submitted ? (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
+            <CheckCircle2 size={32} color="#059669" />
           </div>
-        ) : (
-          <>
-            {/* Info box */}
-            <div style={{ background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 16, padding: "16px 20px", marginBottom: 28 }}>
-              <div style={{ display: "flex", gap: 12 }}>
-                <Trash2 size={20} color="#ea580c" style={{ flexShrink: 0, marginTop: 2 }} />
-                <div style={{ fontSize: 13, color: "#9a3412", lineHeight: 1.7 }}>
-                  <strong>What gets deleted:</strong> Your account, public profile, leads, appointments, NFC device records, analytics, and all associated personal data. This action is <strong>irreversible</strong>.
-                  <br /><br />
-                  <strong>What is retained:</strong> Stripe billing records (required by financial regulations) and anonymized analytics.
-                </div>
-              </div>
+          <h2 className="text-xl font-black text-slate-900 mb-3">Request Received</h2>
+          <p className="text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
+            We've received your <strong>{activeType.label}</strong> request. We will verify your
+            identity and process it within <strong>{activeType.responseTime}</strong>. A
+            confirmation will be sent to <strong>{form.email}</strong>.
+          </p>
+          {activeType.irreversible && (
+            <p className="text-xs text-red-500 mt-4 max-w-md mx-auto">
+              Reminder: This action is irreversible. Once processed, deleted data cannot be recovered.
+            </p>
+          )}
+          <a href="/" className="inline-block mt-6 px-7 py-3 rounded-full bg-[#0b2149] text-white font-bold text-sm no-underline">
+            ← Back to Home
+          </a>
+        </div>
+      ) : (
+        <>
+          {/* What is deleted / retained */}
+          <div className="mb-6 space-y-4">
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-2">What Gets Deleted</h3>
+              <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+                <li>Your account and login credentials</li>
+                <li>Public profile(s) and all displayed information</li>
+                <li>Leads, appointments, and booking data</li>
+                <li>NFC device records and assignments</li>
+                <li>Document Wallet files and metadata</li>
+                <li>Analytics history and push notification subscriptions</li>
+                <li>Shop order history (personal data portions)</li>
+              </ul>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 20, padding: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 20px" }}>Submit Your Request</h2>
+            <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+              <h3 className="text-sm font-bold text-slate-900 mb-2">What May Be Retained</h3>
+              <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
+                <li>Stripe billing records (required by financial regulations)</li>
+                <li>Anonymized/aggregated analytics (no personally identifying data)</li>
+                <li>Admin audit logs (for security and compliance)</li>
+                <li>Records required to resolve disputes or comply with legal obligations</li>
+              </ul>
+            </div>
+          </div>
 
-              {[
-                { label: "Full Name", key: "name", type: "text", placeholder: "Your full name", required: true },
-                { label: "Email Address", key: "email", type: "email", placeholder: "The email linked to your account", required: true },
-              ].map(({ label, key, type, placeholder, required }) => (
-                <div key={key} style={{ marginBottom: 16 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</label>
-                  <input
-                    type={type}
-                    placeholder={placeholder}
-                    required={required}
-                    value={form[key]}
-                    onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                    style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", boxSizing: "border-box", background: "#f8fafc" }}
-                  />
-                </div>
-              ))}
+          {/* Request type selector */}
+          <div className="mb-6">
+            <h3 className="text-sm font-bold text-slate-900 mb-3">Select Request Type</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {REQUEST_TYPES.map(t => {
+                const Icon = t.icon;
+                const isActive = requestType === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setRequestType(t.id)}
+                    className="text-left p-4 rounded-2xl border-2 transition-all no-underline"
+                    style={{
+                      borderColor: isActive ? t.color : "#e2e8f0",
+                      background: isActive ? `${t.color}08` : "#fff",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon size={18} style={{ color: t.color }} />
+                      <span className="text-sm font-bold text-slate-900">{t.label}</span>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">{t.description}</p>
+                    <p className="text-xs font-semibold mt-2" style={{ color: t.color }}>
+                      Response time: {t.responseTime}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Reason for Deletion</label>
-                <select
-                  value={form.reason}
-                  onChange={e => setForm(p => ({ ...p, reason: e.target.value }))}
-                  required
-                  style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", background: "#f8fafc" }}
-                >
-                  <option value="">Select a reason…</option>
-                  <option value="no_longer_using">No longer using the service</option>
-                  <option value="privacy_concerns">Privacy concerns</option>
-                  <option value="switching_provider">Switching to another provider</option>
-                  <option value="gdpr_request">GDPR / legal right to erasure</option>
-                  <option value="other">Other</option>
-                </select>
+          {/* Irreversibility warning */}
+          {activeType.irreversible && (
+            <div className="flex gap-3 p-4 bg-orange-50 border border-orange-200 rounded-2xl mb-6">
+              <AlertTriangle size={20} color="#ea580c" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div className="text-sm text-orange-900 leading-relaxed">
+                <strong>Warning:</strong> {activeType.label} is <strong>irreversible</strong>. Once
+                processed, your data cannot be recovered. Consider submitting a Data Export request
+                first if you want to keep a copy.
               </div>
+            </div>
+          )}
 
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Additional Details (Optional)</label>
-                <textarea
-                  placeholder="Any additional information…"
-                  value={form.details}
-                  onChange={e => setForm(p => ({ ...p, details: e.target.value }))}
-                  rows={4}
-                  style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", resize: "vertical", background: "#f8fafc", boxSizing: "border-box" }}
-                />
-              </div>
+          {/* Request form */}
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+            <h3 className="text-base font-bold text-slate-900 mb-5">Submit Your Request</h3>
 
-              <button
-                type="submit"
-                disabled={submitting || !form.name || !form.email || !form.reason}
-                style={{ width: "100%", padding: "14px", borderRadius: 12, background: submitting || !form.name || !form.email || !form.reason ? "#94a3b8" : "#dc2626", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-              >
-                {submitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Submitting…</> : <><Trash2 size={18} /> Submit Deletion Request</>}
-              </button>
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Full Name</label>
+              <input
+                type="text"
+                placeholder="Your full name"
+                required
+                value={form.name}
+                onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 outline-none bg-slate-50 focus:border-blue-400 transition-colors"
+              />
+            </div>
 
-              <p style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 14, lineHeight: 1.6 }}>
-                By submitting this form, you confirm you are the account owner. We will verify your identity before processing the request.
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Email Address</label>
+              <input
+                type="email"
+                placeholder="The email linked to your Bingoo account"
+                required
+                value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 outline-none bg-slate-50 focus:border-blue-400 transition-colors"
+              />
+              <p className="text-xs text-slate-400 mt-1.5">
+                We will verify this email matches your account before processing.
               </p>
-            </form>
-          </>
-        )}
+            </div>
 
-        <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 24, marginTop: 32, display: "flex", flexWrap: "wrap", gap: "8px 20px", justifyContent: "center" }}>
-          {[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"], ["Data Deletion", "/data-deletion"], ["Contact Support", "/contact-support"]].map(([l, t]) => (
-            <Link key={t} to={t} style={{ fontSize: 12, color: "#64748b", fontWeight: 600, textDecoration: "none" }}>{l}</Link>
-          ))}
-        </div>
-        <p style={{ textAlign: "center", fontSize: 11, color: "#94a3b8", marginTop: 12 }}>© {new Date().getFullYear()} Bingoo Connect</p>
-      </div>
-    </div>
+            <div className="mb-4">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
+                Additional Details {requestType === "data_correction" && "(Required — describe what needs correcting)"}
+                {requestType === "document_deletion" && "(Required — list document names or types to delete)"}
+              </label>
+              <textarea
+                placeholder={
+                  requestType === "data_correction" ? "Describe the inaccurate data and what it should be…" :
+                  requestType === "document_deletion" ? "List the documents you want deleted…" :
+                  "Any additional information…"
+                }
+                value={form.details}
+                onChange={e => setForm(p => ({ ...p, details: e.target.value }))}
+                required={requestType === "data_correction" || requestType === "document_deletion"}
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 outline-none bg-slate-50 focus:border-blue-400 transition-colors resize-y"
+              />
+            </div>
+
+            {/* Identity verification checkbox */}
+            <label className="flex items-start gap-3 mb-5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={confirmIdentity}
+                onChange={e => setConfirmIdentity(e.target.checked)}
+                className="mt-1 w-4 h-4 flex-shrink-0"
+              />
+              <span className="text-xs text-slate-600 leading-relaxed">
+                I confirm I am the owner of this account and the information above is accurate.
+                I understand that {activeType.label.toLowerCase()} will be processed after identity
+                verification{activeType.irreversible ? " and is irreversible" : ""}.
+              </span>
+            </label>
+
+            <button
+              type="submit"
+              disabled={submitting || !form.name || !form.email || !confirmIdentity}
+              className="w-full py-3.5 rounded-xl font-bold text-sm text-white border-none transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: activeType.irreversible ? "#dc2626" : activeType.color }}
+            >
+              {submitting ? (
+                <><Loader2 size={18} className="animate-spin" /> Submitting…</>
+              ) : (
+                <>Submit {activeType.label} Request</>
+              )}
+            </button>
+          </form>
+
+          {/* Support contact */}
+          <div className="mt-6 p-4 bg-slate-100 rounded-2xl text-center">
+            <p className="text-sm text-slate-600">
+              Need help with your request? Email us at{" "}
+              <a href="mailto:privacy@bingooconnect.com" className="text-blue-600 font-semibold">privacy@bingooconnect.com</a>
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Expected response time: {activeType.responseTime} after identity verification.
+            </p>
+          </div>
+        </>
+      )}
+    </LegalPageLayout>
   );
 }

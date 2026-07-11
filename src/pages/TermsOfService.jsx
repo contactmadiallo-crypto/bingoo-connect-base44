@@ -1,113 +1,257 @@
+import LegalPageLayout, { LegalSection, LegalTOC } from "@/components/legal/LegalPageLayout";
 import { Link } from "react-router-dom";
 
-const Section = ({ title, children }) => (
-  <div style={{ marginBottom: 32 }}>
-    <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 10px", paddingBottom: 8, borderBottom: "2px solid #eff6ff" }}>{title}</h2>
-    <div style={{ fontSize: 14, lineHeight: 1.8, color: "#475569" }}>{children}</div>
-  </div>
-);
+const TOC = [
+  ["1", "Acceptance of Terms", "acceptance"],
+  ["2", "Description of Service", "description"],
+  ["3", "Account Responsibility", "account"],
+  ["4", "Acceptable Use", "acceptable"],
+  ["5", "Public Profile Responsibility", "public-profile"],
+  ["6", "NFC Device Use", "nfc"],
+  ["7", "Asset Recovery Limitations", "asset"],
+  ["8", "Document Wallet Terms", "wallet"],
+  ["9", "Prohibited Document Uploads", "prohibited"],
+  ["10", "No Verification Guarantee", "verification"],
+  ["11", "Subscriptions & Billing", "billing"],
+  ["12", "Refund Policy", "refund"],
+  ["13", "Shop & Order Terms", "shop"],
+  ["14", "API Terms (Future Use)", "api"],
+  ["15", "Business & Enterprise Accounts", "enterprise"],
+  ["16", "Admin / Manual Entitlement Rules", "admin"],
+  ["17", "User Content Ownership", "content"],
+  ["18", "Platform License", "license"],
+  ["19", "Termination & Suspension", "termination"],
+  ["20", "Disclaimers", "disclaimers"],
+  ["21", "Limitation of Liability", "liability"],
+  ["22", "Changes to Terms", "changes"],
+  ["23", "Contact", "contact"],
+];
 
 export default function TermsOfService() {
   return (
-    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      <div style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", padding: "40px 24px 32px", textAlign: "center" }}>
-        <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
-          ← Bingoo Connect
-        </Link>
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Terms of Service</h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>Last updated: June 7, 2025</p>
-      </div>
+    <LegalPageLayout title="Terms of Service" lastUpdated="July 11, 2026">
+      <LegalTOC items={TOC} />
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "40px 24px 60px" }}>
+      <LegalSection id="acceptance" title="1. Acceptance of Terms">
+        <p>
+          By accessing or using Bingoo Connect ("the Service"), you agree to be bound by these Terms
+          of Service. If you do not agree, please do not use the Service.
+        </p>
+        <p className="text-xs text-slate-400 italic">
+          This is a product/compliance draft, not legal advice. A lawyer should review it before final adoption.
+        </p>
+      </LegalSection>
 
-        <Section title="1. Acceptance of Terms">
-          <p>By accessing or using Bingoo Connect ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, please do not use the Service.</p>
-        </Section>
+      <LegalSection id="description" title="2. Description of Service">
+        <p>
+          Bingoo Connect provides digital business card profiles, NFC device management, appointment
+          booking, lead capture, analytics, document wallet, shop, and related services. Features
+          vary by subscription plan. Available plans: Free, Professional, Business, Salon, Law Firm,
+          and Enterprise/Bulk.
+        </p>
+      </LegalSection>
 
-        <Section title="2. Description of Service">
-          <p>Bingoo Connect provides digital business card profiles, NFC device management, appointment booking, lead capture, analytics, and related services. Features vary by subscription plan.</p>
-        </Section>
+      <LegalSection id="account" title="3. Account Responsibility">
+        <ul>
+          <li>You must provide accurate and complete information when creating an account</li>
+          <li>You are responsible for maintaining the confidentiality of your password</li>
+          <li>You are responsible for all activity that occurs under your account</li>
+          <li>You must be at least 13 years old to use this Service</li>
+          <li>Business and enterprise account owners are responsible for their team members' activity</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="3. Accounts">
-          <ul style={{ paddingLeft: 20 }}>
-            <li style={{ marginBottom: 6 }}>You must provide accurate and complete information when creating an account.</li>
-            <li style={{ marginBottom: 6 }}>You are responsible for maintaining the confidentiality of your password.</li>
-            <li style={{ marginBottom: 6 }}>You are responsible for all activity that occurs under your account.</li>
-            <li style={{ marginBottom: 6 }}>You must be at least 13 years old to use this Service.</li>
-          </ul>
-        </Section>
+      <LegalSection id="acceptable" title="4. Acceptable Use">
+        <p>You agree not to:</p>
+        <ul>
+          <li>Use the Service for any illegal or unauthorized purpose</li>
+          <li>Upload malicious content or attempt to hack the platform</li>
+          <li>Impersonate any person or entity</li>
+          <li>Spam or harass other users or visitors</li>
+          <li>Reverse engineer or copy the Service</li>
+          <li>Resell or redistribute the Service without authorization</li>
+          <li>Use bots or automated tools to scrape data from other users' profiles</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="4. Acceptable Use">
-          <p>You agree not to:</p>
-          <ul style={{ paddingLeft: 20, marginTop: 8 }}>
-            <li style={{ marginBottom: 6 }}>Use the Service for any illegal or unauthorized purpose</li>
-            <li style={{ marginBottom: 6 }}>Upload malicious content or attempt to hack the platform</li>
-            <li style={{ marginBottom: 6 }}>Impersonate any person or entity</li>
-            <li style={{ marginBottom: 6 }}>Spam or harass other users or visitors</li>
-            <li style={{ marginBottom: 6 }}>Reverse engineer or copy the Service</li>
-            <li style={{ marginBottom: 6 }}>Resell or redistribute the Service without authorization</li>
-          </ul>
-        </Section>
+      <LegalSection id="public-profile" title="5. Public Profile Responsibility">
+        <ul>
+          <li>You control what appears on your public profile</li>
+          <li>You are responsible for the accuracy and legality of your public content</li>
+          <li>We are not responsible for how visitors use your publicly displayed contact information</li>
+          <li>Do not display content that infringes on others' rights</li>
+          <li>You can deactivate your public profile at any time by setting it to inactive</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="5. NFC Devices">
-          <ul style={{ paddingLeft: 20 }}>
-            <li style={{ marginBottom: 6 }}>NFC devices are sold separately and are subject to their own product terms.</li>
-            <li style={{ marginBottom: 6 }}>Device codes are unique and non-transferable once activated.</li>
-            <li style={{ marginBottom: 6 }}>You may only link a device to profiles you own.</li>
-            <li style={{ marginBottom: 6 }}>The Lost Mode feature is provided as a convenience; Bingoo Connect does not guarantee recovery of lost items.</li>
-          </ul>
-        </Section>
+      <LegalSection id="nfc" title="6. NFC Device Use">
+        <ul>
+          <li>NFC devices are sold separately and are subject to their own product terms</li>
+          <li>Device codes are unique and non-transferable once activated</li>
+          <li>You may only link a device to profiles you own</li>
+          <li>You are responsible for keeping your devices secure</li>
+          <li>Lost Mode is a convenience feature; Bingoo Connect does not guarantee recovery</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="6. Subscriptions & Payments">
-          <ul style={{ paddingLeft: 20 }}>
-            <li style={{ marginBottom: 6 }}>Paid plans are billed monthly or annually via Stripe.</li>
-            <li style={{ marginBottom: 6 }}>Subscription fees are non-refundable except as required by law or at our discretion.</li>
-            <li style={{ marginBottom: 6 }}>We may change pricing with 30 days notice.</li>
-            <li style={{ marginBottom: 6 }}>Downgrading may result in loss of access to premium features.</li>
-            <li style={{ marginBottom: 6 }}>Failed payments may result in suspension of premium features.</li>
-          </ul>
-        </Section>
+      <LegalSection id="asset" title="7. Asset Recovery Limitations">
+        <ul>
+          <li>The Lost Mode and asset recovery features help connect finders with owners</li>
+          <li>Bingoo Connect does <strong>not</strong> guarantee that lost items will be recovered</li>
+          <li>We are not liable for loss, theft, or damage to your NFC devices or tagged assets</li>
+          <li>Finder-provided information is self-reported and not verified by us</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="7. Content Ownership">
-          <p>You retain ownership of the content you upload to Bingoo Connect (photos, bio, links). By uploading content, you grant us a non-exclusive, worldwide license to host and display it as part of the Service.</p>
-          <p style={{ marginTop: 10 }}>You are solely responsible for ensuring your content does not infringe on third-party rights.</p>
-        </Section>
+      <LegalSection id="wallet" title="8. Document Wallet Terms">
+        <ul>
+          <li>The Document Wallet is a private storage feature for your personal documents</li>
+          <li>You are responsible for the documents you upload</li>
+          <li>Documents are <strong>private by default</strong> — they are never shown on your public profile</li>
+          <li>You may create shared links for specific documents — these are revocable and can expire</li>
+          <li>Shared links are your responsibility; manage them carefully and revoke them when no longer needed</li>
+          <li>We are not responsible for unauthorized access if you share a link with someone</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="8. Public Profiles">
-          <p>Your public profile is accessible to anyone with your profile URL or NFC device. You control what information appears on your public profile. We are not responsible for how visitors use your publicly displayed contact information.</p>
-        </Section>
+      <LegalSection id="prohibited" title="9. Prohibited Document Uploads">
+        <p>You may <strong>not</strong> upload:</p>
+        <ul>
+          <li>Documents you do not own or do not have rights to</li>
+          <li>Illegal content or content depicting illegal activity</li>
+          <li>Malware or files designed to harm systems</li>
+          <li>Documents belonging to others without their consent</li>
+          <li>Content that violates third-party privacy rights</li>
+          <li>Classified or restricted government documents you are not authorized to possess</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="9. Termination">
-          <p>We reserve the right to suspend or terminate accounts that violate these Terms. You may close your account at any time. Upon termination, your public profile will be deactivated and your data will be processed per our Privacy Policy.</p>
-        </Section>
+      <LegalSection id="verification" title="10. No Verification Guarantee">
+        <ul>
+          <li>Bingoo Connect does <strong>not</strong> verify the authenticity of uploaded documents</li>
+          <li>We do <strong>not</strong> provide government identity verification</li>
+          <li>We do <strong>not</strong> provide legal, medical, or government certification</li>
+          <li>ID cards, passports, licenses, and certifications stored in the Document Wallet are stored as-is — we do not validate them</li>
+          <li>Verification badges (if displayed on a profile) are visual indicators only and do not constitute legal verification unless explicitly stated otherwise</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="10. Disclaimers">
-          <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. WE DO NOT GUARANTEE UNINTERRUPTED OR ERROR-FREE SERVICE. TO THE FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED.</p>
-        </Section>
+      <LegalSection id="billing" title="11. Subscriptions & Billing">
+        <ul>
+          <li>Paid plans are billed monthly or annually via Stripe</li>
+          <li>Plans: Free, Professional, Business, Salon, Law Firm, Enterprise/Bulk</li>
+          <li>We may change pricing with 30 days' notice</li>
+          <li>Downgrading may result in loss of access to premium features</li>
+          <li>Failed payments may result in suspension of premium features</li>
+          <li>Admin is an internal role, not a subscription plan</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="11. Limitation of Liability">
-          <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, BINGOO CONNECT SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNT YOU PAID US IN THE PAST 12 MONTHS.</p>
-        </Section>
+      <LegalSection id="refund" title="12. Refund Policy">
+        <ul>
+          <li>Subscription fees are non-refundable except as required by law or at our discretion</li>
+          <li>If you cancel mid-cycle, you retain access until the end of the billing period</li>
+          <li>Shop orders may be eligible for refund per our shop return policy</li>
+          <li>Contact us within 14 days of a billing issue for review</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="12. Governing Law">
-          <p>These Terms are governed by applicable law. Any disputes shall be resolved through binding arbitration or in the courts of competent jurisdiction.</p>
-        </Section>
+      <LegalSection id="shop" title="13. Shop & Order Terms">
+        <ul>
+          <li>NFC hardware and accessories are sold through our shop</li>
+          <li>Products are subject to availability</li>
+          <li>Shipping times are estimates, not guarantees</li>
+          <li>Prices are listed in USD; currency conversion shown at checkout is approximate</li>
+          <li>Defective products may be eligible for replacement — contact support</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="13. Changes to Terms">
-          <p>We may update these Terms at any time. Significant changes will be communicated via email or in-app notice. Continued use of the Service constitutes acceptance of the updated Terms.</p>
-        </Section>
+      <LegalSection id="api" title="14. API Terms (Future Use)">
+        <ul>
+          <li>API access may be available for Enterprise/Bulk plans in the future</li>
+          <li>API users must comply with these Terms</li>
+          <li>API keys are scoped, rate-limited, and revocable</li>
+          <li>We are not liable for damages from API downtime or changes</li>
+        </ul>
+      </LegalSection>
 
-        <Section title="14. Contact">
-          <p>Questions about these Terms? Contact us at <a href="mailto:legal@bingooconnect.com" style={{ color: "#2563eb" }}>legal@bingooconnect.com</a> or visit our <Link to="/contact-support" style={{ color: "#2563eb" }}>Contact Support</Link> page.</p>
-        </Section>
+      <LegalSection id="enterprise" title="15. Business & Enterprise Accounts">
+        <ul>
+          <li>Business, Salon, Law Firm, and Enterprise plans are for organizational use</li>
+          <li>The account owner is responsible for their team members' activity</li>
+          <li>Team members may have different access levels set by the account owner</li>
+          <li>Enterprise/Bulk plans require custom onboarding — contact sales</li>
+        </ul>
+      </LegalSection>
 
-        <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 24, display: "flex", flexWrap: "wrap", gap: "8px 20px", justifyContent: "center" }}>
-          {[["Privacy Policy", "/privacy"], ["Terms of Service", "/terms"], ["Data Deletion", "/data-deletion"], ["Contact Support", "/contact-support"]].map(([l, t]) => (
-            <Link key={t} to={t} style={{ fontSize: 12, color: "#64748b", fontWeight: 600, textDecoration: "none" }}>{l}</Link>
-          ))}
-        </div>
-        <p style={{ textAlign: "center", fontSize: 11, color: "#94a3b8", marginTop: 12 }}>© {new Date().getFullYear()} Bingoo Connect</p>
-      </div>
-    </div>
+      <LegalSection id="admin" title="16. Admin / Manual Entitlement Rules">
+        <ul>
+          <li>Admin is an <strong>internal platform role</strong>, not a purchasable plan</li>
+          <li>Admins can manually adjust entitlements (plan overrides) for support purposes</li>
+          <li>Manual entitlement changes are logged in the audit system</li>
+          <li>Admins cannot access raw payment data</li>
+          <li>Admin access is restricted to authorized Bingoo Connect personnel only</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="content" title="17. User Content Ownership">
+        <ul>
+          <li>You retain ownership of content you upload (photos, documents, bio, links)</li>
+          <li>By uploading, you grant us a non-exclusive, worldwide license to host and display it as part of the Service</li>
+          <li>You are responsible for ensuring your content does not infringe on third-party rights</li>
+          <li>You can delete your content at any time</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="license" title="18. Platform License">
+        <ul>
+          <li>Bingoo Connect grants you a limited, non-exclusive, revocable license to use the Service</li>
+          <li>You may not copy, modify, or distribute the Service itself</li>
+          <li>Trademarks and branding remain the property of Bingoo Connect</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="termination" title="19. Termination & Suspension">
+        <ul>
+          <li>We may suspend or terminate accounts that violate these Terms</li>
+          <li>You may close your account at any time</li>
+          <li>Upon termination, your public profile is deactivated</li>
+          <li>Your data is processed per our <Link to="/privacy">Privacy Policy</Link> after termination</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="disclaimers" title="20. Disclaimers">
+        <ul>
+          <li>The Service is provided "as is" without warranty of any kind</li>
+          <li>We do not guarantee uninterrupted or error-free service</li>
+          <li>We do not guarantee document authenticity or identity verification</li>
+          <li>We disclaim all warranties, express or implied, to the fullest extent permitted by law</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="liability" title="21. Limitation of Liability">
+        <ul>
+          <li>Bingoo Connect shall not be liable for indirect, incidental, special, consequential, or punitive damages</li>
+          <li>Our total liability shall not exceed the amount you paid us in the past 12 months</li>
+          <li>We are not liable for lost items, stolen devices, or unauthorized document access from shared links you created</li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="changes" title="22. Changes to Terms">
+        <p>
+          We may update these Terms at any time. Significant changes will be communicated via email
+          or in-app notice. Continued use of the Service after changes constitutes acceptance of the
+          updated Terms.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="contact" title="23. Contact">
+        <p>
+          Questions about these Terms? Contact us at{" "}
+          <a href="mailto:legal@bingooconnect.com">legal@bingooconnect.com</a> or visit our{" "}
+          <Link to="/contact">Contact</Link> page.
+        </p>
+      </LegalSection>
+    </LegalPageLayout>
   );
 }
