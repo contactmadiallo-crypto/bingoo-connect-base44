@@ -209,7 +209,7 @@ export default function AppointmentSettings({ profileId }) {
                     {label}
                   </button>
                   {hours[key]?.enabled ? (
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
                       <TimeWheelPicker
                         value={hours[key]?.start || "09:00"}
                         onChange={val => setDayTime(key, "start", val)}

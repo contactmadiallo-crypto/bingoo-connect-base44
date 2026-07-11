@@ -5,6 +5,7 @@ const MINUTES = ["00", "15", "30", "45"];
 
 function WheelColumn({ items, value, onChange, isDark }) {
   const ref = useRef(null);
+  const scrollTimerRef = useRef(null);
   const itemH = 28;
   const visibleCount = 3;
   const paddingItems = Math.floor(visibleCount / 2);
@@ -17,14 +18,25 @@ function WheelColumn({ items, value, onChange, isDark }) {
 
   const selectedIndex = items.indexOf(value);
 
+  // Sync scroll position when value changes externally — but NOT while the
+  // user is actively scrolling (that would fight their gesture and judder).
   useEffect(() => {
-    if (ref.current) {
-      ref.current.scrollTop = selectedIndex * itemH;
-    }
+    if (!ref.current) return;
+    if (scrollTimerRef.current) return;
+    const idx = Math.max(0, selectedIndex);
+    ref.current.scrollTop = idx * itemH;
   }, [value]);
+
+  useEffect(() => {
+    return () => { if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current); };
+  }, []);
 
   const handleScroll = useCallback(() => {
     if (!ref.current) return;
+    // Mark active scrolling so the value-sync effect doesn't reset scrollTop mid-scroll
+    if (scrollTimerRef.current) clearTimeout(scrollTimerRef.current);
+    scrollTimerRef.current = setTimeout(() => { scrollTimerRef.current = null; }, 150);
+
     const idx = Math.round(ref.current.scrollTop / itemH);
     const clamped = Math.max(0, Math.min(idx, items.length - 1));
     if (items[clamped] !== value) onChange(items[clamped]);
@@ -118,7 +130,7 @@ export default function TimeWheelPicker({ value = "09:00", onChange, isDark }) {
       style={{
         background: isDark ? "#1e293b" : "#ffffff",
         border: `1.5px solid ${isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}`,
-        width: 90,
+        width: 112,
       }}
     >
       <WheelColumn items={HOURS} value={hour} onChange={handleHour} isDark={isDark} />
