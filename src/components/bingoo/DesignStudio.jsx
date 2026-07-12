@@ -45,7 +45,7 @@ const TEMPLATES = [
 const UNIT_PRICE = 3.99;
 const SETUP_FEE = 25.00;
 const REMOVE_BRANDING_FEE = 2.50;
-const MIN_QTY = 25;
+const MIN_QTY = 1;
 const MAX_QTY = 500;
 
 // ── Main component ───────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@ export default function DesignStudio({ isDark }) {
   const [assignProfileId, setAssignProfileId] = useState('');
   const [roleText, setRoleText] = useState('');
   const [finish, setFinish] = useState('Matte');
-  const [quantity, setQuantity] = useState(50);
+  const [quantity, setQuantity] = useState(10);
   const [removeBranding, setRemoveBranding] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [ordered, setOrdered] = useState(false);
@@ -147,7 +147,7 @@ export default function DesignStudio({ isDark }) {
       price: total,
       image: logoUrl,
       activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, assignProfileId, finish, quantity, removeBranding, brandPattern },
+      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, assignProfileId, finish, quantity, removeBranding, brandPattern, unitPrice: UNIT_PRICE, setupFee: SETUP_FEE },
     }, 1);
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
@@ -436,7 +436,7 @@ export default function DesignStudio({ isDark }) {
                     <div className="w-6 h-6 rounded flex-shrink-0" style={{ background: d.cardColor || NAVY }} />
                     <button onClick={() => handleLoadDraft(d)} className="flex-1 text-left min-w-0">
                       <p className="text-[9px] font-bold truncate" style={{ color: INK }}>{d.name || 'Untitled Draft'}</p>
-                      <p className="text-[8px]" style={{ color: MUTED }}>{PRODUCT_TYPES.find(p => p.id === d.productType)?.label || 'Card'} · {d.quantity || 50} units</p>
+                      <p className="text-[8px]" style={{ color: MUTED }}>{PRODUCT_TYPES.find(p => p.id === d.productType)?.label || 'Card'} · {d.quantity || 10} units</p>
                     </button>
                     <button onClick={() => handleDeleteDraft(d.id)} className="p-1 rounded hover:bg-red-50 transition-colors">
                       <Trash2 className="w-3 h-3" style={{ color: '#ef4444' }} />
@@ -495,7 +495,7 @@ export default function DesignStudio({ isDark }) {
                 <span className="text-[10px] font-bold" style={{ color: MUTED }}>Quantity</span>
                 <span className="text-[10px] font-black" style={{ color: ORANGE }}>{quantity} units</span>
               </div>
-              <input type="range" min={MIN_QTY} max={MAX_QTY} step={25} value={quantity}
+              <input type="range" min={MIN_QTY} max={MAX_QTY} step={1} value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="w-full h-2 rounded-full appearance-none cursor-pointer" style={{ background: BG }} />
               <div className="flex justify-between mt-1">

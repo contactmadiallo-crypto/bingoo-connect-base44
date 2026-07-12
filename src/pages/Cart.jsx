@@ -20,6 +20,10 @@ export default function Cart() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const total = subtotal + (cart.length > 0 ? SHIPPING : 0);
+  const totalNfcUnits = cart.reduce((sum, item) => sum + (item.customDesign?.quantity || item.quantity), 0);
+  const MIN_ORDER = 10;
+  const remainingItems = Math.max(0, MIN_ORDER - totalNfcUnits);
+  const meetsMinimum = totalNfcUnits >= MIN_ORDER;
 
   const handleRemove = (id) => {
     const updated = removeFromCart(id);
@@ -53,7 +57,7 @@ export default function Cart() {
             <Link to="/shop" className="text-sm text-[#0b2149] hover:underline">← Continue Shopping</Link>
             <h1 className="text-2xl font-bold text-slate-900">Your Cart</h1>
           </div>
-          <span className="text-slate-500 text-sm">{cart.length} item{cart.length !== 1 ? 's' : ''}</span>
+          <span className="text-slate-500 text-sm">{totalNfcUnits} NFC unit{totalNfcUnits !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
@@ -85,17 +89,28 @@ export default function Cart() {
                       {item.customDesign.removeBranding && <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-bold">No Branding</span>}
                     </div>
                   )}
-                  <p className="text-[#0b2149] font-semibold mt-1">${item.price.toFixed(2)}</p>
+                  {item.customDesign ? (
+                    <p className="text-[#0b2149] font-semibold mt-1">${(item.customDesign.unitPrice || 3.99).toFixed(2)}/unit</p>
+                  ) : (
+                    <p className="text-[#0b2149] font-semibold mt-1">${item.price.toFixed(2)}</p>
+                  )}
                 </div>
-                <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
-                  <button onClick={() => handleQty(item.id, item.quantity - 1)} className="px-3 py-2 hover:bg-slate-100">
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="px-3 py-2 font-bold text-sm">{item.quantity}</span>
-                  <button onClick={() => handleQty(item.id, item.quantity + 1)} className="px-3 py-2 hover:bg-slate-100">
-                    <Plus className="w-3 h-3" />
-                  </button>
-                </div>
+                {item.customDesign ? (
+                  <div className="flex flex-col items-end gap-0.5 min-w-[90px]">
+                    <span className="text-xs font-bold text-slate-700">{item.customDesign.quantity} units</span>
+                    <span className="text-[10px] text-slate-400">${(item.customDesign.unitPrice || 3.99).toFixed(2)}/ea</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
+                    <button onClick={() => handleQty(item.id, item.quantity - 1)} className="px-3 py-2 hover:bg-slate-100">
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="px-3 py-2 font-bold text-sm">{item.quantity}</span>
+                    <button onClick={() => handleQty(item.id, item.quantity + 1)} className="px-3 py-2 hover:bg-slate-100">
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
                 <div className="text-right min-w-[70px]">
                   <p className="font-bold text-slate-900">${(item.price * item.quantity).toFixed(2)}</p>
                 </div>
@@ -113,6 +128,10 @@ export default function Cart() {
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-slate-600">
+                  <span>Total NFC Units</span>
+                  <span className="font-semibold text-slate-700">{totalNfcUnits}</span>
+                </div>
+                <div className="flex justify-between text-slate-600">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
@@ -126,9 +145,18 @@ export default function Cart() {
                 </div>
               </div>
 
+              {!meetsMinimum && (
+                <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl text-center">
+                  <p className="text-xs font-bold text-orange-700">
+                    Minimum order is 10 NFC products. Add {remainingItems} more item{remainingItems !== 1 ? 's' : ''} to continue.
+                  </p>
+                </div>
+              )}
+
               <Button
                 onClick={() => navigate('/checkout')}
-                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3"
+                disabled={!meetsMinimum}
+                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Proceed to Checkout <ArrowRight className="w-4 h-4" />
               </Button>

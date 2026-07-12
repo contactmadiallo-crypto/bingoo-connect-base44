@@ -21,6 +21,9 @@ export default function Checkout() {
   }, []);
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = subtotal + SHIPPING_COST;
+  const totalNfcUnits = cart.reduce((sum, item) => sum + (item.customDesign?.quantity || item.quantity), 0);
+  const MIN_ORDER = 10;
+  const meetsMinimum = totalNfcUnits >= MIN_ORDER;
 
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
@@ -44,6 +47,12 @@ export default function Checkout() {
     // Guard: cart must not be empty
     if (cart.length === 0) {
       setError('Your cart is empty.');
+      return;
+    }
+
+    // Guard: minimum 10 NFC products
+    if (totalNfcUnits < MIN_ORDER) {
+      setError(`Minimum order is 10 NFC products. You have ${totalNfcUnits} — add ${MIN_ORDER - totalNfcUnits} more to continue.`);
       return;
     }
 
@@ -212,10 +221,14 @@ export default function Checkout() {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 mb-4">
               {cart.map(item => (
                 <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-slate-700">{item.name} × {item.quantity}</span>
+                  <span className="text-slate-700">{item.name} × {item.customDesign?.quantity || item.quantity}</span>
                   <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
+              <div className="flex justify-between text-sm text-slate-500">
+                <span>Total NFC Units</span>
+                <span className="font-semibold text-slate-700">{totalNfcUnits}</span>
+              </div>
               <div className="border-t border-slate-100 pt-3 flex justify-between text-sm text-slate-500">
                 <span>Shipping</span><span>${SHIPPING_COST.toFixed(2)}</span>
               </div>
@@ -224,9 +237,17 @@ export default function Checkout() {
               </div>
             </div>
 
+            {!meetsMinimum && (
+              <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl text-center">
+                <p className="text-xs font-bold text-orange-700">
+                  Minimum order is 10 NFC products. Add {MIN_ORDER - totalNfcUnits} more item{(MIN_ORDER - totalNfcUnits) !== 1 ? 's' : ''} to continue.
+                </p>
+              </div>
+            )}
+
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || !meetsMinimum}
               className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 h-12 text-base disabled:opacity-70"
             >
               <Lock className="w-4 h-4" />
@@ -235,6 +256,8 @@ export default function Checkout() {
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
                   Redirecting to payment…
                 </span>
+              ) : !meetsMinimum ? (
+                `Add ${MIN_ORDER - totalNfcUnits} more item${(MIN_ORDER - totalNfcUnits) !== 1 ? 's' : ''} to checkout`
               ) : (
                 `Pay $${total.toFixed(2)} securely`
               )}
