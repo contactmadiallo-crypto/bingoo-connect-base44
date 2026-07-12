@@ -31,6 +31,16 @@ const CARD_COLORS = [
 const ACCENT_COLORS = ['#f97316', '#FFD700', '#FFFFFF', '#22C55E', '#3b82f6', '#ec4899', '#0d9488', '#B76E79'];
 const FINISHES = ['Matte', 'Glossy', 'Frosted'];
 
+// ── Pre-designed templates for quick start ──
+const TEMPLATES = [
+  { id: 'corp_navy',   name: 'Corporate Navy',  cardColor: '#0b2149', accentColor: '#f97316', finish: 'Matte' },
+  { id: 'clean_white', name: 'Clean White',     cardColor: '#F1F5F9', accentColor: '#3b82f6', finish: 'Glossy' },
+  { id: 'bold_black',  name: 'Bold Black',      cardColor: '#0F172A', accentColor: '#FFD700', finish: 'Matte' },
+  { id: 'vibrant_org', name: 'Vibrant Orange',  cardColor: '#f97316', accentColor: '#FFFFFF', finish: 'Glossy' },
+  { id: 'elegant_burg',name: 'Elegant Burgundy', cardColor: '#7C1D3A', accentColor: '#FFD700', finish: 'Matte' },
+  { id: 'tech_blue',   name: 'Tech Blue',       cardColor: '#3b82f6', accentColor: '#FFFFFF', finish: 'Frosted' },
+];
+
 const UNIT_PRICE = 3.99;
 const SETUP_FEE = 25.00;
 const REMOVE_BRANDING_FEE = 2.50;
@@ -51,6 +61,8 @@ export default function DesignStudio({ isDark }) {
   const [finish, setFinish] = useState('Matte');
   const [quantity, setQuantity] = useState(50);
   const [removeBranding, setRemoveBranding] = useState(false);
+  const [nfcDestination, setNfcDestination] = useState('');
+  const [activeTemplate, setActiveTemplate] = useState(null);
   const [ordered, setOrdered] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
   const [drafts, setDrafts] = useState([]);
@@ -78,7 +90,7 @@ export default function DesignStudio({ isDark }) {
 
   const handleSaveDraft = () => {
     saveDraft({
-      productType, cardColor, accentColor, nameText, roleText, finish, quantity,
+      productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity,
       logoUrl, removeBranding,
       name: `${nameText || 'Untitled'} — ${productLabel}`,
     });
@@ -97,6 +109,7 @@ export default function DesignStudio({ isDark }) {
     setAccentColor(d.accentColor || ORANGE);
     setNameText(d.nameText || '');
     setRoleText(d.roleText || '');
+    setNfcDestination(d.nfcDestination || '');
     setFinish(d.finish || 'Matte');
     setQuantity(d.quantity || 50);
     setLogoUrl(d.logoUrl || null);
@@ -110,7 +123,7 @@ export default function DesignStudio({ isDark }) {
       price: total,
       image: logoUrl,
       activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, roleText, finish, quantity, removeBranding },
+      customDesign: { productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity, removeBranding },
     }, 1);
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
@@ -128,6 +141,26 @@ export default function DesignStudio({ isDark }) {
             <p className="text-[10px] font-bold tracking-wider" style={{ color: ORANGE }}>CUSTOM NFC</p>
             <h2 className="text-lg font-black" style={{ color: labelColor }}>Design Studio</h2>
             <p className="text-[10px] mt-1" style={{ color: MUTED }}>Create branded NFC devices for your business</p>
+          </div>
+
+          {/* Templates */}
+          <div className="mb-5">
+            <p className="text-xs font-black mb-2" style={{ color: labelColor }}>Quick Templates</p>
+            <div className="grid grid-cols-3 gap-2">
+              {TEMPLATES.map(t => (
+                <button key={t.id} onClick={() => {
+                  setCardColor(t.cardColor); setAccentColor(t.accentColor); setFinish(t.finish);
+                  setActiveTemplate(t.id);
+                }}
+                  className="p-1.5 rounded-lg border-2 text-center transition-all"
+                  style={{ borderColor: activeTemplate === t.id ? ORANGE : BORDER, background: '#fff' }}>
+                  <div className="w-full h-8 rounded mb-1" style={{ background: t.cardColor }}>
+                    <div className="w-full h-1.5 rounded-t" style={{ background: t.accentColor }} />
+                  </div>
+                  <span className="text-[8px] font-bold" style={{ color: activeTemplate === t.id ? ORANGE : MUTED }}>{t.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Product Type */}
@@ -208,6 +241,11 @@ export default function DesignStudio({ isDark }) {
             <div>
               <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Role / Tagline</p>
               <input value={roleText} onChange={(e) => setRoleText(e.target.value)} placeholder="e.g. Immigration · Civil · Criminal" className={inputCls} />
+            </div>
+            <div>
+              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>NFC Destination URL</p>
+              <input value={nfcDestination} onChange={(e) => setNfcDestination(e.target.value)} placeholder="/p/yourusername or any URL" className={inputCls} />
+              <p className="text-[9px] mt-1" style={{ color: MUTED }}>Where the NFC card links to when tapped</p>
             </div>
           </div>
 

@@ -11,6 +11,7 @@ const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDevic
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
 const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio"));
 const DesignStudioLocked = React.lazy(() => import("@/components/bingoo/DesignStudioLocked"));
+const DesignStudioProfessional = React.lazy(() => import("@/components/bingoo/DesignStudioProfessional"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
 const BusinessHoursTab = React.lazy(() => import("@/components/bingoo/BusinessHoursTab"));
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
@@ -377,6 +378,19 @@ export default function BingooDashboard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [qProfileId, qLeadId, qApptId, qNotifId, profiles]);
+
+  // ── Sync selectedProfileId to URL so it survives refresh/back navigation ──
+  // Uses replace:true so profile changes update the current history entry without
+  // cluttering the back stack. View navigations (navigate()) create new entries,
+  // so back button restores both the previous view AND its profileId.
+  useEffect(() => {
+    if (selectedProfileId && searchParams.get("profileId") !== selectedProfileId) {
+      const next = new URLSearchParams(searchParams);
+      next.set("profileId", selectedProfileId);
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProfileId]);
 
   // Queries scoped to activeProfile
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
@@ -769,7 +783,7 @@ export default function BingooDashboard() {
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
               ) : userPlan === 'professional' ? (
-                <DesignStudioLocked isDark={isDark} />
+                <DesignStudioProfessional isDark={isDark} profile={activeProfile} />
               ) : (
                 <DesignStudio isDark={isDark} />
               )}

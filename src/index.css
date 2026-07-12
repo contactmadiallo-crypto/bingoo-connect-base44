@@ -36,6 +36,8 @@ html {
 }
 body {
   overflow-x: clip;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Disable text selection on interactive UI elements */
