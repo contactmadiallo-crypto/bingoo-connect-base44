@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
-import NFCSetupInstructions from "@/components/bingoo/NFCSetupInstructions";
 import LostModeInfoBanner from "@/components/bingoo/LostModeInfoBanner";
 import ReportLostDialog from "@/components/bingoo/ReportLostDialog";
 import ReplaceDeviceDialog from "@/components/bingoo/ReplaceDeviceDialog";
@@ -10,7 +9,7 @@ import ReassignDeviceDialog from "@/components/bingoo/ReassignDeviceDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
-  CheckCircle, AlertCircle, Info, Wifi, Zap, Clock, AlertTriangle, Layers,
+  CheckCircle, AlertCircle, Info, Zap, Clock, AlertTriangle, Layers,
   RefreshCw, ArrowRightLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -58,8 +57,6 @@ export default function MyNFCDevices() {
    const [activateMsg, setActivateMsg] = useState(null);
    const [expandedId, setExpandedId] = useState(null);
    const [copied, setCopied] = useState(null);
-   const [nfcWriting, setNfcWriting] = useState(null);
-   const [nfcMsg, setNfcMsg] = useState(null);
    const [lostDialogDevice, setLostDialogDevice] = useState(null);
   const [replaceDialogDevice, setReplaceDialogDevice] = useState(null);
   const [reassignDialogDevice, setReassignDialogDevice] = useState(null);
@@ -208,24 +205,6 @@ export default function MyNFCDevices() {
     },
     onError: (e) => toast.error(e.message || "Failed to reactivate device"),
   });
-
-  const handleWriteNFC = async (device) => {
-    const url = `${PROD_BASE_URL}/n/${device.device_code}`;
-    if (!("NDEFReader" in window)) {
-      setNfcMsg({ id: device.id, text: "Web NFC is not supported in this browser. Use 'NFC Tools' app and write this URL manually.", type: "info" });
-      return;
-    }
-    try {
-      setNfcWriting(device.id);
-      const ndef = new window.NDEFReader();
-      await ndef.write({ records: [{ recordType: "url", data: url }] });
-      setNfcMsg({ id: device.id, text: "NFC tag written successfully! 🎉", type: "success" });
-    } catch (e) {
-      setNfcMsg({ id: device.id, text: `NFC write failed: ${e.message}`, type: "error" });
-    } finally {
-      setNfcWriting(null);
-    }
-  };
 
   const copyUrl = (url, id) => {
     navigator.clipboard.writeText(url);
@@ -649,33 +628,6 @@ export default function MyNFCDevices() {
                                   Replace retires this card and activates a new one. Reassign moves it to another profile.
                                 </p>
                               )}
-                            </div>
-                          )}
-
-                          {/* Write NFC Tag */}
-                          {!isDisabled && !isLost && (
-                            <div>
-                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-2`}>Write to NFC Tag</p>
-                              <button onClick={() => handleWriteNFC(device)} disabled={nfcWriting === device.id}
-                                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 text-white text-sm font-bold transition-colors">
-                                <Wifi className="w-4 h-4" />
-                                {nfcWriting === device.id ? "Hold your NFC tag near phone…" : "Write NFC Tag"}
-                              </button>
-                              {nfcMsg?.id === device.id && (
-                                <p className={`mt-2 text-xs font-medium p-3 rounded-xl ${
-                                  nfcMsg.type === "success" ? (isDark ? "bg-emerald-500/10 text-emerald-300" : "bg-emerald-50 text-emerald-700")
-                                  : nfcMsg.type === "error" ? (isDark ? "bg-red-500/10 text-red-300" : "bg-red-50 text-red-600")
-                                  : (isDark ? "bg-blue-500/10 text-blue-300" : "bg-blue-50 text-blue-700")
-                                }`}>{nfcMsg.text}</p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Setup Instructions */}
-                          {!isDisabled && !isLost && (
-                            <div>
-                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>How to Program Your NFC Tag</p>
-                              <NFCSetupInstructions deviceUrl={deviceUrl} />
                             </div>
                           )}
 
