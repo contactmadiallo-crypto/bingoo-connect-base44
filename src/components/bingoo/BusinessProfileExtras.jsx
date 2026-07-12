@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
-import { Calendar, Star, Tag, ChevronRight } from "lucide-react";
+import { Calendar, Tag, ChevronRight } from "lucide-react";
 
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
