@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Nfc, ShoppingCart, Check, Clock, Package, Shield, Save, Trash2 } from 'lucide-react';
+import { Upload, Nfc, ShoppingCart, Check, Clock, Package, Shield, Save, Trash2, AlertTriangle } from 'lucide-react';
+import { usePlan } from '@/hooks/usePlan';
 import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
 import { getDrafts, saveDraft, deleteDraft } from '@/lib/draftStore';
@@ -66,6 +67,10 @@ export default function DesignStudio({ isDark }) {
   const [ordered, setOrdered] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
   const [drafts, setDrafts] = useState([]);
+  const [brandPattern, setBrandPattern] = useState({ enabled: false, opacity: 12, size: 'medium', direction: 'straight', coverage: 'full' });
+  const [logoMeta, setLogoMeta] = useState({ width: 0, height: 0 });
+  const { isBusiness, isSalon, isLawFirm, isCorporate } = usePlan();
+  const canUseBrandPattern = isBusiness || isSalon || isLawFirm || isCorporate;
 
   useEffect(() => { setDrafts(getDrafts()); }, []);
 
@@ -81,6 +86,9 @@ export default function DesignStudio({ isDark }) {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setLogoUrl(file_url);
+      const img = new Image();
+      img.onload = () => setLogoMeta({ width: img.naturalWidth, height: img.naturalHeight });
+      img.src = file_url;
     } catch (err) {
       console.error('Upload failed:', err);
     } finally {
@@ -91,7 +99,7 @@ export default function DesignStudio({ isDark }) {
   const handleSaveDraft = () => {
     saveDraft({
       productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity,
-      logoUrl, removeBranding,
+      logoUrl, removeBranding, brandPattern,
       name: `${nameText || 'Untitled'} — ${productLabel}`,
     });
     setDrafts(getDrafts());
@@ -114,6 +122,7 @@ export default function DesignStudio({ isDark }) {
     setQuantity(d.quantity || 50);
     setLogoUrl(d.logoUrl || null);
     setRemoveBranding(d.removeBranding || false);
+    setBrandPattern(d.brandPattern || { enabled: false, opacity: 12, size: 'medium', direction: 'straight', coverage: 'full' });
   };
 
   const handlePlaceOrder = () => {
@@ -123,7 +132,7 @@ export default function DesignStudio({ isDark }) {
       price: total,
       image: logoUrl,
       activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity, removeBranding },
+      customDesign: { productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity, removeBranding, brandPattern },
     }, 1);
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
@@ -207,6 +216,98 @@ export default function DesignStudio({ isDark }) {
             </button>
             <input ref={fileInputRef} type="file" accept="image/png,image/svg+xml,image/jpeg" className="hidden" onChange={handleLogoUpload} />
           </div>
+
+          {/* Brand Pattern — gated to Business/Salon/LawFirm/Corporate */}
+          {logoUrl && canUseBrandPattern && (
+            <div className="mb-5">
+              <div className="flex items-center justify-between p-3 rounded-xl border-2 mb-2"
+                style={{ borderColor: brandPattern.enabled ? ORANGE : BORDER, background: brandPattern.enabled ? `${ORANGE}08` : '#fff' }}>
+                <div>
+                  <p className="text-[10px] font-black" style={{ color: labelColor }}>Brand Pattern</p>
+                  <p className="text-[8px]" style={{ color: MUTED }}>Spread logo as a subtle watermark</p>
+                </div>
+                <button onClick={() => setBrandPattern(p => ({ ...p, enabled: !p.enabled }))}
+                  className="relative w-9 h-5 rounded-full transition-colors"
+                  style={{ background: brandPattern.enabled ? ORANGE : '#CBD5E1' }}>
+                  <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform"
+                    style={{ transform: brandPattern.enabled ? 'translateX(18px)' : 'translateX(2px)' }} />
+                </button>
+              </div>
+
+              {brandPattern.enabled && (
+                <div className="space-y-3 p-3 rounded-xl border" style={{ borderColor: BORDER, background: '#fff' }}>
+                  {/* Opacity Slider */}
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <p className="text-[9px] font-bold" style={{ color: labelColor }}>Pattern Opacity</p>
+                      <p className="text-[9px] font-black" style={{ color: ORANGE }}>{brandPattern.opacity}%</p>
+                    </div>
+                    <input type="range" min={5} max={25} value={brandPattern.opacity}
+                      onChange={(e) => setBrandPattern(p => ({ ...p, opacity: Number(e.target.value) }))}
+                      className="w-full h-1.5 rounded-full appearance-none cursor-pointer" style={{ background: BG }} />
+                  </div>
+
+                  {/* Pattern Size */}
+                  <div>
+                    <p className="text-[9px] font-bold mb-1" style={{ color: labelColor }}>Pattern Size</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {['small', 'medium', 'large'].map(s => (
+                        <button key={s} onClick={() => setBrandPattern(p => ({ ...p, size: s }))}
+                          className="px-2 py-1.5 rounded-lg border text-[8px] font-bold capitalize text-center transition-all"
+                          style={brandPattern.size === s ? { background: ORANGE, color: '#fff', borderColor: ORANGE } : { borderColor: BORDER, color: MUTED, background: '#fff' }}>
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pattern Direction */}
+                  <div>
+                    <p className="text-[9px] font-bold mb-1" style={{ color: labelColor }}>Pattern Direction</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[{v:'straight',l:'Straight'},{v:'diagonal',l:'Diagonal'},{v:'offset',l:'Offset Grid'}].map(d => (
+                        <button key={d.v} onClick={() => setBrandPattern(p => ({ ...p, direction: d.v }))}
+                          className="px-1 py-1.5 rounded-lg border text-[8px] font-bold text-center transition-all"
+                          style={brandPattern.direction === d.v ? { background: ORANGE, color: '#fff', borderColor: ORANGE } : { borderColor: BORDER, color: MUTED, background: '#fff' }}>
+                          {d.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pattern Coverage */}
+                  <div>
+                    <p className="text-[9px] font-bold mb-1" style={{ color: labelColor }}>Pattern Coverage</p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[{v:'full',l:'Full Card'},{v:'top_fade',l:'Top Fade'},{v:'bottom_fade',l:'Bottom Fade'},{v:'center_fade',l:'Center Fade'}].map(c => (
+                        <button key={c.v} onClick={() => setBrandPattern(p => ({ ...p, coverage: c.v }))}
+                          className="px-2 py-1.5 rounded-lg border text-[8px] font-bold text-center transition-all"
+                          style={brandPattern.coverage === c.v ? { background: ORANGE, color: '#fff', borderColor: ORANGE } : { borderColor: BORDER, color: MUTED, background: '#fff' }}>
+                          {c.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Safeguard: Low resolution warning */}
+                  {logoMeta.width > 0 && logoMeta.width < 200 && (
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg text-[8px] font-bold" style={{ background: '#FEF3C7', color: '#92400E' }}>
+                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                      Logo resolution is low ({logoMeta.width}×{logoMeta.height}). Pattern may look pixelated on larger cards.
+                    </div>
+                  )}
+
+                  {/* Safeguard: Readability warning */}
+                  {brandPattern.opacity > 18 && (
+                    <div className="flex items-center gap-1.5 p-2 rounded-lg text-[8px] font-bold" style={{ background: '#FEF3C7', color: '#92400E' }}>
+                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                      High opacity may reduce text readability. Recommended range: 5–15%.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Card Color */}
           <div className="mb-5">
@@ -325,7 +426,7 @@ export default function DesignStudio({ isDark }) {
           <div className="mb-8 transition-transform hover:scale-105">
             <ProductPreview productType={productType} cardColor={cardColor} accentColor={accentColor}
               logoUrl={logoUrl} nameText={nameText} roleText={roleText} removeBranding={removeBranding}
-              side="front" isDark={isDark} />
+              side="front" isDark={isDark} brandPattern={brandPattern} />
             <p className="text-center text-[10px] font-bold mt-3" style={{ color: MUTED }}>FRONT</p>
           </div>
           <div className="transition-transform hover:scale-105">
