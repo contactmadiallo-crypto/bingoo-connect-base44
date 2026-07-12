@@ -31,9 +31,10 @@
 html {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+  overflow-x: clip;
+  scroll-padding-top: calc(56px + env(safe-area-inset-top));
 }
 body {
-  overflow-x: hidden;
   overflow-x: clip;
 }
 
