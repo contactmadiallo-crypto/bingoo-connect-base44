@@ -234,7 +234,7 @@ export const SIDEBAR_NAV_MAP = {
     iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },
   lostmode: {
-    id: "lostmode", label: "Lost Mode", labelFr: "Mode Perdu",
+    id: "lostmode", label: "Lost & Found", labelFr: "Perdu & Retrouvé",
     icon: AlertOctagon, href: "/bingoo?view=lostmode",
     iconColor: "#ef4444", iconBg: "rgba(239,68,68,0.18)",
   },

@@ -178,6 +178,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   const totalLost = lostDevices.length + lostAssets.length;
   const newReports = reports.filter(r => r.status === "new");
   const getReportsForDevice = (code) => reports.filter(r => r.device_code === code);
+  // Lost & Found view: devices in Lost Mode OR with found reports
+  const lostOrReportedDevices = devices.filter(d => isLost(d) || getReportsForDevice(d.device_code).length > 0);
 
   const loading = devicesLoading && devices.length === 0;
   if (!userId || loading) return (
@@ -228,13 +230,9 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           </div>
 
           <div className="shrink-0" onClick={e => e.stopPropagation()}>
-            {lost ? (
+            {lost && (
               <Button size="sm" onClick={() => markActive(device)} className="rounded-xl text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold h-8 px-3 gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Found
-              </Button>
-            ) : (
-              <Button size="sm" variant="outline" onClick={() => markLost(device)} className="rounded-xl text-xs border-red-200 text-red-600 hover:bg-red-50 font-bold h-8 px-3 gap-1">
-                <AlertTriangle className="w-3 h-3" /> Mark Lost
+                <CheckCircle2 className="w-3 h-3" /> Turn Off
               </Button>
             )}
           </div>
@@ -362,10 +360,12 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           </div>
 
           <div className="shrink-0">
-            <Button size="sm" variant={lost ? "default" : "outline"} onClick={() => updateAsset.mutate({ id: asset.id, data: { lost_mode_enabled: !lost } })}
-              className={`rounded-xl text-xs font-bold h-8 px-3 gap-1 ${lost ? "bg-emerald-600 hover:bg-emerald-500 text-white" : "border-orange-200 text-orange-600 hover:bg-orange-50"}`}>
-              {lost ? <><CheckCircle2 className="w-3 h-3" /> Found</> : <><AlertTriangle className="w-3 h-3" /> Mark Lost</>}
-            </Button>
+            {lost && (
+              <Button size="sm" onClick={() => updateAsset.mutate({ id: asset.id, data: { lost_mode_enabled: false } })}
+                className="rounded-xl text-xs font-bold h-8 px-3 gap-1 bg-emerald-600 hover:bg-emerald-500 text-white">
+                <CheckCircle2 className="w-3 h-3" /> Found
+              </Button>
+            )}
           </div>
         </div>
 
@@ -427,8 +427,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     <div className="space-y-5">
       {/* ── Header (no activation button) ── */}
       <div>
-        <h2 className={`text-xl font-black ${headText}`}>Lost Mode & Recovery</h2>
-        <p className={`text-xs ${subText} mt-0.5`}>Manage all your activated NFC devices, assets, and recovery settings.</p>
+        <h2 className={`text-xl font-black ${headText}`}>Lost & Found</h2>
+        <p className={`text-xs ${subText} mt-0.5`}>Devices and assets currently in Lost Mode, plus all found reports. Activate Lost Mode from My NFC Devices.</p>
       </div>
 
       {/* ── Alert banner ── */}
@@ -445,25 +445,25 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
       {/* ── Summary stats ── */}
       <div className="grid grid-cols-3 gap-2">
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
-          <p className={`text-2xl font-black ${headText}`}>{devices.length}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Devices</p>
+          <p className="text-2xl font-black text-red-500">{lostDevices.length}</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>Lost Devices</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
-          <p className="text-2xl font-black text-red-500">{totalLost}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Lost</p>
+          <p className="text-2xl font-black text-orange-500">{lostAssets.length}</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>Lost Assets</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
-          <p className={`text-2xl font-black ${headText}`}>{assets.length}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Assets</p>
+          <p className="text-2xl font-black text-amber-500">{reports.length}</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>Found Reports</p>
         </div>
       </div>
 
       {/* ── Section switcher ── */}
       <div className={`flex rounded-2xl p-1 gap-1 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
         {[
-          { id: "devices", label: "Devices", count: devices.length },
-          { id: "assets", label: "Assets", count: assets.length },
-          { id: "reports", label: "Finder Reports", count: newReports.length, badge: true },
+          { id: "devices", label: "Lost Devices", count: lostOrReportedDevices.length },
+          { id: "assets", label: "Lost Assets", count: lostAssets.length },
+          { id: "reports", label: "Found Reports", count: newReports.length, badge: true },
         ].map(s => (
           <button key={s.id} onClick={() => setActiveSection(s.id)}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-bold transition-all ${
@@ -485,13 +485,13 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
       {/* ══ DEVICES SECTION ══ */}
       {activeSection === "devices" && (
         <div className="space-y-3">
-          {devices.length === 0 ? (
+          {lostOrReportedDevices.length === 0 ? (
             <div className={`rounded-2xl p-10 text-center ${cardCls}`}>
               <Smartphone className={`w-10 h-10 mx-auto mb-3 ${subText}`} />
-              <p className={`font-semibold text-sm mb-1 ${subText}`}>No activated devices yet.</p>
-              <p className={`text-xs ${subText}`}>Activate a device from My NFC Devices to enable Lost Mode protection.</p>
+              <p className={`font-semibold text-sm mb-1 ${subText}`}>No devices in Lost Mode.</p>
+              <p className={`text-xs ${subText}`}>Activate Lost Mode from My NFC Devices to protect your cards and accessories.</p>
             </div>
-          ) : devices.map(renderDeviceCard)}
+          ) : lostOrReportedDevices.map(renderDeviceCard)}
         </div>
       )}
 
@@ -500,13 +500,13 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
         <div className="space-y-3">
           {assetsLoading ? (
             <div className="flex justify-center py-10"><div className="w-6 h-6 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" /></div>
-          ) : assets.length === 0 ? (
+          ) : lostAssets.length === 0 ? (
             <div className={`rounded-2xl p-10 text-center ${cardCls}`}>
               <Package className={`w-10 h-10 mx-auto mb-3 ${subText}`} />
-              <p className={`font-semibold text-sm mb-1 ${subText}`}>No assets yet.</p>
-              <p className={`text-xs ${subText}`}>Add assets like pets, luggage, or keys from My Assets to protect them with NFC.</p>
+              <p className={`font-semibold text-sm mb-1 ${subText}`}>No assets in Lost Mode.</p>
+              <p className={`text-xs ${subText}`}>Enable Lost Mode on an asset from My Assets to track it here.</p>
             </div>
-          ) : assets.map(renderAssetCard)}
+          ) : lostAssets.map(renderAssetCard)}
         </div>
       )}
 

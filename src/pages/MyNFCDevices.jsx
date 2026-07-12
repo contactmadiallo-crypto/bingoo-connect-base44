@@ -6,6 +6,10 @@ import LostModeInfoBanner from "@/components/bingoo/LostModeInfoBanner";
 import ReportLostDialog from "@/components/bingoo/ReportLostDialog";
 import ReplaceDeviceDialog from "@/components/bingoo/ReplaceDeviceDialog";
 import ReassignDeviceDialog from "@/components/bingoo/ReassignDeviceDialog";
+import DeviceBadges from "@/components/bingoo/nfc/DeviceBadges";
+import LostModeToggle from "@/components/bingoo/nfc/LostModeToggle";
+import FoundReportsList from "@/components/bingoo/nfc/FoundReportsList";
+import DeviceActionsBar from "@/components/bingoo/nfc/DeviceActionsBar";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
@@ -18,12 +22,14 @@ import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
 
 const DEVICE_TYPES = [
-  { value: "card",     label: "Business Card", emoji: "💳" },
-  { value: "keychain", label: "Keychain",       emoji: "🔑" },
-  { value: "bracelet", label: "Bracelet",       emoji: "📿" },
-  { value: "stand",    label: "Counter Stand",  emoji: "🪧" },
-  { value: "sticker",  label: "Sticker",        emoji: "🏷️" },
-  { value: "badge",    label: "Badge",           emoji: "🎫" },
+  { value: "card",       label: "NFC Card",         emoji: "💳" },
+  { value: "metal_card", label: "NFC Metal Card",   emoji: "💳" },
+  { value: "keychain",   label: "NFC Key Fob",      emoji: "🔑" },
+  { value: "bracelet",   label: "NFC Bracelet",     emoji: "📿" },
+  { value: "stand",      label: "NFC Phone Stand",  emoji: "🪧" },
+  { value: "sticker",    label: "NFC Sticker",      emoji: "🏷️" },
+  { value: "badge",      label: "NFC Badge",        emoji: "🎫" },
+  { value: "tag",        label: "NFC Tag",          emoji: "📡" },
 ];
 
 const PROD_BASE_URL = "https://bingooconnect.com";
@@ -102,9 +108,28 @@ export default function MyNFCDevices() {
       return all.flat();
     },
     enabled: !!user?.id && profileIds.length > 0,
-  });
+    });
 
-  const handleActivateCode = async () => {
+    // ── Found reports for all user's devices (by owner_profile_id) ──
+    const { data: foundReports = [] } = useQuery({
+    queryKey: ["device-found-reports", user?.id],
+    queryFn: async () => {
+      const all = await Promise.all(
+        profileIds.map(pid => base44.entities.LostItemReport.filter({ owner_profile_id: pid }))
+      );
+      return all.flat();
+    },
+    enabled: !!user?.id && profileIds.length > 0,
+    });
+
+    // ── User's assets (for Link to Asset action) ──
+    const { data: assets = [] } = useQuery({
+    queryKey: ["my-assets-nfc-page", user?.id],
+    queryFn: () => base44.entities.AssetItem.filter({ owner_user_id: user.id }),
+    enabled: !!user?.id,
+    });
+
+    const handleActivateCode = async () => {
     if (!activateCode.trim()) return;
     setActivating(true);
     setActivateMsg(null);
@@ -203,7 +228,63 @@ export default function MyNFCDevices() {
       toast.success("Device reactivated!");
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message || "Failed to reactivate device"),
+    onError: (e) => toast.error(e.message || "Failed to turn off Lost Mode"),
+  });
+
+  // ── Link device to profile ──
+  const linkProfile = useMutation({
+    mutationFn: async ({ deviceId, profileId }) => base44.entities.NFCDevice.update(deviceId, { profile_id: profileId }),
+    onSuccess: () => { toast.success("Device linked to profile"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
+    onError: (e) => toast.error(e.message || "Failed to link profile"),
+  });
+
+  // ── Link device to asset (bidirectional) ──
+  const linkAsset = useMutation({
+    mutationFn: async ({ deviceId, assetId }) => {
+      await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: assetId });
+      await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
+    },
+    onSuccess: () => { toast.success("Device linked to asset"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
+    onError: (e) => toast.error(e.message || "Failed to link asset"),
+  });
+
+  // ── Unlink device from profile and/or asset ──
+  const unlinkDevice = useMutation({
+    mutationFn: async (device) => {
+      const updates = {};
+      if (device.profile_id) updates.profile_id = "";
+      if (device.assigned_asset_id) {
+        updates.assigned_asset_id = "";
+        await base44.entities.AssetItem.update(device.assigned_asset_id, { nfc_device_id: "" });
+      }
+      await base44.entities.NFCDevice.update(device.id, updates);
+    },
+    onSuccess: () => { toast.success("Device unlinked"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
+    onError: (e) => toast.error(e.message || "Failed to unlink device"),
+  });
+
+  // ── Delete device ──
+  const deleteDevice = useMutation({
+    mutationFn: async (device) => base44.entities.NFCDevice.delete(device.id),
+    onSuccess: () => { toast.success("Device deleted"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
+    onError: (e) => toast.error(e.message || "Failed to delete device"),
+  });
+
+  // ── Found report management ──
+  const markReportFound = useMutation({
+    mutationFn: async (reportId) => base44.entities.LostItemReport.update(reportId, { status: "recovered" }),
+    onSuccess: () => { toast.success("Marked as recovered"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || "Failed to update report"),
+  });
+  const markReportContacted = useMutation({
+    mutationFn: async (reportId) => base44.entities.LostItemReport.update(reportId, { status: "contacted" }),
+    onSuccess: () => { toast.success("Marked as contacted"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || "Failed to update report"),
+  });
+  const deleteReport = useMutation({
+    mutationFn: async (reportId) => base44.entities.LostItemReport.delete(reportId),
+    onSuccess: () => { toast.success("Report deleted"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || "Failed to delete report"),
   });
 
   const copyUrl = (url, id) => {
@@ -449,6 +530,7 @@ export default function MyNFCDevices() {
               const isExpanded = expandedId === device.id;
               const isLost = device.status === "lost";
               const isDisabled = device.status === "disabled" || device.status === "replaced";
+              const deviceReports = foundReports.filter(r => r.device_code === device.device_code);
 
               return (
                 <motion.div key={device.id} layout className="rounded-2xl overflow-hidden"
@@ -456,36 +538,33 @@ export default function MyNFCDevices() {
 
                   {/* Card Header */}
                   <div className="p-4 flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${isLost ? "bg-red-500/15" : isDisabled ? "bg-slate-500/15" : "bg-gradient-to-br from-orange-500/20 to-amber-500/20"}`}>
-                      {typeInfo.emoji}
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden ${isLost ? "bg-red-500/15" : isDisabled ? "bg-slate-500/15" : "bg-gradient-to-br from-orange-500/20 to-amber-500/20"}`}>
+                      {device.product_image ? (
+                        <img src={device.product_image} alt={device.product_name || typeInfo.label} className="w-full h-full object-cover" />
+                      ) : (
+                        typeInfo.emoji
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className={`font-black text-sm font-mono ${headText}`}>{device.device_code}</p>
                         <StatusBadge status={device.status} isDark={isDark} />
-                        {isLost && <span className="text-xs text-red-500 font-bold">⚠️ Scans disabled</span>}
                       </div>
                       <p className={`text-xs mt-0.5 ${mutedText} flex items-center gap-1.5 flex-wrap`}>
-                        <span>{typeInfo.label}</span>
+                        <span className="font-semibold">{device.product_name || typeInfo.label}</span>
                         {profile && <span>· <span className={`font-semibold ${profile.orphaned ? "text-amber-500" : ""}`}>{profile.display_name}{profile.orphaned ? " (removed)" : ""}</span></span>}
                         {device.assigned_at && <span>· Activated {device.assigned_at.slice(0, 10)}</span>}
                         <span className="flex items-center gap-0.5">· <Zap className="w-3 h-3" style={{ color: "#FDBA21" }} /> {tapsByDevice[device.id] || 0} taps</span>
                       </p>
+                      <DeviceBadges
+                        device={device}
+                        hasProfile={!!device.profile_id && !profile?.orphaned}
+                        hasAsset={!!device.assigned_asset_id}
+                        reportCount={deviceReports.length}
+                        isDark={isDark}
+                      />
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {isLost ? (
-                        <button onClick={() => reactivate.mutate(device)} disabled={reactivate.isPending}
-                          title="Reactivate" className="text-xs font-bold px-3 py-1.5 rounded-xl"
-                          style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
-                          Reactivate
-                        </button>
-                      ) : !isDisabled && (
-                        <button onClick={() => setLostDialogDevice(device)}
-                          title="Activate Lost Mode" className="p-2 rounded-lg transition-colors"
-                          style={{ color: "rgba(239,68,68,0.6)" }}>
-                          <AlertTriangle className="w-4 h-4" />
-                        </button>
-                      )}
                       {!isDisabled && (
                         <a href={deviceUrl} target="_blank" rel="noopener noreferrer"
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-blue-400" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
@@ -559,75 +638,51 @@ export default function MyNFCDevices() {
                             </div>
                           )}
 
-                          {/* Lost Mode */}
-                          {!isDisabled && (
-                            <div className={`rounded-xl p-4 ${isLost ? (isDark ? "bg-red-500/10 border border-red-500/25" : "bg-red-50 border border-red-200") : (isDark ? "bg-white/5" : "bg-slate-50")}`}>
-                              <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${isLost ? "text-red-400" : mutedText}`}>
-                                🔒 Lost Mode
-                              </p>
-                              {isLost ? (
-                                <div className="space-y-3">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm font-bold text-red-500">🔒 Lost Mode is ACTIVE</span>
-                                  </div>
-                                  <p className={`text-xs ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                                    Scans of this device now show a recovery page. Finders can submit their contact details and GPS location so you can recover your item.
-                                  </p>
-                                  <button onClick={() => reactivate.mutate(device)}
-                                    className="text-xs font-bold px-4 py-2 rounded-xl"
-                                    style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
-                                    ✓ Reactivate Device
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <p className={`text-xs ${mutedText}`}>If lost or stolen, activate Lost Mode to disable scans and show a recovery page.</p>
-                                    <button onClick={() => setLostDialogDevice(device)}
-                                      className="text-xs font-bold px-3 py-1.5 rounded-xl ml-3 flex-shrink-0"
-                                      style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.25)" }}>
-                                      🔒 Activate Lost Mode
-                                    </button>
-                                  </div>
-                                  <p className={`text-[11px] ${mutedText}`}>
-                                    Learn more about Lost Mode in the info banner above.
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          {/* Lost Mode Toggle */}
+                          <LostModeToggle
+                            device={device}
+                            reportCount={deviceReports.length}
+                            isDark={isDark}
+                            isPending={reportLost.isPending || reactivate.isPending}
+                            onTurnOn={() => setLostDialogDevice(device)}
+                            onTurnOff={() => reactivate.mutate(device)}
+                          />
 
-                          {/* Manage: Replace & Reassign */}
-                          {!isDisabled && (
+                          {/* Found Reports */}
+                          <FoundReportsList
+                            reports={deviceReports}
+                            isDark={isDark}
+                            onMarkContacted={(rid) => markReportContacted.mutate(rid)}
+                            onMarkFound={(rid) => markReportFound.mutate(rid)}
+                            onDeleteReport={(rid) => deleteReport.mutate(rid)}
+                          />
+
+                          {/* Device Actions */}
+                          <DeviceActionsBar
+                            device={device}
+                            profiles={profiles}
+                            assets={assets}
+                            hasProfile={!!device.profile_id && !profile?.orphaned}
+                            hasAsset={!!device.assigned_asset_id}
+                            isDark={isDark}
+                            onLinkProfile={(deviceId, pid) => linkProfile.mutate({ deviceId, profileId: pid })}
+                            onLinkAsset={(deviceId, aid) => linkAsset.mutate({ deviceId, assetId: aid })}
+                            onUnlink={(d) => unlinkDevice.mutate(d)}
+                            onReplace={(d) => setReplaceDialogDevice(d)}
+                            onDelete={(d) => deleteDevice.mutate(d)}
+                          />
+
+                          {/* Reassign Profile (for multi-profile accounts) */}
+                          {!isDisabled && (profiles.length > 1 || profile?.orphaned) && (
                             <div className={`rounded-xl p-4 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                              <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${mutedText}`}>Manage Device</p>
-                              {profile?.orphaned && (
-                                <div className={`flex items-start gap-2 p-3 rounded-xl mb-3 text-xs ${isDark ? "bg-amber-500/10 border border-amber-500/25 text-amber-300" : "bg-amber-50 border border-amber-200 text-amber-700"}`}>
-                                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                                  <p>This device's profile was removed. Reassign it to an active profile to resume scans.</p>
-                                </div>
-                              )}
-                              <div className="flex flex-col sm:flex-row gap-3">
-                                {!profile?.orphaned && (
-                                  <button onClick={() => setReplaceDialogDevice(device)}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
-                                    style={{ background: "rgba(6,182,212,0.12)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>
-                                    <RefreshCw className="w-4 h-4" /> Replace Device
-                                  </button>
-                                )}
-                                {(profiles.length > 1 || profile?.orphaned) && (
-                                  <button onClick={() => setReassignDialogDevice(device)}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors"
-                                    style={{ background: "rgba(168,85,247,0.12)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
-                                    <ArrowRightLeft className="w-4 h-4" /> Reassign Profile
-                                  </button>
-                                )}
+                              <div className="flex items-center justify-between gap-3">
+                                <p className={`text-xs font-bold ${mutedText}`}>Reassign to another profile</p>
+                                <button onClick={() => setReassignDialogDevice(device)}
+                                  className="text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0"
+                                  style={{ background: "rgba(168,85,247,0.12)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
+                                  <ArrowRightLeft className="w-3 h-3 inline mr-1" /> Reassign
+                                </button>
                               </div>
-                              {!profile?.orphaned && (
-                                <p className={`text-[11px] mt-2 ${mutedText}`}>
-                                  Replace retires this card and activates a new one. Reassign moves it to another profile.
-                                </p>
-                              )}
                             </div>
                           )}
 
