@@ -182,7 +182,7 @@ function BrandPatternLayer({ logoUrl, pattern }) {
 }
 
 // ── Realistic 3D product preview ─────────────────────────────────────────────
-export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern, finish, holderName, activationCode }) {
+export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern, finish, holderName, activationCode, phone, email, website }) {
   const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];
   const isFront = side === 'front';
   const light = isLightHex(cardColor);
@@ -238,9 +238,18 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
             <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
           </div>
         </div>
-        {!removeBranding && (
-          <span className="font-bold tracking-wider" style={{ color: brandColor, fontSize: 8, textShadow: light ? 'none' : `0 0 6px ${accentColor}33` }}>BING∞ CONNECT</span>
-        )}
+        <div>
+          {(phone || email || website) && (
+            <div className="flex flex-wrap gap-x-2 gap-y-0.5 mb-1">
+              {phone && <span className="text-[7px] font-medium" style={{ color: textColor, opacity: subOpacity }}>📞 {phone}</span>}
+              {email && <span className="text-[7px] font-medium truncate max-w-[120px]" style={{ color: textColor, opacity: subOpacity }}>✉️ {email}</span>}
+              {website && <span className="text-[7px] font-medium truncate max-w-[120px]" style={{ color: textColor, opacity: subOpacity }}>🌐 {website}</span>}
+            </div>
+          )}
+          {!removeBranding && (
+            <span className="font-bold tracking-wider" style={{ color: brandColor, fontSize: 8, textShadow: light ? 'none' : `0 0 6px ${accentColor}33` }}>BING∞ CONNECT</span>
+          )}
+        </div>
       </div>
     );
   })();

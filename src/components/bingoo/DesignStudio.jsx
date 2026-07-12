@@ -59,6 +59,10 @@ export default function DesignStudio({ isDark }) {
   const [accentColor, setAccentColor] = useState(ORANGE);
   const [nameText, setNameText] = useState('');
   const [holderName, setHolderName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [website, setWebsite] = useState('');
+  const [assignProfileId, setAssignProfileId] = useState('');
   const [roleText, setRoleText] = useState('');
   const [finish, setFinish] = useState('Matte');
   const [quantity, setQuantity] = useState(50);
@@ -73,6 +77,13 @@ export default function DesignStudio({ isDark }) {
   const canUseBrandPattern = isBusiness || isSalon || isLawFirm || isCorporate;
 
   useEffect(() => { setDrafts(getDrafts()); }, []);
+
+  const [userProfiles, setUserProfiles] = useState([]);
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      if (u?.id) base44.entities.Profile.filter({ created_by_id: u.id }).then(setUserProfiles).catch(() => {});
+    }).catch(() => {});
+  }, []);
 
   const subtotal = UNIT_PRICE * quantity;
   const brandingFee = removeBranding ? REMOVE_BRANDING_FEE : 0;
@@ -98,7 +109,7 @@ export default function DesignStudio({ isDark }) {
 
   const handleSaveDraft = () => {
     saveDraft({
-      productType, cardColor, accentColor, nameText, holderName, roleText, finish, quantity,
+      productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, assignProfileId, finish, quantity,
       logoUrl, removeBranding, brandPattern,
       name: `${nameText || 'Untitled'} — ${productLabel}`,
     });
@@ -118,6 +129,10 @@ export default function DesignStudio({ isDark }) {
     setNameText(d.nameText || '');
     setRoleText(d.roleText || '');
     setHolderName(d.holderName || '');
+    setPhone(d.phone || '');
+    setEmail(d.email || '');
+    setWebsite(d.website || '');
+    setAssignProfileId(d.assignProfileId || '');
     setFinish(d.finish || 'Matte');
     setQuantity(d.quantity || 50);
     setLogoUrl(d.logoUrl || null);
@@ -132,7 +147,7 @@ export default function DesignStudio({ isDark }) {
       price: total,
       image: logoUrl,
       activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, finish, quantity, removeBranding, brandPattern },
+      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, assignProfileId, finish, quantity, removeBranding, brandPattern },
     }, 1);
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
@@ -349,9 +364,23 @@ export default function DesignStudio({ isDark }) {
               <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Role / Position</p>
               <input value={roleText} onChange={(e) => setRoleText(e.target.value)} placeholder="e.g. Managing Attorney" className={inputCls} />
             </div>
-            <div className="p-2.5 rounded-lg" style={{ background: `${NAVY}08` }}>
-              <p className="text-[9px] font-bold" style={{ color: MUTED }}>📱 Phone, email, and website are configured on your public profile — no need to enter them here.</p>
+            {/* Optional contact info */}
+            <div className="space-y-2 pt-2 border-t" style={{ borderColor: BORDER }}>
+              <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: MUTED }}>Optional Contact Info</p>
+              <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (e.g. +1 555 000 0000)" className={inputCls} />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className={inputCls} />
+              <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="Website" className={inputCls} />
             </div>
+            {/* Optional profile to assign later */}
+            {userProfiles.length > 0 && (
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-wider mb-1" style={{ color: MUTED }}>Assign to Profile (after activation)</p>
+                <select value={assignProfileId} onChange={(e) => setAssignProfileId(e.target.value)} className={inputCls}>
+                  <option value="">No preference — assign during activation</option>
+                  {userProfiles.map(p => <option key={p.id} value={p.id}>{p.display_name}</option>)}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Finish */}
@@ -430,6 +459,7 @@ export default function DesignStudio({ isDark }) {
           <div className="mb-8 transition-transform hover:scale-105">
             <ProductPreview productType={productType} cardColor={cardColor} accentColor={accentColor}
               logoUrl={logoUrl} nameText={nameText} holderName={holderName} roleText={roleText}
+              phone={phone} email={email} website={website}
               removeBranding={removeBranding} finish={finish}
               side="front" isDark={isDark} brandPattern={brandPattern} />
             <p className="text-center text-[10px] font-bold mt-3" style={{ color: MUTED }}>FRONT</p>

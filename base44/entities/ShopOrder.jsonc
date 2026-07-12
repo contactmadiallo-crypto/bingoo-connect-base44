@@ -74,6 +74,18 @@
               "roleText": {
                 "type": "string"
               },
+              "phone": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "website": {
+                "type": "string"
+              },
+              "assignProfileId": {
+                "type": "string"
+              },
               "finish": {
                 "type": "string"
               },
@@ -122,6 +134,18 @@
             "type": "string"
           },
           "role_position": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "website": {
+            "type": "string"
+          },
+          "assign_profile_id": {
             "type": "string"
           },
           "logo_url": {
