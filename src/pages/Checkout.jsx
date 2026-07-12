@@ -73,6 +73,7 @@ export default function Checkout() {
           product_name: item.name,
           quantity: item.quantity,
           unit_price: item.price,
+          ...(item.customDesign && { customDesign: item.customDesign }),
         })),
         subtotal,
         shipping_cost: SHIPPING_COST,

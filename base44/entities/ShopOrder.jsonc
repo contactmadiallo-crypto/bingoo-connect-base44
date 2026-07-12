@@ -51,6 +51,124 @@
           },
           "unit_price": {
             "type": "number"
+          },
+          "customDesign": {
+            "type": "object",
+            "description": "Custom NFC design configuration from Design Studio",
+            "properties": {
+              "productType": {
+                "type": "string"
+              },
+              "cardColor": {
+                "type": "string"
+              },
+              "accentColor": {
+                "type": "string"
+              },
+              "nameText": {
+                "type": "string"
+              },
+              "holderName": {
+                "type": "string"
+              },
+              "roleText": {
+                "type": "string"
+              },
+              "finish": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "number"
+              },
+              "removeBranding": {
+                "type": "boolean"
+              },
+              "brandPattern": {
+                "type": "object"
+              },
+              "logoUrl": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "manufacturing_items": {
+      "type": "array",
+      "description": "Manufacturing items with activation codes, generated after payment",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_type": {
+            "type": "string"
+          },
+          "product_sku": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "finish": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "company_name": {
+            "type": "string"
+          },
+          "holder_name": {
+            "type": "string"
+          },
+          "role_position": {
+            "type": "string"
+          },
+          "logo_url": {
+            "type": "string"
+          },
+          "card_color": {
+            "type": "string"
+          },
+          "accent_color": {
+            "type": "string"
+          },
+          "remove_branding": {
+            "type": "boolean"
+          },
+          "brand_pattern": {
+            "type": "object"
+          },
+          "design_data": {
+            "type": "object"
+          },
+          "activation_codes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "qr_url": {
+                  "type": "string"
+                },
+                "device_id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "manufacturing_status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_production",
+              "printed",
+              "shipped",
+              "activated"
+            ],
+            "default": "pending"
           }
         }
       }

@@ -92,7 +92,7 @@ export function ProductTypeIcon({ typeId, active }) {
 function BrandPatternLayer({ logoUrl, pattern }) {
   if (!pattern?.enabled || !logoUrl) return null;
 
-  const sizeMap = { small: 36, medium: 58, large: 84 };
+  const sizeMap = { small: 44, medium: 68, large: 100 };
   const tile = sizeMap[pattern.size] || 58;
   const opacity = Math.min(Math.max((pattern.opacity || 10) / 100, 0.03), 0.25);
 
@@ -101,6 +101,7 @@ function BrandPatternLayer({ logoUrl, pattern }) {
     top_fade: 'linear-gradient(to bottom, black 0%, black 25%, transparent 65%)',
     bottom_fade: 'linear-gradient(to bottom, transparent 35%, black 75%, black 100%)',
     center_fade: 'radial-gradient(ellipse at center, transparent 20%, black 60%)',
+    edge_fade: 'radial-gradient(ellipse at center, black 35%, transparent 80%)',
   };
   const mask = maskMap[pattern.coverage] || 'none';
   const maskProps = mask !== 'none'
@@ -137,6 +138,36 @@ function BrandPatternLayer({ logoUrl, pattern }) {
     );
   }
 
+  // ── Large Centered Watermark: single large logo in center ──
+  if (pattern.direction === 'centered') {
+    return (
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        opacity, ...maskProps,
+        pointerEvents: 'none', zIndex: 1,
+      }}>
+        <img src={logoUrl} alt="" style={{ width: tile * 1.6, height: tile * 1.6, objectFit: 'contain' }} />
+      </div>
+    );
+  }
+
+  // ── Corner Fade: logos fading from top-left corner ──
+  if (pattern.direction === 'corner_fade') {
+    const cornerMask = 'radial-gradient(circle at 0% 0%, black 0%, black 25%, transparent 65%)';
+    return (
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundImage: `url(${logoUrl})`,
+        backgroundSize: `${tile}px ${tile}px`,
+        backgroundRepeat: 'repeat',
+        opacity,
+        maskImage: cornerMask, WebkitMaskImage: cornerMask,
+        pointerEvents: 'none', zIndex: 1,
+      }} />
+    );
+  }
+
   // ── Straight: simple repeat grid ──
   return (
     <div style={{
@@ -151,7 +182,7 @@ function BrandPatternLayer({ logoUrl, pattern }) {
 }
 
 // ── Realistic 3D product preview ─────────────────────────────────────────────
-export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern }) {
+export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern, finish, holderName, activationCode }) {
   const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];
   const isFront = side === 'front';
   const light = isLightHex(cardColor);
@@ -179,8 +210,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
       return (
         <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
           {renderLogo(isSmall ? 36 : 42)}
-          <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 11 : 13 }}>{nameText || 'Your Business Name'}</p>
-          <p className="text-[9px] mt-0.5" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Tagline'}</p>
+          <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 11 : 13 }}>{nameText || 'Company Name'}</p>
+          {holderName && <p className="font-bold leading-tight" style={{ color: textColor, fontSize: isSmall ? 9 : 10, opacity: 0.85 }}>{holderName}</p>}
+          <p className="text-[9px] mt-0.5" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
         </div>
       );
     }
@@ -188,9 +220,10 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
       return (
         <div className="flex-1 flex items-center justify-center gap-3 relative z-10 px-4">
           {renderLogo(36)}
-          <div className="text-left">
-            <p className="font-black leading-tight" style={{ color: textColor, fontSize: 12 }}>{nameText || 'Your Business Name'}</p>
-            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Tagline'}</p>
+          <div className="text-left min-w-0">
+            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: 12 }}>{nameText || 'Company Name'}</p>
+            {holderName && <p className="font-bold leading-tight truncate" style={{ color: textColor, fontSize: 9, opacity: 0.85 }}>{holderName}</p>}
+            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
           </div>
         </div>
       );
@@ -199,9 +232,10 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
       <div className="flex-1 flex flex-col justify-between relative z-10">
         <div className="flex items-start gap-2">
           {renderLogo(isSmall ? 28 : 36)}
-          <div>
-            <p className="font-black leading-tight" style={{ color: textColor, fontSize: isSmall ? 10 : 13 }}>{nameText || 'Your Business Name'}</p>
-            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Tagline'}</p>
+          <div className="min-w-0">
+            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: isSmall ? 10 : 13 }}>{nameText || 'Company Name'}</p>
+            {holderName && <p className="font-bold leading-tight truncate" style={{ color: textColor, fontSize: isSmall ? 8 : 10, opacity: 0.85 }}>{holderName}</p>}
+            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
           </div>
         </div>
         {!removeBranding && (
@@ -212,19 +246,20 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
   })();
 
   const backContent = (
-    <div className="flex-1 flex flex-col items-center justify-center relative w-full h-full">
-      <div className="rounded-xl p-2" style={{ background: '#fff', boxShadow: '0 6px 16px rgba(11,33,73,0.10), 0 1px 3px rgba(0,0,0,0.06)' }}>
+    <div className="flex-1 flex flex-col items-center justify-center relative w-full h-full px-2">
+      <div className="rounded-lg p-1.5" style={{ background: '#fff', boxShadow: '0 4px 12px rgba(11,33,73,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <QrPattern size={qrSize} darkColor={NAVY} />
       </div>
-      <div className="flex items-center gap-1 mt-2">
+      <p className="font-black tracking-widest mt-2" style={{ color: NAVY, fontSize: 11 }}>{activationCode || 'BG-000001'}</p>
+      <p className="text-[8px] font-bold mt-0.5" style={{ color: MUTED }}>Scan to activate</p>
+      <div className="flex items-center gap-1 mt-1.5">
         <Nfc className="w-3 h-3" style={{ color: NAVY }} />
-        <span className="text-[8px] font-bold tracking-widest" style={{ color: MUTED }}>NFC</span>
+        <span className="text-[7px] font-bold tracking-widest" style={{ color: MUTED }}>NFC CHIP</span>
       </div>
       {!removeBranding && (
         <div className="absolute bottom-2 flex items-center gap-1 px-2">
-          <span className="text-[7px] font-semibold tracking-wider" style={{ color: MUTED }}>POWERED BY</span>
           <InfinityMark size={8} color={NAVY} strokeWidth={3} />
-          <span className="text-[7px] font-black tracking-wider" style={{ color: NAVY }}>BING∞ CONNECT</span>
+          <span className="text-[7px] font-black tracking-wider" style={{ color: NAVY }}>BING∞</span>
         </div>
       )}
     </div>
@@ -234,8 +269,22 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
   const bodyBg = isFront ? bg : '#fff';
   const bodyBorder = isFront ? 'none' : `1px solid ${BORDER}`;
   const highlight = isFront
-    ? { position: 'absolute', top: 0, left: 0, right: 0, height: '45%', background: 'linear-gradient(180deg, rgba(255,255,255,0.12), transparent)', pointerEvents: 'none' }
+    ? { position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
+        background: finish === 'Glossy'
+          ? 'linear-gradient(180deg, rgba(255,255,255,0.28), transparent 55%)'
+          : finish === 'Frosted'
+          ? 'linear-gradient(180deg, rgba(255,255,255,0.15), transparent)'
+          : 'linear-gradient(180deg, rgba(255,255,255,0.12), transparent)',
+        pointerEvents: 'none' }
     : { position: 'absolute', top: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(180deg, rgba(248,250,252,0.6), transparent)', pointerEvents: 'none' };
+
+  const glareLayer = finish === 'Glossy' && isFront ? (
+    <div style={{ position: 'absolute', top: 0, left: '10%', width: '35%', height: '100%', background: 'linear-gradient(75deg, transparent 20%, rgba(255,255,255,0.10) 50%, transparent 80%)', pointerEvents: 'none', zIndex: 2 }} />
+  ) : null;
+
+  const frostedLayer = finish === 'Frosted' && isFront ? (
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.08)', pointerEvents: 'none', zIndex: 0 }} />
+  ) : null;
   const accentGlow = isFront ? (
     <div style={{ position: 'absolute', top: -15, right: -15, width: 90, height: 90, borderRadius: '50%', background: accentColor, opacity: 0.08, filter: 'blur(36px)', pointerEvents: 'none' }} />
   ) : null;
@@ -251,6 +300,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', position: 'relative', background: bodyBg, border: bodyBorder, boxShadow: SHADOW_3D }}>
           {accentGlow}
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           <div style={highlight} />
           <div className="flex flex-col h-full p-5">{content}</div>
         </div>
@@ -268,6 +319,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div style={{ width: shape.w, height: shape.h, borderRadius: '110px 110px 18px 18px / 90px 90px 18px 18px', overflow: 'hidden', position: 'relative', background: bodyBg, border: bodyBorder, boxShadow: SHADOW_3D }}>
           {accentGlow}
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           <div style={highlight} />
           <div className="flex flex-col h-full p-5 pt-8">{content}</div>
         </div>
@@ -282,6 +335,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', position: 'relative', background: bodyBg, border: bodyBorder, boxShadow: `${SHADOW_3D}, inset 0 0 0 3px rgba(255,255,255,0.06)` }}>
           {accentGlow}
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           <div style={{ ...highlight, borderRadius: '50%' }} />
           {isFront && <div style={{ position: 'absolute', top: 8, left: 25, right: 25, height: 55, background: 'linear-gradient(180deg, rgba(255,255,255,0.22), transparent)', borderRadius: '50%', pointerEvents: 'none' }} />}
           <div className="flex flex-col h-full p-5">{content}</div>
@@ -298,6 +353,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
           <div style={{ position: 'absolute', top: 5, left: 30, right: 30, height: 30, background: 'linear-gradient(180deg, rgba(255,255,255,0.18), transparent)', borderRadius: 50, pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 30, right: 30, height: 22, background: 'linear-gradient(0deg, rgba(0,0,0,0.15), transparent)', borderRadius: 50, pointerEvents: 'none' }} />
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           {isFront && (
             <div style={{ position: 'absolute', right: 24, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, borderRadius: '50%', background: 'linear-gradient(135deg, #f1f5f9, #94a3b8 50%, #64748b)', boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.5)', zIndex: 5 }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%', margin: '4.5px auto', background: 'linear-gradient(135deg, #64748b, #475569)' }} />
@@ -318,6 +375,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
           <div style={{ position: 'absolute', top: 9, left: '50%', transform: 'translateX(-50%)', width: 44, height: 10, borderRadius: 5, background: pageBg, boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.35)', zIndex: 5 }} />
           {accentGlow}
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           <div style={highlight} />
           <div className="flex flex-col h-full p-4 pt-6">{content}</div>
         </div>
@@ -332,6 +391,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div style={{ width: shape.w, height: shape.h, borderRadius: 12, overflow: 'hidden', position: 'relative', background: bodyBg, border: bodyBorder, boxShadow: SHADOW_3D }}>
           {accentGlow}
           {patternLayer}
+          {frostedLayer}
+          {glareLayer}
           <div style={highlight} />
           <div className="flex flex-col h-full p-5">{content}</div>
         </div>

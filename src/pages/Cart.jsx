@@ -77,7 +77,15 @@ export default function Cart() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-900 truncate">{item.name}</h3>
-                  <p className="text-[#0b2149] font-semibold">${item.price.toFixed(2)}</p>
+                  {item.customDesign && (
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {item.customDesign.finish && <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">{item.customDesign.finish}</span>}
+                      {item.customDesign.holderName && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-bold truncate max-w-[120px]">{item.customDesign.holderName}</span>}
+                      {item.customDesign.brandPattern?.enabled && <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-bold">Pattern</span>}
+                      {item.customDesign.removeBranding && <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-bold">No Branding</span>}
+                    </div>
+                  )}
+                  <p className="text-[#0b2149] font-semibold mt-1">${item.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
                   <button onClick={() => handleQty(item.id, item.quantity - 1)} className="px-3 py-2 hover:bg-slate-100">

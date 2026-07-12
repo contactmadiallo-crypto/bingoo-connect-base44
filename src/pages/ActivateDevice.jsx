@@ -23,6 +23,8 @@ export default function ActivateDevice() {
   const [setupDevice, setSetupDevice] = useState(null); // device for NFC setup guide
   const [editingDevice, setEditingDevice] = useState(null); // {id, nickname}
   const [reassignDevice, setReassignDevice] = useState(null); // {device, newProfileId}
+  const [assignTarget, setAssignTarget] = useState("profile"); // "profile" | "asset"
+  const [selectedAsset, setSelectedAsset] = useState("");
 
   // Admin state
   const [newCode, setNewCode] = useState("");
@@ -51,6 +53,11 @@ export default function ActivateDevice() {
     queryKey: ["all-nfc-devices-admin"],
     queryFn: () => base44.entities.NFCDevice.list(),
     enabled: user?.role === "admin",
+  });
+  const { data: myAssets = [] } = useQuery({
+    queryKey: ["my-assets-activate", user?.id],
+    queryFn: () => base44.entities.AssetItem.filter({ owner_user_id: user.id }),
+    enabled: !!user?.id,
   });
 
   // Theme tokens
@@ -110,34 +117,62 @@ export default function ActivateDevice() {
         return;
       }
 
-      const targetProfile = profiles.find(p => p.id === selectedProfile) || profiles[0];
-      if (!targetProfile) {
-        setActivateMsg({ type: "error", text: "Please create a profile first before activating a device." });
-        setActivating(false);
-        return;
+      // Step 2: Assign to profile or asset
+      if (assignTarget === "asset") {
+        const targetAsset = myAssets.find(a => a.id === selectedAsset);
+        if (!targetAsset) {
+          setActivateMsg({ type: "error", text: "Please select an asset to assign the device to." });
+          setActivating(false);
+          return;
+        }
+        const assetProfileId = targetAsset.profile_id || (profiles[0]?.id || null);
+        if (!assetProfileId) {
+          setActivateMsg({ type: "error", text: "Please create a profile first before assigning a device to an asset." });
+          setActivating(false);
+          return;
+        }
+        const activateResult = await base44.functions.invoke("activateNfcDevice", {
+          device_id: device.id,
+          profile_id: assetProfileId,
+          user_id: user.id,
+          user_name: user.full_name,
+          profile_name: profiles.find(p => p.id === assetProfileId)?.display_name || "",
+          old_status: device.status,
+        });
+        if (activateResult?.data?.error) {
+          setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+          setActivating(false);
+          return;
+        }
+        await base44.entities.AssetItem.update(targetAsset.id, { nfc_device_id: device.id });
+        setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to asset: ${targetAsset.name}` });
+      } else {
+        const targetProfile = profiles.find(p => p.id === selectedProfile) || profiles[0];
+        if (!targetProfile) {
+          setActivateMsg({ type: "error", text: "Please create a profile first before activating a device." });
+          setActivating(false);
+          return;
+        }
+        const activateResult = await base44.functions.invoke("activateNfcDevice", {
+          device_id: device.id,
+          profile_id: targetProfile.id,
+          user_id: user.id,
+          user_name: user.full_name,
+          profile_name: targetProfile.display_name,
+          old_status: device.status,
+        });
+        if (activateResult?.data?.error) {
+          setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+          setActivating(false);
+          return;
+        }
+        setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to: ${targetProfile.display_name}` });
       }
 
-      // Step 2: Update NFCDevice — must use the DeviceActivation page's backend function
-      // Direct update blocked by RLS (profile_id is null, user not yet owner).
-      // We invoke activateNfcDevice backend function which uses asServiceRole.
-      const activateResult = await base44.functions.invoke("activateNfcDevice", {
-        device_id: device.id,
-        profile_id: targetProfile.id,
-        user_id: user.id,
-        user_name: user.full_name,
-        profile_name: targetProfile.display_name,
-        old_status: device.status,
-      });
-
-      if (activateResult?.data?.error) {
-        setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
-        setActivating(false);
-        return;
-      }
-
-      setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to: ${targetProfile.display_name}` });
       setCode("");
       setSelectedProfile("");
+      setSelectedAsset("");
+      setAssignTarget("profile");
       queryClient.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
       queryClient.invalidateQueries({ queryKey: ["my-devices"] });
     } catch (e) {
@@ -209,7 +244,22 @@ export default function ActivateDevice() {
         {/* Activate Form */}
         <div className="rounded-2xl p-6" style={cardStyle}>
           <h2 className={`font-black text-lg mb-1 ${headText}`}>Enter Activation Code</h2>
-          <p className={`text-sm mb-5 ${mutedText}`}>Find the code printed on your device (e.g. BG-10001)</p>
+          <p className={`text-sm mb-4 ${mutedText}`}>Find the code printed on the back of your device</p>
+
+          {/* Where to find your code */}
+          <div className="flex items-center gap-3 p-3 rounded-xl mb-4" style={{ background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)", border: `1px solid ${isDark ? "rgba(99,102,241,0.15)" : "rgba(99,102,241,0.1)"}` }}>
+            <div className="flex-shrink-0 w-12 h-8 rounded-md flex flex-col items-center justify-center" style={{ background: "#fff", border: "1px solid #E5EAF2" }}>
+              <div className="w-6 h-6 grid grid-cols-5 grid-rows-5 gap-px">
+                {Array.from({ length: 25 }).map((_, i) => (
+                  <div key={i} style={{ background: (i * 7 + 3) % 100 > 50 ? "#0b2149" : "transparent" }} />
+                ))}
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-bold ${headText}`}>Where to find it</p>
+              <p className={`text-[11px] ${mutedText}`}>Look on the back — the code starts with "BG-" followed by 6 digits</p>
+            </div>
+          </div>
 
           <div className="space-y-4">
             <input
@@ -220,21 +270,42 @@ export default function ActivateDevice() {
               onKeyDown={e => e.key === "Enter" && handleActivate()}
             />
 
-            {profiles.length > 1 && (
-              <div>
-                <label className={`text-xs font-bold uppercase tracking-wider ${mutedText} block mb-1.5`}>Link to Profile</label>
-                <select
-                  className={inputCls}
-                  value={selectedProfile}
-                  onChange={e => setSelectedProfile(e.target.value)}
-                >
-                  <option value="">Default (first profile)</option>
-                  {profiles.map(p => (
-                    <option key={p.id} value={p.id}>{p.display_name || p.username}</option>
-                  ))}
-                </select>
+            {/* Assign to Profile or Asset */}
+            <div>
+              <label className={`text-xs font-bold uppercase tracking-wider ${mutedText} block mb-1.5`}>Assign To</label>
+              <div className="flex gap-2 mb-2">
+                <button onClick={() => setAssignTarget("profile")}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all ${assignTarget === "profile" ? "bg-blue-600 text-white" : isDark ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-500"}`}>
+                  Profile
+                </button>
+                <button onClick={() => setAssignTarget("asset")}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all ${assignTarget === "asset" ? "bg-blue-600 text-white" : isDark ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-500"}`}>
+                  Asset
+                </button>
               </div>
-            )}
+
+              {assignTarget === "profile" ? (
+                profiles.length > 1 ? (
+                  <select className={inputCls} value={selectedProfile} onChange={e => setSelectedProfile(e.target.value)}>
+                    <option value="">Default (first profile)</option>
+                    {profiles.map(p => <option key={p.id} value={p.id}>{p.display_name || p.username}</option>)}
+                  </select>
+                ) : profiles.length === 1 ? (
+                  <p className={`text-xs ${mutedText}`}>Will link to: <span className={`font-bold ${headText}`}>{profiles[0].display_name || profiles[0].username}</span></p>
+                ) : (
+                  <p className={`text-xs ${mutedText}`}>Create a profile first to activate a device.</p>
+                )
+              ) : (
+                myAssets.length > 0 ? (
+                  <select className={inputCls} value={selectedAsset} onChange={e => setSelectedAsset(e.target.value)}>
+                    <option value="">Select an asset…</option>
+                    {myAssets.map(a => <option key={a.id} value={a.id}>{a.name} ({a.asset_type})</option>)}
+                  </select>
+                ) : (
+                  <p className={`text-xs ${mutedText}`}>No assets yet. Create one in My Assets first.</p>
+                )
+              )}
+            </div>
 
             <Button
               onClick={handleActivate}

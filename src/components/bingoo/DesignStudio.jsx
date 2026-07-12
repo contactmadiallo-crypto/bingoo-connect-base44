@@ -34,12 +34,12 @@ const FINISHES = ['Matte', 'Glossy', 'Frosted'];
 
 // ── Pre-designed templates for quick start ──
 const TEMPLATES = [
-  { id: 'corp_navy',   name: 'Corporate Navy',  cardColor: '#0b2149', accentColor: '#f97316', finish: 'Matte' },
-  { id: 'clean_white', name: 'Clean White',     cardColor: '#F1F5F9', accentColor: '#3b82f6', finish: 'Glossy' },
-  { id: 'bold_black',  name: 'Bold Black',      cardColor: '#0F172A', accentColor: '#FFD700', finish: 'Matte' },
-  { id: 'vibrant_org', name: 'Vibrant Orange',  cardColor: '#f97316', accentColor: '#FFFFFF', finish: 'Glossy' },
-  { id: 'elegant_burg',name: 'Elegant Burgundy', cardColor: '#7C1D3A', accentColor: '#FFD700', finish: 'Matte' },
-  { id: 'tech_blue',   name: 'Tech Blue',       cardColor: '#3b82f6', accentColor: '#FFFFFF', finish: 'Frosted' },
+  { id: 'clean_business',  name: 'Clean Business',  cardColor: '#F1F5F9', finish: 'Matte',   pattern: null },
+  { id: 'bold_brand',      name: 'Bold Brand',      cardColor: '#0F172A', finish: 'Glossy',  pattern: { enabled: true, opacity: 10, size: 'medium', direction: 'straight', coverage: 'full' } },
+  { id: 'minimal_premium', name: 'Minimal Premium', cardColor: '#D4AF37', finish: 'Matte',   pattern: null },
+  { id: 'dark_executive',  name: 'Dark Executive',  cardColor: '#0b2149', finish: 'Matte',   pattern: { enabled: true, opacity: 8, size: 'small', direction: 'diagonal', coverage: 'bottom_fade' } },
+  { id: 'light_pro',       name: 'Light Pro',       cardColor: '#3b82f6', finish: 'Frosted', pattern: null },
+  { id: 'event_staff',     name: 'Event/Staff',     cardColor: '#f97316', finish: 'Glossy',  pattern: { enabled: true, opacity: 12, size: 'large', direction: 'centered', coverage: 'center_fade' } },
 ];
 
 const UNIT_PRICE = 3.99;
@@ -58,11 +58,11 @@ export default function DesignStudio({ isDark }) {
   const [cardColor, setCardColor] = useState(NAVY);
   const [accentColor, setAccentColor] = useState(ORANGE);
   const [nameText, setNameText] = useState('');
+  const [holderName, setHolderName] = useState('');
   const [roleText, setRoleText] = useState('');
   const [finish, setFinish] = useState('Matte');
   const [quantity, setQuantity] = useState(50);
   const [removeBranding, setRemoveBranding] = useState(false);
-  const [nfcDestination, setNfcDestination] = useState('');
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [ordered, setOrdered] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -98,7 +98,7 @@ export default function DesignStudio({ isDark }) {
 
   const handleSaveDraft = () => {
     saveDraft({
-      productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity,
+      productType, cardColor, accentColor, nameText, holderName, roleText, finish, quantity,
       logoUrl, removeBranding, brandPattern,
       name: `${nameText || 'Untitled'} — ${productLabel}`,
     });
@@ -117,7 +117,7 @@ export default function DesignStudio({ isDark }) {
     setAccentColor(d.accentColor || ORANGE);
     setNameText(d.nameText || '');
     setRoleText(d.roleText || '');
-    setNfcDestination(d.nfcDestination || '');
+    setHolderName(d.holderName || '');
     setFinish(d.finish || 'Matte');
     setQuantity(d.quantity || 50);
     setLogoUrl(d.logoUrl || null);
@@ -132,7 +132,7 @@ export default function DesignStudio({ isDark }) {
       price: total,
       image: logoUrl,
       activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, roleText, nfcDestination, finish, quantity, removeBranding, brandPattern },
+      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, finish, quantity, removeBranding, brandPattern },
     }, 1);
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
@@ -158,9 +158,11 @@ export default function DesignStudio({ isDark }) {
             <div className="grid grid-cols-3 gap-2">
               {TEMPLATES.map(t => (
                 <button key={t.id} onClick={() => {
-                  setCardColor(t.cardColor); setAccentColor(t.accentColor); setFinish(t.finish);
-                  setActiveTemplate(t.id);
-                }}
+                   setCardColor(t.cardColor); setFinish(t.finish);
+                   if (t.pattern) setBrandPattern(t.pattern);
+                   else setBrandPattern(p => ({ ...p, enabled: false }));
+                   setActiveTemplate(t.id);
+                 }}
                   className="p-1.5 rounded-lg border-2 text-center transition-all"
                   style={{ borderColor: activeTemplate === t.id ? ORANGE : BORDER, background: '#fff' }}>
                   <div className="w-full h-8 rounded mb-1" style={{ background: t.cardColor }}>
@@ -242,7 +244,7 @@ export default function DesignStudio({ isDark }) {
                       <p className="text-[9px] font-bold" style={{ color: labelColor }}>Pattern Opacity</p>
                       <p className="text-[9px] font-black" style={{ color: ORANGE }}>{brandPattern.opacity}%</p>
                     </div>
-                    <input type="range" min={5} max={25} value={brandPattern.opacity}
+                    <input type="range" min={5} max={20} value={brandPattern.opacity}
                       onChange={(e) => setBrandPattern(p => ({ ...p, opacity: Number(e.target.value) }))}
                       className="w-full h-1.5 rounded-full appearance-none cursor-pointer" style={{ background: BG }} />
                   </div>
@@ -265,7 +267,7 @@ export default function DesignStudio({ isDark }) {
                   <div>
                     <p className="text-[9px] font-bold mb-1" style={{ color: labelColor }}>Pattern Direction</p>
                     <div className="grid grid-cols-3 gap-1.5">
-                      {[{v:'straight',l:'Straight'},{v:'diagonal',l:'Diagonal'},{v:'offset',l:'Offset Grid'}].map(d => (
+                      {[{v:'straight',l:'Straight'},{v:'diagonal',l:'Diagonal'},{v:'offset',l:'Offset'},{v:'centered',l:'Centered'},{v:'corner_fade',l:'Corner'}].map(d => (
                         <button key={d.v} onClick={() => setBrandPattern(p => ({ ...p, direction: d.v }))}
                           className="px-1 py-1.5 rounded-lg border text-[8px] font-bold text-center transition-all"
                           style={brandPattern.direction === d.v ? { background: ORANGE, color: '#fff', borderColor: ORANGE } : { borderColor: BORDER, color: MUTED, background: '#fff' }}>
@@ -279,7 +281,7 @@ export default function DesignStudio({ isDark }) {
                   <div>
                     <p className="text-[9px] font-bold mb-1" style={{ color: labelColor }}>Pattern Coverage</p>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {[{v:'full',l:'Full Card'},{v:'top_fade',l:'Top Fade'},{v:'bottom_fade',l:'Bottom Fade'},{v:'center_fade',l:'Center Fade'}].map(c => (
+                      {[{v:'full',l:'Full Card'},{v:'top_fade',l:'Top Fade'},{v:'bottom_fade',l:'Bottom Fade'},{v:'center_fade',l:'Center Fade'},{v:'edge_fade',l:'Edge Fade'}].map(c => (
                         <button key={c.v} onClick={() => setBrandPattern(p => ({ ...p, coverage: c.v }))}
                           className="px-2 py-1.5 rounded-lg border text-[8px] font-bold text-center transition-all"
                           style={brandPattern.coverage === c.v ? { background: ORANGE, color: '#fff', borderColor: ORANGE } : { borderColor: BORDER, color: MUTED, background: '#fff' }}>
@@ -298,7 +300,7 @@ export default function DesignStudio({ isDark }) {
                   )}
 
                   {/* Safeguard: Readability warning */}
-                  {brandPattern.opacity > 18 && (
+                  {brandPattern.opacity > 15 && (
                     <div className="flex items-center gap-1.5 p-2 rounded-lg text-[8px] font-bold" style={{ background: '#FEF3C7', color: '#92400E' }}>
                       <AlertTriangle className="w-3 h-3 flex-shrink-0" />
                       High opacity may reduce text readability. Recommended range: 5–15%.
@@ -333,20 +335,22 @@ export default function DesignStudio({ isDark }) {
             </div>
           </div>
 
-          {/* Text Fields */}
+          {/* Identity Fields */}
           <div className="mb-5 space-y-3">
             <div>
-              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Name on Card</p>
+              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Company Name</p>
               <input value={nameText} onChange={(e) => setNameText(e.target.value)} placeholder="e.g. Diallo Law Firm" className={inputCls} />
             </div>
             <div>
-              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Role / Tagline</p>
-              <input value={roleText} onChange={(e) => setRoleText(e.target.value)} placeholder="e.g. Immigration · Civil · Criminal" className={inputCls} />
+              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Holder Full Name</p>
+              <input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder="e.g. Amadou Diallo" className={inputCls} />
             </div>
             <div>
-              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>NFC Destination URL</p>
-              <input value={nfcDestination} onChange={(e) => setNfcDestination(e.target.value)} placeholder="/p/yourusername or any URL" className={inputCls} />
-              <p className="text-[9px] mt-1" style={{ color: MUTED }}>Where the NFC card links to when tapped</p>
+              <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>Role / Position</p>
+              <input value={roleText} onChange={(e) => setRoleText(e.target.value)} placeholder="e.g. Managing Attorney" className={inputCls} />
+            </div>
+            <div className="p-2.5 rounded-lg" style={{ background: `${NAVY}08` }}>
+              <p className="text-[9px] font-bold" style={{ color: MUTED }}>📱 Phone, email, and website are configured on your public profile — no need to enter them here.</p>
             </div>
           </div>
 
@@ -425,7 +429,8 @@ export default function DesignStudio({ isDark }) {
           </div>
           <div className="mb-8 transition-transform hover:scale-105">
             <ProductPreview productType={productType} cardColor={cardColor} accentColor={accentColor}
-              logoUrl={logoUrl} nameText={nameText} roleText={roleText} removeBranding={removeBranding}
+              logoUrl={logoUrl} nameText={nameText} holderName={holderName} roleText={roleText}
+              removeBranding={removeBranding} finish={finish}
               side="front" isDark={isDark} brandPattern={brandPattern} />
             <p className="text-center text-[10px] font-bold mt-3" style={{ color: MUTED }}>FRONT</p>
           </div>
@@ -449,6 +454,12 @@ export default function DesignStudio({ isDark }) {
               <span className="text-[10px] font-bold" style={{ color: MUTED }}>Finish</span>
               <span className="text-[10px] font-bold" style={{ color: labelColor }}>{finish}</span>
             </div>
+            {holderName && (
+              <div className="flex justify-between">
+                <span className="text-[10px] font-bold" style={{ color: MUTED }}>Holder</span>
+                <span className="text-[10px] font-bold truncate ml-2" style={{ color: labelColor }}>{holderName}</span>
+              </div>
+            )}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-bold" style={{ color: MUTED }}>Quantity</span>

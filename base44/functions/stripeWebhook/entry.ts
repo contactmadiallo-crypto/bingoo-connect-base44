@@ -154,6 +154,92 @@ async function updateProfilePlan(base44, { customerEmail, userId, plan }) {
   }
 }
 
+// ── Generate manufacturing devices and activation codes after payment ────────
+// For each custom NFC item in the order, creates NFCDevice records with unique
+// activation codes (BG-XXXXXX). Devices are created with status "available" —
+// the customer activates them after receiving the physical product.
+async function generateManufacturingDevices(base44, shopOrder, orderId) {
+  try {
+    const items = shopOrder.items || [];
+    const customItems = items.filter(item => item.customDesign);
+    if (customItems.length === 0) return;
+
+    // Find the highest existing BG-XXXXXX number to continue sequentially
+    const existing = await base44.asServiceRole.entities.NFCDevice.filter({}, '-device_code', 1);
+    let nextNum = 1;
+    if (existing.length > 0 && existing[0].device_code) {
+      const match = String(existing[0].device_code).match(/BG-(\d+)/i);
+      if (match) nextNum = parseInt(match[1], 10) + 1;
+    }
+
+    const manufacturingItems = [];
+    const allDevices = [];
+
+    for (const item of customItems) {
+      const cd = item.customDesign;
+      const qty = Math.min(item.quantity || 1, 500);
+      const codes = [];
+
+      for (let i = 0; i < qty; i++) {
+        const code = `BG-${String(nextNum + i).padStart(6, '0')}`;
+        const qrUrl = `https://bingooconnect.com/n/${code}`;
+        codes.push({ code, qr_url: qrUrl });
+
+        allDevices.push({
+          device_code: code,
+          device_type: cd.productType || 'card',
+          product_sku: item.product_id || '',
+          product_name: item.product_name || `NFC ${cd.productType || 'Card'}`,
+          status: 'available',
+          description: `${cd.nameText || ''} — ${cd.holderName || ''} (${cd.finish || 'Matte'})`.trim(),
+        });
+      }
+
+      manufacturingItems.push({
+        product_type: cd.productType || 'card',
+        product_sku: item.product_id || '',
+        product_name: item.product_name || `NFC ${cd.productType || 'Card'}`,
+        finish: cd.finish || 'Matte',
+        quantity: qty,
+        company_name: cd.nameText || '',
+        holder_name: cd.holderName || '',
+        role_position: cd.roleText || '',
+        logo_url: cd.logoUrl || '',
+        card_color: cd.cardColor || '',
+        accent_color: cd.accentColor || '',
+        remove_branding: cd.removeBranding || false,
+        brand_pattern: cd.brandPattern || null,
+        design_data: cd,
+        activation_codes: codes,
+        manufacturing_status: 'pending',
+      });
+
+      nextNum += qty;
+    }
+
+    // Bulk create NFCDevice records in batches of 100
+    if (allDevices.length > 0) {
+      for (let i = 0; i < allDevices.length; i += 100) {
+        const batch = allDevices.slice(i, i + 100);
+        await base44.asServiceRole.entities.NFCDevice.bulkCreate(batch);
+      }
+      console.log(`Created ${allDevices.length} NFCDevice records for order ${orderId}`);
+    }
+
+    // Update ShopOrder with manufacturing items + all device codes
+    if (manufacturingItems.length > 0) {
+      const allCodes = manufacturingItems.flatMap(m => m.activation_codes.map(c => c.code));
+      await base44.asServiceRole.entities.ShopOrder.update(orderId, {
+        manufacturing_items: manufacturingItems,
+        assigned_device_codes: allCodes,
+      });
+      console.log(`Generated ${allCodes.length} activation codes for order ${orderId}`);
+    }
+  } catch (e) {
+    console.error('generateManufacturingDevices error (non-blocking):', e.message);
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -201,6 +287,9 @@ Deno.serve(async (req) => {
             stripe_payment_intent: session.payment_intent || '',
           });
           console.log('Order marked as paid:', order_id, '| session:', session.id);
+
+          // Generate activation codes for custom NFC items (non-blocking)
+          await generateManufacturingDevices(base44, shopOrder, order_id);
         }
 
       } else if (session.mode === 'subscription') {
