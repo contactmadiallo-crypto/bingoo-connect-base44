@@ -136,7 +136,7 @@ const AuthenticatedApp = () => {
         <Route element={<BingooLayoutWrapper />}>
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/account-settings" element={<AccountSettings />} />
-          <Route path="/advanced-admin" element={<AdvancedAdmin />} />
+          <Route path="/advanced-admin" element={<Navigate to="/admin" replace />} />
         </Route>
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />

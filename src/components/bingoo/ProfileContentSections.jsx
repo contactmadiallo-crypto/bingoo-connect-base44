@@ -15,6 +15,7 @@ import ReportAbuseButton from "@/components/bingoo/ReportAbuseButton";
 import SalonServicesSection from "@/components/bingoo/SalonServicesSection";
 import SalonTeamSection from "@/components/bingoo/SalonTeamSection";
 import SalonLoyaltyCard from "@/components/bingoo/SalonLoyaltyCard";
+import BusinessProfileExtras from "@/components/bingoo/BusinessProfileExtras";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import {
   SaveContactIcon, ShareIcon, WebsiteIcon, MapPinIcon,
@@ -398,6 +399,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </motion.p>
       )}
 
+      {/* ── Business profile extras: logo, offer, gallery, review CTA ── */}
+      <BusinessProfileExtras profile={profile} color={color} isDark={isDark} track={track} />
+
       {/* ── Contact row: Call / WhatsApp / Email / Book ── */}
       <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
 
@@ -546,23 +550,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           {isSalonOrRestaurant && (
             <SalonLoyaltyCard profileId={profile.id} color={color} isDark={isDark} />
           )}
-          {/* ── Prominent Google Review for salons ── */}
-          {profile.google_review_url && isSalonOrRestaurant && (
-            <a href={profile.google_review_url} target="_blank" rel="noreferrer" style={{ display: "block", marginBottom: 20, textDecoration: "none" }}>
-              <div style={{
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-                padding: "14px 20px", borderRadius: 18, cursor: "pointer",
-                background: isDark ? "rgba(251,191,36,0.1)" : "#fffbeb",
-                border: isDark ? "1px solid rgba(251,191,36,0.25)" : "1px solid #fde68a",
-              }}>
-                <span style={{ fontSize: 22 }}>⭐</span>
-                <div>
-                  <p style={{ margin: 0, fontWeight: 800, fontSize: 14, color: isDark ? "#fbbf24" : "#92400e" }}>Leave us a Google Review</p>
-                  <p style={{ margin: 0, fontSize: 11, color: isDark ? "rgba(251,191,36,0.6)" : "#b45309" }}>Your review helps us grow! 🙏</p>
-                </div>
-              </div>
-            </a>
-          )}
+
         </>
       )}
 
