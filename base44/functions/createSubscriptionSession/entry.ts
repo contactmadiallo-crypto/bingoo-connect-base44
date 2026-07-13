@@ -13,7 +13,6 @@ const PLAN_MAP = {
   salon:        { productId: 'prod_UfF46myS8RxwKE', monthly: 1999,  annual: 21589, productName: 'Bingoo Salon Plan' },
   lawfirm:      { productId: 'prod_UfFHNuhuWhyGVZ', monthly: 4900,  annual: 52920, productName: 'Bingoo Law Firm Plan' },
   business:     { productId: 'prod_UdL2NqVtcHwKb2', monthly: 1499,  annual: 16189, productName: 'Bingoo Business Plan' },
-  corporate:    { productId: 'prod_UsKCo8sDBXEsuY', monthly: 9900,  annual: 106920, productName: 'Bingoo Corporate Plan' },
 };
 
 const STRIPE_SUPPORTED_CURRENCIES = ['usd', 'eur', 'gbp', 'cad'];

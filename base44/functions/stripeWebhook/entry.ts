@@ -8,7 +8,6 @@ const PRODUCT_TO_PLAN = {
   'prod_UfF46myS8RxwKE': 'salon',
   'prod_UfFHNuhuWhyGVZ': 'lawfirm',
   'prod_UdL2NqVtcHwKb2': 'business',
-  'prod_UsKCo8sDBXEsuY': 'corporate',
 };
 
 // ── Test Account Overrides ──────────────────────────────────────────────────
