@@ -1,5 +1,39 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// ── Server-side plan entitlement (mirrors getUserFeatures) ──────────────────
+// Professional-tier plans include lead_collection + appointment_booking.
+const PRO_TIER_PLANS = new Set(['professional', 'pro', 'business', 'salon', 'restaurant', 'lawfirm', 'corporate']);
+
+function normalizePlan(plan) {
+  if (!plan) return 'free';
+  if (plan === 'pro') return 'professional';
+  return PRO_TIER_PLANS.has(plan) ? plan : 'free';
+}
+
+async function getOwnerPlan(base44, ownerUserId) {
+  if (!ownerUserId) return 'free';
+  let ownerEmail = null;
+  try {
+    const owner = await base44.asServiceRole.entities.User.get(ownerUserId);
+    ownerEmail = owner?.email;
+  } catch (e) {
+    console.error('Owner user lookup failed:', e.message);
+  }
+  if (!ownerEmail) return 'free';
+
+  const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: ownerEmail });
+  const sub = subs?.[0];
+  if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due')) {
+    return normalizePlan(sub.plan);
+  }
+  // Legacy grace: users with existing profiles but no subscription get Professional
+  try {
+    const profiles = await base44.asServiceRole.entities.Profile.filter({ created_by_id: ownerUserId });
+    if (profiles.length > 0) return 'professional';
+  } catch (e) {}
+  return 'free';
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -28,6 +62,19 @@ Deno.serve(async (req) => {
       ownerUserId = profile?.created_by_id || null;
     } catch (e) {
       console.error('Profile lookup failed:', e.message);
+    }
+
+    // ── Entitlement: owner must have appointment_booking feature + booking_enabled ──
+    const ownerPlan = await getOwnerPlan(base44, ownerUserId);
+    if (!PRO_TIER_PLANS.has(ownerPlan)) {
+      return Response.json({
+        error: 'This profile does not support appointment booking. The owner needs a Professional plan or above.',
+      }, { status: 403 });
+    }
+    if (profile?.booking_enabled !== true) {
+      return Response.json({
+        error: 'Appointment booking is not enabled for this profile.',
+      }, { status: 403 });
     }
 
     const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
