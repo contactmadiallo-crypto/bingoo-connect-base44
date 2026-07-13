@@ -1,41 +1,20 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Check, QrCode, Smartphone, ExternalLink, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Smartphone, X, CheckCircle, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const DEVICE_BASE_URL = "https://bingooconnect.com/n/";
+import { useBingooTheme } from "@/hooks/useBingooTheme";
 
 export default function NFCSetupGuide({ device, onClose }) {
-  const [copied, setCopied] = useState(false);
-  const [os, setOs] = useState("iphone");
+  const { isDark } = useBingooTheme();
 
-  const deviceUrl = `${DEVICE_BASE_URL}${device.device_code}`;
+  const deviceUrl = `${window.location.origin}/n/${device.device_code}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(deviceUrl)}&color=1e293b&bgcolor=f8fafc`;
 
-  const copyUrl = () => {
-    navigator.clipboard.writeText(deviceUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const iphoneSteps = [
-    { n: 1, text: 'Download "NFC Tools" from the App Store.' },
-    { n: 2, text: "Open NFC Tools." },
-    { n: 3, text: 'Tap "Write".' },
-    { n: 4, text: 'Tap "Add a record" → choose "URL / URI".' },
-    { n: 5, text: "Paste your Device URL." },
-    { n: 6, text: 'Tap "Write" and hold your phone near the NFC tag.' },
-  ];
-
-  const androidSteps = [
-    { n: 1, text: 'Download "NFC Tools" from the Play Store.' },
-    { n: 2, text: "Open NFC Tools." },
-    { n: 3, text: 'Tap "Write" → "Add a record" → "URL".' },
-    { n: 4, text: "Paste your Device URL." },
-    { n: 5, text: 'Tap "Write / 1 record" and hold near the NFC tag.' },
-  ];
-
-  const steps = os === "iphone" ? iphoneSteps : androidSteps;
+  const cardBg = isDark ? "bg-[#13284f]" : "bg-white";
+  const stepBg = isDark ? "bg-white/5" : "bg-slate-50";
+  const stepText = isDark ? "text-white/70" : "text-slate-600";
+  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+  const headText = isDark ? "text-white" : "text-slate-900";
+  const labelCls = isDark ? "text-white/40" : "text-slate-400";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -43,105 +22,77 @@ export default function NFCSetupGuide({ device, onClose }) {
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16 }}
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+        className={`${cardBg} rounded-3xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto`}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-violet-600 p-6 text-white relative">
+        {/* Header — Bingoo branded */}
+        <div className="bg-gradient-to-r from-[#0b2149] to-[#13284f] p-6 text-white relative">
           <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Smartphone className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+              <Smartphone className="w-5 h-5 text-orange-400" />
             </div>
             <div>
-              <h2 className="font-black text-lg">NFC Setup Guide</h2>
-              <p className="text-white/70 text-xs">{device.nickname || device.device_code}</p>
+              <h2 className="font-black text-lg">Your Device is Ready</h2>
+              <p className="text-white/60 text-xs font-mono">{device.description || device.device_code}</p>
             </div>
           </div>
         </div>
 
         <div className="p-6 space-y-5">
-          {/* Device URL */}
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Your Device URL</p>
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-              <span className="flex-1 text-sm font-mono text-slate-700 break-all">{deviceUrl}</span>
-              <button onClick={copyUrl} className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors">
-                {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied!" : "Copy"}
-              </button>
+          {/* Pre-programmed notice */}
+          <div className={`flex gap-3 p-4 rounded-xl ${isDark ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
+            <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
+            <div>
+              <p className={`font-bold text-sm ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>Pre-programmed at the factory</p>
+              <p className={`text-xs mt-1 ${isDark ? "text-emerald-400/70" : "text-emerald-600"}`}>Your Bingoo NFC device is already configured. No programming needed — just tap it with any NFC-enabled phone.</p>
             </div>
           </div>
 
-          {/* QR Code */}
-          <div className="text-center">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">QR Code</p>
-            <div className="inline-block p-4 bg-slate-50 rounded-2xl border border-slate-200">
-              <img src={qrUrl} alt="QR Code" className="w-36 h-36 mx-auto rounded-lg" />
-            </div>
-            <div className="flex justify-center gap-2 mt-3">
-              <a href={qrUrl} download={`${device.device_code}-qr.png`} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <QrCode className="w-3.5 h-3.5" /> Download QR
-                </Button>
-              </a>
-              <a href={deviceUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm" className="gap-1.5 text-xs">
-                  <ExternalLink className="w-3.5 h-3.5" /> Test URL
-                </Button>
-              </a>
-            </div>
-          </div>
-
-          {/* OS Toggle */}
+          {/* How to use */}
           <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Programming Instructions</p>
-            <div className="flex gap-2 mb-4">
-              {[{ id: "iphone", label: "📱 iPhone" }, { id: "android", label: "🤖 Android" }].map(o => (
-                <button
-                  key={o.id}
-                  onClick={() => setOs(o.id)}
-                  className={`flex-1 py-2 rounded-xl text-sm font-bold transition-all border ${
-                    os === o.id
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-slate-200 text-slate-500 hover:bg-slate-50"
-                  }`}
-                >
-                  {o.label}
-                </button>
+            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>How to Share Your Profile</p>
+            <div className="space-y-3">
+              {[
+                { n: 1, title: "Tap to Share", desc: "Hold the back of any NFC-enabled phone against your device. Your profile opens instantly." },
+                { n: 2, title: "No App Needed", desc: "Most phones wake up automatically on tap. iPhone XR+ and most Androids support background NFC." },
+                { n: 3, title: "Scan QR as Backup", desc: "If NFC isn't available, scan the QR code below with any camera app — same result." },
+              ].map(step => (
+                <div key={step.n} className={`flex items-start gap-3 p-3 rounded-xl ${stepBg}`}>
+                  <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{step.n}</span>
+                  <div>
+                    <p className={`text-sm font-bold ${headText}`}>{step.title}</p>
+                    <p className={`text-xs mt-0.5 ${mutedText}`}>{step.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={os}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-2"
-              >
-                {steps.map(step => (
-                  <div key={step.n} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
-                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">
-                      {step.n}
-                    </span>
-                    <p className="text-sm text-slate-700 leading-relaxed">{step.text}</p>
-                  </div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
           </div>
 
-          {/* Done */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center">
-            <p className="text-2xl mb-1">✅</p>
-            <p className="font-bold text-emerald-800 text-sm">After writing, tap your phone against the tag to test it!</p>
-            <p className="text-emerald-600 text-xs mt-1">Your profile will open instantly — no app required.</p>
+          {/* QR Code for testing */}
+          <div className="text-center">
+            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>Test Your Device</p>
+            <div className="inline-block p-3 bg-white rounded-2xl border border-slate-200">
+              <img src={qrUrl} alt="QR Code" className="w-32 h-32 mx-auto rounded-lg" />
+            </div>
+            <p className={`text-xs mt-2 ${mutedText}`}>Scan to simulate a tap and preview what visitors see</p>
+            <a href={deviceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-2 text-orange-500 text-xs font-bold hover:underline">
+              <QrCode className="w-3.5 h-3.5" /> Open Profile Preview
+            </a>
           </div>
 
-          <Button onClick={onClose} className="w-full bg-slate-900 hover:bg-slate-700 text-white font-bold">
+          {/* Troubleshooting */}
+          <details className={`rounded-xl ${stepBg} p-3`}>
+            <summary className={`text-sm font-bold cursor-pointer select-none ${headText}`}>Troubleshooting</summary>
+            <div className="mt-3 space-y-2 text-xs">
+              <p className={stepText}><strong className={headText}>iPhone not responding?</strong> Ensure NFC is enabled. iPhone 7 and earlier require opening an NFC scanner app first.</p>
+              <p className={stepText}><strong className={headText}>Android not responding?</strong> Check Settings → Connections → NFC is turned on.</p>
+              <p className={stepText}><strong className={headText}>Need a replacement?</strong> Contact support — we'll transfer your profile to a new device.</p>
+            </div>
+          </details>
+
+          <Button onClick={onClose} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold">
             Done
           </Button>
         </div>

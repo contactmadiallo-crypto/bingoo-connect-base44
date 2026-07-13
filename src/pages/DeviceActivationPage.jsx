@@ -46,13 +46,25 @@ export default function DeviceActivationPage({ deviceCode, device }) {
     setActivating(true);
     setError("");
     try {
-      await base44.entities.NFCDevice.update(device.id, {
+      // Use backend function for plan enforcement, race guard, audit log, and ownership verification
+      const profileName = profiles.find(p => p.id === selectedProfileId)?.display_name || "";
+      const result = await base44.functions.invoke("activateNfcDevice", {
+        device_id: device.id,
         profile_id: selectedProfileId,
-        status: "active",
-        assigned_at: new Date().toISOString(),
+        user_id: user.id,
+        user_name: user.full_name,
+        profile_name: profileName,
+        old_status: device.status,
       });
-      // Update user's owned_profile_ids
-      const p = profiles.find(p => p.id === selectedProfileId);
+
+      // Handle backend errors (plan limits, already claimed, ownership)
+      if (result?.data?.error) {
+        setError(result.data.error);
+        setActivating(false);
+        return;
+      }
+
+      // Update user's owned_profile_ids (safety net for older profiles)
       const ownedIds = user?.owned_profile_ids || [];
       if (!ownedIds.includes(selectedProfileId)) {
         await base44.auth.updateMe({ owned_profile_ids: [...ownedIds, selectedProfileId] });
@@ -247,7 +259,16 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   </div>
                 </details>
 
-                {error && <p className="text-red-400 text-sm bg-red-500/10 rounded-xl px-4 py-3 mb-4">{error}</p>}
+                {error && (
+                  <div className="bg-red-500/10 rounded-xl px-4 py-3 mb-4">
+                    <p className="text-red-400 text-sm">{error}</p>
+                    {error.toLowerCase().includes("upgrade") && (
+                      <a href="/plans" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
+                        View Plans →
+                      </a>
+                    )}
+                  </div>
+                )}
 
                 <Button onClick={handleActivate} disabled={activating || !selectedProfileId}
                   className="w-full h-13 text-base font-black rounded-2xl gap-2"
