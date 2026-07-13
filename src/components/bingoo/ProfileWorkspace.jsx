@@ -1248,14 +1248,14 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
                 isDark={isDark} copiedUrl={copiedUrl}
                 onCopy={copyUrl} lang={lang}
                 profile={profile}
-                effectivePlan={getEffectiveProfilePlan(userPlan, profile)}
+                effectivePlan={userPlan || "free"}
                 liveForm={liveForm}
                 setVal={setVal}
                 {...makeSaveProps("share")}
               />
             )}
             {innerTab === "lostmode" && (
-              <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={getEffectiveProfilePlan(userPlan, profile)} />
+              <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={userPlan || "free"} />
             )}
             {innerTab === "settings" && (
               <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set}
