@@ -7,9 +7,9 @@ import { Plus, Edit2, Trash2, Save, X, Check } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { CURRENCY_CONFIG, SUPPORTED_CURRENCIES } from '@/hooks/useCurrency';
+import { PLAN_LABELS, CUSTOMER_PLAN_IDS } from '@/lib/planPermissions';
 
-const PLANS = ['professional', 'salon', 'restaurant', 'lawfirm', 'corporate'];
-const PLAN_LABELS = { professional: 'Professional', salon: 'Salon', restaurant: 'Restaurant', lawfirm: 'Law Firm', corporate: 'Corporate' };
+const PLANS = CUSTOMER_PLAN_IDS;
 
 const orange = '#f97316';
 const gold = '#FDBA21';

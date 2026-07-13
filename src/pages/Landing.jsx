@@ -13,6 +13,7 @@ import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
+import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD } from "@/lib/planPermissions";
 
 // ── Bingoo Brand Colors (official: Navy #0b2149 + Orange #f97316)
 const B = {
@@ -281,48 +282,26 @@ const features = [
   }
 ];
 
-const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    period: "",
-    desc: "Get started today",
-    features: ["1 profile", "Public profile link", "Basic contact sharing", "Social links", "QR code", "WhatsApp button"],
-    highlight: false,
-    cta: "Get Started Free",
-    color: B.navy
-  },
-  {
-    name: "Professional",
-    price: "$4.99",
-    period: "/mo",
-    desc: "For individuals and freelancers",
-    features: ["Everything in Free", "Appointment booking", "Lead collection CRM", "Gallery and portfolio", "Full analytics dashboard", "Custom branding and colors", "QR code download", "Up to 5 NFC devices", "Instagram integration", "Save contact button"],
-    highlight: true,
-    cta: "Get Professional",
-    color: B.orange
-  },
-  {
-    name: "Salon",
-    price: "$19.99",
-    period: "/mo",
-    desc: "Hair, beauty and wellness",
-    features: ["Salon business profile", "Staff profiles", "Service menu", "Appointment booking", "WhatsApp booking button", "Instagram showcase", "Google review link", "Up to 10 NFC devices", "Advanced analytics", "Lead export"],
-    highlight: false,
-    cta: "Get Salon Plan",
-    color: B.navy
-  },
-  {
-    name: "Law Firm",
-    price: "$49",
-    period: "/mo",
-    desc: "Legal services and attorneys",
-    features: ["Law firm profile", "Practice areas", "Attorney profiles", "Legal services", "Office locations", "Lead intake forms", "CRM pipeline", "Case dashboard", "Advanced analytics", "Lead export"],
-    highlight: false,
-    cta: "Get Law Firm Plan",
-    color: B.navy
-  }
-];
+// Plans derived from PLAN_CONFIG — single source of truth in planPermissions.js
+// No hardcoded prices, names, or features. Everything comes from PLAN_CONFIG.
+const plans = CUSTOMER_PLAN_IDS.map(id => {
+  const c = PLAN_CONFIG[id];
+  const price = PLAN_PRICES_USD[id];
+  const allFeatures = PLAN_FEATURES[id] || [];
+  const features = allFeatures.slice(0, 8); // Top 8 for compact landing display
+  const isContactSales = c.status === 'contact_sales';
+  return {
+    name: c.label,
+    price: isContactSales ? 'Custom' : price === 0 ? '$0' : `$${price}`,
+    period: isContactSales || price === 0 ? '' : '/mo',
+    desc: c.tagline,
+    features,
+    highlight: id === 'professional',
+    cta: id === 'free' ? 'Get Started Free' : isContactSales ? 'Contact Sales' : `Get ${c.label}`,
+    color: c.color.text,
+    contactSales: isContactSales,
+  };
+});
 
 // Industries grouped into clear categories. Each card opens a detail panel
 // (LandingDetailModal) explaining who it's for, how they use Bingoo, which
@@ -715,7 +694,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (!statsVisible) return;
-    const targets = [10000, 50, 4, 99];
+    const targets = [10000, 50, 6, 99];
     const duration = 1800;
     const startTime = Date.now();
     const tick = () => {
@@ -1104,7 +1083,7 @@ export default function Landing() {
             </h2>
             <p className="text-slate-500 text-lg">NFC devices from $7.99. No hidden fees.</p>
           </ScrollReveal>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
+          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
             variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
             {plans.map((p, i) => (
               <motion.div key={p.name} variants={fadeUp}
@@ -1140,7 +1119,7 @@ export default function Landing() {
                   ))}
                 </ul>
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Button onClick={() => window.location.href = p.name === "Free" ? '/bingoo' : '/plans'}
+                  <Button onClick={() => window.location.href = p.name === "Free" ? '/bingoo' : p.contactSales ? '/contact-support' : '/plans'}
                     className="w-full font-bold"
                     style={{ background: p.highlight ? B.orange : B.navy, color: "#fff", border: "none" }}>
                     {p.cta}
