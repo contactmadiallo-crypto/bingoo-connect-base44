@@ -8,6 +8,7 @@ import { Eye, Check, Upload, Palette, CheckCircle, Sparkles } from "lucide-react
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { usePlan } from "@/hooks/usePlan";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -50,8 +51,10 @@ export default function DesignTab({ profile, user, onSaved }) {
   const [pendingChanges, setPendingChanges] = useState({});
 
   const isAdmin = user?.role === 'admin';
-  // isPro: true for any paid plan — used only to show/hide design options (not feature gates)
-  const isPro = isAdmin || (profile?.plan && profile.plan !== 'free');
+  // isPro: derived from subscription plan (usePlan), NOT profile.plan — prevents free users
+  // with legacy profile.plan values from unlocking premium layouts.
+  const { plan: subPlan } = usePlan();
+  const isPro = isAdmin || (subPlan && subPlan !== 'free');
   const currentLayout = profile?.layout || "classic";
   const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
   const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;

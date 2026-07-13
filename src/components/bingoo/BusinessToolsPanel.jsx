@@ -1,49 +1,39 @@
 import React from "react";
-import BusinessHoursTab from "./BusinessHoursTab";
 import SalonServicesPanel from "./SalonServicesPanel";
 import TeamMembersPanel from "./TeamMembersPanel";
-import { canAccess } from "@/lib/planPermissions";
-import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE } from "@/lib/sidebarConfig";
-import { Clock, Scissors, Users } from "lucide-react";
+import { canAccess, normalizePlan } from "@/lib/planPermissions";
+import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE, normalizeProfileType } from "@/lib/sidebarConfig";
+import { Scissors, Users, Scale } from "lucide-react";
 import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
 
-const PLAN_TO_TYPE = {
-  salon: TYPE_SALON,
-  lawfirm: TYPE_LAWFIRM,
-  corporate: TYPE_CORPORATE,
-  business: TYPE_BUSINESS,
-  professional: TYPE_BUSINESS,
-  pro: TYPE_BUSINESS,
-  free: TYPE_BUSINESS,
-};
+// Profile types that should see salon/service tools (NOT law firm)
+const SERVICE_PROFILE_TYPES = new Set([TYPE_SALON, TYPE_BUSINESS]);
+// Profile plans that show the Services section
+const SERVICE_PROFILE_PLANS = new Set(["salon", "restaurant", "business"]);
 
 export default function BusinessToolsPanel({ profileId, isDark, userPlan, profile, onSaved }) {
   const effectivePlan = userPlan || "free";
-  const profileType = PLAN_TO_TYPE[effectivePlan] || TYPE_BUSINESS;
-
+  const profileType = normalizeProfileType(profile);
   const headText = isDark ? "text-white" : "text-slate-900";
-  const mutedText = isDark ? "text-white/40" : "text-slate-400";
+
+  // Determine which sections to show based on PROFILE TYPE (not subscription plan).
+  // Subscription plan only gates entitlement (canAccess); profile type gates vertical.
+  const showServices = SERVICE_PROFILE_TYPES.has(profileType) && canAccess(effectivePlan, "services");
+  const showTeam = canAccess(effectivePlan, "team_members");
 
   const sections = [
     {
-      id: "hours",
-      icon: Clock,
-      title: "Business Hours",
-      show: canAccess(userPlan, "business_hours"),
-      render: () => <BusinessHoursTab profileId={profileId} isDark={isDark} onSaved={onSaved} />,
-    },
-    {
       id: "services",
       icon: Scissors,
-      title: "Services",
-      show: canAccess(userPlan, "services"),
+      title: profileType === TYPE_SALON ? "Service Menu" : "Services",
+      show: showServices,
       render: () => <SalonServicesPanel profileId={profileId} isDark={isDark} onSaved={onSaved} />,
     },
     {
       id: "team",
       icon: Users,
-      title: "Team Members",
-      show: canAccess(userPlan, "team_members"),
+      title: profileType === TYPE_LAWFIRM ? "Staff & Attorneys" : "Team Members",
+      show: showTeam,
       render: () => <TeamMembersPanel profileId={profileId} profileType={profileType} isDark={isDark} onSaved={onSaved} />,
     },
   ];
@@ -52,7 +42,12 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
 
   if (visible.length === 0) {
     return (
-      <BingooEmptyState icon={Clock} title="Business tools require a paid plan" message="Upgrade to Professional or higher to access business hours, services, and team management." isDark={isDark} />
+      <BingooEmptyState
+        icon={Scissors}
+        title="Business tools require a paid plan"
+        message="Upgrade to Business or higher to access services, team management, and more."
+        isDark={isDark}
+      />
     );
   }
 

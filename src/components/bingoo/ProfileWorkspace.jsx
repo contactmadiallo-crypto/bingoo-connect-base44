@@ -1217,8 +1217,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
 
         {/* Editing panel */}
-        <div className="flex gap-4 flex-1 min-w-0 max-w-full overflow-hidden">
-          <div className="flex-1 min-w-0 overflow-y-auto max-h-[calc(100vh-240px)]">
+        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full overflow-hidden">
+          <div className="flex-1 min-w-0 overflow-y-auto min-h-0 pb-safe">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}

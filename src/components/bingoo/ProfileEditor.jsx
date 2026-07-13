@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Camera, Trash2, Eye, Image, QrCode, Plus, X } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import LayoutPicker from "./LayoutPicker";
-import BusinessHoursEditor from "./BusinessHoursEditor";
 import { syncProfileToFirestore } from "@/hooks/useFirestoreProfileSync";
 
 const COVER_COLORS = ["#2563eb","#7c3aed","#db2777","#d97706","#16a34a","#0891b2","#dc2626","#1e293b"];
@@ -627,10 +626,6 @@ export default function ProfileEditor({ user, onSaved, editProfileId, prefillDat
                   ariaLabel="Booking slot duration"
                   className="mt-1 w-full"
                 />
-              </div>
-              <div>
-                <Label className="font-semibold block mb-2">Business Hours</Label>
-                <BusinessHoursEditor value={form.business_hours} onChange={v => setForm(f => ({ ...f, business_hours: v }))} />
               </div>
               <div>
                 <Label className="font-semibold">Restrict booking to specific emails</Label>

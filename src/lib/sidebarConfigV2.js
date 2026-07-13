@@ -1,4 +1,4 @@
-import { ShoppingBag, Package, Settings, FileText, PackageCheck, ShieldCheck, LayoutDashboard, Route } from "lucide-react";
+import { ShoppingBag, Package, Settings, FileText, PackageCheck, ShieldCheck, Route } from "lucide-react";
 import { getVisibleNavItems, SIDEBAR_NAV_MAP } from "./sidebarConfig";
 
 // ── Additional nav items not in the original sidebarConfig ──
@@ -10,7 +10,6 @@ const EXTRA_NAV_ITEMS = {
   myassets:     { id: "myassets", label: "My Assets", labelFr: "Mes Biens", icon: PackageCheck, href: "/bingoo?view=myassets", iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)" },
   quality:      { id: "quality", label: "Profile Score", labelFr: "Score Profil", icon: ShieldCheck, href: "/bingoo?view=quality", iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)" },
   planjourney:  { id: "planjourney", label: "Plan Journeys", labelFr: "Parcours Plans", icon: Route, href: "/bingoo?view=planjourney", iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)" },
-  advancedAdmin:{ id: "advancedAdmin", label: "Advanced Admin", labelFr: "Admin Avancé", icon: LayoutDashboard, href: "/advanced-admin", iconColor: "#0b2149", iconBg: "rgba(11,33,73,0.18)" },
 };
 
 // ── Grouped sidebar sections (Phase 3 IA) ──
@@ -21,7 +20,7 @@ const SECTIONS = [
   { id: "nfc",       label: "NFC",       labelFr: "NFC",        itemIds: ["devices", "designstudio", "lostmode"] },
   { id: "shop",      label: "Shop",      labelFr: "Boutique",   itemIds: ["shop", "orders"] },
   { id: "advanced",  label: "Advanced",  labelFr: "Avancé",     itemIds: ["strategic"] },
-  { id: "settings",  label: "Settings",  labelFr: "Paramètres", itemIds: ["billing", "account", "support", "advancedAdmin"] },
+  { id: "settings",  label: "Settings",  labelFr: "Paramètres", itemIds: ["billing", "account", "support"] },
 ];
 
 /**
@@ -38,8 +37,6 @@ export function getVisibleNavSections(profile, isAdmin = false, lang = "en", eff
     const items = section.itemIds
       .filter((id) => {
         if (!EXTRA_NAV_ITEMS[id] && !visibleIds.has(id)) return false;
-        // Advanced Admin is admin-only — never show to non-admins
-        if (id === "advancedAdmin" && !isAdmin) return false;
         return true;
       })
       .map((id) => {

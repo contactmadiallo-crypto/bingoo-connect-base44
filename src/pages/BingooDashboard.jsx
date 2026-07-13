@@ -13,7 +13,7 @@ const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio")
 const DesignStudioLocked = React.lazy(() => import("@/components/bingoo/DesignStudioLocked"));
 const DesignStudioProfessional = React.lazy(() => import("@/components/bingoo/DesignStudioProfessional"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
-const BusinessHoursTab = React.lazy(() => import("@/components/bingoo/BusinessHoursTab"));
+const AppointmentSettings = React.lazy(() => import("@/components/bingoo/AppointmentSettings"));
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
 const TeamMembersPanel = React.lazy(() => import("@/components/bingoo/TeamMembersPanel"));
 const CRMPipelinePanel = React.lazy(() => import("@/components/bingoo/CRMPipelinePanel"));
@@ -838,7 +838,7 @@ export default function BingooDashboard() {
               ) : !planLoading && !canAccessFeature("business_hours") ? (
                 <PlanGateScreen feature="business_hours" isDark={isDark} />
               ) : (
-                <BusinessHoursTab profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+                <AppointmentSettings profileId={activeProfile.id} onSaved={() => {}} />
               )}
             </div>
           )}

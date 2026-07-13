@@ -49,7 +49,6 @@ const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
 const PlaystoreMockups = lazy(() => import('@/pages/PlaystoreMockups'));
 const Bingoo2Mockups = lazy(() => import('@/pages/Bingoo2Mockups'));
-const AdvancedAdmin = lazy(() => import('@/pages/AdvancedAdmin'));
 const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
