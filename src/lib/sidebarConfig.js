@@ -19,7 +19,7 @@
 
 import {
   User, BarChart3, Smartphone, AlertOctagon, CalendarDays, Users,
-  Scissors, Clock, Scale, Briefcase, MapPin, UserCheck, GitBranch,
+  Scissors, Scale, Briefcase, MapPin, UserCheck, GitBranch,
   ClipboardList, Link2, CreditCard, HeadphonesIcon, Home, QrCode, PenTool, Sparkles,
 } from "lucide-react";
 import { t } from "@/lib/i18n";
@@ -202,11 +202,6 @@ export const SIDEBAR_NAV_MAP = {
     id: "services", label: "Services", labelFr: "Services",
     icon: Scissors, href: "/bingoo?view=services",
     iconColor: "#ec4899", iconBg: "rgba(236,72,153,0.18)",
-  },
-  hours: {
-    id: "hours", label: "Hours", labelFr: "Horaires",
-    icon: Clock, href: "/bingoo?view=hours",
-    iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)",
   },
   practiceareas: {
     id: "practiceareas", label: "Practice Areas", labelFr: "Domaines",
