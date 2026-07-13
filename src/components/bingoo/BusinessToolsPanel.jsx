@@ -2,7 +2,7 @@ import React from "react";
 import BusinessHoursTab from "./BusinessHoursTab";
 import SalonServicesPanel from "./SalonServicesPanel";
 import TeamMembersPanel from "./TeamMembersPanel";
-import { getEffectiveProfilePlan, canAccess } from "@/lib/planPermissions";
+import { canAccess } from "@/lib/planPermissions";
 import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE } from "@/lib/sidebarConfig";
 import { Clock, Scissors, Users } from "lucide-react";
 import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
@@ -18,7 +18,7 @@ const PLAN_TO_TYPE = {
 };
 
 export default function BusinessToolsPanel({ profileId, isDark, userPlan, profile, onSaved }) {
-  const effectivePlan = getEffectiveProfilePlan(userPlan, profile);
+  const effectivePlan = userPlan || "free";
   const profileType = PLAN_TO_TYPE[effectivePlan] || TYPE_BUSINESS;
 
   const headText = isDark ? "text-white" : "text-slate-900";

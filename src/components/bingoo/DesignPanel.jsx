@@ -3,7 +3,6 @@ import { Check, Upload, Sparkles, Palette, Layout, User } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
-import { getEffectiveProfilePlan } from "@/lib/planPermissions";
 import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
 
 
@@ -328,7 +327,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               setTimeout(() => onLayoutChange?.(v), 100);
             }}
             color={liveForm.cover_color}
-            plan={getEffectiveProfilePlan(userPlan, profile)}
+            plan={userPlan || "free"}
             isAdmin={user?.role === "admin"}
             profile={liveForm}
           />

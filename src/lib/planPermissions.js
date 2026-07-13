@@ -503,35 +503,6 @@ export const FEATURE_DESCRIPTIONS = {
 //   2. Manual/legacy: max(sub.plan, profile.plan) — no downgrade on manual cancel
 //   3. Default: free
 
-// ── Effective Profile Plan ────────────────────────────────────────────────────
-/**
- * getEffectiveProfilePlan(accountPlan, profile)
- *
- * The account subscription is the SOURCE OF TRUTH for entitlement.
- * A stale profile.plan of "free" must never override a paid account subscription.
- *
- * Rules:
- *   1. If accountPlan is a paid plan (non-free), it is the floor — always win.
- *   2. If profile has a vertical plan (salon/lawfirm/restaurant/corporate/business),
- *      that vertical overrides an equal-or-lower account plan IF the account is also paid.
- *   3. Free account → profile.plan is only used when it is also "free".
- *      (No free profile badge for paid accounts.)
- *
- * This means:
- *   - accountPlan=professional, profile.plan=free  → returns "professional"
- *   - accountPlan=professional, profile.plan=salon → returns "salon" (salon > professional)
- *   - accountPlan=free,         profile.plan=free  → returns "free"
- *   - accountPlan=free,         profile.plan=salon → returns "salon" (manually set vertical)
- */
-export function getEffectiveProfilePlan(accountPlan, profile) {
-  const accNorm   = normalizePlan(accountPlan || 'free');
-  const profNorm  = normalizePlan(profile?.plan || 'free');
-  const accScore  = PLAN_HIERARCHY[accNorm]  ?? 0;
-  const profScore = PLAN_HIERARCHY[profNorm] ?? 0;
-  // Return whichever is higher
-  return profScore >= accScore ? profNorm : accNorm;
-}
-
 // ── Legacy compatibility shims ─────────────────────────────────────────────────
 // These are kept so any file that imports them doesn't hard-crash.
 // canAccess() no longer uses PLAN_HIERARCHY or FEATURE_REQUIREMENTS internally.

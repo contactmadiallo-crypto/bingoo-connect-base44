@@ -290,29 +290,34 @@ export const SIDEBAR_NAV_MAP = {
  * @param {object|null} profile - The selected profile entity (or null)
  * @param {boolean} isAdmin - user.role === "admin"
  * @param {string} lang - "en" | "fr"
- * @param {string|null} effectivePlan - Optional pre-computed effective plan (from getEffectiveProfilePlan).
- *   When provided, this overrides the plan derived from profile fields alone.
- *   Pass this from BingooLayout so account subscription is respected by sidebar gating.
+ * @param {string|null} effectivePlan - The subscription-derived plan (from usePlan / getUserFeatures).
+ *   When provided, this is the SOLE authority for sidebar type — profile.plan is never used.
+ *   Pass accountPlan from BingooLayout so the subscription drives sidebar visibility.
  * @returns {Array} ordered sidebar items with localized labels
  */
 export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effectivePlan = null) {
   let type;
   if (isAdmin) {
     type = null; // admin uses ADMIN_SIDEBAR_ITEMS directly
-  } else if (effectivePlan && effectivePlan !== "free") {
-    // Map the effective plan to a sidebar type — effective plan wins over stale profile.plan
-    const planToType = {
-      professional: TYPE_PRO,
-      pro: TYPE_PRO,
-      salon: TYPE_SALON,
-      restaurant: TYPE_BUSINESS,
-      business: TYPE_BUSINESS,
-      lawfirm: TYPE_LAWFIRM,
-      corporate: TYPE_CORPORATE,
-    };
-    type = planToType[effectivePlan] || normalizeProfileType(profile);
+  } else if (effectivePlan) {
+    // Subscription plan is the sole authority. profile.plan is owner-writable and never used.
+    if (effectivePlan === "free") {
+      type = TYPE_FREE;
+    } else {
+      const planToType = {
+        professional: TYPE_PRO,
+        pro: TYPE_PRO,
+        salon: TYPE_SALON,
+        restaurant: TYPE_BUSINESS,
+        business: TYPE_BUSINESS,
+        lawfirm: TYPE_LAWFIRM,
+        corporate: TYPE_CORPORATE,
+      };
+      type = planToType[effectivePlan] || TYPE_PRO;
+    }
   } else {
-    type = normalizeProfileType(profile);
+    // No plan loaded yet — minimal Free sidebar during loading
+    type = TYPE_FREE;
   }
 
   let ids = isAdmin

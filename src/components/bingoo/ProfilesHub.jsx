@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, CheckCircle2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
+import { PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -105,9 +105,8 @@ export default function ProfilesHub({
   // A 14-day trial CTA is only valid for a genuinely free account.
   // If any profile already carries a paid plan (manual/legacy override or subscription),
   // the user is not "free" from their perspective — hide the trial card.
-  const anyPaidProfile = profiles.some(
-    (p) => getEffectiveProfilePlan(accountPlan, p) !== "free"
-  );
+  // Subscription plan is the sole authority — profile.plan is never used for entitlement
+  const anyPaidProfile = !isFree;
   const hasReachedFreeLimit = isFree && profiles.length >= 1 && !anyPaidProfile;
   const canReorder = items.length > 1 && !!onReorder;
 
@@ -237,7 +236,7 @@ export default function ProfilesHub({
 
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
-    const effectivePlan = getEffectiveProfilePlan(accountPlan, profile);
+    const effectivePlan = accountPlan || "free";
     const planStyle = getPlanStyle(effectivePlan);
     const planLabel = PLAN_LABELS[effectivePlan] || "Free";
     const profileUrl = `${window.location.origin}/p/${profile.username}`;
