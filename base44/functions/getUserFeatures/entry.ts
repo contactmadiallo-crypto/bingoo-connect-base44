@@ -2,13 +2,24 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 /**
  * Capability-based feature sets per plan.
- * MUST stay in sync with lib/planPermissions.js PLAN_CAPABILITIES.
+ *
+ * SINGLE SOURCE OF TRUTH: src/lib/planPermissions.js (PLAN_CAPABILITIES).
+ * This file MUST mirror the feature sets exactly. When adding/changing a
+ * feature, update planPermissions.js FIRST, then mirror the change here.
+ * createGatedRecord delegates to getUserFeatures (no separate copy).
+ *
+ * Inheritance (mirrors planPermissions.js):
+ *   free         → base only
+ *   professional → free + professional features
+ *   business     → free + professional + business features
+ *   salon        → business + salon-specific
+ *   restaurant   → professional + restaurant-specific (does NOT inherit business)
+ *   lawfirm      → business + lawfirm-specific
+ *   corporate    → business + corporate-specific (does NOT inherit lawfirm)
  *
  * Rules:
- * - Industry plans inherit Professional but NOT each other
- * - Canonical feature keys are used (aliases listed in comments)
  * - Unknown plan → resolves to FREE (closed default)
- * - digital_resume removed from all plans (Resume module deprecated)
+ * - Canonical feature keys are used (aliases listed in comments)
  */
 
 // ── Test Account Overrides ──────────────────────────────────────────────────
@@ -46,17 +57,24 @@ const PROFESSIONAL = [
 const BUSINESS = [
   ...PROFESSIONAL,
   'business_hours',
+  'business_profile',
+  'design_studio',
   'services',
+  'product_showcase',
   'nfc_counter_stand',
   'google_reviews',
   'whatsapp_booking',
   'team_members',
+  'staff_cards',
+  'customer_inquiry',
+  'multi_profile',
+  'business_qr_landing',
   'advanced_analytics',
   'lead_export',
 ];
 
 const SALON = [
-  ...PROFESSIONAL,
+  ...BUSINESS,
   'business_hours',
   'salon_profile',
   'staff_profiles',
@@ -89,7 +107,7 @@ const RESTAURANT = [
 ];
 
 const LAWFIRM = [
-  ...PROFESSIONAL,
+  ...BUSINESS,
   'business_hours',
   'law_firm_profile',
   'practice_areas',
@@ -111,7 +129,10 @@ const LAWFIRM = [
 ];
 
 const CORPORATE = [
-  ...LAWFIRM,
+  ...BUSINESS,
+  'api_access',
+  'bulk_nfc_orders',
+  'custom_onboarding',
   'employee_profiles',
   'attendance',
   'attendance_dashboard',
@@ -133,7 +154,7 @@ const PLAN_HIERARCHY = {
   professional: 1,
   pro:          1,
   business:     2,
-  salon:        2,
+  salon:        3,
   restaurant:   2,
   lawfirm:      3,
   corporate:    4,

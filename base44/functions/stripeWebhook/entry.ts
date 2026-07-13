@@ -36,9 +36,10 @@ function downgradedPlan(plan) {
   return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
 }
 
-// Local plan rank for upgrade/downgrade detection (mirrors planPermissions.PLAN_HIERARCHY)
+// Local plan rank for upgrade/downgrade detection.
+// MUST mirror planPermissions.PLAN_HIERARCHY exactly — see consolidation note in getUserFeatures.
 const PLAN_RANK = {
-  free: 0, professional: 1, pro: 1, business: 2, salon: 3, restaurant: 3, lawfirm: 4, corporate: 5,
+  free: 0, professional: 1, pro: 1, business: 2, salon: 3, restaurant: 2, lawfirm: 3, corporate: 4,
 };
 
 function resolvePlanFromSubscriptionItem(item, fallbackPlan) {

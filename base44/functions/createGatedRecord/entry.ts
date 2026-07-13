@@ -12,8 +12,10 @@ const ALLOWED_ENTITIES = {
   MenuItem:       'digital_menu',
 };
 
-// Max team members per plan (mirrors src/lib/planPermissions.js maxTeamMembers()).
+// Max team members per plan — MUST mirror src/lib/planPermissions.js maxTeamMembers().
 // Kept locally because getUserFeatures returns a feature list, not count limits.
+// When the client-side plan-to-feature map is consolidated, this count map is the
+// only remaining duplicate — it cannot be served by getUserFeatures.
 const TEAM_MEMBER_LIMITS = {
   free: 0, professional: 0, pro: 0,
   business: 10, salon: 10, restaurant: 10,
