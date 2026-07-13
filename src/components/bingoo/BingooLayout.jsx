@@ -10,6 +10,7 @@ import { getVisibleNavSections } from "@/lib/sidebarConfigV2";
 import { t, getLang } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
+import { isAdminUser } from "@/lib/auth";
 
 /**
  * BingooLayout
@@ -47,7 +48,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const effectiveUserId = userId || user?.id;
 
   // Admin Panel is gated strictly on user.role — never on profile plan
-  const isAdmin = user?.role === "admin" || user?.role === "super_admin";
+  const isAdmin = isAdminUser(user);
 
   // All sidebar items derived from selected profile + effective account plan — isAdmin unlocks everything
   const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);

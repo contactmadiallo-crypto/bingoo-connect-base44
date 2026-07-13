@@ -11,6 +11,7 @@ import {
   Headphones, ScrollText, Settings, LayoutDashboard, RotateCcw,
 } from "lucide-react";
 import BingooLayout from "@/components/bingoo/BingooLayout";
+import { isAdminUser } from "@/lib/auth";
 import SecurityAuditTab from "@/components/bingoo/SecurityAuditTab";
 import AdminPricingTab from "@/components/bingoo/AdminPricingTab";
 import NFCDeviceManager from "@/components/bingoo/NFCDeviceManager";
@@ -35,7 +36,7 @@ const PLAN_COLORS = {
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("accounts");
   const [search, setSearch] = useState("");
   const [planFilter, setPlanFilter] = useState("all");
   const [subSearch, setSubSearch] = useState("");
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
   // ── Auth: non-admin redirect ──
   useEffect(() => {
     base44.auth.me().then(u => {
-      if (u.role !== "admin" && u.role !== "super_admin") {
+      if (!isAdminUser(u)) {
         window.location.href = "/bingoo";
         return;
       }
