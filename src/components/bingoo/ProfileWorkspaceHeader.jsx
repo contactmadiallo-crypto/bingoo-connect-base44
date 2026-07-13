@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { ChevronLeft, Eye, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePlan } from "@/hooks/usePlan";
 
 export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }) {
   const [copied, setCopied] = useState(false);
+  const { plan: effectivePlan } = usePlan();
 
   if (!profile) return null;
 
@@ -53,7 +55,7 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
             <div className="flex items-center gap-2 flex-wrap">
               <p className="font-black text-sm text-white truncate">{profile.display_name}</p>
               <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/15 text-white/70 uppercase tracking-wide">
-                {planLabels[profile.plan] || profile.plan || "Free"}
+                {planLabels[effectivePlan] || "Free"}
               </span>
               {profile.is_active && (
                 <span className="flex items-center gap-1">

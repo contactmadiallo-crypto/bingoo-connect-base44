@@ -60,7 +60,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
 
   if (selected) {
     const u = selected.user;
-    const plan = selected.sub?.plan || (selected.profiles[0]?.plan) || "free";
+    const plan = selected.sub?.plan || "free";
     const planLabel = PLAN_LABELS[plan] || plan;
 
     return (

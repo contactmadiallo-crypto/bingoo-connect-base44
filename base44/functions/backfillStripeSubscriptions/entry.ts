@@ -128,11 +128,8 @@ Deno.serve(async (req) => {
             await base44.asServiceRole.entities.Subscription.create(subPayload);
           }
 
-          // Update Profile.plan only if it's currently free or missing
-          if (matchedProfile && !entry.profile_plan_already_paid) {
-            await base44.asServiceRole.entities.Profile.update(matchedProfile.id, { plan });
-            entry.profile_plan_would_change = true;
-          }
+          // Profile.plan is NOT updated — Subscription is the single source of truth.
+          // Entitlement is resolved at read-time by getUserFeatures from the Subscription entity.
 
           // Create SubscriptionActivity
           await base44.asServiceRole.entities.SubscriptionActivity.create(entry.subscription_activity_would_create);

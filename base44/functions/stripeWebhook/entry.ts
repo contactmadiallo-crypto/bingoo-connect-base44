@@ -8,6 +8,7 @@ const PRODUCT_TO_PLAN = {
   'prod_UfF46myS8RxwKE': 'salon',
   'prod_UfFHNuhuWhyGVZ': 'lawfirm',
   'prod_UdL2NqVtcHwKb2': 'business',
+  'prod_UsKCo8sDBXEsuY': 'corporate',
 };
 
 // ── Test Account Overrides ──────────────────────────────────────────────────
@@ -124,35 +125,9 @@ async function upsertSubscription(base44, { customer_email, customer_name, plan,
   }
 }
 
-/**
- * Update all profiles belonging to the user to the new plan.
- * Tries to find profiles by user_id first (from session metadata), then falls back to email match.
- */
-async function updateProfilePlan(base44, { customerEmail, userId, plan }) {
-  try {
-    let profilesToUpdate = [];
-
-    // Primary: find by created_by_id using user_id from metadata
-    if (userId) {
-      const byUser = await base44.asServiceRole.entities.Profile.filter({ created_by_id: userId });
-      if (byUser.length > 0) profilesToUpdate = byUser;
-    }
-
-    // Fallback: find by email field on profile
-    if (profilesToUpdate.length === 0 && customerEmail) {
-      const allProfiles = await base44.asServiceRole.entities.Profile.filter({});
-      profilesToUpdate = allProfiles.filter(p => p.email === customerEmail);
-    }
-
-    for (const profile of profilesToUpdate) {
-      await base44.asServiceRole.entities.Profile.update(profile.id, { plan });
-    }
-
-    console.log(`Updated ${profilesToUpdate.length} profile(s) to plan=${plan} for user=${userId || customerEmail}`);
-  } catch (err) {
-    console.error('updateProfilePlan error:', err.message);
-  }
-}
+// updateProfilePlan removed — Subscription is the single source of truth for plan entitlement.
+// Profile.plan is owner-writable and must never be written by webhooks or admin actions.
+// Entitlement is resolved at read-time by getUserFeatures / getEffectivePlan from the Subscription entity.
 
 // ── Generate manufacturing devices and activation codes after payment ────────
 // For each custom NFC item in the order, creates NFCDevice records with unique
@@ -335,12 +310,6 @@ Deno.serve(async (req) => {
           current_period_end: periodEnd,
         });
 
-        await updateProfilePlan(base44, {
-          customerEmail,
-          userId: user_id,
-          plan: resolvedPlan,
-        });
-
         // Activity log + in-app notification + confirmation email (all non-blocking)
         const billingUrl = stripeSubId ? `${appOrigin}/billing?subscriptionId=${stripeSubId}` : `${appOrigin}/billing`;
         const planLabel = resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1);
@@ -403,8 +372,6 @@ Deno.serve(async (req) => {
         if (newStatus === 'active' || newStatus === 'trialing') {
           const action = (resolvedPlan !== prev.plan) ? (PLAN_RANK[resolvedPlan] > PLAN_RANK[prev.plan] ? 'upgraded' : 'downgraded') : 'renewed';
           // Covers upgrades AND downgrades made through the Billing Portal
-          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: resolvedPlan });
-
           await logSubscriptionActivity(base44, {
             customer_email: prev.customer_email, customer_name: prev.customer_name,
             plan: resolvedPlan, action, old_plan: prev.plan, old_status: prev.status, status: newStatus,
@@ -427,8 +394,6 @@ Deno.serve(async (req) => {
           if (isProtectedTestAccount(prev.customer_email)) {
             console.log('Skipping downgrade for protected test account:', prev.customer_email);
           } else {
-            await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(resolvedPlan) });
-
             await logSubscriptionActivity(base44, {
               customer_email: prev.customer_email, customer_name: prev.customer_name,
               plan: resolvedPlan, action: 'canceled', old_plan: prev.plan, old_status: prev.status, status: newStatus,
@@ -467,8 +432,7 @@ Deno.serve(async (req) => {
         if (isProtectedTestAccount(prev.customer_email)) {
           console.log('Skipping deletion downgrade for protected test account:', prev.customer_email);
         } else {
-          await updateProfilePlan(base44, { customerEmail: prev.customer_email, plan: downgradedPlan(prev.plan) });
-          console.log('Subscription canceled:', sub.id, '| downgraded to:', downgradedPlan(prev.plan));
+          console.log('Subscription canceled:', sub.id, '| Subscription record marked canceled (profile plan untouched)');
 
           await logSubscriptionActivity(base44, {
             customer_email: prev.customer_email, customer_name: prev.customer_name,

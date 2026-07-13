@@ -81,7 +81,8 @@ export default function AdminDashboard() {
         const status = plan === "free" ? "free" : "active";
         await base44.entities.Subscription.create({ customer_email: email, customer_name: profile.display_name || owner?.full_name || "", plan, status, plan_source: "admin_override" });
       }
-      await base44.entities.Profile.update(profile.id, { plan });
+      // Subscription is the single source of truth — do NOT write to Profile.plan.
+      // Profile.plan is owner-writable and must never be used for entitlement.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
@@ -105,7 +106,7 @@ export default function AdminDashboard() {
       return { id: p.id, customer_name: p.display_name || owner?.full_name || "—", customer_email: p.email || owner?.email || "—", username: p.username, plan: p.plan, status: "active", source: "Manual/Profile Plan", stripe_subscription_id: "", stripe_customer_id: "", created_date: p.created_date };
     });
   const allSubRows = [
-    ...stripeSubs.map(s => ({ ...s, username: profiles.find(p => p.email === s.customer_email)?.username || null, source: (s.stripe_subscription_id || s.stripe_customer_id) ? "Stripe" : "Manual/Profile Plan" })),
+    ...stripeSubs.map(s => ({ ...s, username: profiles.find(p => p.email === s.customer_email)?.username || null, source: s.plan_source === "admin_override" ? "Admin Override" : (s.stripe_subscription_id || s.stripe_customer_id) ? "Stripe" : "Manual" })),
     ...manualRows,
   ];
   const filteredSubRows = allSubRows
@@ -132,7 +133,10 @@ export default function AdminDashboard() {
 
   // ── Derived: filtered profiles ──
   const filteredProfiles = profiles.filter(p => {
-    const planMatch = planFilter === "all" || p.plan === planFilter;
+    const owner = allUsers.find(u => u.id === p.created_by_id || (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(p.id)));
+    const subPlan = subsByEmail.get((p.email || owner?.email || "").toLowerCase())?.plan;
+    const effectivePlan = subPlan || p.plan || "free";
+    const planMatch = planFilter === "all" || effectivePlan === planFilter;
     const term = search.toLowerCase();
     const searchMatch = !term || [p.display_name, p.username, p.company_name, p.email].some(v => v?.toLowerCase().includes(term));
     return planMatch && searchMatch;

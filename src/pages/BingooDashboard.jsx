@@ -28,7 +28,7 @@ const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWor
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
-import { getEffectiveProfilePlan, PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
+import { PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
   Zap, Briefcase, Users, AlertTriangle,
@@ -324,12 +324,9 @@ export default function BingooDashboard() {
     ? (orderedProfiles.find(p => p.id === selectedProfileId) ?? orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0])
     : (orderedProfiles.find(p => p.id === defaultProfileId) ?? orderedProfiles[0]);
 
-  // Profile-aware feature gating: a profile may carry a paid plan (admin override or
-  // legacy grant) even when the account subscription is free. Treat that plan as real so
-  // feature gates match the plan badge shown on the profile chip.
-  const activeProfilePlan = activeProfile
-    ? getEffectiveProfilePlan(userPlan, activeProfile)
-    : normalizePlan(userPlan);
+  // Subscription is the single source of truth for plan entitlement.
+  // Profile.plan is owner-writable and must never be used for feature gating.
+  const activeProfilePlan = normalizePlan(userPlan);
   const canAccessFeature = (featureKey) => {
     if (planLoading) return true;
     return canAccessForPlan(activeProfilePlan, featureKey);
@@ -525,7 +522,7 @@ export default function BingooDashboard() {
         }
         <span className={`font-semibold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{activeProfile.display_name}</span>
         <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase bg-blue-100 text-blue-700">
-          {PLAN_LABELS[getEffectiveProfilePlan(userPlan, activeProfile)] || "Free"}
+          {PLAN_LABELS[activeProfilePlan] || "Free"}
         </span>
       </div>
     );
@@ -981,7 +978,7 @@ export default function BingooDashboard() {
               <ProfileChip />
               <PlanJourneyPanel
                 isDark={isDark}
-                currentPlan={getEffectiveProfilePlan(activeProfile, userPlan)}
+                currentPlan={activeProfilePlan}
                 userRole={user?.role}
                 planSource={planSource}
               />
