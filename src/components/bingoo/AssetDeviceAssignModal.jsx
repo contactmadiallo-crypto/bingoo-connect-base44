@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link2, X, AlertTriangle, Check, Smartphone, Search, Wifi } from 'lucide-react';
-
-const DEVICE_TYPE_LABELS = {
-  card: 'Business Card',
-  keychain: 'Keychain',
-  bracelet: 'Bracelet',
-  stand: 'Counter Stand',
-  sticker: 'Sticker',
-  badge: 'Badge',
-};
+import { getDeviceShortLabel } from '@/lib/deviceTypes';
 
 export default function AssetDeviceAssignModal({
   open, onClose, devices, assets, currentAssetId, onAssign, isDark
@@ -104,7 +96,6 @@ export default function AssetDeviceAssignModal({
           ) : filtered.map(d => {
             const isSelected = selectedId === d.id;
             const linkedAsset = deviceAssetMap[d.id];
-            const typeLabel = DEVICE_TYPE_LABELS[d.device_type] || d.device_type;
 
             return (
               <button key={d.id} onClick={() => setSelectedId(d.id)}
@@ -118,7 +109,7 @@ export default function AssetDeviceAssignModal({
                       <span className={`text-sm font-bold font-mono ${headText}`}>{d.device_code}</span>
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold uppercase ${statusStyle(d.status)}`}>{d.status}</span>
                     </div>
-                    <p className={`text-xs ${mutedText}`}>{typeLabel}</p>
+                    <p className={`text-xs ${mutedText}`}>{getDeviceShortLabel(d.device_type)}</p>
                     {d.profile_id && (
                       <p className={`text-[11px] mt-0.5 flex items-center gap-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
                         <AlertTriangle className="w-3 h-3" /> Linked to a profile

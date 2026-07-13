@@ -9,16 +9,11 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { getDeviceTypeLabel } from '@/lib/deviceTypes';
 
 const DEVICE_ICONS = {
   card: CreditCard, metal_card: CreditCard, keychain: Key, bracelet: Award,
   stand: Shield, badge: Wifi, sticker: Smartphone, tag: Tag,
-};
-
-const DEVICE_TYPE_LABELS = {
-  card: "NFC Card", metal_card: "NFC Metal Card", keychain: "NFC Key Fob",
-  bracelet: "NFC Bracelet", stand: "NFC Phone Stand", badge: "NFC Badge",
-  sticker: "NFC Sticker", tag: "NFC Tag",
 };
 
 const isLost = (d) => d.status === "lost";
@@ -196,7 +191,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     const isExpanded = expandedDeviceId === device.id;
     const assignedProfile = device.profile_id ? profileMap[device.profile_id] : null;
     const assignedName = assignedProfile?.display_name || "Unassigned";
-    const productLabel = device.product_name || DEVICE_TYPE_LABELS[device.device_type] || device.device_type;
+    const productLabel = device.product_name || getDeviceTypeLabel(device.device_type);
     const destination = assignedProfile?.username ? `/p/${assignedProfile.username}` : null;
     const contactLabel = device.lost_show_phone ? "Phone shown" : "Phone hidden";
 

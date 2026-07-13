@@ -20,17 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
-
-const DEVICE_TYPES = [
-  { value: "card",       label: "NFC Card",         emoji: "💳" },
-  { value: "metal_card", label: "NFC Metal Card",   emoji: "💳" },
-  { value: "keychain",   label: "NFC Key Fob",      emoji: "🔑" },
-  { value: "bracelet",   label: "NFC Bracelet",     emoji: "📿" },
-  { value: "stand",      label: "NFC Phone Stand",  emoji: "🪧" },
-  { value: "sticker",    label: "NFC Sticker",      emoji: "🏷️" },
-  { value: "badge",      label: "NFC Badge",        emoji: "🎫" },
-  { value: "tag",        label: "NFC Tag",          emoji: "📡" },
-];
+import { DEVICE_TYPES } from "@/lib/deviceTypes";
 
 const PROD_BASE_URL = "https://bingooconnect.com";
 

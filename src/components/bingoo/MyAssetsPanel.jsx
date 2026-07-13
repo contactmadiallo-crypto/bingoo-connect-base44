@@ -145,12 +145,25 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
     }
   };
 
+  // ── Bidirectional device↔asset linking ──────────────────────────────────
+  // Both AssetItem.nfc_device_id AND NFCDevice.assigned_asset_id must stay in
+  // sync.  Previously this only updated the AssetItem side, leaving the
+  // NFCDevice pointing at a stale asset — causing the NFC Devices page to
+  // show an asset link that no longer existed.
   const handleAssignDevice = async (assetId, deviceId) => {
     try {
+      const device = (myDevices || []).find(d => d.id === deviceId);
+      // If device was linked to a different asset, clear that asset's reference first
+      if (device?.assigned_asset_id && device.assigned_asset_id !== assetId) {
+        await base44.entities.AssetItem.update(device.assigned_asset_id, { nfc_device_id: '' });
+      }
+      // Bidirectional update
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
+      await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: assetId });
       toast({ title: 'NFC device assigned to asset' });
       setAssignModalAsset(null);
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
     } catch (err) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }
@@ -158,9 +171,16 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
 
   const handleUnlinkDevice = async (assetId) => {
     try {
+      const asset = (assets || []).find(a => a.id === assetId);
+      const deviceId = asset?.nfc_device_id;
+      // Bidirectional clear
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: '' });
+      if (deviceId) {
+        await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: '' });
+      }
       toast({ title: 'NFC device unlinked' });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
     } catch (err) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     }

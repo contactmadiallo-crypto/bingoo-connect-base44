@@ -455,6 +455,11 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                 {Object.entries(grouped).map(([groupLabel, items]) => (
                   <div key={groupLabel}>
                     <p className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{groupLabel}</p>
+                    {groupLabel === "Payment" && (
+                      <p className={`text-[10px] leading-relaxed mb-2 ${mutedText}`}>
+                        Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
+                      </p>
+                    )}
                     <div className="space-y-2">
                       {items.map(item => (
                         <CatalogRow key={item.id} item={item} added={isAdded(item)}
@@ -467,6 +472,11 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             ) : (
               // Flat view
               <div className="space-y-2">
+                {cat === "payment" && (
+                  <p className={`text-[10px] leading-relaxed pb-1 ${mutedText}`}>
+                    Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
+                  </p>
+                )}
                 {filtered.map(item => (
                   <CatalogRow key={item.id} item={item} added={isAdded(item)}
                     valuePreview={getValuePreview(item)} onEdit={() => setEditing(item)} isDark={isDark} />
