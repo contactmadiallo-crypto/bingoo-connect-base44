@@ -247,6 +247,7 @@ export const PLAN_STRIPE_PRODUCTS = {
   business:     'prod_UdL2NqVtcHwKb2',
   salon:        'prod_UfF46myS8RxwKE',
   lawfirm:      'prod_UfFHNuhuWhyGVZ',
+  corporate:    'prod_UsKCo8sDBXEsuY',
 };
 
 export const PLAN_FEATURES = {
