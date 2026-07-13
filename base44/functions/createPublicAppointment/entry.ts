@@ -180,9 +180,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    const isRestaurant = profile?.plan === "restaurant";
-    const isLawFirm = profile?.plan === "lawfirm";
-    const isSalon = profile?.plan === "salon";
+    // Use ownerPlan (Subscription-derived) — not profile.plan — for consistent email formatting
+    const isRestaurant = ownerPlan === "restaurant";
+    const isLawFirm = ownerPlan === "lawfirm";
+    const isSalon = ownerPlan === "salon";
     const subjectEmoji = isRestaurant ? "🍽️" : isLawFirm ? "⚖️" : "📅";
     const actionLabel = isRestaurant ? "Reservation" : "Appointment";
     const ownerCtaUrl = `${appOrigin}${actionUrl}`;

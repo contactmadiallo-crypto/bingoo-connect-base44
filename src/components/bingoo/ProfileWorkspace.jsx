@@ -38,7 +38,7 @@ import {
   ShopIcon as BIShop, PortfolioIcon as BIPortfolio, CalendarIcon as BICalendar,
 } from "@/components/bingoo/BrandIcons";
 import { usePlan } from "@/hooks/usePlan";
-import { getEffectiveProfilePlan, PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
+import { PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
 import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
@@ -279,7 +279,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             </div>
             <div className="pb-1">
               {(() => {
-                const ep = getEffectiveProfilePlan(userPlan, profile);
+                const ep = userPlan || "free";
                 const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
                 return (
                   <span className="text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide"
@@ -1154,7 +1154,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
             <p className={`text-[11px] ${mutedText} truncate`}>/p/{profile.username}</p>
           </div>
           {(() => {
-            const ep = getEffectiveProfilePlan(userPlan, profile);
+            const ep = userPlan || "free";
             const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
             return (
               <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"

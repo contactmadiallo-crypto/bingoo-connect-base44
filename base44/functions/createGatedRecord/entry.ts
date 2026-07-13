@@ -9,21 +9,11 @@ const ALLOWED_ENTITIES = {
   OfficeLocation: 'office_locations',
   SalonService:   'services',
   PortfolioItem:  'portfolio',
-};
-
-// Minimal server-side copy of plan -> feature entitlement (mirrors src/lib/planPermissions.js).
-const PLAN_FEATURES = {
-  free:         [],
-  professional: ['portfolio'],
-  pro:          ['portfolio'],
-  business:     ['team_members', 'services', 'portfolio'],
-  salon:        ['team_members', 'services', 'portfolio'],
-  restaurant:   ['team_members', 'portfolio'],
-  lawfirm:      ['team_members', 'legal_services', 'practice_areas', 'office_locations', 'services', 'portfolio'],
-  corporate:    ['team_members', 'legal_services', 'practice_areas', 'office_locations', 'services', 'portfolio'],
+  MenuItem:       'digital_menu',
 };
 
 // Max team members per plan (mirrors src/lib/planPermissions.js maxTeamMembers()).
+// Kept locally because getUserFeatures returns a feature list, not count limits.
 const TEAM_MEMBER_LIMITS = {
   free: 0, professional: 0, pro: 0,
   business: 10, salon: 10, restaurant: 10,
@@ -33,24 +23,7 @@ const TEAM_MEMBER_LIMITS = {
 function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
-  return PLAN_FEATURES[plan] ? plan : 'free';
-}
-
-// Trusted effective plan — resolved ONLY from the Subscription entity, whose `update`
-// RLS is admin-only. Profile.plan is owner-writable and must NEVER be used for entitlement.
-async function getEffectivePlan(base44, user) {
-  const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
-  const sub = subs?.[0];
-  if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due')) {
-    return normalizePlan(sub.plan);
-  }
-  // Legacy grace: existing users with profiles but no subscription get Professional.
-  // Mirrors getUserFeatures — prevents blocking current users during subscription migration.
-  try {
-    const profiles = await base44.asServiceRole.entities.Profile.filter({ created_by_id: user.id });
-    if (profiles.length > 0) return 'professional';
-  } catch (e) { /* default to free below */ }
-  return 'free';
+  return TEAM_MEMBER_LIMITS[plan] !== undefined ? plan : 'free';
 }
 
 Deno.serve(async (req) => {
@@ -77,22 +50,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'You do not own this profile' }, { status: 403 });
     }
 
-    // Effective plan comes only from the trusted Subscription record — never from Profile.plan.
-    const plan = await getEffectivePlan(base44, user);
-    const allowedFeatures = PLAN_FEATURES[plan] || [];
-    if (!allowedFeatures.includes(featureKey)) {
+    // ── Entitlement: invoke getUserFeatures (single server-side authority) ──────
+    // Eliminates the redundant PLAN_FEATURES copy — getUserFeatures resolves the
+    // plan from the Subscription entity and returns the authoritative feature list.
+    // Profile.plan is owner-writable and must NEVER be used for entitlement.
+    const result = await base44.functions.invoke('getUserFeatures', {});
+    const featuresData = result?.data || result;
+    const userFeatures = featuresData?.features || [];
+    const userPlan = normalizePlan(featuresData?.plan || 'free');
+
+    if (!userFeatures.includes(featureKey)) {
       return Response.json({
-        error: `Your current plan (${plan}) does not include this feature. Please upgrade to unlock it.`,
+        error: `Your current plan (${userPlan}) does not include this feature. Please upgrade to unlock it.`,
       }, { status: 403 });
     }
 
     // Enforce count limits for entities that have one (currently: TeamMember).
     if (entity_name === 'TeamMember') {
       const existing = await base44.asServiceRole.entities.TeamMember.filter({ profile_id });
-      const limit = TEAM_MEMBER_LIMITS[plan] ?? 0;
+      const limit = TEAM_MEMBER_LIMITS[userPlan] ?? 0;
       if (existing.length >= limit) {
         return Response.json({
-          error: `You've reached the team member limit for your ${plan} plan (${limit}). Upgrade to add more.`,
+          error: `You've reached the team member limit for your ${userPlan} plan (${limit}). Upgrade to add more.`,
         }, { status: 403 });
       }
     }
