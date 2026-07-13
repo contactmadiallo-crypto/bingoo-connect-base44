@@ -20,6 +20,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // ── Entitlement: check analytics feature via getUserFeatures ──
+    if (!isAdmin) {
+      const featResult = await base44.functions.invoke('getUserFeatures', {});
+      const featData = featResult?.data || featResult;
+      const userFeatures = featData?.features || [];
+      if (!userFeatures.includes('analytics')) {
+        return Response.json({
+          error: 'Your current plan does not include analytics. Please upgrade to unlock it.',
+        }, { status: 403 });
+      }
+    }
+
     // Fetch analytics with service role — bypasses RLS so the owner always sees every interaction
     const events = await base44.asServiceRole.entities.Analytics.filter(
       { profile_id: profileId },

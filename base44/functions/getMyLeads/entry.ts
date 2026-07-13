@@ -20,6 +20,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // ── Entitlement: check lead_collection feature via getUserFeatures ──
+    if (!isAdmin) {
+      const featResult = await base44.functions.invoke('getUserFeatures', {});
+      const featData = featResult?.data || featResult;
+      const userFeatures = featData?.features || [];
+      if (!userFeatures.includes('lead_collection')) {
+        return Response.json({
+          error: 'Your current plan does not include lead collection. Please upgrade to unlock it.',
+        }, { status: 403 });
+      }
+    }
+
     // Fetch leads with service role — bypasses RLS so the owner always sees every lead
     // submitted via the public contact form (created by the service account).
     const leads = await base44.asServiceRole.entities.Lead.filter(
