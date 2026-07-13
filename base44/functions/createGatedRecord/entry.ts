@@ -7,18 +7,20 @@ const ALLOWED_ENTITIES = {
   LegalService:   'legal_services',
   PracticeArea:   'practice_areas',
   OfficeLocation: 'office_locations',
+  SalonService:   'services',
+  PortfolioItem:  'portfolio',
 };
 
 // Minimal server-side copy of plan -> feature entitlement (mirrors src/lib/planPermissions.js).
 const PLAN_FEATURES = {
   free:         [],
-  professional: [],
-  pro:          [],
-  business:     ['team_members'],
-  salon:        ['team_members'],
-  restaurant:   ['team_members'],
-  lawfirm:      ['team_members', 'legal_services', 'practice_areas', 'office_locations'],
-  corporate:    ['team_members', 'legal_services', 'practice_areas', 'office_locations'],
+  professional: ['portfolio'],
+  pro:          ['portfolio'],
+  business:     ['team_members', 'services', 'portfolio'],
+  salon:        ['team_members', 'services', 'portfolio'],
+  restaurant:   ['team_members', 'portfolio'],
+  lawfirm:      ['team_members', 'legal_services', 'practice_areas', 'office_locations', 'services', 'portfolio'],
+  corporate:    ['team_members', 'legal_services', 'practice_areas', 'office_locations', 'services', 'portfolio'],
 };
 
 // Max team members per plan (mirrors src/lib/planPermissions.js maxTeamMembers()).
@@ -36,13 +38,18 @@ function normalizePlan(plan) {
 
 // Trusted effective plan — resolved ONLY from the Subscription entity, whose `update`
 // RLS is admin-only. Profile.plan is owner-writable and must NEVER be used for entitlement.
-async function getEffectivePlan(base44, userEmail) {
-  const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: userEmail });
+async function getEffectivePlan(base44, user) {
+  const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
   const sub = subs?.[0];
-  if (!sub) return 'free';
-  if (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') {
+  if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due')) {
     return normalizePlan(sub.plan);
   }
+  // Legacy grace: existing users with profiles but no subscription get Professional.
+  // Mirrors getUserFeatures — prevents blocking current users during subscription migration.
+  try {
+    const profiles = await base44.asServiceRole.entities.Profile.filter({ created_by_id: user.id });
+    if (profiles.length > 0) return 'professional';
+  } catch (e) { /* default to free below */ }
   return 'free';
 }
 
@@ -71,7 +78,7 @@ Deno.serve(async (req) => {
     }
 
     // Effective plan comes only from the trusted Subscription record — never from Profile.plan.
-    const plan = await getEffectivePlan(base44, user.email);
+    const plan = await getEffectivePlan(base44, user);
     const allowedFeatures = PLAN_FEATURES[plan] || [];
     if (!allowedFeatures.includes(featureKey)) {
       return Response.json({

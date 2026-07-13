@@ -176,8 +176,12 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const refetchServices = () => qc.refetchQueries({ queryKey: ["salon-services", profileId] });
 
   const createService = useMutation({
-    mutationFn: (data) => dbOp("SalonService", "create", profileId,
-      () => base44.entities.SalonService.create({ ...data, profile_id: profileId })),
+    mutationFn: async (data) => {
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'SalonService', profile_id: profileId, data,
+      });
+      return res.data.record;
+    },
     onMutate: async (data) => {
       await qc.cancelQueries({ queryKey: ["salon-services", profileId] });
       const prev = qc.getQueryData(["salon-services", profileId]);
@@ -188,7 +192,8 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
     },
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) qc.setQueryData(["salon-services", profileId], ctx.prev);
-      toast.error("Failed to save: " + (_err?.message || "Permission denied"));
+      const msg = _err?.response?.data?.error || _err?.message || "Permission denied";
+      toast.error("Failed to save: " + msg);
     },
     onSuccess: (newRecord, _vars, ctx) => {
       qc.setQueryData(["salon-services", profileId], (old = []) =>

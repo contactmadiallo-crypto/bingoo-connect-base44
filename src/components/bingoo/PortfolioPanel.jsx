@@ -26,8 +26,18 @@ export default function PortfolioPanel({ profileId, user }) {
   });
 
   const create = useMutation({
-    mutationFn: () => base44.entities.PortfolioItem.create({ ...form, profile_id: profileId, order: items.length }),
+    mutationFn: async () => {
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'PortfolioItem', profile_id: profileId,
+        data: { ...form, order: items.length },
+      });
+      return res.data.record;
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["portfolio", profileId] }); setForm(EMPTY); setAdding(false); toast.success("Item added!"); },
+    onError: (err) => {
+      const msg = err?.response?.data?.error || err?.message || "Permission denied";
+      toast.error("Failed to add: " + msg);
+    },
   });
 
   const remove = useMutation({
