@@ -49,7 +49,6 @@ const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
 const PlaystoreMockups = lazy(() => import('@/pages/PlaystoreMockups'));
 const Bingoo2Mockups = lazy(() => import('@/pages/Bingoo2Mockups'));
-const ProfileLayoutGalleryMockup = lazy(() => import('@/pages/ProfileLayoutGalleryMockup'));
 const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
@@ -116,7 +115,6 @@ const AuthenticatedApp = () => {
       <Route path="/about" element={<About />} />
       <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
       <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
-      <Route path="/mockup-layout-gallery" element={<ProfileLayoutGalleryMockup />} />
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<Shop />} />
