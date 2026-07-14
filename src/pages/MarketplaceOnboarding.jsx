@@ -248,7 +248,7 @@ export default function MarketplaceOnboarding() {
           <p className="text-slate-600">Step {currentStep} of {steps.length}</p>
         </div>
 
-        <div className="flex items-center justify-between mb-8 overflow-x-auto pb-2">
+        <div className="flex items-center justify-between mb-8 min-w-0 overflow-x-auto pb-2">
           {steps.map((step, index) => {
             const StepIcon = step.icon;
             return (

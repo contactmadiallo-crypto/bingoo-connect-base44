@@ -440,7 +440,7 @@ export default function CustomerApp() {
               </div>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
+            <div className="flex gap-2 min-w-0 overflow-x-auto pb-2 -mx-4 px-4 hide-scrollbar">
               {cuisineCategories.slice(0, 8).map(cuisine => (
                 <Button
                   key={cuisine.value}

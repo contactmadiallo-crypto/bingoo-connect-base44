@@ -108,7 +108,7 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
       )}
 
       {/* Plan selector pills */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+      <div className="flex gap-2 min-w-0 overflow-x-auto scrollbar-hide pb-1">
         {VISIBLE_PLANS.map(p => (
           <button key={p.id} onClick={() => setSelected(p.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${

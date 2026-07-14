@@ -23,7 +23,7 @@ const TAB_COLORS = {
 
 export default function DashboardNav({ tabs, activeTab, setTab, leads, appointments, isDark }) {
   return (
-    <div className="flex gap-1.5 mb-4 sm:mb-5 overflow-x-auto scrollbar-none pb-0.5">
+    <div className="flex gap-1.5 mb-4 sm:mb-5 min-w-0 overflow-x-auto scrollbar-none pb-0.5">
       {tabs.map(t => {
         const isActive = activeTab === t.id;
         const theme = TAB_COLORS[t.id] || TAB_COLORS.overview;

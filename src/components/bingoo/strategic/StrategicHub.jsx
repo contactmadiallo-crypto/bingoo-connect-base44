@@ -41,7 +41,7 @@ export default function StrategicHub({ profile, isDark, user, onProfileUpdate })
       </div>
 
       {/* Tab bar */}
-      <div className={`flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide`}>
+      <div className={`flex gap-1.5 min-w-0 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide`}>
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (

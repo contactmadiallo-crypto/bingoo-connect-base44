@@ -344,7 +344,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
         <>
           {/* Category pills + Search */}
           <div className={`px-4 py-3 border-b ${borderCls} flex-shrink-0 space-y-2 max-h-28 overflow-y-auto`}>
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1.5 min-w-0 overflow-x-auto scrollbar-hide">
               {CATEGORIES.map(c => (
                 <button key={c.id} onClick={() => setCat(c.id)}
                   className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${

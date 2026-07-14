@@ -140,7 +140,7 @@ export default function RestaurantMenu() {
         </div>
 
         {/* Category Filter */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-8 min-w-0 overflow-x-auto pb-2">
           {categories.map(cat => (
             <Button
               key={cat}

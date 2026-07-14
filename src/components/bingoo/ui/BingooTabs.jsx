@@ -12,7 +12,7 @@ export default function BingooTabs({ tabs, defaultIndex = 0, onChange, variant =
 
   if (variant === 'pills') {
     return (
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-2 min-w-0 overflow-x-auto scrollbar-hide">
         {tabs.map((tab, i) => (
           <button
             key={i}
@@ -34,7 +34,7 @@ export default function BingooTabs({ tabs, defaultIndex = 0, onChange, variant =
   }
 
   return (
-    <div className="flex gap-1 border-b border-slate-200 overflow-x-auto scrollbar-hide">
+    <div className="flex gap-1 min-w-0 border-b border-slate-200 overflow-x-auto scrollbar-hide">
       {tabs.map((tab, i) => (
         <button
           key={i}
