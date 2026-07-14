@@ -299,8 +299,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
     <div className="space-y-5">
       {/* Sub-tab Navigation */}
       <div className="rounded-2xl p-1 border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
-        <div className="w-full min-w-0 overflow-x-auto scrollbar-hide">
-          <div className="flex w-max min-w-full gap-1 whitespace-nowrap">
+        <div className="w-full min-w-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
+          <div className="flex w-max min-w-full gap-1 px-1 whitespace-nowrap">
             {SUB_TABS.map(st => (
               <button key={st.id} onClick={() => setSubTab(st.id)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 transition-all"

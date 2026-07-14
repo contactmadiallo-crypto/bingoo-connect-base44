@@ -292,7 +292,8 @@ export default function DocumentWalletPanel({ profile, isDark }) {
 
       {/* Category Filter Chips */}
       {(documents || []).length > 0 && (
-        <div className="flex gap-1.5 min-w-0 overflow-x-auto scrollbar-hide pb-1">
+        <div className="w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
+          <div className="flex w-max min-w-full gap-1.5 px-1 whitespace-nowrap">
           <button onClick={() => setActiveCategory("all")}
             className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all ${
               activeCategory === "all" ? "text-white" : isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500"
@@ -309,6 +310,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
               {c.label} ({categoryCounts[c.value]})
             </button>
           ))}
+          </div>
         </div>
       )}
 

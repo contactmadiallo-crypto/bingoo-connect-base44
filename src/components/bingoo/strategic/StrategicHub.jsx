@@ -41,7 +41,8 @@ export default function StrategicHub({ profile, isDark, user, onProfileUpdate })
       </div>
 
       {/* Tab bar */}
-      <div className={`flex gap-1.5 min-w-0 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide`}>
+      <div className="w-full min-w-0 overflow-x-auto pb-1 scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div className="flex w-max min-w-full gap-1.5 px-1 whitespace-nowrap">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -62,6 +63,7 @@ export default function StrategicHub({ profile, isDark, user, onProfileUpdate })
             </button>
           );
         })}
+        </div>
       </div>
 
       {/* Active panel */}

@@ -108,19 +108,21 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
       )}
 
       {/* Plan selector pills */}
-      <div className="flex gap-2 min-w-0 overflow-x-auto scrollbar-hide pb-1">
-        {VISIBLE_PLANS.map(p => (
-          <button key={p.id} onClick={() => setSelected(p.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
-              selected === p.id ? 'text-white shadow-md' : isDark ? 'bg-white/5 text-white/60' : 'bg-slate-100 text-slate-500'
-            }`}
-            style={selected === p.id ? { background: p.color } : {}}>
-            <p.icon className="w-3.5 h-3.5" />
-            {p.name}
-            {p.isCurrentPlan && <span className="text-[9px] opacity-90">●</span>}
-            {p.status === 'coming_soon' && <span className="text-[9px] opacity-70">Soon</span>}
-          </button>
-        ))}
+      <div className="w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
+        <div className="flex w-max min-w-full gap-2 px-1 whitespace-nowrap">
+          {VISIBLE_PLANS.map(p => (
+            <button key={p.id} onClick={() => setSelected(p.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all ${
+                selected === p.id ? 'text-white shadow-md' : isDark ? 'bg-white/5 text-white/60' : 'bg-slate-100 text-slate-500'
+              }`}
+              style={selected === p.id ? { background: p.color } : {}}>
+              <p.icon className="w-3.5 h-3.5" />
+              {p.name}
+              {p.isCurrentPlan && <span className="text-[9px] opacity-90">●</span>}
+              {p.status === 'coming_soon' && <span className="text-[9px] opacity-70">Soon</span>}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Active plan detail */}

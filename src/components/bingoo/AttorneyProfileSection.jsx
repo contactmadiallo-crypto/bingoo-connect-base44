@@ -98,13 +98,15 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
 
         {/* Tabs */}
         {tabs.length > 1 && (
-          <div className="flex gap-1 min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-100 mb-4">
+          <div className="w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-100 mb-4" style={{ WebkitOverflowScrolling: "touch" }}>
+            <div className="flex w-max min-w-full gap-1 px-1 whitespace-nowrap">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
                 className={`px-3 py-2 text-xs font-bold border-b-2 -mb-px whitespace-nowrap flex-shrink-0 transition-colors ${activeTab === t.id ? "border-blue-600 text-blue-700" : "border-transparent text-slate-400 hover:text-slate-600"}`}>
                 {t.label}
               </button>
             ))}
+            </div>
           </div>
         )}
 

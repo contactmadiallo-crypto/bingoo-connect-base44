@@ -78,7 +78,8 @@ export default function SecurityAuditTab() {
   return (
     <div className="space-y-4">
       {/* Sub-tab nav */}
-      <div className="flex gap-1 min-w-0 rounded-xl p-1 overflow-x-auto scrollbar-hide" style={{ background: "rgba(255,255,255,0.05)" }}>
+      <div className="w-full min-w-0 rounded-xl p-1 overflow-x-auto scrollbar-hide" style={{ background: "rgba(255,255,255,0.05)", WebkitOverflowScrolling: "touch" }}>
+        <div className="flex w-max min-w-full gap-1 px-1 whitespace-nowrap">
         {SUB_TABS.map(st => (
           <button key={st.id} onClick={() => setSubTab(st.id)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap flex-shrink-0 transition-all"
@@ -96,6 +97,7 @@ export default function SecurityAuditTab() {
             )}
           </button>
         ))}
+        </div>
       </div>
 
       {/* Overview */}

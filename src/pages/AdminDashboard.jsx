@@ -189,8 +189,8 @@ export default function AdminDashboard() {
 
           {/* Tabs */}
           <div className="relative rounded-2xl p-1.5 mb-6" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div className="w-full min-w-0 overflow-x-auto scrollbar-hide">
-              <div className="flex w-max min-w-full gap-1 whitespace-nowrap">
+            <div className="w-full min-w-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
+              <div className="flex w-max min-w-full gap-1 px-1 whitespace-nowrap">
                 {TABS.map(t => (
                   <button key={t.id} onClick={() => setTab(t.id)}
                     className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold flex-shrink-0 transition-all"
@@ -203,8 +203,9 @@ export default function AdminDashboard() {
                 ))}
               </div>
             </div>
-            {/* Edge fade indicator */}
-            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none rounded-r-2xl" style={{ background: "linear-gradient(90deg, transparent, rgba(7,26,61,0.6))" }} />
+            {/* Edge fade indicators */}
+            <div className="absolute right-0 top-1 bottom-1 w-8 pointer-events-none rounded-r-2xl" style={{ background: "linear-gradient(90deg, transparent, rgba(7,26,61,0.6))" }} />
+            <div className="absolute left-0 top-1 bottom-1 w-8 pointer-events-none rounded-l-2xl" style={{ background: "linear-gradient(270deg, transparent, rgba(7,26,61,0.6))" }} />
           </div>
 
           {/* ══ OVERVIEW ══ */}

@@ -1183,9 +1183,9 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
       </div>
 
-      {/* ── Mobile: horizontal scrollable pill tabs ── */}
-      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30 }}>
-        <div className="flex w-max min-w-full gap-2 whitespace-nowrap">
+      {/* ── Mobile: horizontal scrollable pill tabs (ScrollableTabBand pattern) ── */}
+      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30, WebkitOverflowScrolling: "touch" }}>
+        <div className="flex w-max min-w-full gap-2 px-1 whitespace-nowrap">
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)} aria-label={tab.label}
               className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-all flex-shrink-0 ${

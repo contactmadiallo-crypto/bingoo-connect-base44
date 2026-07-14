@@ -337,12 +337,14 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       </nav>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 md:ml-64"
-        style={{ background: isDark ? "#0f1117" : "#f8fafc", minHeight: "100vh" }}>
-        <div className="md:hidden" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
-        {children}
+      <main className="flex-1 md:ml-64 min-w-0 min-h-screen flex flex-col"
+        style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
+        <div className="md:hidden flex-shrink-0" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
+        <div className="flex-1 min-w-0 min-h-0">
+          {children}
+        </div>
         {/* Bottom spacer: ensures content isn't hidden behind fixed bottom nav */}
-        <div className="md:hidden" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
+        <div className="md:hidden flex-shrink-0" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
       </main>
     </div>
   );
