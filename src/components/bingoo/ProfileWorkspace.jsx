@@ -1131,7 +1131,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
   });
 
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col min-h-0 relative">
       {/* ── Sticky header (top bar + tabs) — fixed below mobile header on scroll ── */}
       <div className="sticky z-30 top-[calc(56px+env(safe-area-inset-top))] md:top-0 -mx-3 sm:-mx-6 px-3 sm:px-6 pt-1 pb-2"
         style={{ background: isDark ? "#0a0c14" : "#f5f7fb", pointerEvents: "auto" }}>
@@ -1184,22 +1184,24 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs ── */}
-      <div className="md:hidden flex gap-2 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30 }}>
-        {INNER_TABS.map(tab => (
-          <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)} aria-label={tab.label}
-            className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
-              innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
-            }`}
-            style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
-            <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
-            {tab.label}
-          </button>
-        ))}
+      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30 }}>
+        <div className="flex w-max min-w-full gap-2 whitespace-nowrap">
+          {INNER_TABS.map(tab => (
+            <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)} aria-label={tab.label}
+              className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
+                innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
+              }`}
+              style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
+              <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
       </div>
 
       {/* ── Main layout ── */}
-      <div className="flex gap-4 flex-1 min-h-0 max-w-full overflow-x-clip">
+      <div className="flex gap-4 flex-1 min-h-0 max-w-full">
         {/* Desktop vertical nav */}
         <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
           {INNER_TABS.map(tab => (
@@ -1217,8 +1219,8 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
 
         {/* Editing panel */}
-        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full overflow-x-clip">
-          <div className="flex-1 min-w-0 overflow-y-auto min-h-0 pb-safe">
+        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full">
+          <div className="flex-1 min-w-0 min-h-0 pb-safe">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}

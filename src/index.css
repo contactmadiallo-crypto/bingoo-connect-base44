@@ -31,13 +31,20 @@
 html {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
-  overflow-x: clip;
   scroll-padding-top: calc(56px + env(safe-area-inset-top));
 }
 body {
-  overflow-x: clip;
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+}
+/* Global horizontal overflow prevention — on #root (NOT html/body).
+   overflow-x:clip on the root element (html) makes overflow-y compute to clip
+   via CSS spec quirk, which disables viewport vertical scrolling entirely.
+   #root is a non-root element: clip doesn't create a scroll container, so
+   position:sticky still works relative to the viewport, and vertical scroll
+   is unaffected. */
+#root {
+  overflow-x: clip;
 }
 
 /* Disable text selection on interactive UI elements */

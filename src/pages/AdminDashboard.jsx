@@ -189,17 +189,19 @@ export default function AdminDashboard() {
 
           {/* Tabs */}
           <div className="relative rounded-2xl p-1.5 mb-6" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
-            <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-              {TABS.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold whitespace-nowrap flex-shrink-0 transition-all"
-                  style={{ background: tab === t.id ? orange : "transparent", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
-                  <t.icon className="w-4 h-4 flex-shrink-0" />
-                  <span className="md:hidden">{t.short}</span>
-                  <span className="hidden md:inline">{t.label}</span>
-                  {t.count !== undefined && <span className="rounded-full px-1.5 py-0.5 text-xs flex-shrink-0" style={{ background: tab === t.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>{t.count}</span>}
-                </button>
-              ))}
+            <div className="w-full min-w-0 overflow-x-auto scrollbar-hide">
+              <div className="flex w-max min-w-full gap-1 whitespace-nowrap">
+                {TABS.map(t => (
+                  <button key={t.id} onClick={() => setTab(t.id)}
+                    className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold flex-shrink-0 transition-all"
+                    style={{ background: tab === t.id ? orange : "transparent", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
+                    <t.icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="md:hidden">{t.short}</span>
+                    <span className="hidden md:inline">{t.label}</span>
+                    {t.count !== undefined && <span className="rounded-full px-1.5 py-0.5 text-xs flex-shrink-0" style={{ background: tab === t.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>{t.count}</span>}
+                  </button>
+                ))}
+              </div>
             </div>
             {/* Edge fade indicator */}
             <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none rounded-r-2xl" style={{ background: "linear-gradient(90deg, transparent, rgba(7,26,61,0.6))" }} />
