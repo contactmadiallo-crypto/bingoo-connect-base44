@@ -56,6 +56,17 @@ button, a, nav, [role="tab"], [role="button"] {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Horizontal tab/action band — scrollable without page overflow */
+.tab-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tab-scroll::-webkit-scrollbar { display: none; }
+.tab-scroll > * { flex-shrink: 0; }
+
 .pb-safe {
   padding-bottom: calc(4rem + env(safe-area-inset-bottom));
 }

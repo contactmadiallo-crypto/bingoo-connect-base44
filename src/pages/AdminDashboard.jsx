@@ -191,7 +191,7 @@ export default function AdminDashboard() {
           <div className="flex gap-1 rounded-2xl p-1.5 mb-6 overflow-x-auto scrollbar-hide" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap flex-shrink-0 transition-all"
                 style={{ background: tab === t.id ? orange : "transparent", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
                 <t.icon className="w-4 h-4" />{t.label}
                 {t.count !== undefined && <span className="rounded-full px-1.5 py-0.5 text-xs" style={{ background: tab === t.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>{t.count}</span>}

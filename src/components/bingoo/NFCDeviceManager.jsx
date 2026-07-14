@@ -298,10 +298,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   return (
     <div className="space-y-5">
       {/* Sub-tab Navigation */}
-      <div className="flex gap-1 flex-wrap rounded-2xl p-1 border" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
+      <div className="flex gap-1 rounded-2xl p-1 border tab-scroll" style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
         {SUB_TABS.map(st => (
           <button key={st.id} onClick={() => setSubTab(st.id)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all"
             style={{ background: subTab === st.id ? orange : "transparent", color: subTab === st.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
             <st.icon className="w-3.5 h-3.5" />{st.label}
           </button>

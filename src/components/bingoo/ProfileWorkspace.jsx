@@ -1199,7 +1199,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
       </div>
 
       {/* ── Main layout ── */}
-      <div className="flex gap-4 flex-1 min-h-0 max-w-full overflow-hidden">
+      <div className="flex gap-4 flex-1 min-h-0 max-w-full overflow-x-clip">
         {/* Desktop vertical nav */}
         <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
           {INNER_TABS.map(tab => (
@@ -1217,7 +1217,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
         </div>
 
         {/* Editing panel */}
-        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full overflow-hidden">
+        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full overflow-x-clip">
           <div className="flex-1 min-w-0 overflow-y-auto min-h-0 pb-safe">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
@@ -1325,7 +1325,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
           {/* Live preview — desktop only, inline phone frame */}
           <div className="hidden xl:block flex-shrink-0" style={{ width: 240 }}>
-            <div style={{ position: "sticky", top: 0 }}>
+            <div style={{ position: "sticky", top: 80 }}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
               <div style={{ background: "#0f172a", borderRadius: 32, padding: "10px 12px", boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", width: "fit-content" }}>
