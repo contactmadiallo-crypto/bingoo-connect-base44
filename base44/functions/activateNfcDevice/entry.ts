@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 
 Deno.serve(async (req) => {
   try {
@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { device_id, profile_id, user_id, user_name, profile_name, old_status } = await req.json();
+    const { device_id, profile_id, asset_id, user_id, user_name, profile_name, old_status } = await req.json();
 
     if (!device_id || !profile_id) {
       return Response.json({ error: 'device_id and profile_id are required' }, { status: 400 });
@@ -31,12 +31,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Device not found' }, { status: 404 });
     }
     if (device.profile_id && device.profile_id !== profile_id) {
-      return Response.json({ error: 'Device was just claimed by another account' }, { status: 409 });
+      return Response.json({ error: 'This device was just activated by another account' }, { status: 409 });
+    }
+
+    // If asset_id provided, verify it belongs to the user
+    let asset = null;
+    if (asset_id) {
+      const assets = await base44.asServiceRole.entities.AssetItem.filter({ id: asset_id });
+      asset = assets[0] || null;
+      if (!asset || asset.owner_user_id !== user.id) {
+        return Response.json({ error: 'You do not own the selected asset' }, { status: 403 });
+      }
     }
 
     // ── Plan-based device limit enforcement ──────────────────────────────────
-    // Effective plan comes only from the trusted Subscription record (its `update` RLS
-    // is admin-only). Profile.plan is owner-writable and must NEVER be used for entitlement.
     const DEVICE_LIMITS = {
       free:         0,
       professional: 5,
@@ -82,28 +90,41 @@ Deno.serve(async (req) => {
     // ── End plan enforcement ──────────────────────────────────────────────────
 
     // Perform the update using service role (bypasses RLS)
-    await base44.asServiceRole.entities.NFCDevice.update(device_id, {
+    const updateData = {
       profile_id: profile_id,
       status: 'active',
       assigned_at: new Date().toISOString(),
-    });
+    };
+    // If asset assignment, set assigned_asset_id
+    if (asset_id) {
+      updateData.assigned_asset_id = asset_id;
+    }
+
+    await base44.asServiceRole.entities.NFCDevice.update(device_id, updateData);
 
     // Audit log (non-blocking)
     base44.asServiceRole.entities.DeviceAuditLog.create({
       device_id: device_id,
       device_code: device.device_code,
-      action: 'activated',
+      action: asset_id ? 'activated_asset' : 'activated',
       performed_by: user.id,
       performed_by_name: user_name || user.full_name,
       profile_id: profile_id,
       profile_name: profile_name || profile.display_name,
       old_status: old_status || device.status,
       new_status: 'active',
-      notes: 'Activated by user via /activate-device',
+      notes: asset_id
+        ? `Activated and assigned to asset ${asset_id} via /n/${device.device_code}`
+        : 'Activated by user via NFC tap flow',
     }).catch(e => console.warn('Audit log failed (non-blocking):', e.message));
 
-    console.log(`[activateNfcDevice] Device ${device.device_code} activated for profile ${profile_id} by user ${user.id}`);
-    return Response.json({ success: true, device_code: device.device_code });
+    console.log(`[activateNfcDevice] Device ${device.device_code} activated${asset_id ? ' for asset ' + asset_id : ' for profile ' + profile_id} by user ${user.id}`);
+    return Response.json({
+      success: true,
+      device_code: device.device_code,
+      device_type: device.device_type,
+      assigned_asset_id: asset_id || null,
+    });
 
   } catch (error) {
     console.error('[activateNfcDevice] Error:', error);

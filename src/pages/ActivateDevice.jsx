@@ -7,16 +7,17 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pencil, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge"];
-const DEVICE_TYPE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫" };
+import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel } from "@/lib/deviceTypes";
 
 export default function ActivateDevice() {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
 
-  // State
-  const [code, setCode] = useState("");
+  // State — pre-fill from ?code= URL param (e.g. /activate-device?code=BG-000007)
+  const [code, setCode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (params.get("code") || "").toUpperCase();
+  });
   const [activating, setActivating] = useState(false);
   const [activateMsg, setActivateMsg] = useState(null); // {type: 'success'|'error', text}
   const [selectedProfile, setSelectedProfile] = useState("");
@@ -29,6 +30,7 @@ export default function ActivateDevice() {
   // Admin state
   const [newCode, setNewCode] = useState("");
   const [newType, setNewType] = useState("card");
+  // DEVICE_TYPES now imported from deviceTypes.js — values are: card, metal_card, keychain, bracelet, stand, sticker, badge, tag
   const [creatingCode, setCreatingCode] = useState(false);
 
   // Data
@@ -356,7 +358,7 @@ export default function ActivateDevice() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-lg flex-shrink-0">
-                      {DEVICE_TYPE_EMOJIS[device.device_type] || "💳"}
+                      {getDeviceEmoji(device.device_type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       {editingDevice?.id === device.id ? (
@@ -382,7 +384,7 @@ export default function ActivateDevice() {
                             </span>
                           </div>
                           <p className={`text-xs mt-0.5 ${mutedText}`}>
-                            Profile: {getProfileName(device.profile_id)} · {device.device_type}
+                            Profile: {getProfileName(device.profile_id)} · {getDeviceTypeLabel(device.device_type)}
                           </p>
                         </>
                       )}
@@ -438,7 +440,7 @@ export default function ActivateDevice() {
                 onChange={e => setNewType(e.target.value)}
               >
                 {DEVICE_TYPES.map(t => (
-                  <option key={t} value={t}>{DEVICE_TYPE_EMOJIS[t]} {t}</option>
+                  <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>
                 ))}
               </select>
               <Button onClick={handleCreateCode} disabled={creatingCode || !newCode.trim()} className="bg-violet-600 hover:bg-violet-500 text-white font-bold gap-2 px-6">
@@ -452,10 +454,10 @@ export default function ActivateDevice() {
                   <div key={d.id} className="flex items-center justify-between px-4 py-2.5 rounded-xl"
                     style={{ background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)" }}>
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">{DEVICE_TYPE_EMOJIS[d.device_type]}</span>
+                      <span className="text-lg">{getDeviceEmoji(d.device_type)}</span>
                       <div>
                         <p className={`font-bold text-sm ${headText}`}>{d.device_code}</p>
-                        <p className={`text-xs ${mutedText}`}>{d.device_type}</p>
+                        <p className={`text-xs ${mutedText}`}>{getDeviceTypeLabel(d.device_type)}</p>
                       </div>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
