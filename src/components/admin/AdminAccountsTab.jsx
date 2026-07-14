@@ -5,6 +5,14 @@ import {
   Search, ChevronLeft, QrCode, Smartphone, Package, CreditCard,
   Star, CheckCircle2, Headphones, Mail, Phone, ExternalLink, User,
 } from "lucide-react";
+
+// Column metadata for the accounts list summary counts
+const SUMMARY_COLS = [
+  { key: "profiles", label: "Profiles", icon: QrCode, color: "#f97316" },
+  { key: "devices", label: "Devices", icon: Smartphone, color: "#8b5cf6" },
+  { key: "assets", label: "Assets", icon: Package, color: "#06b6d4" },
+  { key: "leads", label: "Leads", icon: Star, color: "#22c55e" },
+];
 import { PLAN_LABELS } from "@/lib/planPermissions";
 
 /**
@@ -305,49 +313,64 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
       </div>
 
       <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
-        {filtered.length === 0 ? (
-          <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
-            <User className="w-10 h-10 mx-auto mb-2 opacity-20" />
-            <p>No accounts found</p>
+        {/* Column header */}
+        <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 flex-shrink-0"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>Account</p>
           </div>
-        ) : filtered.map(({ user: u, profiles: up, devices: ud, assets: ua, leads: ul, appointments: ua2, tickets: ut, sub }) => {
-          const plan = sub?.plan || up[0]?.plan || "free";
-          return (
-            <button key={u.id} onClick={() => setSelectedUserId(u.id)}
-              className="w-full px-5 py-4 flex items-center gap-3 text-left transition-colors hover:bg-white/5"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-                {u.full_name?.charAt(0) || "U"}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {SUMMARY_COLS.map(c => (
+              <div key={c.key} className="flex items-center gap-1 text-center" style={{ minWidth: 36 }}>
+                <c.icon className="w-3 h-3" style={{ color: c.color }} />
+                <p className="text-[9px] font-bold uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>{c.label}</p>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-bold text-white text-sm">{u.full_name || "—"}</p>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                    style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
-                    {PLAN_LABELS[plan] || plan}
-                  </span>
+            ))}
+            <div style={{ width: 16 }} />
+          </div>
+        </div>
+
+        {/* Scrollable list */}
+        <div className="max-h-[calc(100vh-340px)] min-h-[200px] overflow-y-auto">
+          {filtered.length === 0 ? (
+            <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
+              <User className="w-10 h-10 mx-auto mb-2 opacity-20" />
+              <p>No accounts found</p>
+            </div>
+          ) : filtered.map(({ user: u, profiles: up, devices: ud, assets: ua, leads: ul, appointments: ua2, tickets: ut, sub }) => {
+            const plan = sub?.plan || up[0]?.plan || "free";
+            const counts = { profiles: up.length, devices: ud.length, assets: ua.length, leads: ul.length };
+            return (
+              <button key={u.id} onClick={() => setSelectedUserId(u.id)}
+                className="w-full px-5 py-3.5 flex items-center gap-3 text-left transition-colors hover:bg-white/5"
+                style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-white text-sm flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
+                  {u.full_name?.charAt(0) || "U"}
                 </div>
-                <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>{u.email}</p>
-              </div>
-              {/* Summary counts */}
-              <div className="hidden sm:flex items-center gap-3 text-xs flex-shrink-0">
-                {[
-                  { label: "P", value: up.length, color: "#f97316" },
-                  { label: "D", value: ud.length, color: "#8b5cf6" },
-                  { label: "A", value: ua.length, color: "#06b6d4" },
-                  { label: "L", value: ul.length, color: "#22c55e" },
-                ].map(s => (
-                  <div key={s.label} className="text-center" style={{ minWidth: 28 }}>
-                    <p className="font-black" style={{ color: s.color }}>{s.value}</p>
-                    <p className="text-[9px] font-bold uppercase" style={{ color: "rgba(255,255,255,0.3)" }}>{s.label}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-white text-sm truncate">{u.full_name || "—"}</p>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0"
+                      style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
+                      {PLAN_LABELS[plan] || plan}
+                    </span>
                   </div>
-                ))}
-              </div>
-              <ChevronLeft className="w-4 h-4 rotate-180 flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
-            </button>
-          );
-        })}
+                  <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.35)" }}>{u.email}</p>
+                </div>
+                {/* Summary counts */}
+                <div className="hidden sm:flex items-center gap-3 text-xs flex-shrink-0">
+                  {SUMMARY_COLS.map(c => (
+                    <div key={c.key} className="text-center" style={{ minWidth: 28 }}>
+                      <p className="font-black" style={{ color: c.color }}>{counts[c.key]}</p>
+                    </div>
+                  ))}
+                </div>
+                <ChevronLeft className="w-4 h-4 rotate-180 flex-shrink-0" style={{ color: "rgba(255,255,255,0.3)" }} />
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
