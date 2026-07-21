@@ -7,7 +7,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pencil, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel } from "@/lib/deviceTypes";
+import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel, getDeviceDisplayName } from "@/lib/deviceTypes";
 
 export default function ActivateDevice() {
   const { isDark } = useBingooTheme();
@@ -384,7 +384,7 @@ export default function ActivateDevice() {
                             </span>
                           </div>
                           <p className={`text-xs mt-0.5 ${mutedText}`}>
-                            Profile: {getProfileName(device.profile_id)} · {getDeviceTypeLabel(device.device_type)}
+                            Profile: {getProfileName(device.profile_id)} · {getDeviceDisplayName(device)}
                           </p>
                         </>
                       )}
@@ -457,7 +457,7 @@ export default function ActivateDevice() {
                       <span className="text-lg">{getDeviceEmoji(d.device_type)}</span>
                       <div>
                         <p className={`font-bold text-sm ${headText}`}>{d.device_code}</p>
-                        <p className={`text-xs ${mutedText}`}>{getDeviceTypeLabel(d.device_type)}</p>
+                        <p className={`text-xs ${mutedText}`}>{getDeviceDisplayName(d)}</p>
                       </div>
                     </div>
                     <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${

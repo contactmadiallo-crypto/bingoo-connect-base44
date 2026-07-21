@@ -66,11 +66,17 @@ function SitemapRedirect() {
 function LegacyRedirects() {
   const path = window.location.pathname.toLowerCase();
   if (path === '/activate') {
-    window.location.replace('/activate-device');
+    // Preserve the activation code: /activate?code=BG-000007 → /n/BG-000007
+    // The /n/:code flow handles device recognition, login return URL, and assignment.
+    const params = new URLSearchParams(window.location.search);
+    const code = (params.get('code') || '').toUpperCase().trim();
+    window.location.replace(code ? `/n/${code}` : '/activate-device');
     return null;
   }
   if (path === '/signup') {
-    window.location.replace('/register');
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get('next');
+    window.location.replace('/register' + (next ? `?next=${encodeURIComponent(next)}` : ''));
     return null;
   }
   return null;

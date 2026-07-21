@@ -31,15 +31,23 @@
     },
     "product_name": {
       "type": "string",
-      "description": "Human-readable product name e.g. 'NFC Key Fob', 'NFC Metal Card' \u2014 persists after assignment"
+      "description": "Human-readable product name e.g. 'NFC Key Fob', 'NFC Pet Collar Tag', 'NFC Luggage Tag' \u2014 persists after assignment"
     },
     "product_image": {
       "type": "string",
       "description": "Product image URL from the shop catalog \u2014 persists after assignment for consistent display"
     },
+    "account_id": {
+      "type": "string",
+      "description": "Owner user ID who activated/claimed this device. Used to detect 'already assigned to another account'."
+    },
     "assigned_asset_id": {
       "type": "string",
       "description": "Direct reference to AssetItem if assigned to an asset (enables efficient recovery routing without reverse lookup)"
+    },
+    "assigned_business_id": {
+      "type": "string",
+      "description": "Set to the profile_id when the assigned profile is a business-type plan (business, corporate, salon, restaurant, lawfirm). Enables business vs personal routing distinction."
     },
     "status": {
       "type": "string",
@@ -55,7 +63,13 @@
     },
     "assigned_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "When the device was first activated"
+    },
+    "last_assigned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the device was last (re)assigned to its current target"
     },
     "lost_show_phone": {
       "type": "boolean",

@@ -7,7 +7,7 @@ import {
   RefreshCw, Briefcase, Package, Plus, AlertCircle, Info, Smartphone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getDeviceTypeLabel, getDeviceEmoji } from "@/lib/deviceTypes";
+import { getDeviceTypeLabel, getDeviceEmoji, getDeviceDisplayName, getDeviceDisplayImage } from "@/lib/deviceTypes";
 
 // ── Status display config ──
 const STATUS_CONFIG = {
@@ -51,7 +51,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   const deviceStatus = device?.status || "available";
   const statusConfig = STATUS_CONFIG[deviceStatus] || STATUS_CONFIG.available;
   const deviceEmoji = getDeviceEmoji(device?.device_type);
-  const deviceTypeLabel = getDeviceTypeLabel(device?.device_type);
+  const deviceTypeLabel = getDeviceDisplayName(device);
+  const deviceImage = getDeviceDisplayImage(device);
   const isActivatable = deviceStatus === "available" || deviceStatus === "assigned";
 
   // If device is in a non-activatable state (replaced, disabled, lost), show error_state
@@ -303,7 +304,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className="rounded-3xl p-8 text-center"
               style={{ background: "rgba(255,255,255,0.07)", border: `1px solid ${statusConfig.color}40`, backdropFilter: "blur(20px)" }}>
-              <div className="text-5xl mb-4">{deviceEmoji}</div>
+              {deviceImage ? (
+                <img src={deviceImage} alt={deviceTypeLabel} className="mx-auto object-contain mb-4 rounded-2xl" style={{ width: 80, height: 80 }} />
+              ) : (
+                <div className="text-5xl mb-4">{deviceEmoji}</div>
+              )}
               <h1 className="text-xl font-black text-white mb-2">{statusConfig.label}</h1>
               <p className="text-white/50 text-sm mb-2">
                 Device code: <span className="font-mono font-bold text-orange-400">{deviceCode}</span>
@@ -354,7 +359,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 <span className="text-green-400 text-xs font-bold">Ready to Activate</span>
               </div>
 
-              <div className="text-6xl mb-4">{deviceEmoji}</div>
+              {deviceImage ? (
+                <img src={deviceImage} alt={deviceTypeLabel} className="mx-auto object-contain mb-4 rounded-2xl" style={{ width: 96, height: 96 }} />
+              ) : (
+                <div className="text-6xl mb-4">{deviceEmoji}</div>
+              )}
               <h1 className="text-2xl font-black text-white mb-2">Activate Your Bingoo Device</h1>
               <p className="text-white/50 text-sm mb-1">
                 Device code: <span className="font-mono font-bold text-orange-400">{deviceCode}</span>
@@ -390,7 +399,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
               {/* Device banner */}
               <div className="rounded-2xl p-5 flex items-center gap-4"
                 style={{ background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.3)" }}>
-                <div className="text-3xl">{deviceEmoji}</div>
+                {deviceImage ? (
+                  <img src={deviceImage} alt={deviceTypeLabel} className="object-contain flex-shrink-0 rounded-xl" style={{ width: 44, height: 44 }} />
+                ) : (
+                  <div className="text-3xl">{deviceEmoji}</div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-black text-sm">Device Ready to Activate</p>
                   <p className="text-white/50 text-xs font-mono truncate">{deviceCode} · {deviceTypeLabel}</p>
@@ -642,7 +655,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
               <h1 className="text-2xl font-black text-white mb-2">Device Activated! 🎉</h1>
               <p className="text-white/50 text-sm mb-2">
-                <span className="font-mono font-bold text-orange-400">{deviceCode}</span> is now linked to
+                <span className="font-mono font-bold text-orange-400">{deviceCode}</span> · {deviceTypeLabel} is now linked to
               </p>
               {assignMode === "asset" && successAsset ? (
                 <p className="text-white font-bold text-lg mb-1">{successAsset.name}</p>

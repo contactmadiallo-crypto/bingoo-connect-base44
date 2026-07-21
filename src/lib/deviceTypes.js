@@ -33,3 +33,19 @@ export function getDeviceShortLabel(type) {
 export function getDeviceEmoji(type) {
   return DEVICE_TYPE_MAP[type]?.emoji || "📶";
 }
+
+/**
+ * Best display name for a device — prefers the shop product_name (e.g.
+ * "NFC Pet Collar Tag", "NFC Luggage Tag") so devices don't all show as
+ * "NFC Card". Falls back to the device_type label, then a generic name.
+ */
+export function getDeviceDisplayName(device) {
+  if (!device) return "Unknown Device";
+  if (device.product_name) return device.product_name;
+  return getDeviceTypeLabel(device.device_type) || "Bingoo Device";
+}
+
+/** Product image URL from the shop catalog, if the device record has one. */
+export function getDeviceDisplayImage(device) {
+  return (device && device.product_image) || null;
+}

@@ -90,12 +90,20 @@ Deno.serve(async (req) => {
     // ── End plan enforcement ──────────────────────────────────────────────────
 
     // Perform the update using service role (bypasses RLS)
-    const updateData = {
+    const BUSINESS_PLANS = new Set(['business', 'corporate', 'salon', 'restaurant', 'lawfirm']);
+    const nowIso = new Date().toISOString();
+    const updateData: Record<string, unknown> = {
       profile_id: profile_id,
       status: 'active',
-      assigned_at: new Date().toISOString(),
+      assigned_at: nowIso,
+      last_assigned_at: nowIso,
+      account_id: user.id,
     };
-    // If asset assignment, set assigned_asset_id
+    // If assigned to a business-type profile, record the business id (same as profile_id)
+    if (BUSINESS_PLANS.has(profile.plan)) {
+      updateData.assigned_business_id = profile_id;
+    }
+    // If asset assignment, set assigned_asset_id (asset routing takes precedence)
     if (asset_id) {
       updateData.assigned_asset_id = asset_id;
     }
