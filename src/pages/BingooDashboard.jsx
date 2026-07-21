@@ -13,7 +13,7 @@ const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio")
 const DesignStudioLocked = React.lazy(() => import("@/components/bingoo/DesignStudioLocked"));
 const DesignStudioProfessional = React.lazy(() => import("@/components/bingoo/DesignStudioProfessional"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
-const AppointmentSettings = React.lazy(() => import("@/components/bingoo/AppointmentSettings"));
+// AppointmentSettings lazy import removed — now rendered inside AppointmentsTabMerged only
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
 const TeamMembersPanel = React.lazy(() => import("@/components/bingoo/TeamMembersPanel"));
 const CRMPipelinePanel = React.lazy(() => import("@/components/bingoo/CRMPipelinePanel"));
@@ -56,7 +56,7 @@ const VIEW_LOSTMODE     = "lostmode";
 const VIEW_CONNECTIONS  = "connections";
 const VIEW_CRM          = "crm";
 const VIEW_SERVICES     = "services";
-const VIEW_HOURS        = "hours";
+// VIEW_HOURS removed — Business Hours editing is now inside Appointments (Booking Setup sub-tab)
 const VIEW_PRACTICE     = "practiceareas";
 const VIEW_LEGAL_SVC    = "legalservices";
 const VIEW_OFFICES      = "offices";
@@ -83,7 +83,7 @@ const TAB_TO_VIEW = {
   lostmode: VIEW_LOSTMODE,
   connections: VIEW_CONNECTIONS,
   services: VIEW_SERVICES,
-  hours: VIEW_HOURS,
+  hours: VIEW_APPTS, // Business Hours consolidated into Appointments view
   practiceareas: VIEW_PRACTICE,
   legalservices: VIEW_LEGAL_SVC,
   offices: VIEW_OFFICES,
@@ -827,21 +827,7 @@ export default function BingooDashboard() {
             </div>
           )}
 
-          {/* ════════════════════════════════════
-              HOURS — Business Hours
-          ════════════════════════════════════ */}
-          {view === VIEW_HOURS && (
-            <div>
-              <ProfileChip />
-              {!activeProfile ? (
-                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : !planLoading && !canAccessFeature("business_hours") ? (
-                <PlanGateScreen feature="business_hours" isDark={isDark} />
-              ) : (
-                <AppointmentSettings profileId={activeProfile.id} onSaved={() => {}} />
-              )}
-            </div>
-          )}
+          {/* HOURS view removed — Business Hours editing is now inside Appointments (Booking Setup sub-tab) */}
 
           {/* ════════════════════════════════════
               PRACTICE AREAS — Law Firm

@@ -281,7 +281,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
-  const showsServicesAndTeam = isSalonOrRestaurant || isBusinessProfile;
+  // Corporate does NOT manage services (no Services sidebar tab) — exclude from public display
+  const showsServicesAndTeam = isSalonOrRestaurant || profile.plan === "business";
   const isLawFirmProfile = profile.plan === "lawfirm";
   const canBook = profile.booking_enabled && ["pro", "professional", "business", "corporate", "salon", "restaurant", "lawfirm"].includes(profile.plan);
 
