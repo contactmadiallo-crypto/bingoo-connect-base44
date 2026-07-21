@@ -16,7 +16,9 @@ const STATUS_CONFIG = {
   assigned:     { label: "Already Activated", color: "#3b82f6", icon: Info },
   replaced:     { label: "Replaced",           color: "#f59e0b", icon: AlertCircle },
   disabled:     { label: "Disabled",            color: "#ef4444", icon: AlertCircle },
-  lost:         { label: "Reported Lost/Stolen", color: "#ef4444", icon: AlertCircle },
+  lost:          { label: "Reported Lost/Stolen", color: "#ef4444", icon: AlertCircle },
+  invalid:       { label: "Invalid Code",         color: "#ef4444", icon: AlertCircle },
+  pending_manufacturing: { label: "Pending Manufacturing", color: "#f59e0b", icon: AlertCircle },
 };
 
 const ORANGE = "#f97316";
@@ -333,6 +335,20 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 <div className="rounded-2xl p-4 mb-6" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)" }}>
                   <p className="text-red-400 text-sm font-semibold">
                     This device has been reported lost or stolen. If you found it, please contact the owner.
+                  </p>
+                </div>
+              )}
+              {deviceStatus === "invalid" && (
+                <div className="rounded-2xl p-4 mb-6" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)" }}>
+                  <p className="text-red-400 text-sm font-semibold">
+                    This device code is invalid or unrecognized. Check the code printed on your device and try again.
+                  </p>
+                </div>
+              )}
+              {deviceStatus === "pending_manufacturing" && (
+                <div className="rounded-2xl p-4 mb-6" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)" }}>
+                  <p className="text-amber-400 text-sm font-semibold">
+                    This device is still being manufactured and hasn't shipped yet. Activation will be available once you receive it.
                   </p>
                 </div>
               )}

@@ -16,10 +16,13 @@
         "stand",
         "badge",
         "sticker",
-        "tag"
+        "tag",
+        "pet_collar",
+        "luggage",
+        "profile_qr"
       ],
       "default": "card",
-      "description": "Physical product type \u2014 persists after assignment so a keychain fob stays a keychain fob regardless of what it's assigned to"
+      "description": "Physical product type \u2014 persists after assignment so a keychain fob stays a keychain fob regardless of what it's assigned to. pet_collar/luggage/profile_qr carry granular identity even without product_name."
     },
     "device_code": {
       "type": "string",
@@ -57,9 +60,12 @@
         "active",
         "lost",
         "disabled",
-        "replaced"
+        "replaced",
+        "invalid",
+        "pending_manufacturing"
       ],
-      "default": "available"
+      "default": "available",
+      "description": "available=ready to activate, active=already activated, assigned=claimed, lost=lost/stolen, replaced=superseded, invalid=bad code, pending_manufacturing=not yet shipped"
     },
     "assigned_at": {
       "type": "string",

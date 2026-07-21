@@ -12,6 +12,9 @@ export const DEVICE_TYPES = [
   { value: "sticker",    label: "NFC Sticker",       shortLabel: "Sticker",        emoji: "🏷️" },
   { value: "badge",      label: "NFC Badge",         shortLabel: "Badge",          emoji: "🎫" },
   { value: "tag",        label: "NFC Tag",           shortLabel: "Tag",            emoji: "📡" },
+  { value: "pet_collar", label: "NFC Pet Collar Tag", shortLabel: "Pet Collar",     emoji: "🐾" },
+  { value: "luggage",     label: "NFC Luggage Tag",    shortLabel: "Luggage Tag",    emoji: "🧳" },
+  { value: "profile_qr",  label: "Profile QR Code",    shortLabel: "Profile QR",     emoji: "📱" },
 ];
 
 /** Quick lookup by type value → full metadata object */
