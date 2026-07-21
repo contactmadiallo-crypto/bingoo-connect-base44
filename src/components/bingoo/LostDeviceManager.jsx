@@ -60,11 +60,17 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     enabled: !!userId,
   });
 
-  // ── Data: Lost reports ──
+  // ── Data: Lost reports (profile-owned via owner_profile_id + asset-owned via owner_user_id) ──
   const { data: reports = [], isLoading: reportsLoading } = useQuery({
-    queryKey: ["lost-reports", profileId],
-    queryFn: () => base44.entities.LostItemReport.filter({ owner_profile_id: profileId }),
-    enabled: !!profileId,
+    queryKey: ["lost-reports", profileId, userId],
+    queryFn: async () => {
+      const byProfile = profileId ? await base44.entities.LostItemReport.filter({ owner_profile_id: profileId }) : [];
+      const byUser = userId ? await base44.entities.LostItemReport.filter({ owner_user_id: userId }) : [];
+      const map = {};
+      [...byProfile, ...byUser].forEach(r => { map[r.id] = r; });
+      return Object.values(map);
+    },
+    enabled: !!profileId || !!userId,
   });
 
   // ── Realtime ──
@@ -88,12 +94,13 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   useEffect(() => {
     if (!profileId) return;
     const unsub = base44.entities.LostItemReport.subscribe((event) => {
-      if (event.type === "create" && event.data?.owner_profile_id === profileId) {
-        qc.setQueryData(["lost-reports", profileId], (old = []) => [event.data, ...old]);
+      const owns = event.data?.owner_profile_id === profileId || event.data?.owner_user_id === userId;
+      if (event.type === "create" && owns) {
+        qc.setQueryData(["lost-reports", profileId, userId], (old = []) => [event.data, ...old]);
         toast.info("📍 New finder report received!");
       }
       if (event.type === "update") {
-        qc.setQueryData(["lost-reports", profileId], (old = []) =>
+        qc.setQueryData(["lost-reports", profileId, userId], (old = []) =>
           old.map(r => r.id === event.id ? { ...r, ...event.data } : r)
         );
       }
@@ -131,20 +138,20 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
   const updateReport = useMutation({
     mutationFn: ({ id, data }) => base44.entities.LostItemReport.update(id, data),
     onMutate: async ({ id, data }) => {
-      await qc.cancelQueries({ queryKey: ["lost-reports", profileId] });
-      const prev = qc.getQueryData(["lost-reports", profileId]);
-      qc.setQueryData(["lost-reports", profileId], (old = []) =>
+      await qc.cancelQueries({ queryKey: ["lost-reports", profileId, userId] });
+      const prev = qc.getQueryData(["lost-reports", profileId, userId]);
+      qc.setQueryData(["lost-reports", profileId, userId], (old = []) =>
         old.map(r => r.id === id ? { ...r, ...data } : r)
       );
       return { prev };
     },
-    onError: (_e, _v, ctx) => qc.setQueryData(["lost-reports", profileId], ctx.prev),
+    onError: (_e, _v, ctx) => qc.setQueryData(["lost-reports", profileId, userId], ctx.prev),
   });
 
   const deleteReport = useMutation({
     mutationFn: (id) => base44.entities.LostItemReport.delete(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["lost-reports", profileId] });
+      qc.invalidateQueries({ queryKey: ["lost-reports", profileId, userId] });
       toast.success("Report deleted");
     },
     onError: (e) => toast.error(e.message || "Failed to delete report"),

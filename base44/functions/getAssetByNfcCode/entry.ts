@@ -82,7 +82,10 @@ Deno.serve(async (req) => {
         finder_message: asset.finder_message,
         recovery_instructions: asset.recovery_instructions,
         safe_contact_preference: asset.safe_contact_preference,
-        lost_mode_enabled: asset.lost_mode_enabled || false
+        lost_mode_enabled: asset.lost_mode_enabled || false,
+        reward_offered: asset.reward_offered || null,
+        public_medical_notes: asset.public_medical_notes || null,
+        public_last_known_context: asset.public_last_known_context || null
       },
       owner: {
         display_name: ownerProfile?.display_name || 'Owner',
@@ -90,7 +93,8 @@ Deno.serve(async (req) => {
       },
       device: {
         device_code: device.device_code,
-        device_type: device.device_type
+        device_type: device.device_type,
+        product_name: device.product_name || null
       }
     });
   } catch (error) {

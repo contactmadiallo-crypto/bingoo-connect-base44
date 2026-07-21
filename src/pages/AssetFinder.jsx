@@ -1,19 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Package, Phone, Mail, MessageCircle, ArrowLeft, MapPin, AlertTriangle } from 'lucide-react';
-import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Package, Phone, Mail, MessageCircle, ArrowLeft, MapPin, AlertTriangle,
+  Send, CheckCircle2, Loader2, MapPinned, Gift, HeartPulse, ShieldCheck, PawPrint, Luggage,
+} from 'lucide-react';
+import BingooLogo from '@/components/bingoo/BingooLogo';
+import { useLostScanLogger } from '@/hooks/useLostScanLogger';
+import { getDeviceDisplayName } from '@/lib/deviceTypes';
+
+const PET_TYPES = ['pet'];
+const ITEM_TYPES = ['luggage', 'bag', 'keys', 'equipment', 'vehicle', 'other'];
 
 export default function AssetFinder() {
   const { nfcDeviceCode } = useParams();
+  const normalizedCode = nfcDeviceCode?.toUpperCase().trim();
+
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [form, setForm] = useState({ name: '', phone: '', email: '', location: '', message: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     async function fetchAsset() {
       try {
-        const res = await base44.functions.invoke('getAssetByNfcCode', { device_code: nfcDeviceCode });
+        const res = await base44.functions.invoke('getAssetByNfcCode', { device_code: normalizedCode });
         setAsset(res.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Asset not found');
@@ -21,25 +37,58 @@ export default function AssetFinder() {
         setLoading(false);
       }
     }
-    if (nfcDeviceCode) fetchAsset();
-  }, [nfcDeviceCode]);
+    if (normalizedCode) fetchAsset();
+  }, [normalizedCode]);
+
+  const isLost = !!asset?.asset?.lost_mode_enabled;
+  const { reportId, locationStatus, preciseLocation, requestLocation } = useLostScanLogger({
+    deviceCode: normalizedCode,
+    enabled: !loading && isLost,
+    scanSource: 'nfc',
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await base44.functions.invoke('notifyLostDeviceFound', {
+        device_code: normalizedCode,
+        report_id: reportId || null,
+        finder_name: form.name,
+        finder_phone: form.phone,
+        finder_email: form.email,
+        finder_location: form.location,
+        finder_message: form.message,
+        latitude: preciseLocation?.lat ?? null,
+        longitude: preciseLocation?.lng ?? null,
+        scan_source: 'nfc',
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
+        <div className="text-center">
+          <BingooLogo className="w-14 h-14 mx-auto mb-4" animated />
+          <p className="text-white/60 font-semibold text-sm">Checking device…</p>
+        </div>
       </div>
     );
   }
 
   if (error || !asset) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6">
-        <div className="text-center max-w-sm">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
+        <div className="text-center max-w-sm bg-white rounded-3xl shadow-2xl p-8">
           <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-          <h1 className="text-xl font-bold text-slate-800 mb-2">No Lost Asset Found</h1>
-          <p className="text-sm text-slate-500 mb-4">{error || 'This device is not linked to a lost asset.'}</p>
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-orange-600">
+          <h1 className="text-xl font-black text-slate-900 mb-2">No Asset Found</h1>
+          <p className="text-sm text-slate-500 mb-4">{error || 'This device is not linked to a registered Bingoo asset.'}</p>
+          <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-white px-4 py-2 rounded-xl" style={{ background: '#f97316' }}>
             <ArrowLeft className="w-4 h-4" /> Go Home
           </Link>
         </div>
@@ -48,68 +97,92 @@ export default function AssetFinder() {
   }
 
   const { asset: assetData, owner, device } = asset;
+  const isPet = PET_TYPES.includes(assetData.asset_type);
+  const isItem = ITEM_TYPES.includes(assetData.asset_type);
+  const productLabel = device?.product_name ? getDeviceDisplayName(device) : getDeviceDisplayName(device);
+  const TypeIcon = isPet ? PawPrint : Luggage;
+
+  const hasContact = owner.contact.phone || owner.contact.email || owner.contact.whatsapp;
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
+        <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center">
+          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 mb-2">Thank You! 🙏</h2>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Your report has been sent to the owner of {assetData.name}. They will contact you soon.
+          </p>
+          <p className="text-xs text-slate-400 mt-4">Powered by Bingoo Connect</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-md mx-auto px-4 py-4 flex items-center gap-3">
-          <InfinityMark className="w-7 h-7" />
+    <div className="min-h-screen pb-10" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 55%, #13284f 100%)' }}>
+      <div className="max-w-md mx-auto px-4 pt-6 space-y-4">
+
+        {/* Brand header */}
+        <div className="flex items-center gap-2.5">
+          <BingooLogo className="w-9 h-9" animated={false} />
           <div>
-            <h1 className="text-sm font-black text-slate-900">Bingoo Connect</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase">Asset Found</p>
+            <p className="text-white font-black text-sm leading-none">Bingoo Connect</p>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mt-0.5">{isLost ? 'Lost Asset Recovery' : 'Asset Identified'}</p>
           </div>
         </div>
-      </header>
 
-      {/* Content */}
-      <main className="max-w-md mx-auto px-4 py-6 space-y-4">
-        {/* Lost Alert — dynamic asset name */}
-        {assetData.lost_mode_enabled ? (
-          <div className="rounded-2xl p-4 flex items-center gap-3" style={{ background: "#FFF5EB", border: "1px solid #FDBA74" }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(249,115,22,0.15)" }}>
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
+        {/* Lost banner */}
+        {isLost ? (
+          <div className="rounded-3xl p-6 text-center shadow-xl" style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' }}>
+            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <AlertTriangle className="w-9 h-9 text-white" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-black leading-tight" style={{ color: "#854D0E" }}>{assetData.name} has been reported lost</p>
-              <p className="text-xs font-semibold mt-0.5" style={{ color: "#C2410C" }}>Please help return {assetData.name} to the owner.</p>
+            <h1 className="text-xl font-black text-white mb-1">{assetData.name} has been reported lost</h1>
+            <p className="text-white/85 text-sm">Please help return {assetData.name} to the owner.</p>
+            <div className="inline-flex items-center gap-2 bg-white/15 rounded-xl px-3 py-1.5 mt-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">Code</span>
+              <span className="text-xs font-mono font-black text-white">{normalizedCode}</span>
             </div>
           </div>
         ) : (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-100">
-              <Package className="w-5 h-5 text-blue-500" />
+          <div className="rounded-3xl p-5 flex items-center gap-3 shadow-lg" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)' }}>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(249,115,22,0.25)' }}>
+              <Package className="w-5 h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-blue-800 leading-tight">{assetData.name} identified</p>
-              <p className="text-xs text-blue-600 mt-0.5">This NFC tag is linked to a registered Bingoo asset.</p>
+              <p className="text-sm font-black text-white leading-tight">{assetData.name} identified</p>
+              <p className="text-xs text-white/60 mt-0.5">This NFC tag is linked to a registered Bingoo asset.</p>
             </div>
           </div>
         )}
 
-        {/* Asset Card */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
-          {/* Image with gradient overlay + name/badge */}
+        {/* Asset card */}
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
           {assetData.photo_url ? (
             <div className="relative h-52">
               <img src={assetData.photo_url} alt={assetData.name} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-              {assetData.lost_mode_enabled && (
-                <span className="absolute top-3 right-3 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide text-white flex items-center gap-1" style={{ background: "rgba(249,115,22,0.95)" }}>
+              {isLost && (
+                <span className="absolute top-3 right-3 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide text-white flex items-center gap-1" style={{ background: 'rgba(249,115,22,0.95)' }}>
                   <AlertTriangle className="w-3 h-3" /> Lost
                 </span>
               )}
               <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end justify-between gap-2">
                 <h2 className="text-2xl font-black text-white uppercase tracking-tight leading-none">{assetData.name}</h2>
-                <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase bg-white/90 text-slate-700 backdrop-blur-sm flex-shrink-0">{assetData.asset_type}</span>
+                <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase bg-white/90 text-slate-700 backdrop-blur-sm flex-shrink-0 flex items-center gap-1">
+                  <TypeIcon className="w-3 h-3" /> {assetData.asset_type}
+                </span>
               </div>
             </div>
           ) : (
-            <div className="p-5 pb-0">
-              <div className="flex items-center gap-2">
-                <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{assetData.name}</h2>
-                <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase bg-slate-100 text-slate-600">{assetData.asset_type}</span>
-              </div>
+            <div className="p-5 pb-0 flex items-center gap-2">
+              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">{assetData.name}</h2>
+              <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase bg-slate-100 text-slate-600 flex items-center gap-1">
+                <TypeIcon className="w-3 h-3" /> {assetData.asset_type}
+              </span>
             </div>
           )}
 
@@ -118,71 +191,184 @@ export default function AssetFinder() {
               <p className="text-sm text-slate-600 leading-relaxed">{assetData.description}</p>
             )}
 
-            {/* Finder Message */}
+            {/* Linked NFC device */}
+            <div className="flex items-center gap-3 rounded-xl p-3 bg-slate-50">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#FFF5EB' }}>
+                <Package className="w-4 h-4" style={{ color: '#f97316' }} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Linked NFC Device</p>
+                <p className="text-xs font-black text-slate-900 mt-0.5 truncate">{productLabel}</p>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-slate-500 ml-auto">{normalizedCode}</span>
+            </div>
+
+            {/* Pet medical/allergy notes (only if owner enabled) */}
+            {isPet && assetData.public_medical_notes && (
+              <div className="rounded-xl p-4" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
+                <p className="text-[10px] font-black uppercase tracking-wide text-red-700 mb-1 flex items-center gap-1"><HeartPulse className="w-3 h-3" /> Medical / Allergy Notes</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{assetData.public_medical_notes}</p>
+              </div>
+            )}
+
+            {/* Luggage/item last known context (only if owner enabled) */}
+            {isItem && assetData.public_last_known_context && (
+              <div className="rounded-xl p-4" style={{ background: '#EFF6FF', border: '1px solid #DBEAFE' }}>
+                <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Last Known Context</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{assetData.public_last_known_context}</p>
+              </div>
+            )}
+
+            {/* Reward */}
+            {assetData.reward_offered && (
+              <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: '#FFFbeb', border: '1px solid #fde68a' }}>
+                <Gift className="w-5 h-5 text-amber-600 shrink-0" />
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wide text-amber-700">Reward Offered</p>
+                  <p className="text-sm text-slate-700 font-semibold mt-0.5">{assetData.reward_offered}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Finder message from owner */}
             {assetData.finder_message && (
-              <div className="rounded-xl p-4" style={{ background: "#EFF6FF", border: "1px solid #DBEAFE" }}>
+              <div className="rounded-xl p-4" style={{ background: '#EFF6FF', border: '1px solid #DBEAFE' }}>
                 <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1">Message from owner</p>
                 <p className="text-sm text-slate-700 italic leading-relaxed">"{assetData.finder_message}"</p>
               </div>
             )}
 
-            {/* Recovery Instructions */}
+            {/* Safe return / handoff instructions */}
             {assetData.recovery_instructions && (
-              <div className="rounded-xl p-4" style={{ background: "#ECFDF5", border: "1px solid #D1FAE5" }}>
-                <p className="text-[10px] font-black uppercase tracking-wide text-emerald-700 mb-1">Recovery instructions</p>
+              <div className="rounded-xl p-4" style={{ background: '#ECFDF5', border: '1px solid #D1FAE5' }}>
+                <p className="text-[10px] font-black uppercase tracking-wide text-emerald-700 mb-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Safe Return Instructions</p>
                 <p className="text-sm text-slate-700 leading-relaxed">{assetData.recovery_instructions}</p>
               </div>
             )}
 
-            {/* Contact Owner */}
-            <div className="space-y-2.5 pt-1">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact {owner.display_name}</p>
-              {owner.contact.phone && (
-                <a href={`tel:${owner.contact.phone}`} className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "#0b2149" }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(249,115,22,0.25)" }}>
-                    <Phone className="w-4 h-4 text-orange-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-white/50">Call</p>
-                    <p className="truncate">{owner.contact.phone}</p>
-                  </div>
-                </a>
-              )}
-              {owner.contact.email && (
-                <a href={`mailto:${owner.contact.email}`} className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-slate-300">
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-slate-100">
-                    <Mail className="w-4 h-4 text-slate-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Email</p>
-                    <p>Send a message</p>
-                  </div>
-                </a>
-              )}
-              {owner.contact.whatsapp && (
-                <a href={`https://wa.me/${owner.contact.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "#22C55E" }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/20">
-                    <MessageCircle className="w-4 h-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">WhatsApp</p>
-                    <p>Chat instantly</p>
-                  </div>
-                </a>
-              )}
-              {!owner.contact.phone && !owner.contact.email && !owner.contact.whatsapp && (
-                <p className="text-xs text-slate-400 text-center py-2">No contact method available. Please bring this item to a local authority.</p>
-              )}
-            </div>
+            {/* Contact owner */}
+            {hasContact && (
+              <div className="space-y-2.5 pt-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Contact {owner.display_name}</p>
+                {owner.contact.phone && (
+                  <a href={`tel:${owner.contact.phone}`} className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: '#f97316' }}>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><Phone className="w-4 h-4" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">Call</p>
+                      <p className="truncate">{owner.contact.phone}</p>
+                    </div>
+                  </a>
+                )}
+                {owner.contact.whatsapp && (
+                  <a href={`https://wa.me/${owner.contact.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: '#22C55E' }}>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><MessageCircle className="w-4 h-4" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">WhatsApp</p>
+                      <p>Chat instantly</p>
+                    </div>
+                  </a>
+                )}
+                {owner.contact.email && (
+                  <a href={`mailto:${owner.contact.email}`} className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-slate-300">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 shrink-0"><Mail className="w-4 h-4 text-slate-600" /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Email</p>
+                      <p>Send a message</p>
+                    </div>
+                  </a>
+                )}
+              </div>
+            )}
+            {!hasContact && (
+              <p className="text-xs text-slate-400 text-center py-2">No direct contact method available — please use the report form below.</p>
+            )}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center py-4">
-          <p className="text-xs text-slate-400">Device: {device.device_code} ({device.device_type})</p>
-          <p className="text-xs text-slate-400 mt-1">Powered by Bingoo Connect</p>
-        </div>
-      </main>
+        {/* Location permission prompt (lost only) */}
+        {isLost && locationStatus === 'idle' && (
+          <div className="bg-white rounded-3xl shadow-lg p-5">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: '#FFF5EB' }}>
+                <MapPinned className="w-5 h-5" style={{ color: '#f97316' }} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-slate-900">Share your location?</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Help the owner recover {assetData.name} by sharing your current location. Your browser will ask for permission — nothing is shared without your approval.</p>
+              </div>
+            </div>
+            <button onClick={requestLocation} className="w-full rounded-xl font-bold h-11 text-white flex items-center justify-center gap-2 text-sm" style={{ background: '#0b2149' }}>
+              <MapPin className="w-4 h-4" /> Share my location
+            </button>
+          </div>
+        )}
+        {isLost && locationStatus === 'prompted' && (
+          <div className="bg-white rounded-2xl shadow-lg p-4 flex items-center gap-3">
+            <Loader2 className="w-4 h-4 animate-spin text-orange-500 shrink-0" />
+            <p className="text-xs font-semibold text-slate-600">Waiting for browser permission…</p>
+          </div>
+        )}
+        {isLost && locationStatus === 'granted' && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-emerald-800">Location shared — thank you!</p>
+              <p className="text-xs text-emerald-600 mt-0.5">Your approximate location will be sent to the owner with your report.</p>
+            </div>
+          </div>
+        )}
+        {isLost && (locationStatus === 'denied' || locationStatus === 'unsupported') && (
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
+            <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
+            <p className="text-xs text-slate-500">No problem — you can still submit a report without sharing location.</p>
+          </div>
+        )}
+
+        {/* Found report form (lost only) */}
+        {isLost && (
+          <div className="bg-white rounded-3xl shadow-lg p-6">
+            <h2 className="font-black text-slate-900 text-base mb-1">{isPet ? 'I Found This Pet' : 'I Found This Item'}</h2>
+            <p className="text-slate-400 text-xs mb-4">Leave your details so the owner can contact you to arrange the return.</p>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">Your Name</label>
+                <Input placeholder="Enter your name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="pl-9 rounded-xl" type="tel" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">Email</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input placeholder="your@email.com" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="pl-9 rounded-xl" type="email" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">Where did you find it?</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input placeholder="e.g. Outside Starbucks on 5th Ave" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">Message to owner (optional)</label>
+                <Textarea placeholder="e.g. I found your pet near the park. They're safe with me." value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none" rows={3} />
+              </div>
+              <Button type="submit" disabled={submitting || (!form.name && !form.phone && !form.email)} className="w-full rounded-xl font-bold gap-2 h-12" style={{ background: '#f97316' }}>
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {submitting ? 'Sending…' : 'Send Report'}
+              </Button>
+            </form>
+          </div>
+        )}
+
+        <p className="text-center text-xs text-white/40 pb-2">Powered by Bingoo Connect</p>
+      </div>
     </div>
   );
 }

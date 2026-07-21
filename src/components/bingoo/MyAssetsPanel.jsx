@@ -34,6 +34,7 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
     asset_type: 'other', name: '', photo_url: '', description: '',
     nfc_device_id: '', lost_mode_enabled: false, finder_message: '',
     recovery_instructions: '', safe_contact_preference: 'phone',
+    reward_offered: '', public_medical_notes: '', public_last_known_context: '',
   });
   const [uploading, setUploading] = useState(false);
   const [assignModalAsset, setAssignModalAsset] = useState(null);
@@ -79,6 +80,7 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
       asset_type: 'other', name: '', photo_url: '', description: '',
       nfc_device_id: '', lost_mode_enabled: false, finder_message: '',
       recovery_instructions: '', safe_contact_preference: 'phone',
+      reward_offered: '', public_medical_notes: '', public_last_known_context: '',
     });
     setEditingAsset(null);
     setShowForm(false);
@@ -121,6 +123,9 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
       finder_message: asset.finder_message || '',
       recovery_instructions: asset.recovery_instructions || '',
       safe_contact_preference: asset.safe_contact_preference || 'phone',
+      reward_offered: asset.reward_offered || '',
+      public_medical_notes: asset.public_medical_notes || '',
+      public_last_known_context: asset.public_last_known_context || '',
     });
     setShowForm(true);
   };
@@ -284,6 +289,22 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
                     <option value="none">None</option>
                   </select>
                 </div>
+                <div>
+                  <label className={`text-xs font-bold ${headText} mb-1 block`}>Reward Offered (optional)</label>
+                  <input value={formData.reward_offered} onChange={e => setFormData({ ...formData, reward_offered: e.target.value })} placeholder="e.g. $50 reward for safe return" className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
+                </div>
+                {formData.asset_type === 'pet' && (
+                  <div>
+                    <label className={`text-xs font-bold ${headText} mb-1 block`}>Public Medical / Allergy Notes</label>
+                    <textarea value={formData.public_medical_notes} onChange={e => setFormData({ ...formData, public_medical_notes: e.target.value })} placeholder="Shown only if filled. e.g. Allergic to chicken, on daily medication." rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+                  </div>
+                )}
+                {['luggage', 'bag', 'keys', 'equipment', 'vehicle', 'other'].includes(formData.asset_type) && (
+                  <div>
+                    <label className={`text-xs font-bold ${headText} mb-1 block`}>Public Last Known Context</label>
+                    <textarea value={formData.public_last_known_context} onChange={e => setFormData({ ...formData, public_last_known_context: e.target.value })} placeholder="Shown only if filled. e.g. Last seen at JFK baggage claim carousel 4." rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -61,6 +61,21 @@
       ],
       "default": "phone",
       "description": "Preferred contact method shown to finder"
+    },
+    "reward_offered": {
+      "type": "string",
+      "description": "Optional reward text shown publicly to the finder",
+      "maxLength": 500
+    },
+    "public_medical_notes": {
+      "type": "string",
+      "description": "Pet medical/allergy notes shown publicly only if the owner explicitly fills this. Empty = hidden.",
+      "maxLength": 1000
+    },
+    "public_last_known_context": {
+      "type": "string",
+      "description": "Last known context for luggage/items shown publicly only if the owner explicitly fills this. Empty = hidden.",
+      "maxLength": 1000
     }
   },
   "required": [
