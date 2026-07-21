@@ -139,6 +139,48 @@ export default function AppointmentSettings({ profileId }) {
         </button>
       </div>
 
+      {/* Business Hours / Weekly Availability — ALWAYS editable.
+          These hours are shown on the public profile (Open/Closed indicator)
+          and are used to generate booking slots when appointment booking is enabled. */}
+      <div className={cardCls}>
+        <div className="flex items-center gap-2 mb-1">
+          <Clock className="w-4 h-4 text-blue-500" />
+          <p className={labelCls.replace("mb-3", "mb-0")}>Business Hours · Weekly Availability</p>
+        </div>
+        <p className={`text-xs mb-4 ${mutedCls}`}>Set your weekly open/closed hours. These appear on your public profile and define booking slots.</p>
+        <div className="space-y-3">
+          {DAYS.map(({ key, label }) => (
+            <div key={key} className="flex items-center gap-3">
+              <button onClick={() => toggleDay(key)}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border transition-all flex-shrink-0 ${
+                  hours[key]?.enabled
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : isDark ? "bg-white/5 text-white/30 border-white/15" : "bg-slate-50 text-slate-400 border-slate-200"
+                }`}>
+                {label}
+              </button>
+              {hours[key]?.enabled ? (
+                <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
+                  <TimeWheelPicker
+                    value={hours[key]?.start || "09:00"}
+                    onChange={val => setDayTime(key, "start", val)}
+                    isDark={isDark}
+                  />
+                  <span className={`text-sm font-medium ${mutedCls}`}>to</span>
+                  <TimeWheelPicker
+                    value={hours[key]?.end || "17:00"}
+                    onChange={val => setDayTime(key, "end", val)}
+                    isDark={isDark}
+                  />
+                </div>
+              ) : (
+                <span className={`text-sm ${mutedCls}`}>Closed</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {bookingEnabled && (
         <>
           {/* Appointment Type */}
@@ -192,42 +234,6 @@ export default function AppointmentSettings({ profileId }) {
                 ))}
               </div>
               <p className={`text-xs mt-2 ${mutedCls}`}>Break added after each appointment</p>
-            </div>
-          </div>
-
-          {/* Weekly Availability */}
-          <div className={cardCls}>
-            <p className={labelCls}>Weekly Availability</p>
-            <div className="space-y-3">
-              {DAYS.map(({ key, label }) => (
-                <div key={key} className="flex items-center gap-3">
-                  <button onClick={() => toggleDay(key)}
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border transition-all flex-shrink-0 ${
-                      hours[key]?.enabled
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : isDark ? "bg-white/5 text-white/30 border-white/15" : "bg-slate-50 text-slate-400 border-slate-200"
-                    }`}>
-                    {label}
-                  </button>
-                  {hours[key]?.enabled ? (
-                    <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
-                      <TimeWheelPicker
-                        value={hours[key]?.start || "09:00"}
-                        onChange={val => setDayTime(key, "start", val)}
-                        isDark={isDark}
-                      />
-                      <span className={`text-sm font-medium ${mutedCls}`}>to</span>
-                      <TimeWheelPicker
-                        value={hours[key]?.end || "17:00"}
-                        onChange={val => setDayTime(key, "end", val)}
-                        isDark={isDark}
-                      />
-                    </div>
-                  ) : (
-                    <span className={`text-sm ${mutedCls}`}>Closed</span>
-                  )}
-                </div>
-              ))}
             </div>
           </div>
 
