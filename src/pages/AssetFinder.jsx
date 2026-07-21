@@ -99,7 +99,7 @@ export default function AssetFinder() {
   const { asset: assetData, owner, device } = asset;
   const isPet = PET_TYPES.includes(assetData.asset_type);
   const isItem = ITEM_TYPES.includes(assetData.asset_type);
-  const productLabel = device?.product_name ? getDeviceDisplayName(device) : getDeviceDisplayName(device);
+  const productLabel = getDeviceDisplayName(device);
   const TypeIcon = isPet ? PawPrint : Luggage;
 
   const hasContact = owner.contact.phone || owner.contact.email || owner.contact.whatsapp;
