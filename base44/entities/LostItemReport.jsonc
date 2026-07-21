@@ -8,8 +8,42 @@
     "device_id": {
       "type": "string"
     },
+    "device_type": {
+      "type": "string",
+      "description": "Snapshot of NFCDevice.device_type at scan time"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Snapshot of NFCDevice.product_name at scan time"
+    },
     "owner_profile_id": {
       "type": "string"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Owner user ID \u2014 for asset-owned reports so the owner can read via RLS even without a profile link"
+    },
+    "asset_id": {
+      "type": "string",
+      "description": "Linked AssetItem id if the lost device is assigned to an asset"
+    },
+    "asset_name": {
+      "type": "string",
+      "description": "Snapshot of asset name at scan time"
+    },
+    "assigned_target_name": {
+      "type": "string",
+      "description": "Human-readable assignment snapshot \u2014 profile display_name or asset name"
+    },
+    "scan_source": {
+      "type": "string",
+      "enum": [
+        "nfc",
+        "qr",
+        "direct"
+      ],
+      "default": "nfc",
+      "description": "How the lost page was reached"
     },
     "finder_name": {
       "type": "string"
@@ -32,6 +66,11 @@
     "longitude": {
       "type": "number"
     },
+    "precise_location_shared": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the finder explicitly granted browser geolocation permission"
+    },
     "scan_time": {
       "type": "string",
       "format": "date-time"
@@ -44,6 +83,10 @@
         "recovered"
       ],
       "default": "new"
+    },
+    "reward_offered": {
+      "type": "string",
+      "description": "Reward text snapshot shown to the finder"
     }
   },
   "required": [
@@ -63,6 +106,9 @@
           }
         },
         {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -77,6 +123,9 @@
               "{{user.data.owned_profile_ids}}"
             ]
           }
+        },
+        {
+          "data.owner_user_id": "{{user.id}}"
         },
         {
           "user_condition": {
