@@ -5,11 +5,11 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // This function must only be callable by the platform's automation service
-    // role (entity automation on User "create"). Anonymous HTTP callers are
-    // rejected outright to prevent email spoofing / abuse of the welcome email.
-    const isAuthed = await base44.auth.isAuthenticated().catch(() => false);
-    if (!isAuthed) {
+    // This function must only be callable by an admin / service-role automation
+    // context (entity automation on User "create"). Anonymous callers and ordinary
+    // signed-in users are rejected to prevent email spoofing / abuse of the welcome email.
+    const caller = await base44.auth.me().catch(() => null);
+    if (!caller || caller.role !== 'admin') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
