@@ -64,6 +64,35 @@ function buildSessionParams({ lineItems, customerEmail, orderId }) {
   return params;
 }
 
+// ── Payload signature ───────────────────────────────────────────────────────
+// Deterministic fingerprint of the checkout payload (normalized email + product
+// IDs + quantities + permitted custom-design values). Used to reject reuse of an
+// idempotency_key for a changed cart (HTTP 409) and to match request vs. stored order.
+function normalizeValue(v) {
+  if (v === null || v === undefined) return '';
+  if (typeof v === 'object') {
+    const keys = Object.keys(v).sort();
+    return '{' + keys.map(k => JSON.stringify(k) + ':' + normalizeValue(v[k])).join(',') + '}';
+  }
+  return String(v);
+}
+
+function signatureFromItems(customerEmail, items) {
+  const email = (customerEmail || '').trim().toLowerCase();
+  const norm = (items || []).map(item => {
+    const cd = sanitizeCustomDesign(item.customDesign) || {};
+    const cdPairs = Object.keys(cd).sort().map(k => [k, normalizeValue(cd[k])]);
+    return [item.product_id, item.quantity, cdPairs];
+  });
+  norm.sort((a, b) => {
+    if (a[0] !== b[0]) return a[0] < b[0] ? -1 : 1;
+    if (a[1] !== b[1]) return a[1] - b[1];
+    const sa = JSON.stringify(a[2]), sb = JSON.stringify(b[2]);
+    return sa < sb ? -1 : (sa > sb ? 1 : 0);
+  });
+  return JSON.stringify({ email, items: norm });
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -163,23 +192,68 @@ Deno.serve(async (req) => {
 
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
 
+    // Deterministic Stripe idempotency key — identical for every call sharing this
+    // checkout idempotency_key, so concurrent duplicate create() calls return the
+    // SAME Stripe session instead of two. (Refreshing an expired session uses a
+    // unique key so Stripe doesn't replay the stale expired session object.)
+    const stripeIdemKey = 'bingoo-shopcheckout-' + idempotency_key;
+
+    const requestSignature = signatureFromItems(customer_email, items);
+
     // ── 5. Idempotency: reuse an existing order for this key if present ──────
     let existing = [];
     try {
-      existing = await base44.asServiceRole.entities.ShopOrder.filter({ idempotency_key }, '-created_date', 1);
+      existing = await base44.asServiceRole.entities.ShopOrder.filter({ idempotency_key }, 'created_date', 10);
     } catch (e) {
       console.error('Idempotency lookup failed:', e.message);
     }
 
     if (existing.length > 0) {
-      const order = existing[0];
-      // Reuse the same order. Create or refresh its Stripe session only.
+      const prior = existing[0];
+
+      // Reject payload drift: the same idempotency_key must map to the same cart.
+      const orderSignature = signatureFromItems(prior.customer_email, prior.items);
+      if (requestSignature !== orderSignature) {
+        console.warn(`Idempotency payload mismatch for key ${idempotency_key}`);
+        return Response.json(
+          { error: 'Checkout payload changed for this idempotency key. Please restart checkout.' },
+          { status: 409 }
+        );
+      }
+
+      // If a valid session already exists, return it — do NOT create another.
+      if (prior.stripe_session_id) {
+        try {
+          const priorSession = await stripe.checkout.sessions.retrieve(prior.stripe_session_id);
+          if (priorSession && priorSession.url) {
+            console.log(`Idempotent reuse: order ${prior.id} | existing session ${prior.stripe_session_id}`);
+            return Response.json({ url: priorSession.url, order_id: prior.id });
+          }
+        } catch (e) {
+          console.warn('Retrieve prior session failed, will refresh:', e.message);
+        }
+        // Session expired/unavailable — create a fresh one for the SAME order,
+        // using a unique Stripe idempotency key so Stripe doesn't return the stale
+        // expired session.
+        const refreshKey = 'bingoo-shopcheckout-' + idempotency_key + '-r' + Date.now();
+        const refreshed = await stripe.checkout.sessions.create(
+          buildSessionParams({ lineItems, customerEmail: customer_email, orderId: prior.id }),
+          { idempotencyKey: refreshKey }
+        );
+        await base44.asServiceRole.entities.ShopOrder.update(prior.id, { stripe_session_id: refreshed.id });
+        console.log(`Idempotent reuse: order ${prior.id} | refreshed session ${refreshed.id}`);
+        return Response.json({ url: refreshed.url, order_id: prior.id });
+      }
+
+      // Order exists but has no session yet — create one for it. The deterministic
+      // Stripe key dedupes any concurrent callers racing to do the same.
       const session = await stripe.checkout.sessions.create(
-        buildSessionParams({ lineItems, customerEmail: customer_email, orderId: order.id })
+        buildSessionParams({ lineItems, customerEmail: customer_email, orderId: prior.id }),
+        { idempotencyKey: stripeIdemKey }
       );
-      await base44.asServiceRole.entities.ShopOrder.update(order.id, { stripe_session_id: session.id });
-      console.log(`Idempotent reuse: order ${order.id} | new session ${session.id}`);
-      return Response.json({ url: session.url, order_id: order.id });
+      await base44.asServiceRole.entities.ShopOrder.update(prior.id, { stripe_session_id: session.id });
+      console.log(`Idempotent reuse: order ${prior.id} | new session ${session.id}`);
+      return Response.json({ url: session.url, order_id: prior.id });
     }
 
     // ── 6. Create the ShopOrder server-side (asServiceRole bypasses RLS) ─────
@@ -202,17 +276,46 @@ Deno.serve(async (req) => {
       idempotency_key,
     });
 
-    // ── 7. Create the Stripe Checkout session bound to the new order ID ──────
+    // ── 6b. Reconcile concurrent creates ──────────────────────────────────────
+    // Two simultaneous requests can both pass the "no existing order" check and
+    // each create an order. Re-query for the earliest order with this key; if it
+    // isn't ours, discard ours and adopt the earliest. Stripe's deterministic
+    // idempotency key already guarantees a single shared session object either way.
+    let canonicalOrder = order;
+    try {
+      const all = await base44.asServiceRole.entities.ShopOrder.filter({ idempotency_key }, 'created_date', 10);
+      if (all.length > 1 && all[0].id !== order.id) {
+        canonicalOrder = all[0];
+        try {
+          await base44.asServiceRole.entities.ShopOrder.delete(order.id);
+          console.log(`Concurrent dedupe: discarded duplicate order ${order.id}, adopting ${canonicalOrder.id}`);
+        } catch (e) {
+          console.warn('Failed to discard duplicate order:', e.message);
+        }
+        // If the canonical (earliest) order already has a valid session, return it.
+        if (canonicalOrder.stripe_session_id) {
+          try {
+            const s = await stripe.checkout.sessions.retrieve(canonicalOrder.stripe_session_id);
+            if (s && s.url) return Response.json({ url: s.url, order_id: canonicalOrder.id });
+          } catch (e) { console.warn('Retrieve canonical session failed:', e.message); }
+        }
+      }
+    } catch (e) {
+      console.warn('Reconcile query failed:', e.message);
+    }
+
+    // ── 7. Create the Stripe Checkout session bound to the canonical order ID ─
     const session = await stripe.checkout.sessions.create(
-      buildSessionParams({ lineItems, customerEmail: customer_email, orderId: order.id })
+      buildSessionParams({ lineItems, customerEmail: customer_email, orderId: canonicalOrder.id }),
+      { idempotencyKey: stripeIdemKey }
     );
 
-    await base44.asServiceRole.entities.ShopOrder.update(order.id, {
+    await base44.asServiceRole.entities.ShopOrder.update(canonicalOrder.id, {
       stripe_session_id: session.id,
     });
 
-    console.log(`Checkout created: order ${order.id} | session ${session.id} | total_cents ${totalCents}`);
-    return Response.json({ url: session.url, order_id: order.id });
+    console.log(`Checkout created: order ${canonicalOrder.id} | session ${session.id} | total_cents ${totalCents}`);
+    return Response.json({ url: session.url, order_id: canonicalOrder.id });
 
   } catch (error) {
     console.error('createShopCheckout error:', error.message, error.stack);
