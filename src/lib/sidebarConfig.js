@@ -304,9 +304,7 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
   if (isAdmin) {
     type = null; // admin uses ADMIN_SIDEBAR_ITEMS directly
   } else {
-    // Sidebar type follows PROFILE CATEGORY so business/salon/lawfirm/corporate
-    // profiles show their vertical sections. Access is gated by subscription at the
-    // panel level (canAccess / FeatureGate / PlanGateScreen).
+    // Profile category controls navigation sections; subscription controls access and gates.
     type = normalizeProfileType(profile);
   }
 
