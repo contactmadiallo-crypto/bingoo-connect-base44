@@ -23,7 +23,7 @@ export function useLostScanLogger({ deviceCode, assetId, enabled, scanSource = '
   const loggedRef = useRef(false);
 
   useEffect(() => {
-    if (!deviceCode || !enabled || loggedRef.current) return;
+    if ((!deviceCode && !assetId) || !enabled || loggedRef.current) return;
     loggedRef.current = true;
     base44.functions.invoke('logLostDeviceScan', { device_code: deviceCode || null, asset_id: assetId || null, scan_source: scanSource })
       .then((res) => {
