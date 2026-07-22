@@ -4,6 +4,17 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // Professional-tier plans include lead_collection + appointment_booking.
 const PRO_TIER_PLANS = new Set(['professional', 'pro', 'business', 'salon', 'restaurant', 'lawfirm', 'corporate']);
 
+// HTML entity escaper — prevents HTML/script injection in email bodies.
+function escapeHtml(value) {
+  if (value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
@@ -188,26 +199,39 @@ Deno.serve(async (req) => {
     const actionLabel = isRestaurant ? "Reservation" : "Appointment";
     const ownerCtaUrl = `${appOrigin}${actionUrl}`;
 
+    // HTML-escape all user-supplied values before interpolating into email HTML
+    const eVisitorName = escapeHtml(visitor_name);
+    const eVisitorEmail = escapeHtml(visitor_email);
+    const eVisitorPhone = escapeHtml(visitor_phone);
+    const eDate = escapeHtml(date);
+    const eTimeSlot = escapeHtml(time_slot);
+    const eServiceName = escapeHtml(service_name);
+    const eStylistName = escapeHtml(stylist_name);
+    const eGuestCount = escapeHtml(guest_count);
+    const eANumber = escapeHtml(a_number);
+    const eCaseNumber = escapeHtml(case_number);
+    const eNotes = escapeHtml(notes);
+
     // Notification email to profile owner
     try {
       if (profile?.email) {
         let detailsHtml = `
-          <tr><td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">👤 ${isLawFirm ? "Client" : "Visitor"}</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${visitor_name}</td></tr>
-          <tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📧 Email</td><td style="padding:8px 0;font-size:14px;"><a href="mailto:${visitor_email}" style="color:#3b82f6;">${visitor_email}</a></td></tr>
-          ${visitor_phone ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📞 Phone</td><td style="padding:8px 0;font-size:14px;">${visitor_phone}</td></tr>` : ''}
-          ${date ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📆 Date</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${date}</td></tr>` : ''}
-          ${time_slot ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">⏰ Time</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${time_slot}</td></tr>` : ''}
-          ${service_name ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">${isLawFirm ? "⚖️ Case Type" : isSalon ? "✂️ Service" : "🎯 Service"}</td><td style="padding:8px 0;font-size:14px;">${service_name}</td></tr>` : ''}
-          ${stylist_name ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">✂️ Stylist</td><td style="padding:8px 0;font-size:14px;">${stylist_name}</td></tr>` : ''}
-          ${guest_count ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">👥 Guests</td><td style="padding:8px 0;font-size:14px;">${guest_count}</td></tr>` : ''}
-          ${a_number ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">🔢 A-Number</td><td style="padding:8px 0;font-size:14px;">${a_number}</td></tr>` : ''}
-          ${case_number ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📋 Case #</td><td style="padding:8px 0;font-size:14px;">${case_number}</td></tr>` : ''}
-          ${notes ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📝 Notes</td><td style="padding:8px 0;color:#1e293b;font-size:14px;">${notes}</td></tr>` : ''}
+          <tr><td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">👤 ${isLawFirm ? "Client" : "Visitor"}</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${eVisitorName}</td></tr>
+          <tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📧 Email</td><td style="padding:8px 0;font-size:14px;"><a href="mailto:${eVisitorEmail}" style="color:#3b82f6;">${eVisitorEmail}</a></td></tr>
+          ${visitor_phone ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📞 Phone</td><td style="padding:8px 0;font-size:14px;">${eVisitorPhone}</td></tr>` : ''}
+          ${date ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📆 Date</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${eDate}</td></tr>` : ''}
+          ${time_slot ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">⏰ Time</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${eTimeSlot}</td></tr>` : ''}
+          ${service_name ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">${isLawFirm ? "⚖️ Case Type" : isSalon ? "✂️ Service" : "🎯 Service"}</td><td style="padding:8px 0;font-size:14px;">${eServiceName}</td></tr>` : ''}
+          ${stylist_name ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">✂️ Stylist</td><td style="padding:8px 0;font-size:14px;">${eStylistName}</td></tr>` : ''}
+          ${guest_count ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">👥 Guests</td><td style="padding:8px 0;font-size:14px;">${eGuestCount}</td></tr>` : ''}
+          ${a_number ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">🔢 A-Number</td><td style="padding:8px 0;font-size:14px;">${eANumber}</td></tr>` : ''}
+          ${case_number ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📋 Case #</td><td style="padding:8px 0;font-size:14px;">${eCaseNumber}</td></tr>` : ''}
+          ${notes ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📝 Notes</td><td style="padding:8px 0;color:#1e293b;font-size:14px;">${eNotes}</td></tr>` : ''}
         `;
 
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: profile.email,
-          subject: `${subjectEmoji} New ${actionLabel} Request from ${visitor_name}`,
+          subject: `${subjectEmoji} New ${actionLabel} Request from ${eVisitorName}`,
           body: `
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#f8fafc;padding:24px;border-radius:16px;">
   <div style="background:linear-gradient(135deg,#0B2E6B,#1a4a9e);border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
@@ -235,8 +259,8 @@ Deno.serve(async (req) => {
 
     // Confirmation email to the visitor (customer-facing)
     try {
-      const whenStr = [date, time_slot].filter(Boolean).join(' at ');
-      const bizName = profile?.display_name || profile?.company_name || 'the business';
+      const whenStr = escapeHtml([date, time_slot].filter(Boolean).join(' at '));
+      const bizName = escapeHtml(profile?.display_name || profile?.company_name || 'the business');
       await base44.asServiceRole.integrations.Core.SendEmail({
         to: visitor_email,
         from_name: 'Bingoo Connect',
@@ -245,10 +269,10 @@ Deno.serve(async (req) => {
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#f8fafc;padding:24px;border-radius:16px;">
   <div style="background:linear-gradient(135deg,#0B2E6B,#1a4a9e);border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
     <h1 style="color:white;margin:0;font-size:20px;">${subjectEmoji} ${actionLabel} Request Received</h1>
-    <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;">Hi ${visitor_name}, we got your request!</p>
+    <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;">Hi ${eVisitorName}, we got your request!</p>
   </div>
   <div style="background:white;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #e2e8f0;">
-    <p style="margin:0 0 8px;color:#1e293b;font-size:14px;">You requested a ${actionLabel.toLowerCase()} with <strong>${bizName}</strong>${whenStr ? ` for <strong>${whenStr}</strong>` : ''}${service_name ? ` (${service_name})` : ''}.</p>
+    <p style="margin:0 0 8px;color:#1e293b;font-size:14px;">You requested a ${actionLabel.toLowerCase()} with <strong>${bizName}</strong>${whenStr ? ` for <strong>${whenStr}</strong>` : ''}${eServiceName ? ` (${eServiceName})` : ''}.</p>
     <p style="margin:0;color:#64748b;font-size:14px;">Your request is pending confirmation. You'll receive an update once it's reviewed.</p>
   </div>
   <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:20px;">Bingoo Connect · Sent on behalf of ${bizName}</p>
