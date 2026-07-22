@@ -197,6 +197,10 @@
         }
       }
     },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Client-supplied key used by createShopCheckout to dedupe repeated checkout attempts against the same order."
+    },
     "subtotal": {
       "type": "number"
     },
@@ -254,7 +258,11 @@
     "items"
   ],
   "rls": {
-    "create": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
     "read": {
       "$or": [
         {
