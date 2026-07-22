@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
+import PlanDebugCard from "@/components/bingoo/PlanDebugCard";
 
 function AccountTypeSection({ user, onUpdated }) {
   const [saving, setSaving] = useState(false);
@@ -204,6 +205,9 @@ export default function AccountSettings() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
+
+        {/* Plan & entitlements debug (admin/testing) */}
+        <PlanDebugCard />
 
         {/* Account Type */}
         <AccountTypeSection user={user} onUpdated={setUser} />

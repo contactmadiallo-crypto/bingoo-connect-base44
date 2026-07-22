@@ -227,21 +227,12 @@ Deno.serve(async (req) => {
         }
       }
     } else {
-      // No subscription record.
-      // Existing users who already have profiles → Professional (temporary,
-      // so current testing is not blocked).
-      // New users with no profiles → Free (normal subscription rules).
-      // Test accounts use their override above, so they skip this block.
-      if (!override) {
-        try {
-          const profiles = await base44.entities.Profile.filter({ created_by_id: user.id });
-          if (profiles.length > 0) {
-            subPlan = 'professional';
-          }
-        } catch (e) {
-          // If profile query fails, default to free
-        }
-      }
+      // No subscription record and no test override → Free.
+      // Paid entitlement comes ONLY from a real Subscription record
+      // (Stripe payment or admin_override). The profile category
+      // (profile.plan) is a presentation-only field and is NEVER read
+      // here, so selecting "Professional" during onboarding cannot unlock
+      // paid features without payment.
     }
 
     const planName = subPlan;
