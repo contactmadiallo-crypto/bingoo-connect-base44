@@ -32,31 +32,64 @@ export const TYPE_SALON      = "salon";
 export const TYPE_LAWFIRM    = "lawfirm";
 export const TYPE_CORPORATE  = "corporate";
 
+// Layout family → profile type mapping. Used as a fallback when profile_type
+// is not explicitly set (e.g. legacy profiles created before profile_type existed).
+// Layout is a visual template, NOT a subscription plan — safe to use for category.
+const LAYOUT_TYPE_FALLBACK = {
+  premium_salon: TYPE_SALON,
+  modern_law: TYPE_LAWFIRM,
+  executive_corp: TYPE_CORPORATE,
+  corporate: TYPE_BUSINESS,
+  executive: TYPE_PRO,
+  realtor_luxury: TYPE_BUSINESS,
+  modern_saas: TYPE_BUSINESS,
+};
+
 /**
  * Derives a canonical profile type from a profile object.
- * Checks fields in priority order:
- *   profile.plan → profile.profile_type → profile.business_type → profile.industry → profile.account_type
+ *
+ * Profile category controls navigation sections; subscription controls access and gates.
+ *
+ * Priority order (NONE of these are subscription plans):
+ *   1. profile.profile_type  — explicit category field (set by onboarding/editor)
+ *   2. profile.business_type / profile.industry / profile.account_type — legacy category fields
+ *   3. profile.layout        — visual template, mapped to a category as a last resort
+ *
+ * profile.plan is deliberately NOT checked — it mirrors the subscription and must
+ * never decide whether a profile is Business, Salon, Law Firm, etc.
  */
 export function normalizeProfileType(profile) {
   if (!profile) return TYPE_FREE;
 
-  const candidates = [
-    profile.plan,
-    profile.profile_type,
+  // 1. Explicit profile_type field (the source of truth going forward)
+  const pt = String(profile.profile_type || "").toLowerCase().trim();
+  if (pt) return _matchType(pt);
+
+  // 2. Legacy category fields
+  const legacyCandidates = [
     profile.business_type,
     profile.industry,
     profile.account_type,
   ].filter(Boolean).map(s => String(s).toLowerCase().trim());
-
-  for (const raw of candidates) {
-    if (raw === "corporate") return TYPE_CORPORATE;
-    if (["lawfirm", "law_firm", "law firm", "legal", "attorney", "law"].includes(raw)) return TYPE_LAWFIRM;
-    if (["salon", "barber", "barbershop", "beauty", "spa", "nail", "nails", "hair"].includes(raw)) return TYPE_SALON;
-    if (["business", "restaurant"].includes(raw)) return TYPE_BUSINESS;
-    if (["professional", "pro"].includes(raw)) return TYPE_PRO;
-    if (raw === "free") return TYPE_FREE;
+  for (const raw of legacyCandidates) {
+    const matched = _matchType(raw);
+    if (matched !== TYPE_FREE) return matched;
   }
 
+  // 3. Layout fallback (visual template → category)
+  const layout = String(profile.layout || "").toLowerCase().trim();
+  if (LAYOUT_TYPE_FALLBACK[layout]) return LAYOUT_TYPE_FALLBACK[layout];
+
+  return TYPE_FREE;
+}
+
+function _matchType(raw) {
+  if (raw === "corporate") return TYPE_CORPORATE;
+  if (["lawfirm", "law_firm", "law firm", "legal", "attorney", "law"].includes(raw)) return TYPE_LAWFIRM;
+  if (["salon", "barber", "barbershop", "beauty", "spa", "nail", "nails", "hair"].includes(raw)) return TYPE_SALON;
+  if (["business", "restaurant", "agency", "retail"].includes(raw)) return TYPE_BUSINESS;
+  if (["professional", "pro", "creative", "personal"].includes(raw)) return raw === "personal" ? TYPE_FREE : TYPE_PRO;
+  if (raw === "free") return TYPE_FREE;
   return TYPE_FREE;
 }
 

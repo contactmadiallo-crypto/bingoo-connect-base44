@@ -5,8 +5,8 @@ import { LogOut, Shield, Menu, X, Sun, Moon, Home, User, Smartphone, Briefcase }
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
-import { getVisibleNavItems } from "@/lib/sidebarConfig";
 import { getVisibleNavSections } from "@/lib/sidebarConfigV2";
+import BottomNav from "@/components/mobile/BottomNav";
 import { t, getLang } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
@@ -50,8 +50,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   // Admin Panel is gated strictly on user.role — never on profile plan
   const isAdmin = isAdminUser(user);
 
-  // All sidebar items derived from selected profile + effective account plan — isAdmin unlocks everything
-  const navItems = getVisibleNavItems(selectedProfile, isAdmin, lang, accountPlan || null);
+  // Sidebar sections derived from selected profile + effective account plan — isAdmin unlocks everything
   const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan || null);
 
   // Unread notification badges mapped to nav item IDs
@@ -193,21 +192,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     </div>
   );
 
-  // Mobile bottom bar 4th slot: prefer analytics for Pro individual; appointments for business verticals
-  // Order precedence: analytics > appointments > leads (analytics is always the dashboard primary)
-  const fourthBottomItem =
-    navItems.find(i => i.id === "analytics") ||
-    navItems.find(i => i.id === "appointments") ||
-    navItems.find(i => i.id === "connections") ||
-    null;
-
-  // Order: Landing → Profiles → 4th slot → Logout (More is a fixed button between Landing and Profiles)
-  const bottomNavItems = [
-    navItems.find(i => i.id === "landing"),
-    navItems.find(i => i.id === "profiles"),
-    fourthBottomItem,
-  ].filter(Boolean);
-
   return (
     <div className="min-h-screen flex" style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
 
@@ -263,78 +247,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       )}
 
       {/* ── MOBILE BOTTOM TAB BAR ── */}
-      {/* Phase 3: Home · Profiles · NFC · Business · More */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-center overflow-hidden"
-        style={{
-          background: "linear-gradient(180deg, #0a1d3f 0%, #071A3D 100%)",
-          borderTop: "1px solid rgba(249,115,22,0.4)",
-          paddingBottom: "env(safe-area-inset-bottom)",
-          height: "calc(60px + env(safe-area-inset-bottom))",
-        }}>
-
-        {/* 1. Home — premium dashboard overview */}
-        <Link to="/bingoo?view=home"
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=home') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Home className="w-5 h-5" style={{ color: isActive('/bingoo?view=home') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
-          </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=home') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
-            {lang === 'fr' ? 'Accueil' : 'Home'}
-          </span>
-        </Link>
-
-        {/* 2. Profiles — profile workspace */}
-        <Link to="/bingoo?view=workspace"
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=workspace') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <User className="w-5 h-5" style={{ color: isActive('/bingoo?view=workspace') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
-          </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=workspace') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
-            {lang === 'fr' ? 'Profils' : 'Profiles'}
-          </span>
-        </Link>
-
-        {/* 3. NFC — device management */}
-        <Link to="/my-nfc-devices"
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/my-nfc-devices') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Smartphone className="w-5 h-5" style={{ color: isActive('/my-nfc-devices') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
-          </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/my-nfc-devices') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
-            NFC
-          </span>
-        </Link>
-
-        {/* 4. Business — leads CRM */}
-        <Link to="/bingoo?view=leads"
-          className="flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: isActive('/bingoo?view=leads') ? "rgba(249,115,22,0.25)" : "rgba(255,255,255,0.08)" }}>
-            <Briefcase className="w-5 h-5" style={{ color: isActive('/bingoo?view=leads') ? "#f97316" : "rgba(255,255,255,0.4)" }} />
-          </div>
-          <span className="text-xs font-semibold" style={{ color: isActive('/bingoo?view=leads') ? "#f97316" : "rgba(255,255,255,0.4)" }}>
-            {lang === 'fr' ? 'Business' : 'Business'}
-          </span>
-        </Link>
-
-        {/* 5. More — opens full sidebar drawer */}
-        <button onClick={() => setMobileOpen(true)} aria-label="More navigation options"
-          className="relative flex flex-col items-center justify-center gap-1 flex-1 h-[60px] active:opacity-60 transition-opacity" style={{ touchAction: 'manipulation' }}>
-          <div className="relative w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-            <Menu className="w-5 h-5 text-white/40" />
-            {totalUnread > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
-                style={{ background: "#F97316", border: "2px solid #0a1d3f" }}>
-                {totalUnread > 9 ? "9+" : totalUnread}
-              </span>
-            )}
-          </div>
-          <span className="text-xs font-semibold text-white/40">{t("more", lang)}</span>
-        </button>
-      </nav>
+      <BottomNav lang={lang} totalUnread={totalUnread} onMore={() => setMobileOpen(true)} />
 
       {/* ── MAIN CONTENT ── */}
       <main className="flex-1 md:ml-64 min-w-0 min-h-screen flex flex-col"

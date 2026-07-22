@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import BingooLayout from "@/components/bingoo/BingooLayout";
+import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
 import LostModeInfoBanner from "@/components/bingoo/LostModeInfoBanner";
 import ReportLostDialog from "@/components/bingoo/ReportLostDialog";
 import ReplaceDeviceDialog from "@/components/bingoo/ReplaceDeviceDialog";
@@ -347,6 +348,7 @@ export default function MyNFCDevices() {
   return (
     <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
       <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+        <ScreenPullToRefresh onRefresh={() => qc.invalidateQueries()} disabled={showActivate || !!lostDialogDevice || !!replaceDialogDevice || !!reassignDialogDevice} />
 
         {/* Header */}
         <div className="relative rounded-3xl overflow-hidden p-6"

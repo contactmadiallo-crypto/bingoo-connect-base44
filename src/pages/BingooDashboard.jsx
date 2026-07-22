@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
+import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
 const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
 const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
 const OnboardingWizard = React.lazy(() => import("@/components/bingoo/OnboardingWizard"));
@@ -140,8 +141,11 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
     if (!form.username.trim()) { setError("Username (profile URL) is required."); return; }
     setSaving(true);
     try {
-      // Read onboarding layout choice (set by OnboardingWizard step 3)
+      // Read onboarding choices (set by OnboardingWizard steps 2 & 3).
+      // profile_type = category/vertical (drives sidebar nav). plan = "free" always —
+      // paid entitlement comes only from the Subscription entity after checkout.
       const onboardingLayout = localStorage.getItem("bingoo_onboarding_layout") || "classic";
+      const onboardingProfileType = localStorage.getItem("bingoo_onboarding_profile_type") || "personal";
       const created = await base44.entities.Profile.create({
         display_name: form.display_name.trim(),
         username: form.username.trim(),
@@ -150,6 +154,7 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
         cover_color: "#2563eb",
         is_active: true,
         plan: "free",
+        profile_type: onboardingProfileType,
         layout: onboardingLayout,
       });
       // Clean up onboarding localStorage
@@ -237,8 +242,18 @@ export default function BingooDashboard() {
 
   const view = resolveView(searchParams);
 
-  // selectedProfileId is the single source of truth
-  const [selectedProfileId, setSelectedProfileId] = useState(null);
+  // selectedProfileId is the single source of truth — persisted to sessionStorage
+  // so switching to the NFC tab (which unmounts this page) and back restores the
+  // same profile, preserving the user's context across bottom-tab switches.
+  const [selectedProfileId, setSelectedProfileId] = useState(() => {
+    try { return sessionStorage.getItem("bingoo_selected_profile") || null; } catch { return null; }
+  });
+  useEffect(() => {
+    try {
+      if (selectedProfileId) sessionStorage.setItem("bingoo_selected_profile", selectedProfileId);
+      else sessionStorage.removeItem("bingoo_selected_profile");
+    } catch { /* ignore */ }
+  }, [selectedProfileId]);
   // Highlight targets carried in from notification/email deep links
   const [highlightLeadId, setHighlightLeadId] = useState(null);
   const [highlightAppointmentId, setHighlightAppointmentId] = useState(null);
@@ -528,6 +543,15 @@ export default function BingooDashboard() {
     );
   };
 
+  // Pull-to-refresh: only on safe list/data views, never inside forms/modals.
+  const PTR_SAFE_VIEWS = ["home", "hub", "leads", "appointments", "myassets"];
+  const ptrDisabled = !PTR_SAFE_VIEWS.includes(view) || !!liveFormOverride || showOnboarding;
+  const handlePullRefresh = async () => {
+    await qc.invalidateQueries();
+    refetchUser();
+    refetchProfiles();
+  };
+
   return (
     <BingooLayout selectedProfile={activeProfile ?? null} accountPlan={userPlan} lang={lang} userId={user?.id}>
       {showOnboarding && user && (
@@ -549,6 +573,7 @@ export default function BingooDashboard() {
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
         <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-1 sm:pt-2">
+          <ScreenPullToRefresh onRefresh={handlePullRefresh} disabled={ptrDisabled} />
 
           {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-2">

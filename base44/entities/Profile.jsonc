@@ -372,6 +372,20 @@
     "whatsapp_booking_message": {
       "type": "string"
     },
+    "profile_type": {
+      "type": "string",
+      "enum": [
+        "personal",
+        "professional",
+        "business",
+        "salon",
+        "lawfirm",
+        "corporate",
+        "creative"
+      ],
+      "default": "personal",
+      "description": "Profile category/vertical \u2014 drives sidebar navigation sections. NOT a subscription plan. Paid entitlement comes from the Subscription entity only."
+    },
     "plan": {
       "type": "string",
       "enum": [
