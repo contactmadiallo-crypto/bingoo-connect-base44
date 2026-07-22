@@ -75,16 +75,9 @@
       "created_by_id": "{{user.id}}"
     },
     "read": {
-      "$or": [
-        {
-          "created_by_id": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "admin"
-          }
-        }
-      ]
+      "user_condition": {
+        "isAuthenticated": true
+      }
     },
     "update": {
       "created_by_id": "{{user.id}}"
