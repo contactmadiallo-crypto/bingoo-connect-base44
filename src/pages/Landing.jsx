@@ -8,7 +8,7 @@ import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
-import ProjectFutureSection from "@/components/landing/ProjectFutureSection";
+
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
@@ -1066,9 +1066,6 @@ export default function Landing() {
           </ScrollReveal>
         </div>
       </section>
-
-      {/* ── PROJECT & FUTURE */}
-      <ProjectFutureSection />
 
       {/* ── PRICING */}
       <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 bg-white">
