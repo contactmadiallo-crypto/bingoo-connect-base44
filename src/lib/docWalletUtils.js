@@ -1,13 +1,11 @@
 import { FileText, FileImage, FileSpreadsheet, FileArchive } from "lucide-react";
 
+// Government-issued identity documents (ID, Passport, SSN, Work Authorization,
+// Visa, License) have been removed from production pending compliance review.
+// The entity schema still accepts these values for backward compatibility, but
+// they are no longer selectable in the UI.
 export const DOC_CATEGORIES = [
-  { value: "id", label: "ID Document", color: "#3b82f6" },
-  { value: "passport", label: "Passport", color: "#3b82f6" },
-  { value: "ssn", label: "SSN Card", color: "#ef4444" },
-  { value: "work_authorization", label: "Work Authorization", color: "#22c55e" },
-  { value: "visa", label: "Visa", color: "#a855f7" },
   { value: "certification", label: "Certification", color: "#10b981" },
-  { value: "license", label: "License", color: "#a855f7" },
   { value: "business_document", label: "Business Document", color: "#f97316" },
   { value: "contract", label: "Contract", color: "#64748b" },
   { value: "tax_document", label: "Tax Document", color: "#f59e0b" },
@@ -21,7 +19,7 @@ export const DOC_CATEGORIES = [
   { value: "other", label: "Other", color: "#94a3b8" },
 ];
 
-export const ID_TYPES = ["id", "passport", "ssn", "work_authorization", "visa", "license"];
+export const ID_TYPES = [];
 
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp", "heic", "bmp", "tiff", "svg"];
 

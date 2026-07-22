@@ -81,10 +81,10 @@ export default function WalletPassButtons({ profile, color, isDark }) {
     <div style={{ marginBottom: 18 }}>
       <div style={{ display: "flex", gap: 8 }}>
         <motion.button
-          onClick={handleApple}
-          disabled={isBusy}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
+          onClick={() => {}}
+          disabled
+          whileHover={{ scale: 1 }}
+          whileTap={{ scale: 1 }}
           style={{
             flex: 1,
             display: "flex",
@@ -98,13 +98,14 @@ export default function WalletPassButtons({ profile, color, isDark }) {
             fontWeight: 700,
             fontSize: 11.5,
             border: "none",
-            cursor: isBusy ? "wait" : "pointer",
+            cursor: "not-allowed",
             fontFamily: FONT_BODY,
-            opacity: isBusy ? 0.6 : 1,
+            opacity: 0.5,
           }}
+          title="Apple Wallet passes are coming very soon"
         >
           <AppleLogo size={13} />
-          {loading === "apple" ? "Generating…" : "Apple Wallet"}
+          Apple Wallet · Very soon
         </motion.button>
         <motion.button
           onClick={handleGoogle}

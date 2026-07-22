@@ -19,9 +19,13 @@ export default function DocumentWalletPanel({ profile, isDark }) {
   const [uploading, setUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
-  const [formData, setFormData] = useState({ document_type: "id", notes: "", expiration_date: "" });
+  const [formData, setFormData] = useState({ document_type: "other", notes: "", expiration_date: "" });
   const [backTargetIndex, setBackTargetIndex] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState(null);
+
+  // Document Wallet is temporarily locked for production stabilization.
+  // Existing records remain private and preserved. Re-enable by setting false.
+  const WALLET_LOCKED = true;
 
   const { data: user } = useQuery({ queryKey: ["me"], queryFn: () => base44.auth.me() });
   const { data: documents, isLoading } = useQuery({
@@ -116,7 +120,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
       ));
       toast.success(`${pendingFiles.length} document${pendingFiles.length > 1 ? "s" : ""} saved`);
       setPendingFiles([]);
-      setFormData({ document_type: "id", notes: "", expiration_date: "" });
+      setFormData({ document_type: "other", notes: "", expiration_date: "" });
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ["doc-wallet", user.id] });
     } catch (err) {
@@ -126,7 +130,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
 
   const resetForm = () => {
     setPendingFiles([]);
-    setFormData({ document_type: "id", notes: "", expiration_date: "" });
+    setFormData({ document_type: "other", notes: "", expiration_date: "" });
     setShowForm(false);
   };
 
@@ -179,6 +183,23 @@ export default function DocumentWalletPanel({ profile, isDark }) {
       </div>
     );
   };
+
+  // ── Locked state: render a clean "Coming Soon" card and stop here ──
+  if (WALLET_LOCKED) {
+    return (
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-8 flex flex-col items-center text-center`}>
+        <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+          style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.1)" }}>
+          <Lock className="w-7 h-7" style={{ color: "#f97316" }} />
+        </div>
+        <p className={`font-black text-base ${headText}`}>Document Wallet — Coming Soon</p>
+        <p className={`text-xs mt-2 max-w-xs leading-relaxed ${mutedText}`}>
+          We're finalizing secure document storage ahead of launch. Your saved documents
+          stay private and safe. Check back shortly.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
