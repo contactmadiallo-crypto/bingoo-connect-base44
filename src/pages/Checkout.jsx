@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,9 @@ export default function Checkout() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Reused for the lifetime of this page visit so repeated clicks/retries dedupe
+  // to a single ShopOrder + Stripe session (backend enforces via idempotency_key).
+  const idempotencyKeyRef = useRef(null);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -65,50 +68,38 @@ export default function Checkout() {
     }, 20000);
 
     try {
-      // Step 1: Create a ShopOrder record BEFORE starting Stripe session.
-      // This gives us a stable order_id that survives the redirect to Stripe.
-      const orderData = {
-        customer_name: form.name,
-        customer_email: form.email,
-        customer_phone: form.phone,
-        shipping_address: form.address,
-        city: form.city,
-        state: form.state,
-        zip_code: form.zip,
-        country: form.country,
-        order_notes: form.notes,
-        items: cart.map(item => ({
-          product_id: item.id,
-          product_name: item.name,
-          quantity: item.quantity,
-          unit_price: item.price,
-          ...(item.customDesign && { customDesign: item.customDesign }),
-        })),
-        subtotal,
-        shipping_cost: SHIPPING_COST,
-        total,
-        payment_status: 'unpaid',
-        fulfillment_status: 'processing',
-      };
+      // Single backend call: the server validates the cart against its own catalog,
+      // computes all prices/shipping/totals, creates the ShopOrder (asServiceRole),
+      // and returns the Stripe checkout URL. The browser no longer creates or sends
+      // an order_id, prices, totals, or any privileged value.
+      if (!idempotencyKeyRef.current) {
+        idempotencyKeyRef.current =
+          'cko-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+      }
+      const idempotencyKey = idempotencyKeyRef.current;
 
-      const order = await base44.entities.ShopOrder.create(orderData);
-      if (!order?.id) throw new Error('Failed to create order. Please try again.');
-
-      // Step 2: Create Stripe Checkout session via backend function.
-      // Only send product_id, quantity, and customer_email for UX pre-fill.
-      // Backend calculates all prices from its own catalog — frontend prices are ignored.
       const res = await base44.functions.invoke('createShopCheckout', {
-        order_id: order.id,
-        customer_email: form.email,
+        idempotency_key: idempotencyKey,
+        customer: {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          address: form.address,
+          city: form.city,
+          state: form.state,
+          zip: form.zip,
+          country: form.country,
+          notes: form.notes,
+        },
         items: cart.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
+          ...(item.customDesign && { customDesign: item.customDesign }),
         })),
       });
 
       clearTimeout(timeoutId);
 
-      // Step 3: Extract the Stripe redirect URL
       // base44.functions.invoke returns an Axios response: { data: { url, error } }
       const stripeUrl = res?.data?.url;
       const serverError = res?.data?.error;
@@ -120,9 +111,9 @@ export default function Checkout() {
         throw new Error('No checkout URL returned from server. Please try again.');
       }
 
-      // Step 4: Redirect to Stripe. Cart is cleared in OrderConfirmation
-      // after the user lands on the success page — so canceling Stripe checkout
-      // brings them back to /cart with their items still intact.
+      // Redirect to Stripe. Cart is cleared in OrderConfirmation after the user
+      // lands on the success page — so canceling Stripe checkout brings them back
+      // to /cart with their items still intact.
       window.location.href = stripeUrl;
 
     } catch (err) {
