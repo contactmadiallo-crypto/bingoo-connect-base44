@@ -4,6 +4,17 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 // Professional-tier plans include lead_collection + appointment_booking.
 const PRO_TIER_PLANS = new Set(['professional', 'pro', 'business', 'salon', 'restaurant', 'lawfirm', 'corporate']);
 
+// HTML entity escaper — prevents HTML/script injection in email bodies.
+function escapeHtml(value) {
+  if (value == null) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 function normalizePlan(plan) {
   if (!plan) return 'free';
   if (plan === 'pro') return 'professional';
@@ -135,12 +146,22 @@ Deno.serve(async (req) => {
     try {
       const { name, email, phone, message, preferred_contact_method } = formData;
 
+      // HTML-escape all user-supplied values before interpolating into email HTML
+      const eName = escapeHtml(name || 'Not provided');
+      const eEmail = escapeHtml(email);
+      const ePhone = escapeHtml(phone);
+      const ePref = escapeHtml(preferred_contact_method);
+      const eMessage = escapeHtml(message);
+      const eSubjectName = escapeHtml(name || 'Someone');
+      // phone with non-digits stripped — safe for wa.me URL
+      const waPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+
       if (profile?.email) {
         const contactIcon = preferred_contact_method === 'WhatsApp' ? '💬' : preferred_contact_method === 'Phone' ? '📞' : '📧';
         const ctaUrl = `${appOrigin}${actionUrl}`;
         await base44.asServiceRole.integrations.Core.SendEmail({
           to: profile.email,
-          subject: `⭐ New Lead from ${name || 'Someone'} via your Bingoo profile`,
+          subject: `⭐ New Lead from ${eSubjectName} via your Bingoo profile`,
           body: `
 <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#f8fafc;padding:24px;border-radius:16px;">
   <div style="background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
@@ -150,20 +171,20 @@ Deno.serve(async (req) => {
   <div style="background:white;border-radius:12px;padding:20px;margin-bottom:16px;border:1px solid #e2e8f0;">
     <h2 style="margin:0 0 16px;font-size:16px;color:#1e293b;">Contact Details</h2>
     <table style="width:100%;border-collapse:collapse;">
-      <tr><td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">👤 Name</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${name || 'Not provided'}</td></tr>
-      ${email ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📧 Email</td><td style="padding:8px 0;font-size:14px;"><a href="mailto:${email}" style="color:#3b82f6;">${email}</a></td></tr>` : ''}
-      ${phone ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📞 Phone</td><td style="padding:8px 0;font-size:14px;"><a href="tel:${phone}" style="color:#3b82f6;">${phone}</a></td></tr>` : ''}
-      ${preferred_contact_method ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">Prefers</td><td style="padding:8px 0;font-size:14px;">${contactIcon} ${preferred_contact_method}</td></tr>` : ''}
-      ${message ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;vertical-align:top;">💬 Message</td><td style="padding:8px 0;color:#1e293b;font-size:14px;">${message}</td></tr>` : ''}
+      <tr><td style="padding:8px 0;color:#64748b;font-size:14px;width:130px;">👤 Name</td><td style="padding:8px 0;font-weight:600;color:#1e293b;font-size:14px;">${eName}</td></tr>
+      ${email ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📧 Email</td><td style="padding:8px 0;font-size:14px;"><a href="mailto:${eEmail}" style="color:#3b82f6;">${eEmail}</a></td></tr>` : ''}
+      ${phone ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">📞 Phone</td><td style="padding:8px 0;font-size:14px;"><a href="tel:${ePhone}" style="color:#3b82f6;">${ePhone}</a></td></tr>` : ''}
+      ${preferred_contact_method ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;">Prefers</td><td style="padding:8px 0;font-size:14px;">${contactIcon} ${ePref}</td></tr>` : ''}
+      ${message ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 0;color:#64748b;font-size:14px;vertical-align:top;">💬 Message</td><td style="padding:8px 0;color:#1e293b;font-size:14px;">${eMessage}</td></tr>` : ''}
     </table>
   </div>
   ${phone ? `
   <div style="display:flex;gap:12px;margin-bottom:16px;text-align:center;">
-    <a href="https://wa.me/${phone.replace(/[^0-9]/g,'')}" 
+    <a href="https://wa.me/${waPhone}" 
        style="flex:1;display:block;background:#25D366;color:white;padding:10px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;">
       💬 WhatsApp
     </a>
-    <a href="tel:${phone}" 
+    <a href="tel:${ePhone}" 
        style="flex:1;display:block;background:#3b82f6;color:white;padding:10px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;">
       📞 Call
     </a>
