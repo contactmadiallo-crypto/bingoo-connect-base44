@@ -40,6 +40,7 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
   const [uploading, setUploading] = useState(false);
   const [assignModalAsset, setAssignModalAsset] = useState(null);
   const [replaceAsset, setReplaceAsset] = useState(null);
+  const [qrAsset, setQrAsset] = useState(null);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
 
@@ -394,6 +395,9 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
                     <Wifi className="w-3 h-3" /> Assign NFC
                   </button>
                 )}
+                <button onClick={() => setQrAsset(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                  <QrCode className="w-3 h-3" /> QR
+                </button>
                 <button onClick={() => handleEdit(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
                   <Edit2 className="w-3 h-3" /> Edit
                 </button>
@@ -434,6 +438,14 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
           queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
           queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
         }}
+      />
+
+      <AssetQrCard
+        open={!!qrAsset}
+        asset={qrAsset}
+        onClose={() => setQrAsset(null)}
+        isDark={isDark}
+        hasNfcDevice={!!(qrAsset && qrAsset.nfc_device_id)}
       />
     </div>
   );

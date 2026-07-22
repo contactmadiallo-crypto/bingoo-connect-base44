@@ -124,6 +124,7 @@ const AuthenticatedApp = () => {
       <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
       <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
+      <Route path="/a/:assetId" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<Shop />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
