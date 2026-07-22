@@ -282,37 +282,32 @@ export const SIDEBAR_NAV_MAP = {
 
 /**
  * Returns the ordered list of sidebar item objects for a given profile and admin status.
- * @param {object|null} profile - The selected profile entity (or null)
+ *
+ * SIDEBAR VISIBILITY vs FEATURE ACCESS (requirements 1 + 4):
+ *   - Sidebar SECTION visibility is driven by PROFILE CATEGORY (normalizeProfileType)
+ *     so a Business / Salon / Law Firm / Corporate profile shows its relevant tools
+ *     (Services, Team, Practice Areas, etc.) regardless of subscription.
+ *   - Feature ACCESS within each section is gated by the SUBSCRIPTION plan via
+ *     canAccess() / FeatureGate / PlanGateScreen — selecting a category during
+ *     onboarding never unlocks paid features (the entitlement source is getUserFeatures,
+ *     which reads only the Subscription entity).
+ *
+ * @param {object|null} profile - The selected profile entity (or null → free sidebar)
  * @param {boolean} isAdmin - user.role === "admin"
  * @param {string} lang - "en" | "fr"
- * @param {string|null} effectivePlan - The subscription-derived plan (from usePlan / getUserFeatures).
- *   When provided, this is the SOLE authority for sidebar type — profile.plan is never used.
- *   Pass accountPlan from BingooLayout so the subscription drives sidebar visibility.
+ * @param {string|null} effectivePlan - reserved for panel-level access checks; NOT used
+ *   for sidebar type (profile category drives visibility).
  * @returns {Array} ordered sidebar items with localized labels
  */
 export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effectivePlan = null) {
   let type;
   if (isAdmin) {
     type = null; // admin uses ADMIN_SIDEBAR_ITEMS directly
-  } else if (effectivePlan) {
-    // Subscription plan is the sole authority. profile.plan is owner-writable and never used.
-    if (effectivePlan === "free") {
-      type = TYPE_FREE;
-    } else {
-      const planToType = {
-        professional: TYPE_PRO,
-        pro: TYPE_PRO,
-        salon: TYPE_SALON,
-        restaurant: TYPE_BUSINESS,
-        business: TYPE_BUSINESS,
-        lawfirm: TYPE_LAWFIRM,
-        corporate: TYPE_CORPORATE,
-      };
-      type = planToType[effectivePlan] || TYPE_PRO;
-    }
   } else {
-    // No plan loaded yet — minimal Free sidebar during loading
-    type = TYPE_FREE;
+    // Sidebar type follows PROFILE CATEGORY so business/salon/lawfirm/corporate
+    // profiles show their vertical sections. Access is gated by subscription at the
+    // panel level (canAccess / FeatureGate / PlanGateScreen).
+    type = normalizeProfileType(profile);
   }
 
   let ids = isAdmin
