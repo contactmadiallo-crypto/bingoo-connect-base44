@@ -15,7 +15,7 @@ import { base44 } from '@/api/base44Client';
  * @param {boolean} opts.enabled - only log when the device/asset is actually lost
  * @param {string} [opts.scanSource] - "nfc" | "qr" | "direct"
  */
-export function useLostScanLogger({ deviceCode, enabled, scanSource = 'nfc' }) {
+export function useLostScanLogger({ deviceCode, assetId, enabled, scanSource = 'nfc' }) {
   const [reportId, setReportId] = useState(null);
   const [scanLogged, setScanLogged] = useState(false);
   const [locationStatus, setLocationStatus] = useState('idle'); // idle | prompted | granted | denied | unsupported
@@ -25,7 +25,7 @@ export function useLostScanLogger({ deviceCode, enabled, scanSource = 'nfc' }) {
   useEffect(() => {
     if (!deviceCode || !enabled || loggedRef.current) return;
     loggedRef.current = true;
-    base44.functions.invoke('logLostDeviceScan', { device_code: deviceCode, scan_source: scanSource })
+    base44.functions.invoke('logLostDeviceScan', { device_code: deviceCode || null, asset_id: assetId || null, scan_source: scanSource })
       .then((res) => {
         if (res?.data?.report_id) setReportId(res.data.report_id);
         setScanLogged(true);
@@ -34,7 +34,7 @@ export function useLostScanLogger({ deviceCode, enabled, scanSource = 'nfc' }) {
         console.error('logLostDeviceScan failed', err);
         setScanLogged(true);
       });
-  }, [deviceCode, enabled, scanSource]);
+  }, [deviceCode, assetId, enabled, scanSource]);
 
   const requestLocation = useCallback(() => {
     setLocationStatus('prompted');

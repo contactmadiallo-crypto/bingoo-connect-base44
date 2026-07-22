@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
-import { Package, Plus, Trash2, Edit2, AlertTriangle, Link2, MapPin, X, Search as SearchIcon, Wifi, Unlink, RefreshCw } from 'lucide-react';
+import { Package, Plus, Trash2, Edit2, AlertTriangle, Link2, MapPin, X, Search as SearchIcon, Wifi, Unlink, RefreshCw, QrCode } from 'lucide-react';
 import AssetDeviceAssignModal from '@/components/bingoo/AssetDeviceAssignModal';
 import ReplaceDeviceDialog from '@/components/bingoo/ReplaceDeviceDialog';
+import AssetQrCard from '@/components/bingoo/AssetQrCard';
 
 const ASSET_TYPES = [
   { value: 'pet', label: 'Pet', icon: '🐾' },

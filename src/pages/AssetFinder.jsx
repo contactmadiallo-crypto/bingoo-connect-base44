@@ -16,8 +16,9 @@ const PET_TYPES = ['pet'];
 const ITEM_TYPES = ['luggage', 'bag', 'keys', 'equipment', 'vehicle', 'other'];
 
 export default function AssetFinder() {
-  const { nfcDeviceCode } = useParams();
+  const { nfcDeviceCode, assetId } = useParams();
   const normalizedCode = nfcDeviceCode?.toUpperCase().trim();
+  const byAssetId = !!assetId;
 
   const [asset, setAsset] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,9 @@ export default function AssetFinder() {
   React.useEffect(() => {
     async function fetchAsset() {
       try {
-        const res = await base44.functions.invoke('getAssetByNfcCode', { device_code: normalizedCode });
+        const res = byAssetId
+          ? await base44.functions.invoke('getPublicAsset', { asset_id: assetId })
+          : await base44.functions.invoke('getAssetByNfcCode', { device_code: normalizedCode });
         setAsset(res.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Asset not found');
@@ -37,14 +40,15 @@ export default function AssetFinder() {
         setLoading(false);
       }
     }
-    if (normalizedCode) fetchAsset();
-  }, [normalizedCode]);
+    if (byAssetId || normalizedCode) fetchAsset();
+  }, [normalizedCode, assetId, byAssetId]);
 
   const isLost = !!asset?.asset?.lost_mode_enabled;
   const { reportId, locationStatus, preciseLocation, requestLocation } = useLostScanLogger({
-    deviceCode: normalizedCode,
+    deviceCode: byAssetId ? null : normalizedCode,
+    assetId: byAssetId ? assetId : null,
     enabled: !loading && isLost,
-    scanSource: 'nfc',
+    scanSource: byAssetId ? 'qr' : 'nfc',
   });
 
   const handleSubmit = async (e) => {
@@ -52,7 +56,8 @@ export default function AssetFinder() {
     setSubmitting(true);
     try {
       await base44.functions.invoke('notifyLostDeviceFound', {
-        device_code: normalizedCode,
+        device_code: byAssetId ? null : normalizedCode,
+        asset_id: byAssetId ? assetId : null,
         report_id: reportId || null,
         finder_name: form.name,
         finder_phone: form.phone,
@@ -61,7 +66,7 @@ export default function AssetFinder() {
         finder_message: form.message,
         latitude: preciseLocation?.lat ?? null,
         longitude: preciseLocation?.lng ?? null,
-        scan_source: 'nfc',
+        scan_source: byAssetId ? 'qr' : 'nfc',
       });
       setSubmitted(true);
     } catch (err) {
@@ -142,10 +147,12 @@ export default function AssetFinder() {
             </div>
             <h1 className="text-xl font-black text-white mb-1">{assetData.name} has been reported lost</h1>
             <p className="text-white/85 text-sm">Please help return {assetData.name} to the owner.</p>
+            {normalizedCode && (
             <div className="inline-flex items-center gap-2 bg-white/15 rounded-xl px-3 py-1.5 mt-3">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">Code</span>
               <span className="text-xs font-mono font-black text-white">{normalizedCode}</span>
             </div>
+            )}
           </div>
         ) : (
           <div className="rounded-3xl p-5 flex items-center gap-3 shadow-lg" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)' }}>
@@ -154,7 +161,7 @@ export default function AssetFinder() {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-black text-white leading-tight">{assetData.name} identified</p>
-              <p className="text-xs text-white/60 mt-0.5">This NFC tag is linked to a registered Bingoo asset.</p>
+              <p className="text-xs text-white/60 mt-0.5">{device ? 'This NFC tag is linked to a registered Bingoo asset.' : 'This QR code is linked to a registered Bingoo asset.'}</p>
             </div>
           </div>
         )}
@@ -191,7 +198,8 @@ export default function AssetFinder() {
               <p className="text-sm text-slate-600 leading-relaxed">{assetData.description}</p>
             )}
 
-            {/* Linked NFC device */}
+            {/* Linked NFC device (only when the asset has one) */}
+            {device && (
             <div className="flex items-center gap-3 rounded-xl p-3 bg-slate-50">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: '#FFF5EB' }}>
                 <Package className="w-4 h-4" style={{ color: '#f97316' }} />
@@ -202,6 +210,7 @@ export default function AssetFinder() {
               </div>
               <span className="text-[10px] font-mono font-bold text-slate-500 ml-auto">{normalizedCode}</span>
             </div>
+            )}
 
             {/* Pet medical/allergy notes (only if owner enabled) */}
             {isPet && assetData.public_medical_notes && (

@@ -1,5 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
-import { resolveLostDeviceContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { resolveLostDeviceContext, resolveLostAssetContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
 
 /**
  * notifyLostDeviceFound
@@ -9,38 +9,41 @@ import { resolveLostDeviceContext, deviceDisplayLabel } from '../../shared/lostD
  *
  * Input:
  *   {
- *     device_code,
- *     report_id?,            // from logLostDeviceScan — update if provided
+ *     device_code?, asset_id?,   // either one identifies the lost item
+ *     report_id?,                 // from logLostDeviceScan — update if provided
  *     finder_name, finder_phone, finder_email, finder_location, finder_message,
- *     latitude?, longitude?,  // precise location only after browser permission
+ *     latitude?, longitude?,      // precise location only after browser permission
  *     scan_source?
  *   }
  *
- * Security: owner identity is resolved server-side from the device record.
+ * Security: owner identity is resolved server-side.
  */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json().catch(() => ({}));
     const {
-      device_code, report_id,
+      device_code, asset_id, report_id,
       finder_name, finder_phone, finder_email, finder_location, finder_message,
       latitude, longitude, scan_source,
     } = body;
 
-    if (!device_code) {
-      return Response.json({ error: 'Missing required field: device_code' }, { status: 400 });
+    const hasCode = !!device_code;
+    const hasAssetId = !!asset_id;
+    if (!hasCode && !hasAssetId) {
+      return Response.json({ error: 'Missing required field: device_code or asset_id' }, { status: 400 });
     }
 
-    const normalizedCode = String(device_code).toUpperCase().trim();
-    const ctx = await resolveLostDeviceContext(base44, normalizedCode);
+    const normalizedCode = hasCode ? String(device_code).toUpperCase().trim() : null;
+    const ctx = hasCode
+      ? await resolveLostDeviceContext(base44, normalizedCode)
+      : await resolveLostAssetContext(base44, String(asset_id).trim());
 
-    if (!ctx.device) {
-      return Response.json({ error: 'Device not found' }, { status: 404 });
+    if (!ctx.device && !ctx.asset) {
+      return Response.json({ error: 'Device or asset not found' }, { status: 404 });
     }
-    // Allow for both profile-lost devices and asset-lost assets.
     if (!ctx.isDeviceLost && !ctx.isAssetLost) {
-      return Response.json({ error: 'Device is not reported as lost' }, { status: 403 });
+      return Response.json({ error: 'Item is not reported as lost' }, { status: 403 });
     }
 
     // Sanitize finder inputs.
@@ -51,10 +54,12 @@ Deno.serve(async (req) => {
     const f_location = sanitize(finder_location, 300);
     const f_message = sanitize(finder_message, 2000);
 
+    const identifier = normalizedCode || ctx.asset?.name || 'your item';
+    const label = ctx.device ? deviceDisplayLabel(ctx.device) : (ctx.asset?.name || 'item');
+
     let report = null;
 
     if (report_id) {
-      // Update the existing scan-event report with finder details.
       try {
         report = await base44.asServiceRole.entities.LostItemReport.update(report_id, {
           finder_name: f_name,
@@ -72,14 +77,13 @@ Deno.serve(async (req) => {
     }
 
     if (!report) {
-      // Fallback: create a fresh report (backwards compat with old callers).
       try {
         report = await base44.asServiceRole.entities.LostItemReport.create({
-          device_code: normalizedCode,
-          device_id: ctx.device.id,
-          device_type: ctx.device.device_type || null,
-          product_name: ctx.device.product_name || null,
-          owner_profile_id: ctx.device.profile_id || ctx.asset?.profile_id || null,
+          device_code: normalizedCode || null,
+          device_id: ctx.device?.id || null,
+          device_type: ctx.device?.device_type || null,
+          product_name: ctx.device?.product_name || null,
+          owner_profile_id: ctx.device?.profile_id || ctx.asset?.profile_id || null,
           owner_user_id: ctx.ownerUserId,
           asset_id: ctx.asset?.id || null,
           asset_name: ctx.asset?.name || null,
@@ -103,15 +107,15 @@ Deno.serve(async (req) => {
     }
 
     // ── Owner notification: in-app + email ──
-    if (ctx.ownerUserId || ctx.device.profile_id) {
+    const notifProfileId = ctx.device?.profile_id || ctx.asset?.profile_id || null;
+    if (ctx.ownerUserId || notifProfileId) {
       try {
-        const label = deviceDisplayLabel(ctx.device);
         const target = ctx.assignedTargetName || 'their item';
         await base44.asServiceRole.entities.BingooNotification.create({
           user_id: ctx.ownerUserId || null,
-          profile_id: ctx.device.profile_id || null,
+          profile_id: notifProfileId,
           event_type: 'lost_device_reported',
-          title: `🙏 Finder report for ${normalizedCode}`,
+          title: `🙏 Finder report for ${identifier}`,
           message: `${f_name || 'A finder'} submitted a report for your ${label}${ctx.asset ? ` (${ctx.asset.name})` : ''} assigned to ${target}.${typeof latitude === 'number' ? ' Location shared.' : ''}`,
           action_url: '/bingoo?view=lost-found',
           related_id: report?.id || null,
@@ -123,8 +127,8 @@ Deno.serve(async (req) => {
     }
 
     if (ctx.ownerEmail) {
-      const label = deviceDisplayLabel(ctx.device);
-      const subject = `🙏 Your lost ${label} (${normalizedCode}) — finder report`;
+      const codePart = normalizedCode ? ` (code <strong>${normalizedCode}</strong>)` : '';
+      const subject = `🙏 Your lost ${label}${normalizedCode ? ` (${normalizedCode})` : ''} — finder report`;
       const html = `
         <div style="font-family:sans-serif;max-width:560px;margin:auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
           <div style="background:linear-gradient(135deg,#0b2149,#13284f);padding:30px;text-align:center">
@@ -133,7 +137,7 @@ Deno.serve(async (req) => {
           </div>
           <div style="padding:26px">
             <p style="color:#334155;font-size:15px">Hi ${ctx.ownerName || 'there'},</p>
-            <p style="color:#64748b">Someone submitted a report for your lost <strong>${label}</strong> (code <strong>${normalizedCode}</strong>)${ctx.asset ? ` linked to <strong>${ctx.asset.name}</strong>` : ''}.</p>
+            <p style="color:#64748b">Someone submitted a report for your lost <strong>${label}</strong>${codePart}${ctx.asset ? ` linked to <strong>${ctx.asset.name}</strong>` : ''}.</p>
             <div style="background:#f8fafc;border-radius:8px;padding:16px;margin:16px 0;border-left:4px solid #f97316">
               <p style="margin:4px 0;color:#334155"><strong>Finder:</strong> ${f_name || 'Anonymous'}</p>
               ${f_phone ? `<p style="margin:4px 0;color:#334155"><strong>Phone:</strong> ${f_phone}</p>` : ''}
@@ -161,7 +165,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`[notifyLostDeviceFound] ${normalizedCode} finder report ${report?.id || 'n/a'}`);
+    console.log(`[notifyLostDeviceFound] ${identifier} finder report ${report?.id || 'n/a'}`);
     return Response.json({ success: true, report_id: report?.id || null });
   } catch (error) {
     console.error('notifyLostDeviceFound error:', error.message);
