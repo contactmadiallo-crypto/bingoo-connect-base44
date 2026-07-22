@@ -55,7 +55,23 @@ export function NavigationStackProvider({ children }) {
     navigate(rootPath, { replace: true });
   }, [navigate]);
 
-  const value = { stacks, activeTabId, pushRoute, switchTab, popStack, resetStack };
+  // Record a visit into a specific tab's stack WITHOUT navigating.
+  // BottomNav calls this on every location change so each tab's in-memory
+  // history stays in sync with the actual current page (including browser
+  // back/forward). Consecutive duplicates are deduped and the stack is capped
+  // to prevent unbounded growth.
+  const recordVisitForTab = useCallback((tabId, path) => {
+    setActiveTabId(tabId);
+    setStacks(prev => {
+      const existing = prev[tabId] || [];
+      if (existing[existing.length - 1] === path) return prev;
+      const next = [...existing, path];
+      if (next.length > 20) next.shift();
+      return { ...prev, [tabId]: next };
+    });
+  }, []);
+
+  const value = { stacks, activeTabId, pushRoute, switchTab, popStack, resetStack, recordVisitForTab };
 
   return (
     <StackContext.Provider value={value}>

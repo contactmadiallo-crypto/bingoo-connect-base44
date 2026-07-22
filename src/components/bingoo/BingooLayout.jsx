@@ -25,7 +25,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isDark, toggle } = useBingooTheme();
-  // NavigationStack no longer used for bottom nav — direct navigate() is more reliable
+  // BottomNav consumes NavigationStackProvider to preserve per-tab history stacks.
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');

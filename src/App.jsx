@@ -10,7 +10,6 @@ import { NavigationStackProvider } from '@/components/mobile/NavigationStack'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 const Landing = lazy(() => import('./pages/Landing'));
-const AppHub = lazy(() => import('./pages/AppHub'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const BingooDashboard = lazy(() => import('./pages/BingooDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -148,8 +147,7 @@ const AuthenticatedApp = () => {
         </Route>
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
-
-        {/* ── FOODHUB legacy routes disabled (files preserved for rollback) ── */}      </Route>
+      </Route>
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>

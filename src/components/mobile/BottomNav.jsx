@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, User, Smartphone, Briefcase, Menu } from 'lucide-react';
+import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
 const TAB_KEY = 'bingoo_bottom_tab_';
@@ -29,15 +30,17 @@ function ownsBusiness(loc) {
 /**
  * BottomNav — accessible mobile bottom tab bar with per-tab stack preservation.
  *
- * Stack preservation uses sessionStorage (not an in-memory stack) to avoid the
- * stale-entry bugs that broke the old NavigationStack approach. Each tab stores
- * its last visited path; tapping a tab restores that path (or falls back to root).
- * Tapping the already-active tab scrolls to top without navigating, preserving
- * the current subpage state.
+ * Each tab maintains an independent history stack via NavigationStackProvider
+ * (in-memory) plus a sessionStorage mirror that survives page reloads. The
+ * provider stack is updated on every location change — including browser
+ * back/forward — so the last entry always reflects the tab's current page.
+ * Tapping a tab restores its last path; tapping the already-active tab scrolls
+ * to top without navigating, preserving the current subpage state.
  */
 export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { stacks, recordVisitForTab } = useNavigationStack();
 
   const tabs = [
     { id: 'home', label: lang === 'fr' ? 'Accueil' : 'Home', icon: Home, path: '/bingoo?view=home', owns: ownsHome },
@@ -46,11 +49,15 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
     { id: 'business', label: lang === 'fr' ? 'Business' : 'Business', icon: Briefcase, path: '/bingoo?view=leads', owns: ownsBusiness },
   ];
 
-  // Track the last visited path per tab so we can restore it on switch.
+  // Track the current path in the owning tab's stack so we can restore it on
+  // switch. We keep BOTH the NavigationStackProvider (in-memory per-tab history)
+  // and sessionStorage (survives page reloads) in sync.
   useEffect(() => {
     const owner = tabs.find(t => t.owns(location));
     if (owner) {
-      try { sessionStorage.setItem(TAB_KEY + owner.id, location.pathname + location.search); } catch { /* ignore */ }
+      const current = location.pathname + location.search;
+      try { sessionStorage.setItem(TAB_KEY + owner.id, current); } catch { /* ignore */ }
+      recordVisitForTab(owner.id, current);
     }
   }, [location]);
 
@@ -61,11 +68,16 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    let target = tab.path;
-    try {
-      const last = sessionStorage.getItem(TAB_KEY + tab.id);
-      if (last) target = last;
-    } catch { /* ignore */ }
+    // Restore the tab's last path: prefer the in-memory per-tab stack, fall
+    // back to sessionStorage (covers reload), then the tab root.
+    const stack = stacks[tab.id];
+    let target = (stack && stack.length > 0) ? stack[stack.length - 1] : tab.path;
+    if (!stack || stack.length === 0) {
+      try {
+        const last = sessionStorage.getItem(TAB_KEY + tab.id);
+        if (last) target = last;
+      } catch { /* ignore */ }
+    }
     navigate(target);
   };
 
