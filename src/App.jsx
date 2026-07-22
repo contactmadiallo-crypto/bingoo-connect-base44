@@ -53,6 +53,7 @@ const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
+import RouteTransition from '@/components/mobile/RouteTransition';
 
 // Redirect /sitemap.xml to the backend function (hard redirect, no React dependency)
 function SitemapRedirect() {
@@ -88,6 +89,7 @@ const AuthenticatedApp = () => {
   // Protected routes handle their own loading state via ProtectedRoute.
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
+    <RouteTransition>
     <Routes>
       {/* ── AUTH ROUTES (public) ── */}
       <Route path="/login" element={<Login />} />
@@ -150,6 +152,7 @@ const AuthenticatedApp = () => {
 
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </RouteTransition>
     </Suspense>
   );
 };
