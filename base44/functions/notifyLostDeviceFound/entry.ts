@@ -46,8 +46,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Item is not reported as lost' }, { status: 403 });
     }
 
-    // Sanitize finder inputs.
-    const sanitize = (val, max = 500) => String(val || '').slice(0, max);
+    // Sanitize finder inputs: truncate length AND escape HTML entities to
+    // prevent HTML/script injection in the owner notification email.
+    const sanitize = (val, max = 500) => String(val || '').slice(0, max)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
     const f_name = sanitize(finder_name, 100);
     const f_phone = sanitize(finder_phone, 50);
     const f_email = sanitize(finder_email, 200);
