@@ -75,9 +75,21 @@
       "created_by_id": "{{user.id}}"
     },
     "read": {
-      "user_condition": {
-        "isAuthenticated": true
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.conversation_id": {
+            "$in": "{{user.data.conversations_participated_in}}"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "update": {
       "created_by_id": "{{user.id}}"
