@@ -31,6 +31,7 @@ const MyOrders = lazy(() => import('./pages/MyOrders'));
 const ShopAdmin = lazy(() => import('./pages/ShopAdmin'));
 import { AuthProvider } from '@/lib/AuthContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import AdminAuthGuard from '@/components/AdminAuthGuard';
 import BingooLayoutWrapper from '@/components/bingoo/BingooLayoutWrapper';
 import { Navigate } from 'react-router-dom';
 const PublicResume = lazy(() => import('@/pages/PublicResume'));
@@ -49,6 +50,7 @@ const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
 const PlaystoreMockups = lazy(() => import('@/pages/PlaystoreMockups'));
 const Bingoo2Mockups = lazy(() => import('@/pages/Bingoo2Mockups'));
 const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
+const PlaystoreCapture = lazy(() => import('@/pages/PlaystoreCapture'));
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
@@ -147,6 +149,7 @@ const AuthenticatedApp = () => {
         </Route>
         <Route path="/shop-admin" element={<ShopAdmin />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/playstore-capture" element={<AdminAuthGuard><PlaystoreCapture /></AdminAuthGuard>} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />
