@@ -3,7 +3,6 @@
 // Reuses the same recharts-based layout and event taxonomy as production.
 import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { Activity } from "lucide-react";
 import { demoAnalytics } from "@/lib/playstoreCaptureData";
 
 const isDark = true;

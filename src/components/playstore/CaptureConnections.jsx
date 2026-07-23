@@ -1,5 +1,5 @@
 // Capture-only mirror of the real ConnectionsPanel with fictional demo connections.
-import { Search, Users, ExternalLink, Trash2 } from "lucide-react";
+import { Search, ExternalLink, Trash2 } from "lucide-react";
 import { demoConnections } from "@/lib/playstoreCaptureData";
 
 const isDark = true;
