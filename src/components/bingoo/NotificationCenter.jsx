@@ -60,6 +60,15 @@ export default function NotificationCenter({ userId, isDark }) {
     const unsub = base44.entities.BingooNotification.subscribe((event) => {
       if (event.data?.user_id === userId) {
         qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+        // Subscription lifecycle events change the account's server-resolved entitlement,
+        // so refetch the plan/features/subscription queries immediately — the sidebar
+        // recomputes (upgrade, renewal, cancellation, failed-payment) without a refresh.
+        const et = event.data?.event_type;
+        if (et === "subscription_created" || et === "subscription_updated" || et === "subscription_canceled" || et === "payment_failed") {
+          qc.invalidateQueries({ queryKey: ["user-features"] });
+          qc.invalidateQueries({ queryKey: ["my-subscription"] });
+          qc.invalidateQueries({ queryKey: ["auth-me"] });
+        }
       }
     });
     return () => unsub();
