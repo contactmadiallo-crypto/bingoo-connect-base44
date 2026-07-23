@@ -334,22 +334,55 @@ export const SIDEBAR_NAV_MAP = {
  *   for sidebar type (profile category drives visibility).
  * @returns {Array} ordered sidebar items with localized labels
  */
+// ── Account-plan entitlement floor ─────────────────────────────────────────────
+// The server-resolved active Subscription plan (from getUserFeatures / usePlan) sets a
+// guaranteed MINIMUM set of nav items. A paid account NEVER collapses to the Free nav
+// set just because the selected profile has a missing/unclassified category. The profile
+// category may add organization-specific items on top of this floor, but can never remove
+// items the account's subscription already entitles.
+const PLAN_TO_FLOOR_TYPE = {
+  free: TYPE_FREE,
+  professional: TYPE_PRO,
+  pro: TYPE_PRO,
+  business: TYPE_BUSINESS,
+  salon: TYPE_SALON,
+  restaurant: TYPE_BUSINESS,
+  lawfirm: TYPE_LAWFIRM,
+  corporate: TYPE_CORPORATE,
+};
+function planFloorType(plan) {
+  if (!plan) return TYPE_FREE;
+  return PLAN_TO_FLOOR_TYPE[plan] || TYPE_FREE;
+}
+
 export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effectivePlan = null) {
-  let type;
+  // Profile category — drives organization (which vertical's tools are surfaced).
+  const type = isAdmin ? null : normalizeProfileType(profile);
+  // Account-plan floor — the subscription-entitled minimum (from getUserFeatures/usePlan).
+  const floorType = isAdmin ? null : planFloorType(effectivePlan);
+
+  let ids;
   if (isAdmin) {
-    type = null; // admin uses ADMIN_SIDEBAR_ITEMS directly
+    ids = [...ADMIN_SIDEBAR_ITEMS];
   } else {
-    // Profile category controls navigation sections; subscription controls access and gates.
-    type = normalizeProfileType(profile);
+    const profileIds = SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE];
+    const floorIds = SIDEBAR_ITEMS_BY_TYPE[floorType] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE];
+    if (floorType !== TYPE_FREE) {
+      // Paid account: the subscription floor is the guaranteed minimum, in floor order.
+      // Append any profile-category-specific items not already included — the profile
+      // category can never remove items the subscription already entitles.
+      ids = [...floorIds];
+      for (const id of profileIds) if (!ids.includes(id)) ids.push(id);
+    } else {
+      // Free account: profile category drives; a missing category stays Free.
+      ids = [...profileIds];
+    }
   }
 
-  let ids = isAdmin
-    ? [...ADMIN_SIDEBAR_ITEMS]
-    : [...(SIDEBAR_ITEMS_BY_TYPE[type] || SIDEBAR_ITEMS_BY_TYPE[TYPE_FREE])];
-
-  // Strategic tools — secondary advanced section, only for Business/Salon/LawFirm/Corporate/admin
+  // Strategic tools — secondary advanced section, eligible for admins and when the
+  // account plan OR selected profile category is Business / Salon / Law Firm / Corporate.
   const STRATEGIC_ELIGIBLE = new Set([TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE]);
-  if (isAdmin || STRATEGIC_ELIGIBLE.has(type)) {
+  if (isAdmin || STRATEGIC_ELIGIBLE.has(floorType) || STRATEGIC_ELIGIBLE.has(type)) {
     if (!ids.includes("strategic")) {
       ids = [...ids, "strategic"];
     }
