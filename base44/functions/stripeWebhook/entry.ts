@@ -313,6 +313,7 @@ Deno.serve(async (req) => {
 
         // Activity log + in-app notification + confirmation email (all non-blocking)
         const billingUrl = stripeSubId ? `${appOrigin}/billing?subscriptionId=${stripeSubId}` : `${appOrigin}/billing`;
+        const billingPath = stripeSubId ? `/billing?subscriptionId=${stripeSubId}` : '/billing';
         const planLabel = resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1);
         const subscriberUserId = user_id || await findUserIdByEmail(base44, customerEmail);
 
@@ -328,7 +329,7 @@ Deno.serve(async (req) => {
           eventType: 'subscription_created',
           title: `You're on the ${planLabel} plan 🎉`,
           message: 'Your premium features are unlocked.',
-          actionUrl: billingUrl,
+          actionUrl: billingPath,
           relatedId: stripeSubId,
         });
 
@@ -368,7 +369,7 @@ Deno.serve(async (req) => {
         });
         console.log('Subscription updated:', sub.id, resolvedPlan, newStatus);
 
-        const billingUrl = `${appOrigin}/billing?subscriptionId=${sub.id}`;
+        const billingUrl = `/billing?subscriptionId=${sub.id}`;
 
         if (newStatus === 'active' || newStatus === 'trialing') {
           const action = (resolvedPlan !== prev.plan) ? (PLAN_RANK[resolvedPlan] > PLAN_RANK[prev.plan] ? 'upgraded' : 'downgraded') : 'renewed';
@@ -427,7 +428,7 @@ Deno.serve(async (req) => {
           status: 'canceled',
           cancel_at_period_end: false,
         });
-        const billingUrl = `${appOrigin}/billing?subscriptionId=${sub.id}`;
+        const billingUrl = `/billing?subscriptionId=${sub.id}`;
         // Subscription fully deleted — apply tiered downgrade policy based on what plan they had.
         // BUT protected test accounts never get downgraded.
         if (isProtectedTestAccount(prev.customer_email)) {
@@ -466,7 +467,7 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Subscription.update(prev.id, {
           status: 'past_due',
         });
-        const billingUrl = invoice.subscription ? `${appOrigin}/billing?subscriptionId=${invoice.subscription}` : `${appOrigin}/billing`;
+        const billingUrl = invoice.subscription ? `/billing?subscriptionId=${invoice.subscription}` : '/billing';
         // No plan downgrade yet — allow Stripe's retry window (3-7 days) before losing access
         console.log('Subscription past_due (grace period active):', invoice.subscription);
 

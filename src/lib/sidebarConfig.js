@@ -43,6 +43,8 @@ const LAYOUT_TYPE_FALLBACK = {
   executive: TYPE_PRO,
   realtor_luxury: TYPE_BUSINESS,
   modern_saas: TYPE_BUSINESS,
+  ny_championship: TYPE_PRO,
+  lions_teranga: TYPE_PRO,
 };
 
 /**

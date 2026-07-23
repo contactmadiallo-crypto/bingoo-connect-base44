@@ -111,7 +111,11 @@ export default function NotificationCenter({ userId, isDark }) {
     if (n.action_url) {
       // In-app navigation preserves session/state and supports deep links like
       // /bingoo?view=leads&profileId=...&leadId=... or /billing?subscriptionId=...
-      navigate(n.action_url);
+      if (/^https?:\/\//i.test(n.action_url)) {
+        window.location.assign(n.action_url);
+      } else {
+        navigate(n.action_url);
+      }
     }
   };
 
