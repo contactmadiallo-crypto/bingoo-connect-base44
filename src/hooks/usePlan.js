@@ -58,6 +58,7 @@ export function usePlan() {
     canAccess: canAccessFn,
     isTestAccount: featuresData?.is_test_account || false,
     planSource,
+    maxProfiles: featuresData?.maximum_active_profiles ?? 1,
     maxNFCDevices: maxNFCDevices(normalizedPlan),
     maxTeamMembers: maxTeamMembers(normalizedPlan),
     // Convenience booleans — use canAccess() for feature checks, not these
