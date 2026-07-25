@@ -9,7 +9,7 @@ import {
 } from '@/lib/planPermissions';
 
 const BUSINESS_TOOL_ROUTES = {
-  'Business Public Profile': '/bingoo?view=profiles',
+  'Business Public Profile': '/bingoo?view=hub',
   'Design Studio': '/bingoo?view=designstudio',
   'Team Management': '/bingoo?view=team',
   'Services & Product Showcase': '/bingoo?view=services',
@@ -18,7 +18,7 @@ const BUSINESS_TOOL_ROUTES = {
   'Business Hours': '/bingoo?view=appointments',
   'Staff Cards': '/bingoo?view=team',
   'Customer Inquiry Buttons': '/bingoo?view=leads',
-  'Multi-Profile Management': '/bingoo?view=profiles',
+  'Multi-Profile Management': '/bingoo?view=hub',
   'Business QR/NFC Landing': '/bingoo?view=qrwallet',
   'Advanced Analytics': '/bingoo?view=analytics',
   'Lead Export': '/bingoo?view=leads',
