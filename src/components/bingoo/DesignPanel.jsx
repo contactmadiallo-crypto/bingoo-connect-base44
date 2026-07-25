@@ -140,14 +140,20 @@ export default function DesignPanel({
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */
       <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
-        {SECTIONS.map(s => (
-          <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${section === s.id ? "text-white shadow-sm" : isDark ? "text-white/40 hover:text-white/70" : "text-slate-500 hover:text-slate-700"}`}
-            style={section === s.id ? { background: "#0b2149" } : {}}>
-            <s.icon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{s.label}</span>
-          </button>
-        ))}
+        {SECTIONS.map(s => {
+          const SectionIcon = s.icon;
+          const sectionClass = section === s.id
+            ? "text-white shadow-sm"
+            : isDark ? "text-white/40 hover:text-white/70" : "text-slate-500 hover:text-slate-700";
+          return (
+            <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${sectionClass}`}
+              style={section === s.id ? { background: "#0b2149" } : {}}>
+              <SectionIcon className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{s.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* ── THEME section: accent color + bg style ── */}
