@@ -167,7 +167,14 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
       localStorage.removeItem("bingoo_onboarding_selected_plan");
       onCreated(created);
     } catch (err) {
-      setError(err?.message || "Failed to create profile.");
+      const backendError = err?.response?.data?.error || err?.data?.error;
+      if (backendError === "Username taken") {
+        setError("That profile URL is already taken. Choose a different username and try again.");
+      } else if (backendError === "creation already in progress") {
+        setError("This profile is still being created. Wait a moment, then try again.");
+      } else {
+        setError(backendError || err?.message || "Failed to create profile.");
+      }
     } finally {
       setSaving(false);
     }
@@ -314,14 +321,14 @@ export default function BingooDashboard() {
   // Onboarding trigger
   const onboardingParam = searchParams.get("onboarding");
   useEffect(() => {
-    if (!user) return;
+    if (!user || profilesLoading) return;
     const forceOnboarding = onboardingParam === "1" || onboardingParam === "resume";
     const noProfile = profiles.length === 0;
-    const notDone = !localStorage.getItem("bingoo_onboarding_done");
+    const notDone = !localStorage.getItem(`bingoo_onboarding_done:${user.id}`);
     if ((noProfile && notDone) || forceOnboarding) {
       setShowOnboarding(true);
     }
-  }, [user, profiles]);
+  }, [user, profiles, profilesLoading, onboardingParam]);
 
   // Ownership repair
   const [ownershipReady, setOwnershipReady] = useState(false);
@@ -498,7 +505,7 @@ export default function BingooDashboard() {
   };
 
   const launchAI = () => {
-    localStorage.removeItem("bingoo_onboarding_done");
+    if (user?.id) localStorage.removeItem(`bingoo_onboarding_done:${user.id}`);
     setShowOnboarding(true);
   };
 
@@ -563,6 +570,7 @@ export default function BingooDashboard() {
         <React.Suspense fallback={null}>
         <OnboardingWizard
           userName={user.full_name}
+          userId={user.id}
           currentPlan={userPlan}
           onCreateProfile={() => {
             setShowOnboarding(false);
