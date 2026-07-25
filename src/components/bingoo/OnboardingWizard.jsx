@@ -163,26 +163,43 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
       return;
     }
 
+    if (window.self !== window.top) {
+      persistPending();
+      setCheckoutError("Stripe checkout cannot open inside Base44 Preview. Open the published Bingoo app in a new browser tab, sign in, and select the plan there.");
+      return;
+    }
+
     setCheckoutLoading(true);
     setCheckoutError("");
     persistPending();
     try {
-      const result = await base44.functions.invoke("createSubscriptionSession", {
-        plan: selectedPlan,
-        billing_cycle: "monthly",
-        success_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=success`,
-        cancel_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=canceled`,
-      });
+      const result = await Promise.race([
+        base44.functions.invoke("createSubscriptionSession", {
+          plan: selectedPlan,
+          billing_cycle: "monthly",
+          success_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=success`,
+          cancel_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=canceled`,
+        }),
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(new Error("Stripe checkout took too long to respond. Please try again.")), 20000);
+        }),
+      ]);
       const data = result?.data || result;
       if (data?.updated) {
+        setCheckoutLoading(false);
         goTo(2);
       } else if (data?.url) {
-        window.location.href = data.url;
+        window.location.assign(data.url);
       } else {
         throw new Error("Checkout could not be started.");
       }
     } catch (error) {
-      setCheckoutError(error?.message || "Checkout could not be started. Please try again.");
+      setCheckoutError(
+        error?.response?.data?.error ||
+        error?.data?.error ||
+        error?.message ||
+        "Checkout could not be started. Please try again."
+      );
       setCheckoutLoading(false);
     }
   };
