@@ -882,7 +882,12 @@ export default function BingooDashboard() {
               ) : !planLoading && !canAccessFeature("services") ? (
                 <PlanGateScreen feature="services" isDark={isDark} />
               ) : (
-                <SalonServicesPanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
+                <SalonServicesPanel
+                  profileId={activeProfile.id}
+                  isDark={isDark}
+                  onSaved={() => {}}
+                  mode={normalizeProfileType(activeProfile) === "salon" ? "salon" : "business"}
+                />
               )}
             </div>
           )}
