@@ -41,6 +41,7 @@ const SECTIONS = [
 export function getVisibleNavSections(profile, isAdmin = false, lang = "en", effectivePlan = null) {
   const visibleItems = getVisibleNavItems(profile, isAdmin, lang, effectivePlan);
   const visibleIds = new Set(visibleItems.map((i) => i.id));
+  const visibleItemMap = new Map(visibleItems.map((item) => [item.id, item]));
   const allItems = { ...SIDEBAR_NAV_MAP, ...EXTRA_NAV_ITEMS };
 
   return SECTIONS.map((section) => {
@@ -55,7 +56,8 @@ export function getVisibleNavSections(profile, isAdmin = false, lang = "en", eff
         return false;
       })
       .map((id) => {
-        const item = allItems[id];
+        // Preserve plan-aware labels produced by getVisibleNavItems for core items.
+        const item = visibleItemMap.get(id) || allItems[id];
         if (!item) return null;
         return {
           ...item,
