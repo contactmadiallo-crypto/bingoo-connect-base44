@@ -32,17 +32,43 @@ Deno.serve(async (req) => {
     const profile = profiles[0];
 
     // Require exactly one active ProfileAccess record. Missing, duplicate, locked,
-    // or expired (non-active) access fails closed (404).
+    // expired, or malformed-expiry access all fail closed with an IDENTICAL 404 body
+    // so callers cannot distinguish between the states (no enumeration leak).
+    const NOT_FOUND = Response.json({ profile: null, not_found: true }, { status: 404 });
     const access = await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id: profile.id });
     if (!access || access.length === 0) {
-      return Response.json({ profile: null, not_found: true }, { status: 404 });
+      return NOT_FOUND;
     }
     if (access.length > 1) {
       // Configuration conflict — fail closed; admin must resolve.
-      return Response.json({ profile: null, not_found: true }, { status: 404 });
+      return NOT_FOUND;
     }
-    if (access[0].access_status !== 'active') {
-      return Response.json({ profile: null, not_found: true }, { status: 404 });
+    const accessRecord = access[0];
+    if (accessRecord.access_status !== 'active') {
+      return NOT_FOUND;
+    }
+    // Enforce entitlement expiry using SERVER TIME only. A past (or exactly
+    // current) expiry fails closed. A malformed expiry also fails closed and is
+    // audited as a configuration error (the audit is the only side channel; the
+    // public response stays identical to every other 404).
+    const expiry = accessRecord.expires_at;
+    if (expiry !== undefined && expiry !== null && expiry !== '') {
+      const expiryMs = Date.parse(expiry);
+      if (Number.isNaN(expiryMs)) {
+        try {
+          await base44.asServiceRole.entities.AdminAuditLog.create({
+            action: 'public_profile_malformed_expiry',
+            performed_by: 'system',
+            target_type: 'ProfileAccess',
+            target_id: accessRecord.id,
+            notes: `profile_id=${profile.id} expires_at=${String(expiry).slice(0, 50)}`,
+          });
+        } catch (e) { console.error(`[getPublicProfile] malformed-expiry audit failed`, e.message); }
+        return NOT_FOUND;
+      }
+      if (expiryMs <= Date.now()) {
+        return NOT_FOUND;
+      }
     }
 
     // Apply privacy + public-field allowlist (server-side, not only visual).

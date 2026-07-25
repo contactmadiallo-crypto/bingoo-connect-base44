@@ -265,22 +265,11 @@ async function handleMenuBatch(base44, user, restaurantId, items, isLockedFeatur
     return Response.json({ error: 'items array required' }, { status: 400 });
   }
 
-  // Test affordance (harmless in production — no UI sends this): an item with
-  // `_test_fail_on_create: true` forces a synthetic create failure at that index
-  // AFTER prior items are created, to exercise the compensating-rollback path.
-  const failAtIndex = (() => {
-    for (let i = 0; i < items.length; i++) {
-      if (items[i] && items[i]._test_fail_on_create === true) return i;
-    }
-    return -1;
-  })();
-
   // Validate ALL items; reject the whole batch on any validation error.
   const validated = [];
   const errors = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    if (i === failAtIndex) { validated.push({ __fail: true, index: i }); continue; }
     const { sanitized, errors: itemErrors } = validateEntityRecord('MenuItem', item, 'create');
     if (itemErrors.length) { errors.push({ index: i, errors: itemErrors }); continue; }
     for (const f of ['name', 'price', 'category']) {
@@ -298,23 +287,6 @@ async function handleMenuBatch(base44, user, restaurantId, items, isLockedFeatur
   const createdIds = [];
   for (let i = 0; i < validated.length; i++) {
     const v = validated[i];
-    if (v.__fail) {
-      // Synthetic create failure — exercise compensating rollback.
-      const orphanIds = [...createdIds];
-      const rollbackFailedIds = [];
-      for (const id of orphanIds) {
-        try { await MenuItem.delete(id); }
-        catch (de) { rollbackFailedIds.push(id); console.error(`[${correlationId}] menu rollback failed ${id}`, de.message); }
-      }
-      if (rollbackFailedIds.length > 0) {
-        await audit(base44, user, 'menu_batch_rollback_failed', 'MenuItem', restaurantId,
-          `created ${orphanIds.length} then failed at index ${i}; ORPHANED ids (delete failed): ${JSON.stringify(rollbackFailedIds)}`, correlationId);
-        return Response.json({ error: 'Menu creation failed; compensating rollback PARTIAL — orphaned items remain', orphan_ids: rollbackFailedIds, correlation_id: correlationId }, { status: 500 });
-      }
-      await audit(base44, user, 'menu_batch_rollback_ok', 'MenuItem', restaurantId,
-        `created ${orphanIds.length} then failed at index ${i}; all compensated (deleted)`, correlationId);
-      return Response.json({ error: 'Menu creation failed; all created items compensated (deleted)', created_then_rolled_back: orphanIds.length, correlation_id: correlationId }, { status: 500 });
-    }
     try {
       const rec = await MenuItem.create(v);
       createdIds.push(rec.id);
