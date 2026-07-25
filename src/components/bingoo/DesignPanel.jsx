@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, Upload, Sparkles, Palette, Layout, User } from "lucide-react";
+import { Check, Upload, Sparkles, Palette, Layout, User, Eye, RotateCcw } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
@@ -59,10 +59,26 @@ const SECTIONS = [
   { id: "layout",   label: "Layout",       icon: Layout },
 ];
 
-export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange }) {
+export default function DesignPanel({
+  liveForm,
+  setVal,
+  onSave,
+  isPending,
+  saveStatus,
+  saveTime,
+  saveError,
+  isDark,
+  userPlan,
+  profile,
+  user,
+  lang,
+  onLayoutChange,
+  onPreview,
+  onReset,
+  hasChanges,
+}) {
   const [section, setSection] = useState("theme");
   const [uploading, setUploading] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const headText  = isDark ? "text-white"    : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
@@ -73,8 +89,6 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const handleSave = async () => {
     try {
       await onSave();
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
     } catch (err) {
       toast.error("Failed to save. Please try again.");
     }
@@ -106,7 +120,25 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
   return (
     <div className="space-y-4">
-      {/* ── Horizontal section tabs (mobile + desktop) ── */}
+      <div className={`rounded-3xl border ${border} ${bg} p-5 sm:p-6`}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[10px] font-black tracking-[0.18em] uppercase text-orange-500">Profile Design Studio</span>
+              <span className={`w-2 h-2 rounded-full ${hasChanges ? "bg-amber-400" : "bg-emerald-500"}`} />
+              <span className={`text-[10px] font-bold ${mutedText}`}>{hasChanges ? "Unsaved changes" : "All changes saved"}</span>
+            </div>
+            <h2 className={`text-xl sm:text-2xl font-black ${headText}`}>Shape your public profile</h2>
+            <p className={`text-xs sm:text-sm mt-1 ${mutedText}`}>Choose a layout, tune the visual system, and preview every change before publishing.</p>
+          </div>
+          <button type="button" onClick={onPreview}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black transition-all ${isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
+            <Eye className="w-4 h-4" /> Preview
+          </button>
+        </div>
+      </div>
+
+      {/* ── Horizontal section tabs (mobile + desktop) ── */
       <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
         {SECTIONS.map(s => (
           <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
@@ -335,17 +367,25 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       )}
 
       {/* ── Save bar — mobile safe area ── */}
-      <div className="flex items-center gap-4 pt-4 pb-safe" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-        <button type="button" onClick={handleSave} disabled={isPending} aria-label="Save design changes"
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none"
-          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-          {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
+      <div className={`sticky bottom-0 z-20 flex items-center justify-between gap-3 p-3 sm:p-4 rounded-2xl border ${border} ${bg}`}
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))", boxShadow: "0 -10px 30px rgba(15,23,42,0.08)" }}>
+        <button type="button" onClick={onReset} disabled={!hasChanges || isPending}
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-black border transition-all disabled:opacity-40 ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+          <RotateCcw className="w-4 h-4" /> Reset
         </button>
-        {saved && (
-          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <Check className="w-3.5 h-3.5" /> Saved!
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {saveStatus === "success" && (
+            <span className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+              <Check className="w-3.5 h-3.5" /> Saved {saveTime}
+            </span>
+          )}
+          {saveStatus === "error" && <span className="hidden sm:block text-xs font-bold text-red-500">{saveError || "Save failed"}</span>}
+          <button type="button" onClick={handleSave} disabled={isPending} aria-label="Save design changes"
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none"
+            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
+            {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
+          </button>
+        </div>
       </div>
     </div>
   );
