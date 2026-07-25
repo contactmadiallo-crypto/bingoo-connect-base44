@@ -1,14 +1,18 @@
 {
-  "name": "ProfileAccess",
+  "name": "RestaurantAccess",
   "type": "object",
   "properties": {
-    "profile_id": {
+    "restaurant_id": {
       "type": "string",
-      "description": "Linked Profile id"
+      "description": "Linked Restaurant id"
     },
     "owner_user_id": {
       "type": "string",
-      "description": "Owner user ID"
+      "description": "Owner user ID (resolved from Restaurant.owner_email at creation)"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "Owner email snapshot (matches Restaurant.owner_email)"
     },
     "access_status": {
       "type": "string",
@@ -23,20 +27,9 @@
       "type": "boolean",
       "default": false
     },
-    "created_during_trial": {
-      "type": "boolean",
-      "default": false
-    },
-    "locked_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "lock_reason": {
-      "type": "string"
-    },
     "subscription_id": {
       "type": "string",
-      "description": "Resource-specific entitlement link \u2014 the Subscription record governing THIS profile. Allows one owner to hold profiles on different plans/trials. Absent on legacy records (pre-migration) \u2192 resolver falls back to owner-account subscription."
+      "description": "Resource-specific entitlement link \u2014 the Subscription record governing THIS restaurant."
     },
     "plan_name": {
       "type": "string",
@@ -50,16 +43,16 @@
         "business",
         "corporate"
       ],
-      "description": "Effective plan snapshot governing this profile (resolved from subscription_id, or set directly for admin_override/trial without a Stripe sub)."
+      "description": "Effective plan snapshot governing this restaurant."
     },
     "entitlement_id": {
       "type": "string",
-      "description": "Snapshot of the active PlanEntitlement id governing this profile at last resolution. Re-validated live by the resolver (not trusted blindly)."
+      "description": "Snapshot of the active PlanEntitlement id governing this restaurant."
     },
     "expires_at": {
       "type": "string",
       "format": "date-time",
-      "description": "When this access's entitlement expires (trial end / period end). Resolver treats past expiry as locked for mutations."
+      "description": "When this access's entitlement expires."
     },
     "access_source": {
       "type": "string",
@@ -69,12 +62,18 @@
         "admin_override",
         "legacy"
       ],
-      "default": "legacy",
-      "description": "Origin of the entitlement link. 'legacy' = pre-migration record resolved via owner-account fallback."
+      "default": "legacy"
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lock_reason": {
+      "type": "string"
     }
   },
   "required": [
-    "profile_id",
+    "restaurant_id",
     "owner_user_id"
   ],
   "rls": {

@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { GATED_ENTITIES, validateEntityRecord } from '../../shared/gatedEntityRegistry.ts';
-import { resolveEffectivePlan, loadPlanEntitlement } from '../../shared/entitlementResolver.ts';
+import { resolveResourceEntitlement } from '../../shared/entitlementResolver.ts';
 
 // Max team members per plan — mirrors src/lib/planPermissions.js maxTeamMembers().
 const TEAM_MEMBER_LIMITS = {
@@ -15,7 +15,7 @@ function newCorrelationId() {
   try { return crypto.randomUUID(); } catch { return 'err-' + Date.now() + '-' + Math.random().toString(36).slice(2); }
 }
 
-async function auditError(base44, user, action, targetType, targetId, details, correlationId) {
+async function audit(base44, user, action, targetType, targetId, details, correlationId) {
   try {
     await base44.asServiceRole.entities.AdminAuditLog.create({
       action,
@@ -26,15 +26,12 @@ async function auditError(base44, user, action, targetType, targetId, details, c
       target_id: targetId || 'none',
       notes: `[${correlationId}] ${details}`,
     });
-  } catch (e) { console.error('auditError failed', e.message); }
+  } catch (e) { console.error('audit failed', e.message); }
 }
 
 Deno.serve(async (req) => {
   const correlationId = newCorrelationId();
-  let base44 = null;
-  let user = null;
-  let entityName = null;
-  let scopeId = null;
+  let base44 = null, user = null, entityName = null, scopeId = null;
   try {
     base44 = createClientFromRequest(req);
     user = await base44.auth.me().catch(() => null);
@@ -54,12 +51,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: scope === 'restaurant' ? 'restaurant_id is required' : 'profile_id is required' }, { status: 400 });
     }
 
-    // ── Ownership (admin bypasses ownership, but NOT the resource entitlement check) ──
+    // ── Ownership (admin bypasses ownership, but NOT the resource entitlement) ──
     let ownerEmail = null;
     if (scope === 'restaurant') {
       const restaurant = await base44.asServiceRole.entities.Restaurant.get(scopeId);
       if (!restaurant) return Response.json({ error: 'Restaurant not found' }, { status: 404 });
-      // Canonical ownership: Restaurant.owner_email === user.email
       if (restaurant.owner_email !== user.email && user.role !== 'admin') {
         return Response.json({ error: 'You do not own this restaurant' }, { status: 403 });
       }
@@ -70,29 +66,16 @@ Deno.serve(async (req) => {
       if (profile.created_by_id !== user.id && user.role !== 'admin') {
         return Response.json({ error: 'You do not own this profile' }, { status: 403 });
       }
-      // Locked/archived profile → block all mutation (exactly one active access).
-      const accessList = await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id: scopeId });
-      const activeAccess = (accessList || []).filter((a) => a.access_status === 'active');
-      if (activeAccess.length !== 1) {
-        return Response.json({ error: activeAccess.length === 0 ? 'Profile is locked' : 'ProfileAccess configuration conflict' }, { status: 403 });
-      }
-      // Resolve owner email from the User record (account-level entitlement).
       const ownerUser = await base44.asServiceRole.entities.User.get(profile.created_by_id).catch(() => null);
       ownerEmail = ownerUser?.email || null;
     }
 
-    // ── Resolve RESOURCE entitlement (not the calling user's general features) ──
-    const subs = ownerEmail
-      ? await base44.asServiceRole.entities.Subscription.filter({ customer_email: ownerEmail })
-      : [];
-    const { plan: resourcePlan } = resolveEffectivePlan(subs, ownerEmail);
-    const { entitlement, error: entError } = await loadPlanEntitlement(base44, resourcePlan);
-    if (entError === 'missing') {
-      return Response.json({ error: `Entitlement configuration missing for plan "${resourcePlan}"` }, { status: 403 });
+    // ── Resource-specific entitlement: resource → access record → subscription/trial → PlanEntitlement ──
+    const ent = await resolveResourceEntitlement(base44, { scope, scopeId, ownerEmailFallback: ownerEmail });
+    if (!ent.ok) {
+      return Response.json({ error: ent.error, reason: ent.reason, plan: ent.plan }, { status: ent.status });
     }
-    if (entError === 'conflict') {
-      return Response.json({ error: 'Entitlement configuration conflict (duplicate active PlanEntitlement)', plan: resourcePlan }, { status: 409 });
-    }
+    const { plan: resourcePlan, entitlement, accessRecord, usedFallback } = ent;
 
     const featureKey = cfg.feature;
     const isLockedFeature = !entitlement.features.includes(featureKey);
@@ -104,7 +87,7 @@ Deno.serve(async (req) => {
       return await handleAttendance(base44, user, scopeId, op, team_member_id, isLockedFeature, correlationId);
     }
 
-    // ── MENU BATCH: all-or-nothing with rollback ──
+    // ── MENU BATCH: compensating operations (NOT a DB transaction) ──
     if (op === 'create_menu_batch') {
       if (entityName !== 'MenuItem') return Response.json({ error: 'Op not valid for this entity' }, { status: 400 });
       return await handleMenuBatch(base44, user, scopeId, items, isLockedFeature, correlationId);
@@ -129,14 +112,13 @@ Deno.serve(async (req) => {
       if (existingScope !== scopeId) return Response.json({ error: 'Record scope mismatch' }, { status: 403 });
       const { sanitized, errors, rejected } = validateEntityRecord(entityName, data, 'update');
       if (errors.length) return Response.json({ error: 'validation_failed', errors }, { status: 400 });
-      // Force-preserve scope ID (ignore any client attempt to change it).
       if (scope === 'restaurant') sanitized.restaurant_id = existingScope;
       else sanitized.profile_id = existingScope;
       const updated = await Entity.update(record_id, sanitized);
       return Response.json({ record: updated, rejected });
     }
 
-    // ── DELETE (cleanup allowed after downgrade; ownership+scope only, no feature check) ──
+    // ── DELETE (cleanup allowed after downgrade; ownership+scope only) ──
     if (op === 'delete') {
       if (!record_id) return Response.json({ error: 'record_id required for delete' }, { status: 400 });
       const existing = await Entity.get(record_id);
@@ -151,8 +133,15 @@ Deno.serve(async (req) => {
     const { sanitized, errors, rejected } = validateEntityRecord(entityName, data, 'create');
     if (errors.length) return Response.json({ error: 'validation_failed', errors }, { status: 400 });
 
-    // Concurrency-safe TeamMember limit (pre-check + create + post-check + rollback),
-    // mirroring createProfileGated's reservation pattern.
+    // TeamMember limit: OPTIMISTIC COMPENSATION with deterministic reconciliation.
+    // Base44 does not expose DB transactions / unique constraints / atomic
+    // compare-and-set to backend functions, so this is NOT an atomic concurrency
+    // guarantee. Pre-check + create + post-check + rollback is optimistic
+    // compensation: under true concurrency two requests can both pass the
+    // pre-check and create. The post-create recheck detects the overrun and
+    // reconciles by deleting the just-created record + writing an audit record
+    // (teammember_limit_reconciled). The deterministic recheck on the next
+    // request also enforces the cap. Do not rely on this for strict atomicity.
     if (entityName === 'TeamMember') {
       const limit = TEAM_MEMBER_LIMITS[resourcePlan] ?? 0;
       const existing = await Entity.filter({ profile_id: scopeId });
@@ -162,9 +151,19 @@ Deno.serve(async (req) => {
       const created = await Entity.create({ ...sanitized, profile_id: scopeId });
       const after = await Entity.filter({ profile_id: scopeId });
       if (after.length > limit) {
+        // Reconciliation: remove the record this request just created.
+        let rollbackOk = true;
         try { await Entity.delete(created.id); }
-        catch (de) { await auditError(base44, user, 'teammember_concurrency_rollback_failed', entityName, created.id, de.message, correlationId); }
-        return Response.json({ error: 'Team member limit reached (concurrency)', limit }, { status: 403 });
+        catch (de) {
+          rollbackOk = false;
+          await audit(base44, user, 'teammember_reconcile_rollback_failed', entityName, created.id,
+            `limit=${limit} after=${after.length}; failed to delete overrun record: ${de.message}`, correlationId);
+        }
+        if (rollbackOk) {
+          await audit(base44, user, 'teammember_limit_reconciled', entityName, created.id,
+            `limit=${limit} after=${after.length}; overrun record deleted (optimistic compensation)`, correlationId);
+        }
+        return Response.json({ error: 'Team member limit reached (optimistic compensation applied)', limit, reconciled: rollbackOk }, { status: 403 });
       }
       return Response.json({ record: created, rejected });
     }
@@ -177,7 +176,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error(`[createGatedRecord] [${correlationId}]`, error.message);
     if (base44) {
-      await auditError(base44, user, 'gated_record_error', entityName || 'unknown', scopeId || 'none', error.message, correlationId).catch(() => {});
+      await audit(base44, user, 'gated_record_error', entityName || 'unknown', scopeId || 'none', error.message, correlationId).catch(() => {});
     }
     return Response.json({ error: 'internal_error', correlation_id: correlationId }, { status: 500 });
   }
@@ -205,11 +204,10 @@ async function handleAttendance(base44, user, profileId, op, teamMemberId, isLoc
   }
 
   if (op === 'attendance_clock_in') {
-    // clock_in CREATES a new paid attendance record → requires the feature.
     if (isLockedFeature) {
       return Response.json({ error: 'Your current plan does not include the "attendance" feature. Please upgrade.', locked_feature: 'attendance' }, { status: 403 });
     }
-    // Prevent multiple open sessions for the same team member.
+    // Prevent multiple open sessions (reconciliation, not atomic).
     const open = await Attendance.filter({ team_member_id: teamMemberId, status: 'clocked_in' });
     if (open && open.length > 0) {
       return Response.json({ error: 'This team member already has an open attendance session', open_session_id: open[0].id }, { status: 409 });
@@ -218,37 +216,46 @@ async function handleAttendance(base44, user, profileId, op, teamMemberId, isLoc
     const created = await Attendance.create({
       profile_id: profileId,
       team_member_id: teamMemberId,
-      team_member_name: member.name,         // server-resolved, not client-supplied
-      clock_in: now.toISOString(),           // server-generated
-      date: now.toISOString().slice(0, 10),  // server-generated
-      status: 'clocked_in',                  // server-set
+      team_member_name: member.name,
+      clock_in: now.toISOString(),
+      date: now.toISOString().slice(0, 10),
+      status: 'clocked_in',
     });
     return Response.json({ record: created });
   }
 
-  // op === 'attendance_clock_out'
-  // clock_out COMPLETES an existing open session — allowed without the feature
-  // check (it is not creating/editing paid content; blocking it would leave
-  // phantom open sessions after a downgrade).
+  // op === 'attendance_clock_out' — allowed without the feature (completes a session).
   const open = await Attendance.filter({ team_member_id: teamMemberId, status: 'clocked_in' });
   if (!open || open.length === 0) {
     return Response.json({ error: 'No open attendance session for this team member' }, { status: 404 });
   }
   if (open.length > 1) {
+    await audit(base44, user, 'attendance_multiple_open_sessions', 'AttendanceLog', open[0].profile_id,
+      `member=${teamMemberId} open=${open.length}; admin must resolve`, correlationId);
     return Response.json({ error: 'Multiple open sessions detected — admin must resolve' }, { status: 409 });
   }
   const session = open[0];
   const clockOut = new Date();
   const hoursWorked = Math.max(0, (clockOut.getTime() - new Date(session.clock_in).getTime()) / 3600000);
   const updated = await Attendance.update(session.id, {
-    clock_out: clockOut.toISOString(),                       // server-generated
-    hours_worked: Math.round(hoursWorked * 100) / 100,       // server-calculated
-    status: 'clocked_out',                                    // server-set
+    clock_out: clockOut.toISOString(),
+    hours_worked: Math.round(hoursWorked * 100) / 100,
+    status: 'clocked_out',
   });
   return Response.json({ record: updated });
 }
 
-// ── Menu batch: validate all, then create all-or-nothing with rollback ───────
+// ── Menu batch: COMPENSATING operations (NOT a DB transaction) ────────────────
+// Base44 does not expose multi-record DB transactions to backend functions, so
+// this is NOT "all-or-nothing" in the transactional sense. Behavior:
+//   - Validate ALL items first; reject the batch on any validation error (no
+//     items are created when validation fails).
+//   - Create items sequentially; if a creation fails, attempt to delete every
+//     item created so far (compensating rollback).
+//   - If a compensating delete ALSO fails, write a recovery audit record
+//     (menu_batch_rollback_failed) listing the orphaned ids so an admin can
+//     reconcile. The caller receives a 500 with the orphan ids.
+// Do not describe this as transactional; it is best-effort compensation + audit.
 async function handleMenuBatch(base44, user, restaurantId, items, isLockedFeature, correlationId) {
   const MenuItem = base44.asServiceRole.entities.MenuItem;
   if (isLockedFeature) {
@@ -258,12 +265,23 @@ async function handleMenuBatch(base44, user, restaurantId, items, isLockedFeatur
     return Response.json({ error: 'items array required' }, { status: 400 });
   }
 
-  // Validate ALL items first; reject the whole batch on any validation error
-  // so onboarding never silently completes with a partial menu.
+  // Test affordance (harmless in production — no UI sends this): an item with
+  // `_test_fail_on_create: true` forces a synthetic create failure at that index
+  // AFTER prior items are created, to exercise the compensating-rollback path.
+  const failAtIndex = (() => {
+    for (let i = 0; i < items.length; i++) {
+      if (items[i] && items[i]._test_fail_on_create === true) return i;
+    }
+    return -1;
+  })();
+
+  // Validate ALL items; reject the whole batch on any validation error.
   const validated = [];
   const errors = [];
   for (let i = 0; i < items.length; i++) {
-    const { sanitized, errors: itemErrors } = validateEntityRecord('MenuItem', items[i], 'create');
+    const item = items[i];
+    if (i === failAtIndex) { validated.push({ __fail: true, index: i }); continue; }
+    const { sanitized, errors: itemErrors } = validateEntityRecord('MenuItem', item, 'create');
     if (itemErrors.length) { errors.push({ index: i, errors: itemErrors }); continue; }
     for (const f of ['name', 'price', 'category']) {
       if (sanitized[f] === undefined || sanitized[f] === null || sanitized[f] === '') {
@@ -276,20 +294,46 @@ async function handleMenuBatch(base44, user, restaurantId, items, isLockedFeatur
     return Response.json({ error: 'batch_validation_failed', errors }, { status: 400 });
   }
 
-  // Create all; rollback everything created on any failure (no partial success).
+  // Create sequentially with compensating rollback on failure.
   const createdIds = [];
-  try {
-    for (const payload of validated) {
-      const rec = await MenuItem.create(payload);
+  for (let i = 0; i < validated.length; i++) {
+    const v = validated[i];
+    if (v.__fail) {
+      // Synthetic create failure — exercise compensating rollback.
+      const orphanIds = [...createdIds];
+      const rollbackFailedIds = [];
+      for (const id of orphanIds) {
+        try { await MenuItem.delete(id); }
+        catch (de) { rollbackFailedIds.push(id); console.error(`[${correlationId}] menu rollback failed ${id}`, de.message); }
+      }
+      if (rollbackFailedIds.length > 0) {
+        await audit(base44, user, 'menu_batch_rollback_failed', 'MenuItem', restaurantId,
+          `created ${orphanIds.length} then failed at index ${i}; ORPHANED ids (delete failed): ${JSON.stringify(rollbackFailedIds)}`, correlationId);
+        return Response.json({ error: 'Menu creation failed; compensating rollback PARTIAL — orphaned items remain', orphan_ids: rollbackFailedIds, correlation_id: correlationId }, { status: 500 });
+      }
+      await audit(base44, user, 'menu_batch_rollback_ok', 'MenuItem', restaurantId,
+        `created ${orphanIds.length} then failed at index ${i}; all compensated (deleted)`, correlationId);
+      return Response.json({ error: 'Menu creation failed; all created items compensated (deleted)', created_then_rolled_back: orphanIds.length, correlation_id: correlationId }, { status: 500 });
+    }
+    try {
+      const rec = await MenuItem.create(v);
       createdIds.push(rec.id);
+    } catch (e) {
+      // Real create failure — compensating rollback + recovery audit.
+      const rollbackFailedIds = [];
+      for (const id of createdIds) {
+        try { await MenuItem.delete(id); }
+        catch (de) { rollbackFailedIds.push(id); console.error(`[${correlationId}] menu rollback failed ${id}`, de.message); }
+      }
+      if (rollbackFailedIds.length > 0) {
+        await audit(base44, user, 'menu_batch_rollback_failed', 'MenuItem', restaurantId,
+          `created ${createdIds.length} then failed: ${e.message}; ORPHANED ids (delete failed): ${JSON.stringify(rollbackFailedIds)}`, correlationId);
+        return Response.json({ error: 'Menu creation failed; compensating rollback PARTIAL — orphaned items remain', orphan_ids: rollbackFailedIds, correlation_id: correlationId }, { status: 500 });
+      }
+      await audit(base44, user, 'menu_batch_rollback_ok', 'MenuItem', restaurantId,
+        `created ${createdIds.length} then failed: ${e.message}; all compensated (deleted)`, correlationId);
+      return Response.json({ error: 'Menu creation failed; all created items compensated (deleted)', correlation_id: correlationId }, { status: 500 });
     }
-    return Response.json({ created: createdIds.length, ids: createdIds });
-  } catch (e) {
-    for (const id of createdIds) {
-      try { await MenuItem.delete(id); }
-      catch (de) { console.error(`[${correlationId}] menu batch rollback failed for ${id}`, de.message); }
-    }
-    await auditError(base44, user, 'menu_batch_rollback', 'MenuItem', restaurantId, `created ${createdIds.length} then failed: ${e.message}`, correlationId);
-    return Response.json({ error: 'Menu creation failed; all items rolled back', correlation_id: correlationId }, { status: 500 });
   }
+  return Response.json({ created: createdIds.length, ids: createdIds, note: 'compensating operations (not a DB transaction)' });
 }

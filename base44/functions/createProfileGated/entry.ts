@@ -150,10 +150,20 @@ Deno.serve(async (req) => {
     // ── Create ProfileAccess; rollback Profile on failure ──────────────────────
     let access;
     try {
+      // Resource-specific entitlement link: pin the Subscription + PlanEntitlement
+      // governing THIS profile so future authorization follows
+      // resource → access record → subscription → PlanEntitlement (not the owner's
+      // current account subscription alone).
+      const accessSource = subRec ? (subRec.status === 'trialing' ? 'trial' : 'stripe') : (createdDuringTrial ? 'trial' : 'legacy');
       access = await base44.asServiceRole.entities.ProfileAccess.create({
         profile_id: profile.id, owner_user_id: user.id, access_status: 'active',
         is_primary: willBePrimary, created_during_trial: createdDuringTrial,
         locked_at: null, lock_reason: '',
+        subscription_id: subRec?.id || null,
+        plan_name: plan,
+        entitlement_id: entitlement?.id || null,
+        expires_at: subRec?.current_period_end || null,
+        access_source: accessSource,
       });
     } catch (e) {
       console.error('ProfileAccess create failed — rollback Profile', profile.id, e.message);

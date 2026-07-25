@@ -137,3 +137,114 @@ export async function loadPlanEntitlement(base44, planName) {
   if (ents.length > 1) return { entitlement: null, error: 'conflict' };
   return { entitlement: ents[0], error: null };
 }
+
+// ── Resource-specific entitlement resolution ──────────────────────────────────
+// Authorization chain:  resource → access record → subscription/trial → PlanEntitlement
+//
+// Each ProfileAccess / RestaurantAccess may pin the specific Subscription
+// governing that resource (subscription_id), so one owner can hold resources on
+// different plans / trials / expiry dates. The resolver:
+//   1. Loads access records for the resource. Requires EXACTLY ONE active
+//      access record — zero → locked (fail closed), >1 → conflict (fail closed).
+//      (Restaurants with NO RestaurantAccess records yet fall back to the
+//       legacy owner-account path until backfilled — see `usedLegacyNoAccess`.)
+//   2. Resolves the effective plan:
+//        - access.subscription_id → load that Subscription by id (fail closed
+//          if the referenced subscription is missing)
+//        - else access.plan_name (admin_override / trial without Stripe sub)
+//        - else (legacy, no ref) → owner-account subscription fallback
+//      Honors access.expires_at (past expiry → locked for mutation).
+//   3. Loads the single active PlanEntitlement for the plan — fail closed on
+//      missing or duplicate.
+//
+// Returns { ok, status, error, reason, plan, entitlement, accessRecord,
+//           subscription, usedFallback, usedLegacyNoAccess }.
+//
+// PLATFORM LIMITATION (honest): Base44 does not expose DB transactions or
+// unique constraints to backend functions, so "exactly one active access
+// record" is enforced by a read filter, not a DB-level unique constraint.
+// Concurrent writes could in principle create a transient duplicate; the
+// duplicate is detected on the next resolution and fails closed. This is
+// deterministic reconciliation, not an atomic guarantee.
+export async function resolveResourceEntitlement(base44, opts) {
+  const { scope, scopeId, ownerEmailFallback } = opts; // 'profile' | 'restaurant'
+  const isRestaurant = scope === 'restaurant';
+  const AccessEntity = isRestaurant
+    ? base44.asServiceRole.entities.RestaurantAccess
+    : base44.asServiceRole.entities.ProfileAccess;
+  const filterKey = isRestaurant ? { restaurant_id: scopeId } : { profile_id: scopeId };
+
+  let accessRecord = null;
+  let usedLegacyNoAccess = false;
+  try {
+    const accessList = await AccessEntity.filter(filterKey);
+    if (accessList && accessList.length > 0) {
+      const active = accessList.filter((a) => a.access_status === 'active');
+      if (active.length === 0) {
+        return { ok: false, status: 403, error: 'resource_locked', reason: 'no_active_access' };
+      }
+      if (active.length > 1) {
+        return { ok: false, status: 409, error: 'access_conflict', reason: 'duplicate_active_access' };
+      }
+      accessRecord = active[0];
+    } else if (!isRestaurant) {
+      // Profiles REQUIRE an access record (fail closed). Restaurants fall back
+      // until RestaurantAccess is backfilled (legacy migration gate).
+      return { ok: false, status: 403, error: 'resource_locked', reason: 'no_access_record' };
+    } else {
+      usedLegacyNoAccess = true;
+    }
+  } catch (e) {
+    return { ok: false, status: 500, error: 'internal_error', reason: 'access_lookup_failed' };
+  }
+
+  // ── Resolve plan from the access record (or legacy fallback) ──
+  let planName = null;
+  let subscription = null;
+  let usedFallback = false;
+
+  if (accessRecord) {
+    if (accessRecord.expires_at && new Date(accessRecord.expires_at).getTime() < Date.now()) {
+      return { ok: false, status: 403, error: 'resource_locked', reason: 'entitlement_expired' };
+    }
+    if (accessRecord.subscription_id) {
+      try {
+        subscription = await base44.asServiceRole.entities.Subscription.get(accessRecord.subscription_id);
+      } catch { subscription = null; }
+      if (!subscription) {
+        return { ok: false, status: 403, error: 'entitlement_missing', reason: 'subscription_not_found' };
+      }
+      const { plan } = resolveEffectivePlan([subscription], accessRecord.owner_email || ownerEmailFallback);
+      planName = plan;
+    } else if (accessRecord.plan_name) {
+      planName = normalizePlan(accessRecord.plan_name);
+    } else {
+      // Legacy record without a ref → owner-account fallback (documented).
+      usedFallback = true;
+      const subs = ownerEmailFallback
+        ? await base44.asServiceRole.entities.Subscription.filter({ customer_email: ownerEmailFallback })
+        : [];
+      const { plan } = resolveEffectivePlan(subs, ownerEmailFallback);
+      planName = plan;
+    }
+  } else {
+    // Restaurant with no RestaurantAccess yet → legacy owner-account fallback.
+    usedFallback = true;
+    const subs = ownerEmailFallback
+      ? await base44.asServiceRole.entities.Subscription.filter({ customer_email: ownerEmailFallback })
+      : [];
+    const { plan } = resolveEffectivePlan(subs, ownerEmailFallback);
+    planName = plan;
+  }
+
+  // ── Exactly one active PlanEntitlement (fail closed) ──
+  const { entitlement, error: entError } = await loadPlanEntitlement(base44, planName);
+  if (entError === 'missing') {
+    return { ok: false, status: 403, error: 'entitlement_missing', reason: 'no_catalog_entitlement', plan: planName };
+  }
+  if (entError === 'conflict') {
+    return { ok: false, status: 409, error: 'entitlement_conflict', reason: 'duplicate_catalog_entitlement', plan: planName };
+  }
+
+  return { ok: true, plan: planName, entitlement, accessRecord, subscription, usedFallback, usedLegacyNoAccess };
+}
