@@ -8,7 +8,8 @@ const hexRgb = (hex, a = 1) => {
 };
 
 // Called from parent with onBookService(service) to open booking with pre-filled service
-export default function SalonServicesSection({ profileId, color = "#0b2149", isDark, onBookService }) {
+export default function SalonServicesSection({ profileId, color = "#0b2149", isDark, onBookService, mode = "salon" }) {
+  const businessMode = mode === "business";
   const { data: allServices = [], isLoading } = useQuery({
     queryKey: ["public-salon-services", profileId],
     queryFn: () => base44.entities.SalonService.filter({ profile_id: profileId }, "order", 100),
@@ -25,8 +26,8 @@ export default function SalonServicesSection({ profileId, color = "#0b2149", isD
   return (
     <div style={{ marginBottom: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span style={{ fontSize: 18 }}>✂️</span>
-        <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>Services</span>
+        <span style={{ fontSize: 18 }}>{businessMode ? "📦" : "✂️"}</span>
+        <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>{businessMode ? "Services & Products" : "Salon Services"}</span>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
