@@ -945,7 +945,6 @@ export default function ProfileWorkspace({
   isLawFirm,
   isSalon,
   lang: langProp,
-  initialTab = "info",
 }) {
   const qc = useQueryClient();
   const { plan: userPlan, subscription, isLoading: planIsLoading, isFetching: planIsFetching } = usePlan();
@@ -979,12 +978,7 @@ export default function ProfileWorkspace({
     return true;
   });
 
-  const [innerTab, setInnerTab] = useState(initialTab);
-  useEffect(() => {
-    if (INNER_TABS.some((tab) => tab.id === initialTab)) {
-      setInnerTab(initialTab);
-    }
-  }, [initialTab, profileId]);
+  const [innerTab, setInnerTab] = useState("info");
   useEffect(() => {
     if (!INNER_TABS.some((tab) => tab.id === innerTab)) setInnerTab("info");
   }, [innerTab, userPlan]);
