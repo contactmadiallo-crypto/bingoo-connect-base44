@@ -952,7 +952,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
   const lang = langProp || getLang();
 
-  const INNER_TABS = [
+  const allInnerTabs = [
     { id: "info",      label: t("info", lang),      icon: Info },
     { id: "design",    label: t("design", lang),    icon: Palette },
     { id: "links",     label: t("links", lang),     icon: Link2 },
@@ -962,8 +962,18 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     { id: "lostmode",  label: t("lost_mode", lang), icon: AlertOctagon },
     { id: "settings",  label: t("settings", lang),  icon: Settings },
   ];
+  const INNER_TABS = allInnerTabs.filter((tab) => {
+    if (user?.role === "admin") return true;
+    if (tab.id === "media") return canAccess(userPlan, "portfolio");
+    if (tab.id === "business") return canAccess(userPlan, "business_profile");
+    if (tab.id === "lostmode") return canAccess(userPlan, "lost_mode");
+    return true;
+  });
 
   const [innerTab, setInnerTab] = useState("info");
+  useEffect(() => {
+    if (!INNER_TABS.some((tab) => tab.id === innerTab)) setInnerTab("info");
+  }, [innerTab, userPlan]);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   // Track which tab triggered the current save (for post-save routing)
   const saveTabRef = useRef("info");
