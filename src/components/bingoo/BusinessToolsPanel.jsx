@@ -26,9 +26,9 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
     {
       id: "services",
       icon: Scissors,
-      title: profileType === TYPE_SALON ? "Service Menu" : "Services",
+      title: profileType === TYPE_SALON ? "Salon Service Menu" : "Services & Products",
       show: showServices,
-      render: () => <SalonServicesPanel profileId={profileId} isDark={isDark} onSaved={onSaved} />,
+      render: () => <SalonServicesPanel profileId={profileId} isDark={isDark} onSaved={onSaved} mode={profileType === TYPE_SALON ? "salon" : "business"} />,
     },
     {
       id: "team",
