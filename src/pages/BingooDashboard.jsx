@@ -11,6 +11,7 @@ const ConnectionsPanel = React.lazy(() => import("@/components/bingoo/Connection
 const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
+const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio"));
 // AppointmentSettings lazy import removed — now rendered inside AppointmentsTabMerged only
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
 const TeamMembersPanel = React.lazy(() => import("@/components/bingoo/TeamMembersPanel"));
@@ -833,25 +834,10 @@ export default function BingooDashboard() {
           )}
 
           {/* ════════════════════════════════════
-              DESIGN STUDIO — Profile builder and live preview
+              DESIGN STUDIO — NFC product designer
           ════════════════════════════════════ */}
           {view === VIEW_DESIGN && (
-            <div>
-              {!activeProfile ? (
-                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : (
-                <ProfileWorkspace
-                  profileId={activeProfile.id}
-                  user={user}
-                  onBack={() => setSearchParams({ view: VIEW_HOME, profileId: activeProfile.id })}
-                  isDark={isDark}
-                  isLawFirm={isLawFirm}
-                  isSalon={isSalon}
-                  lang={lang}
-                  initialTab="design"
-                />
-              )}
-            </div>
+            <DesignStudio isDark={isDark} />
           )}
 
           {/* ════════════════════════════════════
