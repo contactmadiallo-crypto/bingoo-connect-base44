@@ -141,13 +141,13 @@ export default function DesignPanel({
       {/* ── Horizontal section tabs (mobile + desktop) ── */
       <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
         <button type="button" onClick={() => setSection("theme")} aria-label="Theme section"
-          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold ${section === "theme" ? "text-white shadow-sm" : mutedText}`}
+          className={"flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold " + (section === "theme" ? "text-white shadow-sm" : mutedText)}
           style={section === "theme" ? { background: "#0b2149" } : {}}><Sparkles className="w-3.5 h-3.5" />Theme</button>
         <button type="button" onClick={() => setSection("general")} aria-label="General section"
-          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold ${section === "general" ? "text-white shadow-sm" : mutedText}`}
+          className={"flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold " + (section === "general" ? "text-white shadow-sm" : mutedText)}
           style={section === "general" ? { background: "#0b2149" } : {}}><Palette className="w-3.5 h-3.5" />General</button>
         <button type="button" onClick={() => setSection("layout")} aria-label="Layout section"
-          className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold ${section === "layout" ? "text-white shadow-sm" : mutedText}`}
+          className={"flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold " + (section === "layout" ? "text-white shadow-sm" : mutedText)}
           style={section === "layout" ? { background: "#0b2149" } : {}}><Layout className="w-3.5 h-3.5" />Layout</button>
       </div>
 
