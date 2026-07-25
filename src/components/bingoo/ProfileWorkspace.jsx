@@ -985,7 +985,7 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
 
   const { data: profile, isLoading, refetch: refetchProfile } = useQuery({
     queryKey: ["profile-ws", profileId],
-    queryFn: () => base44.entities.Profile.get(profileId),
+    queryFn: () => base44.functions.invoke("getMyProfiles", { profile_id: profileId }).then((res) => res.data?.profile),
     enabled: !!profileId,
     staleTime: 60000,        // Don't background-refetch while user is editing
     refetchOnWindowFocus: false,
@@ -1050,10 +1050,12 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     mutationFn: async () => {
       if (!profileId || !liveForm) throw new Error("No profile loaded");
       const payload = buildPayload(liveForm);
-      // 1. Send the update
-      await base44.entities.Profile.update(profileId, payload);
-      // 2. Refetch from server to verify persistence
-      const fresh = await base44.entities.Profile.get(profileId);
+      // 1. Send the update through the ownership-aware backend gate.
+      const updateResponse = await base44.functions.invoke("updateProfileGated", { profile_id: profileId, data: payload });
+      // 2. Refetch through the same ProfileAccess ownership path to verify persistence.
+      const freshResponse = await base44.functions.invoke("getMyProfiles", { profile_id: profileId });
+      const fresh = freshResponse.data?.profile || updateResponse.data?.profile;
+      if (!fresh) throw new Error("Profile could not be reloaded after saving.");
       // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
