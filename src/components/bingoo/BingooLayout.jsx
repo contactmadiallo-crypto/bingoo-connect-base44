@@ -160,6 +160,18 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
         )}
       </nav>
       <div className="px-3 py-4 flex-shrink-0" style={{ borderTop: `1px solid ${sidebarBorder}` }}>
+        {(!accountPlan || accountPlan === "free") && !isAdmin && (
+          <Link to="/pricing" onClick={onNav}
+            className="mb-3 block rounded-xl border border-orange-400/30 p-3 text-white"
+            style={{ background: "linear-gradient(135deg, rgba(249,115,22,.24), rgba(253,186,33,.12))" }}>
+            <div className="flex items-center gap-2 text-sm font-black">
+              <Briefcase className="w-4 h-4 text-orange-300" /> Upgrade to Pro
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-white/60">
+              Unlock media, portfolio, analytics, appointments, and premium layouts.
+            </p>
+          </Link>
+        )}
         <button onClick={toggle} aria-label="Toggle dark mode"
           className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm font-semibold mb-3 transition-all text-white border border-white/10"
           style={{ background: "rgba(255,255,255,0.08)" }}>
