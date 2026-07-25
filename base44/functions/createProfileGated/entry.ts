@@ -35,8 +35,8 @@ async function loadValidActiveAccess(base44, userId) {
   const valid = [];
   for (const row of ownedActive) {
     const profile = await base44.asServiceRole.entities.Profile.get(row.profile_id).catch(() => null);
-    if (!profile || profile.created_by_id !== userId || profile.is_active === false) {
-      console.warn(`Ignoring orphaned or mismatched ProfileAccess ${row.id} for user ${userId}`);
+    if (!profile || profile.is_active === false) {
+      console.warn(`Ignoring orphaned ProfileAccess ${row.id} for user ${userId}`);
       continue;
     }
     valid.push(row);
