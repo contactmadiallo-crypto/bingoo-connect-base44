@@ -1,0 +1,76 @@
+{
+  "name": "ProfileCreationRequest",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Owner user ID initiating the creation"
+    },
+    "idempotency_key": {
+      "type": "string",
+      "description": "Client-supplied idempotency key (uuid recommended)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "in_progress",
+        "completed",
+        "failed"
+      ],
+      "default": "in_progress"
+    },
+    "profile_id": {
+      "type": "string",
+      "description": "Created Profile id when status=completed"
+    },
+    "payload_hash": {
+      "type": "string",
+      "description": "SHA-256 of the canonical sanitized payload, for conflict detection on retry"
+    },
+    "error": {
+      "type": "string",
+      "description": "Failure reason when status=failed"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "idempotency_key"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

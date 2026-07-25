@@ -1,0 +1,67 @@
+{
+  "name": "PlanEntitlement",
+  "type": "object",
+  "properties": {
+    "plan_name": {
+      "type": "string",
+      "enum": [
+        "free",
+        "professional",
+        "business",
+        "salon",
+        "restaurant",
+        "lawfirm",
+        "corporate"
+      ]
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "maximum_active_profiles": {
+      "type": "number",
+      "default": 1
+    },
+    "maximum_links": {
+      "type": "number",
+      "default": 5,
+      "description": "-1 = unlimited"
+    },
+    "available_layout_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "plan_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -33,23 +33,19 @@ export default function VerifiedBadgesPanel({ profile, isDark, user }) {
     setRequesting(true);
     setMessage("");
     try {
-      // Create a support ticket for verification
-      await base44.entities.SupportTicket.create({
-        user_id: user?.id || "",
-        user_email: user?.email || "",
-        user_name: user?.full_name || profile?.display_name || "",
-        subject: "Profile Verification Request",
-        message: `Requesting verification for profile: ${profile.display_name} (@${profile.username}). Plan: ${profile.plan}. Job: ${profile.job_title || "N/A"}. Company: ${profile.company_name || "N/A"}.`,
-        category: "verification",
-        priority: "medium",
-        status: "open",
+      const res = await base44.functions.invoke("submitVerificationRequest", {
+        profile_id: profile.id,
+        verification_type: "identity",
+        evidence: {
+          description: `Identity verification request for ${profile.display_name} (@${profile.username}). Job: ${profile.job_title || "N/A"}. Company: ${profile.company_name || "N/A"}.`,
+        },
       });
-      // Update profile to pending
-      await base44.entities.Profile.update(profile.id, {
-        verification_status: "pending",
-      });
-      setMessage("Verification request submitted! Our team will review within 2-3 business days.");
-      queryClient.invalidateQueries({ queryKey: ["profiles"] });
+      if (res?.data?.success) {
+        setMessage("Verification request submitted! Our team will review within 2-3 business days.");
+        queryClient.invalidateQueries({ queryKey: ["profiles"] });
+      } else {
+        setMessage(res?.data?.error ? `Couldn't submit: ${res.data.error}` : "Couldn't submit request. Please try again.");
+      }
     } catch (e) {
       setMessage("Couldn't submit request. Please try again.");
     }
@@ -60,6 +56,9 @@ export default function VerifiedBadgesPanel({ profile, isDark, user }) {
     setSavingPrivacy(key);
     const newSettings = { ...privacy, [key]: !privacy[key] };
     try {
+      // NOTE: routes through updateProfileGated once PlanEntitlement is seeded in
+      // production (gated migration step). Until then, direct Profile.update keeps
+      // privacy toggles working for all plans.
       await base44.entities.Profile.update(profile.id, { privacy_settings: newSettings });
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
     } catch (e) {

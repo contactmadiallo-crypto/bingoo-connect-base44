@@ -52,6 +52,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'You do not own this profile' }, { status: 403 });
     }
 
+    // Reject writes to locked/archived profiles (trial_locked or archived access).
+    const access = (await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id }))[0];
+    if (!access || access.access_status !== 'active') {
+      return Response.json({ error: `Profile is ${access?.access_status || 'locked'}` }, { status: 403 });
+    }
+
     // ── Entitlement: invoke getUserFeatures (single server-side authority) ──────
     // Eliminates the redundant PLAN_FEATURES copy — getUserFeatures resolves the
     // plan from the Subscription entity and returns the authoritative feature list.

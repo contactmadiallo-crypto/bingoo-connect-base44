@@ -1,0 +1,71 @@
+{
+  "name": "ProfileAccess",
+  "type": "object",
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "description": "Linked Profile id"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Owner user ID"
+    },
+    "access_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "trial_locked",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false
+    },
+    "created_during_trial": {
+      "type": "boolean",
+      "default": false
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lock_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "profile_id",
+    "owner_user_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
