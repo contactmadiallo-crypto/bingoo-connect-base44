@@ -299,7 +299,7 @@ export default function BingooDashboard() {
 
   const { data: profiles = [], isLoading: profilesLoading, refetch: refetchProfiles } = useQuery({
     queryKey: ["my-profile", user?.id],
-    queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
+    queryFn: () => base44.functions.invoke("getMyProfiles", {}).then((res) => res.data?.profiles || []),
     enabled: !!user?.id,
   });
 
