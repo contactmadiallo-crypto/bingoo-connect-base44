@@ -4,9 +4,6 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle, CreditCard, ShieldAlert, RefreshCw } from "lucide-react";
-import { FIREBASE_NOTIFICATIONS_ENABLED } from "@/lib/featureFlags";
-import { useFirestoreNotifications } from "@/hooks/useFirestoreNotifications";
-// Note: firebase.js uses dynamic imports internally — no static firebase/* imports here.
 
 const EVENT_ICONS = {
   new_lead: Star,
@@ -45,8 +42,7 @@ export default function NotificationCenter({ userId, isDark }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
 
-  // ── Base44 source (always fetched; is the default and fallback) ──
-  const { data: base44Notifications = [], isLoading, isError } = useQuery({
+  const { data: notifications = [], isLoading, isError } = useQuery({
     queryKey: ["bingoo-notifications", userId],
     queryFn: () => base44.entities.BingooNotification.filter({ user_id: userId }, "-created_date", 50),
     enabled: !!userId,
@@ -54,7 +50,7 @@ export default function NotificationCenter({ userId, isDark }) {
     staleTime: 0,
   });
 
-  // Base44 real-time subscription (always active)
+  // Base44 is the single notification source.
   useEffect(() => {
     if (!userId) return;
     const unsub = base44.entities.BingooNotification.subscribe((event) => {
@@ -74,29 +70,13 @@ export default function NotificationCenter({ userId, isDark }) {
     return () => unsub();
   }, [userId]);
 
-  // ── Firestore shadow source (POC — only used when flag is true) ──
-  // Hook always runs (React rules) but returns empty array when flag is false or Firebase not configured.
-  const { notifications: firestoreNotifications, error: firestoreError } = useFirestoreNotifications(
-    FIREBASE_NOTIFICATIONS_ENABLED ? userId : null
-  );
-
-  // ── Active source selection ──
-  // If flag is true AND Firestore returned data without error, use Firestore.
-  // Otherwise always fall back to Base44.
-  const notifications =
-    FIREBASE_NOTIFICATIONS_ENABLED && !firestoreError && firestoreNotifications.length > 0
-      ? firestoreNotifications
-      : base44Notifications;
-
   const markReadMutation = useMutation({
-    // markRead always writes to Base44 regardless of read source.
-    // Firestore mark-read is out of scope for this POC.
     mutationFn: (id) => base44.entities.BingooNotification.update(id, { is_read: true }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] }),
   });
 
   const markAllRead = async () => {
-    const unread = base44Notifications.filter(n => !n.is_read);
+    const unread = notifications.filter(n => !n.is_read);
     await Promise.all(unread.map(n => base44.entities.BingooNotification.update(n.id, { is_read: true })));
     qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
   };
