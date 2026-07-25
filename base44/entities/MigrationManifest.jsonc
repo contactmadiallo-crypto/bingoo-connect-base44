@@ -1,0 +1,85 @@
+{
+  "name": "MigrationManifest",
+  "type": "object",
+  "properties": {
+    "manifest_id": {
+      "type": "string",
+      "description": "UUID generated at apply time"
+    },
+    "migration_version": {
+      "type": "string",
+      "description": "e.g. v2"
+    },
+    "manifest_hash": {
+      "type": "string",
+      "description": "sha256 of the canonical manifest applied"
+    },
+    "state_hash": {
+      "type": "string",
+      "description": "sha256 of the live production state at apply time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "failed",
+        "rolled_back"
+      ],
+      "default": "applied"
+    },
+    "manifest_json": {
+      "type": "string",
+      "description": "Full canonical manifest (catalog + access + decisions) stored for audit. Restricted to admins."
+    },
+    "created_entitlement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "created_access_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "applied_by": {
+      "type": "string",
+      "description": "Admin user id who ran apply"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error": {
+      "type": "string",
+      "description": "Failure detail if status=failed"
+    }
+  },
+  "required": [
+    "manifest_id",
+    "manifest_hash"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
