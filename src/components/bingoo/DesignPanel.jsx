@@ -120,26 +120,26 @@ export default function DesignPanel({
 
   return (
     <div className="space-y-4">
-      <div className={`rounded-3xl border ${border} ${bg} p-5 sm:p-6`}>
+      <div className={"rounded-3xl border p-5 sm:p-6 " + border + " " + bg}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-[10px] font-black tracking-[0.18em] uppercase text-orange-500">Profile Design Studio</span>
-              <span className={`w-2 h-2 rounded-full ${hasChanges ? "bg-amber-400" : "bg-emerald-500"}`} />
-              <span className={`text-[10px] font-bold ${mutedText}`}>{hasChanges ? "Unsaved changes" : "All changes saved"}</span>
+              <span className={"w-2 h-2 rounded-full " + (hasChanges ? "bg-amber-400" : "bg-emerald-500")} />
+              <span className={"text-[10px] font-bold " + mutedText}>{hasChanges ? "Unsaved changes" : "All changes saved"}</span>
             </div>
-            <h2 className={`text-xl sm:text-2xl font-black ${headText}`}>Shape your public profile</h2>
-            <p className={`text-xs sm:text-sm mt-1 ${mutedText}`}>Choose a layout, tune the visual system, and preview every change before publishing.</p>
+            <h2 className={"text-xl sm:text-2xl font-black " + headText}>Shape your public profile</h2>
+            <p className={"text-xs sm:text-sm mt-1 " + mutedText}>Choose a layout, tune the visual system, and preview every change before publishing.</p>
           </div>
           <button type="button" onClick={onPreview}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black transition-all ${isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
+            className={"flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-black transition-all " + (isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50")}>
             <Eye className="w-4 h-4" /> Preview
           </button>
         </div>
       </div>
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */
-      <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
+      <div className={"flex gap-1 p-1 rounded-2xl " + (isDark ? "bg-white/5" : "bg-slate-100")}>
         <button type="button" onClick={() => setSection("theme")} aria-label="Theme section"
           className={"flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold " + (section === "theme" ? "text-white shadow-sm" : mutedText)}
           style={section === "theme" ? { background: "#0b2149" } : {}}><Sparkles className="w-3.5 h-3.5" />Theme</button>
