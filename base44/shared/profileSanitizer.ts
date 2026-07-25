@@ -1,11 +1,13 @@
 // base44/shared/profileSanitizer.ts
 // Entitlement-driven sanitizer for Profile create/update.
-// Single source of truth for field gating, URL validation, link limits, and
-// public/owner response shaping. Imported by createProfileGated and updateProfileGated.
+// Single source of truth for field gating, URL/color validation, link limits,
+// and public/owner response shaping. Imported by createProfileGated and
+// updateProfileGated.
+
+import { LAYOUT_IDS } from './layoutRegistry.ts';
 
 export const MAX_LINKS_UNLIMITED = -1;
 
-// Reserved usernames (collide with app routes / system names).
 export const RESERVED_USERNAMES = new Set([
   'admin','api','bingoo','app','login','register','reset-password','forgot-password',
   'settings','support','n','p','firm','r','resume','lost','asset','a','shop','cart',
@@ -26,7 +28,7 @@ const VALID_PROFILE_THEMES = new Set(['modern','classic','glassmorphic']);
 const VALID_PROFILE_LAYOUTS = new Set(['default','ny_championship','lions_teranga']);
 const VALID_LANGUAGES = new Set(['en','fr']);
 const VALID_PRIVACY_KEYS = new Set(['hide_email','show_phone_verified_only','block_search_engines','require_nfc_tap']);
-const VALID_VERIFICATION_TYPES = new Set(['none','identity','business','both']);
+const DAY_KEYS = new Set(['monday','tuesday','wednesday','thursday','friday','saturday','sunday']);
 
 // ── Never client-writable (admin/backend only) ─────────────────────────────────
 export const NEVER_WRITABLE = new Set([
@@ -58,7 +60,6 @@ export const BUSINESS_ADDITIONAL = new Set([
 export const PROFESSIONAL_FIELDS = new Set([...FREE_FIELDS, ...PROFESSIONAL_ADDITIONAL]);
 export const BUSINESS_FIELDS = new Set([...PROFESSIONAL_FIELDS, ...BUSINESS_ADDITIONAL]);
 
-// Feature key required to write a non-free field. Free-set fields require no feature.
 const FIELD_REQUIRES_FEATURE = {
   profile_photo: 'custom_branding',
   cover_photo: 'custom_branding',
@@ -86,21 +87,56 @@ const FIELD_REQUIRES_FEATURE = {
   business_hours: 'business_hours',
 };
 
-// ── URL validation ────────────────────────────────────────────────────────────
+// ── Validators ────────────────────────────────────────────────────────────────
 const WEB_PROTOCOLS = ['http:', 'https:'];
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[+]?[0-9\s\-().]{4,30}$/;
+const HEX_COLOR_RE = /^#([0-9a-fA-F]{6})$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function isUrl(value, protocols) {
   if (typeof value !== 'string' || value.length === 0 || value.length > 2048) return false;
   try { const u = new URL(value); return protocols.includes(u.protocol); } catch { return false; }
 }
 
+function isHexColor(value) {
+  return typeof value === 'string' && HEX_COLOR_RE.test(value);
+}
+
 function validateOptionalUrl(value, field, protocols, errors) {
-  if (value === undefined || value === null || value === '') return undefined; // allow clear
+  if (value === undefined || value === null || value === '') return undefined;
   if (!isUrl(value, protocols)) errors.push({ field, error: 'invalid_url' });
   return value;
 }
 
-// ── Username normalization ─────────────────────────────────────────────────────
+function validateColor(value, field, errors) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (!isHexColor(value)) { errors.push({ field, error: 'invalid_color' }); return undefined; }
+  return value;
+}
+
+function clampString(value, field, max, errors) {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string') { errors.push({ field, error: 'must_be_string' }); return undefined; }
+  if (value.length > max) { errors.push({ field, error: 'too_long', max }); return value.slice(0, max); }
+  return value;
+}
+
+function validateEmail(value, field, errors) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || value.length > 254 || !EMAIL_RE.test(value)) {
+    errors.push({ field, error: 'invalid_email' }); return undefined;
+  }
+  return value;
+}
+
+function validatePhone(value, field, errors) {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (typeof value !== 'string' || !PHONE_RE.test(value)) { errors.push({ field, error: 'invalid_phone' }); return undefined; }
+  return value;
+}
+
+// ── Username ──────────────────────────────────────────────────────────────────
 export function normalizeUsername(raw) {
   if (typeof raw !== 'string') return '';
   return raw.toLowerCase().trim().replace(/[^a-z0-9_-]/g, '');
@@ -111,11 +147,11 @@ export function validateUsername(raw, { mode, currentProfile }, errors) {
   if (!n) { errors.push({ field: 'username', error: 'required' }); return undefined; }
   if (n.length < 3 || n.length > 30) { errors.push({ field: 'username', error: 'length' }); return undefined; }
   if (RESERVED_USERNAMES.has(n)) { errors.push({ field: 'username', error: 'reserved' }); return undefined; }
-  if (mode === 'update' && currentProfile && n === currentProfile.username) return n; // unchanged
+  if (mode === 'update' && currentProfile && n === currentProfile.username) return n;
   return n;
 }
 
-// ── custom_links validation ───────────────────────────────────────────────────
+// ── custom_links ──────────────────────────────────────────────────────────────
 function validateCustomLinks(raw, maxLinks, errors) {
   if (!Array.isArray(raw)) { errors.push({ field: 'custom_links', error: 'must_be_array' }); return undefined; }
   const cleaned = [];
@@ -124,14 +160,14 @@ function validateCustomLinks(raw, maxLinks, errors) {
     if (!item || typeof item !== 'object') { errors.push({ field: `custom_links[${i}]`, error: 'invalid_entry' }); continue; }
     const label = typeof item.label === 'string' ? item.label.trim() : '';
     const url = typeof item.url === 'string' ? item.url.trim() : '';
-    const enabled = item.enabled !== false; // default true
+    const enabled = item.enabled !== false;
     const id = typeof item.id === 'string' ? item.id : '';
     const catalogId = typeof item._catalog_id === 'string' ? item._catalog_id : '';
     const category = typeof item.category === 'string' ? item.category : '';
-    if (label.length < 1 || label.length > 60) { errors.push({ field: `custom_links[${i}].label`, error: 'label_length' }); }
-    if (!isUrl(url, WEB_PROTOCOLS)) { errors.push({ field: `custom_links[${i}].url`, error: 'invalid_url' }); }
-    if (catalogId.length > 80) { errors.push({ field: `custom_links[${i}]._catalog_id`, error: 'too_long' }); }
-    if (category.length > 40) { errors.push({ field: `custom_links[${i}].category`, error: 'too_long' }); }
+    if (label.length < 1 || label.length > 60) errors.push({ field: `custom_links[${i}].label`, error: 'label_length' });
+    if (!isUrl(url, WEB_PROTOCOLS)) errors.push({ field: `custom_links[${i}].url`, error: 'invalid_url' });
+    if (catalogId.length > 80) errors.push({ field: `custom_links[${i}]._catalog_id`, error: 'too_long' });
+    if (category.length > 40) errors.push({ field: `custom_links[${i}].category`, error: 'too_long' });
     cleaned.push({ id, label, url, enabled, _catalog_id: catalogId, category });
   }
   if (maxLinks !== MAX_LINKS_UNLIMITED && cleaned.length > maxLinks) {
@@ -140,17 +176,22 @@ function validateCustomLinks(raw, maxLinks, errors) {
   return cleaned;
 }
 
-// ── custom_payments validation ────────────────────────────────────────────────
+// ── custom_payments (nonempty label + valid URL; drop empty entries) ──────────
 function validateCustomPayments(raw, errors) {
-  if (!Array.isArray(raw)) return undefined; // optional
+  if (!Array.isArray(raw)) return undefined;
   const cleaned = [];
   for (let i = 0; i < raw.length; i++) {
     const item = raw[i];
     if (!item || typeof item !== 'object') { errors.push({ field: `custom_payments[${i}]`, error: 'invalid_entry' }); continue; }
-    const label = typeof item.label === 'string' ? item.label.trim().slice(0, 60) : '';
+    const label = typeof item.label === 'string' ? item.label.trim() : '';
     const emoji = typeof item.emoji === 'string' ? item.emoji.slice(0, 8) : '';
     const link = typeof item.link === 'string' ? item.link.trim() : '';
     const qr = typeof item.qr === 'string' ? item.qr.trim() : '';
+    // Require nonempty label.
+    if (label.length < 1 || label.length > 60) errors.push({ field: `custom_payments[${i}].label`, error: 'label_length' });
+    // Filter disabled entries (no link AND no qr) — silent drop, no error.
+    if (!link && !qr) continue;
+    // At least one valid URL required; invalid present URLs error.
     if (link && !isUrl(link, WEB_PROTOCOLS)) errors.push({ field: `custom_payments[${i}].link`, error: 'invalid_url' });
     if (qr && !isUrl(qr, WEB_PROTOCOLS)) errors.push({ field: `custom_payments[${i}].qr`, error: 'invalid_url' });
     cleaned.push({ label, emoji, link, qr });
@@ -158,7 +199,7 @@ function validateCustomPayments(raw, errors) {
   return cleaned;
 }
 
-// ── privacy_settings validation ───────────────────────────────────────────────
+// ── privacy_settings ──────────────────────────────────────────────────────────
 function validatePrivacySettings(raw, errors) {
   if (raw === undefined || raw === null) return undefined;
   if (typeof raw !== 'object' || Array.isArray(raw)) { errors.push({ field: 'privacy_settings', error: 'invalid_object' }); return undefined; }
@@ -170,18 +211,53 @@ function validatePrivacySettings(raw, errors) {
   return out;
 }
 
-// ── Enum field validation helper ──────────────────────────────────────────────
+// ── business_hours (deep) ─────────────────────────────────────────────────────
+function validateBusinessHours(raw, errors) {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) { errors.push({ field: 'business_hours', error: 'invalid_object' }); return undefined; }
+  const out = {};
+  for (const [day, val] of Object.entries(raw)) {
+    if (!DAY_KEYS.has(day)) { errors.push({ field: `business_hours.${day}`, error: 'unknown_day' }); continue; }
+    if (val === null || val === '' || val === 'closed') { out[day] = { closed: true }; continue; }
+    if (typeof val !== 'object' || Array.isArray(val)) { errors.push({ field: `business_hours.${day}`, error: 'invalid_entry' }); continue; }
+    const open = typeof val.open === 'string' ? val.open : '';
+    const close = typeof val.close === 'string' ? val.close : '';
+    const closed = val.closed === true || (!open && !close);
+    if (!closed) {
+      if (!TIME_RE.test(open)) errors.push({ field: `business_hours.${day}.open`, error: 'invalid_time' });
+      if (!TIME_RE.test(close)) errors.push({ field: `business_hours.${day}.close`, error: 'invalid_time' });
+    }
+    const extra = Object.keys(val).filter((k) => !['open','close','closed'].includes(k));
+    if (extra.length) errors.push({ field: `business_hours.${day}`, error: 'unknown_keys', keys: extra });
+    out[day] = { open: open || null, close: close || null, closed };
+  }
+  return out;
+}
+
+// ── booking_restricted_emails (deep) ──────────────────────────────────────────
+function validateBookingRestrictedEmails(raw, errors) {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw)) { errors.push({ field: 'booking_restricted_emails', error: 'must_be_array' }); return undefined; }
+  if (raw.length > 200) { errors.push({ field: 'booking_restricted_emails', error: 'too_many' }); return undefined; }
+  const out = [];
+  for (let i = 0; i < raw.length; i++) {
+    const e = raw[i];
+    if (typeof e !== 'string' || !EMAIL_RE.test(e) || e.length > 254) { errors.push({ field: `booking_restricted_emails[${i}]`, error: 'invalid_email' }); continue; }
+    out.push(e.toLowerCase());
+  }
+  return out;
+}
+
 function validateEnum(value, field, allowed, errors) {
   if (value === undefined || value === null || value === '') return undefined;
   if (!allowed.has(value)) { errors.push({ field, error: 'invalid_enum' }); return undefined; }
   return value;
 }
 
-// ── Field allow decision ───────────────────────────────────────────────────────
 function fieldAllowedForPlan(field, planFeatures) {
   if (FREE_FIELDS.has(field)) return true;
   const required = FIELD_REQUIRES_FEATURE[field];
-  if (!required) return false; // field not modeled → closed
+  if (!required) return false;
   return Array.isArray(planFeatures) && planFeatures.includes(required);
 }
 
@@ -205,50 +281,28 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
         if (mode === 'create' || (currentProfile && normalizeUsername(value) !== currentProfile.username)) {
           const u = validateUsername(value, { mode, currentProfile }, errors);
           if (u !== undefined) sanitized.username = u;
-        } else if (mode === 'update') {
-          // unchanged username — skip
         }
         continue;
-      case 'profile_type':
-        sanitized.profile_type = validateEnum(value, 'profile_type', VALID_PROFILE_TYPES, errors) ?? 'personal';
-        continue;
-      case 'language':
-        sanitized.language = validateEnum(value, 'language', VALID_LANGUAGES, errors) ?? 'en';
-        continue;
-      case 'avatar_shape':
-        sanitized.avatar_shape = validateEnum(value, 'avatar_shape', VALID_AVATAR_SHAPES, errors);
-        continue;
-      case 'avatar_placement':
-        sanitized.avatar_placement = validateEnum(value, 'avatar_placement', VALID_AVATAR_PLACEMENTS, errors);
-        continue;
-      case 'avatar_position':
-        sanitized.avatar_position = validateEnum(value, 'avatar_position', VALID_AVATAR_POSITIONS, errors);
-        continue;
-      case 'cover_position':
-        sanitized.cover_position = validateEnum(value, 'cover_position', VALID_COVER_POSITIONS, errors);
-        continue;
-      case 'bg_style':
-        sanitized.bg_style = validateEnum(value, 'bg_style', VALID_BG_STYLES, errors);
-        continue;
-      case 'button_style':
-        sanitized.button_style = validateEnum(value, 'button_style', VALID_BUTTON_STYLES, errors);
-        continue;
-      case 'profile_theme':
-        sanitized.profile_theme = validateEnum(value, 'profile_theme', VALID_PROFILE_THEMES, errors);
-        continue;
-      case 'profile_layout':
-        sanitized.profile_layout = validateEnum(value, 'profile_layout', VALID_PROFILE_LAYOUTS, errors);
-        continue;
-      case 'layout':
-        if (typeof value !== 'string' || value.length > 60) { errors.push({ field: 'layout', error: 'invalid' }); continue; }
+      case 'profile_type': sanitized.profile_type = validateEnum(value, 'profile_type', VALID_PROFILE_TYPES, errors) ?? 'personal'; continue;
+      case 'language': sanitized.language = validateEnum(value, 'language', VALID_LANGUAGES, errors) ?? 'en'; continue;
+      case 'avatar_shape': sanitized.avatar_shape = validateEnum(value, 'avatar_shape', VALID_AVATAR_SHAPES, errors); continue;
+      case 'avatar_placement': sanitized.avatar_placement = validateEnum(value, 'avatar_placement', VALID_AVATAR_PLACEMENTS, errors); continue;
+      case 'avatar_position': sanitized.avatar_position = validateEnum(value, 'avatar_position', VALID_AVATAR_POSITIONS, errors); continue;
+      case 'cover_position': sanitized.cover_position = validateEnum(value, 'cover_position', VALID_COVER_POSITIONS, errors); continue;
+      case 'bg_style': sanitized.bg_style = validateEnum(value, 'bg_style', VALID_BG_STYLES, errors); continue;
+      case 'button_style': sanitized.button_style = validateEnum(value, 'button_style', VALID_BUTTON_STYLES, errors); continue;
+      case 'profile_theme': sanitized.profile_theme = validateEnum(value, 'profile_theme', VALID_PROFILE_THEMES, errors); continue;
+      case 'profile_layout': sanitized.profile_layout = validateEnum(value, 'profile_layout', VALID_PROFILE_LAYOUTS, errors); continue;
+      case 'layout': {
+        if (typeof value !== 'string' || !LAYOUT_IDS.has(value)) { errors.push({ field: 'layout', error: 'invalid_layout' }); continue; }
         if (availableLayouts && !availableLayouts.includes(value)) { errors.push({ field: 'layout', error: 'layout_not_available', value }); continue; }
         sanitized.layout = value;
         continue;
+      }
       case 'show_location':
       case 'booking_enabled':
       case 'qr_watermark':
-        sanitized[key] = !!value;
-        continue;
+        sanitized[key] = !!value; continue;
       case 'bg_watermark_opacity':
         if (typeof value === 'number' && value >= 0 && value <= 100) sanitized[key] = value;
         else errors.push({ field: key, error: 'out_of_range' });
@@ -257,41 +311,37 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
         if (typeof value === 'number' && value >= 5 && value <= 480) sanitized[key] = value;
         else errors.push({ field: key, error: 'out_of_range' });
         continue;
-      case 'website':
-      case 'facebook_url':
-      case 'instagram_url':
-      case 'tiktok_url':
-      case 'linkedin_url':
-      case 'youtube_url':
-      case 'google_review_url':
-      case 'payment_link':
-      case 'profile_photo':
-      case 'cover_photo':
-      case 'company_logo':
-      case 'theme_background_color':
-      case 'bg_watermark_image':
-        sanitized[key] = validateOptionalUrl(value, key, WEB_PROTOCOLS, errors);
-        continue;
-      case 'custom_links':
-        sanitized.custom_links = validateCustomLinks(value, maxLinks, errors);
-        continue;
-      case 'custom_payments':
-        sanitized.custom_payments = validateCustomPayments(value, errors);
-        continue;
-      case 'privacy_settings':
-        sanitized.privacy_settings = validatePrivacySettings(value, errors);
-        continue;
-      case 'business_hours':
-      case 'booking_restricted_emails':
-        // Pass through structured objects/arrays without deep validation (shape enforced by UI).
-        sanitized[key] = value;
-        continue;
-      case 'whatsapp_booking_message':
-        if (typeof value === 'string' && value.length <= 1000) sanitized[key] = value;
-        else errors.push({ field: key, error: 'too_long' });
-        continue;
+      case 'cover_color': sanitized.cover_color = validateColor(value, 'cover_color', errors); continue;
+      case 'qr_color': sanitized.qr_color = validateColor(value, 'qr_color', errors); continue;
+      case 'theme_background_color': sanitized.theme_background_color = validateColor(value, 'theme_background_color', errors); continue;
+      case 'website': sanitized.website = validateOptionalUrl(value, 'website', WEB_PROTOCOLS, errors); continue;
+      case 'facebook_url': sanitized.facebook_url = validateOptionalUrl(value, 'facebook_url', WEB_PROTOCOLS, errors); continue;
+      case 'instagram_url': sanitized.instagram_url = validateOptionalUrl(value, 'instagram_url', WEB_PROTOCOLS, errors); continue;
+      case 'tiktok_url': sanitized.tiktok_url = validateOptionalUrl(value, 'tiktok_url', WEB_PROTOCOLS, errors); continue;
+      case 'linkedin_url': sanitized.linkedin_url = validateOptionalUrl(value, 'linkedin_url', WEB_PROTOCOLS, errors); continue;
+      case 'youtube_url': sanitized.youtube_url = validateOptionalUrl(value, 'youtube_url', WEB_PROTOCOLS, errors); continue;
+      case 'google_review_url': sanitized.google_review_url = validateOptionalUrl(value, 'google_review_url', WEB_PROTOCOLS, errors); continue;
+      case 'payment_link': sanitized.payment_link = validateOptionalUrl(value, 'payment_link', WEB_PROTOCOLS, errors); continue;
+      case 'profile_photo': sanitized.profile_photo = validateOptionalUrl(value, 'profile_photo', WEB_PROTOCOLS, errors); continue;
+      case 'cover_photo': sanitized.cover_photo = validateOptionalUrl(value, 'cover_photo', WEB_PROTOCOLS, errors); continue;
+      case 'company_logo': sanitized.company_logo = validateOptionalUrl(value, 'company_logo', WEB_PROTOCOLS, errors); continue;
+      case 'bg_watermark_image': sanitized.bg_watermark_image = validateOptionalUrl(value, 'bg_watermark_image', WEB_PROTOCOLS, errors); continue;
+      case 'phone': sanitized.phone = validatePhone(value, 'phone', errors); continue;
+      case 'whatsapp_number': sanitized.whatsapp_number = validatePhone(value, 'whatsapp_number', errors); continue;
+      case 'email': sanitized.email = validateEmail(value, 'email', errors); continue;
+      case 'display_name': sanitized.display_name = clampString(value, 'display_name', 80, errors); continue;
+      case 'job_title': sanitized.job_title = clampString(value, 'job_title', 120, errors); continue;
+      case 'company_name': sanitized.company_name = clampString(value, 'company_name', 120, errors); continue;
+      case 'bio': sanitized.bio = clampString(value, 'bio', 2000, errors); continue;
+      case 'location': sanitized.location = clampString(value, 'location', 200, errors); continue;
+      case 'qr_label': sanitized.qr_label = clampString(value, 'qr_label', 40, errors); continue;
+      case 'whatsapp_booking_message': sanitized.whatsapp_booking_message = clampString(value, 'whatsapp_booking_message', 1000, errors); continue;
+      case 'custom_links': sanitized.custom_links = validateCustomLinks(value, maxLinks, errors); continue;
+      case 'custom_payments': sanitized.custom_payments = validateCustomPayments(value, errors); continue;
+      case 'privacy_settings': sanitized.privacy_settings = validatePrivacySettings(value, errors); continue;
+      case 'business_hours': sanitized.business_hours = validateBusinessHours(value, errors); continue;
+      case 'booking_restricted_emails': sanitized.booking_restricted_emails = validateBookingRestrictedEmails(value, errors); continue;
       default:
-        // Plain string fields
         if (typeof value === 'string') sanitized[key] = value.slice(0, 2000);
         else if (typeof value === 'number' || typeof value === 'boolean') sanitized[key] = value;
         else rejected.push(key);
@@ -332,7 +382,7 @@ export function pickOwnerProfileFields(profile, access, effectivePlan) {
   return out;
 }
 
-// ── Public-facing response (privacy-aware, no internal fields) ────────────────
+// ── Public-facing response (privacy-aware, revalidated, no internal fields) ───
 const PUBLIC_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
@@ -350,24 +400,22 @@ export function pickPublicProfileFields(profile, privacy) {
   const out = {};
   for (const k of PUBLIC_PROFILE_FIELDS) if (profile[k] !== undefined) out[k] = profile[k];
 
-  // Privacy enforcement (server-side)
   if (p.hide_email) delete out.email;
   if (p.show_phone_verified_only && !profile.is_verified) { delete out.phone; delete out.whatsapp_number; }
 
-  // custom_links: only enabled, non-hidden
   const hidden = Array.isArray(profile.hidden_links) ? profile.hidden_links : [];
   if (Array.isArray(profile.custom_links)) {
     out.custom_links = profile.custom_links
       .filter((l) => l && l.enabled !== false && !hidden.includes(l._catalog_id) && !hidden.includes(l.id))
+      .filter((l) => isUrl(l.url, WEB_PROTOCOLS)) // revalidate legacy/unsafe URLs
       .map((l) => ({ label: l.label, url: l.url, category: l.category }));
   }
 
-  // custom_payments: public schema only (no provider ids, no internal state)
   if (Array.isArray(profile.custom_payments)) {
-    out.custom_payments = profile.custom_payments.map((pm) => ({ label: pm.label, emoji: pm.emoji, link: pm.link }));
+    out.custom_payments = profile.custom_payments
+      .filter((pm) => pm && (isUrl(pm.link, WEB_PROTOCOLS) || isUrl(pm.qr, WEB_PROTOCOLS)))
+      .map((pm) => ({ label: pm.label, emoji: pm.emoji, link: pm.link }));
   }
 
   return out;
 }
-
-export const VALID_VERIFICATION_TYPES_SET = VALID_VERIFICATION_TYPES;

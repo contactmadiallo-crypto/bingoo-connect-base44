@@ -10,6 +10,7 @@ const ALLOWED_ENTITIES = {
   SalonService:   'services',
   PortfolioItem:  'portfolio',
   MenuItem:       'digital_menu',
+  AttendanceLog:  'attendance',
 };
 
 // Max team members per plan — MUST mirror src/lib/planPermissions.js maxTeamMembers().

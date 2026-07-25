@@ -11,44 +11,43 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Username is required' }, { status: 400 });
     }
 
-    // Try active profiles first
+    // Require is_active === true.
     let profiles = await base44.asServiceRole.entities.Profile.filter({
-      username: username,
-      is_active: true,
+      username: username, is_active: true,
     }, '-updated_date', 1);
 
-    console.log(`[getPublicProfile] username="${username}" is_active:true → found ${profiles?.length ?? 0} profiles`);
-
-    // Fallback: try without is_active filter (handles null/undefined is_active)
     if (!profiles || profiles.length === 0) {
-      profiles = await base44.asServiceRole.entities.Profile.filter(
-        { username },
-        '-updated_date',
-        1
-      );
-      console.log(`[getPublicProfile] fallback (no is_active filter) → found ${profiles?.length ?? 0}`);
+      // Fallback only catches legacy null is_active; still must be explicitly active after.
+      profiles = await base44.asServiceRole.entities.Profile.filter({ username }, '-updated_date', 1);
+      if (profiles && profiles.length && profiles[0].is_active !== true) {
+        return Response.json({ profile: null, not_found: true }, { status: 404 });
+      }
     }
 
     if (!profiles || profiles.length === 0) {
-      console.log(`[getPublicProfile] NOT FOUND for username="${username}" — returning 404`);
-      // Return true 404 so the frontend can detect "not found" vs "error"
       return Response.json({ profile: null, not_found: true }, { status: 404 });
     }
 
     const profile = profiles[0];
 
-    // Enforce ProfileAccess access_status: locked/archived profiles are NOT public.
+    // Require exactly one active ProfileAccess record. Missing, duplicate, locked,
+    // or expired (non-active) access fails closed (404).
     const access = await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id: profile.id });
-    const accessRec = access?.[0];
-    if (accessRec && accessRec.access_status !== 'active') {
-      console.log(`[getPublicProfile] profile id=${profile.id} access_status=${accessRec.access_status} → 404`);
+    if (!access || access.length === 0) {
+      return Response.json({ profile: null, not_found: true }, { status: 404 });
+    }
+    if (access.length > 1) {
+      // Configuration conflict — fail closed; admin must resolve.
+      return Response.json({ profile: null, not_found: true }, { status: 404 });
+    }
+    if (access[0].access_status !== 'active') {
       return Response.json({ profile: null, not_found: true }, { status: 404 });
     }
 
     // Apply privacy + public-field allowlist (server-side, not only visual).
+    // pickPublicProfileFields also revalidates legacy custom link / payment URLs.
     const publicProfile = pickPublicProfileFields(profile, profile.privacy_settings || {});
 
-    console.log(`[getPublicProfile] returning profile id=${profile?.id} username=${profile?.username} is_active=${profile.is_active}`);
     return Response.json({ profile: publicProfile });
   } catch (error) {
     console.error(`[getPublicProfile] error:`, error.message);
