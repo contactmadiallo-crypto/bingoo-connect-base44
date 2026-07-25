@@ -27,6 +27,23 @@ async function auditFailure(base44, user, requestRecId, stage, message) {
   } catch (e) { console.error('auditFailure failed', e.message); }
 }
 
+async function loadValidActiveAccess(base44, userId) {
+  const rows = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: userId });
+  const ownedActive = (rows || []).filter(
+    (row) => row.owner_user_id === userId && row.access_status === 'active' && row.profile_id,
+  );
+  const valid = [];
+  for (const row of ownedActive) {
+    const profile = await base44.asServiceRole.entities.Profile.get(row.profile_id).catch(() => null);
+    if (!profile || profile.created_by_id !== userId || profile.is_active === false) {
+      console.warn(`Ignoring orphaned or mismatched ProfileAccess ${row.id} for user ${userId}`);
+      continue;
+    }
+    valid.push(row);
+  }
+  return valid;
+}
+
 Deno.serve(async (req) => {
   const correlationId = newCorrelationId();
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
@@ -104,7 +121,7 @@ Deno.serve(async (req) => {
 
     // ── Enforce maximum_active_profiles ───────────────────────────────────────
     const maxProfiles = typeof entitlement.maximum_active_profiles === 'number' ? entitlement.maximum_active_profiles : 1;
-    const active = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: user.id, access_status: 'active' });
+    const active = await loadValidActiveAccess(base44, user.id);
     const byProfile = new Map();
     for (const a of active) { byProfile.set(a.profile_id, (byProfile.get(a.profile_id) || 0) + 1); }
     for (const [, c] of byProfile) {
@@ -176,7 +193,7 @@ Deno.serve(async (req) => {
     }
 
     // ── Concurrency guard: post-create limit verification ──────────────────────
-    const activeAfter = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: user.id, access_status: 'active' });
+    const activeAfter = await loadValidActiveAccess(base44, user.id);
     if (activeAfter.length > maxProfiles) {
       try { await base44.asServiceRole.entities.ProfileAccess.delete(access.id); } catch {}
       try { await base44.asServiceRole.entities.Profile.delete(profile.id); } catch (de) { await auditFailure(base44, user, requestRecId, 'concurrency_rollback_failed', de.message); }
