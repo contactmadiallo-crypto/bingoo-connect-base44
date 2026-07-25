@@ -374,15 +374,16 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
       ids = [...floorIds];
       for (const id of profileIds) if (!ids.includes(id)) ids.push(id);
     } else {
-      // Free account: profile category drives; a missing category stays Free.
-      ids = [...profileIds];
+      // Free account: keep the navigation intentionally limited. Selecting a
+      // business category during onboarding must never surface paid tools.
+      ids = [...floorIds];
     }
   }
 
   // Strategic tools — secondary advanced section, eligible for admins and when the
   // account plan OR selected profile category is Business / Salon / Law Firm / Corporate.
   const STRATEGIC_ELIGIBLE = new Set([TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE]);
-  if (isAdmin || STRATEGIC_ELIGIBLE.has(floorType) || STRATEGIC_ELIGIBLE.has(type)) {
+  if (isAdmin || STRATEGIC_ELIGIBLE.has(floorType)) {
     if (!ids.includes("strategic")) {
       ids = [...ids, "strategic"];
     }
