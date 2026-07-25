@@ -12,6 +12,16 @@ const EXTRA_NAV_ITEMS = {
   planjourney:  { id: "planjourney", label: "Plan Journeys", labelFr: "Parcours Plans", icon: Route, href: "/bingoo?view=planjourney", iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)" },
 };
 
+const EXTRA_PLAN_REQUIREMENTS = {
+  myassets: "professional",
+  quality: "professional",
+  planjourney: "business",
+  docwallet: "professional",
+};
+
+const PAID_PLANS = new Set(["professional", "pro", "business", "salon", "restaurant", "lawfirm", "corporate"]);
+const BUSINESS_PLANS = new Set(["business", "salon", "restaurant", "lawfirm", "corporate"]);
+
 // ── Grouped sidebar sections (Phase 3 IA) ──
 const SECTIONS = [
   { id: "home",      label: "Home",      labelFr: "Accueil",    itemIds: ["landing"] },
@@ -36,8 +46,13 @@ export function getVisibleNavSections(profile, isAdmin = false, lang = "en", eff
   return SECTIONS.map((section) => {
     const items = section.itemIds
       .filter((id) => {
-        if (!EXTRA_NAV_ITEMS[id] && !visibleIds.has(id)) return false;
-        return true;
+        if (!EXTRA_NAV_ITEMS[id]) return visibleIds.has(id);
+        const requirement = EXTRA_PLAN_REQUIREMENTS[id];
+        if (!requirement) return true;
+        if (isAdmin) return true;
+        if (requirement === "professional") return PAID_PLANS.has(effectivePlan);
+        if (requirement === "business") return BUSINESS_PLANS.has(effectivePlan);
+        return false;
       })
       .map((id) => {
         const item = allItems[id];
