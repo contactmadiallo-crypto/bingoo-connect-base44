@@ -23,12 +23,13 @@ export default function AuthCallback() {
       // Sync owned_profile_ids immediately after OAuth login so RLS-gated entities work.
       const syncAndRedirect = async () => {
         let user = null;
+        let profiles = [];
         try {
           user = await base44.auth.me();
           const currentOwned = user?.owned_profile_ids || [];
+          profiles = await base44.entities.Profile.filter({ created_by_id: user.id });
           if (currentOwned.length === 0) {
             // User has no owned_profile_ids — fetch their profiles and sync
-            const profiles = await base44.entities.Profile.filter({ created_by_id: user.id });
             if (profiles.length > 0) {
               const ids = profiles.map(p => p.id);
               await base44.auth.updateMe({ owned_profile_ids: ids });
@@ -38,8 +39,12 @@ export default function AuthCallback() {
           console.warn("[AuthCallback] owned_profile_ids sync failed (non-critical):", e.message);
         }
 
-        // If the user has no account_type set yet, send them to onboarding
-        const needsOnboarding = !user?.account_type && !localStorage.getItem("bingoo_onboarding_done");
+        // Scope completion to the authenticated user. account_type can already
+        // default to "free" before that user creates a first profile.
+        const onboardingDone = user?.id
+          ? localStorage.getItem(`bingoo_onboarding_done:${user.id}`)
+          : null;
+        const needsOnboarding = !!user?.id && profiles.length === 0 && !onboardingDone;
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
         const destination = needsOnboarding
