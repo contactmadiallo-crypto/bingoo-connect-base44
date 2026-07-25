@@ -281,6 +281,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
+  const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
   // Corporate does NOT manage services (no Services sidebar tab) — exclude from public display
   const showsServicesAndTeam = isSalonOrRestaurant || profile.plan === "business";
   const isLawFirmProfile = profile.plan === "lawfirm";
@@ -317,7 +318,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   // ── Primary contact row ───────────────────────────────────────────────────
   const contactIcons = [
     profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: "Call", ev: "phone_click" },
-    isSalonOrRestaurant && waBookingHref && !hiddenLinks.has("whatsapp_number")
+    supportsWhatsAppBooking && waBookingHref && profile.whatsapp_booking_message && !hiddenLinks.has("whatsapp_number")
       ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
       : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" },
     profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
@@ -545,6 +546,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <Div isDark={isDark} />
           <SalonServicesSection
             profileId={profile.id} color={color} isDark={isDark}
+            mode={profile.plan === "business" ? "business" : "salon"}
             onBookService={canBook ? (svc) => { setBookService(svc); setBookOpen(true); } : undefined}
           />
           <SalonTeamSection profileId={profile.id} color={color} isDark={isDark} profile={profile} canBook={true} onBookWithStylist={(stylistName) => { setBookService(null); setBookStylist(stylistName); setBookOpen(true); }} />
