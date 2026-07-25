@@ -364,13 +364,15 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved, mode = 
       )}
 
       <p className={`text-xs ${mutedText} pt-2`}>
-        💡 Services appear on your public profile. You can add unlimited services with photos.
+        {businessMode
+          ? "💡 Services and products appear on your public business profile. Add as many showcase items as you need, with photos."
+          : "💡 Salon services appear on your public profile. Add as many services as you need, with photos."}
       </p>
 
       <a href="/shop?category=stands"
         className="flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-semibold transition-opacity hover:opacity-80"
         style={{ background: 'rgba(11,33,73,0.04)', borderColor: 'rgba(11,33,73,0.12)', color: '#0b2149' }}>
-        <span>Order a countertop NFC stand for your salon</span>
+        <span>{businessMode ? "Order a countertop NFC stand for your business" : "Order a countertop NFC stand for your salon"}</span>
         <span style={{ color: '#f97316' }}>Shop →</span>
       </a>
     </div>
