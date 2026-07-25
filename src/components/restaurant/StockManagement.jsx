@@ -20,7 +20,7 @@ export default function StockManagement({ restaurant, menuItems }) {
   );
 
   const toggleAvailabilityMutation = useMutation({
-    mutationFn: ({ id, available }) => base44.entities.MenuItem.update(id, { available }),
+    mutationFn: ({ id, available }) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant?.id, op: 'update', record_id: id, data: { available } }).then(r => r.data.record),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       toast.success(variables.available ? "✅ Article disponible" : "🚫 Article indisponible");

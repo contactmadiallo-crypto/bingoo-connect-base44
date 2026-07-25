@@ -54,7 +54,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("PracticeArea", "update", profileId,
-      () => base44.entities.PracticeArea.update(editId, data)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'PracticeArea', profile_id: profileId, op: 'update', record_id: editId, data });
+        return res.data.record;
+      }),
     onSuccess: (updatedRecord) => {
       qc.setQueryData(["practice-areas", profileId], (old = []) =>
         old.map(a => a.id === updatedRecord.id ? updatedRecord : a));
@@ -71,7 +74,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("PracticeArea", "delete", profileId,
-      () => base44.entities.PracticeArea.delete(id)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'PracticeArea', profile_id: profileId, op: 'delete', record_id: id });
+        return res.data.record;
+      }),
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["practice-areas", profileId], (old = []) => old.filter(a => a.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });

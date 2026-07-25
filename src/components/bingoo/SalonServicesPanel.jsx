@@ -207,7 +207,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
 
   const updateService = useMutation({
     mutationFn: ({ id, data }) => dbOp("SalonService", "update", profileId,
-      () => base44.entities.SalonService.update(id, data)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'SalonService', profile_id: profileId, op: 'update', record_id: id, data });
+        return res.data.record;
+      }),
     onSuccess: (updatedRecord) => {
       qc.setQueryData(["salon-services", profileId], (old = []) =>
         old.map(s => s.id === updatedRecord.id ? updatedRecord : s));
@@ -220,7 +223,10 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
 
   const deleteService = useMutation({
     mutationFn: (id) => dbOp("SalonService", "delete", profileId,
-      () => base44.entities.SalonService.delete(id)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'SalonService', profile_id: profileId, op: 'delete', record_id: id });
+        return res.data.record;
+      }),
     onMutate: async (deletedId) => {
       await qc.cancelQueries({ queryKey: ["salon-services", profileId] });
       const prev = qc.getQueryData(["salon-services", profileId]);

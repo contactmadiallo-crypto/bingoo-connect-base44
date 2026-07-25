@@ -35,7 +35,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
   const queryClient = useQueryClient();
 
   const createMenuMutation = useMutation({
-    mutationFn: (data) => base44.entities.MenuItem.create({ ...data, restaurant_id: restaurant?.id }),
+    mutationFn: (data) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant?.id, data }).then(r => r.data.record),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setMenuDialog(false);
@@ -45,7 +45,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
   });
 
   const updateMenuMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.MenuItem.update(id, data),
+    mutationFn: ({ id, data }) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant?.id, op: 'update', record_id: id, data }).then(r => r.data.record),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       setMenuDialog(false);
@@ -55,7 +55,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
   });
 
   const deleteMenuMutation = useMutation({
-    mutationFn: (id) => base44.entities.MenuItem.delete(id),
+    mutationFn: (id) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant?.id, op: 'delete', record_id: id }).then(r => r.data.record),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       toast.success("Article supprimé!");
@@ -63,7 +63,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
   });
 
   const toggleAvailabilityMutation = useMutation({
-    mutationFn: ({ id, available }) => base44.entities.MenuItem.update(id, { available }),
+    mutationFn: ({ id, available }) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant?.id, op: 'update', record_id: id, data: { available } }).then(r => r.data.record),
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       toast.success(variables.available ? "Article maintenant disponible" : "Article marqué indisponible");

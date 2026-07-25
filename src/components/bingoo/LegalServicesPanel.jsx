@@ -55,7 +55,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
 
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "update", profileId,
-      () => base44.entities.LegalService.update(editId, data)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'LegalService', profile_id: profileId, op: 'update', record_id: editId, data });
+        return res.data.record;
+      }),
     onSuccess: (updatedRecord) => {
       qc.setQueryData(["legal-services", profileId], (old = []) =>
         old.map(s => s.id === updatedRecord.id ? updatedRecord : s));
@@ -73,7 +76,10 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("LegalService", "delete", profileId,
-      () => base44.entities.LegalService.delete(id)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'LegalService', profile_id: profileId, op: 'delete', record_id: id });
+        return res.data.record;
+      }),
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["legal-services", profileId], (old = []) => old.filter(s => s.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });

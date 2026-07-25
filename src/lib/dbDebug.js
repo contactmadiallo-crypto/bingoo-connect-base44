@@ -20,6 +20,10 @@ function fmt(obj) {
  *   )
  */
 export async function dbOp(entity, operation, profileId, fn) {
+  // Strictly dev-gated: verbose DB audit logging only runs in dev builds.
+  // In production the wrapper is a transparent pass-through (no logging).
+  const isDev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV;
+  if (!isDev) return fn();
   const label = `${LOG_PREFIX} [${entity}] ${operation.toUpperCase()}`;
   console.group(label);
   console.log("▶ Entity   :", entity);

@@ -115,7 +115,10 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
         });
         return res.data.record;
       }
-      return base44.entities.TeamMember.update(editing, payload);
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'TeamMember', profile_id: profileId, op: 'update', record_id: editing, data: payload,
+      });
+      return res.data.record;
     },
     onSuccess: (saved) => {
       qc.setQueryData(["team-members", profileId], (old = []) => {
@@ -132,7 +135,9 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.TeamMember.delete(id),
+    mutationFn: (id) => base44.functions.invoke('createGatedRecord', {
+      entity_name: 'TeamMember', profile_id: profileId, op: 'delete', record_id: id,
+    }).then(r => r.data.record),
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: ["team-members", profileId] });
       const prev = qc.getQueryData(["team-members", profileId]);

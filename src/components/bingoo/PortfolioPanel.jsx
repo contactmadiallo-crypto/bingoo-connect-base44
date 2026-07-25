@@ -41,7 +41,9 @@ export default function PortfolioPanel({ profileId, user }) {
   });
 
   const remove = useMutation({
-    mutationFn: (id) => base44.entities.PortfolioItem.delete(id),
+    mutationFn: (id) => base44.functions.invoke('createGatedRecord', {
+      entity_name: 'PortfolioItem', profile_id: profileId, op: 'delete', record_id: id,
+    }).then(r => r.data.record),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["portfolio", profileId] }),
   });
 

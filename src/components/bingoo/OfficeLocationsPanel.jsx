@@ -55,7 +55,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
 
   const updateMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "update", profileId,
-      () => base44.entities.OfficeLocation.update(editId, data)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'OfficeLocation', profile_id: profileId, op: 'update', record_id: editId, data });
+        return res.data.record;
+      }),
     onSuccess: (updatedRecord) => {
       qc.setQueryData(["office-locations", profileId], (old = []) =>
         old.map(l => l.id === updatedRecord.id ? updatedRecord : l));
@@ -73,7 +76,10 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => dbOp("OfficeLocation", "delete", profileId,
-      () => base44.entities.OfficeLocation.delete(id)),
+      async () => {
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'OfficeLocation', profile_id: profileId, op: 'delete', record_id: id });
+        return res.data.record;
+      }),
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["office-locations", profileId], (old = []) => old.filter(l => l.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });

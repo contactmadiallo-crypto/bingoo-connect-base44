@@ -42,9 +42,11 @@ export default function RestaurantMenuEditor({ restaurant, open, onOpenChange })
       };
 
       if (editingItem) {
-        return base44.entities.MenuItem.update(editingItem.id, itemData);
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant.id, op: 'update', record_id: editingItem.id, data: itemData });
+        return res.data.record;
       } else {
-        return base44.entities.MenuItem.create(itemData);
+        const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant.id, data: itemData });
+        return res.data.record;
       }
     },
     onSuccess: () => {
@@ -57,7 +59,7 @@ export default function RestaurantMenuEditor({ restaurant, open, onOpenChange })
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.MenuItem.delete(id),
+    mutationFn: (id) => base44.functions.invoke('createGatedRecord', { entity_name: 'MenuItem', restaurant_id: restaurant.id, op: 'delete', record_id: id }).then(r => r.data.record),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['restaurant-menu'] });
       queryClient.invalidateQueries({ queryKey: ['all-menu-items'] });

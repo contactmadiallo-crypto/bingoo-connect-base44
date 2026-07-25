@@ -85,12 +85,14 @@ export default function MarketplaceOnboarding() {
     onSuccess: async (restaurant) => {
       // Create menu items if any
       if (formData.menu_items.length > 0) {
-        const menuItemsWithRestaurant = formData.menu_items.map(item => ({
-          ...item,
-          restaurant_id: restaurant.id,
-          available: true
-        }));
-        await base44.entities.MenuItem.bulkCreate(menuItemsWithRestaurant);
+        // Route each menu item through the gated creator so the 'digital_menu'
+        // entitlement + restaurant ownership are enforced server-side.
+        await Promise.all(formData.menu_items.map((item) =>
+          base44.functions.invoke('createGatedRecord', {
+            entity_name: 'MenuItem', restaurant_id: restaurant.id,
+            data: { ...item, available: true },
+          }).catch((e) => console.error('MenuItem gated create failed:', e.message))
+        ));
       }
       
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });

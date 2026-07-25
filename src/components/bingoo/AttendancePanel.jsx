@@ -55,27 +55,30 @@ export default function AttendancePanel({ profileId, isDark: propDark }) {
   });
 
   const clockInMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const member = members.find(m => m.id === selectedMember);
       if (!member) throw new Error("Select a team member first");
-      return base44.entities.AttendanceLog.create({
+      const payload = {
         profile_id: profileId,
         team_member_id: member.id,
         team_member_name: member.name,
         clock_in: new Date().toISOString(),
         date: new Date().toISOString().slice(0, 10),
         status: "clocked_in",
-      });
+      };
+      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'AttendanceLog', profile_id: profileId, data: payload });
+      return res.data.record;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["attendance"] }); qc.invalidateQueries({ queryKey: ["attendance-all"] }); },
   });
 
   const clockOutMutation = useMutation({
-    mutationFn: (logId) => {
+    mutationFn: async (logId) => {
       const clockOut = new Date().toISOString();
       const log = allLogs.find(l => l.id === logId);
       const hrs = log ? parseFloat(hoursWorked(log.clock_in, clockOut)) : 0;
-      return base44.entities.AttendanceLog.update(logId, { clock_out: clockOut, status: "clocked_out", hours_worked: hrs });
+      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'AttendanceLog', profile_id: profileId, op: 'update', record_id: logId, data: { clock_out: clockOut, status: "clocked_out", hours_worked: hrs } });
+      return res.data.record;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["attendance"] }); qc.invalidateQueries({ queryKey: ["attendance-all"] }); },
   });
