@@ -112,7 +112,7 @@ function resolveView(searchParams) {
 // ── NewProfileForm ──────────────────────────────────────────────────────────
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
 // Creates the record then hands off to ProfileWorkspace for all editing.
-function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, entitlementLoading, onBack, onCreated, onUpgrade }) {
+function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, planLabel, entitlementLoading, onBack, onCreated, onUpgrade }) {
   const [form, setForm] = useState({
     display_name: prefillData?.display_name || user?.full_name || "",
     username: prefillData?.username || "",
@@ -222,7 +222,7 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
 
         {limitReached && (
           <div className={`rounded-xl border p-3 text-xs ${isDark ? "border-amber-400/30 bg-amber-400/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
-            Your confirmed plan allows {maxProfiles} active profile{maxProfiles === 1 ? "" : "s"}. A Business selection does not unlock additional profiles until checkout succeeds.
+            Your confirmed {planLabel} plan includes {maxProfiles} active profile{maxProfiles === 1 ? "" : "s"}. You currently have {profileCount}.
           </div>
         )}
         {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
@@ -231,7 +231,7 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
           <button type="button" onClick={onUpgrade}
             className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #0b2149, #f97316)" }}>
-            Upgrade to Add Another Profile →
+            View Plan Options →
           </button>
         ) : (
           <button onClick={handleCreate} disabled={saving || entitlementLoading}
@@ -694,6 +694,7 @@ export default function BingooDashboard() {
                   prefillData={aiGeneratedProfile}
                   profileCount={profiles.filter((profile) => profile.is_active !== false).length}
                   maxProfiles={maxProfiles}
+                  planLabel={PLAN_LABELS[userPlan] || "Free"}
                   entitlementLoading={planLoading}
                   onBack={openHub}
                   onUpgrade={() => navigate("/billing")}
