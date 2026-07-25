@@ -392,9 +392,17 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
   return ids.map(id => {
     const item = SIDEBAR_NAV_MAP[id];
     if (!item) return null;
-    return {
-      ...item,
-      label: lang === "fr" && item.labelFr ? item.labelFr : item.label,
-    };
+    let label = lang === "fr" && item.labelFr ? item.labelFr : item.label;
+    // Name shared tools according to the active subscription vertical. Business
+    // gets general-purpose tools; salon keeps explicitly salon-specific wording.
+    if (effectivePlan === "business") {
+      if (id === "services") label = lang === "fr" ? "Services et Produits" : "Services & Products";
+      if (id === "team") label = lang === "fr" ? "Gestion d'équipe" : "Team Management";
+      if (id === "analytics") label = lang === "fr" ? "Analytique Avancée" : "Advanced Analytics";
+      if (id === "qrwallet") label = lang === "fr" ? "QR Business et Wallet" : "Business QR & Wallet";
+    } else if (effectivePlan === "salon" && id === "services") {
+      label = lang === "fr" ? "Services Salon" : "Salon Services";
+    }
+    return { ...item, label };
   }).filter(Boolean);
 }
