@@ -146,20 +146,25 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
       // paid entitlement comes only from the Subscription entity after checkout.
       const onboardingLayout = localStorage.getItem("bingoo_onboarding_layout") || "classic";
       const onboardingProfileType = localStorage.getItem("bingoo_onboarding_profile_type") || "personal";
-      const created = await base44.entities.Profile.create({
-        display_name: form.display_name.trim(),
-        username: form.username.trim(),
-        job_title: form.job_title.trim(),
-        bio: form.bio.trim(),
-        cover_color: "#2563eb",
-        is_active: true,
-        plan: "free",
-        profile_type: onboardingProfileType,
-        layout: onboardingLayout,
+      const result = await base44.functions.invoke("createProfileGated", {
+        idempotency_key: crypto.randomUUID(),
+        data: {
+          display_name: form.display_name.trim(),
+          username: form.username.trim(),
+          job_title: form.job_title.trim(),
+          bio: form.bio.trim(),
+          cover_color: "#2563eb",
+          profile_type: onboardingProfileType,
+          layout: onboardingLayout,
+        },
       });
+      const created = result?.data?.profile || result?.profile;
+      if (!created?.id) throw new Error("Profile creation did not return a profile.");
       // Clean up onboarding localStorage
       localStorage.removeItem("bingoo_onboarding_profile_type");
       localStorage.removeItem("bingoo_onboarding_layout");
+      localStorage.removeItem("bingoo_onboarding_account_type");
+      localStorage.removeItem("bingoo_onboarding_selected_plan");
       onCreated(created);
     } catch (err) {
       setError(err?.message || "Failed to create profile.");
@@ -310,10 +315,10 @@ export default function BingooDashboard() {
   const onboardingParam = searchParams.get("onboarding");
   useEffect(() => {
     if (!user) return;
-    const forceOnboarding = onboardingParam === "1";
+    const forceOnboarding = onboardingParam === "1" || onboardingParam === "resume";
     const noProfile = profiles.length === 0;
     const notDone = !localStorage.getItem("bingoo_onboarding_done");
-    if ((noProfile && notDone) || (forceOnboarding && !user.account_type)) {
+    if ((noProfile && notDone) || forceOnboarding) {
       setShowOnboarding(true);
     }
   }, [user, profiles]);
@@ -558,6 +563,7 @@ export default function BingooDashboard() {
         <React.Suspense fallback={null}>
         <OnboardingWizard
           userName={user.full_name}
+          currentPlan={userPlan}
           onCreateProfile={() => {
             setShowOnboarding(false);
             openNewProfile();
