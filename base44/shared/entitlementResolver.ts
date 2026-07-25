@@ -95,9 +95,10 @@ export function normalizePlan(plan) {
   return 'free';
 }
 
-const INDUSTRY_PLANS = ['salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
-export function downgradedPlan(plan) {
-  return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
+export function downgradedPlan(_plan) {
+  // A canceled, incomplete, unpaid, or otherwise terminal subscription never
+  // grants a paid fallback tier. Category/plan selection is not entitlement.
+  return 'free';
 }
 
 export function featuresForPlan(planName) {
