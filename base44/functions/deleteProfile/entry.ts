@@ -21,10 +21,17 @@ Deno.serve(async (req) => {
     const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
     if (!profile) return Response.json({ error: 'Profile not found' }, { status: 404 });
 
-    // Ownership check — only the profile owner (or an admin) may delete.
-    if (profile.created_by_id !== user.id && user.role !== 'admin') {
+    // ProfileAccess is the ownership authority because service-role profile creation
+    // records the service identity in Profile.created_by_id.
+    const accessRows = await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id });
+    if (accessRows.length > 1) {
+      return Response.json({ error: 'Multiple ProfileAccess records detected — admin must resolve' }, { status: 409 });
+    }
+    const access = accessRows[0];
+    if ((!access || access.owner_user_id !== user.id) && user.role !== 'admin') {
       return Response.json({ error: 'Forbidden: you do not own this profile' }, { status: 403 });
     }
+    const ownerUserId = access?.owner_user_id || user.id;
 
     // ── Gather dependencies (service role bypasses RLS for a reliable count) ──
     const [devices, leads, appts] = await Promise.all([
@@ -35,10 +42,13 @@ Deno.serve(async (req) => {
 
     // ── CHECK mode: return a summary for the confirmation modal ──
     if (mode === 'check') {
-      const allProfiles = await base44.asServiceRole.entities.Profile.filter({ created_by_id: profile.created_by_id });
-      const other_profiles = allProfiles
-        .filter((p) => p.id !== profile_id)
-        .map((p) => ({ id: p.id, display_name: p.display_name, username: p.username }));
+      const ownerAccessRows = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: ownerUserId });
+      const other_profiles = [];
+      for (const ownerAccess of ownerAccessRows) {
+        if (ownerAccess.profile_id === profile_id || ownerAccess.access_status !== 'active') continue;
+        const other = await base44.asServiceRole.entities.Profile.get(ownerAccess.profile_id).catch(() => null);
+        if (other) other_profiles.push({ id: other.id, display_name: other.display_name, username: other.username });
+      }
       return Response.json({
         devices: devices.map((d) => ({ id: d.id, device_code: d.device_code, device_type: d.device_type, status: d.status })),
         device_count: devices.length,
@@ -55,8 +65,9 @@ Deno.serve(async (req) => {
         if (!reassign_to_profile_id) {
           return Response.json({ error: 'reassign_to_profile_id is required for reassign action' }, { status: 400 });
         }
-        const target = await base44.asServiceRole.entities.Profile.get(reassign_to_profile_id);
-        if (!target || (target.created_by_id !== user.id && user.role !== 'admin')) {
+        const target = await base44.asServiceRole.entities.Profile.get(reassign_to_profile_id).catch(() => null);
+        const targetAccess = (await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id: reassign_to_profile_id }))[0];
+        if (!target || (!targetAccess || targetAccess.owner_user_id !== ownerUserId) && user.role !== 'admin') {
           return Response.json({ error: 'Invalid reassign target profile' }, { status: 400 });
         }
         await base44.asServiceRole.entities.NFCDevice.bulkUpdate(
@@ -112,8 +123,8 @@ Deno.serve(async (req) => {
       lostReports.length && wipe('LostItemReport', { owner_profile_id: profile_id }),
     ]);
 
-    // 3. Delete the profile itself (asServiceRole — Profile RLS delete is admin-only, but we
-    //    already verified ownership above).
+    // 3. Delete the ownership link, then the profile itself. Ownership was verified above.
+    if (access?.id) await base44.asServiceRole.entities.ProfileAccess.delete(access.id);
     await base44.asServiceRole.entities.Profile.delete(profile_id);
 
     return Response.json({
