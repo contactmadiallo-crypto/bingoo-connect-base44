@@ -1,11 +1,28 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import {
   PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS, PLAN_TAGLINES,
   PURCHASABLE_PLANS, COMING_SOON_PLANS, CONTACT_SALES_PLANS,
   PLAN_CONFIG, CUSTOMER_PLAN_IDS, getPlanConfig,
 } from '@/lib/planPermissions';
+
+const BUSINESS_TOOL_ROUTES = {
+  'Business Public Profile': '/bingoo?view=profiles',
+  'Design Studio': '/bingoo?view=designstudio',
+  'Team Management': '/bingoo?view=team',
+  'Services & Product Showcase': '/bingoo?view=services',
+  'WhatsApp Booking': '/bingoo?view=appointments',
+  'NFC Counter Stand': '/shop',
+  'Business Hours': '/bingoo?view=appointments',
+  'Staff Cards': '/bingoo?view=team',
+  'Customer Inquiry Buttons': '/bingoo?view=leads',
+  'Multi-Profile Management': '/bingoo?view=profiles',
+  'Business QR/NFC Landing': '/bingoo?view=qrwallet',
+  'Advanced Analytics': '/bingoo?view=analytics',
+  'Lead Export': '/bingoo?view=leads',
+};
 
 // Plan metadata (icons, colors, taglines, features, prices) is now sourced
 // from PLAN_CONFIG in planPermissions.js — single source of truth.
@@ -169,12 +186,25 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
               Included Tools {active.isCurrentPlan && <span className="text-green-500 normal-case font-bold">(Unlocked)</span>}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-              {active.included.map(tool => (
-                <div key={tool} className="flex items-center gap-2 text-xs">
-                  <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                  <span className={t.text}>{tool}</span>
-                </div>
-              ))}
+              {active.included.map(tool => {
+                const route = active.isCurrentPlan ? BUSINESS_TOOL_ROUTES[tool] : null;
+                const content = (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                    <span className={t.text}>{tool}</span>
+                    {route && <ExternalLink className={`w-3 h-3 ml-auto ${t.sub}`} />}
+                  </>
+                );
+                return route ? (
+                  <Link key={tool} to={route} className={`flex items-center gap-2 text-xs rounded-lg px-2 py-1.5 transition-colors ${isDark ? 'hover:bg-white/8' : 'hover:bg-slate-100'}`}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={tool} className="flex items-center gap-2 text-xs px-2 py-1.5">
+                    {content}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
