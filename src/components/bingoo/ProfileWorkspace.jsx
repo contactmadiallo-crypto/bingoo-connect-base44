@@ -1029,6 +1029,15 @@ export default function ProfileWorkspace({
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
   const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
+  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "bg_style", "button_style", "theme_background_color"];
+  const designHasChanges = designKeys.some((key) => JSON.stringify(liveForm?.[key]) !== JSON.stringify(profile?.[key]));
+  const resetDesign = useCallback(() => {
+    setLiveForm((current) => {
+      const next = { ...current };
+      for (const key of designKeys) next[key] = profile?.[key];
+      return next;
+    });
+  }, [profile]);
 
   const copyUrl = useCallback(() => {
     if (!profileUrl) return;
@@ -1256,6 +1265,9 @@ export default function ProfileWorkspace({
             {innerTab === "design" && (
               <DesignPanel {...makeSaveProps("design")} liveForm={liveForm} setVal={setVal} userPlan={userPlan} profile={profile} user={user} lang={lang}
                 onLayoutChange={() => handleSave("design")}
+                onPreview={() => setMobilePreviewOpen(true)}
+                onReset={resetDesign}
+                hasChanges={designHasChanges}
               />
             )}
             {innerTab === "media" && (
