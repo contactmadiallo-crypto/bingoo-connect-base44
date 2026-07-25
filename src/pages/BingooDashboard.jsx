@@ -112,7 +112,7 @@ function resolveView(searchParams) {
 // ── NewProfileForm ──────────────────────────────────────────────────────────
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
 // Creates the record then hands off to ProfileWorkspace for all editing.
-function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
+function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, entitlementLoading, onBack, onCreated, onUpgrade }) {
   const [form, setForm] = useState({
     display_name: prefillData?.display_name || user?.full_name || "",
     username: prefillData?.username || "",
@@ -127,6 +127,7 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
   const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
   const inputCls  = `w-full px-3 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-orange-400/40 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-white border-slate-200 text-slate-800"}`;
+  const limitReached = !entitlementLoading && profileCount >= maxProfiles;
 
   const setF = (k) => (e) => {
     const v = k === "username"
@@ -137,6 +138,8 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
 
   const handleCreate = async () => {
     setError("");
+    if (entitlementLoading) { setError("Checking your subscription entitlement. Please wait."); return; }
+    if (limitReached) { setError(`Your confirmed plan allows ${maxProfiles} active profile${maxProfiles === 1 ? "" : "s"}. Upgrade to add another.`); return; }
     if (!form.display_name.trim()) { setError("Display name is required."); return; }
     if (!form.username.trim()) { setError("Username (profile URL) is required."); return; }
     setSaving(true);
@@ -217,13 +220,26 @@ function NewProfileForm({ user, isDark, prefillData, onBack, onCreated }) {
           <textarea className={inputCls} rows={3} value={form.bio} onChange={setF("bio")} placeholder="Short description about you or your business..." />
         </div>
 
+        {limitReached && (
+          <div className={`rounded-xl border p-3 text-xs ${isDark ? "border-amber-400/30 bg-amber-400/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+            Your confirmed plan allows {maxProfiles} active profile{maxProfiles === 1 ? "" : "s"}. A Business selection does not unlock additional profiles until checkout succeeds.
+          </div>
+        )}
         {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
 
-        <button onClick={handleCreate} disabled={saving}
-          className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
-          style={{ background: saving ? "#64748b" : "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-          {saving ? "Creating…" : "Create Profile & Open Editor →"}
-        </button>
+        {limitReached ? (
+          <button type="button" onClick={onUpgrade}
+            className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #0b2149, #f97316)" }}>
+            Upgrade to Add Another Profile →
+          </button>
+        ) : (
+          <button onClick={handleCreate} disabled={saving || entitlementLoading}
+            className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
+            style={{ background: saving || entitlementLoading ? "#64748b" : "linear-gradient(135deg, #f97316, #FDBA21)" }}>
+            {saving ? "Creating…" : entitlementLoading ? "Checking plan…" : "Create Profile & Open Editor →"}
+          </button>
+        )}
         <p className={`text-[11px] text-center ${mutedText}`}>You can add photos, links, and more after creation.</p>
       </div>
     </div>
@@ -274,7 +290,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource } = usePlan();
+  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource, maxProfiles } = usePlan();
 
   const { data: user, refetch: refetchUser } = useQuery({
     queryKey: ["current-user"],
@@ -676,7 +692,11 @@ export default function BingooDashboard() {
                   user={user}
                   isDark={isDark}
                   prefillData={aiGeneratedProfile}
+                  profileCount={profiles.filter((profile) => profile.is_active !== false).length}
+                  maxProfiles={maxProfiles}
+                  entitlementLoading={planLoading}
                   onBack={openHub}
+                  onUpgrade={() => navigate("/billing")}
                   onCreated={(savedProfile) => {
                     setAiGeneratedProfile(null);
                     setLiveFormOverride(null);
