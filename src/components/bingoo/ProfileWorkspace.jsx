@@ -937,7 +937,16 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 // ─────────────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────
-export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLawFirm, isSalon, lang: langProp }) {
+export default function ProfileWorkspace({
+  profileId,
+  user,
+  onBack,
+  isDark,
+  isLawFirm,
+  isSalon,
+  lang: langProp,
+  initialTab = "info",
+}) {
   const qc = useQueryClient();
   const { plan: userPlan, subscription, isLoading: planIsLoading, isFetching: planIsFetching } = usePlan();
   // Business Tools entitlement must come from the user's OWN runtime Subscription
@@ -970,7 +979,12 @@ export default function ProfileWorkspace({ profileId, user, onBack, isDark, isLa
     return true;
   });
 
-  const [innerTab, setInnerTab] = useState("info");
+  const [innerTab, setInnerTab] = useState(initialTab);
+  useEffect(() => {
+    if (INNER_TABS.some((tab) => tab.id === initialTab)) {
+      setInnerTab(initialTab);
+    }
+  }, [initialTab, profileId]);
   useEffect(() => {
     if (!INNER_TABS.some((tab) => tab.id === innerTab)) setInnerTab("info");
   }, [innerTab, userPlan]);

@@ -294,7 +294,7 @@ export const SIDEBAR_NAV_MAP = {
     iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)",
   },
   designstudio: {
-    id: "designstudio", label: "Design Studio", labelFr: "Studio Design",
+    id: "designstudio", label: "Profile Design Studio", labelFr: "Studio de profil",
     icon: PenTool, href: "/bingoo?view=designstudio",
     iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)",
   },

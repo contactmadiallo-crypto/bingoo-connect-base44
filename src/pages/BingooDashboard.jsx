@@ -10,9 +10,6 @@ const AppointmentsTabMerged = React.lazy(() => import("@/components/bingoo/Appoi
 const ConnectionsPanel = React.lazy(() => import("@/components/bingoo/ConnectionsPanel"));
 const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
-const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio"));
-const DesignStudioLocked = React.lazy(() => import("@/components/bingoo/DesignStudioLocked"));
-const DesignStudioProfessional = React.lazy(() => import("@/components/bingoo/DesignStudioProfessional"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
 // AppointmentSettings lazy import removed — now rendered inside AppointmentsTabMerged only
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
@@ -836,17 +833,23 @@ export default function BingooDashboard() {
           )}
 
           {/* ════════════════════════════════════
-              DESIGN STUDIO — Custom NFC Card Designer
+              DESIGN STUDIO — Profile builder and live preview
           ════════════════════════════════════ */}
           {view === VIEW_DESIGN && (
             <div>
-              <ProfileChip />
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : userPlan === 'professional' ? (
-                <DesignStudioProfessional isDark={isDark} profile={activeProfile} />
               ) : (
-                <DesignStudio isDark={isDark} />
+                <ProfileWorkspace
+                  profileId={activeProfile.id}
+                  user={user}
+                  onBack={() => setSearchParams({ view: VIEW_HOME, profileId: activeProfile.id })}
+                  isDark={isDark}
+                  isLawFirm={isLawFirm}
+                  isSalon={isSalon}
+                  lang={lang}
+                  initialTab="design"
+                />
               )}
             </div>
           )}
