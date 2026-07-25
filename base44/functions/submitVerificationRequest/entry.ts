@@ -24,10 +24,13 @@ function isAllowedDoc(url) {
 }
 
 Deno.serve(async (req) => {
+  const correlationId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'err-' + Date.now();
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
+  let base44 = null;
+  let user = null;
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me().catch(() => null);
+    base44 = createClientFromRequest(req);
+    user = await base44.auth.me().catch(() => null);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
@@ -132,7 +135,17 @@ Deno.serve(async (req) => {
 
     return Response.json({ success: true, status: 'pending', request_id: vr.id });
   } catch (error) {
-    console.error('submitVerificationRequest error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error(`[submitVerificationRequest] [${correlationId}]`, error.message);
+    try {
+      if (base44) {
+        await base44.asServiceRole.entities.AdminAuditLog.create({
+          action: 'verification_request_error',
+          performed_by: user?.id || 'system',
+          performed_by_email: (user?.email || '').toLowerCase(),
+          notes: `[${correlationId}] ${error.message}`,
+        }).catch(() => {});
+      }
+    } catch {}
+    return Response.json({ error: 'internal_error', correlation_id: correlationId }, { status: 500 });
   }
 });

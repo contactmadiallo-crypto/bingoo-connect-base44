@@ -83,18 +83,16 @@ export default function MarketplaceOnboarding() {
       return base44.entities.Restaurant.create(restaurantData);
     },
     onSuccess: async (restaurant) => {
-      // Create menu items if any
+      // Create menu items via a server-side validated batch (all-or-nothing with
+      // rollback). No .catch — a failure throws and fails the onboarding step
+      // visibly instead of silently completing with a partial menu.
       if (formData.menu_items.length > 0) {
-        // Route each menu item through the gated creator so the 'digital_menu'
-        // entitlement + restaurant ownership are enforced server-side.
-        await Promise.all(formData.menu_items.map((item) =>
-          base44.functions.invoke('createGatedRecord', {
-            entity_name: 'MenuItem', restaurant_id: restaurant.id,
-            data: { ...item, available: true },
-          }).catch((e) => console.error('MenuItem gated create failed:', e.message))
-        ));
+        await base44.functions.invoke('createGatedRecord', {
+          entity_name: 'MenuItem', restaurant_id: restaurant.id,
+          op: 'create_menu_batch', items: formData.menu_items,
+        });
       }
-      
+
       queryClient.invalidateQueries({ queryKey: ['restaurants'] });
       setSuccess(true);
       

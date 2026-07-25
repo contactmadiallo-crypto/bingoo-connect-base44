@@ -1,180 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import {
+  PLAN_FEATURES, normalizePlan, downgradedPlan, getTestOverride, featuresForPlan,
+} from '../../shared/entitlementResolver.ts';
 
 /**
- * Capability-based feature sets per plan.
+ * Resolves the CALLING user's effective plan + feature set.
  *
- * SINGLE SOURCE OF TRUTH: src/lib/planPermissions.js (PLAN_CAPABILITIES).
- * This file MUST mirror the feature sets exactly. When adding/changing a
- * feature, update planPermissions.js FIRST, then mirror the change here.
- * createGatedRecord delegates to getUserFeatures (no separate copy).
- *
- * Inheritance (mirrors planPermissions.js):
- *   free         → base only
- *   professional → free + professional features
- *   business     → free + professional + business features
- *   salon        → business + salon-specific
- *   restaurant   → professional + restaurant-specific (does NOT inherit business)
- *   lawfirm      → business + lawfirm-specific
- *   corporate    → business + corporate-specific (does NOT inherit lawfirm)
- *
- * Rules:
- * - Unknown plan → resolves to FREE (closed default)
- * - Canonical feature keys are used (aliases listed in comments)
+ * createGatedRecord / updateProfileGated resolve the RESOURCE owner's entitlement
+ * (via entitlementResolver.resolveEffectivePlan + loadPlanEntitlement) so an admin
+ * acting on a free user's profile cannot unlock paid features via the admin's plan.
+ * This function remains the entry point for the dashboard's own plan display.
  */
-
-// ── Test Account Overrides ──────────────────────────────────────────────────
-// MUST stay in sync with src/lib/testAccounts.js
-// Protected test accounts never get downgraded, regardless of Stripe status.
-// The admin_switcher account reads its plan from the Subscription entity so the
-// admin can switch plans for testing without Stripe payment.
-const TEST_ACCOUNT_OVERRIDES = {
-  'contact.madiallo@gmail.com':              { plan: null,           role: 'admin_switcher', protected: true },
-  'mdiallo9225@gmail.com':                   { plan: 'lawfirm',      protected: true },
-  'msfall0510@gmail.com':                    { plan: 'salon',        protected: true },
-  'skilibeng110@gmail.com':                  { plan: 'professional', protected: true },
-  '9ztjvf42zs@privaterelay.appleid.com':     { plan: 'professional', protected: true },
-  'kvartz.alexander@googlemail.com':         { plan: 'professional', protected: true },
-};
-
-function getTestOverride(email) {
-  if (!email) return null;
-  return TEST_ACCOUNT_OVERRIDES[email.toLowerCase()] || null;
-}
-
-const FREE = [
-  'profile', 'public_profile', 'qr_code', 'contact_sharing', 'social_links', 'whatsapp_button',
-];
-
-const PROFESSIONAL = [
-  ...FREE,
-  'nfc_devices', 'lost_mode',
-  'lead_collection', 'analytics', 'appointment_booking', 'save_contact',
-  'portfolio', 'custom_branding', 'qr_download',
-  'instagram_integration', 'calendar',
-  'google_wallet_pass', 'apple_wallet_pass',
-];
-
-const BUSINESS = [
-  ...PROFESSIONAL,
-  'business_hours',
-  'business_profile',
-  'design_studio',
-  'services',
-  'product_showcase',
-  'nfc_counter_stand',
-  'google_reviews',
-  'whatsapp_booking',
-  'team_members',
-  'staff_cards',
-  'customer_inquiry',
-  'multi_profile',
-  'business_qr_landing',
-  'advanced_analytics',
-  'lead_export',
-];
-
-const SALON = [
-  ...BUSINESS,
-  'business_hours',
-  'salon_profile',
-  'staff_profiles',
-  'services',
-  'instagram_gallery',
-  'google_reviews',
-  'whatsapp_booking',
-  'nfc_counter_stand',
-  'team_members',
-  'advanced_analytics',
-  'lead_export',
-];
-
-const RESTAURANT = [
-  ...PROFESSIONAL,
-  'business_hours',
-  'restaurant_profile',
-  'digital_menu',
-  'delivery_links',
-  'food_ordering',
-  'google_reviews',
-  'reservations',
-  'whatsapp_ordering',
-  'whatsapp_booking',
-  'nfc_table_stand',
-  'nfc_counter_stand',
-  'team_members',
-  'advanced_analytics',
-  'lead_export',
-];
-
-const LAWFIRM = [
-  ...BUSINESS,
-  'business_hours',
-  'law_firm_profile',
-  'practice_areas',
-  'attorney_profiles',
-  'staff_profiles',
-  'legal_services',
-  'office_locations',
-  'team_members',
-  'lead_intake_forms',
-  'crm_pipeline',
-  'case_dashboard',
-  'admin_roles',
-  'advanced_analytics',
-  'lead_export',
-  'immigration_forms',
-  'criminal_forms',
-  'civil_forms',
-  'family_forms',
-];
-
-const CORPORATE = [
-  ...BUSINESS,
-  'api_access',
-  'bulk_nfc_orders',
-  'custom_onboarding',
-  'employee_profiles',
-  'attendance',
-  'attendance_dashboard',
-];
-
-const PLAN_FEATURES = {
-  free:         FREE,
-  professional: PROFESSIONAL,
-  pro:          PROFESSIONAL,
-  business:     BUSINESS,
-  salon:        SALON,
-  restaurant:   RESTAURANT,
-  lawfirm:      LAWFIRM,
-  corporate:    CORPORATE,
-};
-
-const PLAN_HIERARCHY = {
-  free:         0,
-  professional: 1,
-  pro:          1,
-  business:     2,
-  salon:        3,
-  restaurant:   2,
-  lawfirm:      3,
-  corporate:    4,
-};
-
-function normalizePlan(plan) {
-  if (!plan) return 'free';
-  if (plan === 'pro') return 'professional';
-  if (PLAN_FEATURES[plan]) return plan;
-  return 'free';
-}
-
-function planScore(plan) {
-  return PLAN_HIERARCHY[normalizePlan(plan)] ?? 0;
-}
-
-const INDUSTRY_PLANS = ['salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
-function downgradedPlan(plan) {
-  return INDUSTRY_PLANS.includes(plan) ? 'professional' : 'free';
-}
 
 Deno.serve(async (req) => {
   try {
@@ -192,11 +28,10 @@ Deno.serve(async (req) => {
     // regardless of Subscription entity or Stripe status.
     if (override && override.protected && override.plan) {
       const planName = normalizePlan(override.plan);
-      const features = PLAN_FEATURES[planName] || FREE;
       return Response.json({
         user_id: user.id,
         plan: planName,
-        features,
+        features: featuresForPlan(planName),
         subscription_plan: planName,
         is_test_account: true,
       });
@@ -215,7 +50,6 @@ Deno.serve(async (req) => {
         subPlan = normalizePlan(subscription.plan);
       } else if (subscription.status === 'past_due') {
         // Grace period — keep current plan access
-        // Protected test accounts always keep their plan regardless
         subPlan = normalizePlan(subscription.plan);
       } else {
         // 'canceled' or terminal status: apply tiered downgrade policy
@@ -228,15 +62,11 @@ Deno.serve(async (req) => {
       }
     } else {
       // No subscription record and no test override → Free.
-      // Paid entitlement comes ONLY from a real Subscription record
-      // (Stripe payment or admin_override). The profile category
-      // (profile.plan) is a presentation-only field and is NEVER read
-      // here, so selecting "Professional" during onboarding cannot unlock
-      // paid features without payment.
+      // Paid entitlement comes ONLY from a real Subscription record.
     }
 
     const planName = subPlan;
-    const features = PLAN_FEATURES[planName] || FREE;
+    const features = PLAN_FEATURES[planName] || featuresForPlan('free');
 
     // Debug logging — verifies server-side plan resolution per user
     console.log('[getUserFeatures] Audit:', {

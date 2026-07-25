@@ -2,11 +2,16 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import {
   sanitizeProfileFields, mapLegacyPlan, pickOwnerProfileFields,
 } from '../../shared/profileSanitizer.ts';
+import { resolveEffectivePlan, loadPlanEntitlement } from '../../shared/entitlementResolver.ts';
 
 async function sha256Hex(str) {
   const data = new TextEncoder().encode(str);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function newCorrelationId() {
+  try { return crypto.randomUUID(); } catch { return 'err-' + Date.now() + '-' + Math.random().toString(36).slice(2); }
 }
 
 async function auditFailure(base44, user, requestRecId, stage, message) {
@@ -23,10 +28,13 @@ async function auditFailure(base44, user, requestRecId, stage, message) {
 }
 
 Deno.serve(async (req) => {
+  const correlationId = newCorrelationId();
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
+  let base44 = null;
+  let user = null;
   try {
-    const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me().catch(() => null);
+    base44 = createClientFromRequest(req);
+    user = await base44.auth.me().catch(() => null);
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
@@ -36,21 +44,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'idempotency_key required' }, { status: 400 });
     }
 
-    // ── Resolve canonical plan ────────────────────────────────────────────────
-    const featRes = await base44.functions.invoke('getUserFeatures', {});
-    const featData = featRes?.data || featRes || {};
-    const plan = featData.plan || 'free';
-    const sub = featData.subscription || null;
+    // ── Resolve canonical plan from the CALLING user's account (they will be the
+    // owner of the new profile; the resource doesn't exist yet). ──────────────
+    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
+    const { plan } = resolveEffectivePlan(subs, user.email);
 
     // ── Resolve entitlement; detect duplicate active PlanEntitlement ──────────
-    const entitlements = await base44.asServiceRole.entities.PlanEntitlement.filter({ plan_name: plan, is_active: true });
-    if (!entitlements || entitlements.length === 0) {
+    const { entitlement, error: entError } = await loadPlanEntitlement(base44, plan);
+    if (entError === 'missing') {
       return Response.json({ error: `Entitlement configuration missing for plan "${plan}"` }, { status: 403 });
     }
-    if (entitlements.length > 1) {
+    if (entError === 'conflict') {
       return Response.json({ error: 'Entitlement configuration conflict (duplicate active PlanEntitlement)', plan }, { status: 409 });
     }
-    const entitlement = entitlements[0];
 
     // ── Sanitize input by resolved plan ────────────────────────────────────────
     const { sanitized, rejected, errors } = sanitizeProfileFields({
@@ -99,7 +105,6 @@ Deno.serve(async (req) => {
     // ── Enforce maximum_active_profiles ───────────────────────────────────────
     const maxProfiles = typeof entitlement.maximum_active_profiles === 'number' ? entitlement.maximum_active_profiles : 1;
     const active = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: user.id, access_status: 'active' });
-    // Detect duplicate ProfileAccess pointing at the same profile (configuration conflict).
     const byProfile = new Map();
     for (const a of active) { byProfile.set(a.profile_id, (byProfile.get(a.profile_id) || 0) + 1); }
     for (const [, c] of byProfile) {
@@ -109,24 +114,24 @@ Deno.serve(async (req) => {
       return Response.json({ error: `Profile limit reached (${maxProfiles})` }, { status: 403 });
     }
 
-    // ── Record in-progress idempotency request (create new or already reset) ──
+    // ── Record in-progress idempotency request ────────────────────────────────
     let requestRecId = priorRec?.id;
     if (!requestRecId) {
-      let requestRec;
       try {
-        requestRec = await base44.asServiceRole.entities.ProfileCreationRequest.create({
+        const requestRec = await base44.asServiceRole.entities.ProfileCreationRequest.create({
           user_id: user.id, idempotency_key: idempotencyKey, status: 'in_progress',
           payload_hash: payloadHash, created_at: new Date().toISOString(),
         });
         requestRecId = requestRec.id;
       } catch (e) {
-        return Response.json({ error: 'Could not start creation: ' + e.message }, { status: 500 });
+        return Response.json({ error: 'Could not start creation', correlation_id: correlationId }, { status: 500 });
       }
     }
 
     // ── created_during_trial from subscription status + trial end ─────────────
+    const subRec = subs && subs[0];
     const now = Date.now();
-    const createdDuringTrial = !!(sub && sub.status === 'trialing' && sub.trial_ends_at && new Date(sub.trial_ends_at).getTime() > now);
+    const createdDuringTrial = !!(subRec && subRec.status === 'trialing' && subRec.trial_ends_at && new Date(subRec.trial_ends_at).getTime() > now);
     const willBePrimary = !active.some((a) => a.is_primary);
 
     // ── Create Profile (service role) ──────────────────────────────────────────
@@ -139,7 +144,7 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.ProfileCreationRequest.update(requestRecId, {
         status: 'failed', error: 'profile_create: ' + e.message, completed_at: new Date().toISOString(),
       }).catch(async (u) => { await auditFailure(base44, user, requestRecId, 'mark_failed_failed', u.message); });
-      return Response.json({ error: e.message }, { status: 400 });
+      return Response.json({ error: 'Failed to create profile', correlation_id: correlationId }, { status: 400 });
     }
 
     // ── Create ProfileAccess; rollback Profile on failure ──────────────────────
@@ -157,13 +162,12 @@ Deno.serve(async (req) => {
       await base44.asServiceRole.entities.ProfileCreationRequest.update(requestRecId, {
         status: 'failed', error: 'access_create: ' + e.message, completed_at: new Date().toISOString(),
       }).catch(async (u) => { await auditFailure(base44, user, requestRecId, 'mark_failed_failed', u.message); });
-      return Response.json({ error: 'Failed to initialize profile access' }, { status: 500 });
+      return Response.json({ error: 'Failed to initialize profile access', correlation_id: correlationId }, { status: 500 });
     }
 
     // ── Concurrency guard: post-create limit verification ──────────────────────
     const activeAfter = await base44.asServiceRole.entities.ProfileAccess.filter({ owner_user_id: user.id, access_status: 'active' });
     if (activeAfter.length > maxProfiles) {
-      // A concurrent request raced past the limit — roll this one back.
       try { await base44.asServiceRole.entities.ProfileAccess.delete(access.id); } catch {}
       try { await base44.asServiceRole.entities.Profile.delete(profile.id); } catch (de) { await auditFailure(base44, user, requestRecId, 'concurrency_rollback_failed', de.message); }
       await base44.asServiceRole.entities.ProfileCreationRequest.update(requestRecId, {
@@ -172,7 +176,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Profile limit reached (concurrency)' }, { status: 403 });
     }
 
-    // ── Complete idempotency record (audit on failure so it can't stick in_progress)
+    // ── Complete idempotency record ────────────────────────────────────────────
     try {
       await base44.asServiceRole.entities.ProfileCreationRequest.update(requestRecId, {
         status: 'completed', profile_id: profile.id, completed_at: new Date().toISOString(),
@@ -183,7 +187,16 @@ Deno.serve(async (req) => {
 
     return Response.json({ profile: pickOwnerProfileFields(profile, access, plan), rejected });
   } catch (error) {
-    console.error('createProfileGated error:', error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error(`[createProfileGated] [${correlationId}]`, error.message);
+    try {
+      if (base44) {
+        await base44.asServiceRole.entities.AdminAuditLog.create({
+          action: 'profile_creation_error', performed_by: user?.id || 'system',
+          performed_by_email: (user?.email || '').toLowerCase(),
+          notes: `[${correlationId}] ${error.message}`,
+        }).catch(() => {});
+      }
+    } catch {}
+    return Response.json({ error: 'internal_error', correlation_id: correlationId }, { status: 500 });
   }
 });

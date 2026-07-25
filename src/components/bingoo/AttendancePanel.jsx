@@ -54,30 +54,28 @@ export default function AttendancePanel({ profileId, isDark: propDark }) {
     enabled: !!profileId,
   });
 
+  // Server-controlled attendance ops: the server generates timestamps,
+  // resolves member identity, and calculates hours. The client only sends
+  // the team_member_id reference.
   const clockInMutation = useMutation({
     mutationFn: async () => {
       const member = members.find(m => m.id === selectedMember);
       if (!member) throw new Error("Select a team member first");
-      const payload = {
-        profile_id: profileId,
-        team_member_id: member.id,
-        team_member_name: member.name,
-        clock_in: new Date().toISOString(),
-        date: new Date().toISOString().slice(0, 10),
-        status: "clocked_in",
-      };
-      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'AttendanceLog', profile_id: profileId, data: payload });
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'AttendanceLog', profile_id: profileId,
+        op: 'attendance_clock_in', team_member_id: member.id,
+      });
       return res.data.record;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["attendance"] }); qc.invalidateQueries({ queryKey: ["attendance-all"] }); },
   });
 
   const clockOutMutation = useMutation({
-    mutationFn: async (logId) => {
-      const clockOut = new Date().toISOString();
-      const log = allLogs.find(l => l.id === logId);
-      const hrs = log ? parseFloat(hoursWorked(log.clock_in, clockOut)) : 0;
-      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'AttendanceLog', profile_id: profileId, op: 'update', record_id: logId, data: { clock_out: clockOut, status: "clocked_out", hours_worked: hrs } });
+    mutationFn: async (teamMemberId) => {
+      const res = await base44.functions.invoke('createGatedRecord', {
+        entity_name: 'AttendanceLog', profile_id: profileId,
+        op: 'attendance_clock_out', team_member_id: teamMemberId,
+      });
       return res.data.record;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["attendance"] }); qc.invalidateQueries({ queryKey: ["attendance-all"] }); },
@@ -141,7 +139,7 @@ export default function AttendancePanel({ profileId, isDark: propDark }) {
                   <p className={`font-bold text-sm ${head}`}>{s.team_member_name}</p>
                   <p className={`text-xs ${sub}`}>In since {format(parseISO(s.clock_in), "HH:mm")}</p>
                 </div>
-                <Button size="sm" onClick={() => clockOutMutation.mutate(s.id)} disabled={clockOutMutation.isPending}
+                <Button size="sm" onClick={() => clockOutMutation.mutate(s.team_member_id)} disabled={clockOutMutation.isPending}
                   className="rounded-xl gap-1.5 font-bold text-white text-xs" style={{ background: "#ef4444" }}>
                   <LogOut className="w-3.5 h-3.5" /> Clock Out
                 </Button>

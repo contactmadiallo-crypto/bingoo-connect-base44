@@ -2,12 +2,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { pickPublicProfileFields } from '../../shared/profileSanitizer.ts';
 
 Deno.serve(async (req) => {
+  const correlationId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'err-' + Date.now();
   try {
     const base44 = createClientFromRequest(req);
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { username } = body;
 
-    if (!username) {
+    if (!username || typeof username !== 'string') {
       return Response.json({ error: 'Username is required' }, { status: 400 });
     }
 
@@ -50,7 +51,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ profile: publicProfile });
   } catch (error) {
-    console.error(`[getPublicProfile] error:`, error.message);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error(`[getPublicProfile] [${correlationId}]`, error.message);
+    return Response.json({ error: 'internal_error', correlation_id: correlationId }, { status: 500 });
   }
 });

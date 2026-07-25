@@ -9,6 +9,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // Admin-only diagnostic: this function directly creates + deletes a test
+    // PracticeArea to trace the RLS save flow. Gating to admins prevents regular
+    // users from using it to bypass the practice_areas entitlement.
+    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const profiles = await base44.entities.Profile.filter({ created_by_id: user.id });
     const profile = profiles[0] ?? null;
