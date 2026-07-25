@@ -437,22 +437,25 @@ export default function BingooDashboard() {
     queryKey: ["leads", activeProfile?.id],
     queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: activeProfile.id }).then(res => res.data.leads),
     enabled: !!activeProfile?.id,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchInterval: 5000,
+    staleTime: 30_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   const { data: analytics = [], isLoading: analyticsLoading } = useQuery({
     queryKey: ["analytics-all", activeProfile?.id],
     queryFn: () => base44.entities.Analytics.filter({ profile_id: activeProfile.id }),
     enabled: !!activeProfile?.id && ownershipReady,
-    refetchInterval: 15000,
-    refetchOnMount: true,
+    staleTime: 30_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   const { data: appointments = [] } = useQuery({
     queryKey: ["appointments", activeProfile?.id],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: activeProfile.id }, "-created_date"),
     enabled: !!activeProfile?.id && ownershipReady,
-    refetchOnMount: true,
+    staleTime: 30_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   const { data: allNfcDevices = [] } = useQuery({
     queryKey: ["my-nfc-devices-all"],
@@ -460,7 +463,8 @@ export default function BingooDashboard() {
       const res = await base44.functions.invoke("getMyNfcDevices", {});
       return res?.data?.devices || [];
     },
-    refetchInterval: 10000,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
   });
   const myNfcDevices = activeProfile?.id ? allNfcDevices.filter(d => d.profile_id === activeProfile.id) : [];
   const { data: salonServices = [] } = useQuery({
@@ -655,7 +659,7 @@ export default function BingooDashboard() {
                   canAccessFeature={canAccessFeature}
                   onNavigate={openView}
                   profileUrl={profileAbsoluteUrl}
-                  isLoading={leadsLoading || analyticsLoading}
+                  isLoading={(leadsLoading && leads.length === 0) || (analyticsLoading && analytics.length === 0)}
                 />
               )}
             </div>
