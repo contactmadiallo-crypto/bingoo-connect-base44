@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import {
-  PLAN_FEATURES, normalizePlan, downgradedPlan, getTestOverride, featuresForPlan,
+  PLAN_FEATURES, normalizePlan, downgradedPlan, getTestOverride, featuresForPlan, loadPlanEntitlement,
 } from '../../shared/entitlementResolver.ts';
 
 /**
@@ -28,11 +28,13 @@ Deno.serve(async (req) => {
     // regardless of Subscription entity or Stripe status.
     if (override && override.protected && override.plan) {
       const planName = normalizePlan(override.plan);
+      const { entitlement } = await loadPlanEntitlement(base44, planName);
       return Response.json({
         user_id: user.id,
         plan: planName,
         features: featuresForPlan(planName),
         subscription_plan: planName,
+        maximum_active_profiles: entitlement?.maximum_active_profiles ?? 1,
         is_test_account: true,
       });
     }
@@ -67,6 +69,7 @@ Deno.serve(async (req) => {
 
     const planName = subPlan;
     const features = PLAN_FEATURES[planName] || featuresForPlan('free');
+    const { entitlement } = await loadPlanEntitlement(base44, planName);
 
     // Debug logging — verifies server-side plan resolution per user
     console.log('[getUserFeatures] Audit:', {
@@ -85,6 +88,7 @@ Deno.serve(async (req) => {
       plan: planName,
       features,
       subscription_plan: subPlan,
+      maximum_active_profiles: entitlement?.maximum_active_profiles ?? 1,
       is_test_account: !!override,
     });
   } catch (error) {
