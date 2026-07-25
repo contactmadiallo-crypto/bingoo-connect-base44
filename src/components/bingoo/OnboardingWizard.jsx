@@ -110,7 +110,7 @@ function readPending() {
   }
 }
 
-export default function OnboardingWizard({ userName, currentPlan = "free", onCreateProfile, onDismiss }) {
+export default function OnboardingWizard({ userName, userId, currentPlan = "free", onCreateProfile, onDismiss }) {
   const pending = readPending();
   const returnedFromCheckout = new URLSearchParams(window.location.search).get("subscription") === "success";
   const [step, setStep] = useState(returnedFromCheckout ? 2 : 0);
@@ -188,13 +188,13 @@ export default function OnboardingWizard({ userName, currentPlan = "free", onCre
   };
 
   const handleDismiss = () => {
-    localStorage.setItem("bingoo_onboarding_done", "1");
+    if (userId) localStorage.setItem(`bingoo_onboarding_done:${userId}`, "1");
     localStorage.removeItem("bingoo_onboarding_pending");
     onDismiss();
   };
 
   const handleLaunch = () => {
-    localStorage.setItem("bingoo_onboarding_done", "1");
+    if (userId) localStorage.setItem(`bingoo_onboarding_done:${userId}`, "1");
     localStorage.setItem("bingoo_onboarding_account_type", accountType);
     localStorage.setItem("bingoo_onboarding_selected_plan", selectedPlan);
     localStorage.setItem("bingoo_onboarding_profile_type", profileType);
