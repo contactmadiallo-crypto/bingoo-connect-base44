@@ -23,11 +23,8 @@ Deno.serve(async (req) => {
 
     const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
     if (!profile) return Response.json({ error: 'Profile not found' }, { status: 404 });
-    // Ownership: admin bypasses ownership but still resolves the RESOURCE's entitlement.
-    if (profile.created_by_id !== user.id && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
+    // ProfileAccess is the ownership authority because service-role creation records
+    // the service identity in Profile.created_by_id.
     const accessList = await base44.asServiceRole.entities.ProfileAccess.filter({ profile_id });
     if (accessList.length > 1) {
       return Response.json({ error: 'Multiple ProfileAccess records detected — admin must resolve', conflict: accessList.map((a) => a.id) }, { status: 409 });
@@ -43,7 +40,7 @@ Deno.serve(async (req) => {
     // ── Resolve entitlement from the RESOURCE owner (not the calling user),
     // so an admin acting on a free user's profile cannot unlock paid fields via
     // the admin's own plan. ─────────────────────────────────────────────────────
-    const ownerUser = await base44.asServiceRole.entities.User.get(profile.created_by_id).catch(() => null);
+    const ownerUser = await base44.asServiceRole.entities.User.get(access.owner_user_id).catch(() => null);
     const ownerEmail = ownerUser?.email || user.email;
     const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: ownerEmail });
     const { plan } = resolveEffectivePlan(subs, ownerEmail);
