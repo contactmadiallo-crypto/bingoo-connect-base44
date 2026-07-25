@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Edit2, X, Check, Image, Scissors, Clock, Tag } from "lucide-react";
+import { Plus, Trash2, Edit2, X, Check, Image, Scissors, PackageOpen, Clock, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
@@ -15,7 +15,7 @@ const EMPTY_SERVICE = {
 };
 
 // ── Service Form — defined OUTSIDE the panel so it never remounts on re-render
-function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isDark, uploading, onImageUpload }) {
+function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isDark, uploading, onImageUpload, businessMode }) {
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/50" : "text-slate-500";
   const labelCls = `block text-xs font-semibold mb-1.5 ${mutedText}`;
@@ -31,10 +31,10 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
       <div className={`flex items-center justify-between px-5 py-4 border-b ${isDark ? "border-white/8 bg-white/3" : "border-slate-100 bg-slate-50"}`}>
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-            <Scissors className="w-3.5 h-3.5 text-white" />
+            {businessMode ? <PackageOpen className="w-3.5 h-3.5 text-white" /> : <Scissors className="w-3.5 h-3.5 text-white" />}
           </div>
           <h3 className={`font-bold text-sm ${headText}`}>
-            {editingId === "new" ? "New Service" : "Edit Service"}
+            {editingId === "new" ? (businessMode ? "New Service or Product" : "New Salon Service") : (businessMode ? "Edit Service or Product" : "Edit Salon Service")}
           </h3>
         </div>
         <button onClick={onCancel} aria-label="Close"
@@ -47,10 +47,10 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
         {/* Row 1: Name + Category */}
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Service Name <span className="text-red-500">*</span></label>
+            <label className={labelCls}>{businessMode ? "Service or Product Name" : "Salon Service Name"} <span className="text-red-500">*</span></label>
             <Input
               className={inputCls}
-              placeholder="e.g. Full Haircut"
+              placeholder={businessMode ? "e.g. Consultation, Catering Package, Product" : "e.g. Full Haircut"}
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             />
@@ -59,7 +59,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
             <label className={labelCls}>Category</label>
             <Input
               className={inputCls}
-              placeholder="e.g. Hair, Nails, Skin"
+              placeholder={businessMode ? "e.g. Services, Products, Packages" : "e.g. Hair, Nails, Skin"}
               value={form.category}
               onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
             />
@@ -81,7 +81,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
           </div>
           <div>
             <label className={labelCls}>
-              <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> Duration (minutes)</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> Duration {businessMode ? "(optional)" : "(minutes)"}</span>
             </label>
             <Input
               className={inputCls}
@@ -99,7 +99,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
           <label className={labelCls}>Description <span className={mutedText + " font-normal"}>(optional)</span></label>
           <Textarea
             className={inputCls}
-            placeholder="Brief description of this service..."
+            placeholder={businessMode ? "Describe this service, product, or package..." : "Brief description of this salon service..."}
             rows={2}
             value={form.description}
             onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -108,7 +108,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
 
         {/* Image upload */}
         <div>
-          <label className={labelCls}>Service Image <span className={mutedText + " font-normal"}>(optional)</span></label>
+          <label className={labelCls}>{businessMode ? "Item Image" : "Service Image"} <span className={mutedText + " font-normal"}>(optional)</span></label>
           <div className="flex items-center gap-3">
             {form.image_url
               ? <img src={form.image_url} className="w-16 h-16 rounded-xl object-cover border border-slate-200 flex-shrink-0" alt="" />
@@ -139,7 +139,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
             disabled={isSaving}
             className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-5">
             <Check className="w-4 h-4" />
-            {isSaving ? "Saving…" : "Save Service"}
+            {isSaving ? "Saving…" : (businessMode ? "Save Item" : "Save Salon Service")}
           </Button>
           <button onClick={onCancel}
             className={`text-sm font-semibold transition-colors ${isDark ? "text-white/40 hover:text-white/70" : "text-slate-400 hover:text-slate-600"}`}>
@@ -152,7 +152,8 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
 }
 
 // ── Main panel
-export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
+export default function SalonServicesPanel({ profileId, isDark, onSaved, mode = "salon" }) {
+  const businessMode = mode === "business";
   const qc = useQueryClient();
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_SERVICE);
@@ -256,7 +257,7 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   const handleCancel = () => setEditingId(null);
 
   const handleSave = () => {
-    if (!form.name.trim()) { toast.error("Service name is required"); return; }
+    if (!form.name.trim()) { toast.error(businessMode ? "Service or product name is required" : "Salon service name is required"); return; }
     if (editingId === "new") {
       createService.mutate(form);
     } else {
@@ -269,8 +270,8 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
   if (!profileId) {
     return (
       <div className={`rounded-2xl border p-10 text-center ${cardBg}`}>
-        <Scissors className={`w-10 h-10 mx-auto mb-2 ${mutedText}`} />
-        <p className={`text-sm ${mutedText}`}>Select a profile first to manage services.</p>
+        {businessMode ? <PackageOpen className={`w-10 h-10 mx-auto mb-2 ${mutedText}`} /> : <Scissors className={`w-10 h-10 mx-auto mb-2 ${mutedText}`} />}
+        <p className={`text-sm ${mutedText}`}>Select a profile first to manage {businessMode ? "services and products" : "salon services"}.</p>
       </div>
     );
   }
@@ -280,13 +281,12 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`font-black text-lg ${headText}`}>✂️ Service Menu</h2>
-          <p className={`text-xs mt-0.5 ${mutedText}`}>Add your salon services — they'll appear on your public profile</p>
-          <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Profile ID: {profileId || "loading..."}</p>
+          <h2 className={`font-black text-lg ${headText}`}>{businessMode ? "📦 Services & Product Showcase" : "✂️ Salon Service Menu"}</h2>
+          <p className={`text-xs mt-0.5 ${mutedText}`}>{businessMode ? "Showcase your services, products, and packages on your public business profile." : "Add salon services for clients to browse and book."}</p>
         </div>
         {editingId !== "new" && (
           <Button onClick={startNew} size="sm" className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl">
-            <Plus className="w-4 h-4" /> Add Service
+            <Plus className="w-4 h-4" /> {businessMode ? "Add Item" : "Add Salon Service"}
           </Button>
         )}
       </div>
@@ -297,7 +297,7 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
           form={form} setForm={setForm} editingId={editingId}
           onSave={handleSave} onCancel={handleCancel}
           isSaving={createService.isPending}
-          isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload}
+          isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload} businessMode={businessMode}
         />
       )}
 
@@ -306,11 +306,11 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
         <div className={`text-center py-10 ${mutedText}`}>Loading…</div>
       ) : services.length === 0 && editingId !== "new" ? (
         <div className={`rounded-2xl border p-10 text-center ${cardBg}`}>
-          <Scissors className={`w-10 h-10 mx-auto mb-3 opacity-20`} />
-          <p className={`font-semibold text-sm ${headText}`}>No services yet</p>
-          <p className={`text-xs mt-1 mb-4 ${mutedText}`}>Add your first service to show on your profile</p>
+          {businessMode ? <PackageOpen className="w-10 h-10 mx-auto mb-3 opacity-20" /> : <Scissors className="w-10 h-10 mx-auto mb-3 opacity-20" />}
+          <p className={`font-semibold text-sm ${headText}`}>{businessMode ? "No services or products yet" : "No salon services yet"}</p>
+          <p className={`text-xs mt-1 mb-4 ${mutedText}`}>Add your first {businessMode ? "item" : "salon service"} to show on your profile</p>
           <Button onClick={startNew} size="sm" className="gap-1.5 font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl">
-            <Plus className="w-4 h-4" /> Add First Service
+            <Plus className="w-4 h-4" /> {businessMode ? "Add First Item" : "Add First Salon Service"}
           </Button>
         </div>
       ) : (
@@ -326,14 +326,14 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved }) {
                         form={form} setForm={setForm} editingId={editingId}
                         onSave={handleSave} onCancel={handleCancel}
                         isSaving={updateService.isPending}
-                        isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload}
+                        isDark={isDark} uploading={uploading} onImageUpload={handleImageUpload} businessMode={businessMode}
                       />
                     ) : (
                       <div className={`rounded-2xl border p-4 flex items-center gap-4 transition-all ${cardBg}`}
                         style={{ boxShadow: isDark ? "0 1px 0 rgba(255,255,255,0.04)" : "0 1px 3px rgba(0,0,0,0.05)" }}>
                         {service.image_url
                           ? <img src={service.image_url} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" alt="" />
-                          : <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>✂️</div>
+                          : <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>{businessMode ? "📦" : "✂️"}</div>
                         }
                         <div className="flex-1 min-w-0">
                           <p className={`font-bold text-sm ${headText}`}>{service.name}</p>
