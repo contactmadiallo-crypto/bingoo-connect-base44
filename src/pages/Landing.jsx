@@ -942,12 +942,16 @@ export default function Landing() {
                 autoPlay
                 muted
                 loop
+                controls
                 playsInline
                 preload="metadata"
                 poster="https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png">
                 <source src="https://media.base44.com/videos/public/692bd9007b93ba81de543346/3fb381cbd_BingooConnect_TheProductDocumentaryCut_1080p_caption.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
+                <span className="text-xs font-bold text-white/70 bg-black/40 px-3 py-1 rounded-full">🔊 Click to unmute</span>
+              </div>
             </div>
           </ScrollReveal>
         </div>
