@@ -117,11 +117,7 @@
     "read": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.owner_user_id": "{{user.id}}"
@@ -139,11 +135,7 @@
     "update": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.owner_user_id": "{{user.id}}"
@@ -158,11 +150,7 @@
     "delete": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.owner_user_id": "{{user.id}}"
