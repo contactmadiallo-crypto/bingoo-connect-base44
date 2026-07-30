@@ -921,6 +921,38 @@ export default function Landing() {
         </div>
       </motion.section>
 
+      {/* ── PRODUCT VIDEO TOUR */}
+      <section className="py-16 md:py-20 px-4 md:px-6" style={{ background: "#f1f5f9" }}>
+        <div className="max-w-5xl mx-auto">
+          <ScrollReveal className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
+              style={{ background: B.orange + "15", color: B.orange, border: `1px solid ${B.orange}30` }}>
+              Watch the Demo
+            </div>
+            <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
+              See Bingoo in action
+            </h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">A 60-second tour of how Bingoo transforms your professional identity.</p>
+          </ScrollReveal>
+          <ScrollReveal delay={0.15}>
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4"
+              style={{ borderColor: "rgba(11,33,73,0.1)" }}>
+              <video
+                className="w-full aspect-video object-cover bg-black"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                poster="https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png">
+                <source src="https://media.base44.com/videos/public/692bd9007b93ba81de543346/3fb381cbd_BingooConnect_TheProductDocumentaryCut_1080p_caption.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ── BINGOO LOGO BRAND SECTION */}
       <section className="py-16 px-6" style={{ background: "#f1f5f9" }}>
         <div className="max-w-6xl mx-auto">
