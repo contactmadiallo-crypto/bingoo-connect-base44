@@ -1,5 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
+// Escape user-controlled text for safe interpolation into SVG/XML markup.
+// Prevents XSS via profile fields containing markup like <script> or <set .../>.
+function escapeXml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 // Generates a dynamic Open Graph image as SVG for a given profile username.
 // Usage: /api/functions/ogImage?username=johndoe
 Deno.serve(async (req) => {
@@ -19,16 +30,19 @@ Deno.serve(async (req) => {
     );
     const profile = profiles?.[0];
 
-    // Fallback values for missing/unknown profiles
-    const name = profile?.display_name || "Bingoo Connect";
-    const jobTitle = profile?.job_title || "";
-    const company = profile?.company_name || "";
+    // Fallback values for missing/unknown profiles (escaped before SVG interpolation)
+    const name = escapeXml(profile?.display_name || "Bingoo Connect");
+    const jobTitle = escapeXml(profile?.job_title || "");
+    const company = escapeXml(profile?.company_name || "");
     // Official Bingoo Connect brand logo — never use personal/profile photos in public brand images
     const BINGOO_LOGO_URL = 'https://media.base44.com/images/public/692bd9007b93ba81de543346/e30f4e65a_BingooConnectBrand.png';
-    const color = profile?.cover_color || "#0B2E6B";
+    const color = escapeXml(profile?.cover_color || "#0B2E6B");
 
-    // Subtitle line
+    // Subtitle line (built from already-escaped jobTitle/company)
     const subtitle = [jobTitle, company].filter(Boolean).join(" • ");
+
+    // Escape the username for safe interpolation into the profile URL pill
+    const safeUsername = escapeXml(username);
 
     // Build SVG OG image (1200×630)
     const svg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -87,7 +101,7 @@ Deno.serve(async (req) => {
 
   <!-- Profile URL pill -->
   <rect x="400" y="380" width="${Math.min(username.length * 14 + 80, 500)}" height="48" rx="24" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
-  <text x="${400 + Math.min(username.length * 14 + 80, 500) / 2}" y="412" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="700" fill="rgba(255,255,255,0.9)" text-anchor="middle">bingooconnect.com/p/${username}</text>
+  <text x="${400 + Math.min(username.length * 14 + 80, 500) / 2}" y="412" font-family="system-ui,-apple-system,sans-serif" font-size="18" font-weight="700" fill="rgba(255,255,255,0.9)" text-anchor="middle">bingooconnect.com/p/${safeUsername}</text>
 
   <!-- NFC chip icon bottom-right -->
   <text x="1075" y="530" font-family="system-ui,-apple-system,sans-serif" font-size="44" text-anchor="middle">📲</text>
