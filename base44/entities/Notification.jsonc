@@ -57,15 +57,11 @@
     "create": {
       "$or": [
         {
-          "user_condition": {
-            "role": "admin"
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
+          "user_condition": {
+            "role": "admin"
           }
         }
       ]

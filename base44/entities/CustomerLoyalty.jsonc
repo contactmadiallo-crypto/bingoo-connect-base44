@@ -62,10 +62,11 @@
           "data.customer_email": "{{user.email}}"
         },
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
           }
         }
       ]
@@ -76,10 +77,11 @@
           "data.customer_email": "{{user.email}}"
         },
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
           }
         }
       ]
@@ -90,10 +92,11 @@
           "data.customer_email": "{{user.email}}"
         },
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
           }
         }
       ]

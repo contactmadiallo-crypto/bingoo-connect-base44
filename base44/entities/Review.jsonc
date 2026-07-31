@@ -45,10 +45,9 @@
   ],
   "rls": {
     "create": {
-      "created_by_id": "{{user.id}}",
-      "data.customer_email": "{{user.email}}"
+      "created_by_id": "{{user.id}}"
     },
-    "read": {},
+    "read": null,
     "update": {
       "$or": [
         {

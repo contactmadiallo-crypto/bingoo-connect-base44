@@ -100,11 +100,7 @@
     "create": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -116,11 +112,7 @@
     "read": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -132,11 +124,7 @@
     "update": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -146,9 +134,16 @@
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }

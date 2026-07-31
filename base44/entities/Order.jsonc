@@ -210,13 +210,6 @@
           "created_by_id": "{{user.id}}"
         },
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
-        },
-        {
           "data.delivery_partner_id": "{{user.id}}"
         },
         {
@@ -230,13 +223,6 @@
       "$or": [
         {
           "created_by_id": "{{user.id}}"
-        },
-        {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
         },
         {
           "data.delivery_partner_id": "{{user.id}}"

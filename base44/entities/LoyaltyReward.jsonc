@@ -68,11 +68,7 @@
     "create": {
       "$or": [
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -81,15 +77,11 @@
         }
       ]
     },
-    "read": {},
+    "read": null,
     "update": {
       "$or": [
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -101,11 +93,7 @@
     "delete": {
       "$or": [
         {
-          "data.restaurant_id": {
-            "$in": [
-              "{{user.data.owned_restaurant_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {

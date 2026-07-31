@@ -99,14 +99,13 @@
     "read": {
       "$or": [
         {
-          "data.owner_profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.owner_user_id": "{{user.id}}"
+        },
+        {
+          "data.finder_email": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -118,11 +117,7 @@
     "update": {
       "$or": [
         {
-          "data.owner_profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "data.owner_user_id": "{{user.id}}"
