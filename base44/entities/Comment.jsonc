@@ -40,9 +40,7 @@
           "created_by_id": "{{user.id}}"
         },
         {
-          "data.project_id": {
-            "$in": "{{user.data.managed_project_ids}}"
-          }
+          "data.author_email": "{{user.email}}"
         },
         {
           "user_condition": {
