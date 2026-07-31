@@ -70,11 +70,7 @@
           "created_by_id": "{{user.id}}"
         },
         {
-          "data.project_id": {
-            "$in": [
-              "{{user.data.managed_project_ids}}"
-            ]
-          }
+          "data.paid_by": "{{user.email}}"
         },
         {
           "user_condition": {
@@ -89,13 +85,6 @@
           "created_by_id": "{{user.id}}"
         },
         {
-          "data.project_id": {
-            "$in": [
-              "{{user.data.managed_project_ids}}"
-            ]
-          }
-        },
-        {
           "user_condition": {
             "role": "admin"
           }
@@ -103,9 +92,16 @@
       ]
     },
     "delete": {
-      "user_condition": {
-        "role": "admin"
-      }
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }

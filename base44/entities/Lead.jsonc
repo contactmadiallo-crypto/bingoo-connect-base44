@@ -330,11 +330,13 @@
     "read": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.email": "{{user.email}}"
+        },
+        {
+          "data.assigned_attorney_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -346,11 +348,10 @@
     "update": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.assigned_attorney_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -362,11 +363,7 @@
     "delete": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
