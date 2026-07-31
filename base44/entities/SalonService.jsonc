@@ -45,11 +45,7 @@
     "create": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -58,15 +54,11 @@
         }
       ]
     },
-    "read": {},
+    "read": null,
     "update": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -78,11 +70,7 @@
     "delete": {
       "$or": [
         {
-          "data.profile_id": {
-            "$in": [
-              "{{user.data.owned_profile_ids}}"
-            ]
-          }
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
