@@ -28,10 +28,14 @@
       })();
     </script>
 
-    <!-- App Icons / Favicon — official Bingoo Connect brand mark -->
+    <!-- App Icons / Favicon — official Bingoo Connect brand mark.
+         PRIMARY icon is served same-origin (/favicon.svg) so Google's favicon
+         crawler associates it with bingooconnect.com. Cross-origin CDN icons are
+         ignored by Google search results, producing the generic globe fallback.
+         Apple touch icon stays PNG (Apple does not support SVG favicons). -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" href="https://media.base44.com/images/public/692bd9007b93ba81de543346/be18e28ad_image.png" />
-    <link rel="icon" href="https://media.base44.com/images/public/692bd9007b93ba81de543346/be18e28ad_image.png" />
-    <link rel="shortcut icon" href="https://media.base44.com/images/public/692bd9007b93ba81de543346/be18e28ad_image.png" />
+    <link rel="shortcut icon" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="https://media.base44.com/images/public/692bd9007b93ba81de543346/be18e28ad_image.png" />
 
     <!-- Apple Splash Screens -->

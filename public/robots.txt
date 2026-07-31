@@ -1,16 +1,17 @@
 User-agent: *
+Allow: /
+Allow: /favicon.svg
+Allow: /manifest.json
 
-Disallow: /admin
+# Disallow internal app shell routes (React SPA) — public profile pages are crawlable via /p/
 Disallow: /bingoo
+Disallow: /admin
 Disallow: /billing
 Disallow: /checkout
 Disallow: /cart
-Disallow: /account-settings
 Disallow: /my-nfc-devices
-Disallow: /shop-admin
-Disallow: /login
-Disallow: /register
-Disallow: /forgot-password
-Disallow: /reset-password
+Disallow: /activate-device
+Disallow: /account-settings
+Disallow: /my-orders
 
-Sitemap: https://bingooconnect.com/sitemap.xml
+Sitemap: https://bingooconnect.com/api/functions/sitemapXml

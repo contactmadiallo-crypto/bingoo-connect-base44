@@ -1,12 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0B2E6B"/>
-      <stop offset="1" stop-color="#071b47"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <text x="50%" y="50%" dy="0.06em" text-anchor="middle" dominant-baseline="central"
-        font-family="'Plus Jakarta Sans','Inter',system-ui,sans-serif"
-        font-size="300" font-weight="900" fill="#ffffff">B</text>
+  <rect width="512" height="512" rx="112" fill="#0b2149"/>
+  <g transform="translate(88, 172) scale(7)">
+    <path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z"
+      fill="none" stroke="#f97316" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>
