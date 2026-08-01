@@ -4,25 +4,33 @@ import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 
 // Official Bingoo Connect brand palette
 const BINGOO_NAVY = "#0b2149";
-const BINGOO_NAVY_LIGHT = "#13284f";
 const BINGOO_ORANGE = "#f97316";
+
+// V3 login visual palette (from Figma source of truth)
+const V3_BG_CENTER = "#0b1629";
+const V3_BG_EDGE = "#060d1b";
+const V3_CARD_BG = "rgba(15, 28, 50, 0.72)";
+const V3_CARD_BORDER = "#3e2d24";
 
 export default function AuthLayout({ title, subtitle, footer, children }) {
   return (
     <div
       className="min-h-screen relative flex items-center justify-center px-4 py-10 w-full max-w-full"
       style={{
-        background: `radial-gradient(ellipse at top, ${BINGOO_NAVY_LIGHT} 0%, ${BINGOO_NAVY} 55%, #050d1f 100%)`,
+        background: `radial-gradient(ellipse at center, ${V3_BG_CENTER} 0%, ${V3_BG_EDGE} 100%)`,
       }}
     >
-      {/* Decorative orange glow */}
+      {/* Subtle purple/magenta glow on the mid-right */}
       <div
-        className="pointer-events-none absolute top-1/4 -right-32 w-96 h-96 rounded-full blur-[120px] opacity-20"
-        style={{ background: BINGOO_ORANGE }}
+        className="pointer-events-none absolute top-1/3 -right-24 w-[30rem] h-[30rem] rounded-full blur-[150px] opacity-20"
+        style={{ background: "#7c3aed" }}
+        aria-hidden="true"
       />
+      {/* Faint navy depth glow on the lower-left */}
       <div
-        className="pointer-events-none absolute bottom-1/4 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-10"
-        style={{ background: BINGOO_NAVY_LIGHT }}
+        className="pointer-events-none absolute bottom-1/4 -left-24 w-96 h-96 rounded-full blur-[140px] opacity-10"
+        style={{ background: BINGOO_NAVY }}
+        aria-hidden="true"
       />
 
       <div className="relative w-full max-w-md">
@@ -43,31 +51,33 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
           <BingooLogo size="text-xl" light />
           <h1 className="text-2xl font-bold text-white tracking-tight mt-5">{title}</h1>
           {subtitle && (
-            <p className="mt-1.5 text-sm" style={{ color: "rgba(249, 115, 22, 0.85)" }}>
+            <p className="mt-1.5 text-sm font-medium" style={{ color: BINGOO_ORANGE }}>
               {subtitle}
             </p>
           )}
         </div>
 
-        {/* Glassmorphism card with navy tint + orange accent border */}
+        {/* V3 login card — dark navy, slightly transparent, thin brown-orange border */}
         <div
-          className="backdrop-blur-xl rounded-2xl p-8 shadow-2xl"
+          className="backdrop-blur-xl rounded-xl p-7 sm:p-8 shadow-2xl"
           style={{
-            background: "rgba(11, 33, 73, 0.45)",
-            border: "1px solid rgba(249, 115, 22, 0.25)",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255,255,255,0.06)",
+            background: V3_CARD_BG,
+            border: `1px solid ${V3_CARD_BORDER}`,
+            boxShadow:
+              "0 25px 50px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255,255,255,0.05)",
           }}
         >
-          {/* Top accent bar */}
+          {/* Short orange accent line at the top of the card */}
           <div
-            className="h-1 w-16 rounded-full mx-auto mb-6"
-            style={{ background: `linear-gradient(90deg, ${BINGOO_ORANGE}, #fb923c)` }}
+            className="h-1 w-12 rounded-full mx-auto mb-6"
+            style={{ background: BINGOO_ORANGE }}
+            aria-hidden="true"
           />
           {children}
         </div>
 
         {footer && (
-          <p className="text-center text-sm mt-6" style={{ color: "rgba(255,255,255,0.6)" }}>
+          <p className="text-center text-sm mt-6" style={{ color: "#a0aec0" }}>
             {footer}
           </p>
         )}

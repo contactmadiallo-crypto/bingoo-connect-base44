@@ -9,8 +9,13 @@ import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 
-const BINGOO_NAVY = "#0b2149";
 const BINGOO_ORANGE = "#f97316";
+
+// V3 login visual palette (from Figma source of truth)
+const INPUT_BG = "rgba(13, 21, 38, 0.5)";
+const INPUT_BORDER = "#2d3748";
+const LABEL_COLOR = "#a0aec0";
+const OR_TEXT = "#4a5568";
 
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
@@ -64,13 +69,19 @@ export default function Login() {
   const nextParam = new URLSearchParams(window.location.search).get("next");
   const registerHref = nextParam ? `/register?next=${encodeURIComponent(nextParam)}` : "/register";
 
+  const inputStyle = {
+    background: INPUT_BG,
+    border: `1px solid ${INPUT_BORDER}`,
+    color: "#ffffff",
+  };
+
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Sign in to your Bingoo Connect account"
       footer={
         <>
-          <span style={{ color: "rgba(255,255,255,0.6)" }}>Don't have an account?</span>{" "}
+          <span style={{ color: "#a0aec0" }}>Don't have an account?</span>{" "}
           <Link
             to={registerHref}
             className="font-semibold hover:underline"
@@ -84,14 +95,10 @@ export default function Login() {
       <Button
         variant="outline"
         className="w-full h-12 text-sm font-medium mb-3 border-0"
-        style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          color: "#ffffff",
-        }}
+        style={{ background: INPUT_BG, border: `1px solid ${INPUT_BORDER}`, color: "#ffffff" }}
         onClick={handleGoogle}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(${0xf9}, 115, 22, 0.5)`)}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(249, 115, 22, 0.6)`)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = INPUT_BORDER)}
       >
         <GoogleIcon className="w-5 h-5 mr-2" />
         Continue with Google
@@ -100,14 +107,10 @@ export default function Login() {
       <Button
         variant="outline"
         className="w-full h-12 text-sm font-medium mb-6 border-0"
-        style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          color: "#ffffff",
-        }}
+        style={{ background: INPUT_BG, border: `1px solid ${INPUT_BORDER}`, color: "#ffffff" }}
         onClick={handleApple}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(${0xf9}, 115, 22, 0.5)`)}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = `rgba(249, 115, 22, 0.6)`)}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = INPUT_BORDER)}
       >
         <AppleIcon className="w-5 h-5 mr-2" />
         Continue with Apple
@@ -115,10 +118,10 @@ export default function Login() {
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t" style={{ borderColor: "rgba(255,255,255,0.12)" }} />
+          <div className="w-full border-t" style={{ borderColor: INPUT_BORDER }} />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="px-3" style={{ color: "rgba(255,255,255,0.4)" }}>
+          <span className="px-3" style={{ color: OR_TEXT }}>
             or
           </span>
         </div>
@@ -139,13 +142,13 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" style={{ color: "rgba(255,255,255,0.8)" }}>
+          <Label htmlFor="email" style={{ color: LABEL_COLOR }}>
             Email
           </Label>
           <div className="relative">
             <Mail
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-              style={{ color: "rgba(249, 115, 22, 0.6)" }}
+              style={{ color: BINGOO_ORANGE }}
               aria-hidden="true"
             />
             <Input
@@ -157,20 +160,16 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-12 border-0"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#ffffff",
-              }}
+              style={inputStyle}
               onFocus={(e) => (e.currentTarget.style.borderColor = BINGOO_ORANGE)}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = INPUT_BORDER)}
               required
             />
           </div>
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" style={{ color: "rgba(255,255,255,0.8)" }}>
+            <Label htmlFor="password" style={{ color: LABEL_COLOR }}>
               Password
             </Label>
             <Link
@@ -184,7 +183,7 @@ export default function Login() {
           <div className="relative">
             <Lock
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-              style={{ color: "rgba(249, 115, 22, 0.6)" }}
+              style={{ color: BINGOO_ORANGE }}
               aria-hidden="true"
             />
             <Input
@@ -195,13 +194,9 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10 h-12 border-0"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#ffffff",
-              }}
+              style={inputStyle}
               onFocus={(e) => (e.currentTarget.style.borderColor = BINGOO_ORANGE)}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = INPUT_BORDER)}
               required
             />
           </div>
