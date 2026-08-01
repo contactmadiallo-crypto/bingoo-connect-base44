@@ -136,6 +136,7 @@ Deno.serve(async (req) => {
           title: `⭐ New lead from ${formData.name || 'Someone'}`,
           body: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || 'Tap to view details'),
           url: actionUrl,
+          _internalToken: Deno.env.get('VAPID_PRIVATE_KEY'),
         });
       } catch (pushErr) {
         console.error('Push notification failed (non-blocking):', pushErr.message);

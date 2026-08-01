@@ -13,7 +13,18 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { user_id, title, body: messageBody, url } = body;
+    const { user_id, title, body: messageBody, url, _internalToken } = body;
+
+    // ── Auth: this is an internal helper invoked only by other backend
+    //    functions (createPublicLead, sendAppointmentReminders) via the
+    //    service role. External/unauthenticated HTTP requests must NOT be
+    //    able to dispatch arbitrary push notifications to users, so we gate
+    //    on a backend-only bearer token (VAPID_PRIVATE_KEY) that only
+    //    server-side callers can read from the environment. Fail-closed.
+    const INTERNAL_TOKEN = Deno.env.get('VAPID_PRIVATE_KEY');
+    if (!INTERNAL_TOKEN || _internalToken !== INTERNAL_TOKEN) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     if (!user_id || !title) {
       return Response.json({ error: 'user_id and title are required' }, { status: 400 });

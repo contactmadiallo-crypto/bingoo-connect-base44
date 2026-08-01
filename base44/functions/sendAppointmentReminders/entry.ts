@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
           title: '⏰ Appointment reminder',
           body: `${serviceLabel} with ${appt.visitor_name} — ${whenStr}`,
           url: actionUrl,
+          _internalToken: Deno.env.get('VAPID_PRIVATE_KEY'),
         });
 
         // Mark reminded so we don't send again
