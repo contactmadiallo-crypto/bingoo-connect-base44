@@ -1,5 +1,6 @@
 import React from "react";
 import BingooLogo from "@/components/bingoo/BingooLogo";
+import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 
 // Official Bingoo Connect brand palette
 const BINGOO_NAVY = "#0b2149";
@@ -25,15 +26,22 @@ export default function AuthLayout({ title, subtitle, footer, children }) {
       />
 
       <div className="relative w-full max-w-md">
-        {/* Bingoo Connect Branding — logo blends with navy bg, no white box */}
+        {/* Bingoo Connect Branding — orange circular brand icon + wordmark */}
         <div className="flex flex-col items-center mb-8">
           <div
-            className="rounded-2xl overflow-hidden mb-4"
-            style={{ background: "transparent", border: "none", boxShadow: "none" }}
+            className="rounded-full flex items-center justify-center mb-3"
+            style={{
+              width: 56,
+              height: 56,
+              background: `linear-gradient(135deg, ${BINGOO_ORANGE}, #fb923c)`,
+              boxShadow: `0 8px 24px rgba(249, 115, 22, 0.45)`,
+            }}
+            aria-hidden="true"
           >
-            <BingooLogo className="h-14 w-14 object-cover" />
+            <InfinityMark size={34} color="#ffffff" strokeWidth={3.2} />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">{title}</h1>
+          <BingooLogo size="text-xl" light />
+          <h1 className="text-2xl font-bold text-white tracking-tight mt-5">{title}</h1>
           {subtitle && (
             <p className="mt-1.5 text-sm" style={{ color: "rgba(249, 115, 22, 0.85)" }}>
               {subtitle}
