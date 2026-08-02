@@ -1,307 +1,217 @@
--- Bingoo Connect 3.0: profile foundation
--- Raw profile tables are private. Anonymous visitors can only execute the
--- allowlisted get_public_profile() function defined at the end of this file.
+-- Bingoo Connect 3.0: secure the existing profile foundation and add a
+-- sanitized public read model for /p/:username.
 
-create extension if not exists pgcrypto;
-create extension if not exists citext;
+create schema if not exists private;
 
-create table public.profiles (
-  id uuid primary key default gen_random_uuid(),
-  owner_id uuid not null references auth.users(id) on delete cascade,
-  legacy_base44_id text unique,
+create table if not exists public.public_profiles (
+  profile_id uuid primary key references public.profiles(id) on delete cascade,
   username citext not null unique,
-  display_name text not null,
-  profile_type text not null default 'professional'
-    check (profile_type in ('personal', 'professional', 'business', 'salon', 'lawfirm', 'corporate', 'creative')),
-  job_title text,
-  company_name text,
-  company_logo text,
-  bio text,
-  profile_photo text,
-  cover_photo text,
-  cover_color text not null default '#0A1F52'
-    check (cover_color ~ '^#[0-9A-Fa-f]{6}$'),
-  theme_background_color text
-    check (theme_background_color is null or theme_background_color ~ '^#[0-9A-Fa-f]{6}$'),
-  layout text not null default 'classic',
-  profile_layout text not null default 'default',
-  profile_theme text not null default 'modern',
-  bg_style text not null default 'clean',
-  button_style text not null default 'pill',
-  phone text,
-  whatsapp_number text,
-  email text,
-  website text,
-  location text,
-  show_location boolean not null default true,
-  facebook_url text,
-  instagram_url text,
-  tiktok_url text,
-  linkedin_url text,
-  youtube_url text,
-  google_review_url text,
-  booking_enabled boolean not null default false,
-  whatsapp_booking_message text,
-  privacy_settings jsonb not null default '{}'::jsonb
-    check (jsonb_typeof(privacy_settings) = 'object'),
-  plan_name text not null default 'free'
-    check (plan_name in ('free', 'professional', 'pro', 'salon', 'restaurant', 'lawfirm', 'business', 'corporate')),
-  is_verified boolean not null default false,
+  payload jsonb not null default '{}'::jsonb
+    check (jsonb_typeof(payload) = 'object'),
   is_active boolean not null default false,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint profiles_username_format check (
-    username::text = lower(username::text)
-    and username::text ~ '^[a-z0-9][a-z0-9_-]{2,29}$'
-  )
-);
-
-create table public.profile_access (
-  id uuid primary key default gen_random_uuid(),
-  profile_id uuid not null unique references public.profiles(id) on delete cascade,
-  owner_id uuid not null references auth.users(id) on delete cascade,
-  legacy_base44_id text unique,
-  access_status text not null default 'active'
-    check (access_status in ('active', 'trial_locked', 'archived')),
-  is_primary boolean not null default false,
-  created_during_trial boolean not null default false,
-  locked_at timestamptz,
-  lock_reason text,
-  subscription_id text,
-  plan_name text
-    check (plan_name is null or plan_name in ('free', 'professional', 'pro', 'salon', 'restaurant', 'lawfirm', 'business', 'corporate')),
-  entitlement_id text,
+  access_status public.profile_access_state not null default 'archived',
   expires_at timestamptz,
-  access_source text not null default 'legacy'
-    check (access_source in ('stripe', 'trial', 'admin_override', 'legacy')),
-  created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-create table public.profile_links (
-  id uuid primary key default gen_random_uuid(),
-  profile_id uuid not null references public.profiles(id) on delete cascade,
-  legacy_base44_id text,
-  title text not null check (char_length(title) between 1 and 60),
-  url text not null check (
-    char_length(url) between 1 and 2048
-    and url ~* '^(https?://|mailto:|tel:)'
-  ),
-  icon text,
-  link_type text not null default 'other'
-    check (link_type in ('website', 'instagram', 'tiktok', 'youtube', 'twitter', 'linkedin', 'whatsapp', 'email', 'phone', 'other')),
-  description text check (description is null or char_length(description) <= 1000),
-  sort_order integer not null default 0,
-  is_active boolean not null default true,
-  click_count bigint not null default 0 check (click_count >= 0),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (profile_id, legacy_base44_id)
-);
+alter table public.public_profiles enable row level security;
 
-create index profiles_owner_id_idx on public.profiles(owner_id);
-create index profile_access_owner_id_idx on public.profile_access(owner_id);
-create index profile_links_profile_order_idx on public.profile_links(profile_id, sort_order, created_at);
-
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-set search_path = pg_catalog, public
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
-create trigger profiles_set_updated_at
-before update on public.profiles
-for each row execute function public.set_updated_at();
-
-create trigger profile_access_set_updated_at
-before update on public.profile_access
-for each row execute function public.set_updated_at();
-
-create trigger profile_links_set_updated_at
-before update on public.profile_links
-for each row execute function public.set_updated_at();
-
-alter table public.profiles enable row level security;
-alter table public.profile_access enable row level security;
-alter table public.profile_links enable row level security;
-
-create policy profiles_owner_select
-on public.profiles for select to authenticated
-using (owner_id = (select auth.uid()));
-
-create policy profiles_owner_insert
-on public.profiles for insert to authenticated
-with check (owner_id = (select auth.uid()));
-
-create policy profiles_owner_update
-on public.profiles for update to authenticated
-using (owner_id = (select auth.uid()))
-with check (owner_id = (select auth.uid()));
-
-create policy profiles_owner_delete
-on public.profiles for delete to authenticated
-using (owner_id = (select auth.uid()));
-
-create policy profile_access_owner_select
-on public.profile_access for select to authenticated
-using (owner_id = (select auth.uid()));
+drop policy if exists "anon read profiles" on public.profiles;
+drop policy if exists "anon read" on public.profile_links;
+drop policy if exists "auth access" on public.profile_links;
 
 create policy profile_links_owner_select
 on public.profile_links for select to authenticated
-using (
-  exists (
-    select 1 from public.profiles p
-    where p.id = profile_links.profile_id
-      and p.owner_id = (select auth.uid())
-  )
-);
+using (public.can_access_profile(profile_id));
 
 create policy profile_links_owner_insert
 on public.profile_links for insert to authenticated
 with check (
-  exists (
-    select 1 from public.profiles p
-    where p.id = profile_links.profile_id
-      and p.owner_id = (select auth.uid())
+  public.can_access_profile(
+    profile_id,
+    array['owner'::public.profile_member_role, 'editor'::public.profile_member_role]
   )
 );
 
 create policy profile_links_owner_update
 on public.profile_links for update to authenticated
 using (
-  exists (
-    select 1 from public.profiles p
-    where p.id = profile_links.profile_id
-      and p.owner_id = (select auth.uid())
+  public.can_access_profile(
+    profile_id,
+    array['owner'::public.profile_member_role, 'editor'::public.profile_member_role]
   )
 )
 with check (
-  exists (
-    select 1 from public.profiles p
-    where p.id = profile_links.profile_id
-      and p.owner_id = (select auth.uid())
+  public.can_access_profile(
+    profile_id,
+    array['owner'::public.profile_member_role, 'editor'::public.profile_member_role]
   )
 );
 
 create policy profile_links_owner_delete
 on public.profile_links for delete to authenticated
 using (
-  exists (
-    select 1 from public.profiles p
-    where p.id = profile_links.profile_id
-      and p.owner_id = (select auth.uid())
+  public.can_access_profile(
+    profile_id,
+    array['owner'::public.profile_member_role, 'editor'::public.profile_member_role]
   )
 );
 
--- Owners can edit public profile fields, but entitlement and activation fields
--- remain backend-only. profile_access writes are backend-only by design.
-revoke all on public.profiles, public.profile_access, public.profile_links from anon, authenticated;
-grant select on public.profiles, public.profile_access, public.profile_links to authenticated;
-grant insert (
-  owner_id, username, display_name, profile_type, job_title,
-  company_name, company_logo, bio, profile_photo, cover_photo, cover_color,
-  theme_background_color, layout, profile_layout, profile_theme, bg_style,
-  button_style, phone, whatsapp_number, email, website, location, show_location,
-  facebook_url, instagram_url, tiktok_url, linkedin_url, youtube_url,
-  google_review_url, booking_enabled, whatsapp_booking_message, privacy_settings
-) on public.profiles to authenticated;
-grant update (
-  username, display_name, profile_type, job_title, company_name, company_logo,
-  bio, profile_photo, cover_photo, cover_color, theme_background_color, layout,
-  profile_layout, profile_theme, bg_style, button_style, phone,
-  whatsapp_number, email, website, location, show_location, facebook_url,
-  instagram_url, tiktok_url, linkedin_url, youtube_url, google_review_url,
-  booking_enabled, whatsapp_booking_message, privacy_settings
-) on public.profiles to authenticated;
-grant delete on public.profiles to authenticated;
-grant insert (
-  profile_id, title, url, icon, link_type, description, sort_order, is_active
-) on public.profile_links to authenticated;
-grant update (
-  title, url, icon, link_type, description, sort_order, is_active
-) on public.profile_links to authenticated;
-grant delete on public.profile_links to authenticated;
-grant all on public.profiles, public.profile_access, public.profile_links to service_role;
+create policy public_profiles_public_select
+on public.public_profiles for select to anon, authenticated
+using (
+  is_active = true
+  and access_status = 'active'::public.profile_access_state
+  and (expires_at is null or expires_at > now())
+);
 
-create or replace function public.get_public_profile(p_username text)
-returns jsonb
-language sql
-stable
+revoke all on public.profiles, public.profile_access, public.profile_links from anon;
+revoke all on public.public_profiles from anon, authenticated;
+grant select on public.public_profiles to anon, authenticated;
+grant all on public.public_profiles to service_role;
+
+-- Existing imported profiles get an owner access record without changing data.
+insert into public.profile_access (
+  profile_id, user_id, member_role, access_status, is_primary, source
+)
+select p.id, p.user_id, 'owner', 'active', true, 'legacy'
+from public.profiles p
+where p.user_id is not null
+on conflict (profile_id, user_id) do nothing;
+
+create or replace function private.refresh_public_profile(p_profile_id uuid)
+returns void
+language plpgsql
 security definer
-set search_path = pg_catalog, public
+set search_path = pg_catalog, public, private
 as $$
-  select jsonb_strip_nulls(
-    jsonb_build_object(
+begin
+  delete from public.public_profiles where profile_id = p_profile_id;
+
+  insert into public.public_profiles (
+    profile_id, username, payload, is_active, access_status, expires_at
+  )
+  select
+    p.id,
+    p.username,
+    jsonb_strip_nulls(jsonb_build_object(
       'id', p.id,
       'username', p.username::text,
       'display_name', p.display_name,
-      'profile_type', p.profile_type,
+      'profile_type', coalesce(p.profile_type, p.kind::text),
       'job_title', p.job_title,
-      'company_name', p.company_name,
-      'company_logo', p.company_logo,
+      'company_name', coalesce(p.company_name, p.company),
       'bio', p.bio,
-      'profile_photo', p.profile_photo,
-      'cover_photo', p.cover_photo,
+      'profile_photo', coalesce(p.avatar_url, p.profile_photo_path),
+      'cover_photo', coalesce(p.cover_image_url, p.cover_photo_path),
       'cover_color', p.cover_color,
-      'theme_background_color', p.theme_background_color,
-      'layout', p.layout,
-      'profile_layout', p.profile_layout,
-      'profile_theme', p.profile_theme,
-      'bg_style', p.bg_style,
-      'button_style', p.button_style,
-      'phone', p.phone,
-      'whatsapp_number', p.whatsapp_number,
-      'email', case when coalesce((p.privacy_settings ->> 'hide_email')::boolean, false) then null else p.email end,
+      'accent_color', p.accent_color,
+      'design', p.design,
+      'public_contact', p.public_contact,
       'website', p.website,
-      'location', case when p.show_location then p.location else null end,
-      'show_location', p.show_location,
-      'facebook_url', p.facebook_url,
-      'instagram_url', p.instagram_url,
-      'tiktok_url', p.tiktok_url,
-      'linkedin_url', p.linkedin_url,
-      'youtube_url', p.youtube_url,
-      'google_review_url', p.google_review_url,
-      'booking_enabled', p.booking_enabled,
-      'whatsapp_booking_message', p.whatsapp_booking_message,
-      'plan', coalesce(pa.plan_name, p.plan_name),
+      'layout', p.layout,
+      'button_style', p.button_style,
+      'link_display_style', p.link_display_style,
+      'profile_font', p.profile_font,
       'is_verified', p.is_verified,
-      'is_active', p.is_active,
-      'links', coalesce(
-        (
-          select jsonb_agg(
-            jsonb_strip_nulls(jsonb_build_object(
-              'id', l.id,
-              'title', l.title,
-              'url', l.url,
-              'icon', l.icon,
-              'type', l.link_type,
-              'description', l.description,
-              'order', l.sort_order
-            )) order by l.sort_order, l.created_at
-          )
-          from public.profile_links l
-          where l.profile_id = p.id and l.is_active = true
-        ),
-        '[]'::jsonb
-      )
-    )
-  )
+      'links', coalesce((
+        select jsonb_agg(jsonb_build_object(
+          'id', l.id,
+          'title', l.label,
+          'url', l.url,
+          'icon', l.icon,
+          'type', l.category,
+          'order', l.sort_order
+        ) order by l.sort_order, l.created_at)
+        from public.profile_links l
+        where l.profile_id = p.id and l.active = true
+      ), '[]'::jsonb)
+    )),
+    (p.is_active and coalesce(p.visible, true)),
+    pa.access_status,
+    pa.expires_at
   from public.profiles p
-  join public.profile_access pa on pa.profile_id = p.id
-  where p.username = lower(trim(p_username))::citext
-    and p.is_active = true
-    and pa.access_status = 'active'
-    and (pa.expires_at is null or pa.expires_at > now())
+  join lateral (
+    select a.access_status, a.expires_at
+    from public.profile_access a
+    where a.profile_id = p.id
+      and a.member_role = 'owner'::public.profile_member_role
+    order by a.is_primary desc, a.created_at
+    limit 1
+  ) pa on true
+  where p.id = p_profile_id;
+end;
+$$;
+
+revoke all on function private.refresh_public_profile(uuid) from public, anon, authenticated;
+grant execute on function private.refresh_public_profile(uuid) to service_role;
+
+create or replace function private.refresh_public_profile_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public, private
+as $$
+begin
+  perform private.refresh_public_profile(
+    case when tg_op = 'DELETE' then old.profile_id else new.profile_id end
+  );
+  return coalesce(new, old);
+end;
+$$;
+
+revoke all on function private.refresh_public_profile_trigger() from public, anon, authenticated;
+
+create or replace function private.refresh_profile_row_trigger()
+returns trigger
+language plpgsql
+security definer
+set search_path = pg_catalog, public, private
+as $$
+begin
+  perform private.refresh_public_profile(case when tg_op = 'DELETE' then old.id else new.id end);
+  return coalesce(new, old);
+end;
+$$;
+
+revoke all on function private.refresh_profile_row_trigger() from public, anon, authenticated;
+
+drop trigger if exists refresh_public_profile_from_profile on public.profiles;
+create trigger refresh_public_profile_from_profile
+after insert or update or delete on public.profiles
+for each row execute function private.refresh_profile_row_trigger();
+
+drop trigger if exists refresh_public_profile_from_access on public.profile_access;
+create trigger refresh_public_profile_from_access
+after insert or update or delete on public.profile_access
+for each row execute function private.refresh_public_profile_trigger();
+
+drop trigger if exists refresh_public_profile_from_link on public.profile_links;
+create trigger refresh_public_profile_from_link
+after insert or update or delete on public.profile_links
+for each row execute function private.refresh_public_profile_trigger();
+
+drop function if exists public.get_public_profile(text);
+
+create function public.get_public_profile(p_username text)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = pg_catalog, public
+as $$
+  select pp.payload
+  from public.public_profiles pp
+  where pp.username = lower(trim(p_username))::extensions.citext
   limit 1;
 $$;
 
 revoke all on function public.get_public_profile(text) from public;
 grant execute on function public.get_public_profile(text) to anon, authenticated, service_role;
 
+select private.refresh_public_profile(id) from public.profiles;
+
+comment on table public.public_profiles is
+  'Sanitized RLS-protected read model used by public profile pages.';
 comment on function public.get_public_profile(text) is
-  'Returns an allowlisted public profile payload only when the profile and its entitlement are active.';
+  'Returns a sanitized public profile payload filtered by RLS.';
