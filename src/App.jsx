@@ -30,6 +30,7 @@ const Contact = lazy(() => import('./pages/Contact'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const ShopAdmin = lazy(() => import('./pages/ShopAdmin'));
 import { AuthProvider } from '@/lib/AuthContext';
+import { ProfileWorkspaceProvider } from '@/lib/ProfileWorkspaceContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminAuthGuard from '@/components/AdminAuthGuard';
 import BingooLayoutWrapper from '@/components/bingoo/BingooLayoutWrapper';
@@ -165,6 +166,7 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <ProfileWorkspaceProvider>
         <PWASplashScreen />
         <Router>
           <NavigationStackProvider>
@@ -177,6 +179,7 @@ function App() {
         </Router>
         <Toaster />
         <VisualEditAgent />
+        </ProfileWorkspaceProvider>
       </QueryClientProvider>
     </AuthProvider>
   )
