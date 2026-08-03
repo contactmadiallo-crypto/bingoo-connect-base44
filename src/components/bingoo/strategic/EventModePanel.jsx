@@ -1,3 +1,4 @@
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
@@ -68,7 +69,7 @@ export default function EventModePanel({ profile, isDark }) {
       time: getTimeAgo(new Date(l.created_date)),
     }));
 
-  const profileUrl = `${window.location.origin}/p/${profile.username}`;
+  const profileUrl = publicProfileUrl(profile?.username) || "";
 
   const cardBg = isDark ? "bg-white/5" : "bg-white";
   const cardBorder = isDark ? "border-white/10" : "border-slate-200";

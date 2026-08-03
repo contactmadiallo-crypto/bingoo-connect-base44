@@ -1,3 +1,4 @@
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 // Admin-only Google Play Store asset capture workspace.
 // Reuses real production UI components + capture-only mirrors with fictional demo data.
 // No DB writes, no real orders/leads/emails/payments/notifications, no subscription changes.
@@ -36,7 +37,7 @@ function Screen({ state }) {
           plan="professional"
           canAccessFeature={() => true}
           onNavigate={() => {}}
-          profileUrl={`${window.location.origin}/p/${demoProfile.username}`}
+          profileUrl={publicProfileUrl(demoProfile.username) || ""}
           isLoading={false}
         />
       );

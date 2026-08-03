@@ -3,6 +3,7 @@ import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, GripV
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
 
 export default function ProfilesHub({
   profiles = [],
@@ -111,14 +112,14 @@ export default function ProfilesHub({
   const canReorder = items.length > 1 && !!onReorder;
 
   const copyLink = (profile) => {
-    const url = `${window.location.origin}/p/${profile.username}`;
+    const url = publicProfileUrl(profile.username);
     navigator.clipboard.writeText(url);
     setCopiedId(profile.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const getQrUrl = (profile) =>
-    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/p/${profile.username}?source=qr`)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
+    `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicProfileQrUrl(profile.username))}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
 
   const titleCase = (value, fallback) => String(value || fallback)
     .replace(/[_-]+/g, " ")
@@ -212,7 +213,7 @@ export default function ProfilesHub({
 
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
-    const profileUrl = `${window.location.origin}/p/${profile.username}`;
+    const profileUrl = publicProfileUrl(profile.username);
     const selected = isSelected(profile);
     const completion = profileCompletion(profile);
     const profileType = titleCase(profile.profile_type, "Personal");

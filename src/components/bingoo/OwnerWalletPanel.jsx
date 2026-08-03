@@ -1,7 +1,8 @@
 import WalletPassButtons from "@/components/bingoo/WalletPassButtons";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg, headText, mutedText }) {
-  const profileUrl = `${window.location.origin}/p/${profile?.username || "profile"}`;
+  const profileUrl = publicProfileUrl(profile?.username || "profile");
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(profileUrl)}&color=0b2149&bgcolor=ffffff`;
   const coverColor = profile?.cover_color || "#0b2149";
 
@@ -33,7 +34,7 @@ export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg
           )}
           <div className="min-w-0">
             <p className="font-black text-lg truncate">{profile?.display_name || "Bingoo Profile"}</p>
-            <p className="text-xs text-white/65 truncate">{profile?.job_title || profile?.company || "Digital Profile"}</p>
+            <p className="text-xs text-white/65 truncate">{profile?.job_title || profile?.company_name || "Digital Profile"}</p>
           </div>
         </div>
 

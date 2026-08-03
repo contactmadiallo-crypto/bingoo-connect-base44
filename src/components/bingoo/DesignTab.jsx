@@ -1,3 +1,4 @@
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   const isPro = isAdmin || (subPlan && subPlan !== 'free');
   const currentLayout = profile?.layout || "classic";
   const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
-  const profileUrl = profile ? `${window.location.origin}/p/${profile.username}` : null;
+  const profileUrl = publicProfileUrl(profile?.username);
 
   const headText = isDark ? "text-white" : "text-slate-900";
   const subText = isDark ? "text-white/50" : "text-slate-500";

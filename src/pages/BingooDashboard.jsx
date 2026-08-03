@@ -30,6 +30,7 @@ const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWor
 import { usePlan } from "@/hooks/usePlan";
 import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 import { PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
 import {
   BarChart3, Star, Settings, TrendingUp, CalendarDays,
@@ -551,7 +552,7 @@ export default function BingooDashboard() {
   const tr = TR[lang];
 
   // Profile URL helpers
-  const profileAbsoluteUrl = activeProfile ? `${window.location.origin}/p/${activeProfile.username}` : null;
+  const profileAbsoluteUrl = activeProfile ? publicProfileUrl(activeProfile.username) : null;
 
   // isNewProfile mode
   const isNewProfile = searchParams.get("newprofile") === "1";

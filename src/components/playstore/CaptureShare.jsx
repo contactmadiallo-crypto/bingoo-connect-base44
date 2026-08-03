@@ -1,3 +1,4 @@
+import { publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
 // Capture-only mirror of the real QrWalletCenter QR + Profile Link + Google Wallet UI.
 // Apple Wallet is intentionally omitted (feature on hold). No network writes.
 import { useState, useEffect } from "react";
@@ -24,8 +25,8 @@ const GoogleLogo = ({ size = 13 }) => (
 
 export default function CaptureShare() {
   const profile = demoProfile;
-  const profileUrl = `${window.location.origin}/p/${profile.username}`;
-  const profileQrUrl = `${profileUrl}?source=qr`;
+  const profileUrl = publicProfileUrl(profile?.username) || "";
+  const profileQrUrl = publicProfileQrUrl(profile?.username) || "";
   const [qrColor, setQrColor] = useState("#1e293b");
   const [qrLabel, setQrLabel] = useState("Scan Me");
   const [customLabel, setCustomLabel] = useState("");

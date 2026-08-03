@@ -1,3 +1,4 @@
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -82,12 +83,12 @@ export default function Dashboard() {
   });
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/p/${profile?.username}`);
+    navigator.clipboard.writeText(publicProfileUrl(profile?.username) || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const profileUrl = `${window.location.origin}/p/${profile?.username}`;
+  const profileUrl = publicProfileUrl(profile?.username) || "";
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(profileUrl)}&color=1e293b`;
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
