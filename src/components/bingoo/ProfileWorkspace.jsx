@@ -22,6 +22,7 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import { ProfileSelectorDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import BusinessToolsPanel from "@/components/bingoo/BusinessToolsPanel";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
@@ -945,6 +946,8 @@ export default function ProfileWorkspace({
   isLawFirm,
   isSalon,
   lang: langProp,
+  profiles = [],
+  onSelectProfile,
   onDirtyChange,
 }) {
   const qc = useQueryClient();
@@ -1185,26 +1188,12 @@ export default function ProfileWorkspace({
         </button>
 
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          {(() => {
-            const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "10px" }[profile.avatar_shape] || "50%";
-            return profile.profile_photo
-              ? <img src={profile.profile_photo} style={{ width: 36, height: 36, borderRadius: shapeR, objectFit: "cover", objectPosition: profile.avatar_position || "center top", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} alt="" />
-              : <div style={{ width: 36, height: 36, borderRadius: shapeR, background: profile.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>{profile.display_name?.charAt(0)}</div>;
-          })()}
-          <div className="min-w-0">
-            <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
-            <p className={`text-[11px] ${mutedText} truncate`}>/p/{profile.username}</p>
-          </div>
-          {(() => {
-            const ep = userPlan || "free";
-            const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
-            return (
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
-                style={{ background: colors.bg, color: colors.text }}>
-                {PLAN_LABELS[ep] || "Free"}
-              </span>
-            );
-          })()}
+          <ProfileSelectorDropdown
+            profiles={profiles}
+            selectedProfile={profiles.find((item) => item.id === profileId) || profile}
+            onSelectProfile={onSelectProfile}
+            isDark={isDark}
+          />
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
