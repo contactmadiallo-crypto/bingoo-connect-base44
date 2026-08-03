@@ -639,13 +639,15 @@ export default function BingooDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <ProfileSelectorDropdown
-                profiles={orderedProfiles}
-                selectedProfile={activeProfile}
-                onSelectProfile={requestProfileSwitch}
-                isDark={isDark}
-                compact
-              />
+              {view !== VIEW_WORKSPACE && (
+                <ProfileSelectorDropdown
+                  profiles={orderedProfiles}
+                  selectedProfile={activeProfile}
+                  onSelectProfile={requestProfileSwitch}
+                  isDark={isDark}
+                  compact
+                />
+              )}
               <NotificationCenter userId={user?.id} isDark={isDark} />
               <button onClick={toggleLang} aria-label="Toggle language"
                 className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
@@ -742,6 +744,8 @@ export default function BingooDashboard() {
                   isLawFirm={isLawFirm}
                   isSalon={isSalon}
                   lang={lang}
+                  profiles={orderedProfiles}
+                  onSelectProfile={requestProfileSwitch}
                   onDirtyChange={setWorkspaceDirty}
                 />
               )}
