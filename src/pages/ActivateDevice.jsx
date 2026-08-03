@@ -9,12 +9,14 @@ import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pen
 import { Button } from "@/components/ui/button";
 import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel, getDeviceDisplayName } from "@/lib/deviceTypes";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
-import { ArrowRight, ArrowLeft, Check, Radio } from "lucide-react";
+import { ArrowRight, ArrowLeft, Check, Radio, Package } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function ActivateDevice() {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
-  const { profiles, selectedProfile: workspaceProfile, selectProfile } = useProfileWorkspace();
+  const navigate = useNavigate();
+  const { profiles, selectProfile } = useProfileWorkspace();
 
   // State — pre-fill from ?code= URL param (e.g. /activate-device?code=BG-000007)
   const [code, setCode] = useState(() => {
@@ -113,7 +115,9 @@ export default function ActivateDevice() {
       }
 
       setPendingDevice(device);
-      setActivationProfileId(workspaceProfile?.id || profiles[0]?.id || "");
+      setActivationProfileId("");
+      setSelectedAsset("");
+      setAssignTarget("profile");
       setActivationStep(2);
       return true;
     } catch (e) {
@@ -159,6 +163,7 @@ export default function ActivateDevice() {
           return;
         }
         await base44.entities.AssetItem.update(targetAsset.id, { nfc_device_id: device.id });
+        await base44.entities.NFCDevice.update(device.id, { assigned_asset_id: targetAsset.id });
         setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to asset: ${targetAsset.name}` });
       } else {
         const targetProfile = profiles.find(p => p.id === activationProfileId);
@@ -240,7 +245,12 @@ export default function ActivateDevice() {
 
   return (
     <BingooLayout>
-      <div className="p-6 max-w-3xl mx-auto space-y-8">
+      <div className="px-4 pb-10 pt-2 sm:px-6 max-w-4xl mx-auto space-y-6">
+
+        <button type="button" onClick={() => navigate("/my-nfc-devices")}
+          className={`inline-flex items-center gap-2 min-h-[44px] px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-white"}`}>
+          <ArrowLeft className="w-4 h-4" /> Back to NFC Devices
+        </button>
 
         {/* Header */}
         <div className="relative rounded-3xl overflow-hidden p-6 md:p-8"
@@ -306,14 +316,26 @@ export default function ActivateDevice() {
             {activationStep === 2 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>Link to a profile</h2>
-                  <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — choose an accessible profile to link it to.</p>
+                  <h2 className={`font-black text-2xl ${headText}`}>Choose where to activate</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — select one profile or one asset before continuing.</p>
                 </div>
-                <div className="grid gap-3">
+
+                <div className={`grid grid-cols-2 gap-2 rounded-2xl p-1.5 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
+                  <button type="button" onClick={() => { setAssignTarget("profile"); setSelectedAsset(""); }}
+                    className={`min-h-[46px] rounded-xl text-sm font-black transition-all ${assignTarget === "profile" ? "bg-white text-slate-900 shadow-sm" : subText}`}>
+                    Profile
+                  </button>
+                  <button type="button" onClick={() => { setAssignTarget("asset"); setActivationProfileId(""); }}
+                    className={`min-h-[46px] rounded-xl text-sm font-black transition-all ${assignTarget === "asset" ? "bg-white text-slate-900 shadow-sm" : subText}`}>
+                    Asset
+                  </button>
+                </div>
+
+                {assignTarget === "profile" && <div className="grid gap-3">
                   {profiles.map(profile => {
-                    const selected = activationProfileId === profile.id;
+                    const selected = assignTarget === "profile" && activationProfileId === profile.id;
                     return (
-                      <button type="button" key={profile.id} onClick={() => { setAssignTarget("profile"); setActivationProfileId(profile.id); }}
+                      <button type="button" key={profile.id} onClick={() => setActivationProfileId(profile.id)}
                         className={`w-full rounded-2xl border-2 p-4 flex items-center gap-4 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
                         {profile.profile_photo ? <img src={profile.profile_photo} alt="" className="w-14 h-14 rounded-2xl object-cover" /> : (
                           <span className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black" style={{ background: profile.cover_color || "#0b2149" }}>{profile.display_name?.charAt(0) || "P"}</span>
@@ -322,20 +344,47 @@ export default function ActivateDevice() {
                           <span className={`block font-black truncate ${selected && !isDark ? "text-slate-900" : headText}`}>{profile.display_name || "Untitled profile"}</span>
                           <span className={`block text-xs truncate ${selected && !isDark ? "text-slate-500" : mutedText}`}>@{profile.username || "profile"}{profile.access_role && profile.access_role !== "owner" ? ` · ${profile.access_role}` : ""}</span>
                         </span>
-                        {selected && <CheckCircle className="w-5 h-5 text-orange-500" />}
+                        <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected ? "border-orange-500 bg-orange-500" : isDark ? "border-white/20" : "border-slate-300"}`}>
+                          {selected && <Check className="w-3.5 h-3.5 text-white" />}
+                        </span>
                       </button>
                     );
                   })}
                   {!profiles.length && <p className={`text-sm ${mutedText}`}>Create or request access to a profile before activating a device.</p>}
-                </div>
-                {myAssets.length > 0 && (
-                  <details className={`rounded-xl border p-3 ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                    <summary className={`cursor-pointer text-xs font-bold ${subText}`}>Assign to an asset instead</summary>
-                    <select className={`${inputCls} mt-3`} value={selectedAsset} onChange={e => { setAssignTarget("asset"); setSelectedAsset(e.target.value); }}>
-                      <option value="">Select an asset…</option>
-                      {myAssets.map(a => <option key={a.id} value={a.id}>{a.name} ({a.asset_type})</option>)}
-                    </select>
-                  </details>
+                </div>}
+
+                {assignTarget === "asset" && (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {myAssets.map(asset => {
+                      const selected = selectedAsset === asset.id;
+                      return (
+                        <button type="button" key={asset.id} onClick={() => setSelectedAsset(asset.id)}
+                          className={`rounded-2xl border-2 p-4 flex items-center gap-3 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
+                          {asset.photo_url ? (
+                            <img src={asset.photo_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
+                          ) : (
+                            <span className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>
+                              <Package className={`w-7 h-7 ${selected ? "text-orange-500" : mutedText}`} />
+                            </span>
+                          )}
+                          <span className="flex-1 min-w-0">
+                            <span className={`block font-black truncate ${selected && !isDark ? "text-slate-900" : headText}`}>{asset.name || "Untitled asset"}</span>
+                            <span className={`block text-xs capitalize truncate ${selected && !isDark ? "text-slate-500" : mutedText}`}>{asset.asset_type || "asset"}{asset.nfc_device_id ? " · NFC linked" : " · Ready to link"}</span>
+                          </span>
+                          <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected ? "border-orange-500 bg-orange-500" : isDark ? "border-white/20" : "border-slate-300"}`}>
+                            {selected && <Check className="w-3.5 h-3.5 text-white" />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                    {!myAssets.length && (
+                      <div className={`sm:col-span-2 rounded-2xl border p-5 text-center ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
+                        <Package className={`w-8 h-8 mx-auto mb-2 ${mutedText}`} />
+                        <p className={`text-sm font-bold ${headText}`}>No assets available</p>
+                        <p className={`text-xs mt-1 ${mutedText}`}>Create an asset in My Assets, then return here to assign this device.</p>
+                      </div>
+                    )}
+                  </div>
                 )}
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setActivationStep(1)} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
