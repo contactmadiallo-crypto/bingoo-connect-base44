@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-import { base44 } from '@/api/base44Client';
+import { getCurrentAccount, logoutAccount } from '@/api/accountClient';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     try {
-      const currentUser = await base44.auth.me();
+      const currentUser = await getCurrentAccount();
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setIsAuthenticated(false);
     // Always use the SDK logout for token cleanup, then redirect to our own login
-    base44.auth.logout();
+    logoutAccount();
     if (shouldRedirect) {
       window.location.href = "/login";
     }
@@ -87,7 +87,8 @@ export const AuthProvider = ({ children }) => {
       appPublicSettings,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState,
+      refreshAccount: checkUserAuth
     }}>
       {children}
     </AuthContext.Provider>
