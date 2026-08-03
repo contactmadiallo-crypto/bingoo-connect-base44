@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ChevronLeft, Eye, Copy, Check, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePlan } from "@/hooks/usePlan";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }) {
   const [copied, setCopied] = useState(false);
@@ -9,7 +10,7 @@ export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }
 
   if (!profile) return null;
 
-  const profileUrl = `${window.location.origin}/p/${profile.username}`;
+  const profileUrl = publicProfileUrl(profile.username);
 
   const copyLink = () => {
     navigator.clipboard.writeText(profileUrl);
