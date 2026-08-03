@@ -7,18 +7,26 @@ import { listAccessibleProfiles } from "@/api/profileWorkspaceClient";
 const ProfileWorkspaceContext = createContext(null);
 const SELECTED_PROFILE_KEY = "bingoo:selected-profile-id";
 
-function readSavedProfileId() {
+function storageKey(userId) {
+  return userId ? `${SELECTED_PROFILE_KEY}:${userId}` : null;
+}
+
+function readSavedProfileId(userId) {
+  const key = storageKey(userId);
+  if (!key) return null;
   try {
-    return localStorage.getItem(SELECTED_PROFILE_KEY) || null;
+    return localStorage.getItem(key) || null;
   } catch {
     return null;
   }
 }
 
-function saveProfileId(profileId) {
+function saveProfileId(userId, profileId) {
+  const key = storageKey(userId);
+  if (!key) return;
   try {
-    if (profileId) localStorage.setItem(SELECTED_PROFILE_KEY, profileId);
-    else localStorage.removeItem(SELECTED_PROFILE_KEY);
+    if (profileId) localStorage.setItem(key, profileId);
+    else localStorage.removeItem(key);
   } catch {
     // Storage can be unavailable in private or embedded browser contexts.
   }
@@ -26,7 +34,11 @@ function saveProfileId(profileId) {
 
 export function ProfileWorkspaceProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
-  const [selectedProfileId, setSelectedProfileId] = useState(readSavedProfileId);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
+
+  useEffect(() => {
+    setSelectedProfileId(readSavedProfileId(user?.id));
+  }, [user?.id]);
 
   const {
     data: profiles = [],
@@ -58,14 +70,14 @@ export function ProfileWorkspaceProvider({ children }) {
     if (isLoading) return;
     if (!isAuthenticated || !user?.id || profiles.length === 0) {
       setSelectedProfileId(null);
-      saveProfileId(null);
+      return;
       return;
     }
 
     const validatedId = selectedProfile?.id || primaryProfile?.id || null;
     if (validatedId && validatedId !== selectedProfileId) {
       setSelectedProfileId(validatedId);
-      saveProfileId(validatedId);
+      saveProfileId(user.id, validatedId);
     }
   }, [
     isAuthenticated,
@@ -85,9 +97,9 @@ export function ProfileWorkspaceProvider({ children }) {
     const allowed = profiles.some((profile) => profile.id === profileId);
     if (!allowed) return false;
     setSelectedProfileId(profileId);
-    saveProfileId(profileId);
+    saveProfileId(user?.id, profileId);
     return true;
-  }, [profiles]);
+  }, [profiles, user?.id]);
 
   const value = useMemo(() => ({
     profiles,
