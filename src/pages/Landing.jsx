@@ -8,6 +8,9 @@ import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
+import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
+import { useAuth } from "@/lib/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
@@ -39,6 +42,11 @@ const goActivate = async () => {
   if (authed) window.location.href = '/activate-device';
   else base44.auth.redirectToLogin('/activate-device');
 };
+
+function LandingAccountMenu({ user, logout }) {
+  const { plan } = usePlan();
+  return <AccountDropdown user={user} plan={plan} logout={logout} isDark />;
+}
 
 // Each feature card opens a detail panel (LandingDetailModal) with overview,
 // use cases, what's implemented, why it matters, and CTA buttons.
@@ -675,8 +683,7 @@ function FloatingOrb({ style, delay = 0 }) {
 }
 
 export default function Landing() {
-  const [authed, setAuthed] = useState(false);
-  useEffect(() => { base44.auth.isAuthenticated().then(setAuthed); }, []);
+  const { user, isAuthenticated: authed, logout } = useAuth();
 
   // Active detail item for the landing-page modals (features + industries share one modal)
   const [activeDetail, setActiveDetail] = useState(null);
@@ -746,12 +753,8 @@ export default function Landing() {
               {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
             </button>
             {authed ? (
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button size="sm" onClick={() => window.location.href = '/bingoo'}
-                  className="font-bold text-sm"
-                  style={{ background: B.orange, color: "#fff", border: "none" }}>
-                  {t("lp_dashboard", lang)} →
-                </Button>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <LandingAccountMenu user={user} logout={logout} />
               </motion.div>
             ) : (
               <>
