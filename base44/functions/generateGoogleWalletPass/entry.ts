@@ -248,16 +248,11 @@ Deno.serve(async (req) => {
       logo: {
         sourceUri: { uri: BINGOO_LOGO_URL },
       },
-      // Hero image: profile_photo when available — gives a premium personal business-card feel
-      ...(profile.profile_photo ? {
-        heroImage: {
-          sourceUri: { uri: profile.profile_photo },
-          contentDescription: { defaultValue: { language: 'en', value: `${displayName} profile photo` } },
-        },
-      } : {}),
-      cardTitle: { defaultValue: { language: 'en', value: truncate(displayName, 28) } },
+      // Google expands hero images into a full-width portrait panel. Omitting it
+      // keeps the native pass compact and closer to Bingoo's landscape card.
+      cardTitle: { defaultValue: { language: 'en', value: 'Bingoo Connect' } },
       header: { defaultValue: { language: 'en', value: truncate(headerValue, 35) } },
-      ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
+      ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 50) } } } : {}),
       textModulesData: textModules,
       linksModuleData: {
         uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_link' }],
