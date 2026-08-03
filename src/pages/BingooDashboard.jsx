@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
@@ -268,18 +270,6 @@ export default function BingooDashboard() {
 
   const view = resolveView(searchParams);
 
-  // selectedProfileId is the single source of truth — persisted to sessionStorage
-  // so switching to the NFC tab (which unmounts this page) and back restores the
-  // same profile, preserving the user's context across bottom-tab switches.
-  const [selectedProfileId, setSelectedProfileId] = useState(() => {
-    try { return sessionStorage.getItem("bingoo_selected_profile") || null; } catch { return null; }
-  });
-  useEffect(() => {
-    try {
-      if (selectedProfileId) sessionStorage.setItem("bingoo_selected_profile", selectedProfileId);
-      else sessionStorage.removeItem("bingoo_selected_profile");
-    } catch { /* ignore */ }
-  }, [selectedProfileId]);
   // Highlight targets carried in from notification/email deep links
   const [highlightLeadId, setHighlightLeadId] = useState(null);
   const [highlightAppointmentId, setHighlightAppointmentId] = useState(null);
@@ -290,16 +280,14 @@ export default function BingooDashboard() {
   const { isDark } = useBingooTheme();
   const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource, maxProfiles } = usePlan();
 
-  const { data: user, refetch: refetchUser } = useQuery({
-    queryKey: ["current-user"],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const { data: profiles = [], isLoading: profilesLoading, refetch: refetchProfiles } = useQuery({
-    queryKey: ["my-profile", user?.id],
-    queryFn: () => base44.functions.invoke("getMyProfiles", {}).then((res) => res.data?.profiles || []),
-    enabled: !!user?.id,
-  });
+  const { user, refreshAccount: refetchUser } = useAuth();
+  const {
+    profiles,
+    selectedProfileId,
+    selectProfile: setSelectedProfileId,
+    isLoading: profilesLoading,
+    refetchProfiles,
+  } = useProfileWorkspace();
 
   // ── Profile ordering ──
   // Saved order (array of profile IDs) takes precedence; any profiles not in the saved
@@ -703,9 +691,8 @@ export default function BingooDashboard() {
                   onCreated={(savedProfile) => {
                     setAiGeneratedProfile(null);
                     setLiveFormOverride(null);
-                    setSelectedProfileId(savedProfile.id);
                     refetchProfiles();
-                    setSearchParams({ view: VIEW_WORKSPACE });
+                    setSearchParams({ view: VIEW_WORKSPACE, profileId: savedProfile.id });
                   }}
                 />
               ) : (
