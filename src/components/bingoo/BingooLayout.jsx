@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/lib/AuthContext";
 import { LogOut, Shield, Menu, X, Sun, Moon, Home, User, Smartphone, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
@@ -38,11 +37,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     return () => { meta.setAttribute("content", "index, follow"); };
   }, []);
 
-  const { data: user } = useQuery({
-    queryKey: ['auth-me'],
-    queryFn: () => base44.auth.me(),
-    staleTime: 60_000,
-  });
+  const { user, logout } = useAuth();
 
   // userId prop takes priority (passed from BingooDashboard which already has the user)
   const effectiveUserId = userId || user?.id;
@@ -191,7 +186,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             </div>
           </div>
           <button
-            onClick={() => { base44.auth.logout(); window.location.href = "/login"; }}
+            onClick={() => logout()}
             title="Logout" aria-label="Logout"
             className="mt-2 w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-bold text-red-400 hover:bg-red-500/10 transition-colors">
             <LogOut className="w-3.5 h-3.5" /> Logout
