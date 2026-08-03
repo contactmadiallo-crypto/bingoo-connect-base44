@@ -1,3 +1,4 @@
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, ShoppingCart, Check, Save, Trash2, Nfc } from 'lucide-react';
@@ -45,7 +46,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
   const [accentColor, setAccentColor] = useState(ORANGE);
   const [nameText, setNameText] = useState(profile?.display_name || '');
   const [roleText, setRoleText] = useState(profile?.job_title || '');
-  const [nfcDestination, setNfcDestination] = useState(profile?.username ? `${window.location.origin}/p/${profile.username}` : '');
+  const [nfcDestination, setNfcDestination] = useState(publicProfileUrl(profile?.username) || '');
   const [finish, setFinish] = useState('Matte');
   const [quantity, setQuantity] = useState(1);
   const [ordered, setOrdered] = useState(false);
