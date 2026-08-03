@@ -340,7 +340,7 @@ export default function ProfilesHub({
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 min-w-0"
               style={{ background: "#0b2149" }}>
-              <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Manage</span>
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Edit</span>
             </button>
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
