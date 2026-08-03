@@ -71,7 +71,6 @@ export function ProfileWorkspaceProvider({ children }) {
     if (!isAuthenticated || !user?.id || profiles.length === 0) {
       setSelectedProfileId(null);
       return;
-      return;
     }
 
     const validatedId = selectedProfile?.id || primaryProfile?.id || null;
