@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
+import { publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
 const QR_COLORS = ["#1e293b", "#0b2149", "#f97316", "#7c3aed", "#059669", "#dc2626", "#0891b2", "#000000"];
@@ -32,8 +33,8 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
 
-  const profileUrl   = profile ? `${window.location.origin}/p/${profile.username}` : null;
-  const profileQrUrl = profileUrl ? `${profileUrl}?source=qr` : null;
+  const profileUrl   = profile ? publicProfileUrl(profile.username) : null;
+  const profileQrUrl = profile ? publicProfileQrUrl(profile.username) : null;
 
   const [qrColor, setQrColor]           = useState(profile?.qr_color || "#1e293b");
   const [qrLabel, setQrLabel]           = useState(profile?.qr_label || "Scan Me");
