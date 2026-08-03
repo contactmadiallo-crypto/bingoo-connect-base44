@@ -8,6 +8,9 @@ import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
+import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
+import { useAuth } from "@/lib/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
@@ -675,8 +678,8 @@ function FloatingOrb({ style, delay = 0 }) {
 }
 
 export default function Landing() {
-  const [authed, setAuthed] = useState(false);
-  useEffect(() => { base44.auth.isAuthenticated().then(setAuthed); }, []);
+  const { user, isAuthenticated: authed, logout } = useAuth();
+  const { plan: accountPlan } = usePlan();
 
   // Active detail item for the landing-page modals (features + industries share one modal)
   const [activeDetail, setActiveDetail] = useState(null);
@@ -746,12 +749,13 @@ export default function Landing() {
               {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
             </button>
             {authed ? (
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button size="sm" onClick={() => window.location.href = '/bingoo'}
-                  className="font-bold text-sm"
-                  style={{ background: B.orange, color: "#fff", border: "none" }}>
-                  {t("lp_dashboard", lang)} →
-                </Button>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <AccountDropdown
+                  user={user}
+                  plan={accountPlan}
+                  logout={logout}
+                  isDark
+                />
               </motion.div>
             ) : (
               <>
