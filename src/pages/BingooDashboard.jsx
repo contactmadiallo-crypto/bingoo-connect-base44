@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
+import { AccountDropdown, ProfileSelectorDropdown, UnsavedProfileSwitchModal } from "@/components/bingoo/WorkspaceSelectors";
 import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
 const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
 const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
@@ -280,7 +281,7 @@ export default function BingooDashboard() {
   const { isDark } = useBingooTheme();
   const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource, maxProfiles } = usePlan();
 
-  const { user, refreshAccount: refetchUser } = useAuth();
+  const { user, logout, refreshAccount: refetchUser } = useAuth();
   const {
     profiles,
     selectedProfileId,
@@ -288,6 +289,8 @@ export default function BingooDashboard() {
     isLoading: profilesLoading,
     refetchProfiles,
   } = useProfileWorkspace();
+  const [workspaceDirty, setWorkspaceDirty] = useState(false);
+  const [pendingProfileId, setPendingProfileId] = useState(null);
 
   // ── Profile ordering ──
   // Saved order (array of profile IDs) takes precedence; any profiles not in the saved
@@ -491,9 +494,24 @@ export default function BingooDashboard() {
     navigate('/bingoo?view=hub', { replace: false });
   };
 
-  const openWorkspace = (profileId) => {
+  const performProfileSwitch = (profileId) => {
+    if (!profiles.some((profile) => profile.id === profileId)) return;
     setSelectedProfileId(profileId);
     setLiveFormOverride(null);
+    setWorkspaceDirty(false);
+  };
+
+  const requestProfileSwitch = (profileId) => {
+    if (!profileId || profileId === activeProfile?.id) return;
+    if (view === VIEW_WORKSPACE && workspaceDirty) {
+      setPendingProfileId(profileId);
+      return;
+    }
+    performProfileSwitch(profileId);
+  };
+
+  const openWorkspace = (profileId) => {
+    performProfileSwitch(profileId);
     navigate(`/bingoo?view=${VIEW_WORKSPACE}`, { replace: false });
   };
 
@@ -572,6 +590,18 @@ export default function BingooDashboard() {
 
   return (
     <BingooLayout selectedProfile={activeProfile ?? null} accountPlan={userPlan} lang={lang} userId={user?.id}>
+      {pendingProfileId && (
+        <UnsavedProfileSwitchModal
+          profile={orderedProfiles.find((profile) => profile.id === pendingProfileId)}
+          isDark={isDark}
+          onCancel={() => setPendingProfileId(null)}
+          onConfirm={() => {
+            performProfileSwitch(pendingProfileId);
+            setPendingProfileId(null);
+          }}
+        />
+      )}
+
       {showOnboarding && user && (
         <React.Suspense fallback={null}>
         <OnboardingWizard
@@ -609,17 +639,26 @@ export default function BingooDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {view !== VIEW_WORKSPACE && (
+                <ProfileSelectorDropdown
+                  profiles={orderedProfiles}
+                  selectedProfile={activeProfile}
+                  onSelectProfile={requestProfileSwitch}
+                  isDark={isDark}
+                  compact
+                />
+              )}
               <NotificationCenter userId={user?.id} isDark={isDark} />
               <button onClick={toggleLang} aria-label="Toggle language"
                 className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
                 {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
               </button>
-              <Link to="/account-settings">
-                <button aria-label="Account settings"
-                  className={`min-h-[44px] min-w-[44px] rounded-full flex items-center justify-center transition-all ${isDark ? "bg-white/8 text-white/40 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
-                  <Shield className="w-4 h-4" />
-                </button>
-              </Link>
+              <AccountDropdown
+                user={user}
+                plan={userPlan}
+                logout={logout}
+                isDark={isDark}
+              />
             </div>
           </div>
 
@@ -705,6 +744,9 @@ export default function BingooDashboard() {
                   isLawFirm={isLawFirm}
                   isSalon={isSalon}
                   lang={lang}
+                  profiles={orderedProfiles}
+                  onSelectProfile={requestProfileSwitch}
+                  onDirtyChange={setWorkspaceDirty}
                 />
               )}
             </>
