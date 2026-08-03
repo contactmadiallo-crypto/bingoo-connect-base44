@@ -63,7 +63,8 @@ export default function PremiumHomeDashboard({
 
   // ── Quick actions ──
   const quickActions = [
-    { icon: Share2,      label: "Share",    color: "#f97316", onClick: handleShare },
+    { icon: Share2,      label: "Share",     color: "#f97316", onClick: handleShare },
+    { icon: QrCode,      label: "QR Code",   color: "#06b6d4", onClick: () => onNavigate("qrwallet") },
     { icon: BarChart3,   label: "Analytics", color: "#3b82f6", onClick: () => onNavigate("analytics") },
     { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/my-nfc-devices" },
     { icon: Users,       label: "Leads",     color: "#f59e0b", onClick: () => onNavigate("leads") },
@@ -87,8 +88,8 @@ export default function PremiumHomeDashboard({
           </div>
         </div>
         {/* Quick actions skeleton */}
-        <div className="grid grid-cols-4 gap-2.5">
-          {[0, 1, 2, 3].map(i => (
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+          {[0, 1, 2, 3, 4].map(i => (
             <div key={i} className={`rounded-2xl p-3 flex flex-col items-center gap-2 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
               <div className={`w-9 h-9 rounded-xl animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
               <div className={`h-2.5 w-10 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
@@ -146,7 +147,7 @@ export default function PremiumHomeDashboard({
       </div>
 
       {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
         {quickActions.map(a => {
           const inner = (
             <div className={`rounded-2xl p-3 flex flex-col items-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] ${isDark ? "bg-white/5 hover:bg-white/8" : "bg-white hover:shadow-md"}`} style={{ boxShadow: shadow.boxShadow }}>
