@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -945,6 +945,7 @@ export default function ProfileWorkspace({
   isLawFirm,
   isSalon,
   lang: langProp,
+  onDirtyChange,
 }) {
   const qc = useQueryClient();
   const { plan: userPlan, subscription, isLoading: planIsLoading, isFetching: planIsFetching } = usePlan();
@@ -1025,6 +1026,17 @@ export default function ProfileWorkspace({
   const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
   const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "bg_style", "button_style", "theme_background_color"];
   const designHasChanges = designKeys.some((key) => JSON.stringify(liveForm?.[key]) !== JSON.stringify(profile?.[key]));
+  const hasUnsavedChanges = useMemo(() => {
+    if (!profile || !liveForm) return false;
+    return JSON.stringify(buildPayload(liveForm)) !== JSON.stringify(buildPayload(profile));
+  }, [profile, liveForm]);
+
+  useEffect(() => {
+    onDirtyChange?.(hasUnsavedChanges);
+  }, [hasUnsavedChanges, onDirtyChange]);
+
+  useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
+
   const resetDesign = useCallback(() => {
     setLiveForm((current) => {
       const next = { ...current };
@@ -1093,7 +1105,8 @@ export default function ProfileWorkspace({
       toast.dismiss("bingoo-save");
     },
     onSuccess: (fresh) => {
-      // Update query cache with verified server data
+      // Update editor state and query cache with verified server data.
+      setLiveForm({ ...fresh });
       qc.setQueryData(["profile-ws", profileId], fresh);
       qc.invalidateQueries({ queryKey: ["my-profile"] });
 
