@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
-import { AccountDropdown, ProfileSelectorDropdown, UnsavedProfileSwitchModal } from "@/components/bingoo/WorkspaceSelectors";
+import { ProfileSelectorDropdown, UnsavedProfileSwitchModal } from "@/components/bingoo/WorkspaceSelectors";
 import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
 const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
 const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
@@ -38,7 +38,6 @@ import {
   AlertOctagon
 } from "lucide-react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import BingooLogo from "@/components/bingoo/BingooLogo";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
@@ -281,7 +280,7 @@ export default function BingooDashboard() {
   const { isDark } = useBingooTheme();
   const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource, maxProfiles } = usePlan();
 
-  const { user, logout, refreshAccount: refetchUser } = useAuth();
+  const { user, refreshAccount: refetchUser } = useAuth();
   const {
     profiles,
     selectedProfileId,
@@ -628,7 +627,6 @@ export default function BingooDashboard() {
           {/* ── Global top bar ── */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <BingooLogo className="h-8 w-auto object-contain hidden sm:block" />
               <div className="min-w-0">
                 <h1 className={`text-base font-black leading-none truncate ${isDark ? "text-white" : "text-slate-900"}`}>
                   {user?.full_name?.split(" ")[0] || "Dashboard"}
@@ -653,12 +651,6 @@ export default function BingooDashboard() {
                 className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
                 {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
               </button>
-              <AccountDropdown
-                user={user}
-                plan={userPlan}
-                logout={logout}
-                isDark={isDark}
-              />
             </div>
           </div>
 
