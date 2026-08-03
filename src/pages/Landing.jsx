@@ -43,6 +43,11 @@ const goActivate = async () => {
   else base44.auth.redirectToLogin('/activate-device');
 };
 
+function LandingAccountMenu({ user, logout }) {
+  const { plan } = usePlan();
+  return <AccountDropdown user={user} plan={plan} logout={logout} isDark />;
+}
+
 // Each feature card opens a detail panel (LandingDetailModal) with overview,
 // use cases, what's implemented, why it matters, and CTA buttons.
 const features = [
@@ -679,7 +684,6 @@ function FloatingOrb({ style, delay = 0 }) {
 
 export default function Landing() {
   const { user, isAuthenticated: authed, logout } = useAuth();
-  const { plan: accountPlan } = usePlan();
 
   // Active detail item for the landing-page modals (features + industries share one modal)
   const [activeDetail, setActiveDetail] = useState(null);
@@ -750,12 +754,7 @@ export default function Landing() {
             </button>
             {authed ? (
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <AccountDropdown
-                  user={user}
-                  plan={accountPlan}
-                  logout={logout}
-                  isDark
-                />
+                <LandingAccountMenu user={user} logout={logout} />
               </motion.div>
             ) : (
               <>
