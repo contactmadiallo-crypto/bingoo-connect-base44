@@ -19,7 +19,7 @@ const GoogleLogo = ({ size = 14 }) => (
   </svg>
 );
 
-export default function WalletPassButtons({ profile, color, isDark }) {
+export default function WalletPassButtons({ profile, color, isDark, stacked = false }) {
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
 
@@ -78,8 +78,8 @@ export default function WalletPassButtons({ profile, color, isDark }) {
   const isBusy = loading !== null;
 
   return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ display: "flex", gap: 8 }}>
+    <div style={{ marginBottom: 4 }}>
+      <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", gap: 10 }}>
         <motion.button
           onClick={() => {}}
           disabled
@@ -105,7 +105,7 @@ export default function WalletPassButtons({ profile, color, isDark }) {
           title="Apple Wallet passes are coming very soon"
         >
           <AppleLogo size={13} />
-          Apple Wallet · Very soon
+          {stacked ? "Add to Apple Wallet · Coming soon" : "Apple Wallet · Very soon"}
         </motion.button>
         <motion.button
           onClick={handleGoogle}
@@ -131,7 +131,7 @@ export default function WalletPassButtons({ profile, color, isDark }) {
           }}
         >
           <GoogleLogo size={13} />
-          {loading === "google" ? "Generating…" : "Google Wallet"}
+          {loading === "google" ? "Generating…" : stacked ? "Add to Google Wallet" : "Google Wallet"}
         </motion.button>
       </div>
       {error && (
