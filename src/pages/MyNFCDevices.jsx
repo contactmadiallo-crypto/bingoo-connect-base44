@@ -22,6 +22,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
 import { DEVICE_TYPES } from "@/lib/deviceTypes";
+import { useNavigate } from "react-router-dom";
 
 const PROD_BASE_URL = "https://bingooconnect.com";
 
@@ -47,6 +48,7 @@ export default function MyNFCDevices() {
    const { isDark } = useBingooTheme();
    const { maxNFCDevices, isLoading: planLoading, plan: accountPlan } = usePlan();
    const qc = useQueryClient();
+   const navigate = useNavigate();
 
    const [showActivate, setShowActivate] = useState(false);
    const [activateCode, setActivateCode] = useState("");
@@ -378,7 +380,7 @@ export default function MyNFCDevices() {
               </div>
             </div>
             <Button
-              onClick={() => { setShowActivate(v => !v); setActivateMsg(null); }}
+              onClick={() => navigate("/activate-device")}
               className="font-bold gap-2 flex-shrink-0"
               style={{ background: "#f97316", color: "#fff" }}
             >
@@ -466,7 +468,7 @@ export default function MyNFCDevices() {
               <p className={`text-sm ${mutedText}`}>Activate your first NFC device using the code printed on your card, keychain, or bracelet.</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button onClick={() => setShowActivate(true)} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
+              <Button onClick={() => navigate("/activate-device")} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
                 🔑 Activate Device
               </Button>
               <a href="/shop" target="_blank" rel="noopener noreferrer">

@@ -576,7 +576,7 @@ export const PLAN_CONFIG = {
     status: 'purchasable',
     features: PLAN_FEATURES.professional,
     dashboardPreview: ['Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Appointment Booking', 'Lost Mode', 'Google & Apple Wallet'],
-    includedTools: ['Profile Editor', 'QR & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode'],
+    includedTools: ['Profile Editor', 'QR Code & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode'],
   },
   business: {
     id: 'business',
@@ -591,7 +591,7 @@ export const PLAN_CONFIG = {
     status: 'purchasable',
     features: PLAN_FEATURES.business,
     dashboardPreview: ['Business Public Profile', 'Design Studio', 'Team Management', 'Services & Products', 'WhatsApp Booking', 'Advanced Analytics', 'Lead Export', 'Multi-Profile'],
-    includedTools: ['Profile Editor', 'QR & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode', 'Design Studio', 'Business Profile', 'Team', 'Services', 'Business Hours'],
+    includedTools: ['Profile Editor', 'QR Code & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode', 'Design Studio', 'Business Profile', 'Team', 'Services', 'Business Hours'],
   },
   salon: {
     id: 'salon',

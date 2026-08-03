@@ -41,7 +41,7 @@ export const CRITICAL_STRINGS = [
   { key: 'nav.appointments', en: 'Appointments', area: 'Dashboard' },
   { key: 'nav.analytics', en: 'Analytics', area: 'Dashboard' },
   { key: 'nav.nfc', en: 'NFC Center', area: 'Dashboard' },
-  { key: 'nav.qr_wallet', en: 'QR & Wallet', area: 'Dashboard' },
+  { key: 'nav.qr_wallet', en: 'QR Code & Wallet', area: 'Dashboard' },
   { key: 'nav.shop', en: 'Shop', area: 'Dashboard' },
   { key: 'nav.billing', en: 'Billing', area: 'Dashboard' },
   { key: 'nav.settings', en: 'Settings', area: 'Dashboard' },

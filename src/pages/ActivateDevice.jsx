@@ -8,10 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pencil, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel, getDeviceDisplayName } from "@/lib/deviceTypes";
+import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
+import { ArrowRight, ArrowLeft, Check, Radio } from "lucide-react";
 
 export default function ActivateDevice() {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
+  const { profiles, selectedProfile: workspaceProfile, selectProfile } = useProfileWorkspace();
 
   // State — pre-fill from ?code= URL param (e.g. /activate-device?code=BG-000007)
   const [code, setCode] = useState(() => {
@@ -20,7 +23,9 @@ export default function ActivateDevice() {
   });
   const [activating, setActivating] = useState(false);
   const [activateMsg, setActivateMsg] = useState(null); // {type: 'success'|'error', text}
-  const [selectedProfile, setSelectedProfile] = useState("");
+  const [activationProfileId, setActivationProfileId] = useState("");
+  const [activationStep, setActivationStep] = useState(1);
+  const [pendingDevice, setPendingDevice] = useState(null);
   const [setupDevice, setSetupDevice] = useState(null); // device for NFC setup guide
   const [editingDevice, setEditingDevice] = useState(null); // {id, nickname}
   const [reassignDevice, setReassignDevice] = useState(null); // {device, newProfileId}
@@ -35,11 +40,6 @@ export default function ActivateDevice() {
 
   // Data
   const { data: user } = useQuery({ queryKey: ["current-user"], queryFn: () => base44.auth.me() });
-  const { data: profiles = [] } = useQuery({
-    queryKey: ["my-profile", user?.id],
-    queryFn: () => base44.entities.Profile.filter({ created_by_id: user.id }),
-    enabled: !!user?.id,
-  });
   const { data: myDevices = [], refetch: refetchDevices } = useQuery({
     queryKey: ["my-nfc-devices-page", user?.id],
     queryFn: async () => {
@@ -75,62 +75,75 @@ export default function ActivateDevice() {
       : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
   }`;
 
-  // Activate device — uses getDeviceByCode (service role) then NFCDevice.update via service role
-  const handleActivate = async () => {
+  const validateActivationCode = async () => {
     if (!code.trim()) return;
     setActivating(true);
     setActivateMsg(null);
     const trimmed = code.trim().toUpperCase();
 
     try {
-      // Step 1: Lookup via backend function (bypasses RLS, works for both NFCDevice and legacy Device)
       const result = await base44.functions.invoke("getDeviceByCode", { code: trimmed });
       const device = result?.data?.device;
 
       if (!device) {
         setActivateMsg({ type: "error", text: "Device code not found. Check the code on your device and try again." });
-        setActivating(false);
-        return;
+        return false;
       }
 
       if (device.status === "disabled") {
         setActivateMsg({ type: "error", text: "This device has been disabled. Contact support." });
-        setActivating(false);
-        return;
+        return false;
       }
 
       if (device.status === "replaced") {
         setActivateMsg({ type: "error", text: `This device was replaced. New code: ${device.replaced_by_code || "contact support"}.` });
-        setActivating(false);
-        return;
+        return false;
       }
 
       // Already claimed by this user's profile
       if (device.profile_id && profiles.some(p => p.id === device.profile_id)) {
         setActivateMsg({ type: "info", text: "✅ This device is already linked to your profile." });
-        setActivating(false);
-        return;
+        return false;
       }
 
       // Claimed by someone else
       if (device.profile_id && !profiles.some(p => p.id === device.profile_id)) {
         setActivateMsg({ type: "error", text: "This device is already activated by another account. Contact support if this is yours." });
-        setActivating(false);
-        return;
+        return false;
       }
 
-      // Step 2: Assign to profile or asset
+      setPendingDevice(device);
+      setActivationProfileId(workspaceProfile?.id || profiles[0]?.id || "");
+      setActivationStep(2);
+      return true;
+    } catch (e) {
+      console.error("[ActivateDevice] code validation error:", e);
+      setActivateMsg({ type: "error", text: "Code verification failed: " + e.message });
+      return false;
+    } finally {
+      setActivating(false);
+    }
+  };
+
+  // Final activation keeps the existing service-role backend call unchanged.
+  const handleActivate = async () => {
+    if (!pendingDevice || !user?.id) return;
+    setActivating(true);
+    setActivateMsg(null);
+    const trimmed = code.trim().toUpperCase();
+    const device = pendingDevice;
+
+    try {
+
       if (assignTarget === "asset") {
         const targetAsset = myAssets.find(a => a.id === selectedAsset);
         if (!targetAsset) {
           setActivateMsg({ type: "error", text: "Please select an asset to assign the device to." });
-          setActivating(false);
           return;
         }
         const assetProfileId = targetAsset.profile_id || (profiles[0]?.id || null);
         if (!assetProfileId) {
           setActivateMsg({ type: "error", text: "Please create a profile first before assigning a device to an asset." });
-          setActivating(false);
           return;
         }
         const activateResult = await base44.functions.invoke("activateNfcDevice", {
@@ -143,16 +156,14 @@ export default function ActivateDevice() {
         });
         if (activateResult?.data?.error) {
           setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
-          setActivating(false);
           return;
         }
         await base44.entities.AssetItem.update(targetAsset.id, { nfc_device_id: device.id });
         setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to asset: ${targetAsset.name}` });
       } else {
-        const targetProfile = profiles.find(p => p.id === selectedProfile) || profiles[0];
+        const targetProfile = profiles.find(p => p.id === activationProfileId);
         if (!targetProfile) {
-          setActivateMsg({ type: "error", text: "Please create a profile first before activating a device." });
-          setActivating(false);
+          setActivateMsg({ type: "error", text: "Select a profile you can access before activating this device." });
           return;
         }
         const activateResult = await base44.functions.invoke("activateNfcDevice", {
@@ -165,23 +176,26 @@ export default function ActivateDevice() {
         });
         if (activateResult?.data?.error) {
           setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
-          setActivating(false);
           return;
         }
         setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to: ${targetProfile.display_name}` });
       }
 
       setCode("");
-      setSelectedProfile("");
+      if (activationProfileId) selectProfile(activationProfileId);
+      setActivationProfileId("");
       setSelectedAsset("");
       setAssignTarget("profile");
+      setPendingDevice(null);
+      setActivationStep(1);
       queryClient.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
       queryClient.invalidateQueries({ queryKey: ["my-devices"] });
     } catch (e) {
       console.error("[ActivateDevice] handleActivate error:", e);
       setActivateMsg({ type: "error", text: "Activation failed: " + e.message });
+    } finally {
+      setActivating(false);
     }
-    setActivating(false);
   };
 
   // Create device code (admin only)
@@ -243,79 +257,114 @@ export default function ActivateDevice() {
           </div>
         </div>
 
-        {/* Activate Form */}
-        <div className="rounded-2xl p-6" style={cardStyle}>
-          <h2 className={`font-black text-lg mb-1 ${headText}`}>Enter Activation Code</h2>
-          <p className={`text-sm mb-4 ${mutedText}`}>Find the code printed on the back of your device</p>
-
-          {/* Where to find your code */}
-          <div className="flex items-center gap-3 p-3 rounded-xl mb-4" style={{ background: isDark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.05)", border: `1px solid ${isDark ? "rgba(99,102,241,0.15)" : "rgba(99,102,241,0.1)"}` }}>
-            <div className="flex-shrink-0 w-12 h-8 rounded-md flex flex-col items-center justify-center" style={{ background: "#fff", border: "1px solid #E5EAF2" }}>
-              <div className="w-6 h-6 grid grid-cols-5 grid-rows-5 gap-px">
-                {Array.from({ length: 25 }).map((_, i) => (
-                  <div key={i} style={{ background: (i * 7 + 3) % 100 > 50 ? "#0b2149" : "transparent" }} />
-                ))}
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={`text-xs font-bold ${headText}`}>Where to find it</p>
-              <p className={`text-[11px] ${mutedText}`}>Look on the back — the code starts with "BG-" followed by 6 digits</p>
-            </div>
+        {/* Three-step activation flow. Backend calls remain getDeviceByCode + activateNfcDevice. */}
+        <div className="space-y-5">
+          <div className="flex items-center justify-center gap-2 sm:gap-4" aria-label={`Activation step ${activationStep} of 3`}>
+            {["Enter Code", "Select Profile", "Confirm"].map((label, index) => {
+              const number = index + 1;
+              const complete = activationStep > number;
+              const active = activationStep === number;
+              return (
+                <div key={label} className="flex items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black ${complete ? "bg-emerald-500 text-white" : active ? "bg-orange-500 text-white" : isDark ? "border-2 border-white/15 text-white/40" : "border-2 border-slate-200 text-slate-400"}`}>
+                      {complete ? <Check className="w-4 h-4" /> : number}
+                    </span>
+                    <span className={`hidden sm:block text-sm font-bold ${active ? headText : mutedText}`}>{label}</span>
+                  </div>
+                  {number < 3 && <span className={`w-5 sm:w-10 h-0.5 ${complete ? "bg-emerald-500" : isDark ? "bg-white/10" : "bg-slate-200"}`} />}
+                </div>
+              );
+            })}
           </div>
 
-          <div className="space-y-4">
-            <input
-              className={inputCls}
-              placeholder="e.g. BG-10001"
-              value={code}
-              onChange={e => setCode(e.target.value.toUpperCase())}
-              onKeyDown={e => e.key === "Enter" && handleActivate()}
-            />
-
-            {/* Assign to Profile or Asset */}
-            <div>
-              <label className={`text-xs font-bold uppercase tracking-wider ${mutedText} block mb-1.5`}>Assign To</label>
-              <div className="flex gap-2 mb-2">
-                <button onClick={() => setAssignTarget("profile")}
-                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all ${assignTarget === "profile" ? "bg-blue-600 text-white" : isDark ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-500"}`}>
-                  Profile
-                </button>
-                <button onClick={() => setAssignTarget("asset")}
-                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all ${assignTarget === "asset" ? "bg-blue-600 text-white" : isDark ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-500"}`}>
-                  Asset
-                </button>
+          <div className="rounded-3xl p-6 sm:p-8" style={cardStyle}>
+            {activationStep === 1 && (
+              <div className="space-y-5">
+                <div className="w-14 h-14 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
+                  <Radio className="w-7 h-7" />
+                </div>
+                <div>
+                  <h2 className={`font-black text-2xl ${headText}`}>Activate your NFC device</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>Enter the activation code from the device packaging. It looks like BG-000041.</p>
+                </div>
+                <div>
+                  <label className={`text-xs font-black uppercase tracking-wider ${mutedText} block mb-2`}>Activation Code</label>
+                  <input className={`${inputCls} h-16 text-center font-mono text-xl sm:text-2xl font-black tracking-widest`}
+                    placeholder="BG-XXXXXX" value={code}
+                    onChange={e => { setCode(e.target.value.toUpperCase()); setActivateMsg(null); }}
+                    onKeyDown={e => e.key === "Enter" && validateActivationCode()} />
+                </div>
+                <Button onClick={validateActivationCode} disabled={activating || !code.trim()}
+                  className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black gap-2">
+                  {activating ? "Checking code…" : <>Continue <ArrowRight className="w-4 h-4" /></>}
+                </Button>
+                <p className={`text-center text-xs ${mutedText}`}>You can also scan the QR code on your device packaging.</p>
               </div>
+            )}
 
-              {assignTarget === "profile" ? (
-                profiles.length > 1 ? (
-                  <select className={inputCls} value={selectedProfile} onChange={e => setSelectedProfile(e.target.value)}>
-                    <option value="">Default (first profile)</option>
-                    {profiles.map(p => <option key={p.id} value={p.id}>{p.display_name || p.username}</option>)}
-                  </select>
-                ) : profiles.length === 1 ? (
-                  <p className={`text-xs ${mutedText}`}>Will link to: <span className={`font-bold ${headText}`}>{profiles[0].display_name || profiles[0].username}</span></p>
-                ) : (
-                  <p className={`text-xs ${mutedText}`}>Create a profile first to activate a device.</p>
-                )
-              ) : (
-                myAssets.length > 0 ? (
-                  <select className={inputCls} value={selectedAsset} onChange={e => setSelectedAsset(e.target.value)}>
-                    <option value="">Select an asset…</option>
-                    {myAssets.map(a => <option key={a.id} value={a.id}>{a.name} ({a.asset_type})</option>)}
-                  </select>
-                ) : (
-                  <p className={`text-xs ${mutedText}`}>No assets yet. Create one in My Assets first.</p>
-                )
-              )}
-            </div>
+            {activationStep === 2 && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className={`font-black text-2xl ${headText}`}>Link to a profile</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — choose an accessible profile to link it to.</p>
+                </div>
+                <div className="grid gap-3">
+                  {profiles.map(profile => {
+                    const selected = activationProfileId === profile.id;
+                    return (
+                      <button type="button" key={profile.id} onClick={() => { setAssignTarget("profile"); setActivationProfileId(profile.id); }}
+                        className={`w-full rounded-2xl border-2 p-4 flex items-center gap-4 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
+                        {profile.profile_photo ? <img src={profile.profile_photo} alt="" className="w-14 h-14 rounded-2xl object-cover" /> : (
+                          <span className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black" style={{ background: profile.cover_color || "#0b2149" }}>{profile.display_name?.charAt(0) || "P"}</span>
+                        )}
+                        <span className="flex-1 min-w-0">
+                          <span className={`block font-black truncate ${selected && !isDark ? "text-slate-900" : headText}`}>{profile.display_name || "Untitled profile"}</span>
+                          <span className={`block text-xs truncate ${selected && !isDark ? "text-slate-500" : mutedText}`}>@{profile.username || "profile"}{profile.access_role && profile.access_role !== "owner" ? ` · ${profile.access_role}` : ""}</span>
+                        </span>
+                        {selected && <CheckCircle className="w-5 h-5 text-orange-500" />}
+                      </button>
+                    );
+                  })}
+                  {!profiles.length && <p className={`text-sm ${mutedText}`}>Create or request access to a profile before activating a device.</p>}
+                </div>
+                {myAssets.length > 0 && (
+                  <details className={`rounded-xl border p-3 ${isDark ? "border-white/10" : "border-slate-200"}`}>
+                    <summary className={`cursor-pointer text-xs font-bold ${subText}`}>Assign to an asset instead</summary>
+                    <select className={`${inputCls} mt-3`} value={selectedAsset} onChange={e => { setAssignTarget("asset"); setSelectedAsset(e.target.value); }}>
+                      <option value="">Select an asset…</option>
+                      {myAssets.map(a => <option key={a.id} value={a.id}>{a.name} ({a.asset_type})</option>)}
+                    </select>
+                  </details>
+                )}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setActivationStep(1)} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+                  <Button onClick={() => setActivationStep(3)} disabled={assignTarget === "profile" ? !activationProfileId : !selectedAsset}
+                    className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black gap-2">Review <ArrowRight className="w-4 h-4" /></Button>
+                </div>
+              </div>
+            )}
 
-            <Button
-              onClick={handleActivate}
-              disabled={activating || !code.trim()}
-              className="w-full bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-bold h-12 text-sm shadow-lg"
-            >
-              {activating ? "Verifying…" : "Activate Device"}
-            </Button>
+            {activationStep === 3 && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className={`font-black text-2xl ${headText}`}>Confirm activation</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>Review the device and destination before making the connection.</p>
+                </div>
+                <div className={`rounded-2xl border p-5 space-y-3 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>Device code</span><strong className={headText}>{code}</strong></div>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>Assign to</span><strong className={`${headText} text-right`}>{assignTarget === "asset" ? myAssets.find(a => a.id === selectedAsset)?.name : profiles.find(p => p.id === activationProfileId)?.display_name}</strong></div>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>Status</span><strong className="text-emerald-500">Ready to activate</strong></div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setActivationStep(2)} disabled={activating} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+                  <Button onClick={handleActivate} disabled={activating}
+                    className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black">
+                    {activating ? "Activating…" : "Activate Device"}
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <AnimatePresence>
@@ -324,7 +373,7 @@ export default function ActivateDevice() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className={`mt-4 flex items-start gap-3 p-4 rounded-xl ${activateMsg.type === "success" ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}
+                className={`flex items-start gap-3 p-4 rounded-xl ${activateMsg.type === "success" ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}
               >
                 {activateMsg.type === "success"
                   ? <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />

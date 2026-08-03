@@ -186,8 +186,8 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
     <div ref={rootRef} className="space-y-5">
       {/* Header */}
       <div>
-        <h2 className={`text-xl font-black ${headText}`}>QR &amp; Wallet Center</h2>
-        <p className={`text-sm mt-0.5 ${mutedText}`}>Customize, download, and share your Bingoo QR code — plus add it to your phone's wallet.</p>
+        <h2 className={`text-2xl font-black ${headText}`}>QR Code &amp; Digital Wallet</h2>
+        <p className={`text-sm mt-0.5 ${mutedText}`}>Share your selected profile instantly — anyone who scans connects with you.</p>
       </div>
 
       {/* Profile URL */}
@@ -211,17 +211,21 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         </div>
       </div>
 
+      <div className="grid xl:grid-cols-[1.05fr_.95fr] gap-5 items-start">
       {/* QR Code Customization + Live Preview */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
-        <p className={`font-bold text-sm ${headText}`}>QR Code</p>
+        <div>
+          <p className={`font-black text-lg ${headText}`}>Your QR Code</p>
+          <p className={`text-xs ${mutedText}`}>Customize, then download or share</p>
+        </div>
 
         {/* Live preview — composed on canvas, matches the downloaded file exactly */}
         <div className="flex justify-center">
           <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
             {previewDataUrl ? (
-              <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 200, height: "auto" }} />
+              <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 240, height: "auto" }} />
             ) : (
-              <div className="w-[200px] h-[250px] flex items-center justify-center">
+              <div className="w-[240px] h-[300px] flex items-center justify-center">
                 <span className={`text-xs ${mutedText}`}>Generating preview…</span>
               </div>
             )}
@@ -319,6 +323,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
 
       {/* Owner-only Apple Wallet / Google Wallet tools */}
       <OwnerWalletPanel profile={profile} isDark={isDark} panelBorder={panelBorder} panelBg={panelBg} headText={headText} mutedText={mutedText} />
+      </div>
 
       {/* Wallet design guidance — within existing wallet API limits */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>

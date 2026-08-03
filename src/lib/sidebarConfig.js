@@ -289,7 +289,7 @@ export const SIDEBAR_NAV_MAP = {
     iconColor: "#e11d48", iconBg: "rgba(225,29,72,0.18)",
   },
   qrwallet: {
-    id: "qrwallet", label: "QR & Wallet", labelFr: "QR & Wallet",
+    id: "qrwallet", label: "QR Code & Wallet", labelFr: "QR Code & Wallet",
     icon: QrCode, href: "/bingoo?view=qrwallet",
     iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)",
   },
@@ -399,7 +399,7 @@ export function getVisibleNavItems(profile, isAdmin = false, lang = "en", effect
       if (id === "services") label = lang === "fr" ? "Services et Produits" : "Services & Products";
       if (id === "team") label = lang === "fr" ? "Gestion d'équipe" : "Team Management";
       if (id === "analytics") label = lang === "fr" ? "Analytique Avancée" : "Advanced Analytics";
-      if (id === "qrwallet") label = lang === "fr" ? "QR Business et Wallet" : "Business QR & Wallet";
+      if (id === "qrwallet") label = "QR Code & Wallet";
     } else if (effectivePlan === "salon" && id === "services") {
       label = lang === "fr" ? "Services Salon" : "Salon Services";
     }

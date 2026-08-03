@@ -10,6 +10,10 @@ import { t, getLang } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 import { isAdminUser } from "@/lib/auth";
+import BrandLockup from "@/components/auth/BrandLockup";
+import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
+import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
+import { usePlan } from "@/hooks/usePlan";
 
 /**
  * BingooLayout
@@ -19,7 +23,7 @@ import { isAdminUser } from "@/lib/auth";
  * When no profile is selected (hub view), selectedProfile is null → free sidebar.
  * Admin users see all items + Admin Panel regardless of selected profile.
  */
-export default function BingooLayout({ children, selectedProfile, accountPlan, lang = "en", userId }) {
+export default function BingooLayout({ children, selectedProfile: selectedProfileProp, accountPlan: accountPlanProp, lang = "en", userId }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,7 +41,11 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     return () => { meta.setAttribute("content", "index, follow"); };
   }, []);
 
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { selectedProfile: workspaceProfile } = useProfileWorkspace();
+  const { plan: resolvedAccountPlan } = usePlan();
+  const selectedProfile = selectedProfileProp !== undefined ? selectedProfileProp : workspaceProfile;
+  const accountPlan = accountPlanProp || resolvedAccountPlan || "free";
 
   // userId prop takes priority (passed from BingooDashboard which already has the user)
   const effectiveUserId = userId || user?.id;
@@ -184,8 +192,25 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
   return (
     <div className="min-h-screen flex" style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
 
+      {/* One persistent account header for every signed-in workspace page. */}
+      <header className="hidden md:block fixed top-0 inset-x-0 h-[72px] z-40 bg-white border-b border-slate-200">
+        <div className="h-full px-6 flex items-center justify-between gap-6">
+          <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bingoo Connect home">
+            <BrandLockup badgeSize={34} />
+          </Link>
+          <nav className="hidden xl:flex items-center gap-7 text-sm font-semibold text-slate-500" aria-label="Main navigation">
+            <Link to="/shop" className="hover:text-slate-900 transition-colors">Products</Link>
+            <Link to="/" className="hover:text-slate-900 transition-colors">Templates</Link>
+            <Link to="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
+            <Link to="/plans" className="hover:text-slate-900 transition-colors">For Business</Link>
+            <Link to="/about" className="hover:text-slate-900 transition-colors">About</Link>
+          </nav>
+          <AccountDropdown user={user} plan={accountPlan || "free"} logout={logout} isDark={false} />
+        </div>
+      </header>
+
       {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="hidden md:flex flex-col w-64 fixed inset-y-0 left-0 z-20"
+      <aside className="hidden md:flex flex-col w-64 fixed top-[72px] bottom-0 left-0 z-20"
         style={{ background: sidebarBg, borderRight: `1px solid ${sidebarBorder}` }}>
         {renderSidebarContent(null)}
       </aside>
@@ -239,7 +264,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
       <BottomNav lang={lang} totalUnread={totalUnread} onMore={() => setMobileOpen(true)} />
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 md:ml-64 min-w-0 min-h-screen flex flex-col"
+      <main className="flex-1 md:ml-64 md:pt-[72px] min-w-0 min-h-screen flex flex-col"
         style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
         <div className="md:hidden flex-shrink-0" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         <div className="flex-1 min-w-0 min-h-0">
