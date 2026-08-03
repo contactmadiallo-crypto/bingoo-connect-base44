@@ -41,6 +41,7 @@ const _oneItemRow = (id) => ({
 const CLASS_TEMPLATE_INFO = {
   cardTemplateOverride: {
     cardRowTemplateInfos: [
+      _twoItemRow('profile_url'),
       _twoItemRow('handle'),
       _twoItemRow('contact_phone'),
       _twoItemRow('contact_email'),
@@ -204,19 +205,23 @@ Deno.serve(async (req) => {
 
     const displayName = toTitleCase(profile.display_name || 'Bingoo Profile');
     const professionalLabel = PLAN_LABELS[profile.plan] || 'Bingoo Profile';
-    // Hierarchy: cardTitle = person's name, header = role/title, subheader = company
-    const headerValue = profile.job_title || professionalLabel;
-    const subheaderValue = profile.company_name || '';
+    // Native Wallet hierarchy: Bingoo issuer → member name → professional role/company.
+    // Google controls placement and typography; these values provide the closest
+    // supported equivalent to the Bingoo digital wallet card.
+    const headerValue = displayName;
+    const roleValue = profile.job_title || professionalLabel;
+    const subheaderValue = [roleValue, profile.company_name].filter(Boolean).join(' • ');
 
     const websiteClean = cleanWebsite(profile.website);
-    const passColor = /^#[0-9a-f]{6}$/i.test(profile.cover_color || '')
-      ? profile.cover_color
-      : BINGOO_NAVY;
+    // Google Wallet supports one solid pass background, not the Bingoo gradient.
+    // Use Bingoo navy consistently instead of exposing arbitrary profile colors.
+    const passColor = BINGOO_NAVY;
 
     // Text modules — each non-empty field becomes its own module. Missing fields
     // → no module → the template row is auto-dropped by Google Wallet (no empty rows).
     // Company is shown in subheader, so it is NOT duplicated as a text module.
     const textModules = [];
+    textModules.push({ id: 'profile_url', header: 'Profile', body: truncate(profileUrl.replace(/^https?:\/\//, ''), 60) });
     if (profile.username) {
       textModules.push({ id: 'handle', header: 'Handle', body: truncate(`@${profile.username}`, 40) });
     }
@@ -255,7 +260,17 @@ Deno.serve(async (req) => {
       ...(subheaderValue ? { subheader: { defaultValue: { language: 'en', value: truncate(subheaderValue, 35) } } } : {}),
       textModulesData: textModules,
       linksModuleData: {
-        uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_url' }],
+        uris: [{ uri: profileUrl, description: 'Open Bingoo Profile', id: 'profile_link' }],
+      },
+      // Front-of-pass action supported by Google Wallet.
+      appLinkData: {
+        androidAppLinkInfo: {
+          appTarget: { targetUri: { uri: profileUrl, description: 'Open Bingoo Profile' } },
+        },
+        webAppLinkInfo: {
+          appTarget: { targetUri: { uri: profileUrl, description: 'Open Bingoo Profile' } },
+        },
+        displayText: { defaultValue: { language: 'en', value: 'Open Bingoo Profile' } },
       },
       // Large centered native Google Wallet QR code linking to the exact public profile URL
       barcode: {
