@@ -430,7 +430,7 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
         open={!!replaceAsset}
         onClose={() => setReplaceAsset(null)}
         device={replaceAsset?.nfc_device_id ? deviceMap[replaceAsset.nfc_device_id] : null}
-        profile={profile}
+        profile={null}
         user={user}
         isDark={isDark}
         onSuccess={() => {
