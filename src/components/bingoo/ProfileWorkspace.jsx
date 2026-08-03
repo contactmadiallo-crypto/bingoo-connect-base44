@@ -1,3 +1,4 @@
+import { publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -1021,8 +1022,8 @@ export default function ProfileWorkspace({
     }
   }, [innerTab, qc]);
 
-  const profileUrl    = profile ? `${window.location.origin}/p/${profile.username}` : null;
-  const profileQrUrl  = profileUrl ? `${profileUrl}?source=qr` : null;
+  const profileUrl    = publicProfileUrl(profile?.username);
+  const profileQrUrl  = publicProfileQrUrl(profile?.username);
 
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
