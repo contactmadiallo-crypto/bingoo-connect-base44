@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, CheckCircle2, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { PLAN_LABELS, PLAN_STRIPE_PRODUCTS } from "@/lib/planPermissions";
+import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -10,6 +9,7 @@ export default function ProfilesHub({
   user,
   isDark,
   accountPlan,
+  maxProfiles = 1,
   onSelectProfile,
   onCreateNew,
   onLaunchAI,
@@ -33,7 +33,7 @@ export default function ProfilesHub({
 
   // "Default profile" only matters when the user owns more than one
   const showDefaultUI = profiles.length > 1;
-  const isDefault = (profile) => showDefaultUI && defaultProfileId && profile.id === defaultProfileId;
+  const isDefault = (profile) => profile.id === defaultProfileId || profiles.length === 1;
   const isSelected = (profile) => profile.id === activeProfileId;
 
   // Display items: optimistic pending order if present, else the prop order (already sorted by dashboard).
@@ -120,19 +120,18 @@ export default function ProfilesHub({
   const getQrUrl = (profile) =>
     `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/p/${profile.username}?source=qr`)}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
 
-  const planColors = {
-    free:         { bg: isDark ? "rgba(100,116,139,0.15)" : "#f1f5f9",      text: isDark ? "#94a3b8" : "#64748b" },
-    professional: { bg: isDark ? "rgba(37,99,235,0.18)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#2563eb" },
-    pro:          { bg: isDark ? "rgba(37,99,235,0.18)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#2563eb" },
-    salon:        { bg: isDark ? "rgba(236,72,153,0.15)" : "#fdf2f8",       text: isDark ? "#f472b6" : "#db2777" },
-    restaurant:   { bg: isDark ? "rgba(249,115,22,0.15)" : "#fff7ed",       text: isDark ? "#fb923c" : "#ea580c" },
-    lawfirm:      { bg: isDark ? "rgba(30,58,138,0.25)"  : "#eff6ff",       text: isDark ? "#93c5fd" : "#1d4ed8" },
-    business:     { bg: isDark ? "rgba(16,185,129,0.15)" : "#ecfdf5",       text: isDark ? "#34d399" : "#059669" },
-    corporate:    { bg: isDark ? "rgba(251,191,36,0.15)" : "#fffbeb",       text: isDark ? "#fbbf24" : "#d97706" },
-  };
+  const titleCase = (value, fallback) => String(value || fallback)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-  const normPlan = (p) => { if (!p) return "free"; if (p === "pro") return "professional"; return p; };
-  const getPlanStyle = (plan) => planColors[normPlan(plan)] || planColors.free;
+  const profileCompletion = (profile) => {
+    const fields = [
+      profile.display_name, profile.username, profile.job_title, profile.company_name,
+      profile.bio, profile.profile_photo, profile.cover_photo || profile.cover_color,
+      profile.phone, profile.email, profile.website,
+    ];
+    return Math.round((fields.filter(Boolean).length / fields.length) * 100);
+  };
 
   // Start 14-day Professional trial
   const startTrial = async () => {
@@ -157,33 +156,10 @@ export default function ProfilesHub({
     }
   };
 
-  // ── Top-of-card status chip: distinguishes Selected vs Default ──
+  // ── Figma-style primary status chip ──
   const renderStatusChip = (profile) => {
-    const selected = isSelected(profile);
-    const def = isDefault(profile);
-    if (!selected && !def) return null;
-    if (selected && def) {
-      return (
-        <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
-          style={{ background: "rgba(251,191,36,0.95)", color: "#7c2d12" }}>
-          <CheckCircle2 className="w-3 h-3" /> Default
-        </span>
-      );
-    }
-    if (selected) {
-      return (
-        <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
-          style={{ background: "rgba(11,33,73,0.95)", color: "#fff" }}>
-          <CheckCircle2 className="w-3 h-3" /> Selected
-        </span>
-      );
-    }
-    return (
-      <span className="flex items-center gap-1 text-xs font-black px-2 py-1 rounded-full uppercase tracking-wide shadow-sm backdrop-blur"
-        style={{ background: "rgba(251,191,36,0.92)", color: "#7c2d12" }}>
-        <Star className="w-3 h-3 fill-current" /> Default
-      </span>
-    );
+    if (!isDefault(profile)) return null;
+    return <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide text-white bg-emerald-500 shadow-sm">Primary</span>;
   };
 
   // ── Reorder controls cluster (top-left of card) ──
@@ -236,11 +212,13 @@ export default function ProfilesHub({
 
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
-    const effectivePlan = accountPlan || "free";
-    const planStyle = getPlanStyle(effectivePlan);
-    const planLabel = PLAN_LABELS[effectivePlan] || "Free";
     const profileUrl = `${window.location.origin}/p/${profile.username}`;
     const selected = isSelected(profile);
+    const completion = profileCompletion(profile);
+    const profileType = titleCase(profile.profile_type, "Personal");
+    const layoutLabel = `${titleCase(profile.layout, "Classic")} Layout`;
+    const viewCount = profile.view_count ?? profile.views ?? 0;
+    const tapCount = profile.tap_count ?? profile.nfc_taps ?? 0;
 
     return (
       <div
@@ -250,7 +228,7 @@ export default function ProfilesHub({
         aria-pressed={selected}
         onClick={() => handleCardActivate(profile)}
         onKeyDown={(e) => handleCardKeyDown(e, profile)}
-        className={`relative ${cardBg} border rounded-2xl transition-all duration-200 cursor-pointer outline-none
+        className={`relative ${cardBg} border rounded-[24px] transition-all duration-200 cursor-pointer outline-none
           focus:ring-2 focus:ring-orange-400/60
           hover:shadow-lg hover:-translate-y-0.5
           ${selected
@@ -268,8 +246,8 @@ export default function ProfilesHub({
         {renderReorderControls(profile, index, dragHandleProps)}
 
         {/* Cover */}
-        <div className="relative" style={{ borderRadius: "16px 16px 0 0", overflow: "hidden" }}>
-          <div style={{ height: 120 }}>
+        <div className="relative" style={{ borderRadius: "24px 24px 0 0", overflow: "hidden" }}>
+          <div style={{ height: 145 }}>
             {profile.cover_photo ? (
               <img src={profile.cover_photo} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
@@ -280,13 +258,13 @@ export default function ProfilesHub({
         </div>
 
         {/* Avatar row */}
-        <div className="flex items-start justify-between px-4" style={{ marginTop: -32 }}>
+        <div className="flex items-start justify-between px-5" style={{ marginTop: -36 }}>
           {(() => {
             const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "50%";
             return profile.profile_photo ? (
               <img src={profile.profile_photo} alt=""
                 style={{
-                  width: 64, height: 64, borderRadius: shapeR, flexShrink: 0,
+                  width: 72, height: 72, borderRadius: shapeR, flexShrink: 0,
                   objectFit: "cover", objectPosition: "center top",
                   border: isDark ? "3px solid #13162a" : "3px solid white",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
@@ -294,7 +272,7 @@ export default function ProfilesHub({
                 }} />
             ) : (
               <div style={{
-                width: 64, height: 64, borderRadius: shapeR, flexShrink: 0,
+                width: 72, height: 72, borderRadius: shapeR, flexShrink: 0,
                 background: profile.cover_color || "#2563eb",
                 border: isDark ? "3px solid #13162a" : "3px solid white",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -306,39 +284,74 @@ export default function ProfilesHub({
               </div>
             );
           })()}
-          {/* Bottom badges — Live + Plan */}
-          <div className="flex items-center gap-2 pt-9">
+          {/* Bottom badges — Live + profile category */}
+          <div className="flex items-center gap-2 pt-10">
             {profile.is_active && (
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="text-xs font-semibold text-emerald-500">Live</span>
               </span>
             )}
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full uppercase tracking-wide"
-              style={{ background: planStyle.bg, color: planStyle.text }}>
-              {planLabel}
+            <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide"
+              style={{ background: "#ecfdf5", color: "#059669" }}>
+              {profileType}
             </span>
           </div>
         </div>
 
         {/* Name + username */}
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-5">
           <div className="mb-1">
-            <p className={`font-bold text-sm truncate ${headText}`}>{profile.display_name}</p>
-            <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
+            <p className={`font-black text-base truncate ${headText}`}>{profile.display_name}</p>
+            <p className={`text-sm truncate ${mutedText}`}>/{profile.username}</p>
           </div>
 
           {profile.job_title && (
-            <p className={`text-xs font-semibold truncate mb-3 ${subText}`}>
+            <p className={`text-sm font-semibold truncate mb-2 ${subText}`}>
               {profile.job_title}{profile.company_name ? ` · ${profile.company_name}` : ""}
             </p>
           )}
+
+          <span className="inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full mb-4"
+            style={{ background: isDark ? "rgba(99,102,241,0.16)" : "#eef2ff", color: isDark ? "#a5b4fc" : "#4338ca" }}>
+            {layoutLabel}
+          </span>
+
+          <div className="mb-4">
+            <div className="flex items-center justify-between text-xs mb-1.5">
+              <span className={subText}>Profile completion</span>
+              <span className="font-black text-orange-500">{completion}%</span>
+            </div>
+            <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-100"}`}>
+              <div className="h-full rounded-full bg-orange-500" style={{ width: `${completion}%` }} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+              <p className={`text-base font-black ${headText}`}>{viewCount}</p><p className={`text-[10px] ${mutedText}`}>Views</p>
+            </div>
+            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+              <p className={`text-base font-black ${headText}`}>{tapCount}</p><p className={`text-[10px] ${mutedText}`}>Taps</p>
+            </div>
+            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+              <p className={`text-sm font-black ${profile.is_active === false ? "text-slate-400" : "text-emerald-500"}`}>{profile.is_active === false ? "Hidden" : "Live"}</p>
+              <p className={`text-[10px] ${mutedText}`}>Status</p>
+            </div>
+          </div>
+
+          <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 mb-3 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
+            <span className={`text-xs truncate flex-1 ${subText}`}>/p/{profile.username}</span>
+            <button onClick={(e) => { e.stopPropagation(); copyLink(profile); }} className={`text-xs font-bold flex items-center gap-1 ${headText}`}>
+              {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy
+            </button>
+          </div>
 
           {/* Quick Actions */}
           <div className="flex gap-2 mt-3 items-center">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 min-w-0"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 min-w-0"
               style={{ background: "#0b2149" }}>
               <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Edit</span>
             </button>
@@ -363,17 +376,6 @@ export default function ProfilesHub({
                 color: isDark ? "#a78bfa" : "#6366f1",
               }}>
               <QrCode className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); copyLink(profile); }}
-              aria-label="Copy profile link"
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
-              style={{
-                background: isDark ? "rgba(255,255,255,0.06)" : "rgba(16,185,129,0.07)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(16,185,129,0.2)",
-                color: isDark ? "#34d399" : "#059669",
-              }}>
-              {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
             {showDefaultUI && (
               <button
@@ -413,72 +415,61 @@ export default function ProfilesHub({
 
   // New profile / locked card (rendered after the draggable cards)
   const renderAddCard = () => hasReachedFreeLimit ? (
-    <div className={`border-2 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center ${isDark ? "border-amber-400/25 bg-amber-400/5" : "border-amber-300/60 bg-amber-50/60"}`}
-      style={{ minHeight: "220px" }}>
+    <div className={`border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center justify-center gap-4 text-center ${isDark ? "border-white/12 bg-white/[0.02]" : "border-slate-200 bg-white/20"}`}
+      style={{ minHeight: "470px" }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(251,191,36,0.15)" : "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.35)" }}>
         <Lock className="w-6 h-6 text-amber-500" />
       </div>
       <div>
-        <p className={`font-black text-sm ${headText}`}>Try Professional free for 14 days</p>
-        <p className={`text-xs mt-1.5 leading-relaxed ${mutedText}`}>
-          Create more profiles, unlock leads, appointments, analytics, NFC tools, resume, portfolio, and premium layouts.
-        </p>
+        <p className={`font-black text-base ${headText}`}>Create New Profile</p>
+        <p className={`text-sm mt-1.5 leading-relaxed ${mutedText}`}>Upgrade to Professional · 14-day free trial</p>
       </div>
       <div className="w-full space-y-2">
         <button onClick={startTrial} disabled={trialLoading}
           className="w-full py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
-          <Star className="w-4 h-4" />
-          {trialLoading ? "Loading…" : "Start Free 14-Day Trial"}
+          {trialLoading ? "Loading…" : "Save card to unlock"}
         </button>
-        <p className={`text-xs ${mutedText}`}>$4.99/mo after trial · cancel anytime</p>
+        <p className={`text-xs ${mutedText}`}>Cancel anytime</p>
       </div>
     </div>
   ) : (
     <button onClick={onCreateNew}
-      className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center gap-3 text-center transition-all hover:scale-[1.01] ${
+      className={`border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center justify-center gap-4 text-center transition-all hover:scale-[1.01] ${
         isDark ? "border-white/12 hover:border-white/20 hover:bg-white/[0.03]" : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
       }`}
-      style={{ minHeight: "180px" }}>
+      style={{ minHeight: "470px" }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
         <Plus className="w-6 h-6" style={{ color: "#f97316" }} />
       </div>
       <div>
-        <p className={`font-bold text-sm ${headText}`}>New Profile</p>
-        <p className={`text-xs mt-0.5 ${mutedText}`}>Add another digital card</p>
+        <p className={`font-black text-base ${headText}`}>Create New Profile</p>
+        <p className={`text-sm mt-1 ${mutedText}`}>Add another digital card</p>
       </div>
     </button>
   );
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-7 py-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className={`text-xl font-black ${headText}`}>My Profiles</h2>
-          <p className={`text-xs mt-0.5 ${mutedText}`}>
-            {loading
-              ? "Loading your profiles…"
-              : `${profiles.length} profile${profiles.length !== 1 ? "s" : ""} · tap a card to manage`}
-            {canReorder && !loading && " · drag to reorder"}
-            {showDefaultUI && !loading && " · tap the star to set a default"}
+          <h2 className={`text-3xl font-black tracking-tight ${headText}`}>My Profiles</h2>
+          <p className={`text-sm mt-0.5 ${subText}`}>
+            {loading ? "Loading your profiles…" : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button onClick={onLaunchAI}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
-            style={{
-              background: isDark ? "rgba(139,92,246,0.12)" : "rgba(139,92,246,0.07)",
-              borderColor: isDark ? "rgba(139,92,246,0.3)" : "rgba(139,92,246,0.25)",
-              color: isDark ? "#a78bfa" : "#7c3aed"
-            }}>
-            <Zap className="w-3.5 h-3.5" /> AI Builder
-          </button>
-          {!hasReachedFreeLimit && (
+          {hasReachedFreeLimit ? (
+            <button onClick={startTrial} disabled={trialLoading}
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black border border-orange-300/60 text-orange-500 bg-orange-50/70 transition-all hover:bg-orange-50 disabled:opacity-60">
+              <Lock className="w-4 h-4" /> Upgrade to add more
+            </button>
+          ) : (
             <button onClick={onCreateNew}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white transition-all"
+              className="flex items-center gap-1.5 px-5 py-3 rounded-2xl text-sm font-bold text-white transition-all"
               style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
               <Plus className="w-3.5 h-3.5" /> New Profile
             </button>
@@ -518,7 +509,7 @@ export default function ProfilesHub({
           <Droppable droppableId="profiles-grid" isDropDisabled={!canReorder}>
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {items.map((profile, index) => (
                   <Draggable draggableId={profile.id} index={index} key={profile.id} isDragDisabled={!canReorder}>
                     {(dragProvided, snapshot) => (
