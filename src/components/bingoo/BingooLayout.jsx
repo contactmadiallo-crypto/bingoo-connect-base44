@@ -118,17 +118,26 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   // Sidebar header — notification bell removed; bell now lives in the dashboard top bar
   const renderSidebarContent = (onNav) => (
     <div className="flex flex-col h-full">
-      <div className="flex-shrink-0">
-        <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #f97316, #FDBA21, #f97316)" }} />
-        <Link to="/" className="px-5 py-4 flex items-center gap-3 transition-opacity hover:opacity-80" style={{ borderBottom: `1px solid ${sidebarBorder}` }}>
-          <BingooLogo className="h-11 w-11 flex-shrink-0" animated />
-          <div className="flex flex-col">
-            <BingooWordmark size="text-lg" light stacked={false} />
-            <div className="text-white/30 text-[9px] uppercase tracking-widest font-bold leading-tight mt-0.5">
-              Connect • Share • Grow
+      <div className="flex-shrink-0 px-3 pt-4">
+        <div className="rounded-2xl border border-white/10 px-4 py-4 flex items-center gap-3"
+          style={{ background: "rgba(255,255,255,0.07)" }}>
+          {selectedProfile?.profile_photo ? (
+            <img src={selectedProfile.profile_photo} alt="" className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-white/10" />
+          ) : (
+            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-black text-orange-400"
+              style={{ background: "rgba(249,115,22,0.12)" }}>
+              {(selectedProfile?.display_name || user?.full_name || "B").charAt(0).toUpperCase()}
             </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-black text-white truncate">
+              {selectedProfile?.display_name || user?.full_name || "My Profile"}
+            </p>
+            <span className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold capitalize text-white/50 bg-white/8">
+              {accountPlan || "free"}
+            </span>
           </div>
-        </Link>
+        </div>
       </div>
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
         {navSections.map(section => (
@@ -194,11 +203,11 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
 
       {/* One persistent account header for every signed-in workspace page. */}
       <header className="hidden md:block fixed top-0 inset-x-0 h-[72px] z-40 bg-white border-b border-slate-200">
-        <div className="h-full px-6 flex items-center justify-between gap-6">
+        <div className="h-full px-8 flex items-center justify-between gap-8">
           <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bingoo Connect home">
             <BrandLockup badgeSize={34} />
           </Link>
-          <nav className="hidden xl:flex items-center gap-7 text-sm font-semibold text-slate-500" aria-label="Main navigation">
+          <nav className="hidden xl:flex items-center gap-9 text-sm font-semibold text-slate-500" aria-label="Main navigation">
             <Link to="/shop" className="hover:text-slate-900 transition-colors">Products</Link>
             <Link to="/" className="hover:text-slate-900 transition-colors">Templates</Link>
             <Link to="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
