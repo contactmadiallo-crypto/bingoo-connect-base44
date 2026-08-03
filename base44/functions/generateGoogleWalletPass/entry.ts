@@ -5,6 +5,7 @@ const WALLET_API_BASE = 'https://walletobjects.googleapis.com/walletobjects/v1';
 const OAUTH_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const WALLET_SCOPE = 'https://www.googleapis.com/auth/wallet_object.issuer';
 const SAVE_URL_PREFIX = 'https://pay.google.com/gp/v/save/';
+const PUBLIC_APP_ORIGIN = 'https://bingooconnect.com';
 
 // Official Bingoo Connect commercial brand logo — used as the pass issuer logo.
 // Never use personal photos or user profile photos as the brand logo.
@@ -119,8 +120,16 @@ Deno.serve(async (req) => {
 
     const classId = `${issuerId}.bingoo_profile_class`;
     const objectId = `${issuerId}.bingoo_profile_${profile.id}`;
-    const appOrigin = (Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com').replace(/\/$/, '');
-    const profileUrl = `${appOrigin}/p/${profile.username}`;
+    // Never leak a Base44 editor/preview host into a public pass.
+    const profileUrl = `${PUBLIC_APP_ORIGIN}/p/${encodeURIComponent(String(profile.username).trim().replace(/^@+/, ''))}`;
+    // The request origin is authorized only to launch the save flow. The pass
+    // barcode and profile button still point to the canonical production URL.
+    const requestOrigin = (() => {
+      try { return new URL(req.headers.get('origin') || PUBLIC_APP_ORIGIN).origin; }
+      catch { return PUBLIC_APP_ORIGIN; }
+    })();
+    const saveOrigins = [...new Set([PUBLIC_APP_ORIGIN, requestOrigin]
+      .filter((origin) => origin.startsWith('https://')))];
 
     // ── 1. Get OAuth2 access token via JWT bearer flow ──
     const now = Math.floor(Date.now() / 1000);
@@ -200,6 +209,9 @@ Deno.serve(async (req) => {
     const subheaderValue = profile.company_name || '';
 
     const websiteClean = cleanWebsite(profile.website);
+    const passColor = /^#[0-9a-f]{6}$/i.test(profile.cover_color || '')
+      ? profile.cover_color
+      : BINGOO_NAVY;
 
     // Text modules — each non-empty field becomes its own module. Missing fields
     // → no module → the template row is auto-dropped by Google Wallet (no empty rows).
@@ -227,7 +239,7 @@ Deno.serve(async (req) => {
       id: objectId,
       classId,
       genericType: 'GENERIC_TYPE_UNSPECIFIED',
-      hexBackgroundColor: BINGOO_NAVY,
+      hexBackgroundColor: passColor,
       logo: {
         sourceUri: { uri: BINGOO_LOGO_URL },
       },
@@ -291,7 +303,7 @@ Deno.serve(async (req) => {
     const saveJwt = await new SignJWT({
       iss: serviceAccountEmail,
       aud: 'google',
-      origins: [appOrigin],
+      origins: saveOrigins,
       typ: 'savetowallet',
       iat: now,
       exp: now + 3600,
