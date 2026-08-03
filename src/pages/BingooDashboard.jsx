@@ -621,23 +621,13 @@ export default function BingooDashboard() {
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-1 sm:pt-2">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-2 sm:pt-3">
           <ScreenPullToRefresh onRefresh={handlePullRefresh} disabled={ptrDisabled} />
 
           {/* ── Global top bar ── */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="min-w-0">
-                <h1 className={`text-base font-black leading-none truncate ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {user?.full_name?.split(" ")[0] || "Dashboard"}
-                </h1>
-                <p className={`text-[11px] font-semibold mt-0.5 truncate ${isDark ? "text-white/35" : "text-slate-400"}`}>
-                  {activeProfile ? activeProfile.display_name : "My Profiles"}
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center justify-end mb-4">
             <div className="flex items-center gap-2 flex-shrink-0">
-              {view !== VIEW_WORKSPACE && (
+              {view !== VIEW_WORKSPACE && view !== VIEW_MYASSETS && (
                 <ProfileSelectorDropdown
                   profiles={orderedProfiles}
                   selectedProfile={activeProfile}
@@ -1011,14 +1001,7 @@ export default function BingooDashboard() {
               MY ASSETS — Asset protection & tracking
           ════════════════════════════════════ */}
           {view === VIEW_MYASSETS && (
-            <div>
-              <ProfileChip />
-              {!activeProfile ? (
-                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : (
-                <MyAssetsPanel profile={activeProfile} isDark={isDark} />
-              )}
-            </div>
+            <MyAssetsPanel isDark={isDark} />
           )}
 
           {/* ════════════════════════════════════
