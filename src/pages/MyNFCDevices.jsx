@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
   CheckCircle, AlertCircle, Info, Zap, Clock, AlertTriangle, Layers,
-  RefreshCw, ArrowRightLeft
+  RefreshCw, ArrowRightLeft, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
@@ -302,6 +302,7 @@ export default function MyNFCDevices() {
   const lostCount = myDevices.filter(d => d.status === "lost").length;
   const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
+  const unassignedCount = myDevices.filter(device => !device.profile_id && !device.assigned_asset_id).length;
 
   const bg = isDark ? "rgba(255,255,255,0.04)" : "#ffffff";
   const border = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)";
@@ -349,44 +350,41 @@ export default function MyNFCDevices() {
 
   return (
     <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
-      <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-6">
+      <div className="px-4 pb-10 pt-2 md:px-6 max-w-5xl mx-auto space-y-6">
         <ScreenPullToRefresh onRefresh={() => qc.invalidateQueries()} disabled={showActivate || !!lostDialogDevice || !!replaceDialogDevice || !!reassignDialogDevice} />
 
         {/* Header */}
-        <div className="relative rounded-3xl overflow-hidden p-6"
-          style={{ background: "linear-gradient(135deg,#0b2149,#13284f)", border: "1px solid rgba(249,115,22,0.2)" }}>
-          <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(249,115,22,0.1)" }} />
-          <div className="h-1 absolute top-0 left-0 right-0" style={{ background: "linear-gradient(90deg,#f97316,#FDBA21,#f97316)" }} />
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0"
-                style={{ background: "rgba(249,115,22,0.2)", border: "1px solid rgba(249,115,22,0.3)" }}>
-                📲
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-white">My NFC Devices</h1>
-                <p className="text-xs mt-0.5 text-white/50">Manage your Bingoo NFC cards, keychains & accessories</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-sm font-bold text-emerald-400">{activeCount} Active</span>
-                  {lostCount > 0 && (<>
-                    <span className="text-white/30 text-xs">·</span>
-                    <span className="text-sm font-bold text-red-400">{lostCount} Lost</span>
-                  </>)}
-                  <span className="text-white/30 text-xs">·</span>
-                  <span className="text-sm font-bold text-white/50">{totalCount} Total</span>
-                  <span className="text-white/30 text-xs">·</span>
-                  <span className="text-sm font-bold" style={{ color: "#FDBA21" }}>{totalScans} Taps</span>
-                </div>
-              </div>
-            </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className={`text-3xl sm:text-4xl font-black ${headText}`}>NFC Devices</h1>
+            <p className={`text-sm mt-1 ${mutedText}`}>Manage your cards, keychains, bracelets, and connected assets.</p>
+          </div>
             <Button
               onClick={() => navigate("/activate-device")}
-              className="font-bold gap-2 flex-shrink-0"
+              className="h-12 px-6 rounded-xl font-black gap-2 flex-shrink-0"
               style={{ background: "#f97316", color: "#fff" }}
             >
-              🔑 Activate Device
+              <Plus className="w-5 h-5" /> Activate Device
             </Button>
-          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {[
+            { label: "Total Devices", value: totalCount, icon: Smartphone, color: "#0b2149", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f1f5f9" },
+            { label: "Active", value: activeCount, icon: CheckCircle, color: "#22c55e", iconBg: isDark ? "rgba(34,197,94,.12)" : "#f0fdf4" },
+            { label: "Unassigned", value: unassignedCount, icon: X, color: "#64748b", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f8fafc" },
+            { label: "Total Taps", value: totalScans, icon: Zap, color: "#f97316", iconBg: isDark ? "rgba(249,115,22,.12)" : "#fff7ed" },
+          ].map(stat => (
+            <div key={stat.label} className="rounded-2xl border p-4 sm:p-5 min-h-[150px] flex flex-col justify-between" style={{ background: bg, borderColor: border }}>
+              <span className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: stat.iconBg }}>
+                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+              </span>
+              <div>
+                <p className={`text-3xl font-black ${headText}`}>{stat.value}</p>
+                <p className={`text-sm font-medium ${mutedText}`}>{stat.label}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Activate by Code Panel */}
@@ -469,7 +467,7 @@ export default function MyNFCDevices() {
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={() => navigate("/activate-device")} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
-                🔑 Activate Device
+                <Plus className="w-4 h-4" /> Activate Device
               </Button>
               <a href="/shop" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className={`w-full sm:w-auto font-bold gap-2 ${isDark ? "border-white/20 text-white/70 hover:bg-white/10 bg-transparent" : ""}`}>

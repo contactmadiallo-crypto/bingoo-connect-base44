@@ -26,7 +26,7 @@ function AssetTypeBadge({ type }) {
   );
 }
 
-export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
+export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -97,7 +97,6 @@ export default function MyAssetsPanel({ profile, isDark, nfcDevices = [] }) {
       const payload = {
         ...formData,
         owner_user_id: user.id,
-        profile_id: profile?.id,
       };
       if (editingAsset) {
         await base44.entities.AssetItem.update(editingAsset.id, payload);
