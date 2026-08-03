@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { LogOut, Shield, Menu, X, Sun, Moon, Home, User, Smartphone, Briefcase } from "lucide-react";
+import { Shield, Menu, X, Sun, Moon, Home, User, Smartphone, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
@@ -37,7 +37,7 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
     return () => { meta.setAttribute("content", "index, follow"); };
   }, []);
 
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   // userId prop takes priority (passed from BingooDashboard which already has the user)
   const effectiveUserId = userId || user?.id;
@@ -174,24 +174,6 @@ export default function BingooLayout({ children, selectedProfile, accountPlan, l
             ? <><Sun className="w-4 h-4 text-yellow-400" /> {t("light_mode", lang)}</>
             : <><Moon className="w-4 h-4 text-blue-300" /> {t("dark_mode", lang)}</>}
         </button>
-        <div className="px-3 py-3 rounded-xl" style={{ background: "rgba(255,255,255,0.08)" }}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md"
-              style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-              {user?.full_name?.charAt(0) || "U"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate text-white">{user?.full_name}</p>
-              <p className="text-xs truncate text-white/40">{user?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => logout()}
-            title="Logout" aria-label="Logout"
-            className="mt-2 w-full flex items-center justify-center gap-2 py-1.5 rounded-lg text-xs font-bold text-red-400 hover:bg-red-500/10 transition-colors">
-            <LogOut className="w-3.5 h-3.5" /> Logout
-          </button>
-        </div>
         <a href="/account-settings#delete" aria-label="Delete account" className="text-xs text-red-400/60 hover:text-red-400 transition-colors min-h-[44px] flex items-center px-3">
           Delete Account
         </a>
