@@ -26,6 +26,10 @@ function AssetTypeBadge({ type }) {
   );
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+// Never trust an API response to be an array — guard every downstream use.
+const ensureArray = (v) => Array.isArray(v) ? v : [];
+
 export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -44,23 +48,63 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
 
-  const { data: assets, isLoading } = useQuery({
+  // Temporary development logging — authenticated user ID.
+  React.useEffect(() => {
+    if (user?.id) console.info('[MyAssetsPanel] authenticated user:', user.id);
+  }, [user?.id]);
+
+  // ── AssetItem query ──────────────────────────────────────────────────────
+  // Explicit error handling: isError captures permission/schema failures so we
+  // can show a visible error state instead of a blank page.
+  const {
+    data: assetsRaw,
+    isLoading: assetsLoading,
+    isError: assetsIsError,
+    error: assetsError,
+    refetch: refetchAssets,
+  } = useQuery({
     queryKey: ['my-assets', user?.id],
     queryFn: () => base44.entities.AssetItem.filter({ owner_user_id: user.id }, '-created_date', 100),
     enabled: !!user?.id,
+    retry: 1,
   });
+  const assets = ensureArray(assetsRaw);
 
-  const { data: myDevices = [] } = useQuery({
+  // Temporary dev logging — AssetItem query result / error.
+  React.useEffect(() => {
+    if (assetsIsError) console.error('[MyAssetsPanel] AssetItem query error:', assetsError);
+    else if (!assetsLoading) console.info('[MyAssetsPanel] AssetItem count:', assets.length);
+  }, [assetsIsError, assetsError, assetsLoading, assets.length]);
+
+  // ── NFC devices query ─────────────────────────────────────────────────────
+  // Explicit error handling + array guard: getMyNfcDevices may return null or
+  // throw on the server; we never use the result unless it's a verified array.
+  const {
+    data: myDevicesRaw,
+    isLoading: devicesLoading,
+    isError: devicesIsError,
+    error: devicesError,
+    refetch: refetchDevices,
+  } = useQuery({
     queryKey: ['my-nfc-devices-for-assets', user?.id],
     queryFn: async () => {
       const res = await base44.functions.invoke('getMyNfcDevices', {});
-      return res?.data?.devices || [];
+      const devices = res?.data?.devices;
+      return ensureArray(devices);
     },
     enabled: !!user?.id,
+    retry: 1,
   });
+  const myDevices = ensureArray(myDevicesRaw);
+
+  // Temporary dev logging — getMyNfcDevices result / error.
+  React.useEffect(() => {
+    if (devicesIsError) console.error('[MyAssetsPanel] getMyNfcDevices error:', devicesError);
+    else if (!devicesLoading) console.info('[MyAssetsPanel] NFC devices count:', myDevices.length);
+  }, [devicesIsError, devicesError, devicesLoading, myDevices.length]);
 
   const deviceMap = {};
-  (myDevices || []).forEach(d => { deviceMap[d.id] = d; });
+  myDevices.forEach(d => { deviceMap[d.id] = d; });
 
   const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -152,18 +196,12 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
   };
 
   // ── Bidirectional device↔asset linking ──────────────────────────────────
-  // Both AssetItem.nfc_device_id AND NFCDevice.assigned_asset_id must stay in
-  // sync.  Previously this only updated the AssetItem side, leaving the
-  // NFCDevice pointing at a stale asset — causing the NFC Devices page to
-  // show an asset link that no longer existed.
   const handleAssignDevice = async (assetId, deviceId) => {
     try {
-      const device = (myDevices || []).find(d => d.id === deviceId);
-      // If device was linked to a different asset, clear that asset's reference first
+      const device = myDevices.find(d => d.id === deviceId);
       if (device?.assigned_asset_id && device.assigned_asset_id !== assetId) {
         await base44.entities.AssetItem.update(device.assigned_asset_id, { nfc_device_id: '' });
       }
-      // Bidirectional update
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
       await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: assetId });
       toast({ title: 'NFC device assigned to asset' });
@@ -177,9 +215,8 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
 
   const handleUnlinkDevice = async (assetId) => {
     try {
-      const asset = (assets || []).find(a => a.id === assetId);
+      const asset = assets.find(a => a.id === assetId);
       const deviceId = asset?.nfc_device_id;
-      // Bidirectional clear
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: '' });
       if (deviceId) {
         await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: '' });
@@ -192,11 +229,21 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
     }
   };
 
+  const handleRetry = () => {
+    refetchAssets();
+    refetchDevices();
+  };
+
   const panelBg = isDark ? 'bg-white/5' : 'bg-white';
   const panelBorder = isDark ? 'border-white/10' : 'border-slate-200';
   const headText = isDark ? 'text-white' : 'text-slate-900';
   const mutedText = isDark ? 'text-white/60' : 'text-slate-500';
   const inputBg = isDark ? 'bg-white/5' : 'bg-white';
+
+  // ── Error state ───────────────────────────────────────────────────────────
+  // Visible error UI instead of a blank page. Retry refetches both queries.
+  const hasQueryError = assetsIsError || devicesIsError;
+  const errMsg = (assetsError?.message || devicesError?.message || 'Failed to load assets or NFC devices.');
 
   return (
     <div className="space-y-4">
@@ -220,8 +267,22 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
         </button>
       </div>
 
+      {/* Error state — shown when either query fails */}
+      {hasQueryError && (
+        <div className={`rounded-2xl border p-6 text-center ${isDark ? 'border-red-500/30 bg-red-500/5' : 'border-red-200 bg-red-50'}`}>
+          <AlertTriangle className={`w-8 h-8 mx-auto mb-2 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
+          <p className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Couldn’t load your assets</p>
+          <p className={`text-xs mb-3 ${isDark ? 'text-white/50' : 'text-slate-500'}`}>{errMsg}</p>
+          <button onClick={handleRetry}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white"
+            style={{ background: '#f97316' }}>
+            <RefreshCw className="w-3.5 h-3.5" /> Retry
+          </button>
+        </div>
+      )}
+
       {/* Form Modal */}
-      {showForm && (
+      {showForm && !hasQueryError && (
         <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
           <div className="flex items-center justify-between">
             <h3 className={`text-sm font-black ${headText}`}>{editingAsset ? 'Edit Asset' : 'New Asset'}</h3>
@@ -317,16 +378,16 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
         </div>
       )}
 
-      {/* Asset Cards */}
-      {isLoading ? (
+      {/* Asset Cards — only render when there's no query error */}
+      {!hasQueryError && (assetsLoading || devicesLoading) ? (
         <div className="flex justify-center py-12"><div className="w-6 h-6 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" /></div>
-      ) : (assets || []).length === 0 ? (
+      ) : !hasQueryError && assets.length === 0 ? (
         <div className={`text-center py-12 rounded-2xl border ${panelBorder} ${panelBg}`}>
           <Package className={`w-8 h-8 mx-auto mb-2 ${mutedText}`} />
           <p className={`text-sm font-bold ${headText}`}>No assets yet</p>
           <p className={`text-xs ${mutedText} mt-1`}>Add your first asset to protect it with NFC.</p>
         </div>
-      ) : (
+      ) : !hasQueryError && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {assets.map(asset => {
             const linkedDevice = asset.nfc_device_id ? deviceMap[asset.nfc_device_id] : null;

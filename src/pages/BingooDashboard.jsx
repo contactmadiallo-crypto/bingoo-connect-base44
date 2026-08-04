@@ -44,6 +44,7 @@ import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
 const DocumentWalletPanel = React.lazy(() => import("@/components/bingoo/DocumentWalletPanel"));
 const MyAssetsPanel = React.lazy(() => import("@/components/bingoo/MyAssetsPanel"));
+import MyAssetsErrorBoundary from "@/components/bingoo/MyAssetsErrorBoundary";
 const ProfileQualityScore = React.lazy(() => import("@/components/bingoo/ProfileQualityScore"));
 const PlanJourneyPanel = React.lazy(() => import("@/components/bingoo/PlanJourneyPanel"));
 const StrategicHub = React.lazy(() => import("@/components/bingoo/strategic/StrategicHub"));
@@ -1020,7 +1021,9 @@ export default function BingooDashboard() {
               {!activeProfile ? (
                 <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
               ) : (
-                <MyAssetsPanel profile={activeProfile} isDark={isDark} />
+                <MyAssetsErrorBoundary isDark={isDark}>
+                  <MyAssetsPanel profile={activeProfile} isDark={isDark} />
+                </MyAssetsErrorBoundary>
               )}
             </div>
           )}
