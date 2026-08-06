@@ -14,7 +14,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 
 import BingooLogo from "@/components/bingoo/BingooLogo";
-import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
+import { BingooLogo as BingooWordmark, InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
 import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD } from "@/lib/planPermissions";
@@ -727,10 +727,13 @@ export default function Landing() {
         style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         
         <div className="max-w-7xl mx-auto px-4 py-3 md:px-6 flex items-center justify-between">
-          {/* Logo */}
+          {/* Logo — orange rounded-square infinity icon + Bing∞ Connect wordmark */}
           <Link to="/" className="flex items-center gap-2.5" aria-label="Bingoo Connect home">
-            <motion.div whileHover={{ scale: 1.02 }}>
-              <BingooLogo className="h-9 w-9" animated={false} />
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: -2 }}
+              className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0"
+              style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, boxShadow: `0 4px 14px ${B.orange}55, inset 0 1px 0 rgba(255,255,255,0.3)` }}>
+              <InfinityMark size={18} color="#fff" strokeWidth={3.2} glow />
             </motion.div>
             <BingooWordmark size="text-xl" light stacked={false} />
           </Link>
