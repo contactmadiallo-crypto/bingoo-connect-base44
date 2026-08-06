@@ -778,59 +778,67 @@ export default function Landing() {
       </motion.nav>
 
       {/* ── HERO */}
-      <section className="relative overflow-hidden flex items-center min-h-screen py-20 px-4 md:px-6"
-        style={{ background: `linear-gradient(145deg, ${B.navyDark} 0%, ${B.navy} 45%, #0f3d8c 70%, #0a2a5e 100%)` }}>
+      <section className="relative overflow-hidden flex items-center min-h-screen py-24 md:py-28 px-4 md:px-6"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 18% 22%, rgba(249,115,22,0.16) 0%, transparent 55%),
+            radial-gradient(ellipse 70% 55% at 82% 28%, rgba(37,99,235,0.14) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 45% at 50% 85%, rgba(253,186,33,0.10) 0%, transparent 55%),
+            linear-gradient(160deg, ${B.navyDark} 0%, ${B.navy} 38%, #0f3d8c 72%, #0a2a5e 100%)
+          `
+        }}>
 
         <NFCWaveRings />
         <ConnectionLines />
 
-        {/* Floating orbs */}
-        <FloatingOrb delay={0} style={{ width: 500, height: 500, top: "-15%", left: "-10%", background: `radial-gradient(circle, rgba(255,122,0,0.18) 0%, transparent 70%)` }} />
-        <FloatingOrb delay={2} style={{ width: 400, height: 400, bottom: "-10%", right: "-8%", background: `radial-gradient(circle, rgba(253,186,33,0.14) 0%, transparent 70%)` }} />
-        <FloatingOrb delay={4} style={{ width: 250, height: 250, top: "30%", right: "20%", background: `radial-gradient(circle, rgba(255,154,51,0.1) 0%, transparent 70%)` }} />
+        {/* Floating orbs — soft orange & blue glow accents */}
+        <FloatingOrb delay={0} style={{ width: 560, height: 560, top: "-18%", left: "-12%", background: `radial-gradient(circle, rgba(255,122,0,0.20) 0%, transparent 70%)` }} />
+        <FloatingOrb delay={2} style={{ width: 440, height: 440, bottom: "-12%", right: "-10%", background: `radial-gradient(circle, rgba(253,186,33,0.16) 0%, transparent 70%)` }} />
+        <FloatingOrb delay={4} style={{ width: 300, height: 300, top: "28%", right: "18%", background: `radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 70%)` }} />
 
         {/* Dot grid */}
         <div className="absolute inset-0 opacity-[0.04]"
           style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "36px 36px" }} />
 
         <div className="max-w-7xl mx-auto w-full relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-14 lg:gap-10 items-center">
             {/* Left: Copy */}
             <div>
               <motion.div
                 initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6"
-                  style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.35)", color: B.gold }}>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-7"
+                  style={{ background: "rgba(253,186,33,0.12)", border: "1px solid rgba(253,186,33,0.35)", color: B.gold, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
                   <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }}>📡</motion.span>
                   NFC-Powered Business Identity Platform
                 </div>
               </motion.div>
 
               <motion.h1
-                className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6 text-white"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] font-black leading-[1.02] tracking-tight mb-7 text-white"
+                style={{ textShadow: "0 4px 30px rgba(0,0,0,0.25)" }}
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
                 One Tap.<br />
-                <span style={{ color: B.gold }}>Your Entire</span><br />
+                <span style={{ background: `linear-gradient(135deg, ${B.gold} 0%, ${B.goldLight} 50%, ${B.orangeLight} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Your Entire</span><br />
                 Business World.
               </motion.h1>
 
               <motion.p
-                className="text-lg text-white/70 mb-8 max-w-lg leading-relaxed"
+                className="text-lg md:text-xl text-white/65 mb-9 max-w-xl leading-relaxed"
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.5 }}>
                 The smart NFC card platform that opens your digital profile for law firms, salons, restaurants, realtors, consultants and every professional growing their business.
               </motion.p>
 
               {/* Tagline pills */}
-              <motion.div className="flex flex-wrap gap-2 mb-8"
+              <motion.div className="flex flex-wrap gap-2 mb-9"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
                 {["CONNECT", "SHARE", "GROW", "SUCCEED"].map((word, i) => (
                   <motion.span key={word}
                     className="px-4 py-1.5 rounded-full text-xs font-black tracking-widest"
-                    style={{ background: [B.orange, B.gold, "#22c55e", "#ef4444"][i] + "22", color: [B.orange, B.gold, "#22c55e", "#ef4444"][i], border: `1px solid ${[B.orange, B.gold, "#22c55e", "#ef4444"][i]}44` }}
+                    style={{ background: [B.orange, B.gold, "#22c55e", "#ef4444"][i] + "22", color: [B.orange, B.gold, "#22c55e", "#ef4444"][i], border: `1px solid ${[B.orange, B.gold, "#22c55e", "#ef4444"][i]}44`, backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.7 + i * 0.1 }}>
                     {word}
@@ -838,39 +846,50 @@ export default function Landing() {
                 ))}
               </motion.div>
 
+              {/* Primary CTA + Secondary glass button */}
               <motion.div className="flex flex-col sm:flex-row gap-3 mb-6"
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.65 }}>
-                <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }}>
+                {/* Primary — orange gradient, rounded-xl, hover lift + glow */}
+                <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                   <Button size="lg" onClick={goSignIn}
-                    className="w-full sm:w-auto font-black text-base px-8 py-6 rounded-2xl shadow-2xl"
-                    style={{ background: B.orange, color: "#fff" }}>
+                    className="w-full sm:w-auto font-black text-base px-8 py-6 rounded-xl shadow-2xl border-0"
+                    style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, color: "#fff", boxShadow: "0 12px 36px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.12) inset" }}>
                     Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </motion.div>
-              </motion.div>
 
-              {/* Device activation */}
-              <motion.div className="flex flex-col sm:flex-row gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}>
-                <motion.div onClick={goActivate} whileHover={{ scale: 1.03, y: -1 }}
-                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full cursor-pointer transition-colors"
-                  style={{ background: "rgba(253,186,33,0.1)", border: "1px solid rgba(253,186,33,0.3)" }}>
+                {/* Secondary — glass style, white outline */}
+                <motion.div onClick={goActivate} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-6 rounded-xl cursor-pointer transition-colors w-full sm:w-auto"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.22)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
                   <span className="text-lg">📦</span>
-                  <span className="text-white/70 text-sm font-semibold">Already have a device?</span>
+                  <span className="text-white/80 text-sm font-semibold">Have a device?</span>
                   <span className="text-sm font-black flex items-center gap-1" style={{ color: B.gold }}>
-                    Activate here <ArrowRight className="w-3.5 h-3.5" />
+                    Activate <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </motion.div>
               </motion.div>
             </div>
 
-            {/* Right: NFC Mockup + Product Images */}
+            {/* Right: NFC Mockup + Product Images — enlarged, depth, floating */}
             <motion.div
-              className="flex flex-col items-center gap-6"
+              className="flex flex-col items-center gap-7 relative"
               initial={{ opacity: 0, x: 60 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}>
-              <NFCTapMockup />
+
+              {/* Phone mockup wrapper — enlarged, soft shadow, subtle floating */}
+              <motion.div
+                animate={{ y: [0, -10, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="relative scale-110 md:scale-125 origin-center"
+                style={{ filter: "drop-shadow(0 40px 70px rgba(0,0,0,0.5))" }}>
+                {/* Soft radial glow behind phone */}
+                <div className="absolute inset-0 -z-10 rounded-full blur-3xl pointer-events-none"
+                  style={{ background: "radial-gradient(circle, rgba(249,115,22,0.22) 0%, transparent 65%)", transform: "scale(1.4)" }} />
+                <NFCTapMockup />
+              </motion.div>
 
               {/* 3D brand badge */}
               <motion.div
@@ -881,17 +900,17 @@ export default function Landing() {
                 <BrandIcon3D size={120} />
               </motion.div>
 
-              {/* Product showcase strip */}
+              {/* Product showcase strip — premium glass card */}
               <motion.div
                 className="flex items-center gap-3 px-5 py-3 rounded-2xl"
-                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.2 }}>
                 <span className="text-white/50 text-xs font-bold tracking-widest uppercase">Available as</span>
                 {["Card", "Keychain", "Bracelet", "Sticker", "Stand", "Bundle"].map((item, i) => (
                   <motion.span key={item}
                     className="text-xs font-bold px-2.5 py-1 rounded-lg"
-                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.7)" }}
+                    style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.75)" }}
                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 1.3 + i * 0.1 }}>
                     {item}
@@ -905,11 +924,11 @@ export default function Landing() {
 
       {/* ── STATS BAR */}
       <motion.section
-        className="py-12 px-6"
-        style={{ background: B.navyDark }}
+        className="py-16 px-6"
+        style={{ background: B.navyDark, borderTop: "1px solid rgba(255,255,255,0.06)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
         onViewportEnter={() => setStatsVisible(true)}
         viewport={{ once: true }}>
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
           {[
             { val: counts[0].toLocaleString() + "+", label: "Profiles Created" },
             { val: counts[1] + "+", label: "Countries Served" },
@@ -917,8 +936,12 @@ export default function Landing() {
             { val: "$" + counts[3] + "/mo", label: "Corporate Plan" }
           ].map((s, i) => (
             <ScrollReveal key={s.label} delay={i * 0.1}>
-              <p className="text-3xl font-black" style={{ color: B.gold }}>{s.val}</p>
-              <p className="text-white/50 text-sm mt-1 font-medium">{s.label}</p>
+              <div className="relative px-2 md:px-6">
+                {/* Subtle separator between stats */}
+                {i > 0 && <div className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 h-12 w-px" style={{ background: "rgba(255,255,255,0.08)" }} />}
+                <p className="text-4xl md:text-5xl font-black tracking-tight" style={{ background: `linear-gradient(135deg, ${B.gold} 0%, ${B.goldLight} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>{s.val}</p>
+                <p className="text-white/45 text-xs md:text-sm mt-2 font-semibold tracking-wide uppercase">{s.label}</p>
+              </div>
             </ScrollReveal>
           ))}
         </div>
