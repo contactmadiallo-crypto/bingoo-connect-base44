@@ -51,13 +51,16 @@ function PhoneFrame({ children, glow = false, label }) {
         <div className="absolute -left-[3px] top-14 h-7 w-[3px] rounded-l bg-[#1c1c1c]" />
         <div className="absolute -left-[3px] top-24 h-10 w-[3px] rounded-l bg-[#1c1c1c]" />
         <div className="absolute -right-[3px] top-20 h-12 w-[3px] rounded-r bg-[#1c1c1c]" />
-        <div className="w-[176px] overflow-hidden rounded-[1.75rem] bg-white">
+        <div className="relative w-[176px] select-none overflow-hidden rounded-[1.75rem] bg-white">
           <div className="flex items-center justify-between bg-[#060608] px-3 pb-1 pt-1.5">
             <span className="text-[7px] font-bold text-white">9:41</span>
             <div className="h-3 w-11 rounded-full border border-[#1f1f1f] bg-black" />
             <span className="text-[7px] font-bold text-white">●●●</span>
           </div>
           {children}
+          {/* Diagonal glass sheen — realism */}
+          <div className="pointer-events-none absolute inset-0 rounded-[1.75rem]"
+            style={{ background: "linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.14) 48%, transparent 58%)" }} />
         </div>
       </div>
     </div>
@@ -343,7 +346,11 @@ function NfcCardAndStatus() {
           boxShadow: "0 16px 40px rgba(0,0,0,0.5), 0 0 24px rgba(255,127,39,0.25)",
           transform: "rotate(-6deg)",
         }}>
-        <div className="flex h-full items-center gap-1.5 rounded-lg px-1.5" style={{ background: "rgba(255,255,255,0.04)" }}>
+        <div className="relative flex h-full items-center gap-1.5 rounded-lg px-1.5" style={{ background: "rgba(255,255,255,0.04)" }}>
+          {/* NFC antenna coils — subtle etched detail */}
+          <svg className="pointer-events-none absolute right-1 top-1 opacity-30" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5">
+            <path d="M12 2 C18 2 22 6 22 12 C22 18 18 22 12 22" /><path d="M12 6 C15 6 18 9 18 12 C18 15 15 18 12 18" />
+          </svg>
           {/* Orange infinity */}
           <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `linear-gradient(135deg, ${B.orange}, ${B.orangeLight})` }}>
             <svg width="16" height="8" viewBox="0 0 48 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round">
@@ -379,7 +386,11 @@ export default function HeroPhoneShowcase() {
     <div className="relative mx-auto h-[430px] w-full max-w-[640px] overflow-visible" style={{ perspective: "1200px" }}>
       {/* Orange glow behind center phone */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="h-72 w-72 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(255,127,39,.28), transparent 68%)" }} />
+        <div className="h-72 w-72 rounded-full blur-3xl" style={{ background: "radial-gradient(circle, rgba(255,127,39,.30), transparent 68%)" }} />
+      </div>
+      {/* Soft floor shadow under center phone */}
+      <div className="pointer-events-none absolute left-1/2 top-[264px] -translate-x-1/2">
+        <div className="h-3 w-32 rounded-full blur-md" style={{ background: "radial-gradient(ellipse, rgba(0,0,0,0.45), transparent 70%)" }} />
       </div>
 
       {/* Blue world-map network */}
