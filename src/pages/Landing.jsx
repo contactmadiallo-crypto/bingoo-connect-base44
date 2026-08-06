@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
+import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -879,17 +880,8 @@ export default function Landing() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}>
 
-              {/* Phone mockup wrapper — enlarged, soft shadow, subtle floating */}
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="relative scale-110 md:scale-125 origin-center"
-                style={{ filter: "drop-shadow(0 40px 70px rgba(0,0,0,0.5))" }}>
-                {/* Soft radial glow behind phone */}
-                <div className="absolute inset-0 -z-10 rounded-full blur-3xl pointer-events-none"
-                  style={{ background: "radial-gradient(circle, rgba(249,115,22,0.22) 0%, transparent 65%)", transform: "scale(1.4)" }} />
-                <NFCTapMockup />
-              </motion.div>
+              {/* Three floating phones — center (Lost Mode) dominant, left (Dashboard), right (Analytics) */}
+              <HeroPhoneShowcase />
 
               {/* 3D brand badge */}
               <motion.div
