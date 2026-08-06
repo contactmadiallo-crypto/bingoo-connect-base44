@@ -785,10 +785,10 @@ export default function Landing() {
       <section className="relative overflow-hidden flex items-center min-h-screen py-24 md:py-28 px-4 md:px-6"
         style={{
           background: `
-            radial-gradient(ellipse 80% 60% at 18% 22%, rgba(249,115,22,0.16) 0%, transparent 55%),
-            radial-gradient(ellipse 70% 55% at 82% 28%, rgba(37,99,235,0.14) 0%, transparent 55%),
-            radial-gradient(ellipse 60% 45% at 50% 85%, rgba(253,186,33,0.10) 0%, transparent 55%),
-            linear-gradient(160deg, ${B.navyDark} 0%, ${B.navy} 38%, #0f3d8c 72%, #0a2a5e 100%)
+            radial-gradient(ellipse 80% 60% at 18% 22%, rgba(255,127,39,0.16) 0%, transparent 55%),
+            radial-gradient(ellipse 70% 55% at 82% 28%, rgba(59,130,246,0.16) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 45% at 50% 85%, rgba(255,127,39,0.08) 0%, transparent 55%),
+            linear-gradient(160deg, #050A14 0%, #0B1324 40%, #0b2149 72%, #050A14 100%)
           `
         }}>
 
@@ -812,9 +812,9 @@ export default function Landing() {
                 initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-7"
-                  style={{ background: "rgba(253,186,33,0.12)", border: "1px solid rgba(253,186,33,0.35)", color: B.gold, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+                  style={{ background: "rgba(255,127,39,0.14)", border: "1px solid rgba(255,127,39,0.4)", color: B.orange, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
                   <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }}>📡</motion.span>
-                  NFC-Powered Business Identity Platform
+                  SMART NFC IDENTITY PLATFORM
                 </div>
               </motion.div>
 
@@ -830,10 +830,11 @@ export default function Landing() {
               </motion.h1>
 
               <motion.p
-                className="text-lg md:text-xl text-white/65 mb-9 max-w-xl leading-relaxed"
+                className="text-lg md:text-xl mb-9 max-w-xl leading-relaxed"
+                style={{ color: "#B0B3B8" }}
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.5 }}>
-                The smart NFC card platform that opens your digital profile for law firms, salons, restaurants, realtors, consultants and every professional growing their business.
+                Digital profiles, NFC smart devices, QR codes, appointments, leads, analytics, wallet cards — all in one platform.
               </motion.p>
 
               {/* Tagline pills */}
@@ -858,20 +859,16 @@ export default function Landing() {
                 <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                   <Button size="lg" onClick={goSignIn}
                     className="w-full sm:w-auto font-black text-base px-8 py-6 rounded-xl shadow-2xl border-0"
-                    style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, color: "#fff", boxShadow: "0 12px 36px rgba(249,115,22,0.45), 0 0 0 1px rgba(255,255,255,0.12) inset" }}>
-                    Create Free Profile <ArrowRight className="ml-2 w-5 h-5" />
+                    style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, color: "#fff", boxShadow: "0 12px 36px rgba(255,127,39,0.45), 0 0 0 1px rgba(255,255,255,0.12) inset" }}>
+                    Get Your Card Free <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </motion.div>
 
                 {/* Secondary — glass style, white outline */}
-                <motion.div onClick={goActivate} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-6 rounded-xl cursor-pointer transition-colors w-full sm:w-auto"
-                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.22)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
-                  <span className="text-lg">📦</span>
-                  <span className="text-white/80 text-sm font-semibold">Have a device?</span>
-                  <span className="text-sm font-black flex items-center gap-1" style={{ color: B.gold }}>
-                    Activate <ArrowRight className="w-3.5 h-3.5" />
-                  </span>
+                <motion.div onClick={() => window.location.href = '/pricing'} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-6 rounded-xl cursor-pointer transition-colors w-full sm:w-auto"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+                  <span className="text-white text-sm font-black">View Pricing</span>
                 </motion.div>
               </motion.div>
             </div>
