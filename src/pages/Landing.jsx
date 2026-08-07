@@ -10,6 +10,7 @@ import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
 import ProfileForEveryProfession from "@/components/landing/ProfileForEveryProfession";
 import WhyBingoo from "@/components/landing/WhyBingoo";
 import HowSharingWorks from "@/components/landing/HowSharingWorks";
+import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -992,6 +993,9 @@ export default function Landing() {
 
       {/* ── HOW SHARING WORKS */}
       <HowSharingWorks />
+
+      {/* ── PROFESSIONALS LOVE BINGOO */}
+      <ProfessionalsLoveBingoo />
 
       {/* ── FEATURES */}
       <section id="features" className="py-16 md:py-24 px-4 md:px-6 bg-white">
