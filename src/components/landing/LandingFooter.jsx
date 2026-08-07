@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, LifeBuoy, MapPin, Shield, Wifi, QrCode, Wallet } from "lucide-react";
+import { ChevronRight, LifeBuoy, Shield, Wifi, Wallet } from "lucide-react";
 import { InfinityMark, BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
-import { getLang, setLang, t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
