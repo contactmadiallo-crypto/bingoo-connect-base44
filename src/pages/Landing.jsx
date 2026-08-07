@@ -14,6 +14,8 @@ import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingo
 import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
 import LandingFooter from "@/components/landing/LandingFooter";
 import BackToTop from "@/components/landing/BackToTop";
+import LandingShop from "@/components/landing/LandingShop";
+import LandingPricing from "@/components/landing/LandingPricing";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -25,7 +27,7 @@ import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark, InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
-import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD } from "@/lib/planPermissions";
+
 
 // ── Bingoo Brand Colors (official: Navy #0b2149 + Orange #f97316)
 const B = {
@@ -298,27 +300,6 @@ const features = [
     ctas: [{ label: "See plans", route: "/plans" }, { label: "Get started", route: "/bingoo" }]
   }
 ];
-
-// Plans derived from PLAN_CONFIG — single source of truth in planPermissions.js
-// No hardcoded prices, names, or features. Everything comes from PLAN_CONFIG.
-const plans = CUSTOMER_PLAN_IDS.map(id => {
-  const c = PLAN_CONFIG[id];
-  const price = PLAN_PRICES_USD[id];
-  const allFeatures = PLAN_FEATURES[id] || [];
-  const features = allFeatures.slice(0, 8); // Top 8 for compact landing display
-  const isContactSales = c.status === 'contact_sales';
-  return {
-    name: c.label,
-    price: isContactSales ? 'Custom' : price === 0 ? '$0' : `$${price}`,
-    period: isContactSales || price === 0 ? '' : '/mo',
-    desc: c.tagline,
-    features,
-    highlight: id === 'professional',
-    cta: id === 'free' ? 'Get Started Free' : isContactSales ? 'Contact Sales' : `Get ${c.label}`,
-    color: c.color.text,
-    contactSales: isContactSales,
-  };
-});
 
 // Industries grouped into clear categories. Each card opens a detail panel
 // (LandingDetailModal) explaining who it's for, how they use Bingoo, which
@@ -1130,207 +1111,10 @@ export default function Landing() {
       </section>
 
       {/* ── PRICING */}
-      <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <ScrollReveal className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
-              style={{ background: B.gold + "20", color: "#b45309", border: `1px solid ${B.gold}40` }}>
-              Simple Pricing
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
-              Plans for every professional
-            </h2>
-            <p className="text-slate-500 text-lg">NFC devices from $7.99. No hidden fees.</p>
-          </ScrollReveal>
-          <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
-            variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            {plans.map((p, i) => (
-              <motion.div key={p.name} variants={fadeUp}
-                whileHover={{ y: p.highlight ? -10 : -6 }}
-                className="rounded-2xl p-7 border-2 transition-all relative flex flex-col"
-                style={{
-                  borderColor: p.highlight ? B.orange : "#e2e8f0",
-                  background: p.highlight ? `linear-gradient(145deg, ${B.navy}, ${B.navyLight})` : "#fff",
-                  boxShadow: p.highlight ? `0 24px 60px rgba(255,122,0,0.25)` : "none"
-                }}>
-                {p.highlight && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-black"
-                    style={{ background: B.orange, color: "#fff" }}>
-                    Most Popular
-                  </div>
-                )}
-                <div className="mb-4">
-                  <p className="text-sm font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{p.desc}</p>
-                  <h3 className="font-black text-xl mb-3" style={{ color: p.highlight ? "#fff" : B.navy }}>{p.name}</h3>
-                  <div>
-                    <span className="text-4xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{p.price}</span>
-                    <span className="text-sm ml-1" style={{ color: p.highlight ? "rgba(255,255,255,0.4)" : B.slate }}>{p.period}</span>
-                  </div>
-                </div>
-                <div className="h-px my-4" style={{ background: p.highlight ? "rgba(255,255,255,0.1)" : "#f1f5f9" }} />
-                <ul className="space-y-2.5 mb-6 flex-1">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm"
-                      style={{ color: p.highlight ? "rgba(255,255,255,0.75)" : "#64748b" }}>
-                      <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: p.highlight ? B.gold : B.orange }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Button onClick={() => window.location.href = p.name === "Free" ? '/bingoo' : p.contactSales ? '/contact-support' : '/plans'}
-                    className="w-full font-bold"
-                    style={{ background: p.highlight ? B.orange : B.navy, color: "#fff", border: "none" }}>
-                    {p.cta}
-                  </Button>
-                </motion.div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Browse All Plans CTA */}
-          <ScrollReveal delay={0.2} className="text-center mt-10">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-block">
-              <Button size="lg" onClick={() => window.location.href = '/plans'}
-                className="font-black text-base px-10 py-6 rounded-2xl"
-                style={{ background: B.navy, color: "#fff", border: "none" }}>
-                Browse All Plans <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </motion.div>
-          </ScrollReveal>
-        </div>
-      </section>
+      <LandingPricing />
 
       {/* ── SHOP */}
-      <section id="shop" className="py-16 md:py-24 px-4 md:px-6" style={{ background: "#f8fafc" }}>
-        <div className="max-w-6xl mx-auto">
-          <ScrollReveal className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
-              style={{ background: B.navy + "10", color: B.navy, border: `1px solid ${B.navy}20` }}>
-              Official NFC Products
-            </div>
-            <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
-              Get your Bingoo NFC device
-            </h2>
-            <p className="text-slate-500 text-lg max-w-xl mx-auto">One-time purchase. Tap to share your profile instantly — forever.</p>
-          </ScrollReveal>
-          <motion.div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
-            variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            {[
-              {
-                id: "nfc-card",
-                name: "NFC Business Card",
-                price: "$19.99",
-                desc: "Premium PVC card. Tap to share your full profile instantly.",
-                tag: "Best Seller",
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/579589e5c_generated_image.png"
-              },
-              {
-                id: "nfc-keychain",
-                name: "NFC Keychain",
-                price: "$14.99",
-                desc: "Compact round tag. Attaches to any key ring.",
-                tag: null,
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/490b649b9_generated_image.png"
-              },
-              {
-                id: "nfc-sticker",
-                name: "NFC Sticker",
-                price: "$7.99",
-                desc: "Stick anywhere — laptop, window, storefront. Pack of 2.",
-                tag: null,
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/41b35e638_generated_image.png"
-              },
-              {
-                id: "nfc-stand",
-                name: "NFC Desk Stand",
-                price: "$34.99",
-                desc: "Countertop stand for salons, offices, and front desks.",
-                tag: "New",
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/ba2752299_generated_image.png"
-              },
-              {
-                id: "nfc-bracelet",
-                name: "NFC Bracelet",
-                price: "$24.99",
-                desc: "Silicone NFC wristband. Wear your profile, share with a tap.",
-                tag: "New",
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/2dd53607e_generated_image.png"
-              },
-              {
-                id: "nfc-bundle",
-                name: "Starter Bundle",
-                price: "$29.99",
-                desc: "Card + Keychain + Stickers. Everything you need to start.",
-                tag: "Save $13",
-                image: "https://media.base44.com/images/public/692bd9007b93ba81de543346/3a8a19f21_generated_image.png"
-              },
-            ].map((item) => (
-              <motion.div key={item.id} variants={fadeUp}
-                whileHover={{ y: -6, borderColor: B.orange }}
-                className="relative bg-white rounded-3xl border-2 overflow-hidden flex flex-col transition-all"
-                style={{ borderColor: "#e2e8f0" }}>
-                {item.tag && (
-                  <span className="absolute top-3 left-3 z-10 text-xs font-black px-3 py-1 rounded-full text-white"
-                    style={{ background: item.tag === "Save $13" ? "#16a34a" : item.tag === "New" ? B.navy : B.orange }}>
-                    {item.tag}
-                  </span>
-                )}
-                {/* Product image */}
-                <div className="bg-slate-50 flex items-center justify-center overflow-hidden" style={{ height: 180 }}>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-full object-contain p-3"
-                  />
-                </div>
-                {/* Card body */}
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>{item.name}</h3>
-                  <p className="text-slate-500 text-sm mb-3 flex-1">{item.desc}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black" style={{ color: B.orange }}>{item.price}</span>
-                    <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                      <Button className="font-bold rounded-xl text-white text-sm px-4"
-                        style={{ background: B.navy }}
-                        onClick={() => window.location.href = `/product/${item.id}`}>
-                        Details →
-                      </Button>
-                    </motion.div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* Corporate / Bulk CTA */}
-          <ScrollReveal delay={0.2}>
-            <div className="mt-8 rounded-3xl p-7 flex flex-col md:flex-row items-center justify-between gap-6"
-              style={{ background: `linear-gradient(135deg, ${B.navy} 0%, ${B.navyLight} 100%)` }}>
-              <div className="flex items-center gap-5">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-white/10">
-                  <img
-                    src="https://media.base44.com/images/public/692bd9007b93ba81de543346/bd567db9b_generated_image.png"
-                    alt="Corporate 10-Pack"
-                    className="w-full h-full object-contain p-1"
-                  />
-                </div>
-                <div>
-                  <p className="font-black text-white text-lg">10-Pack Corporate Cards — $99.99</p>
-                  <p className="text-white/60 text-sm mt-1">Equip your entire team in one order. Volume discount included.</p>
-                </div>
-              </div>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="flex-shrink-0">
-                <Button onClick={() => window.location.href = '/shop'}
-                  className="font-bold whitespace-nowrap"
-                  style={{ background: B.orange, color: "#fff", border: "none" }}>
-                  Browse All Products →
-                </Button>
-              </motion.div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+      <LandingShop />
 
       <FeedbackSection />
 
