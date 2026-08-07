@@ -305,10 +305,60 @@ function AnalyticsCard() {
   );
 }
 
+function GoogleMark({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
+      <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.5 6.56-16.17z" />
+      <path fill="#34A853" d="M24 46c5.93 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z" />
+      <path fill="#FBBC05" d="M11.69 28.18c-.44-1.32-.69-2.73-.69-4.18s.25-2.86.69-4.18v-5.7H4.34C2.85 16.09 2 19.94 2 24s.85 7.91 2.34 11.88l7.35-5.7z" />
+      <path fill="#EA4335" d="M24 9.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 3.18 29.93 1 24 1 15.4 1 7.96 5.93 4.34 13.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z" />
+    </svg>
+  );
+}
+
+function AppleMark({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.05 12.04c-.03-2.6 2.13-3.85 2.22-3.91-1.21-1.77-3.09-2.01-3.76-2.04-1.6-.16-3.12.94-3.93.94-.81 0-2.05-.92-3.37-.89-1.74.03-3.35 1.01-4.25 2.57-1.81 3.14-.46 7.79 1.3 10.34.86 1.25 1.88 2.66 3.22 2.61 1.29-.05 1.78-.83 3.34-.83 1.55 0 2 .83 3.37.81 1.39-.03 2.27-1.28 3.12-2.54.98-1.45 1.38-2.85 1.4-2.92-.03-.01-2.69-1.03-2.71-4.09zM14.6 4.59c.71-.86 1.19-2.06 1.06-3.25-1.02.04-2.26.68-2.99 1.54-.66.76-1.23 1.98-1.08 3.15 1.14.09 2.3-.58 3.01-1.44z" />
+    </svg>
+  );
+}
+
 function WalletCard() {
   return (
-    <motion.div {...reveal} className="lg:col-span-3"><Shell><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><Wallet className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}>Digital Wallet</h3><p className="text-sm" style={{ color:B.slate }}>Keep your Bingoo identity ready on your phone.</p></div></div>
-      <div className="grid gap-3 sm:grid-cols-2"><div className="rounded-2xl p-4 text-white" style={{ background:`linear-gradient(135deg,${B.navy},${B.navyLight})` }}><p className="text-[9px] font-bold text-white/50">GOOGLE WALLET</p><p className="mt-2 font-black">Alex Rivera</p><p className="text-xs text-white/55">Brand Strategist</p><div className="mt-4 inline-flex rounded-lg bg-white/10 px-3 py-2 text-[10px] font-black">Available now</div></div><div className="rounded-2xl bg-[#151515] p-4 text-white"><p className="text-[9px] font-bold text-white/40">APPLE WALLET</p><p className="mt-2 font-black">Coming Soon</p><p className="text-xs text-white/45">In development</p><div className="mt-4 inline-flex rounded-lg bg-white/10 px-3 py-2 text-[10px] font-black">Coming soon</div></div></div></div></Shell></motion.div>
+    <motion.div {...reveal} className="lg:col-span-3">
+      <Shell className="h-full">
+        <div className="p-5">
+          <div className="mb-4 flex items-start gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600"><Wallet className="h-5 w-5" /></div>
+            <div>
+              <h3 className="font-black" style={{ color: B.navy }}>Digital Wallet</h3>
+              <p className="text-sm" style={{ color: B.slate }}>Your professional identity, always with you.</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {/* Google Wallet — available */}
+            <div className="flex items-center gap-3 rounded-2xl border bg-white p-4" style={{ borderColor: "#e7ecf3" }}>
+              <GoogleMark size={22} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-black text-slate-900">Google Wallet</p>
+                <p className="text-[11px] font-medium" style={{ color: B.slate }}>Add to Google Wallet</p>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0" style={{ color: B.slate }} />
+            </div>
+            {/* Apple Wallet — coming soon */}
+            <div className="flex items-center gap-3 rounded-2xl bg-[#111111] p-4 text-white">
+              <AppleMark size={20} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-black text-white">Apple Wallet</p>
+                <span className="mt-0.5 inline-block rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-slate-700">Coming Soon</span>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-white/40" />
+            </div>
+          </div>
+        </div>
+      </Shell>
+    </motion.div>
   );
 }
 
