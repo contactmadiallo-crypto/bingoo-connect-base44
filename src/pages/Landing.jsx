@@ -702,7 +702,7 @@ export default function Landing() {
 
   useEffect(() => {
     if (!statsVisible) return;
-    const targets = [10000, 50, 6, 99];
+    const targets = [50000, 12000, 40, 999];
     const duration = 1800;
     const startTime = Date.now();
     const tick = () => {
@@ -924,10 +924,10 @@ export default function Landing() {
         viewport={{ once: true }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 text-center">
           {[
-            { val: counts[0].toLocaleString() + "+", label: "Profiles Created" },
-            { val: counts[1] + "+", label: "Countries Served" },
-            { val: counts[2] + " Plans", label: "For Every Business" },
-            { val: "$" + counts[3] + "/mo", label: "Corporate Plan" }
+            { val: counts[0] >= 1000 ? Math.floor(counts[0] / 1000) + "K+" : counts[0] + "+", label: "Profiles Created" },
+            { val: counts[1] >= 1000 ? Math.floor(counts[1] / 1000) + "K+" : counts[1] + "+", label: "Leads Captured" },
+            { val: counts[2] + "+", label: "Countries Served" },
+            { val: (counts[3] / 10).toFixed(1) + "%", label: "Uptime Guaranteed" }
           ].map((s, i) => (
             <ScrollReveal key={s.label} delay={i * 0.1}>
               <div className="relative px-2 md:px-6">
