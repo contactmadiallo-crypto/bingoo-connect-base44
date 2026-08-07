@@ -9,7 +9,7 @@ import ScrollRestoration from '@/components/ScrollRestoration'
 import { NavigationStackProvider } from '@/components/mobile/NavigationStack'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
-const Landing = lazy(() => import('./pages/Landing'));
+const Landing = lazy(() => import('./pages/LandingV2'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const BingooDashboard = lazy(() => import('./pages/BingooDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -57,20 +57,14 @@ import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 import RouteTransition from '@/components/mobile/RouteTransition';
 
-// Redirect /sitemap.xml to the backend function (hard redirect, no React dependency)
 function SitemapRedirect() {
   window.location.replace('/api/functions/sitemapXml');
   return null;
 }
 
-// Hard redirect legacy URLs BEFORE auth loading — prevents 404s on live site.
-// These fire immediately on page load, no React Router or auth check needed.
-// Updated 2026-07-10: ensures /activate and /signup never 404 on live deploy.
 function LegacyRedirects() {
   const path = window.location.pathname.toLowerCase();
   if (path === '/activate') {
-    // Preserve the activation code: /activate?code=BG-000007 → /n/BG-000007
-    // The /n/:code flow handles device recognition, login return URL, and assignment.
     const params = new URLSearchParams(window.location.search);
     const code = (params.get('code') || '').toUpperCase().trim();
     window.location.replace(code ? `/n/${code}` : '/activate-device');
@@ -85,25 +79,19 @@ function LegacyRedirects() {
   return null;
 }
 
-
 const AuthenticatedApp = () => {
-  // Public routes render immediately — no auth/public-settings gate.
-  // Protected routes handle their own loading state via ProtectedRoute.
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
     <RouteTransition>
     <Routes>
-      {/* ── AUTH ROUTES (public) ── */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth" element={<AuthCallback />} />
 
-      {/* ── PUBLIC ROUTES (no login needed) ── */}
       <Route path="/" element={<Landing />} />
       <Route path="/bingoo-home" element={<Landing />} />
-      {/* Legacy page-name URL redirects → real routes (helps deep links & automation) */}
       <Route path="/LostDevicePage" element={<Navigate to="/my-nfc-devices" replace />} />
       <Route path="/Dashboard" element={<Navigate to="/bingoo" replace />} />
       <Route path="/DeviceActivationPage" element={<Navigate to="/activate-device" replace />} />
@@ -133,7 +121,6 @@ const AuthenticatedApp = () => {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/plans" element={<SubscriptionPricing />} />
 
-      {/* ── ALL PROTECTED ROUTES ── */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/bingoo" element={<BingooDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
@@ -160,9 +147,7 @@ const AuthenticatedApp = () => {
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
