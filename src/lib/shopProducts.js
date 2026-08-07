@@ -1,6 +1,7 @@
 // Official Bingoo NFC Product Catalog
 // Expanded into 4 collections with real Stripe-backed SKUs + Coming Soon concepts.
 // Only `availability: 'active'` + `stripeReady: true` products can enter checkout.
+// eslint-disable-next-line
 
 // ── Collection definitions ──────────────────────────────────────────────────
 export const COLLECTIONS = [
