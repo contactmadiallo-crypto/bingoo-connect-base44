@@ -12,6 +12,7 @@ import WhyBingoo from "@/components/landing/WhyBingoo";
 import HowSharingWorks from "@/components/landing/HowSharingWorks";
 import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
 import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
+import LandingFooter from "@/components/landing/LandingFooter";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -1341,46 +1342,45 @@ export default function Landing() {
         <div className="max-w-3xl mx-auto relative">
           <ScrollReveal>
             <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">
-              Ready to grow your business?
+              Ready to make every connection count?
             </h2>
-            <p className="text-white/60 text-lg mb-3">Join thousands of professionals worldwide.</p>
-            <div className="flex justify-center gap-6 mb-8 text-sm font-black tracking-widest" style={{ color: B.gold }}>
-              {["CONNECT", "•", "SHARE", "•", "GROW", "•", "SUCCEED"].map((w, i) => (
-                <span key={i} style={{ opacity: w === "•" ? 0.3 : 1 }}>{w}</span>
+            <p className="text-white/60 text-lg mb-8 max-w-xl mx-auto">Create your Bingoo profile, share it with NFC or QR, and keep every opportunity connected in one place.</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-3 mb-8">
+              <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
+                <Button size="lg" onClick={goSignIn}
+                  className="font-black text-base md:text-lg px-10 py-6 rounded-2xl shadow-2xl w-full sm:w-auto"
+                  style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.gold} 100%)`, color: "#fff" }}>
+                  Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04, y: -2 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
+                <Button size="lg" onClick={() => window.location.href = '/plans'}
+                  className="font-black text-base md:text-lg px-10 py-6 rounded-2xl w-full sm:w-auto"
+                  style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.25)", color: "#fff", backdropFilter: "blur(12px)" }}>
+                  Explore Plans <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </motion.div>
+            </div>
+            {/* Trust row */}
+            <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+              {[
+                { icon: Shield, text: "No app required to receive your profile" },
+                { icon: Wifi, text: "NFC + QR sharing" },
+                { icon: Wallet, text: "Google Wallet support" },
+                { icon: Users, text: "Built for professionals and teams" }
+              ].map((item) => (
+                <div key={item.text} className="inline-flex items-center gap-1.5">
+                  <item.icon className="h-3.5 w-3.5" style={{ color: B.gold }} />
+                  <span className="text-xs font-semibold text-white/50">{item.text}</span>
+                </div>
               ))}
             </div>
-            <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.97 }}>
-              <Button size="lg" onClick={goSignIn}
-                className="font-black text-base md:text-lg px-10 py-6 rounded-2xl shadow-2xl"
-                style={{ background: B.orange, color: "#fff" }}>
-                Create Your Profile Free <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </motion.div>
           </ScrollReveal>
         </div>
       </section>
 
       {/* ── FOOTER */}
-      <footer className="py-10 px-6 text-sm" style={{ background: B.navyDark }}>
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <BingooLogo className="h-8 w-8" animated={false} />
-            <BingooWordmark size="text-base" light stacked={false} />
-          </div>
-          <div className="flex flex-wrap justify-center gap-5 text-white/40 text-xs">
-            <a href="/shop" className="hover:text-white/70 transition-colors">{t("lp_shop", lang)}</a>
-            <a href="/plans" className="hover:text-white/70 transition-colors">{t("lp_pricing", lang)}</a>
-            <a href="/privacy" className="hover:text-white/70 transition-colors">Privacy Policy</a>
-            <a href="/terms" className="hover:text-white/70 transition-colors">Terms of Service</a>
-            <a href="/data-deletion" className="hover:text-white/70 transition-colors">Data Deletion</a>
-            <a href="/contact-support" className="hover:text-white/70 transition-colors">Contact</a>
-            <button onClick={toggleLang} className="hover:text-white/70 transition-colors font-semibold">
-              {lang === "en" ? "🇫🇷 Français" : "🇺🇸 English"}
-            </button>
-          </div>
-          <p className="text-white/30 text-xs">© {new Date().getFullYear()} Bingoo Connect · bingoo.africa</p>
-        </div>
-      </footer>
+      <LandingFooter lang={lang} toggleLang={toggleLang} />
 
       {/* Shared detail modal for feature + industry cards */}
       <LandingDetailModal
