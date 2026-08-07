@@ -323,52 +323,62 @@ function NfcConnectionLines() {
   );
 }
 
-// ── NFC Card + Status pill — bottom center, angled ───────────────────────
+// ── Premium NFC Card + 6-second tap animation cycle ───────────────────────
+// Loop: card floats → moves to center phone → orange NFC rings → phone glows
+// → profile opens → card returns. Repeats forever.
 function NfcCardAndStatus() {
+  // 6-second cycle keyframes (times: 0, 0.25, 0.5, 0.72, 1)
+  const cardY = [0, -10, -150, -150, 0];
+  const cardScale = [1, 1.02, 1.1, 1.1, 1];
+  const cardRotate = [-6, -4, 0, 0, -6];
+  const cardShadow = "0 18px 44px rgba(0,0,0,0.55), 0 0 28px rgba(255,127,39,0.30)";
+
   return (
-    <div className="pointer-events-none absolute bottom-1 left-1/2 z-30 hidden -translate-x-1/2 md:block">
-      {/* Ripple rings */}
+    <div className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2">
+      {/* Expanding NFC rings — fire during the "tap" phase (0.42–0.72) */}
       {[0, 1, 2].map((ring) => (
         <motion.span key={ring}
-          className="absolute left-1/2 top-0 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full border border-orange-400"
-          animate={{ scale: [0.4, 1.6], opacity: [0, 0.7, 0], y: [0, -16, -32] }}
-          transition={{ duration: 1.8, repeat: Infinity, delay: ring * 0.5 }} />
+          className="absolute left-1/2 top-0 h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-orange-400"
+          animate={{ scale: [0.3, 0.3, 2.2, 2.2, 0.3], opacity: [0, 0, 0.75, 0, 0], y: [0, 0, -150, -150, 0] }}
+          transition={{ duration: 6, repeat: Infinity, times: [0, 0.42, 0.6, 0.72, 0.8], delay: ring * 0.12, ease: "easeOut" }} />
       ))}
 
-      {/* NFC Card — dark, angled */}
+      {/* Premium physical NFC card — beveled, matte, embossed, rim-lit */}
       <motion.div
-        animate={{ y: [0, -10, 0], rotate: [-6, -4, -6] }}
-        transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-        className="relative h-14 w-24 rounded-xl p-1.5 shadow-2xl"
-        style={{
-          background: `linear-gradient(135deg, ${B.navyDark} 0%, ${B.navyLight} 100%)`,
-          border: "1px solid rgba(255,127,39,0.3)",
-          boxShadow: "0 16px 40px rgba(0,0,0,0.5), 0 0 24px rgba(255,127,39,0.25)",
-          transform: "rotate(-6deg)",
-        }}>
-        <div className="relative flex h-full items-center gap-1.5 rounded-lg px-1.5" style={{ background: "rgba(255,255,255,0.04)" }}>
-          {/* NFC antenna coils — subtle etched detail */}
-          <svg className="pointer-events-none absolute right-1 top-1 opacity-30" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5">
+        animate={{ y: cardY, scale: cardScale, rotate: cardRotate }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", times: [0, 0.25, 0.5, 0.72, 1] }}
+        className="relative h-14 w-24 rounded-[10px] p-[2px]"
+        style={{ background: `linear-gradient(135deg, #1a2942 0%, ${B.navyDark} 45%, ${B.navyLight} 100%)`, boxShadow: cardShadow }}>
+        {/* Beveled inner surface */}
+        <div className="relative flex h-full items-center gap-1.5 overflow-hidden rounded-[8px] px-1.5"
+          style={{ background: `linear-gradient(140deg, ${B.navyLight} 0%, ${B.navyDark} 60%, #0a1830 100%)`, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.5)" }}>
+          {/* Orange rim lighting — top edge */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,127,39,0.7), transparent)" }} />
+          {/* NFC antenna coils — etched detail */}
+          <svg className="pointer-events-none absolute right-1 top-1 opacity-35" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="1.5">
             <path d="M12 2 C18 2 22 6 22 12 C22 18 18 22 12 22" /><path d="M12 6 C15 6 18 9 18 12 C18 15 15 18 12 18" />
           </svg>
-          {/* Orange infinity */}
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: `linear-gradient(135deg, ${B.orange}, ${B.orangeLight})` }}>
+          {/* Embossed infinity logo */}
+          <div className="flex h-7 w-7 items-center justify-center rounded-md"
+            style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.3), 0 1px 3px rgba(255,127,39,0.4)" }}>
             <svg width="16" height="8" viewBox="0 0 48 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round">
               <path d="M 14 12 C 14 6 20 6 24 12 C 28 18 34 18 34 12 C 34 6 28 6 24 12 C 20 18 14 18 14 12 Z" />
             </svg>
           </div>
           <div>
-            <p className="text-[7px] font-black text-white">Bingoo</p>
+            <p className="text-[7px] font-black text-white" style={{ textShadow: "0 1px 1px rgba(0,0,0,0.5)" }}>Bingoo</p>
             <p className="text-[5px] font-bold tracking-wider text-orange-400">CONNECT</p>
           </div>
+          {/* Diagonal sheen */}
+          <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.10) 50%, transparent 60%)" }} />
         </div>
       </motion.div>
 
-      {/* Status pill */}
+      {/* Status pill — "Profile opens" during tap phase */}
       <motion.div
         className="absolute -top-7 left-1/2 -translate-x-1/2 flex items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-[#050A14]/85 px-3 py-1 shadow-xl backdrop-blur-xl"
-        animate={{ opacity: [0, 0, 1, 1, 0], y: [4, 4, 0, 0, -3] }}
-        transition={{ duration: 3.2, repeat: Infinity, times: [0, 0.35, 0.5, 0.75, 1] }}>
+        animate={{ opacity: [0, 0, 1, 1, 0], y: [4, 4, -150, -150, 4], scale: [0.9, 0.9, 1, 1, 0.9] }}
+        transition={{ duration: 6, repeat: Infinity, times: [0, 0.42, 0.55, 0.72, 0.85] }}>
         <span className="flex items-center gap-1 rounded-full bg-orange-500/20 px-1.5 py-0.5 text-[7px] font-black text-orange-300">
           <Wifi className="h-2 w-2" /> TAP
         </span>
@@ -399,8 +409,8 @@ export default function HeroPhoneShowcase() {
       {/* Connection lines */}
       <NfcConnectionLines />
 
-      {/* LEFT phone — Emma Carter profile */}
-      <div className="absolute left-1/2 top-20 z-10 hidden -translate-x-[126%] -rotate-[10deg] scale-[.8] md:block">
+      {/* LEFT phone — Emma Carter profile (peeks on mobile, full on desktop) */}
+      <div className="absolute left-1/2 top-20 z-10 -translate-x-[116%] -rotate-[8deg] scale-[.55] opacity-80 sm:scale-[.7] sm:opacity-90 md:-translate-x-[126%] md:-rotate-[10deg] md:scale-[.8] md:opacity-90">
         <motion.div initial={{ opacity: 0, x: -45 }} animate={{ opacity: .9, x: 0 }} transition={{ duration: .8, delay: .2 }}>
           <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 5.7, repeat: Infinity, ease: "easeInOut" }}>
             <PhoneFrame label="ONE-TAP PROFILE"><ProfileScreen /></PhoneFrame>
@@ -408,8 +418,8 @@ export default function HeroPhoneShowcase() {
         </motion.div>
       </div>
 
-      {/* RIGHT phone — Analytics dashboard */}
-      <div className="absolute left-1/2 top-20 z-10 hidden translate-x-[26%] rotate-[10deg] scale-[.8] md:block">
+      {/* RIGHT phone — Analytics dashboard (peeks on mobile, full on desktop) */}
+      <div className="absolute left-1/2 top-20 z-10 translate-x-[16%] rotate-[8deg] scale-[.55] opacity-80 sm:scale-[.7] sm:opacity-90 md:translate-x-[26%] md:rotate-[10deg] md:scale-[.8] md:opacity-90">
         <motion.div initial={{ opacity: 0, x: 45 }} animate={{ opacity: .9, x: 0 }} transition={{ duration: .8, delay: .3 }}>
           <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 6.1, repeat: Infinity, ease: "easeInOut", delay: .8 }}>
             <PhoneFrame label="LIVE ANALYTICS"><AnalyticsScreen /></PhoneFrame>
@@ -417,10 +427,11 @@ export default function HeroPhoneShowcase() {
         </motion.div>
       </div>
 
-      {/* CENTER phone — Lost Mode (dominant) */}
+      {/* CENTER phone — Lost Mode (dominant). Pulses + vibrates during NFC tap phase */}
       <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 scale-[1.05]">
         <motion.div initial={{ opacity: 0, y: 35 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .9, delay: .1 }}>
-          <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4.7, repeat: Infinity, ease: "easeInOut" }}>
+          <motion.div animate={{ y: [0, -10, 0], scale: [1, 1, 1.015, 1, 1], filter: ["brightness(1)", "brightness(1)", "brightness(1.18)", "brightness(1)", "brightness(1)"] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", times: [0, 0.4, 0.55, 0.72, 1] }}>
             <PhoneFrame glow label="ASSET RECOVERY"><LostModeScreen /></PhoneFrame>
           </motion.div>
         </motion.div>

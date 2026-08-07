@@ -855,20 +855,22 @@ export default function Landing() {
               <motion.div className="flex flex-col sm:flex-row gap-3 mb-6"
                 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.65 }}>
-                {/* Primary — orange gradient, rounded-xl, hover lift + glow */}
+                {/* Primary — stronger orange gradient, glow, hover lift, animated arrow */}
                 <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
                   <Button size="lg" onClick={goSignIn}
-                    className="w-full sm:w-auto font-black text-base px-8 py-6 rounded-xl shadow-2xl border-0"
-                    style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`, color: "#fff", boxShadow: "0 12px 36px rgba(255,127,39,0.45), 0 0 0 1px rgba(255,255,255,0.12) inset" }}>
-                    Get Your Card Free <ArrowRight className="ml-2 w-5 h-5" />
+                    className="group w-full sm:w-auto font-black text-base px-8 py-6 rounded-xl shadow-2xl border-0"
+                    style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.gold} 55%, ${B.orangeLight} 100%)`, color: "#fff", boxShadow: "0 14px 40px rgba(255,127,39,0.55), 0 0 0 1px rgba(255,255,255,0.14) inset, 0 0 24px rgba(253,186,33,0.25)" }}>
+                    Get Your Card Free
+                    <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1.5" />
                   </Button>
                 </motion.div>
 
-                {/* Secondary — glass style, white outline */}
+                {/* Secondary — premium glass, blur, refined outline */}
                 <motion.div onClick={() => window.location.href = '/pricing'} whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }}
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-6 rounded-xl cursor-pointer transition-colors w-full sm:w-auto"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)" }}>
+                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-6 rounded-xl cursor-pointer transition-colors w-full sm:w-auto"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.28)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", boxShadow: "0 8px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.12)" }}>
                   <span className="text-white text-sm font-black">View Pricing</span>
+                  <ArrowRight className="w-4 h-4 text-white/70 transition-transform group-hover:translate-x-1" />
                 </motion.div>
               </motion.div>
             </div>
