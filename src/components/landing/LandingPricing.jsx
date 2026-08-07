@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Plus, Equal } from "lucide-react";
@@ -51,6 +52,11 @@ function ScrollReveal({ children, delay = 0, className = "" }) {
 }
 
 export default function LandingPricing() {
+  useLayoutEffect(() => {
+    const legacyUseCasesSection = document.getElementById("use-cases");
+    if (legacyUseCasesSection) legacyUseCasesSection.remove();
+  }, []);
+
   return (
     <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
