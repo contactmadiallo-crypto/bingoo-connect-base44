@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
+import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -915,6 +916,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ── EVERYTHING IN ONE PLACE */}
+      <EverythingInOnePlace />
 
       {/* ── STATS BAR */}
       <motion.section
