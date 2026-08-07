@@ -11,6 +11,7 @@ import ProfileForEveryProfession from "@/components/landing/ProfileForEveryProfe
 import WhyBingoo from "@/components/landing/WhyBingoo";
 import HowSharingWorks from "@/components/landing/HowSharingWorks";
 import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
+import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -996,6 +997,9 @@ export default function Landing() {
 
       {/* ── PROFESSIONALS LOVE BINGOO */}
       <ProfessionalsLoveBingoo />
+
+      {/* ── ASSET PROTECTION / LOST MODE */}
+      <AssetProtectionLostMode />
 
       {/* ── FEATURES */}
       <section id="features" className="py-16 md:py-24 px-4 md:px-6 bg-white">
