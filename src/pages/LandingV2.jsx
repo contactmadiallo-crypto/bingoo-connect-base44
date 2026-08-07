@@ -10,7 +10,6 @@ import { base44 } from "@/api/base44Client";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
 import LandingCoreJourney from "@/components/landing/LandingCoreJourney";
 import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
-import WhyBingoo from "@/components/landing/WhyBingoo";
 import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
 import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
 import LandingPricing from "@/components/landing/LandingPricing";
@@ -19,7 +18,7 @@ import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 import BackToTop from "@/components/landing/BackToTop";
 
-const B = { navy: "#0b2149", navyDark: "#071A3D", navyLight: "#13284f", orange: "#f97316", gold: "#FDBA21", slate: "#64748b" };
+const B = { navy: "#0b2149", orange: "#f97316", slate: "#64748b" };
 
 async function goSignIn() {
   const authed = await base44.auth.isAuthenticated();
@@ -36,7 +35,7 @@ export default function LandingV2() {
   const { user, isAuthenticated: authed, logout } = useAuth();
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans text-slate-950">
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#071A3D]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
           <Link to="/" className="flex items-center gap-2.5" aria-label="Bingoo Connect home">
@@ -47,6 +46,7 @@ export default function LandingV2() {
           </Link>
           <div className="hidden items-center gap-7 text-sm font-bold text-white/65 md:flex">
             <a href="#platform" className="transition hover:text-white">Platform</a>
+            <a href="#solutions" className="transition hover:text-white">Solutions</a>
             <a href="#pricing" className="transition hover:text-white">Pricing</a>
             <a href="#shop" className="transition hover:text-white">Shop</a>
           </div>
@@ -63,9 +63,9 @@ export default function LandingV2() {
         </div>
       </nav>
 
-      <header className="relative overflow-hidden px-4 py-20 md:px-6 md:py-28" style={{ background: "radial-gradient(circle at 15% 20%,rgba(249,115,22,.18),transparent 30%),radial-gradient(circle at 85% 30%,rgba(59,130,246,.13),transparent 28%),linear-gradient(145deg,#050A14,#071A3D 48%,#0b2149)" }}>
+      <header className="relative overflow-hidden px-4 py-16 sm:py-20 md:px-6 md:py-24 lg:py-28" style={{ background: "radial-gradient(circle at 15% 20%,rgba(249,115,22,.18),transparent 30%),radial-gradient(circle at 85% 30%,rgba(59,130,246,.13),transparent 28%),linear-gradient(145deg,#050A14,#071A3D 48%,#0b2149)" }}>
         <div className="absolute inset-0 opacity-[.045]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px,white 1px,transparent 0)", backgroundSize: "34px 34px" }} />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }}>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-xs font-black uppercase tracking-[.16em] text-orange-400">
               <Wifi className="h-4 w-4" /> Smart identity platform
@@ -74,7 +74,7 @@ export default function LandingV2() {
               One identity.<br /><span className="text-orange-400">One tap.</span><br />Every connection.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/65 md:text-xl">
-              Bingoo connects your professional identity, smart NFC devices and business tools so a simple tap can become a real relationship.
+              Share who you are, capture the opportunity and manage what happens next — from one Bingoo identity connected to NFC and QR.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-7 text-base font-black text-white hover:bg-orange-600">
@@ -85,8 +85,8 @@ export default function LandingV2() {
               </Button>
             </div>
             <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-white/50">
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-orange-400" /> No app required to receive</span>
-              <span className="flex items-center gap-1.5"><QrCode className="h-4 w-4 text-orange-400" /> NFC + QR</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-orange-400" /> No app required to view</span>
+              <span className="flex items-center gap-1.5"><QrCode className="h-4 w-4 text-orange-400" /> NFC + QR sharing</span>
               <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-orange-400" /> Owner-controlled profiles</span>
             </div>
           </motion.div>
@@ -100,43 +100,44 @@ export default function LandingV2() {
         </div>
       </header>
 
-      <div id="platform"><LandingCoreJourney /></div>
-      <EverythingInOnePlace />
-      <WhyBingoo />
-      <ProfessionalsLoveBingoo />
-      <AssetProtectionLostMode />
+      <main>
+        <div id="platform"><LandingCoreJourney /></div>
+        <EverythingInOnePlace />
+        <div id="solutions"><ProfessionalsLoveBingoo /></div>
+        <AssetProtectionLostMode />
 
-      <section className="bg-white px-4 py-16 md:px-6 md:py-20">
-        <div className="mx-auto max-w-6xl rounded-[32px] border border-slate-200 bg-slate-50 p-7 md:p-10">
-          <div className="grid gap-8 md:grid-cols-[1.1fr_.9fr] md:items-center">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[.18em] text-orange-500">Physical + digital, together</p>
-              <h2 className="mt-3 text-3xl font-black tracking-tight md:text-4xl" style={{ color: B.navy }}>The device is the bridge. Bingoo is the platform.</h2>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed" style={{ color: B.slate }}>Choose the physical device that fits how you connect. The same Bingoo identity stays current behind it, so you can update your profile without replacing the device.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-white p-5 shadow-sm"><p className="font-black" style={{ color: B.navy }}>Profile devices</p><p className="mt-1 text-sm text-slate-500">Cards, keychains, wearables and counter devices for sharing.</p></div>
-              <div className="rounded-2xl bg-[#071A3D] p-5 text-white"><p className="font-black">Asset devices</p><p className="mt-1 text-sm text-white/55">Tags for luggage, pets, keys and equipment with Lost Mode recovery.</p></div>
+        <section className="bg-slate-50 px-4 py-14 md:px-6 md:py-20">
+          <div className="mx-auto max-w-7xl rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm md:p-9">
+            <div className="grid gap-8 md:grid-cols-[1.1fr_.9fr] md:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[.18em] text-orange-500">Physical + digital, together</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-black tracking-tight md:text-4xl" style={{ color: B.navy }}>Choose the device. Keep the identity.</h2>
+                <p className="mt-4 max-w-2xl text-base leading-relaxed" style={{ color: B.slate }}>Your Bingoo profile lives in the platform, not on a printed design. Connect it to the NFC format that fits the job and keep the digital experience current.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5"><p className="font-black" style={{ color: B.navy }}>Profile devices</p><p className="mt-1 text-sm leading-relaxed text-slate-500">Cards, keychains, wearables and counter devices for sharing your identity.</p></div>
+                <div className="rounded-2xl bg-[#071A3D] p-5 text-white"><p className="font-black">Asset devices</p><p className="mt-1 text-sm leading-relaxed text-white/55">Tags for luggage, pets, keys and equipment with Bingoo recovery tools.</p></div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <div id="pricing"><LandingPricing /></div>
-      <div id="shop"><LandingShop /></div>
-      <FeedbackSection />
+        <div id="pricing"><LandingPricing /></div>
+        <div id="shop"><LandingShop /></div>
+        <FeedbackSection />
 
-      <section className="relative overflow-hidden bg-[#071A3D] px-4 py-20 text-center md:px-6">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-xs font-black uppercase tracking-[.18em] text-orange-400">Start connecting</p>
-          <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">Your next connection starts with one tap.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/55">Create your Bingoo identity first, then choose the NFC device that fits how you work.</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-8 font-black text-white hover:bg-orange-600">{authed ? "Open your Bingoo" : "Create your Bingoo"} <ArrowRight className="ml-2 h-5 w-5" /></Button>
-            <Button size="lg" variant="outline" onClick={() => window.location.href = "/shop"} className="h-14 rounded-xl border-white/20 bg-white/[.04] px-8 font-black text-white hover:bg-white/10 hover:text-white">Choose a device</Button>
+        <section className="relative overflow-hidden bg-[#071A3D] px-4 py-16 text-center md:px-6 md:py-20">
+          <div className="mx-auto max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[.18em] text-orange-400">Start connecting</p>
+            <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">Your next connection starts with one tap.</h2>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-white/55 md:text-lg">Create your Bingoo identity, then choose the NFC device that fits how you connect.</p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-8 font-black text-white hover:bg-orange-600">{authed ? "Open your Bingoo" : "Create your Bingoo"} <ArrowRight className="ml-2 h-5 w-5" /></Button>
+              <Button size="lg" variant="outline" onClick={() => window.location.href = "/shop"} className="h-14 rounded-xl border-white/20 bg-white/[.04] px-8 font-black text-white hover:bg-white/10 hover:text-white">Choose a device</Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <LandingFooter />
       <BackToTop />
