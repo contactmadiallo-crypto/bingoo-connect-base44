@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2, QrCode, ShieldCheck, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InfinityMark, BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
+import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
+import { useAuth } from "@/lib/AuthContext";
+import { usePlan } from "@/hooks/usePlan";
 import { base44 } from "@/api/base44Client";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
 import LandingCoreJourney from "@/components/landing/LandingCoreJourney";
@@ -24,7 +27,14 @@ async function goSignIn() {
   else base44.auth.redirectToLogin("/bingoo");
 }
 
+function LandingAccountMenu({ user, logout }) {
+  const { plan } = usePlan();
+  return <AccountDropdown user={user} plan={plan} logout={logout} isDark />;
+}
+
 export default function LandingV2() {
+  const { user, isAuthenticated: authed, logout } = useAuth();
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans">
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#071A3D]/95 backdrop-blur-xl">
@@ -41,8 +51,14 @@ export default function LandingV2() {
             <a href="#shop" className="transition hover:text-white">Shop</a>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={goSignIn} className="hidden text-white/75 hover:bg-white/10 hover:text-white sm:inline-flex">Sign in</Button>
-            <Button onClick={goSignIn} className="bg-orange-500 font-black text-white hover:bg-orange-600">Create your Bingoo</Button>
+            {authed && user ? (
+              <LandingAccountMenu user={user} logout={logout} />
+            ) : (
+              <>
+                <Button variant="ghost" onClick={goSignIn} className="hidden text-white/75 hover:bg-white/10 hover:text-white sm:inline-flex">Sign in</Button>
+                <Button onClick={goSignIn} className="bg-orange-500 font-black text-white hover:bg-orange-600">Create your Bingoo</Button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -62,7 +78,7 @@ export default function LandingV2() {
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-7 text-base font-black text-white hover:bg-orange-600">
-                Create your Bingoo <ArrowRight className="ml-2 h-5 w-5" />
+                {authed ? "Open your Bingoo" : "Create your Bingoo"} <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" onClick={() => window.location.href = "/shop"} className="h-14 rounded-xl border-white/20 bg-white/[.05] px-7 text-base font-black text-white hover:bg-white/10 hover:text-white">
                 Shop NFC devices
@@ -116,7 +132,7 @@ export default function LandingV2() {
           <h2 className="mt-3 text-3xl font-black text-white md:text-5xl">Your next connection starts with one tap.</h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/55">Create your Bingoo identity first, then choose the NFC device that fits how you work.</p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-8 font-black text-white hover:bg-orange-600">Create your Bingoo <ArrowRight className="ml-2 h-5 w-5" /></Button>
+            <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-8 font-black text-white hover:bg-orange-600">{authed ? "Open your Bingoo" : "Create your Bingoo"} <ArrowRight className="ml-2 h-5 w-5" /></Button>
             <Button size="lg" variant="outline" onClick={() => window.location.href = "/shop"} className="h-14 rounded-xl border-white/20 bg-white/[.04] px-8 font-black text-white hover:bg-white/10 hover:text-white">Choose a device</Button>
           </div>
         </div>
