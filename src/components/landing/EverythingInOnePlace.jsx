@@ -92,7 +92,7 @@ function DashboardShowcase() {
           </div>
           <div className="mx-auto flex items-center gap-2 rounded-lg border px-3 py-1 text-xs font-medium" style={{ borderColor: "#e7ecf3", color: B.slate }}>
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: B.green }} />
-            app.bingoo.africa/dashboard
+            Bingoo Dashboard
           </div>
         </div>
 
@@ -362,7 +362,7 @@ function LeadsCard() {
   const leads = [
     { initials: "JM", name: "Jordan Miles", src: "NFC", status: "New", color: B.orange, note: "Interested in branding package" },
     { initials: "SP", name: "Sara Patel", src: "QR", status: "Contacted", color: B.softBlue, note: "Follow-up sent · 2d ago" },
-    { initials: "LD", name: "Leo Diallo", src: "Profile", status: "Qualified", color: B.green, note: "Ready to book consultation" },
+    { initials: "LB", name: "Leo Bennett", src: "Profile", status: "Qualified", color: B.green, note: "Ready to book consultation" },
   ];
 
   return (
@@ -608,7 +608,7 @@ function WalletCard() {
             </div>
           </div>
 
-          {/* Apple Wallet pass */}
+          {/* Apple Wallet pass — Coming Soon */}
           <div className="relative overflow-hidden rounded-2xl border-2 p-4" style={{ borderColor: "#1a1a1a", background: "#1a1a1a" }}>
             <div className="flex items-center justify-between">
               <div>
@@ -619,8 +619,8 @@ function WalletCard() {
               <Apple className="h-5 w-5 text-white/80" />
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2">
-              <span className="text-[9px] font-bold text-white/60">Add to Apple Wallet</span>
-              <ChevronRight className="h-3 w-3 text-white/40" />
+              <span className="rounded-full px-2 py-0.5 text-[8px] font-black text-white" style={{ background: B.gold }}>Coming Soon</span>
+              <span className="text-[9px] font-bold text-white/40">In development</span>
             </div>
           </div>
         </div>
