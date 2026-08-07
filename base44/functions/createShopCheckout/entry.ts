@@ -1,11 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import Stripe from 'npm:stripe@14.21.0';
+import { computeShipping } from '../../shared/shippingConfig.ts';
 
 /**
  * SERVER-SIDE product catalog — single source of truth for prices and labels.
  * The client may only send product_id, quantity, and custom-design fields.
  * All prices, shipping, currency, and totals are computed here.
  * Keys must exactly match product.id values in lib/shopProducts.js.
+ *
+ * Only products listed here have real Stripe product IDs and can be purchased.
+ * Any product_id not in this map is rejected (including Coming Soon concepts).
  */
 const NFC_PRODUCTS = {
   'nfc-card':         { productId: 'prod_UdL2gP4j6Q9aP2',  amount: 1999, label: 'NFC Card' },
@@ -22,9 +26,9 @@ const NFC_PRODUCTS = {
   'nfc-luggage-tag':  { productId: 'prod_UrF7bbKOm3lsXv',  amount: 1899, label: 'NFC Luggage Tag' },
 };
 
-const SHIPPING_COST_CENTS = 500; // $5.00 — fixed on server, never trusted from client
 const MAX_QUANTITY_PER_ITEM = 50;
-const MIN_TOTAL_UNITS = 10; // mirrors the client minimum-order rule
+// Retail minimum is 1 unit. No bulk minimum required.
+// Only specific future bulk/corporate products may enforce a minimum quantity.
 
 // APP_URL: hardcoded to the published domain. Base44 does not inject a runtime APP_URL env var,
 // so we use the known production domain. Update here if the domain changes.
@@ -128,7 +132,8 @@ Deno.serve(async (req) => {
     }
 
     // ── 2. Validate items against the SERVER catalog ─────────────────────────
-    let totalUnits = 0;
+    // Any product_id not in NFC_PRODUCTS is rejected — this includes all
+    // "Coming Soon" products that have no Stripe product ID.
     for (const item of items) {
       const qty = item?.quantity;
       if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QUANTITY_PER_ITEM) {
@@ -138,15 +143,8 @@ Deno.serve(async (req) => {
         );
       }
       if (!NFC_PRODUCTS[item.product_id]) {
-        return Response.json({ error: `Unknown product: "${item.product_id}"` }, { status: 400 });
+        return Response.json({ error: `Product "${item.product_id}" is not available for purchase.` }, { status: 400 });
       }
-      const cdQty = item.customDesign && typeof item.customDesign.quantity === 'number'
-        ? item.customDesign.quantity
-        : qty;
-      totalUnits += cdQty;
-    }
-    if (totalUnits < MIN_TOTAL_UNITS) {
-      return Response.json({ error: `Minimum order is ${MIN_TOTAL_UNITS} NFC products.` }, { status: 400 });
     }
 
     // ── 3. Build line items + order items from the SERVER catalog ────────────
@@ -179,12 +177,14 @@ Deno.serve(async (req) => {
     const productSubtotalCents = items.reduce(
       (sum, item) => sum + NFC_PRODUCTS[item.product_id].amount * item.quantity, 0
     );
-    const totalCents = productSubtotalCents + SHIPPING_COST_CENTS;
+    // Shipping is computed server-side via shared config — never trusted from client.
+    const shippingCostCents = computeShipping(productSubtotalCents);
+    const totalCents = productSubtotalCents + shippingCostCents;
 
     lineItems.push({
       price_data: {
         currency: 'usd',
-        unit_amount: SHIPPING_COST_CENTS,
+        unit_amount: shippingCostCents,
         product_data: { name: 'Shipping & Handling' },
       },
       quantity: 1,
@@ -269,7 +269,7 @@ Deno.serve(async (req) => {
       order_notes,
       items: orderItems,
       subtotal: productSubtotalCents / 100,
-      shipping_cost: SHIPPING_COST_CENTS / 100,
+      shipping_cost: shippingCostCents / 100,
       total: totalCents / 100,
       payment_status: 'unpaid',
       fulfillment_status: 'processing',

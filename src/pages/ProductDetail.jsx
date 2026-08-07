@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw, Infinity as InfinityIcon, Nfc } from 'lucide-react';
-import { PRODUCTS, PRODUCT_OPTIONS, PERFECT_FOR, ACTIVATION_STEPS, ASSET_PROTECTION_STEPS } from '@/lib/shopProducts';
+import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw, Infinity as InfinityIcon, Nfc, Bell } from 'lucide-react';
+import { PRODUCTS, PRODUCT_OPTIONS, PERFECT_FOR, ACTIVATION_STEPS, ASSET_PROTECTION_STEPS, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
 
 const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316';
@@ -14,8 +14,10 @@ export default function ProductDetail() {
   const [cartCount, setCartCount] = useState(getCartCount());
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedMaterial, setSelectedMaterial] = useState(0);
+  const [notified, setNotified] = useState(false);
 
   const product = PRODUCTS.find(p => p.id === productId);
+
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F7F9FC' }}>
@@ -29,8 +31,10 @@ export default function ProductDetail() {
     );
   }
 
+  const purchasable = isPurchasable(product);
   const options = PRODUCT_OPTIONS[product.category] || { colors: [], materials: [] };
   const perfectFor = PERFECT_FOR[product.category] || [];
+  const collection = COLLECTIONS.find(c => c.id === product.collection);
 
   const handleAddToCart = () => {
     addToCart({ ...product, color: options.colors[selectedColor]?.name, material: options.materials[selectedMaterial]?.name }, quantity);
@@ -42,6 +46,11 @@ export default function ProductDetail() {
   const handleBuyNow = () => {
     addToCart({ ...product, color: options.colors[selectedColor]?.name, material: options.materials[selectedMaterial]?.name }, quantity);
     navigate('/cart');
+  };
+
+  const handleNotifyMe = () => {
+    setNotified(true);
+    setTimeout(() => setNotified(false), 3000);
   };
 
   return (
@@ -64,14 +73,33 @@ export default function ProductDetail() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-8 md:py-10">
+        {/* Collection badge */}
+        {collection && (
+          <div className="mb-4">
+            <Link to="/shop" className="text-xs font-bold uppercase tracking-wider hover:underline" style={{ color: collection.accent }}>
+              {collection.label}
+            </Link>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-start">
           {/* ── Product Image ── */}
           <div className="rounded-3xl overflow-hidden shadow-lg border border-slate-200"
             style={{ background: `linear-gradient(160deg, ${NAVY}, ${NAVY_DEEP})` }}>
             <div className="relative p-6 flex items-center justify-center" style={{ minHeight: '320px' }}>
-              <img src={product.image} alt={product.name} className="w-full h-auto rounded-2xl object-cover" style={{ maxHeight: '340px' }} />
+              {product.image ? (
+                <img src={product.image} alt={product.name} className="w-full h-auto rounded-2xl object-cover" style={{ maxHeight: '340px' }} />
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-12">
+                  <div className="w-20 h-20 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <InfinityIcon className="w-10 h-10" style={{ color: ORANGE }} />
+                  </div>
+                  <span className="text-white/40 text-sm font-bold uppercase tracking-widest">Coming Soon</span>
+                </div>
+              )}
               {product.badge && (
-                <span className="absolute top-5 left-5 text-xs font-bold px-3 py-1 rounded-full text-white uppercase tracking-wide" style={{ background: ORANGE }}>
+                <span className="absolute top-5 left-5 text-xs font-bold px-3 py-1 rounded-full text-white uppercase tracking-wide"
+                  style={{ background: purchasable ? ORANGE : '#64748b' }}>
                   {product.badge}
                 </span>
               )}
@@ -87,13 +115,23 @@ export default function ProductDetail() {
             <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-2 leading-tight">{product.name}</h1>
             <p className="text-slate-500 text-sm mb-5 leading-relaxed">{product.description}</p>
 
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-3xl md:text-4xl font-black text-slate-900">${product.price.toFixed(2)}</span>
-              <span className="text-slate-400 text-sm">USD · per unit</span>
-            </div>
+            {/* Price */}
+            {purchasable ? (
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-3xl md:text-4xl font-black text-slate-900">${product.price.toFixed(2)}</span>
+                <span className="text-slate-400 text-sm">USD · per unit</span>
+              </div>
+            ) : (
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className="text-2xl font-black text-slate-400">Price TBA</span>
+                <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider text-white" style={{ background: '#64748b' }}>
+                  Coming Soon
+                </span>
+              </div>
+            )}
 
-            {/* Color Options */}
-            {options.colors.length > 0 && (
+            {/* Color Options — only for purchasable products */}
+            {purchasable && options.colors.length > 0 && (
               <div className="rounded-2xl border border-slate-200 p-4 mb-4 bg-white">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Color</p>
                 <div className="flex gap-3">
@@ -107,8 +145,8 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Material Options */}
-            {options.materials.length > 0 && (
+            {/* Material Options — only for purchasable products */}
+            {purchasable && options.materials.length > 0 && (
               <div className="rounded-2xl border border-slate-200 p-4 mb-4 bg-white">
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Material</p>
                 <div className="flex flex-wrap gap-2">
@@ -150,45 +188,65 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Quantity */}
-            <div className="flex items-center gap-4 mb-6">
-              <span className="text-sm font-bold text-slate-700">Quantity</span>
-              <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden bg-white">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2.5 hover:bg-slate-50 transition-colors">
-                  <Minus className="w-4 h-4 text-slate-600" />
+            {/* Quantity — only for purchasable products */}
+            {purchasable && (
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-sm font-bold text-slate-700">Quantity</span>
+                <div className="flex items-center rounded-xl border border-slate-200 overflow-hidden bg-white">
+                  <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2.5 hover:bg-slate-50 transition-colors">
+                    <Minus className="w-4 h-4 text-slate-600" />
+                  </button>
+                  <span className="px-5 py-2.5 font-black text-slate-900 text-base min-w-[3rem] text-center">{quantity}</span>
+                  <button onClick={() => setQuantity(quantity + 1)} className="px-4 py-2.5 hover:bg-slate-50 transition-colors">
+                    <Plus className="w-4 h-4 text-slate-600" />
+                  </button>
+                </div>
+                <span className="text-slate-500 text-sm">Total: <span className="font-bold text-slate-900">${(product.price * quantity).toFixed(2)}</span></span>
+              </div>
+            )}
+
+            {/* Actions — purchasable vs coming soon */}
+            {purchasable ? (
+              <div className="flex gap-3 mb-5">
+                <button onClick={handleAddToCart}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-bold transition-all"
+                  style={added ? { borderColor: '#16a34a', color: '#16a34a', background: '#f0fdf4' } : { borderColor: NAVY, color: NAVY, background: '#fff' }}>
+                  {added ? <><Check className="w-4 h-4" /> Added to Cart</> : <><ShoppingCart className="w-4 h-4" /> Add to Cart</>}
                 </button>
-                <span className="px-5 py-2.5 font-black text-slate-900 text-base min-w-[3rem] text-center">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-4 py-2.5 hover:bg-slate-50 transition-colors">
-                  <Plus className="w-4 h-4 text-slate-600" />
+                <button onClick={handleBuyNow}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+                  style={{ background: `linear-gradient(135deg, ${ORANGE}, #e06800)` }}>
+                  Buy Now →
                 </button>
               </div>
-              <span className="text-slate-500 text-sm">Total: <span className="font-bold text-slate-900">${(product.price * quantity).toFixed(2)}</span></span>
-            </div>
+            ) : (
+              <div className="mb-5">
+                <div className="rounded-2xl p-4 mb-4" style={{ background: `${NAVY}08`, border: `1px solid ${NAVY}15` }}>
+                  <p className="text-sm font-bold mb-1" style={{ color: NAVY }}>This product is coming soon.</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    We're working on making this device available. Be the first to know when it launches.
+                  </p>
+                </div>
+                <button onClick={handleNotifyMe}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
+                  style={{ background: notified ? '#16a34a' : NAVY }}>
+                  {notified ? <><Check className="w-4 h-4" /> You'll be notified!</> : <><Bell className="w-4 h-4" /> Notify Me When Available</>}
+                </button>
+              </div>
+            )}
 
-            {/* Actions */}
-            <div className="flex gap-3 mb-5">
-              <button onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-bold transition-all"
-                style={added ? { borderColor: '#16a34a', color: '#16a34a', background: '#f0fdf4' } : { borderColor: NAVY, color: NAVY, background: '#fff' }}>
-                {added ? <><Check className="w-4 h-4" /> Added to Cart</> : <><ShoppingCart className="w-4 h-4" /> Add to Cart</>}
-              </button>
-              <button onClick={handleBuyNow}
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-                style={{ background: `linear-gradient(135deg, ${ORANGE}, #e06800)` }}>
-                Buy Now →
-              </button>
-            </div>
+            {/* Trust — only for purchasable products */}
+            {purchasable && (
+              <div className="flex flex-wrap gap-4 text-xs text-slate-500 mb-4">
+                <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-green-500" /> Secure Stripe Checkout</span>
+                <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5 text-blue-500" /> Fast Shipping</span>
+                <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5 text-orange-400" /> 30-Day Returns</span>
+              </div>
+            )}
 
-            {/* Trust + Activation */}
-            <div className="flex flex-wrap gap-4 text-xs text-slate-500 mb-4">
-              <span className="flex items-center gap-1"><Shield className="w-3.5 h-3.5 text-green-500" /> Secure Stripe Checkout</span>
-              <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5 text-blue-500" /> Fast Shipping</span>
-              <span className="flex items-center gap-1"><RefreshCw className="w-3.5 h-3.5 text-orange-400" /> 30-Day Returns</span>
-            </div>
-
+            {/* Activation / How It Works */}
             {product.flow === 'asset_protection' ? (
               <>
-                {/* Asset Protection Banner */}
                 <div className="rounded-2xl p-4 mb-4" style={{ background: `linear-gradient(135deg, ${NAVY}, ${NAVY_DEEP})` }}>
                   <div className="flex items-center gap-2 mb-2">
                     <Shield className="w-5 h-5 text-orange-400" />
@@ -197,6 +255,7 @@ export default function ProductDetail() {
                   <p className="text-xs text-white/70 leading-relaxed">
                     This tag uses Bingoo's <strong className="text-white">Asset Protection flow</strong> — not a personal profile.
                     When someone taps your lost tag, they see your safe recovery contact info, not your personal details.
+                    NFC + QR recovery — not GPS tracking.
                   </p>
                   <Link to="/my-nfc-devices" className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold text-orange-400 hover:underline">
                     Learn about Asset Protection →

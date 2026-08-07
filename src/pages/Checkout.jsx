@@ -22,8 +22,6 @@ export default function Checkout() {
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const total = subtotal + SHIPPING_COST;
   const totalNfcUnits = cart.reduce((sum, item) => sum + (item.customDesign?.quantity || item.quantity), 0);
-  const MIN_ORDER = 10;
-  const meetsMinimum = totalNfcUnits >= MIN_ORDER;
 
   const [form, setForm] = useState({
     name: '', email: '', phone: '',
@@ -50,12 +48,6 @@ export default function Checkout() {
     // Guard: cart must not be empty
     if (cart.length === 0) {
       setError('Your cart is empty.');
-      return;
-    }
-
-    // Guard: minimum 10 NFC products
-    if (totalNfcUnits < MIN_ORDER) {
-      setError(`Minimum order is 10 NFC products. You have ${totalNfcUnits} — add ${MIN_ORDER - totalNfcUnits} more to continue.`);
       return;
     }
 
@@ -228,17 +220,9 @@ export default function Checkout() {
               </div>
             </div>
 
-            {!meetsMinimum && (
-              <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl text-center">
-                <p className="text-xs font-bold text-orange-700">
-                  Minimum order is 10 NFC products. Add {MIN_ORDER - totalNfcUnits} more item{(MIN_ORDER - totalNfcUnits) !== 1 ? 's' : ''} to continue.
-                </p>
-              </div>
-            )}
-
             <Button
               type="submit"
-              disabled={loading || !meetsMinimum}
+              disabled={loading}
               className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 h-12 text-base disabled:opacity-70"
             >
               <Lock className="w-4 h-4" />
@@ -247,8 +231,6 @@ export default function Checkout() {
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
                   Redirecting to payment…
                 </span>
-              ) : !meetsMinimum ? (
-                `Add ${MIN_ORDER - totalNfcUnits} more item${(MIN_ORDER - totalNfcUnits) !== 1 ? 's' : ''} to checkout`
               ) : (
                 `Pay $${total.toFixed(2)} securely`
               )}

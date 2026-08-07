@@ -21,9 +21,6 @@ export default function Cart() {
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const total = subtotal + (cart.length > 0 ? SHIPPING : 0);
   const totalNfcUnits = cart.reduce((sum, item) => sum + (item.customDesign?.quantity || item.quantity), 0);
-  const MIN_ORDER = 10;
-  const remainingItems = Math.max(0, MIN_ORDER - totalNfcUnits);
-  const meetsMinimum = totalNfcUnits >= MIN_ORDER;
 
   const handleRemove = (id) => {
     const updated = removeFromCart(id);
@@ -41,7 +38,7 @@ export default function Cart() {
         <div className="text-center">
           <div className="text-7xl mb-4">🛒</div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Your cart is empty</h2>
-          <p className="text-slate-500 mb-6">Add some NFC products to get started!</p>
+          <p className="text-slate-500 mb-6">Add some NFC devices to get started!</p>
           <Link to="/shop"><Button className="bg-brand-navy hover:bg-brand-navy-light">Browse Products</Button></Link>
         </div>
       </div>
@@ -145,18 +142,9 @@ export default function Cart() {
                 </div>
               </div>
 
-              {!meetsMinimum && (
-                <div className="mb-3 p-3 bg-orange-50 border border-orange-200 rounded-xl text-center">
-                  <p className="text-xs font-bold text-orange-700">
-                    Minimum order is 10 NFC products. Add {remainingItems} more item{remainingItems !== 1 ? 's' : ''} to continue.
-                  </p>
-                </div>
-              )}
-
               <Button
                 onClick={() => navigate('/checkout')}
-                disabled={!meetsMinimum}
-                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3"
               >
                 Proceed to Checkout <ArrowRight className="w-4 h-4" />
               </Button>
