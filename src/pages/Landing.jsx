@@ -7,6 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
 import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
+import ProfileForEveryProfession from "@/components/landing/ProfileForEveryProfession";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -980,6 +981,9 @@ export default function Landing() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* ── PROFILE FOR EVERY PROFESSION */}
+      <ProfileForEveryProfession />
 
       {/* ── BINGOO LOGO BRAND SECTION */}
       <section className="py-16 px-6" style={{ background: "#f1f5f9" }}>
