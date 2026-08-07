@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import {
   BarChart3,
+  BadgeCheck,
   Bell,
   Check,
   Calendar,
@@ -79,38 +80,55 @@ function ProfileScreen() {
           style={{ background: `linear-gradient(135deg, ${B.orange} 0%, ${B.gold} 100%)` }}>
           EC
         </div>
-        <p className="relative text-[11px] font-black text-white">Emma Carter</p>
+        <div className="relative flex items-center justify-center gap-1">
+          <p className="text-[11px] font-black text-white">Emma Carter</p>
+          <BadgeCheck className="h-3 w-3" fill="#fff" stroke="#1d4ed8" strokeWidth={2} />
+        </div>
         <p className="relative text-[7px] text-white/70">Creative Director</p>
         <p className="relative text-[7px] text-white/50">Northstar Studio</p>
-        <div className="relative mt-1.5 flex items-center justify-center gap-1 text-white/60">
+        <div className="relative mt-1 flex items-center justify-center gap-1 text-white/60">
           <MapPin className="h-2.5 w-2.5" />
           <span className="text-[7px]">New York, NY</span>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="space-y-1.5 px-3 py-2.5">
-        <div className="grid grid-cols-2 gap-1.5">
-          <button className="rounded-lg py-2 text-[8px] font-black text-white"
-            style={{ background: B.orange }}>Save Contact</button>
-          <button className="rounded-lg border border-slate-200 bg-white py-2 text-[8px] font-black text-[#0b2149]">Share</button>
+      {/* Services */}
+      <div className="px-3 pt-2">
+        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">Services</p>
+        <div className="flex flex-wrap gap-1">
+          {["Branding", "Web Design", "Strategy"].map((s) => (
+            <span key={s} className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[6px] font-bold text-slate-600">{s}</span>
+          ))}
         </div>
+      </div>
 
+      {/* Portfolio thumbnails */}
+      <div className="px-3 pt-2">
+        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">Portfolio</p>
+        <div className="grid grid-cols-3 gap-1">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-8 rounded-md" style={{ background: `linear-gradient(135deg, ${[B.orange, B.gold, "#60a5fa"][i]}99, ${[B.navy, B.orange, B.gold][i]}99)` }} />
+          ))}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="space-y-1.5 px-3 py-2">
+        <button className="flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-[8px] font-black text-white"
+          style={{ background: `linear-gradient(135deg, ${B.orange}, ${B.orangeLight})`, boxShadow: "0 2px 8px rgba(255,127,39,0.35)" }}>
+          <Calendar className="h-3 w-3" /> Book Appointment
+        </button>
+        <div className="grid grid-cols-2 gap-1.5">
+          <button className="rounded-lg py-1.5 text-[7px] font-black text-white" style={{ background: B.navy }}>Save Contact</button>
+          <button className="rounded-lg border border-slate-200 bg-white py-1.5 text-[7px] font-black text-[#0b2149]">Share</button>
+        </div>
         {/* Social row */}
-        <div className="flex items-center justify-center gap-2 pt-1">
+        <div className="flex items-center justify-center gap-1.5 pt-0.5">
           {[Linkedin, Instagram, Globe2].map((Icon, i) => (
-            <div key={i} className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm">
-              <Icon className="h-3.5 w-3.5" />
+            <div key={i} className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm">
+              <Icon className="h-3 w-3" />
             </div>
           ))}
-          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm">
-            <span className="text-[8px] font-black">Be</span>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-2 py-1.5">
-          <span className="text-[7px] font-bold text-slate-500">Profile views</span>
-          <span className="text-[8px] font-black text-[#0b2149]">1,253</span>
         </div>
       </div>
     </div>
@@ -121,23 +139,33 @@ function ProfileScreen() {
 function LostModeScreen() {
   return (
     <div className="min-h-[258px] bg-white">
-      {/* Header — red */}
-      <div className="px-3 pb-3 pt-3 text-center" style={{ background: `linear-gradient(135deg, ${B.red} 0%, #dc2626 100%)` }}>
-        <div className="mb-1 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[8px] font-black tracking-widest text-white">
+      {/* Header — red gradient with texture */}
+      <div className="relative overflow-hidden px-3 pb-3 pt-3 text-center" style={{ background: `linear-gradient(135deg, ${B.red} 0%, #dc2626 100%)` }}>
+        <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: "radial-gradient(circle at 30% 20%, white 1px, transparent 1px)", backgroundSize: "14px 14px" }} />
+        <div className="relative mb-1 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[8px] font-black tracking-widest text-white">
           <Bell className="h-2.5 w-2.5" /> LOST MODE
         </div>
-        <p className="text-[11px] font-black leading-tight text-white">This item is reported lost</p>
-        <p className="mt-0.5 text-[8px] text-white/80">If found, please help return it</p>
+        <p className="relative text-[11px] font-black leading-tight text-white">This item is reported lost</p>
+        <p className="relative mt-0.5 text-[8px] text-white/80">If found, please help return it</p>
       </div>
 
-      {/* Luggage image */}
-      <div className="px-3 pt-2.5">
+      {/* Reward badge */}
+      <div className="px-3 pt-2">
+        <div className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1">
+          <span className="text-[10px]">🎁</span>
+          <span className="text-[7px] font-black text-amber-700">REWARD $50</span>
+        </div>
+      </div>
+
+      {/* Luggage card */}
+      <div className="px-3 pt-2">
         <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg text-lg" style={{ background: B.navy }}>🧳</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg text-lg shadow-sm" style={{ background: `linear-gradient(135deg, ${B.navy}, ${B.navyLight})` }}>🧳</div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[9px] font-black text-slate-800">Travel Suitcase</p>
             <p className="text-[7px] text-slate-400">BG-DEMO-104 · Active</p>
           </div>
+          <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[6px] font-black text-red-600">LOST</span>
         </div>
       </div>
 
@@ -151,20 +179,22 @@ function LostModeScreen() {
 
       {/* Contact buttons */}
       <div className="space-y-1.5 px-3 pt-2">
-        <button className="flex w-full items-center justify-center gap-1 rounded-lg py-2 text-[9px] font-black text-white" style={{ background: B.orange }}>
-          <Phone className="h-3 w-3" /> Call Owner
-        </button>
-        <button className="flex w-full items-center justify-center gap-1 rounded-lg py-2 text-[9px] font-black text-white" style={{ background: B.green }}>
-          <MessageCircle className="h-3 w-3" /> WhatsApp
-        </button>
-        <button className="flex w-full items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white py-2 text-[9px] font-black text-[#0b2149]">
+        <div className="grid grid-cols-2 gap-1.5">
+          <button className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-[8px] font-black text-white" style={{ background: B.orange }}>
+            <Phone className="h-3 w-3" /> Call
+          </button>
+          <button className="flex items-center justify-center gap-1 rounded-lg py-1.5 text-[8px] font-black text-white" style={{ background: B.green }}>
+            <MessageCircle className="h-3 w-3" /> WhatsApp
+          </button>
+        </div>
+        <button className="flex w-full items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white py-1.5 text-[8px] font-black text-[#0b2149]">
           <Mail className="h-3 w-3" /> Email Owner
         </button>
       </div>
 
       {/* Report found */}
       <div className="px-3 pb-3 pt-2">
-        <button className="flex w-full items-center justify-center gap-1 rounded-lg border-2 border-dashed py-2 text-[9px] font-black text-slate-500" style={{ borderColor: "#cbd5e1" }}>
+        <button className="flex w-full items-center justify-center gap-1 rounded-lg border-2 border-dashed py-1.5 text-[8px] font-black text-slate-500" style={{ borderColor: "#cbd5e1" }}>
           <MapPin className="h-3 w-3" /> Report Found
         </button>
       </div>
