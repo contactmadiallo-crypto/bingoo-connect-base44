@@ -985,26 +985,6 @@ export default function Landing() {
       {/* ── PROFILE FOR EVERY PROFESSION */}
       <ProfileForEveryProfession />
 
-      {/* ── BINGOO LOGO BRAND SECTION */}
-      <section className="py-16 px-6" style={{ background: "#f1f5f9" }}>
-        <div className="max-w-6xl mx-auto">
-          <ScrollReveal className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-black mb-3" style={{ color: B.navy }}>
-              Trusted by Professionals Worldwide
-            </h2>
-            <p className="text-slate-500 text-lg">NFC cards, keychains, bracelets and badges — all powered by Bingoo Connect</p>
-          </ScrollReveal>
-          <ScrollReveal delay={0.2}>
-            <div className="rounded-3xl overflow-hidden shadow-2xl">
-              <img
-                src="https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png"
-                alt="Bingoo NFC Products"
-                className="w-full object-cover" />
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
       {/* ── FEATURES */}
       <section id="features" className="py-16 md:py-24 px-4 md:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
