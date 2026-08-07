@@ -1,167 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, Minus, ShoppingCart, ArrowRight, Tag } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowRight, Tag, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getCart, removeFromCart, updateQuantity, getCartTotal } from '@/lib/cartStore';
+import { getCart, removeFromCart, updateQuantity } from '@/lib/cartStore';
+import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
+import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 
-const SHIPPING = 5.00;
-
-export default function Cart() {
-  const navigate = useNavigate();
-  const [cart, setCart] = useState(getCart());
-
-  useEffect(() => {
-    let meta = document.querySelector('meta[name="robots"]');
-    if (!meta) { meta = document.createElement("meta"); meta.setAttribute("name", "robots"); document.head.appendChild(meta); }
-    meta.setAttribute("content", "noindex, nofollow");
-    return () => { meta.setAttribute("content", "index, follow"); };
-  }, []);
-
-  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-  const total = subtotal + (cart.length > 0 ? SHIPPING : 0);
-  const totalNfcUnits = cart.reduce((sum, item) => sum + (item.customDesign?.quantity || item.quantity), 0);
-
-  const handleRemove = (id) => {
-    const updated = removeFromCart(id);
-    setCart(updated);
-  };
-
-  const handleQty = (id, qty) => {
-    const updated = updateQuantity(id, qty);
-    setCart(updated);
-  };
-
-  if (cart.length === 0) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="text-7xl mb-4">🛒</div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">Your cart is empty</h2>
-          <p className="text-slate-500 mb-6">Add some NFC devices to get started!</p>
-          <Link to="/shop"><Button className="bg-brand-navy hover:bg-brand-navy-light">Browse Products</Button></Link>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-orange-50/20">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <Link to="/shop" className="text-sm text-[#0b2149] hover:underline">← Continue Shopping</Link>
-            <h1 className="text-2xl font-bold text-slate-900">Your Cart</h1>
-          </div>
-          <span className="text-slate-500 text-sm">{totalNfcUnits} NFC unit{totalNfcUnits !== 1 ? 's' : ''}</span>
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {cart.map((item, idx) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-4"
-              >
-                <div className="w-16 h-16 bg-slate-50 rounded-xl flex-shrink-0 overflow-hidden">
-                  {item.image
-                    ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-slate-900 truncate">{item.name}</h3>
-                  {item.customDesign && (
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {item.customDesign.finish && <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">{item.customDesign.finish}</span>}
-                      {item.customDesign.holderName && <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-bold truncate max-w-[120px]">{item.customDesign.holderName}</span>}
-                      {item.customDesign.brandPattern?.enabled && <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-bold">Pattern</span>}
-                      {item.customDesign.removeBranding && <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-50 text-purple-600 font-bold">No Branding</span>}
-                    </div>
-                  )}
-                  {item.customDesign ? (
-                    <p className="text-[#0b2149] font-semibold mt-1">${(item.customDesign.unitPrice || 3.99).toFixed(2)}/unit</p>
-                  ) : (
-                    <p className="text-[#0b2149] font-semibold mt-1">${item.price.toFixed(2)}</p>
-                  )}
-                </div>
-                {item.customDesign ? (
-                  <div className="flex flex-col items-end gap-0.5 min-w-[90px]">
-                    <span className="text-xs font-bold text-slate-700">{item.customDesign.quantity} units</span>
-                    <span className="text-[10px] text-slate-400">${(item.customDesign.unitPrice || 3.99).toFixed(2)}/ea</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden">
-                    <button onClick={() => handleQty(item.id, item.quantity - 1)} className="px-3 py-2 hover:bg-slate-100">
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="px-3 py-2 font-bold text-sm">{item.quantity}</span>
-                    <button onClick={() => handleQty(item.id, item.quantity + 1)} className="px-3 py-2 hover:bg-slate-100">
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                )}
-                <div className="text-right min-w-[70px]">
-                  <p className="font-bold text-slate-900">${(item.price * item.quantity).toFixed(2)}</p>
-                </div>
-                <button onClick={() => handleRemove(item.id)} className="text-red-400 hover:text-red-600 ml-2">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Order Summary */}
-          <div>
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sticky top-24">
-              <h3 className="font-bold text-slate-900 text-lg mb-4">Order Summary</h3>
-
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between text-slate-600">
-                  <span>Total NFC Units</span>
-                  <span className="font-semibold text-slate-700">{totalNfcUnits}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-slate-600">
-                  <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" /> Shipping</span>
-                  <span>${SHIPPING.toFixed(2)}</span>
-                </div>
-                <div className="border-t pt-3 flex justify-between font-bold text-slate-900 text-lg">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <Button
-                onClick={() => navigate('/checkout')}
-                className="w-full bg-brand-orange hover:bg-brand-orange-light gap-2 py-3"
-              >
-                Proceed to Checkout <ArrowRight className="w-4 h-4" />
-              </Button>
-
-              <p className="text-xs text-slate-500 text-center mt-3">
-                🔒 Secure checkout via Stripe
-              </p>
-
-              <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-xs text-slate-700">
-                  💡 <strong>Bingoo Tip:</strong> Add a subscription plan to unlock analytics, lead collection, and premium layouts.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const SHIPPING=5.00, NAVY='#0b2149', NAVY_DEEP='#071A3D', ORANGE='#f97316';
+export default function Cart(){
+ const navigate=useNavigate(); const [cart,setCart]=useState(getCart());
+ useEffect(()=>{let meta=document.querySelector('meta[name="robots"]');if(!meta){meta=document.createElement('meta');meta.setAttribute('name','robots');document.head.appendChild(meta)}meta.setAttribute('content','noindex, nofollow');return()=>meta.setAttribute('content','index, follow')},[]);
+ const subtotal=cart.reduce((s,i)=>s+i.price*i.quantity,0),total=subtotal+(cart.length?SHIPPING:0),units=cart.reduce((s,i)=>s+(i.customDesign?.quantity||i.quantity),0);
+ const remove=id=>setCart(removeFromCart(id)); const qty=(id,n)=>setCart(updateQuantity(id,n));
+ if(!cart.length)return <div className="min-h-screen bg-slate-50"><header style={{background:NAVY_DEEP}} className="h-[76px] flex items-center"><div className="max-w-6xl mx-auto px-5 w-full"><Link to="/" className="flex items-center gap-3 text-white font-black"><InfinityMark size={38} color={ORANGE} strokeWidth={3.2}/> BINGOO CONNECT</Link></div></header><div className="min-h-[70vh] flex items-center justify-center px-4"><div className="text-center"><h2 className="text-3xl font-black mb-2" style={{color:NAVY}}>Your cart is empty</h2><p className="text-slate-500 mb-6">Choose a Bingoo NFC device to get started.</p><Link to="/shop"><Button style={{background:NAVY}} className="text-white">Browse NFC Devices</Button></Link></div></div></div>;
+ return <div className="min-h-screen" style={{background:'#f7f8fb'}}><header className="sticky top-0 z-20" style={{background:NAVY_DEEP}}><div className="max-w-6xl mx-auto px-5 h-[76px] flex items-center justify-between"><Link to="/" className="flex items-center gap-3 text-white font-black"><InfinityMark size={38} color={ORANGE} strokeWidth={3.2}/> <span className="hidden sm:inline">BINGOO CONNECT</span></Link><Link to="/shop" className="text-sm font-bold text-white/75 hover:text-white">← Continue Shopping</Link></div></header><main className="max-w-6xl mx-auto px-5 py-10"><div className="mb-7"><p className="text-xs font-black uppercase tracking-[.16em] mb-2" style={{color:ORANGE}}>Secure order</p><h1 className="text-4xl font-black" style={{color:NAVY}}>Your Cart</h1><p className="text-slate-500 mt-2">{units} NFC unit{units!==1?'s':''} · same device configuration carried into checkout.</p></div><div className="grid lg:grid-cols-[1fr_360px] gap-7"><div className="space-y-4">{cart.map((item,idx)=><motion.div key={item.id} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{delay:idx*.04}} className="bg-white rounded-2xl border border-slate-200 p-4 grid grid-cols-[92px_1fr] sm:grid-cols-[110px_1fr_auto] gap-4 items-center"><Link to={`/product/${item.id}`} className="w-[92px] sm:w-[110px] h-[92px] rounded-xl overflow-hidden border border-slate-100"><FactoryProductMedia product={item} compact showLabel={false} className="w-full h-full"/></Link><div className="min-w-0"><p className="text-[10px] uppercase font-black tracking-wider" style={{color:ORANGE}}>{item.flow==='asset_protection'?'Asset Device':'Profile Device'}</p><Link to={`/product/${item.id}`}><h3 className="font-black text-lg truncate" style={{color:NAVY}}>{item.name}</h3></Link>{item.color&&<p className="text-xs text-slate-500 mt-1">{item.color}{item.material?` · ${item.material}`:''}</p>}<p className="font-black mt-2" style={{color:NAVY}}>${item.price.toFixed(2)} / unit</p></div><div className="col-span-2 sm:col-span-1 flex sm:flex-col items-center sm:items-end justify-between gap-3"><p className="font-black text-lg">${(item.price*item.quantity).toFixed(2)}</p><div className="flex items-center border border-slate-200 rounded-xl overflow-hidden"><button onClick={()=>qty(item.id,item.quantity-1)} className="px-3 py-2 hover:bg-slate-50"><Minus className="w-3 h-3"/></button><span className="px-3 py-2 font-black text-sm">{item.quantity}</span><button onClick={()=>qty(item.id,item.quantity+1)} className="px-3 py-2 hover:bg-slate-50"><Plus className="w-3 h-3"/></button></div><button onClick={()=>remove(item.id)} className="text-xs font-bold text-red-500 flex items-center gap-1"><Trash2 className="w-3.5"/> Remove</button></div></motion.div>)}</div><aside><div className="bg-white rounded-2xl border border-slate-200 p-6 sticky top-24"><h3 className="font-black text-xl mb-5" style={{color:NAVY}}>Order Summary</h3><div className="space-y-3 text-sm"><div className="flex justify-between text-slate-600"><span>NFC devices</span><b>{units}</b></div><div className="flex justify-between text-slate-600"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div><div className="flex justify-between text-slate-600"><span className="flex gap-1 items-center"><Tag className="w-3.5"/>Shipping</span><span>${SHIPPING.toFixed(2)}</span></div><div className="border-t pt-4 flex justify-between text-xl font-black"><span>Total</span><span>${total.toFixed(2)}</span></div></div><Button onClick={()=>navigate('/checkout')} className="w-full mt-6 text-white gap-2 h-12 font-black" style={{background:ORANGE}}>Proceed to Checkout <ArrowRight className="w-4"/></Button><div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500"><ShieldCheck className="w-4 text-green-600"/>Secure Stripe checkout</div></div></aside></div></main></div>}
