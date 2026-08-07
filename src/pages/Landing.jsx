@@ -13,6 +13,7 @@ import HowSharingWorks from "@/components/landing/HowSharingWorks";
 import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
 import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
 import LandingFooter from "@/components/landing/LandingFooter";
+import BackToTop from "@/components/landing/BackToTop";
 import FeedbackSection from "@/components/bingoo/FeedbackSection";
 import LandingDetailModal from "@/components/landing/LandingDetailModal";
 import BrandIcon3D from "@/components/landing/BrandIcon3D";
@@ -1381,6 +1382,9 @@ export default function Landing() {
 
       {/* ── FOOTER */}
       <LandingFooter lang={lang} toggleLang={toggleLang} />
+
+      {/* ── BACK TO TOP */}
+      <BackToTop />
 
       {/* Shared detail modal for feature + industry cards */}
       <LandingDetailModal
