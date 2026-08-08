@@ -4,12 +4,14 @@ import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 const NAVY = '#0b2149';
 const ORANGE = '#f97316';
 
-export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false }) {
+export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, selectedColor = null }) {
   const active = product?.availability === 'active';
   const hasProductImage = Boolean(product?.image);
+  const tint = selectedColor || product?.customDesign?.cardColor || null;
 
-  // Active products: show the approved product photo exactly as supplied.
-  // No CSS device redraw, no logo plate, no artwork overlay, no activation label.
+  // The approved factory photo stays authoritative. For configurable SKUs we tint
+  // only the non-white pixels in-browser so the customer can preview a selected
+  // manufacturing color without replacing the real product photograph.
   if (active && hasProductImage) {
     return (
       <div
@@ -22,14 +24,22 @@ export default function FactoryProductMedia({ product, className = '', compact =
           loading="lazy"
           decoding="async"
           className="w-full h-full object-contain"
-          style={compact ? { padding: 6 } : undefined}
+          style={{
+            ...(compact ? { padding: 6 } : {}),
+            ...(tint ? { filter: 'grayscale(1) contrast(1.05)' } : {}),
+          }}
         />
+        {tint && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{ background: tint, mixBlendMode: 'color', opacity: 0.88 }}
+          />
+        )}
       </div>
     );
   }
 
-  // Products without approved production photography remain visibly unavailable.
-  // This is intentionally a neutral placeholder, not a fake product render.
   return (
     <div
       className={`relative overflow-hidden flex items-center justify-center ${className}`}
