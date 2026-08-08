@@ -1,33 +1,325 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, Check, ChevronDown, CreditCard, Grid2X2, KeyRound, List, Package, PackageSearch, ShieldCheck, ShoppingCart, Store, Tag, Truck, Watch } from 'lucide-react';
+import {
+  Bell,
+  Check,
+  ChevronDown,
+  CreditCard,
+  Grid2X2,
+  KeyRound,
+  List,
+  Package,
+  PackageSearch,
+  ShieldCheck,
+  ShoppingCart,
+  SlidersHorizontal,
+  Store,
+  Tag,
+  Watch,
+} from 'lucide-react';
 import { PRODUCTS, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
 
-const NAVY='#0b2149', NAVY_DEEP='#071A3D', ORANGE='#f97316';
-const CATEGORIES=[
-{id:'all',label:'All Devices',icon:CreditCard,test:()=>true},
-{id:'profile',label:'Profile Devices',icon:CreditCard,test:p=>p.flow!=='asset_protection'&&p.category!=='stand'&&!p.id?.includes('bundle')},
-{id:'wearables',label:'Wearables',icon:Watch,test:p=>p.category==='bracelet'||p.category==='badge'},
-{id:'desk',label:'Desk & Counter',icon:Store,test:p=>p.category==='stand'||p.collection==='business'},
-{id:'keys',label:'Key Accessories',icon:KeyRound,test:p=>p.category==='keychain'},
-{id:'tags',label:'Smart Tags',icon:Tag,test:p=>p.category==='tag'},
-{id:'bundles',label:'Bundles',icon:Package,test:p=>p.id?.includes('bundle')||p.id?.includes('pack')}];
-const TRUST=[{icon:ShieldCheck,title:'Secure Checkout',copy:'Stripe encrypted'},{icon:Truck,title:'Shipping',copy:'Calculated at checkout'},{icon:Package,title:'Bingoo Hardware',copy:'Factory-ready catalog'}];
-function Toggle({on,value}){return <button onClick={on} className="w-10 h-6 rounded-full p-1" style={{background:value?ORANGE:'#e2e8f0'}}><span className="block w-4 h-4 bg-white rounded-full transition-transform" style={{transform:value?'translateX(16px)':'none'}}/></button>}
-function ProductCard({p,added,onAdd,list}){const buy=isPurchasable(p),collection=COLLECTIONS.find(c=>c.id===p.collection);return <motion.article layout whileHover={{y:list?0:-3}} className={`${list?'grid md:grid-cols-[250px_1fr]':'flex flex-col'} bg-white rounded-2xl border border-slate-200 overflow-hidden`} style={{boxShadow:'0 7px 24px rgba(11,33,73,.05)'}}><Link to={`/product/${p.id}`}><div className={`${list?'h-[210px]':'h-[230px]'} relative bg-white`}><FactoryProductMedia product={p} className="w-full h-full"/>{p.badge&&<span className="absolute top-4 left-4 text-[9px] uppercase font-black text-white rounded-full px-3 py-1" style={{background:p.availability==='coming_soon'?'#64748b':ORANGE}}>{p.badge}</span>}</div></Link><div className="p-5 flex flex-col flex-1 border-t border-slate-100"><p className="text-[10px] uppercase tracking-wider font-black mb-1" style={{color:ORANGE}}>{p.flow==='asset_protection'?'Asset Device':'Profile Device'} · {p.bestFor||collection?.label}</p><Link to={`/product/${p.id}`}><h3 className="font-black text-lg" style={{color:NAVY}}>{p.name}</h3></Link><p className="text-[13px] text-slate-500 leading-relaxed mt-1 mb-4 line-clamp-2">{p.tagline}</p><div className="mt-auto flex items-end justify-between gap-2">{buy?<><b className="text-[23px] text-slate-900">${p.price.toFixed(2)}</b><div className="flex gap-2"><Link to={`/product/${p.id}`} className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-black text-slate-700">View</Link><button onClick={()=>onAdd(p)} className="px-4 py-2.5 rounded-xl text-xs font-black text-white flex gap-1.5 items-center" style={{background:added?'#16a34a':ORANGE}}>{added?<><Check className="w-3.5"/>Added</>:<><ShoppingCart className="w-3.5"/>Add to Cart</>}</button></div></>:<><b className="text-sm text-slate-400">Coming Soon</b><Link to={`/product/${p.id}`} className="px-4 py-2.5 rounded-xl text-xs font-black text-white flex gap-1 items-center" style={{background:NAVY}}><Bell className="w-3.5"/>Notify Me</Link></>}</div></div></motion.article>}
+const NAVY = '#0b2149';
+const NAVY_DEEP = '#071A3D';
+const ORANGE = '#f97316';
 
-export default function Shop(){
-const [cart,setCart]=useState(getCartCount()),[added,setAdded]=useState(null),[category,setCategory]=useState('all'),[best,setBest]=useState(false),[fresh,setFresh]=useState(false),[stock,setStock]=useState(true),[sort,setSort]=useState('featured'),[view,setView]=useState('grid'),[price,setPrice]=useState(100);
-useEffect(()=>setCart(getCartCount()),[]);
-const counts=useMemo(()=>Object.fromEntries(CATEGORIES.map(c=>[c.id,PRODUCTS.filter(c.test).length])),[]);
-const items=useMemo(()=>{const f=CATEGORIES.find(c=>c.id===category)||CATEGORIES[0];let x=PRODUCTS.filter(p=>f.test(p)&&(!stock||isPurchasable(p))&&(!best||String(p.badge||'').toLowerCase().includes('best'))&&(!fresh||(String(p.badge||'').toLowerCase().includes('new')||p.availability==='coming_soon'))&&(!isPurchasable(p)||p.price<=price));if(sort==='low')x=[...x].sort((a,b)=>(a.price??999)-(b.price??999));if(sort==='high')x=[...x].sort((a,b)=>(b.price??-1)-(a.price??-1));if(sort==='name')x=[...x].sort((a,b)=>a.name.localeCompare(b.name));return x},[category,best,fresh,stock,sort,price]);
-const add=p=>{if(!isPurchasable(p))return;addToCart(p,1);setCart(getCartCount());setAdded(p.id);setTimeout(()=>setAdded(null),1400)};
-return <div className="min-h-screen" style={{background:'#f7f8fb'}}>
-<header className="sticky top-0 z-30" style={{background:NAVY_DEEP}}><div className="max-w-[1500px] mx-auto px-5 h-[76px] flex items-center justify-between"><Link to="/" className="flex items-center gap-3"><InfinityMark size={42} color={ORANGE} strokeWidth={3.4} glow/><b className="text-white text-lg hidden sm:block">BINGOO CONNECT</b></Link><nav className="hidden md:flex items-center gap-9 text-sm font-bold text-white/75 h-full"><Link to="/#features">Features</Link><Link to="/">Industries</Link><Link to="/#pricing">Pricing</Link><Link to="/shop" className="relative text-white h-full flex items-center">Shop<span className="absolute bottom-0 inset-x-0 h-[3px]" style={{background:ORANGE}}/></Link></nav><Link to="/cart" className="relative text-white p-3"><ShoppingCart className="w-5"/>{cart>0&&<span className="absolute top-0 right-0 w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center" style={{background:ORANGE}}>{cart}</span>}</Link></div></header>
-<main className="max-w-[1500px] mx-auto px-5 py-9"><section className="grid lg:grid-cols-[1fr_auto] gap-7 items-end mb-8"><div><p className="text-xs font-black uppercase tracking-[.18em] mb-3" style={{color:ORANGE}}>Bingoo NFC Hardware</p><h1 className="text-4xl md:text-5xl font-black mb-3" style={{color:NAVY}}>Shop real NFC devices.</h1><p className="text-slate-500 text-lg max-w-2xl">A production-focused hardware catalog for professional identity, teams and asset recovery. The same SKU follows you from this shelf to product page, cart and checkout.</p></div><div className="grid sm:grid-cols-3 gap-3">{TRUST.map(t=>{const I=t.icon;return <div key={t.title} className="bg-white border border-slate-200 rounded-2xl px-5 py-4 flex items-center gap-3 min-w-[205px]"><I className="w-8 h-8" style={{color:NAVY}}/><div><b className="text-xs block" style={{color:NAVY}}>{t.title}</b><span className="text-xs text-slate-500">{t.copy}</span></div></div>})}</div></section>
-<section className="grid lg:grid-cols-[280px_1fr] gap-6 items-start"><aside className="space-y-4 lg:sticky lg:top-[94px]"><div className="bg-white rounded-2xl border border-slate-200 p-4"><p className="text-xs font-black uppercase tracking-wider text-slate-400 px-2 mb-3">Device Categories</p>{CATEGORIES.map(c=>{const I=c.icon,a=category===c.id;return <button key={c.id} onClick={()=>setCategory(c.id)} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-bold" style={{background:a?'#fff3eb':'transparent',color:NAVY}}><I className="w-4" style={{color:a?ORANGE:'#64748b'}}/><span className="flex-1 text-left">{c.label}</span><span className="text-xs text-slate-400">{counts[c.id]}</span></button>})}</div><div className="bg-white rounded-2xl border border-slate-200 overflow-hidden"><div className="p-4 border-b"><p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Filters</p><div className="space-y-4"><div className="flex justify-between text-sm font-semibold"><span>Best Sellers</span><Toggle value={best} on={()=>setBest(!best)}/></div><div className="flex justify-between text-sm font-semibold"><span>New / Coming</span><Toggle value={fresh} on={()=>setFresh(!fresh)}/></div><div className="flex justify-between text-sm font-semibold"><span>In Stock Only</span><Toggle value={stock} on={()=>setStock(!stock)}/></div></div></div><div className="p-4"><p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Price Range</p><div className="flex justify-between text-xs font-black mb-3"><span>$0</span><span>${price}+</span></div><input type="range" min="10" max="100" value={price} onChange={e=>setPrice(+e.target.value)} className="w-full accent-orange-500"/></div></div></aside>
-<div><div className="bg-white rounded-2xl border border-slate-200 p-4 mb-5 flex items-center justify-between gap-4"><span className="text-sm text-slate-500"><b style={{color:NAVY}}>{items.length}</b> devices</span><div className="flex gap-3"><div className="relative"><select value={sort} onChange={e=>setSort(e.target.value)} className="appearance-none border border-slate-200 rounded-xl pl-4 pr-10 py-2.5 text-sm font-semibold bg-white"><option value="featured">Featured</option><option value="low">Price: Low to high</option><option value="high">Price: High to low</option><option value="name">Name: A–Z</option></select><ChevronDown className="absolute right-3 top-3 w-4 text-slate-400 pointer-events-none"/></div><div className="flex border border-slate-200 rounded-xl overflow-hidden"><button onClick={()=>setView('grid')} className="w-11 flex justify-center items-center" style={{color:view==='grid'?ORANGE:'#64748b'}}><Grid2X2 className="w-4"/></button><button onClick={()=>setView('list')} className="w-11 flex justify-center items-center border-l" style={{color:view==='list'?ORANGE:'#64748b'}}><List className="w-4"/></button></div></div></div><motion.div layout className={view==='grid'?'grid sm:grid-cols-2 xl:grid-cols-3 gap-4':'grid gap-4'}>{items.map(p=><ProductCard key={p.id} p={p} added={added===p.id} onAdd={add} list={view==='list'}/>)}</motion.div>{!items.length&&<div className="bg-white border border-dashed rounded-3xl p-12 text-center mt-4"><PackageSearch className="mx-auto text-slate-300 mb-3"/><b style={{color:NAVY}}>No devices match these filters.</b></div>}</div></section></main></div>}
+const FEATURED_ORDER = [
+  'nfc-metal-card',
+  'nfc-wood-card',
+  'nfc-luggage-tag',
+  'nfc-pet-collar',
+  'nfc-key-fob',
+  'nfc-silicone-tag',
+  'nfc-card',
+  'nfc-keychain',
+  'nfc-bracelet',
+  'nfc-table-stand',
+  'nfc-phone-stand',
+  'nfc-sticker',
+];
+
+const CATEGORIES = [
+  { id: 'all', label: 'All Devices', icon: CreditCard, test: () => true },
+  { id: 'profile', label: 'Profile Devices', icon: CreditCard, test: (p) => p.flow !== 'asset_protection' && p.category !== 'stand' && !p.id?.includes('bundle') },
+  { id: 'premium', label: 'Premium', icon: ShieldCheck, test: (p) => p.collection === 'premium' },
+  { id: 'wearables', label: 'Wearables', icon: Watch, test: (p) => p.category === 'bracelet' || p.category === 'badge' },
+  { id: 'desk', label: 'Desk & Counter', icon: Store, test: (p) => p.category === 'stand' || p.collection === 'business' },
+  { id: 'keys', label: 'Key Accessories', icon: KeyRound, test: (p) => p.category === 'keychain' },
+  { id: 'assets', label: 'Asset Protection', icon: Tag, test: (p) => p.flow === 'asset_protection' },
+  { id: 'bundles', label: 'Bundles', icon: Package, test: (p) => p.id?.includes('bundle') || p.id?.includes('pack') },
+];
+
+const TRUST = [
+  { icon: ShieldCheck, title: 'Secure checkout', copy: 'Stripe-hosted payment' },
+  { icon: CreditCard, title: 'Retail quantity 1+', copy: 'Buy a single device or more' },
+  { icon: Package, title: 'One product identity', copy: 'Same SKU from shelf to order' },
+];
+
+function Toggle({ on, value }) {
+  return (
+    <button type="button" onClick={on} className="h-6 w-10 rounded-full p-1 transition" style={{ background: value ? ORANGE : '#e2e8f0' }}>
+      <span className="block h-4 w-4 rounded-full bg-white transition-transform" style={{ transform: value ? 'translateX(16px)' : 'none' }} />
+    </button>
+  );
+}
+
+function ProductCard({ product, added, onAdd, list }) {
+  const buy = isPurchasable(product);
+  const collection = COLLECTIONS.find((c) => c.id === product.collection);
+  const typeLabel = product.flow === 'asset_protection' ? 'Asset Device' : 'Profile Device';
+
+  return (
+    <motion.article
+      layout
+      whileHover={{ y: list ? 0 : -4 }}
+      className={`${list ? 'grid md:grid-cols-[300px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[26px] border border-slate-200 bg-white`}
+      style={{ boxShadow: '0 12px 34px rgba(11,33,73,.06)' }}
+    >
+      <Link to={`/product/${product.id}`} className="block">
+        <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden bg-white`}>
+          <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
+          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+            <span className="rounded-full border border-white/80 bg-white/95 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] shadow-sm" style={{ color: product.flow === 'asset_protection' ? '#b45309' : NAVY }}>
+              {typeLabel}
+            </span>
+            {product.badge && (
+              <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-white" style={{ background: product.availability === 'coming_soon' ? '#64748b' : ORANGE }}>
+                {product.badge}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      <div className="flex flex-1 flex-col border-t border-slate-100 p-5 md:p-6">
+        <p className="mb-2 text-[10px] font-black uppercase tracking-[.14em]" style={{ color: ORANGE }}>
+          {collection?.label} · {product.bestFor}
+        </p>
+        <Link to={`/product/${product.id}`}>
+          <h3 className="text-xl font-black tracking-tight" style={{ color: NAVY }}>{product.name}</h3>
+        </Link>
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500">{product.tagline}</p>
+        <div className="mt-4 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">
+          {product.flow === 'asset_protection'
+            ? 'Tap / Scan → Lost Mode → Finder → Owner'
+            : 'Tap → Profile → Contact → Lead / Booking'}
+        </div>
+
+        <div className="mt-6 flex items-end justify-between gap-3">
+          {buy ? (
+            <>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Price</p>
+                <b className="text-[26px] leading-none text-slate-950">${product.price.toFixed(2)}</b>
+              </div>
+              <div className="flex gap-2">
+                <Link to={`/product/${product.id}`} className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-black text-slate-700 transition hover:border-slate-400">
+                  View
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => onAdd(product)}
+                  className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black text-white transition active:scale-95"
+                  style={{ background: added ? '#16a34a' : ORANGE }}
+                >
+                  {added ? <><Check className="h-3.5 w-3.5" /> Added</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to Cart</>}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <b className="text-sm text-slate-400">Coming Soon</b>
+              <Link to={`/product/${product.id}`} className="flex items-center gap-1 rounded-xl px-4 py-2.5 text-xs font-black text-white" style={{ background: NAVY }}>
+                <Bell className="h-3.5 w-3.5" /> Notify Me
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+export default function Shop() {
+  const [cart, setCart] = useState(getCartCount());
+  const [added, setAdded] = useState(null);
+  const [category, setCategory] = useState('all');
+  const [best, setBest] = useState(false);
+  const [fresh, setFresh] = useState(false);
+  const [stock, setStock] = useState(true);
+  const [sort, setSort] = useState('featured');
+  const [view, setView] = useState('grid');
+  const [price, setPrice] = useState(100);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => setCart(getCartCount()), []);
+
+  const countPool = useMemo(() => stock ? PRODUCTS.filter(isPurchasable) : PRODUCTS, [stock]);
+  const counts = useMemo(
+    () => Object.fromEntries(CATEGORIES.map((c) => [c.id, countPool.filter(c.test).length])),
+    [countPool]
+  );
+
+  const items = useMemo(() => {
+    const selected = CATEGORIES.find((c) => c.id === category) || CATEGORIES[0];
+    let result = PRODUCTS.filter((p) =>
+      selected.test(p) &&
+      (!stock || isPurchasable(p)) &&
+      (!best || String(p.badge || '').toLowerCase().includes('best')) &&
+      (!fresh || String(p.badge || '').toLowerCase().includes('new') || p.availability === 'coming_soon') &&
+      (!isPurchasable(p) || p.price <= price)
+    );
+
+    if (sort === 'featured') {
+      result = [...result].sort((a, b) => FEATURED_ORDER.indexOf(a.id) - FEATURED_ORDER.indexOf(b.id));
+    }
+    if (sort === 'low') result = [...result].sort((a, b) => (a.price ?? 999) - (b.price ?? 999));
+    if (sort === 'high') result = [...result].sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
+    if (sort === 'name') result = [...result].sort((a, b) => a.name.localeCompare(b.name));
+    return result;
+  }, [category, best, fresh, stock, sort, price]);
+
+  const add = (product) => {
+    if (!isPurchasable(product)) return;
+    addToCart(product, 1);
+    setCart(getCartCount());
+    setAdded(product.id);
+    setTimeout(() => setAdded(null), 1400);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f6f8fb]">
+      <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}>
+        <div className="mx-auto flex h-[72px] max-w-[1500px] items-center justify-between px-4 md:px-6">
+          <Link to="/" className="flex items-center gap-3">
+            <InfinityMark size={38} color={ORANGE} strokeWidth={3.4} glow />
+            <b className="hidden text-lg tracking-wide text-white sm:block">BINGOO CONNECT</b>
+          </Link>
+          <nav className="hidden h-full items-center gap-9 text-sm font-bold text-white/70 md:flex">
+            <Link to="/#platform" className="hover:text-white">Platform</Link>
+            <Link to="/#solutions" className="hover:text-white">Solutions</Link>
+            <Link to="/#pricing" className="hover:text-white">Pricing</Link>
+            <Link to="/shop" className="relative flex h-full items-center text-white">Shop<span className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: ORANGE }} /></Link>
+          </nav>
+          <Link to="/cart" className="relative p-3 text-white">
+            <ShoppingCart className="h-5 w-5" />
+            {cart > 0 && <span className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cart}</span>}
+          </Link>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1500px] px-4 py-8 md:px-6 md:py-10">
+        <section className="mb-8 overflow-hidden rounded-[30px] border border-slate-200 bg-white">
+          <div className="grid items-center gap-7 px-6 py-8 md:grid-cols-[1fr_auto] md:px-9 lg:px-10">
+            <div>
+              <p className="mb-3 text-xs font-black uppercase tracking-[.18em]" style={{ color: ORANGE }}>Official Bingoo hardware store</p>
+              <h1 className="text-4xl font-black tracking-tight md:text-5xl" style={{ color: NAVY }}>Choose the device that fits how you connect.</h1>
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-500 md:text-lg">
+                Professional NFC devices, business touchpoints and asset-recovery tags — all connected to the same Bingoo platform.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {TRUST.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.title} className="flex min-w-[190px] items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                    <Icon className="h-7 w-7 shrink-0" style={{ color: NAVY }} />
+                    <div><b className="block text-xs" style={{ color: NAVY }}>{item.title}</b><span className="text-[11px] text-slate-500">{item.copy}</span></div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+          {CATEGORIES.map((c) => {
+            const Icon = c.icon;
+            const active = category === c.id;
+            return (
+              <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black" style={{ background: active ? '#fff0e6' : '#fff', borderColor: active ? `${ORANGE}55` : '#e2e8f0', color: active ? ORANGE : NAVY }}>
+                <Icon className="h-3.5 w-3.5" /> {c.label} <span className="text-slate-400">{counts[c.id]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <section className="grid items-start gap-6 lg:grid-cols-[270px_1fr]">
+          <aside className={`${filtersOpen ? 'block' : 'hidden'} space-y-4 lg:sticky lg:top-[92px] lg:block`}>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="mb-3 px-2 text-xs font-black uppercase tracking-wider text-slate-400">Device Categories</p>
+              {CATEGORIES.map((c) => {
+                const Icon = c.icon;
+                const active = category === c.id;
+                return (
+                  <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold" style={{ background: active ? '#fff3eb' : 'transparent', color: NAVY }}>
+                    <Icon className="h-4 w-4" style={{ color: active ? ORANGE : '#64748b' }} />
+                    <span className="flex-1 text-left">{c.label}</span>
+                    <span className="text-xs text-slate-400">{counts[c.id]}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div className="border-b p-4">
+                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">Filters</p>
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm font-semibold"><span>Best Sellers</span><Toggle value={best} on={() => setBest(!best)} /></div>
+                  <div className="flex justify-between text-sm font-semibold"><span>New / Coming</span><Toggle value={fresh} on={() => setFresh(!fresh)} /></div>
+                  <div className="flex justify-between text-sm font-semibold"><span>In Stock Only</span><Toggle value={stock} on={() => setStock(!stock)} /></div>
+                </div>
+              </div>
+              <div className="p-4">
+                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">Price Range</p>
+                <div className="mb-3 flex justify-between text-xs font-black"><span>$0</span><span>${price}+</span></div>
+                <input type="range" min="10" max="100" value={price} onChange={(e) => setPrice(+e.target.value)} className="w-full accent-orange-500" />
+              </div>
+            </div>
+          </aside>
+
+          <div>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => setFiltersOpen(!filtersOpen)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black lg:hidden" style={{ color: NAVY }}><SlidersHorizontal className="h-4 w-4" /> Filters</button>
+                <span className="text-sm text-slate-500"><b style={{ color: NAVY }}>{items.length}</b> {stock ? 'in-stock devices' : 'devices in this view'}</span>
+              </div>
+              <div className="flex gap-3">
+                <div className="relative">
+                  <select value={sort} onChange={(e) => setSort(e.target.value)} className="appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-semibold">
+                    <option value="featured">Featured</option>
+                    <option value="low">Price: Low to high</option>
+                    <option value="high">Price: High to low</option>
+                    <option value="name">Name: A–Z</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                </div>
+                <div className="hidden overflow-hidden rounded-xl border border-slate-200 sm:flex">
+                  <button type="button" onClick={() => setView('grid')} className="flex w-11 items-center justify-center" style={{ color: view === 'grid' ? ORANGE : '#64748b' }}><Grid2X2 className="h-4 w-4" /></button>
+                  <button type="button" onClick={() => setView('list')} className="flex w-11 items-center justify-center border-l" style={{ color: view === 'list' ? ORANGE : '#64748b' }}><List className="h-4 w-4" /></button>
+                </div>
+              </div>
+            </div>
+
+            <motion.div layout className={view === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'grid gap-5'}>
+              {items.map((product) => (
+                <ProductCard key={product.id} product={product} added={added === product.id} onAdd={add} list={view === 'list'} />
+              ))}
+            </motion.div>
+
+            {!items.length && (
+              <div className="mt-4 rounded-3xl border border-dashed bg-white p-12 text-center">
+                <PackageSearch className="mx-auto mb-3 text-slate-300" />
+                <b style={{ color: NAVY }}>No devices match these filters.</b>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
