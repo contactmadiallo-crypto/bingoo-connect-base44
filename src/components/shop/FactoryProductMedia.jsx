@@ -21,7 +21,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className={compact ? "w-full h-full object-contain" : "w-full h-full object-cover"}
+          className="w-full h-full object-contain"
           style={compact ? { padding: 6 } : undefined}
         />
       </div>

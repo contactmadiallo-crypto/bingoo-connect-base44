@@ -77,7 +77,7 @@ function ProductCard({ product, added, onAdd, list }) {
       layout
       whileHover={{ y: list ? 0 : -4 }}
       className={`${list ? 'grid md:grid-cols-[300px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[26px] border border-white/10`}
-      style={{ background: '#121212', boxShadow: '0 12px 34px rgba(0,0,0,.28)' }}
+      style={{ background: '#0a0a0a', boxShadow: '0 12px 34px rgba(0,0,0,.28)' }}
     >
       <Link to={`/product/${product.id}`} className="block">
         <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden`}>

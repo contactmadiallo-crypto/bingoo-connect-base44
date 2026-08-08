@@ -74,7 +74,7 @@ export default function ProductDetail() {
 
         <section className="grid items-start gap-7 lg:grid-cols-[1.05fr_.95fr] lg:gap-10">
           <div>
-            <div className="relative overflow-hidden rounded-[32px] border border-white/10" style={{ background: '#121212' }}>
+            <div className="relative overflow-hidden rounded-[32px] border border-white/10" style={{ background: '#0a0a0a' }}>
               <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2">
                 <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-slate-200 backdrop-blur-sm">{typeLabel}</span>
                 {product.badge && <span className="rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: purchasable ? ORANGE : '#64748b' }}>{product.badge}</span>}
@@ -89,7 +89,7 @@ export default function ProductDetail() {
             </div>
           </div>
 
-          <div className="rounded-[30px] border border-white/10 p-6 md:p-8 lg:sticky lg:top-[96px]" style={{ background: '#121212' }}>
+          <div className="rounded-[30px] border border-white/10 p-6 md:p-8 lg:sticky lg:top-[96px]" style={{ background: '#0a0a0a' }}>
             <p className="mb-2 text-xs font-black uppercase tracking-[.16em]" style={{ color: ORANGE }}>{typeLabel} · {product.bestFor}</p>
             <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">{product.name}</h1>
             <p className="mt-3 text-base leading-relaxed text-slate-400">{product.description}</p>

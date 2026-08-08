@@ -42,7 +42,7 @@ function ProductCard({ product }) {
       variants={fadeUp}
       whileHover={{ y: -5 }}
       className="group overflow-hidden rounded-3xl border border-white/10"
-      style={{ background: "#121212", boxShadow: "0 10px 34px rgba(0,0,0,.28)" }}
+      style={{ background: "#0a0a0a", boxShadow: "0 10px 34px rgba(0,0,0,.28)" }}
     >
       <Link to={`/product/${product.id}`} className="block">
         <div className="relative h-[230px] overflow-hidden">
