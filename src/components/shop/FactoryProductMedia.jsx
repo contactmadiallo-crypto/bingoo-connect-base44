@@ -14,7 +14,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
     return (
       <div
         className={`relative overflow-hidden flex items-center justify-center ${className}`}
-        style={{ background: 'linear-gradient(180deg,#ffffff 0%,#f8fafc 100%)' }}
+        style={{ background: 'linear-gradient(180deg,#0a0a0a 0%,#121212 100%)' }}
       >
         <img
           src={product.image}
@@ -22,7 +22,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
           loading="lazy"
           decoding="async"
           className="w-full h-full object-contain"
-          style={{ padding: compact ? 4 : 14 }}
+          style={{ padding: compact ? 6 : 18 }}
         />
       </div>
     );
