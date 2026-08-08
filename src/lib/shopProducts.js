@@ -39,6 +39,12 @@ export const COLLECTIONS = [
 // Active products map to real Stripe product IDs in createShopCheckout backend.
 // Coming Soon products have NO Stripe ID and CANNOT enter checkout.
 
+export const PRODUCT_COLORS = [
+  { id: 'black', name: 'Black', hex: '#0a0a0a' },
+  { id: 'navy', name: 'Dark Navy', hex: '#0b2149' },
+  { id: 'orange', name: 'Orange', hex: '#f97316' },
+];
+
 export const PRODUCTS = [
   // ═══════════════════════════════════════════════════════════════════════════
   // PROFESSIONAL & NETWORKING — active Stripe-backed products

@@ -18,7 +18,7 @@ import {
   Tag,
   Watch,
 } from 'lucide-react';
-import { PRODUCTS, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';
+import { PRODUCTS, COLLECTIONS, isPurchasable, PRODUCT_COLORS } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
@@ -71,6 +71,8 @@ function ProductCard({ product, added, onAdd, list }) {
   const buy = isPurchasable(product);
   const collection = COLLECTIONS.find((c) => c.id === product.collection);
   const typeLabel = product.flow === 'asset_protection' ? 'Asset Device' : 'Profile Device';
+  const [color, setColor] = useState('black');
+  const variant = PRODUCT_COLORS.find((c) => c.id === color) || PRODUCT_COLORS[0];
 
   return (
     <motion.article
@@ -81,7 +83,7 @@ function ProductCard({ product, added, onAdd, list }) {
     >
       <Link to={`/product/${product.id}`} className="block">
         <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden`}>
-          <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
+          <FactoryProductMedia product={product} bgColor={variant.hex} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-slate-200 backdrop-blur-sm">
               {typeLabel}
@@ -103,6 +105,19 @@ function ProductCard({ product, added, onAdd, list }) {
           <h3 className="text-xl font-black tracking-tight text-white">{product.name}</h3>
         </Link>
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-400">{product.tagline}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">Color</span>
+          {PRODUCT_COLORS.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setColor(c.id)}
+              title={c.name}
+              className="h-6 w-6 rounded-full border-2 transition"
+              style={{ background: c.hex, borderColor: color === c.id ? ORANGE : 'rgba(255,255,255,0.18)' }}
+            />
+          ))}
+        </div>
         <div className="mt-4 rounded-xl bg-white/5 px-3 py-2 text-xs font-bold text-slate-300">
           {product.flow === 'asset_protection'
             ? 'Tap / Scan → Lost Mode → Finder → Owner'
@@ -122,7 +137,7 @@ function ProductCard({ product, added, onAdd, list }) {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => onAdd(product)}
+                  onClick={() => onAdd({ ...product, selectedColor: color, selectedColorName: variant.name })}
                   className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black text-white transition active:scale-95"
                   style={{ background: added ? '#16a34a' : ORANGE }}
                 >
