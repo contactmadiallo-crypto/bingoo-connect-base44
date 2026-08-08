@@ -7,11 +7,13 @@ const ORANGE = '#f97316';
 export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, selectedColor = null }) {
   const active = product?.availability === 'active';
   const hasProductImage = Boolean(product?.image);
-  const tint = selectedColor || product?.customDesign?.cardColor || null;
 
-  // The approved factory photo stays authoritative. For configurable SKUs we tint
-  // only the non-white pixels in-browser so the customer can preview a selected
-  // manufacturing color without replacing the real product photograph.
+  // Never recolor or tint the approved factory photograph in CSS.
+  // If an approved true-color photo exists for a selected variant, use it.
+  // Otherwise keep the original product photograph unchanged.
+  const variantImage = selectedColor && product?.variantImages?.[selectedColor];
+  const imageSrc = variantImage || product?.image;
+
   if (active && hasProductImage) {
     return (
       <div
@@ -19,23 +21,13 @@ export default function FactoryProductMedia({ product, className = '', compact =
         style={{ background: 'transparent' }}
       >
         <img
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-contain"
-          style={{
-            ...(compact ? { padding: 6 } : {}),
-            ...(tint ? { filter: 'grayscale(1) contrast(1.05)' } : {}),
-          }}
+          style={compact ? { padding: 6 } : undefined}
         />
-        {tint && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{ background: tint, mixBlendMode: 'color', opacity: 0.88 }}
-          />
-        )}
       </div>
     );
   }
