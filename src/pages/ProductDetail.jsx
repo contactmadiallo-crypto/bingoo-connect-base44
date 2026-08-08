@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw, Bell, PackageCheck, Smartphone } from 'lucide-react';
 import { PRODUCTS, PERFECT_FOR, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
+import { getProductCustomization, getDefaultProductCustomization } from '@/lib/productCustomization';
 import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 
@@ -18,148 +19,70 @@ export default function ProductDetail() {
   const [cartCount, setCartCount] = useState(getCartCount());
   const [notified, setNotified] = useState(false);
   const product = PRODUCTS.find((p) => p.id === productId);
+  const customizationConfig = useMemo(() => getProductCustomization(productId), [productId]);
+  const defaults = useMemo(() => getDefaultProductCustomization(productId) || {}, [productId]);
+  const [selectedColor, setSelectedColor] = useState(defaults.cardColor || '');
+  const [selectedColorName, setSelectedColorName] = useState(defaults.colorName || '');
+  const [selectedFinish, setSelectedFinish] = useState(defaults.finish || '');
+  const [selectedEngraving, setSelectedEngraving] = useState(defaults.nameText || '');
 
   if (!product) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <p className="mb-4 text-lg text-slate-500">Product not found</p>
-          <Link to="/shop" className="rounded-xl px-6 py-2.5 font-bold text-white" style={{ background: NAVY }}>Back to Shop</Link>
-        </div>
-      </div>
-    );
+    return <div className="flex min-h-screen items-center justify-center bg-slate-50"><div className="text-center"><p className="mb-4 text-lg text-slate-500">Product not found</p><Link to="/shop" className="rounded-xl px-6 py-2.5 font-bold text-white" style={{ background: NAVY }}>Back to Shop</Link></div></div>;
   }
 
   const purchasable = isPurchasable(product);
   const perfectFor = PERFECT_FOR[product.category] || [];
   const collection = COLLECTIONS.find((c) => c.id === product.collection);
   const typeLabel = product.flow === 'asset_protection' ? 'Asset Device' : 'Profile Device';
+  const customDesign = customizationConfig ? {
+    productType: product.id,
+    ...(selectedColor ? { cardColor: selectedColor } : {}),
+    ...(selectedColorName ? { colorName: selectedColorName } : {}),
+    ...(selectedFinish ? { finish: selectedFinish } : {}),
+    ...(selectedEngraving ? { nameText: selectedEngraving } : {}),
+  } : undefined;
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, customDesign);
     setCartCount(getCartCount());
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
-
-  const handleBuyNow = () => {
-    addToCart(product, quantity);
-    navigate('/cart');
-  };
+  const handleBuyNow = () => { addToCart(product, quantity, customDesign); navigate('/cart'); };
 
   return (
     <div className="min-h-screen bg-[#f6f8fb]">
-      <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}>
-        <div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-4 md:px-6">
-          <Link to="/" className="flex items-center gap-3">
-            <InfinityMark size={36} color={ORANGE} strokeWidth={3.4} glow />
-            <b className="hidden text-white sm:block">BINGOO CONNECT</b>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link to="/shop" className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4" /> Shop</Link>
-            <Link to="/cart" className="relative flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-white">
-              <ShoppingCart className="h-4 w-4" /> Cart
-              {cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cartCount}</span>}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}><div className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-4 md:px-6"><Link to="/" className="flex items-center gap-3"><InfinityMark size={36} color={ORANGE} strokeWidth={3.4} glow /><b className="hidden text-white sm:block">BINGOO CONNECT</b></Link><div className="flex items-center gap-2"><Link to="/shop" className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4" /> Shop</Link><Link to="/cart" className="relative flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-white"><ShoppingCart className="h-4 w-4" /> Cart{cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cartCount}</span>}</Link></div></div></header>
 
       <main className="mx-auto max-w-[1280px] px-4 py-8 md:px-6 md:py-12">
-        <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.12em]">
-          <Link to="/shop" className="text-slate-400 hover:text-slate-600">Shop</Link><span className="text-slate-300">/</span>
-          <span style={{ color: collection?.accent || ORANGE }}>{collection?.label}</span><span className="text-slate-300">/</span>
-          <span style={{ color: NAVY }}>{product.name}</span>
-        </div>
+        <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.12em]"><Link to="/shop" className="text-slate-400 hover:text-slate-600">Shop</Link><span className="text-slate-300">/</span><span style={{ color: collection?.accent || ORANGE }}>{collection?.label}</span><span className="text-slate-300">/</span><span style={{ color: NAVY }}>{product.name}</span></div>
 
         <section className="grid items-start gap-7 lg:grid-cols-[1.05fr_.95fr] lg:gap-10">
           <div>
             <div className="relative overflow-hidden rounded-[32px] border border-white/10" style={{ background: '#0a0a0a' }}>
-              <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2">
-                <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-slate-200 backdrop-blur-sm">{typeLabel}</span>
-                {product.badge && <span className="rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: purchasable ? ORANGE : '#64748b' }}>{product.badge}</span>}
-              </div>
-              <FactoryProductMedia product={product} className="h-[420px] w-full md:h-[570px]" showLabel={!purchasable} />
+              <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2"><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-slate-200 backdrop-blur-sm">{typeLabel}</span>{product.badge && <span className="rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: purchasable ? ORANGE : '#64748b' }}>{product.badge}</span>}</div>
+              <FactoryProductMedia product={product} selectedColor={selectedColor} className="h-[420px] w-full md:h-[570px]" showLabel={!purchasable} />
+              {selectedColorName && <div className="absolute bottom-5 left-5 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">Preview · {selectedColorName}</div>}
             </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><Smartphone className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">No app required</b><span className="text-[11px] text-slate-400">Tap with a compatible phone</span></div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><PackageCheck className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">Real Bingoo hardware</b><span className="text-[11px] text-slate-400">One SKU across the store</span></div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><Shield className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">Private activation</b><span className="text-[11px] text-slate-400">Codes are never shown publicly</span></div>
-            </div>
+            <div className="mt-4 grid grid-cols-3 gap-3"><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><Smartphone className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">No app required</b><span className="text-[11px] text-slate-400">Tap with a compatible phone</span></div><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><PackageCheck className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">Real Bingoo hardware</b><span className="text-[11px] text-slate-400">One SKU across the store</span></div><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><Shield className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">Factory-ready choice</b><span className="text-[11px] text-slate-400">Your selected finish follows the order</span></div></div>
           </div>
 
           <div className="rounded-[30px] border border-white/10 p-6 md:p-8 lg:sticky lg:top-[96px]" style={{ background: '#0a0a0a' }}>
-            <p className="mb-2 text-xs font-black uppercase tracking-[.16em]" style={{ color: ORANGE }}>{typeLabel} · {product.bestFor}</p>
-            <h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">{product.name}</h1>
-            <p className="mt-3 text-base leading-relaxed text-slate-400">{product.description}</p>
+            <p className="mb-2 text-xs font-black uppercase tracking-[.16em]" style={{ color: ORANGE }}>{typeLabel} · {product.bestFor}</p><h1 className="text-3xl font-black tracking-tight text-white md:text-4xl">{product.name}</h1><p className="mt-3 text-base leading-relaxed text-slate-400">{product.description}</p>
+            <div className="my-6 border-y border-white/10 py-5">{purchasable ? <div className="flex items-baseline gap-2"><span className="text-4xl font-black text-white">${product.price.toFixed(2)}</span><span className="text-sm text-slate-500">USD · per device</span></div> : <div className="flex items-center gap-3"><span className="text-2xl font-black text-slate-500">Price TBA</span><span className="rounded-full bg-slate-500 px-3 py-1 text-xs font-black uppercase tracking-wider text-white">Coming Soon</span></div>}</div>
 
-            <div className="my-6 border-y border-white/10 py-5">
-              {purchasable ? (
-                <div className="flex items-baseline gap-2"><span className="text-4xl font-black text-white">${product.price.toFixed(2)}</span><span className="text-sm text-slate-500">USD · per device</span></div>
-              ) : (
-                <div className="flex items-center gap-3"><span className="text-2xl font-black text-slate-500">Price TBA</span><span className="rounded-full bg-slate-500 px-3 py-1 text-xs font-black uppercase tracking-wider text-white">Coming Soon</span></div>
-              )}
-            </div>
+            {purchasable && customizationConfig && <div className="mb-6 rounded-2xl border border-white/10 bg-white/[.04] p-5">
+              <div className="mb-5"><p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Choose your color</p><p className="mt-1 text-sm font-bold text-white">{selectedColorName}</p><div className="mt-3 flex flex-wrap gap-3">{customizationConfig.colors?.map((color) => <button key={color.name} type="button" onClick={() => { setSelectedColor(color.value); setSelectedColorName(color.name); }} aria-label={`Choose ${color.name}`} title={color.name} className={`h-10 w-10 rounded-full border-2 transition ${selectedColor === color.value ? 'scale-110 border-orange-500 ring-2 ring-orange-500/30' : 'border-white/25 hover:border-white/60'}`} style={{ background: color.value }} />)}</div></div>
+              {customizationConfig.finishes?.length > 0 && <div className="mb-5"><p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Finish</p><div className="flex flex-wrap gap-2">{customizationConfig.finishes.map((finish) => <button key={finish} type="button" onClick={() => setSelectedFinish(finish)} className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${selectedFinish === finish ? 'border-orange-500 bg-orange-500/10 text-orange-400' : 'border-white/15 text-slate-300 hover:border-white/40'}`}>{finish}</button>)}</div></div>}
+              {customizationConfig.engraving?.length > 0 && <div><p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Engraving</p><div className="flex flex-wrap gap-2">{customizationConfig.engraving.map((engraving) => <button key={engraving} type="button" onClick={() => setSelectedEngraving(engraving)} className={`rounded-xl border px-4 py-2 text-sm font-bold transition ${selectedEngraving === engraving ? 'border-orange-500 bg-orange-500/10 text-orange-400' : 'border-white/15 text-slate-300'}`}>{engraving}</button>)}</div></div>}
+            </div>}
 
-            <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">What this device does</p>
-              <p className="text-sm font-bold leading-relaxed text-white">
-                {product.flow === 'asset_protection'
-                  ? 'Tap / Scan → Lost Mode → Finder sees recovery page → Owner gets reconnected'
-                  : 'Tap → Bingoo profile → Contact / lead / booking action'}
-              </p>
-              {product.flow === 'asset_protection' && <p className="mt-2 text-xs text-slate-400">NFC + QR recovery. This product does not claim GPS tracking.</p>}
-            </div>
-
-            <div className="mb-6">
-              <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Product Features</p>
-              <ul className="grid gap-2.5 sm:grid-cols-2">
-                {product.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: NAVY }}><Check className="h-3 w-3 text-white" /></span>{feature}</li>
-                ))}
-              </ul>
-            </div>
-
-            {perfectFor.length > 0 && (
-              <div className="mb-6">
-                <p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Best for</p>
-                <div className="flex flex-wrap gap-2">{perfectFor.map((item) => <span key={item} className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{item}</span>)}</div>
-              </div>
-            )}
-
-            {purchasable && (
-              <div className="mb-5 flex flex-wrap items-center gap-4">
-                <span className="text-sm font-bold text-slate-300">Quantity</span>
-                <div className="flex items-center overflow-hidden rounded-xl border border-white/15">
-                  <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 text-slate-200"><Minus className="h-4 w-4" /></button>
-                  <span className="px-5 py-3 font-black text-white">{quantity}</span>
-                  <button type="button" onClick={() => setQuantity(quantity + 1)} className="px-4 py-3 text-slate-200"><Plus className="h-4 w-4" /></button>
-                </div>
-                <span className="text-sm text-slate-400">Total <b className="text-white">${(product.price * quantity).toFixed(2)}</b></span>
-              </div>
-            )}
-
-            {purchasable ? (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button type="button" onClick={handleAddToCart} className="flex items-center justify-center gap-2 rounded-xl border-2 py-3.5 text-sm font-black" style={added ? { borderColor: '#16a34a', color: '#16a34a' } : { borderColor: '#ffffff', color: '#ffffff' }}>
-                  {added ? <><Check className="h-4 w-4" /> Added to Cart</> : <><ShoppingCart className="h-4 w-4" /> Add to Cart</>}
-                </button>
-                <button type="button" onClick={handleBuyNow} className="rounded-xl py-3.5 text-sm font-black text-white" style={{ background: ORANGE }}>Buy Now →</button>
-              </div>
-            ) : (
-              <button type="button" onClick={() => { setNotified(true); setTimeout(() => setNotified(false), 3000); }} className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white" style={{ background: notified ? '#16a34a' : NAVY }}>
-                {notified ? <><Check className="h-4 w-4" /> You'll be notified</> : <><Bell className="h-4 w-4" /> Notify Me When Available</>}
-              </button>
-            )}
-
-            {purchasable && (
-              <div className="mt-5 grid gap-2 text-xs text-slate-400 sm:grid-cols-3">
-                <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-green-600" /> Secure Stripe checkout</span>
-                <span className="flex items-center gap-1.5"><Truck className="h-3.5 w-3.5 text-blue-600" /> Shipping at checkout</span>
-                <span className="flex items-center gap-1.5"><RefreshCw className="h-3.5 w-3.5 text-orange-500" /> 30-day returns</span>
-              </div>
-            )}
+            <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-5"><p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">What this device does</p><p className="text-sm font-bold leading-relaxed text-white">{product.flow === 'asset_protection' ? 'Tap / Scan → Lost Mode → Finder sees recovery page → Owner gets reconnected' : 'Tap → Bingoo profile → Contact / lead / booking action'}</p>{product.flow === 'asset_protection' && <p className="mt-2 text-xs text-slate-400">NFC + QR recovery. This product does not claim GPS tracking.</p>}</div>
+            <div className="mb-6"><p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Product Features</p><ul className="grid gap-2.5 sm:grid-cols-2">{product.features.map((feature) => <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-300"><span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full" style={{ background: NAVY }}><Check className="h-3 w-3 text-white" /></span>{feature}</li>)}</ul></div>
+            {perfectFor.length > 0 && <div className="mb-6"><p className="mb-3 text-xs font-black uppercase tracking-[.14em] text-slate-500">Best for</p><div className="flex flex-wrap gap-2">{perfectFor.map((item) => <span key={item} className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold text-white">{item}</span>)}</div></div>}
+            {purchasable && <div className="mb-5 flex flex-wrap items-center gap-4"><span className="text-sm font-bold text-slate-300">Quantity</span><div className="flex items-center overflow-hidden rounded-xl border border-white/15"><button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-3 text-slate-200"><Minus className="h-4 w-4" /></button><span className="px-5 py-3 font-black text-white">{quantity}</span><button type="button" onClick={() => setQuantity(quantity + 1)} className="px-4 py-3 text-slate-200"><Plus className="h-4 w-4" /></button></div><span className="text-sm text-slate-400">Total <b className="text-white">${(product.price * quantity).toFixed(2)}</b></span></div>}
+            {purchasable ? <div className="grid gap-3 sm:grid-cols-2"><button type="button" onClick={handleAddToCart} className="flex items-center justify-center gap-2 rounded-xl border-2 py-3.5 text-sm font-black" style={added ? { borderColor: '#16a34a', color: '#16a34a' } : { borderColor: '#ffffff', color: '#ffffff' }}>{added ? <><Check className="h-4 w-4" /> Added to Cart</> : <><ShoppingCart className="h-4 w-4" /> Add to Cart</>}</button><button type="button" onClick={handleBuyNow} className="rounded-xl py-3.5 text-sm font-black text-white" style={{ background: ORANGE }}>Buy Now →</button></div> : <button type="button" onClick={() => { setNotified(true); setTimeout(() => setNotified(false), 3000); }} className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black text-white" style={{ background: notified ? '#16a34a' : NAVY }}>{notified ? <><Check className="h-4 w-4" /> You'll be notified</> : <><Bell className="h-4 w-4" /> Notify Me When Available</>}</button>}
+            {purchasable && <div className="mt-5 grid gap-2 text-xs text-slate-400 sm:grid-cols-3"><span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-green-600" /> Secure Stripe checkout</span><span className="flex items-center gap-1.5"><Truck className="h-3.5 w-3.5 text-blue-600" /> Shipping at checkout</span><span className="flex items-center gap-1.5"><RefreshCw className="h-3.5 w-3.5 text-orange-500" /> 30-day returns</span></div>}
           </div>
         </section>
       </main>
