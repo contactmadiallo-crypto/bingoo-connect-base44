@@ -76,18 +76,18 @@ function ProductCard({ product, added, onAdd, list }) {
     <motion.article
       layout
       whileHover={{ y: list ? 0 : -4 }}
-      className={`${list ? 'grid md:grid-cols-[300px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[26px] border border-slate-200 bg-white`}
-      style={{ boxShadow: '0 12px 34px rgba(11,33,73,.06)' }}
+      className={`${list ? 'grid md:grid-cols-[300px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[26px] border border-white/10`}
+      style={{ background: '#121212', boxShadow: '0 12px 34px rgba(0,0,0,.28)' }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden bg-white`}>
+        <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden`}>
           <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/80 bg-white/95 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] shadow-sm" style={{ color: product.flow === 'asset_protection' ? '#b45309' : NAVY }}>
+            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-slate-200 backdrop-blur-sm">
               {typeLabel}
             </span>
             {product.badge && (
-              <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-white" style={{ background: product.availability === 'coming_soon' ? '#64748b' : ORANGE }}>
+              <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-white" style={{ background: product.availability === 'coming_soon' ? '#475569' : ORANGE }}>
                 {product.badge}
               </span>
             )}
@@ -95,15 +95,15 @@ function ProductCard({ product, added, onAdd, list }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col border-t border-slate-100 p-5 md:p-6">
+      <div className="flex flex-1 flex-col border-t border-white/10 p-5 md:p-6">
         <p className="mb-2 text-[10px] font-black uppercase tracking-[.14em]" style={{ color: ORANGE }}>
           {collection?.label} · {product.bestFor}
         </p>
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-xl font-black tracking-tight" style={{ color: NAVY }}>{product.name}</h3>
+          <h3 className="text-xl font-black tracking-tight text-white">{product.name}</h3>
         </Link>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500">{product.tagline}</p>
-        <div className="mt-4 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-600">
+        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-400">{product.tagline}</p>
+        <div className="mt-4 rounded-xl bg-white/5 px-3 py-2 text-xs font-bold text-slate-300">
           {product.flow === 'asset_protection'
             ? 'Tap / Scan → Lost Mode → Finder → Owner'
             : 'Tap → Profile → Contact → Lead / Booking'}
@@ -113,11 +113,11 @@ function ProductCard({ product, added, onAdd, list }) {
           {buy ? (
             <>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Price</p>
-                <b className="text-[26px] leading-none text-slate-950">${product.price.toFixed(2)}</b>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Price</p>
+                <b className="text-[26px] leading-none text-white">${product.price.toFixed(2)}</b>
               </div>
               <div className="flex gap-2">
-                <Link to={`/product/${product.id}`} className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-black text-slate-700 transition hover:border-slate-400">
+                <Link to={`/product/${product.id}`} className="rounded-xl border border-white/15 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:border-white/40">
                   View
                 </Link>
                 <button
@@ -132,7 +132,7 @@ function ProductCard({ product, added, onAdd, list }) {
             </>
           ) : (
             <>
-              <b className="text-sm text-slate-400">Coming Soon</b>
+              <b className="text-sm text-slate-500">Coming Soon</b>
               <Link to={`/product/${product.id}`} className="flex items-center gap-1 rounded-xl px-4 py-2.5 text-xs font-black text-white" style={{ background: NAVY }}>
                 <Bell className="h-3.5 w-3.5" /> Notify Me
               </Link>

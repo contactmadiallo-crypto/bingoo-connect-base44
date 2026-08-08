@@ -41,11 +41,11 @@ function ProductCard({ product }) {
     <motion.article
       variants={fadeUp}
       whileHover={{ y: -5 }}
-      className="group overflow-hidden rounded-3xl border border-slate-200 bg-white"
-      style={{ boxShadow: "0 10px 34px rgba(11,33,73,.06)" }}
+      className="group overflow-hidden rounded-3xl border border-white/10"
+      style={{ background: "#121212", boxShadow: "0 10px 34px rgba(0,0,0,.28)" }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className="relative h-[230px] overflow-hidden bg-white">
+        <div className="relative h-[230px] overflow-hidden">
           <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 group-hover:scale-[1.025]" />
           {product.badge && (
             <span className="absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: buy ? B.orange : "#64748b" }}>
@@ -54,18 +54,18 @@ function ProductCard({ product }) {
           )}
         </div>
       </Link>
-      <div className="border-t border-slate-100 p-5">
+      <div className="border-t border-white/10 p-5">
         <p className="mb-1 text-[10px] font-black uppercase tracking-[.14em]" style={{ color: B.orange }}>
           {product.flow === "asset_protection" ? "Asset Device" : "Profile Device"} · {collection?.label}
         </p>
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-lg font-black" style={{ color: B.navy }}>{product.name}</h3>
+          <h3 className="text-lg font-black text-white">{product.name}</h3>
         </Link>
-        <p className="mt-1 min-h-[40px] text-sm leading-relaxed text-slate-500">{product.tagline}</p>
+        <p className="mt-1 min-h-[40px] text-sm leading-relaxed text-slate-400">{product.tagline}</p>
         <div className="mt-5 flex items-center justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{product.bestFor}</p>
-            <p className="text-2xl font-black text-slate-950">{buy ? `$${product.price.toFixed(2)}` : "Coming Soon"}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{product.bestFor}</p>
+            <p className="text-2xl font-black text-white">{buy ? `$${product.price.toFixed(2)}` : "Coming Soon"}</p>
           </div>
           <Link
             to={`/product/${product.id}`}
