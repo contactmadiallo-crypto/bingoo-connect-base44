@@ -45,7 +45,7 @@ function ProductCard({ product }) {
       style={{ background: "#0a0a0a", boxShadow: "0 10px 34px rgba(0,0,0,.28)" }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className="relative h-[230px] overflow-hidden">
+        <div className="relative aspect-[246/284] overflow-hidden">
           <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 group-hover:scale-[1.025]" />
           {product.badge && (
             <span className="absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: buy ? B.orange : "#64748b" }}>

@@ -80,7 +80,7 @@ function ProductCard({ product, added, onAdd, list }) {
       style={{ background: '#0a0a0a', boxShadow: '0 12px 34px rgba(0,0,0,.28)' }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className={`${list ? 'h-[250px]' : 'h-[280px]'} relative overflow-hidden`}>
+        <div className="relative aspect-[246/284] overflow-hidden">
           <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
           <div className="absolute left-4 top-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-slate-200 backdrop-blur-sm">
