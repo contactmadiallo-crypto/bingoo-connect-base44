@@ -4,20 +4,17 @@ import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 const NAVY = '#0b2149';
 const ORANGE = '#f97316';
 
-export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, bgColor = '#0a0a0a' }) {
+export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false }) {
   const active = product?.availability === 'active';
   const hasProductImage = Boolean(product?.image);
 
   // Active products: show the approved product photo exactly as supplied.
-  // The photo's matte-black studio background is blended into the selected
-  // product color via mix-blend-mode: screen, so the backdrop dynamically
-  // matches the chosen color variant (Black / Dark Navy / Orange) with no
-  // visible "box" around the image, and the device recolors to that variant.
+  // No CSS device redraw, no logo plate, no artwork overlay, no activation label.
   if (active && hasProductImage) {
     return (
       <div
         className={`relative overflow-hidden flex items-center justify-center ${className}`}
-        style={{ background: bgColor, isolation: 'isolate' }}
+        style={{ background: 'transparent' }}
       >
         <img
           src={product.image}
@@ -25,7 +22,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
           loading="lazy"
           decoding="async"
           className="w-full h-full object-contain"
-          style={{ ...(compact ? { padding: 6 } : {}), mixBlendMode: 'screen' }}
+          style={compact ? { padding: 6 } : undefined}
         />
       </div>
     );
