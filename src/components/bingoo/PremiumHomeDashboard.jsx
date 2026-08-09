@@ -1,345 +1,349 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Share2, Smartphone, BarChart3, Settings,
-  CalendarDays, Users, Eye, ArrowRight,
-  Check, QrCode, Zap,
+  Share2, Smartphone, CalendarDays, Users, Eye,
+  Check, QrCode, Zap, Pencil, ExternalLink, ArrowRight,
 } from "lucide-react";
-import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
-import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
 import ProfileScoreShortcut from "@/components/bingoo/ProfileScoreShortcut";
 
-const PLAN_LABELS = {
-  free: "Free", professional: "Professional", pro: "Professional",
-  salon: "Salon", lawfirm: "Law Firm", business: "Business", corporate: "Corporate",
-};
+function getGreeting(date) {
+  const hour = date.getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function relativeTime(value) {
+  if (!value) return "Recently";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Recently";
+  const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
 export default function PremiumHomeDashboard({
-  profile, user, isDark, leads, appointments, analytics, nfcDevices,
-  plan, canAccessFeature, onNavigate, profileUrl, isLoading,
+  profile,
+  user,
+  isDark,
+  leads = [],
+  appointments = [],
+  analytics = [],
+  nfcDevices = [],
+  onNavigate,
+  profileUrl,
+  isLoading,
 }) {
   const [copied, setCopied] = useState(false);
+  const [clock, setClock] = useState(() => new Date());
 
-  // ── Computed stats ──
-  const totalViews   = analytics.filter(a => a.event_type === "profile_view").length;
-  const totalNfcTaps = analytics.filter(a => a.event_type === "nfc_tap").length;
-  const totalQrScans = analytics.filter(a => a.event_type === "qr_scan").length;
+  useEffect(() => {
+    const timer = window.setInterval(() => setClock(new Date()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
 
-  const now = new Date();
-  const todayStr    = now.toISOString().slice(0, 10);
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthLabel  = now.toLocaleDateString("en", { month: "short" });
+  const totalViews = analytics.filter((event) => event.event_type === "profile_view").length;
+  const totalNfcTaps = analytics.filter((event) => event.event_type === "nfc_tap").length;
 
-  const leadsThisMonth = leads.filter(l => l.created_date && new Date(l.created_date) >= startOfMonth).length;
-  const apptsThisMonth = appointments.filter(a => a.created_date && new Date(a.created_date) >= startOfMonth).length;
-  const todayAppts = appointments
-    .filter(a => a.date === todayStr)
-    .sort((a, b) => (a.time_slot || "").localeCompare(b.time_slot || ""));
-  const latestLeads = [...leads]
-    .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
-    .slice(0, 4);
-  const activeNfc = nfcDevices.filter(d => d.status === "active");
-  const hasBusiness = canAccessFeature ? canAccessFeature("leads") : false;
-  const planLabel   = PLAN_LABELS[plan] || "Free";
-  const isFree      = plan === "free";
+  const activity = useMemo(() => {
+    const items = [];
 
-  const handleShare = () => {
-    if (!profileUrl) return;
-    navigator.clipboard?.writeText(profileUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+    leads.forEach((lead) => {
+      items.push({
+        id: `lead-${lead.id}`,
+        type: "lead",
+        title: "New lead received",
+        detail: lead.name || lead.full_name || lead.email || "A visitor shared their details",
+        at: lead.created_date,
+      });
     });
+
+    appointments.forEach((appointment) => {
+      items.push({
+        id: `appointment-${appointment.id}`,
+        type: "appointment",
+        title: "New appointment booked",
+        detail: appointment.customer_name || appointment.name || appointment.service_name || "Booking received",
+        at: appointment.created_date || appointment.date,
+      });
+    });
+
+    analytics
+      .filter((event) => event.event_type === "profile_view" || event.event_type === "nfc_tap")
+      .slice(-8)
+      .forEach((event, index) => {
+        items.push({
+          id: `analytics-${event.id || index}`,
+          type: event.event_type === "nfc_tap" ? "tap" : "view",
+          title: event.event_type === "nfc_tap" ? "Profile opened from NFC" : "Profile viewed",
+          detail: event.event_type === "nfc_tap" ? "Someone tapped one of your Bingoo devices" : "Someone visited your public profile",
+          at: event.created_date || event.timestamp,
+        });
+      });
+
+    nfcDevices
+      .filter((device) => device.status === "active")
+      .slice(-3)
+      .forEach((device, index) => {
+        items.push({
+          id: `device-${device.id || index}`,
+          type: "device",
+          title: "NFC device active",
+          detail: device.device_name || device.name || device.device_type || "Bingoo device",
+          at: device.updated_date || device.created_date,
+        });
+      });
+
+    return items
+      .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0))
+      .slice(0, 4);
+  }, [leads, appointments, analytics, nfcDevices]);
+
+  const handleShare = async () => {
+    if (!profileUrl) return;
+    try {
+      await navigator.clipboard?.writeText(profileUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // Clipboard can be unavailable in some embedded previews.
+    }
   };
 
-  // ── Style tokens ──
-  const head     = isDark ? "text-white" : "text-slate-900";
-  const muted    = isDark ? "text-white/40" : "text-slate-400";
-  const sub      = isDark ? "text-white/60" : "text-slate-600";
-  const card     = `rounded-2xl ${isDark ? "bg-white/5" : "bg-white"}`;
-  const shadow   = isDark
-    ? { boxShadow: "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" }
-    : { boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" };
-  const rowHover = isDark ? "bg-white/[0.04] hover:bg-white/[0.07]" : "bg-slate-50 hover:bg-slate-100";
+  const firstName = user?.full_name?.trim()?.split(/\s+/)?.[0] || "there";
+  const greeting = getGreeting(clock);
+  const dateLine = clock.toLocaleString(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
-  // ── Quick actions ──
-  const quickActions = [
-    { icon: Share2,      label: "Share",     color: "#f97316", onClick: handleShare },
-    { icon: QrCode,      label: "QR Code",   color: "#06b6d4", onClick: () => onNavigate("qrwallet") },
-    { icon: Zap,         label: "Activate NFC", color: "#f97316", href: "/activate-device" },
-    { icon: BarChart3,   label: "Analytics", color: "#3b82f6", onClick: () => onNavigate("analytics") },
-    { icon: Smartphone,  label: "NFC",       color: "#8b5cf6", href: "/my-nfc-devices" },
-    { icon: Users,       label: "Leads",     color: "#f59e0b", onClick: () => onNavigate("leads") },
+  const colors = {
+    pageText: isDark ? "text-white" : "text-[#08162f]",
+    subText: isDark ? "text-white/55" : "text-slate-500",
+    card: isDark ? "bg-white/[0.055] border-white/10" : "bg-white border-slate-200/80",
+    soft: isDark ? "bg-white/[0.045]" : "bg-[#f8fafc]",
+  };
+
+  const cardShadow = isDark
+    ? { boxShadow: "0 1px 0 rgba(255,255,255,.04), 0 12px 32px rgba(0,0,0,.18)" }
+    : { boxShadow: "0 2px 6px rgba(15,23,42,.035), 0 16px 38px rgba(15,23,42,.045)" };
+
+  const metrics = [
+    { label: "Profile Views", value: totalViews, icon: Eye, color: "#2563eb", bg: "#dbeafe" },
+    { label: "NFC Taps", value: totalNfcTaps, icon: Smartphone, color: "#16a34a", bg: "#dcfce7" },
+    { label: "New Leads", value: leads.length, icon: Users, color: "#7c3aed", bg: "#ede9fe" },
+    { label: "Appointments", value: appointments.length, icon: CalendarDays, color: "#f97316", bg: "#ffedd5" },
   ];
+
+  const actions = [
+    {
+      label: copied ? "Copied!" : "Share Profile",
+      detail: "Share your profile instantly",
+      icon: copied ? Check : Share2,
+      color: copied ? "#16a34a" : "#2563eb",
+      bg: copied ? "#dcfce7" : "#dbeafe",
+      onClick: handleShare,
+    },
+    {
+      label: "QR Code",
+      detail: "Show QR code to connect",
+      icon: QrCode,
+      color: "#16a34a",
+      bg: "#dcfce7",
+      onClick: () => onNavigate("qrwallet"),
+    },
+    {
+      label: "Activate NFC",
+      detail: "Assign and activate a device",
+      icon: Zap,
+      color: "#f97316",
+      bg: "#ffedd5",
+      href: "/activate-device",
+    },
+    {
+      label: "Add / Edit Profile",
+      detail: "Create or update your profile",
+      icon: Users,
+      color: "#7c3aed",
+      bg: "#ede9fe",
+      onClick: () => onNavigate("workspace"),
+    },
+  ];
+
+  const activityIcon = (type) => {
+    if (type === "lead") return { icon: Users, color: "#16a34a", bg: "#dcfce7" };
+    if (type === "appointment") return { icon: CalendarDays, color: "#7c3aed", bg: "#ede9fe" };
+    if (type === "tap") return { icon: Smartphone, color: "#16a34a", bg: "#dcfce7" };
+    if (type === "device") return { icon: Zap, color: "#f97316", bg: "#ffedd5" };
+    return { icon: Eye, color: "#2563eb", bg: "#dbeafe" };
+  };
 
   if (isLoading) {
     return (
-      <div className="space-y-5">
-        {/* Profile summary skeleton */}
-        <div className={`rounded-2xl overflow-hidden ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
-          <div className={`h-20 animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-          <div className="px-4 pb-4">
-            <div className="flex items-end gap-3 -mt-8">
-              <div className={`w-16 h-16 rounded-2xl flex-shrink-0 animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`}
-                style={{ border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }} />
-              <div className="flex-1 space-y-2 pb-1">
-                <div className={`h-4 w-2/3 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
-                <div className={`h-3 w-1/2 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-              </div>
-            </div>
-          </div>
+      <div className="space-y-5 animate-pulse">
+        <div className={`h-20 rounded-2xl ${colors.soft}`} />
+        <div className={`h-32 rounded-2xl ${colors.soft}`} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className={`h-36 rounded-2xl ${colors.soft}`} />)}
         </div>
-        {/* Quick actions skeleton */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
-          {[0, 1, 2, 3, 4, 5].map(i => (
-            <div key={i} className={`rounded-2xl p-3 flex flex-col items-center gap-2 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
-              <div className={`w-9 h-9 rounded-xl animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-              <div className={`h-2.5 w-10 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-            </div>
-          ))}
-        </div>
-        {/* Metrics skeleton */}
-        <div className="grid grid-cols-3 gap-2.5">
-          {[0, 1, 2].map(i => (
-            <div key={i} className={`rounded-2xl p-3 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
-              <div className={`w-7 h-7 rounded-lg mb-2 animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-              <div className={`h-5 w-1/2 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
-              <div className={`h-2.5 w-2/3 mt-1.5 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-100"}`} />
-            </div>
-          ))}
-        </div>
-        {/* Card skeleton */}
-        <div className={`rounded-2xl p-4 ${isDark ? "bg-white/5" : "bg-white"}`} style={{ boxShadow: shadow.boxShadow }}>
-          <div className={`h-4 w-1/3 mb-3 rounded animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
-          {[0, 1].map(i => (
-            <div key={i} className={`flex items-center gap-3 p-3 rounded-xl ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-              <div className={`w-7 h-7 rounded-full animate-pulse ${isDark ? "bg-white/8" : "bg-slate-200"}`} />
-              <div className="flex-1 space-y-1.5">
-                <div className={`h-3 w-1/2 rounded animate-pulse ${isDark ? "bg-white/8" : "bg-slate-200"}`} />
-                <div className={`h-2.5 w-1/3 rounded animate-pulse ${isDark ? "bg-white/6" : "bg-slate-100"}`} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className={`h-40 rounded-2xl ${colors.soft}`} />
+        <div className={`h-64 rounded-2xl ${colors.soft}`} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-5">
-      {/* ── Profile Summary ── */}
-      <div className="relative rounded-2xl overflow-hidden" style={{ boxShadow: shadow.boxShadow }}>
-        <div className="h-20" style={{ background: `linear-gradient(135deg, ${profile.cover_color || "#0b2149"}, ${profile.cover_color || "#0b2149"}cc)` }} />
-        <div className={`px-4 pb-4 ${isDark ? "bg-white/5" : "bg-white"}`}>
-          <div className="flex items-end gap-3 -mt-8">
-            {profile.profile_photo
-              ? <img src={profile.profile_photo} className="w-16 h-16 rounded-2xl object-cover shadow-lg flex-shrink-0" style={{ border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }} alt="" />
-              : <div className="w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center font-black text-white text-xl flex-shrink-0" style={{ background: profile.cover_color || "#0b2149", border: `3px solid ${isDark ? "#1e293b" : "#fff"}` }}>{profile.display_name?.charAt(0)}</div>
-            }
-            <div className="flex-1 min-w-0 pb-1">
-              <h2 className={`font-black text-base leading-tight ${head}`}>{profile.display_name}</h2>
-              <p className={`text-xs font-semibold ${sub}`}>{profile.job_title || profile.company_name || ""}</p>
+    <div className="space-y-5 md:space-y-6">
+      {/* Greeting — derives from the visitor's actual browser time. */}
+      <section className="pt-2">
+        <p className={`text-xs sm:text-sm font-semibold mb-2 ${colors.subText}`}>{dateLine}</p>
+        <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${colors.pageText}`}>
+          {greeting}, {firstName} <span aria-hidden="true">👋</span>
+        </h1>
+        <p className={`mt-1 text-sm sm:text-base ${colors.subText}`}>Here&apos;s what&apos;s happening with your business today.</p>
+      </section>
+
+      {/* Active profile — the existing top dashboard selector remains the profile switcher. */}
+      <section className={`rounded-2xl border p-4 sm:p-5 ${colors.card}`} style={cardShadow}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {profile.profile_photo ? (
+              <img src={profile.profile_photo} alt="" className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover flex-shrink-0" />
+            ) : (
+              <div
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white font-black text-xl flex-shrink-0"
+                style={{ background: profile.cover_color || "#0b2149" }}
+              >
+                {profile.display_name?.charAt(0) || "B"}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className={`font-black text-lg truncate ${colors.pageText}`}>{profile.display_name}</h2>
+                <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wide">Active Profile</span>
+              </div>
+              <p className={`text-sm mt-0.5 truncate ${colors.subText}`}>{profile.job_title || profile.company_name || "Digital Business Profile"}</p>
+              {profile.username && (
+                <p className="text-xs font-semibold text-orange-500 mt-1 truncate">bingooconnect.com/p/{profile.username}</p>
+              )}
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full text-white flex-shrink-0"
-              style={{ background: isFree ? "#64748b" : "#f97316" }}>
-              {planLabel}
-            </span>
+          </div>
+
+          <div className="flex items-center gap-2 sm:flex-shrink-0">
+            {profileUrl && (
+              <a
+                href={profileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={`flex-1 sm:flex-none min-h-[42px] px-4 rounded-xl border flex items-center justify-center gap-2 text-sm font-bold transition-colors ${isDark ? "border-white/15 text-white hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                <Eye className="w-4 h-4" /> View Profile
+              </a>
+            )}
+            <button
+              type="button"
+              onClick={() => onNavigate("workspace")}
+              className="flex-1 sm:flex-none min-h-[42px] px-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center gap-2 text-sm font-black transition-colors"
+            >
+              <Pencil className="w-4 h-4" /> Edit Profile
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-        {quickActions.map(a => {
-          const inner = (
-            <div className={`rounded-2xl p-3 flex flex-col items-center gap-2 transition-all hover:scale-[1.03] active:scale-[0.97] ${isDark ? "bg-white/5 hover:bg-white/8" : "bg-white hover:shadow-md"}`} style={{ boxShadow: shadow.boxShadow }}>
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${a.color}18` }}>
-                {a.label === "Share" && copied
-                  ? <Check className="w-4 h-4" style={{ color: "#22C55E" }} />
-                  : <a.icon className="w-4 h-4" style={{ color: a.color }} />
-                }
-              </div>
-              <span className={`text-[11px] font-bold ${sub}`}>{a.label === "Share" && copied ? "Copied!" : a.label}</span>
-            </div>
-          );
-          return a.href
-            ? <Link key={a.label} to={a.href}>{inner}</Link>
-            : <button key={a.label} onClick={a.onClick}>{inner}</button>;
-        })}
-      </div>
-
-      {/* ── Profile Score Shortcut (auto-hides at 100/100) ── */}
+      {/* Profile quality remains useful only until it is complete; the component hides itself at 100/100. */}
       <ProfileScoreShortcut profile={profile} isDark={isDark} onNavigate={onNavigate} />
 
-      {/* ── Core Metrics ── */}
-      <div className="grid grid-cols-3 gap-2.5">
-        {[
-          { label: "Views",    value: totalViews,   icon: Eye,           color: "#3b82f6" },
-          { label: "NFC Taps", value: totalNfcTaps, icon: Smartphone,    color: "#8b5cf6" },
-          { label: "QR Scans", value: totalQrScans, icon: QrCode,        color: "#06b6d4" },
-        ].map(s => (
-          <div key={s.label} className={card} style={{ boxShadow: shadow.boxShadow }}>
-            <div className="p-3">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center mb-2" style={{ background: `${s.color}18` }}>
-                <s.icon className="w-3.5 h-3.5" style={{ color: s.color }} />
-              </div>
-              <p className={`text-xl font-black ${head}`}>{s.value}</p>
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${muted}`}>{s.label}</p>
+      {/* Four core numbers only. */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {metrics.map((metric) => (
+          <button
+            key={metric.label}
+            type="button"
+            onClick={() => {
+              if (metric.label === "New Leads") onNavigate("leads");
+              else if (metric.label === "Appointments") onNavigate("appointments");
+              else onNavigate("analytics");
+            }}
+            className={`rounded-2xl border p-4 sm:p-5 text-left transition-all hover:-translate-y-0.5 ${colors.card}`}
+            style={cardShadow}
+          >
+            <div className="w-10 h-10 rounded-full flex items-center justify-center mb-5" style={{ background: metric.bg }}>
+              <metric.icon className="w-5 h-5" style={{ color: metric.color }} />
             </div>
-          </div>
+            <p className={`text-xs sm:text-sm font-semibold ${colors.subText}`}>{metric.label}</p>
+            <p className={`text-2xl sm:text-3xl font-black mt-1 ${colors.pageText}`}>{metric.value.toLocaleString()}</p>
+          </button>
         ))}
-      </div>
+      </section>
 
-      {/* ── This Month (business/pro only) ── */}
-      {hasBusiness && (
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => onNavigate("leads")}
-            className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 20px rgba(249,115,22,0.3)" }}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-white/70 mb-1">{monthLabel}</p>
-            <p className="text-3xl font-black text-white">{leadsThisMonth}</p>
-            <p className="text-xs font-bold text-white/80">New Leads</p>
-          </button>
-          <button onClick={() => onNavigate("appointments")}
-            className="relative rounded-2xl p-4 overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", boxShadow: "0 4px 20px rgba(11,33,73,0.35)", border: "1px solid rgba(249,115,22,0.2)" }}>
-            <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-1">{monthLabel}</p>
-            <p className="text-3xl font-black text-white">{apptsThisMonth}</p>
-            <p className="text-xs font-bold text-white/80">Appointments</p>
-          </button>
-        </div>
-      )}
-
-      {/* ── Today's Appointments ── */}
-      {hasBusiness && (
-        <div className={card} style={{ boxShadow: shadow.boxShadow }}>
-          <div className="flex items-center justify-between p-4 pb-3">
-            <p className={`font-bold text-sm ${head}`}>Today's Appointments</p>
-            <button onClick={() => onNavigate("appointments")} className={`text-xs font-semibold flex items-center gap-1 ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
-              View All <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          {todayAppts.length > 0 ? (
-            <div className="px-4 pb-4 space-y-1.5">
-              {todayAppts.map(a => (
-                <div key={a.id} className={`flex items-center gap-3 p-3 rounded-xl ${rowHover}`}>
-                  <div className="text-xs font-black text-emerald-500 flex-shrink-0 w-12">{a.time_slot}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-xs ${head}`}>{a.visitor_name}</p>
-                    <p className={`text-xs truncate ${muted}`}>{a.service_name || "Appointment"}</p>
-                  </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                    a.status === "confirmed" || a.status === "accepted" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
-                    a.status === "pending" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
-                    (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
-                  }`}>{a.status}</span>
+      {/* Quick actions — only the four core jobs. */}
+      <section className={`rounded-2xl border p-4 sm:p-5 ${colors.card}`} style={cardShadow}>
+        <h2 className={`font-black text-base mb-4 ${colors.pageText}`}>Quick Actions</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {actions.map((action) => {
+            const body = (
+              <div className={`h-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors ${isDark ? "border-white/10 hover:bg-white/5" : "border-slate-200 hover:bg-slate-50"}`}>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: action.bg }}>
+                  <action.icon className="w-5 h-5" style={{ color: action.color }} />
                 </div>
-              ))}
-            </div>
-          ) : (
-            <BingooEmptyState compact icon={CalendarDays} title="No appointments today" message="Enjoy the calm — or share your profile to get bookings" isDark={isDark} />
-          )}
-        </div>
-      )}
-
-      {/* ── Latest Leads ── */}
-      {hasBusiness && (
-        <div className={card} style={{ boxShadow: shadow.boxShadow }}>
-          <div className="flex items-center justify-between p-4 pb-3">
-            <p className={`font-bold text-sm ${head}`}>Latest Leads</p>
-            <button onClick={() => onNavigate("leads")} className={`text-xs font-semibold flex items-center gap-1 ${isDark ? "text-amber-400" : "text-amber-600"}`}>
-              View All <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          {latestLeads.length > 0 ? (
-            <div className="px-4 pb-4 space-y-1.5">
-              {latestLeads.map(l => (
-                <div key={l.id} className={`flex items-center gap-3 p-3 rounded-xl ${rowHover}`} onClick={() => onNavigate("leads")}>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white font-black flex items-center justify-center text-xs flex-shrink-0">
-                    {l.name?.charAt(0) || "?"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-xs ${head}`}>{l.name || "Anonymous"}</p>
-                    <p className={`text-xs truncate ${muted}`}>{l.email || l.phone || "No contact"}</p>
-                  </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                    l.status === "new" ? (isDark ? "bg-amber-500/20 text-amber-400" : "bg-amber-50 text-amber-700") :
-                    l.status === "won" || l.status === "retained" ? (isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700") :
-                    (isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")
-                  }`}>{l.status || "new"}</span>
+                <div className="min-w-0 flex-1">
+                  <p className={`font-bold text-sm ${colors.pageText}`}>{action.label}</p>
+                  <p className={`text-xs mt-0.5 ${colors.subText}`}>{action.detail}</p>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <BingooEmptyState compact icon={Users} title="No leads yet" message="They'll appear here when visitors contact you" isDark={isDark} />
-          )}
-        </div>
-      )}
-
-      {/* ── Device Health ── */}
-      <div className={card} style={{ boxShadow: shadow.boxShadow }}>
-        <div className="flex items-center justify-between p-4 pb-3">
-          <p className={`font-bold text-sm ${head}`}>Device Health</p>
-          <Link to="/my-nfc-devices" className={`text-xs font-semibold flex items-center gap-1 ${isDark ? "text-violet-400" : "text-violet-600"}`}>
-            Manage <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-2.5">
-            <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${muted}`}>Active Devices</p>
-              <p className={`text-2xl font-black ${isDark ? "text-violet-400" : "text-violet-600"}`}>{activeNfc.length}</p>
-            </div>
-            <div className={`rounded-xl p-3 ${isDark ? "bg-white/[0.04]" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${muted}`}>Total NFC Taps</p>
-              <p className={`text-2xl font-black ${isDark ? "text-violet-400" : "text-violet-600"}`}>{totalNfcTaps}</p>
-            </div>
-          </div>
-          {activeNfc.length === 0 && (
-            <div className="mt-3 flex items-center gap-3 p-3 rounded-xl"
-              style={{ background: isDark ? "rgba(139,92,246,0.08)" : "rgba(139,92,246,0.05)", border: `1px solid ${isDark ? "rgba(139,92,246,0.2)" : "rgba(139,92,246,0.15)"}` }}>
-              <span className="text-lg">📦</span>
-              <div className="flex-1 min-w-0">
-                <p className={`font-bold text-xs ${head}`}>No NFC Device Yet</p>
-                <p className={`text-xs ${muted}`}>Tap to share your profile instantly</p>
+                <ArrowRight className={`w-4 h-4 flex-shrink-0 ${colors.subText}`} />
               </div>
-              <Link to="/shop" className="text-xs font-bold px-2.5 py-1 rounded-lg text-white flex-shrink-0" style={{ background: "#8b5cf6" }}>Order</Link>
-            </div>
-          )}
-        </div>
-      </div>
+            );
 
-      {/* ── Plan Status / Upgrade CTA ── */}
-      {isFree ? (
-        <div className="relative rounded-2xl p-5 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #0b2149, #13284f)", border: "1px solid rgba(249,115,22,0.3)", boxShadow: "0 8px 32px rgba(11,33,73,0.3)" }}>
-          <div className="absolute top-0 right-0 w-40 h-40 rounded-full blur-2xl pointer-events-none" style={{ background: "rgba(249,115,22,0.15)" }} />
-          <div className="relative flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex-1">
-              <h3 className="text-base font-black mb-0.5 text-white flex items-center gap-2">
-                <Zap className="w-4 h-4 text-orange-400" /> Unlock Premium
-              </h3>
-              <p className="text-sm text-white/60">Professional from $4.99/mo — NFC, analytics, leads & more</p>
-            </div>
-            <Link to="/plans" className="flex-shrink-0">
-              <button className="rounded-xl font-bold text-sm px-5 py-2.5 text-white" style={{ background: "#f97316" }}>
-                View Plans
-              </button>
-            </Link>
-          </div>
+            return action.href ? (
+              <Link key={action.label} to={action.href}>{body}</Link>
+            ) : (
+              <button key={action.label} type="button" onClick={action.onClick}>{body}</button>
+            );
+          })}
         </div>
-      ) : (
-        <div className={card} style={{ boxShadow: shadow.boxShadow }}>
-          <div className="p-4 flex items-center justify-between">
-            <div>
-              <p className={`font-bold text-sm ${head}`}>Plan Status</p>
-              <p className={`text-xs mt-0.5 ${muted}`}>Your subscription is active</p>
-            </div>
-            <span className="text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full text-white" style={{ background: "#f97316" }}>
-              {planLabel}
-            </span>
-          </div>
+      </section>
+
+      {/* Recent activity — capped at four items to keep Home calm and spacious. */}
+      <section className={`rounded-2xl border overflow-hidden ${colors.card}`} style={cardShadow}>
+        <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
+          <h2 className={`font-black text-base ${colors.pageText}`}>Recent Activity</h2>
+          <button type="button" onClick={() => onNavigate("analytics")} className="text-xs sm:text-sm font-bold text-orange-500 flex items-center gap-1">
+            View all activity <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
-      )}
+
+        {activity.length === 0 ? (
+          <div className={`px-5 pb-6 text-sm ${colors.subText}`}>Your latest profile activity will appear here.</div>
+        ) : (
+          <div className={isDark ? "divide-y divide-white/8" : "divide-y divide-slate-100"}>
+            {activity.map((item) => {
+              const visual = activityIcon(item.type);
+              const Icon = visual.icon;
+              return (
+                <div key={item.id} className="px-4 sm:px-5 py-3.5 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: visual.bg }}>
+                    <Icon className="w-4 h-4" style={{ color: visual.color }} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={`font-bold text-sm truncate ${colors.pageText}`}>{item.title}</p>
+                    <p className={`text-xs mt-0.5 truncate ${colors.subText}`}>{item.detail}</p>
+                  </div>
+                  <span className={`text-xs flex-shrink-0 ${colors.subText}`}>{relativeTime(item.at)}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
