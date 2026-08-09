@@ -36,12 +36,6 @@ const PLAN_ITEM_IDS = {
   corporate: CORPORATE,
 };
 
-const ADMIN_ITEM_IDS = Array.from(new Set([
-  ...CORPORATE,
-  "practiceareas", "legalservices", "offices",
-  "docwallet",
-]));
-
 const SECTIONS = [
   { id: "home",      label: "Home",          labelFr: "Accueil",      itemIds: ["landing"] },
   { id: "identity",  label: "Identity",      labelFr: "Identité",     itemIds: ["profiles", "qrwallet", "connections", "myassets"] },
@@ -77,18 +71,13 @@ function planBadge(plan) {
 
 /**
  * Sidebar visibility is subscription-first and intentionally closed by default.
- *
- * Free: core identity only. My Assets, NFC, Engage, Design Studio and business tools are hidden.
- * Pro: adds My Assets, Analytics, NFC Devices and Lost & Found. Engage and Design Studio stay hidden.
- * Business: adds Engage, Design Studio and general business tools.
- * Salon / Restaurant / Law Firm / Corporate: inherit the paid foundation and surface their relevant vertical tools.
- * Admin: sees the complete operational sidebar plus the separate Admin link rendered by BingooLayout.
- *
- * Unavailable features are hidden rather than rendered as disabled/locked items. The upgrade CTA communicates the next tier.
+ * Admin status controls access to the separate Admin Panel link only; it does not
+ * override the subscription sidebar. This lets the owner/admin test each rollout
+ * exactly as a customer on that plan would see it.
  */
 export function getVisibleNavSections(profile, isAdmin = false, lang = "en", effectivePlan = null) {
   const normalizedPlan = normalizeSidebarPlan(effectivePlan);
-  const ids = new Set(isAdmin ? ADMIN_ITEM_IDS : (PLAN_ITEM_IDS[normalizedPlan] || CORE));
+  const ids = new Set(PLAN_ITEM_IDS[normalizedPlan] || CORE);
   const allItems = { ...SIDEBAR_NAV_MAP, ...EXTRA_NAV_ITEMS };
 
   return SECTIONS.map((section) => {
