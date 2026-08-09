@@ -1,16 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Shield, Menu, X, Sun, Moon, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
 import { getVisibleNavSections, normalizeSidebarPlan } from "@/lib/sidebarConfigV2";
 import BottomNav from "@/components/mobile/BottomNav";
 import { t } from "@/lib/i18n";
 import BingooLogo from "@/components/bingoo/BingooLogo";
-import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
+import { InfinityMark, BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand";
 import { isAdminUser } from "@/lib/auth";
-import BrandLockup from "@/components/auth/BrandLockup";
 import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { usePlan } from "@/hooks/usePlan";
@@ -27,6 +26,7 @@ const PLAN_LABELS = {
 
 export default function BingooLayout({ children, selectedProfile: selectedProfileProp, accountPlan: accountPlanProp, lang = "en", userId }) {
   const location = useLocation();
+  const activeNavRef = useRef(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem("bingoo_sidebar_collapsed") === "1");
   const { isDark, toggle } = useBingooTheme();
@@ -46,6 +46,16 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
     localStorage.setItem("bingoo_sidebar_collapsed", sidebarCollapsed ? "1" : "0");
   }, [sidebarCollapsed]);
 
+  // Whenever the route changes, smoothly bring the selected sidebar item into view.
+  // This keeps the active destination visible in long Business/vertical menus without
+  // changing menu order or making the whole sidebar jump.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      activeNavRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" });
+    }, 40);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, location.search, sidebarCollapsed]);
+
   const { user, logout } = useAuth();
   const { selectedProfile: workspaceProfile } = useProfileWorkspace();
   const { plan: resolvedAccountPlan } = usePlan();
@@ -56,7 +66,6 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan);
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
-  // Deep Bingoo navy from the approved subscription sidebar reference.
   const sidebarBg = "linear-gradient(180deg, #061a38 0%, #041a36 52%, #03162f 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";
   const planLabel = PLAN_LABELS[accountPlan] || "FREE";
@@ -92,11 +101,18 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
     const active = isActive(item.href);
     const badge = badgeMap[item.id];
     return (
-      <Link key={item.id} to={item.href} onClick={onNav} title={collapsed ? item.label : undefined}
+      <Link
+        key={item.id}
+        ref={active ? activeNavRef : undefined}
+        to={item.href}
+        onClick={onNav}
+        title={collapsed ? item.label : undefined}
+        aria-current={active ? "page" : undefined}
         className={`group flex items-center rounded-xl text-sm font-semibold transition-all duration-200 ${collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"}`}
         style={{
-          background: active ? "rgba(255,255,255,0.10)" : "transparent",
-          border: active ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
+          background: active ? "rgba(255,255,255,0.11)" : "transparent",
+          border: active ? "1px solid rgba(255,255,255,0.15)" : "1px solid transparent",
+          boxShadow: active ? "inset 3px 0 0 #f97316" : "none",
         }}>
         <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
           style={{ background: active ? item.iconBg.replace("0.18", "0.32") : item.iconBg }}>
@@ -145,7 +161,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         </div>
       </div>
 
-      <nav className={`flex-1 overflow-y-auto ${collapsed ? "px-2 py-4" : "px-3 py-4"}`}>
+      <nav className={`flex-1 overflow-y-auto scroll-smooth ${collapsed ? "px-2 py-4" : "px-3 py-4"}`}>
         {navSections.map(section => (
           <div key={section.id} className="mb-2">
             {!collapsed && <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">{section.label}</p>}
@@ -155,11 +171,17 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         ))}
 
         {isAdmin && (
-          <Link to="/admin" onClick={onNav} title={collapsed ? "Admin Panel" : undefined}
+          <Link
+            ref={location.pathname === "/admin" ? activeNavRef : undefined}
+            to="/admin"
+            onClick={onNav}
+            title={collapsed ? "Admin Panel" : undefined}
+            aria-current={location.pathname === "/admin" ? "page" : undefined}
             className={`group flex items-center rounded-xl text-sm font-semibold transition-all ${collapsed ? "justify-center px-2 py-2.5" : "gap-3 px-3 py-2.5"}`}
             style={{
               background: location.pathname === "/admin" ? "rgba(255,255,255,0.10)" : "transparent",
               border: location.pathname === "/admin" ? "1px solid rgba(255,255,255,0.14)" : "1px solid transparent",
+              boxShadow: location.pathname === "/admin" ? "inset 3px 0 0 #ef4444" : "none",
             }}>
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: location.pathname === "/admin" ? "rgba(239,68,68,0.32)" : "rgba(239,68,68,0.18)" }}>
               <Shield className="w-4 h-4 text-red-400" />
@@ -193,17 +215,22 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
 
   return (
     <div className="min-h-screen flex" style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
-      <header className="hidden md:block fixed top-0 inset-x-0 h-[72px] z-40 bg-white border-b border-slate-200">
-        <div className="h-full px-8 flex items-center justify-between gap-8">
-          <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bingoo Connect home"><BrandLockup badgeSize={34} /></Link>
-          <nav className="hidden xl:flex items-center gap-9 text-sm font-semibold text-slate-500" aria-label="Main navigation">
-            <Link to="/shop" className="hover:text-slate-900 transition-colors">Products</Link>
-            <Link to="/" className="hover:text-slate-900 transition-colors">Templates</Link>
-            <Link to="/pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
-            <Link to="/plans" className="hover:text-slate-900 transition-colors">For Business</Link>
-            <Link to="/about" className="hover:text-slate-900 transition-colors">About</Link>
+      {/* Signed-in header now matches the Landing V2 brand/navigation system. */}
+      <header className="hidden md:block fixed top-0 inset-x-0 h-[72px] z-40 border-b border-white/10 bg-[#071A3D]/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-8 px-6">
+          <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Bingoo Connect home">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 shadow-lg shadow-orange-500/20">
+              <InfinityMark size={19} color="#fff" strokeWidth={3.2} glow />
+            </div>
+            <BingooWordmark size="text-xl" light stacked={false} />
+          </Link>
+          <nav className="hidden items-center gap-9 text-sm font-bold text-white/65 lg:flex" aria-label="Main navigation">
+            <Link to="/#platform" className="transition-colors hover:text-white">Platform</Link>
+            <Link to="/#solutions" className="transition-colors hover:text-white">Solutions</Link>
+            <Link to="/#pricing" className="transition-colors hover:text-white">Pricing</Link>
+            <Link to="/shop" className="transition-colors hover:text-white">Shop</Link>
           </nav>
-          <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark={false} />
+          <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark />
         </div>
       </header>
 
