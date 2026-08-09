@@ -56,7 +56,8 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan);
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
-  const sidebarBg = "linear-gradient(180deg, #0b2149 0%, #0a1d3f 60%, #071A3D 100%)";
+  // Deep Bingoo navy from the approved subscription sidebar reference.
+  const sidebarBg = "linear-gradient(180deg, #061a38 0%, #041a36 52%, #03162f 100%)";
   const sidebarBorder = "rgba(255,255,255,0.07)";
   const planLabel = PLAN_LABELS[accountPlan] || "FREE";
   const upgrade = accountPlan === "free"
@@ -146,7 +147,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
 
       <nav className={`flex-1 overflow-y-auto ${collapsed ? "px-2 py-4" : "px-3 py-4"}`}>
         {navSections.map(section => (
-          <div key={section.id} className={collapsed ? "mb-2" : "mb-2"}>
+          <div key={section.id} className="mb-2">
             {!collapsed && <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">{section.label}</p>}
             {collapsed && section.id !== "home" && <div className="mx-2 my-2 h-px bg-white/7" />}
             <div className="space-y-0.5">{section.items.map(item => renderNavLink(item, onNav, collapsed))}</div>
@@ -180,12 +181,6 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
             <span>Current plan</span><span className="font-black text-white">{planLabel}</span>
           </div>
         )}
-        <button onClick={toggle} aria-label="Toggle dark mode" title={collapsed ? (isDark ? "Light mode" : "Dark mode") : undefined}
-          className={`flex items-center w-full rounded-xl text-sm font-semibold mb-2 transition-all text-white border border-white/10 ${collapsed ? "justify-center p-2.5" : "gap-3 px-4 py-2.5"}`} style={{ background: "rgba(255,255,255,0.08)" }}>
-          {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-blue-300" />}
-          {!collapsed && (isDark ? t("light_mode", lang) : t("dark_mode", lang))}
-        </button>
-        {!collapsed && <a href="/account-settings#delete" aria-label="Delete account" className="text-xs text-red-400/60 hover:text-red-400 transition-colors min-h-[36px] flex items-center px-3">Delete Account</a>}
         {!onNav && (
           <button onClick={() => setSidebarCollapsed(value => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             className={`mt-1 flex items-center w-full rounded-xl text-xs font-semibold text-white/55 hover:text-white hover:bg-white/8 transition-all ${collapsed ? "justify-center p-2.5" : "gap-2 px-3 py-2.5"}`}>
@@ -216,7 +211,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         {renderSidebarContent(null, sidebarCollapsed)}
       </aside>
 
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4" style={{ background: "linear-gradient(135deg, #0b2149 0%, #13284f 100%)", borderBottom: "2px solid #f97316", paddingTop: "env(safe-area-inset-top)", height: "calc(56px + env(safe-area-inset-top))" }}>
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4" style={{ background: "linear-gradient(135deg, #061a38 0%, #03162f 100%)", borderBottom: "2px solid #f97316", paddingTop: "env(safe-area-inset-top)", height: "calc(56px + env(safe-area-inset-top))" }}>
         <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
         <div className="flex items-center gap-1">
           <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white flex items-center justify-center">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
