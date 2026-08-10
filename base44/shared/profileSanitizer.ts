@@ -18,6 +18,7 @@ export const RESERVED_USERNAMES = new Set([
 
 // ── Enum vocabularies (mirror Profile schema) ─────────────────────────────────
 const VALID_PROFILE_TYPES = new Set(['personal','professional','business','salon','lawfirm','corporate','creative']);
+const VALID_PROFILE_CATEGORIES = new Set(['personal','content_creator','photographer','model','business']);
 const VALID_AVATAR_SHAPES = new Set(['circle','rounded','squircle','card']);
 const VALID_AVATAR_PLACEMENTS = new Set(['center_overlap','lower_center','right_overlap','left_overlap','floating_card','inside_card']);
 const VALID_AVATAR_POSITIONS = new Set(['center top','center','center bottom','left center','right center']);
@@ -40,8 +41,8 @@ export const NEVER_WRITABLE = new Set([
 // ── Plan field sets as real unions (inheritance) ───────────────────────────────
 export const FREE_FIELDS = new Set([
   'display_name','username','job_title','company_name','bio','phone','email',
-  'website','location','show_location','language','privacy_settings','custom_links',
-  'cover_color','qr_color','qr_label','profile_type',
+  'website','location','show_location','language','privacy_settings','custom_links','hidden_links',
+  'cover_color','qr_color','qr_label','profile_type','profile_category',
   'whatsapp_number','facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url',
 ]);
 
@@ -187,11 +188,8 @@ function validateCustomPayments(raw, errors) {
     const emoji = typeof item.emoji === 'string' ? item.emoji.slice(0, 8) : '';
     const link = typeof item.link === 'string' ? item.link.trim() : '';
     const qr = typeof item.qr === 'string' ? item.qr.trim() : '';
-    // Require nonempty label.
     if (label.length < 1 || label.length > 60) errors.push({ field: `custom_payments[${i}].label`, error: 'label_length' });
-    // Filter disabled entries (no link AND no qr) — silent drop, no error.
     if (!link && !qr) continue;
-    // At least one valid URL required; invalid present URLs error.
     if (link && !isUrl(link, WEB_PROTOCOLS)) errors.push({ field: `custom_payments[${i}].link`, error: 'invalid_url' });
     if (qr && !isUrl(qr, WEB_PROTOCOLS)) errors.push({ field: `custom_payments[${i}].qr`, error: 'invalid_url' });
     cleaned.push({ label, emoji, link, qr });
@@ -284,6 +282,7 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
         }
         continue;
       case 'profile_type': sanitized.profile_type = validateEnum(value, 'profile_type', VALID_PROFILE_TYPES, errors) ?? 'personal'; continue;
+      case 'profile_category': sanitized.profile_category = validateEnum(value, 'profile_category', VALID_PROFILE_CATEGORIES, errors) ?? 'personal'; continue;
       case 'language': sanitized.language = validateEnum(value, 'language', VALID_LANGUAGES, errors) ?? 'en'; continue;
       case 'avatar_shape': sanitized.avatar_shape = validateEnum(value, 'avatar_shape', VALID_AVATAR_SHAPES, errors); continue;
       case 'avatar_placement': sanitized.avatar_placement = validateEnum(value, 'avatar_placement', VALID_AVATAR_PLACEMENTS, errors); continue;
@@ -337,6 +336,10 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
       case 'qr_label': sanitized.qr_label = clampString(value, 'qr_label', 40, errors); continue;
       case 'whatsapp_booking_message': sanitized.whatsapp_booking_message = clampString(value, 'whatsapp_booking_message', 1000, errors); continue;
       case 'custom_links': sanitized.custom_links = validateCustomLinks(value, maxLinks, errors); continue;
+      case 'hidden_links':
+        if (!Array.isArray(value)) { errors.push({ field: 'hidden_links', error: 'must_be_array' }); continue; }
+        sanitized.hidden_links = value.filter((entry) => typeof entry === 'string').slice(0, 100);
+        continue;
       case 'custom_payments': sanitized.custom_payments = validateCustomPayments(value, errors); continue;
       case 'privacy_settings': sanitized.privacy_settings = validatePrivacySettings(value, errors); continue;
       case 'business_hours': sanitized.business_hours = validateBusinessHours(value, errors); continue;
@@ -365,8 +368,8 @@ const OWNER_PROFILE_FIELDS = [
   'qr_color','qr_label','qr_watermark','layout','profile_layout','profile_theme','bg_style',
   'button_style','phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','payment_link',
-  'custom_payments','custom_links','privacy_settings','language','google_review_url',
-  'whatsapp_booking_message','profile_type','booking_enabled','booking_slot_duration',
+  'custom_payments','custom_links','hidden_links','privacy_settings','language','google_review_url',
+  'whatsapp_booking_message','profile_type','profile_category','booking_enabled','booking_slot_duration',
   'booking_restricted_emails','business_hours','is_verified','verification_type',
   'verification_status',
 ];
@@ -387,7 +390,7 @@ const PUBLIC_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
   'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position',
-  'layout','profile_layout','profile_theme','bg_style','button_style',
+  'layout','profile_layout','profile_theme','bg_style','button_style','profile_type','profile_category',
   'phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
   'qr_color','qr_label','qr_watermark','language','is_verified','verification_type',
@@ -407,7 +410,7 @@ export function pickPublicProfileFields(profile, privacy) {
   if (Array.isArray(profile.custom_links)) {
     out.custom_links = profile.custom_links
       .filter((l) => l && l.enabled !== false && !hidden.includes(l._catalog_id) && !hidden.includes(l.id))
-      .filter((l) => isUrl(l.url, WEB_PROTOCOLS)) // revalidate legacy/unsafe URLs
+      .filter((l) => isUrl(l.url, WEB_PROTOCOLS))
       .map((l) => ({ label: l.label, url: l.url, category: l.category }));
   }
 
