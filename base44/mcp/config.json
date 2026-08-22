@@ -1,3 +1,175 @@
 {
-  "auth": "oauth"
+  "auth": "oauth",
+  "login_path": null,
+  "consent_path": null,
+  "tools": {
+    "excluded_agents": [],
+    "entity_overrides": {
+      "ActivityLog": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "AdminAuditLog": {
+        "operations": [],
+        "description": null
+      },
+      "Analytics": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Appointment": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "AssetItem": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Device": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DriverPaymentMethod": {
+        "operations": [],
+        "description": null
+      },
+      "Lead": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Link": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "LostItemReport": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "MigrationManifest": {
+        "operations": [],
+        "description": null
+      },
+      "NFCDevice": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "OfficeLocation": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Payout": {
+        "operations": [],
+        "description": null
+      },
+      "Plan": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PlanEntitlement": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PlanFeature": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PracticeArea": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PricingConfig": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ProductCatalogItem": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Profile": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ProfileAccess": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ProfileCreationRequest": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ShopOrder": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Subscription": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "SubscriptionActivity": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "TapEvent": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "TeamMember": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "VapidKeyPair": {
+        "operations": [],
+        "description": null
+      }
+    },
+    "functions": []
+  }
 }
