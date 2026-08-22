@@ -47,6 +47,7 @@ const Register = lazy(() => import('@/pages/Register'));
 const ForgotPassword = lazy(() => import('@/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
+const OAuthConsent = lazy(() => import('@/pages/OAuthConsent'));
 const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
 const PlaystoreMockups = lazy(() => import('@/pages/PlaystoreMockups'));
 const Bingoo2Mockups = lazy(() => import('@/pages/Bingoo2Mockups'));
@@ -89,6 +90,7 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/auth" element={<AuthCallback />} />
+      <Route path="/oauth/consent" element={<OAuthConsent />} />
 
       <Route path="/" element={<Landing />} />
       <Route path="/bingoo-home" element={<Landing />} />

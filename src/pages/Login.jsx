@@ -9,6 +9,7 @@ import GoogleIcon from "@/components/GoogleIcon";
 import AppleIcon from "@/components/AppleIcon";
 import AuthTopNav from "@/components/auth/AuthTopNav";
 import RegisterBenefitsPanel from "@/components/auth/RegisterBenefitsPanel";
+import { safeReturnTo } from "@/lib/authReturnTo";
 
 // V3 split-screen palette (from Figma source of truth)
 const HEADING = "#0f172a";
@@ -19,6 +20,7 @@ const ORANGE = "#f97316";
 
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
+  if (params.get("returnTo")) return safeReturnTo();
   return params.get("next") || "/bingoo";
 };
 

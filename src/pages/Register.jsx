@@ -9,12 +9,14 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { toast } from "@/components/ui/use-toast";
 import AuthTopNav from "@/components/auth/AuthTopNav";
 import RegisterBenefitsPanel from "@/components/auth/RegisterBenefitsPanel";
+import { safeReturnTo } from "@/lib/authReturnTo";
 
 const NAVY = "#0b2149";
 const ORANGE = "#f97316";
 
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
+  if (params.get("returnTo")) return safeReturnTo();
   return params.get("next") || "/bingoo";
 };
 
