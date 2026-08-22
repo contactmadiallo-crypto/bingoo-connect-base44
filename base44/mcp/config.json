@@ -168,6 +168,246 @@
       "VapidKeyPair": {
         "operations": [],
         "description": null
+      },
+      "AbuseReport": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "AttendanceLog": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "BingooNotification": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Comment": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Conversation": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "CustomerLoyalty": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DeliveryPartner": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DeviceAuditLog": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DeviceDesign": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DocumentWalletItem": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "DriverExpense": {
+        "operations": [],
+        "description": null
+      },
+      "Expense": {
+        "operations": [],
+        "description": null
+      },
+      "Favorite": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Feature": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Feedback": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Inventory": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "LegalService": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "LoyaltyReward": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ManufacturingOrder": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "MenuItem": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Message": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Milestone": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Notification": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Order": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PortfolioItem": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Project": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "ProspectLead": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "PushSubscription": {
+        "operations": [],
+        "description": null
+      },
+      "Restaurant": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "RestaurantAccess": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "RestaurantReview": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Resume": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Review": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "SalonService": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "SavedConnection": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "SupportTicket": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Table": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Template": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "VerificationRequest": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "Work": {
+        "operations": [
+          "read"
+        ],
+        "description": null
+      },
+      "WorkSession": {
+        "operations": [
+          "read"
+        ],
+        "description": null
       }
     },
     "functions": []
