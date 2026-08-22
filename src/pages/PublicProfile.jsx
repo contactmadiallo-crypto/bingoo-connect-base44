@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { getPublicProfile } from "@/api/publicProfileClient";
 import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
@@ -162,20 +163,7 @@ export default function PublicProfile() {
     queryKey: ["public-profile", username],
     queryFn: async () => {
       if (isDemo) return { profile: DEMO_PROFILE, not_found: false };
-      try {
-        const res = await base44.functions.invoke("getPublicProfile", { username });
-        // 404 from backend → profile doesn't exist
-        if (res.status === 404 || res.data?.not_found) {
-          return { profile: null, not_found: true };
-        }
-        return { profile: res.data?.profile || null, not_found: false };
-      } catch (err) {
-        // axios throws on 4xx — check if it's a 404
-        if (err?.response?.status === 404) {
-          return { profile: null, not_found: true };
-        }
-        throw err;
-      }
+      return getPublicProfile(username);
     },
     staleTime: 0,
     retry: false, // don't retry 404s
