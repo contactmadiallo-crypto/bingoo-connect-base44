@@ -6,18 +6,17 @@ import { base44 } from "@/api/base44Client";
 import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
+import ProfileCategoryLeadCta from "@/components/bingoo/ProfileCategoryLeadCta";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
-import { PhoneIcon, WhatsAppIcon, SaveContactIcon } from "@/components/bingoo/SocialIcons";
+import { PhoneIcon, WhatsAppIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 
-// ── Brand palette
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21", teal: "#0D9488" };
 
-// ── Analytics
 const trackEvent = (profileId, eventType) => {
   base44.entities.Analytics.create({
     profile_id: profileId, event_type: eventType,
@@ -26,33 +25,12 @@ const trackEvent = (profileId, eventType) => {
   }).catch((err) => console.warn("[Analytics] track failed:", eventType, err?.message || err));
 };
 
-const btnRadius = (s) => s === "pill" ? "9999px" : s === "sharp" ? "10px" : "18px";
-
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
   const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
 };
 
-const saveContact = (profile) => {
-  const lines = [
-    "BEGIN:VCARD", "VERSION:3.0",
-    `FN:${profile.display_name || ""}`,
-    profile.company_name ? `ORG:${profile.company_name}` : "",
-    profile.job_title ? `TITLE:${profile.job_title}` : "",
-    profile.phone ? `TEL;TYPE=VOICE:${profile.phone}` : "",
-    profile.whatsapp_number ? `TEL;TYPE=CELL:${profile.whatsapp_number}` : "",
-    profile.email ? `EMAIL:${profile.email}` : "",
-    profile.website ? `URL:${profile.website}` : "",
-    profile.location && profile.show_location !== false ? `ADR:;;${profile.location};;;;` : "",
-    "END:VCARD",
-  ].filter(Boolean).join("\n");
-  const url = URL.createObjectURL(new Blob([lines], { type: "text/vcard" }));
-  Object.assign(document.createElement("a"), { href: url, download: `${(profile.display_name || "contact").replace(/\s+/g, "_")}.vcf` }).click();
-  URL.revokeObjectURL(url);
-};
-
-// ── Demo profile
 const DEMO_PROFILE = {
   id: "demo", username: "demo", display_name: "Amadou Diallo",
   job_title: "Digital Marketing Expert", company_name: "Bingoo Connect",
@@ -65,11 +43,9 @@ const DEMO_PROFILE = {
   booking_enabled: true,
 };
 
-// ── Build structured data for a profile
 const BASE_URL = "https://bingooconnect.com";
 const OG_IMAGE_BASE = `${BASE_URL}/api/functions/ogImage`;
 
-// Organisation schema for Bingoo Connect itself (appears on every profile page)
 const BINGOO_ORGANIZATION = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -140,17 +116,15 @@ function buildStructuredData(profile) {
   return entities;
 }
 
-// ── Main component
 export default function PublicProfile() {
   const { username } = useParams();
   const mobile = useIsMobile();
   const isDemo = username === "demo";
   const urlParams = new URLSearchParams(window.location.search);
   const deviceCodeParam = urlParams.get("device") || urlParams.get("d") || null;
-  const sourceParam = urlParams.get("source") || null; // "nfc" | "qr" | null
+  const sourceParam = urlParams.get("source") || null;
   const topRef = useRef(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
-
 
   useEffect(() => {
     const onScroll = () => setShowBackToTop(window.scrollY > 400);
@@ -164,13 +138,11 @@ export default function PublicProfile() {
       if (isDemo) return { profile: DEMO_PROFILE, not_found: false };
       try {
         const res = await base44.functions.invoke("getPublicProfile", { username });
-        // 404 from backend → profile doesn't exist
         if (res.status === 404 || res.data?.not_found) {
           return { profile: null, not_found: true };
         }
         return { profile: res.data?.profile || null, not_found: false };
       } catch (err) {
-        // axios throws on 4xx — check if it's a 404
         if (err?.response?.status === 404) {
           return { profile: null, not_found: true };
         }
@@ -178,13 +150,9 @@ export default function PublicProfile() {
       }
     },
     staleTime: 0,
-    retry: false, // don't retry 404s
+    retry: false,
   });
 
-  // Safety net: if a device code is in the URL (from NFC redirect), verify it
-  // isn't marked lost. If it is, redirect to the lost device page instead of
-  // rendering the profile. This catches direct profile URL access that
-  // bypasses the /n/:deviceCode route.
   const { data: deviceCheck } = useQuery({
     queryKey: ["profile-device-check", deviceCodeParam],
     queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: deviceCodeParam }),
@@ -201,7 +169,6 @@ export default function PublicProfile() {
   const profile = queryResult?.profile;
   const isNotFound = !isLoading && queryResult?.not_found === true;
 
-  // ── Dynamic SEO
   const seoTitle = profile
     ? [profile.display_name, [profile.job_title, profile.company_name].filter(Boolean).join(" @ "), "Bingoo Connect"]
         .filter(Boolean).join(" | ")
@@ -211,8 +178,6 @@ export default function PublicProfile() {
       ? `${profile.bio.slice(0, 140)}...`
       : `Contact ${profile.display_name}${profile.job_title ? `, ${profile.job_title}` : ""}${profile.company_name ? ` at ${profile.company_name}` : ""}. Connect via NFC on Bingoo Connect.`
     : "NFC-powered digital profiles for every professional.";
-  // Use dynamic OG image — falls back to profile photo if available, but ogImage function
-  // always renders branded card so social shares look great even without a profile photo
   const seoImage = profile
     ? `https://bingooconnect.com/api/functions/ogImage?username=${encodeURIComponent(profile.username)}`
     : undefined;
@@ -225,26 +190,17 @@ export default function PublicProfile() {
     url: !isDemo ? seoUrl : undefined,
     type: "profile",
     structuredData: profile && !isDemo ? buildStructuredData(profile) : undefined,
-    noindex: isNotFound, // tell search engines not to index 404 pages
+    noindex: isNotFound,
   });
 
   useEffect(() => {
     if (!profile?.id || isDemo) return;
-    // Always track a profile view
     trackEvent(profile.id, "profile_view");
-    // Also track source-specific events
     if (sourceParam === "qr") trackEvent(profile.id, "qr_scan");
-    // NFC taps are tracked in NFCRedirect before redirecting here
   }, [profile?.id]);
 
-
-
-  // Skeleton shown only to real users — Googlebot won't index this state
-  // because getPublicProfile now returns 404 for missing profiles and
-  // the noindex meta tag is set on the not-found render below.
   if (isLoading) return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
-      {/* Skeleton header */}
       <div style={{ height: 260, background: "linear-gradient(135deg,#e2e8f0,#cbd5e1)" }} />
       <div style={{ maxWidth: 520, margin: "0 auto", padding: "0 24px" }}>
         <div style={{ width: 110, height: 110, borderRadius: "50%", background: "#e2e8f0", margin: "-55px auto 16px", border: "4px solid #fff" }} />
@@ -258,7 +214,6 @@ export default function PublicProfile() {
     </div>
   );
 
-  // True 404 — noindex is already set via useSEO above
   if (isNotFound || !profile) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: 24 }}>
       <div style={{ textAlign: "center" }}>
@@ -271,16 +226,20 @@ export default function PublicProfile() {
   );
 
   const color = profile.cover_color || B.navy;
-  const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
+  const categoryLeadCta = !isDemo ? (
+    <ProfileCategoryLeadCta profile={profile} color={color} track={track} />
+  ) : null;
 
-  // ── Render championship full-page layouts — pass all content as children
   const effectiveLayout = profile.layout || profile.profile_layout || "default";
   const championContentSections = (
-    <ProfileContentSections
-      profile={profile} color={color} isDark={true}
-      isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
-    />
+    <>
+      {categoryLeadCta}
+      <ProfileContentSections
+        profile={profile} color={color} isDark={true}
+        isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+      />
+    </>
   );
   if (effectiveLayout === "ny_championship" || profile.profile_layout === "ny_championship") {
     return <NewYorkChampionshipLayout profile={profile}>{championContentSections}</NewYorkChampionshipLayout>;
@@ -298,17 +257,19 @@ export default function PublicProfile() {
   const layoutType = profile.layout || "classic";
 
   const layoutContentSections = (
-    <ProfileContentSections
-      profile={profile} color={color} isDark={isDark}
-      isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
-    />
+    <>
+      {categoryLeadCta}
+      <ProfileContentSections
+        profile={profile} color={color} isDark={isDark}
+        isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+      />
+    </>
   );
 
   const renderActiveLayout = () => {
     const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
 
     switch (layoutType) {
-      // ── 15 premium curated layouts ──
       case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury":
         return <ImageHeroLayout {...lp} />;
       case "magazine":
@@ -346,8 +307,6 @@ export default function PublicProfile() {
 
   return (
     <div ref={topRef} style={{ position: "relative", minHeight: "100vh", background: "#fff" }}>
-
-      {/* Back button — frosted glass */}
       <motion.button
         onClick={() => window.history.back()}
         initial={{ opacity: 0, x: -20 }}
@@ -359,14 +318,12 @@ export default function PublicProfile() {
         ← Back
       </motion.button>
 
-      {/* Main card — real layout renderer */}
       <div style={{ position: "relative", zIndex: 1 }}>
         <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
           {renderActiveLayout()}
         </ProfileLayoutShell>
       </div>
 
-      {/* ── STICKY BOTTOM BAR ── */}
       {(profile.phone || profile.whatsapp_number) && (
         <motion.div
           initial={{ y: 100 }}
@@ -399,7 +356,6 @@ export default function PublicProfile() {
         </motion.div>
       )}
 
-      {/* ── BACK TO TOP ── */}
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
@@ -416,9 +372,7 @@ export default function PublicProfile() {
         )}
       </AnimatePresence>
 
-      {/* Prospect marketing popup */}
       <ProspectPopup profileId={profile?.id} profileOwnerId={profile?.created_by_id} deviceCode={deviceCodeParam} isDemo={isDemo} />
-
     </div>
   );
 }
