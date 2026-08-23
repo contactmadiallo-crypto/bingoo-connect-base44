@@ -231,15 +231,30 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
-    <div className="space-y-[18px] max-w-[520px]">
+    <div className="space-y-[18px] max-w-[560px]">
       <div className={`rounded-[14px] border ${panelBorder} ${panelBg} overflow-hidden`}>
         <div className="px-5 py-4 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,.08)" : "#E5EAF2" }}>
-          <p className={`text-[15px] font-black ${headText}`}>Basic Information</p>
-          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Your identity details. Contact methods are managed in Links.</p>
+          <p className={`text-[15px] font-black ${headText}`}>Profile Information</p>
+          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Manage the identity and presentation details shown on your public profile.</p>
+        </div>
+
+        {/* Figma architecture: visual identity first, then basic identity, then contact routing. */}
+        <div className="relative group overflow-hidden" style={{ height: 112 }}>
+          {liveForm.cover_photo
+            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: liveForm.cover_position || "center" }} />
+            : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"}, ${(liveForm.cover_color || "#2563eb")}bb)` }} />}
+          <label className="absolute right-3 bottom-3 cursor-pointer rounded-lg bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+            {t("change_cover", lang)}
+            <input type="file" accept="image/*" className="hidden" onChange={async e => {
+              const file = e.target.files[0]; if (!file) return;
+              const { file_url } = await base44.integrations.Core.UploadFile({ file });
+              setVal("cover_photo", file_url);
+            }} />
+          </label>
         </div>
 
         <div className="px-5 pb-5 pt-5">
-          <div className="flex items-end gap-4 mb-5">
+          <div className="flex items-end gap-4 -mt-11 mb-5 relative z-10">
             <div className="relative flex-shrink-0">
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
@@ -271,7 +286,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           </div>
 
           {/* Business-only identity */}
-          {isBusinessIdentity && <div className="mb-4">
+          {isBusinessIdentity && <div className="mb-5 rounded-xl border border-slate-200/80 p-4">
+            <p className={`text-xs font-black mb-3 ${headText}`}>Business Identity</p>
             <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Brand / Company Logo</Label>
             <div className="flex items-center gap-3">
               {liveForm.company_logo ? (
@@ -300,6 +316,9 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             </div>
           </div>}
 
+          <div className="mb-3">
+            <p className={`text-xs font-black ${headText}`}>Basic Information</p>
+          </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("display_name", lang)} *</Label>
@@ -316,6 +335,16 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
               <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
+            </div>
+          </div>
+
+          <div className={`mt-5 rounded-xl border p-4 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
+            <div className="flex items-start gap-3">
+              <Link2 className="w-4 h-4 mt-0.5 text-orange-500" />
+              <div>
+                <p className={`text-xs font-black ${headText}`}>Contact & Social Links</p>
+                <p className={`text-[11px] mt-1 leading-5 ${mutedText}`}>Phone, WhatsApp, email, website, location and social accounts are organized in Links so each item has one source of truth and one public-profile visibility control.</p>
+              </div>
             </div>
           </div>
 
