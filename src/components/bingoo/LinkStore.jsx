@@ -274,24 +274,12 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
 
   return (
     <div className="flex flex-col h-full safe-top">
-      {/* Header */}
-      <div className={`flex items-center justify-between px-4 py-4 border-b ${borderCls} flex-shrink-0`}
-        style={{ paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
-        <div>
-          <h2 className={`font-black text-base ${headText}`}>Add Link</h2>
-          {addedCount > 0 && <p className={`text-xs ${mutedText}`}>{addedCount} added</p>}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setWebOpen(v => !v)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90"
-            style={{ background: "#0b2149" }}>
-            <Plus className="w-3.5 h-3.5" /> Web Link
-          </button>
-          <button onClick={onClose} className={`p-2 rounded-xl transition-colors ${isDark ? "hover:bg-white/8 text-white/50" : "hover:bg-slate-100 text-slate-500"}`}>
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+      {/* Header — exact Figma hierarchy */}
+      <div className={`flex items-center justify-between px-[22px] py-[18px] border-b ${borderCls} flex-shrink-0`}>
+        <h2 className={`font-black text-[17px] ${headText}`}>Add Link</h2>
+        <button onClick={onClose} className={`w-[30px] h-[30px] rounded-full border flex items-center justify-center transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/50" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"}`}>
+          <X className="w-[14px] h-[14px]" />
+        </button>
       </div>
 
       {/* Web Link quick-add */}
@@ -303,6 +291,22 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             <button onClick={handleAddWebLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#f97316" }}>
               <Plus className="w-3.5 h-3.5" />Add
             </button>
+          </div>
+        </div>
+      )}
+
+      {!editing && !webOpen && (
+        <div className="px-[22px] pt-3 pb-2 flex gap-[9px] items-center flex-shrink-0">
+          <button
+            onClick={() => setWebOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
+            style={{ background: "#3b82f6" }}>
+            <Plus className="w-3 h-3" /> Web Link
+          </button>
+          <div className="relative flex-1">
+            <Search className={`w-[13px] h-[13px] absolute left-[10px] top-1/2 -translate-y-1/2 ${mutedText}`} />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
+              className={`w-full h-9 pl-[30px] pr-3 rounded-[10px] border text-xs outline-none ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}`} />
           </div>
         </div>
       )}
