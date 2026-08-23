@@ -600,9 +600,13 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <AttorneysSectionPublic profileId={profile.id} color={color} />
       )}
 
-      {/* ── Lead capture ── */}
-      <Div isDark={isDark} />
-      <LeadCaptureSection profileId={profile.id} color={color} isLawFirm={isLawFirmProfile} />
+      {/* ── Lead capture — controlled by the profile editor and mirrored publicly ── */}
+      {profile.lead_capture_enabled !== false && (
+        <>
+          <Div isDark={isDark} />
+          <LeadCaptureSection profileId={profile.id} color={color} isLawFirm={isLawFirmProfile} />
+        </>
+      )}
 
       {/* ── Footer ── */}
       <div style={{ textAlign: "center", marginTop: 28, paddingTop: 18,
