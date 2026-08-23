@@ -116,7 +116,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       <div className={`rounded-[14px] border ${border} ${bg} px-[18px] py-[14px] flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
         <div className="flex-1 min-w-0">
           <p className={`text-[16px] font-extrabold ${headText}`}>Design</p>
-          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Style the same profile your visitors see at /p/{username}.</p>
+          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Style the same profile your visitors see at /p/{profile?.username || "your-handle"}.</p>
         </div>
         <button type="button" onClick={onPreview}
           className={`xl:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
