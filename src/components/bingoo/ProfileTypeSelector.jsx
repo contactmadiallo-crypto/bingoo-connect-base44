@@ -8,7 +8,7 @@ const TYPES = [
   { id: "business", profileType: "business", label: "Business / Brand", description: "Business identity with brand details and business features.", icon: Building2, minPlan: "business" },
 ];
 
-const RANK = { free: 0, professional: 1, pro: 1, business: 2, enterprise: 3 };
+const RANK = { free: 0, professional: 1, pro: 1, salon: 2, restaurant: 2, lawfirm: 2, business: 2, corporate: 2, enterprise: 3 };
 
 function normalizedPlan(plan) {
   const value = String(plan || "free").toLowerCase();
