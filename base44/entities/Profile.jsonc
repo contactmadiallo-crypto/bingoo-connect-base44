@@ -192,6 +192,21 @@
       ],
       "default": "pill"
     },
+    "button_color": {
+      "type": "string",
+      "default": "#0b2149",
+      "description": "Custom color for public-profile link and action buttons"
+    },
+    "font_style": {
+      "type": "string",
+      "enum": [
+        "modern",
+        "clean",
+        "classic"
+      ],
+      "default": "modern",
+      "description": "Typography preset used by the public profile"
+    },
     "phone": {
       "type": "string"
     },
