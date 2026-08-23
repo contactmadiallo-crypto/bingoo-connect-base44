@@ -53,8 +53,8 @@ const AVATAR_FOCAL = [
 ];
 
 const SECTIONS = [
-  { id: "theme", label: "Appearance", icon: Palette },
-  { id: "media", label: "Photos", icon: ImageIcon },
+  { id: "theme", label: "Theme", icon: Palette },
+  { id: "media", label: "Profile", icon: ImageIcon },
   { id: "buttons", label: "Buttons", icon: MousePointer2 },
 ];
 
@@ -69,7 +69,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const bg        = isDark ? "bg-[#13162a]"  : "bg-white";
   const border    = isDark ? "border-white/8" : "border-slate-200";
-  const rowCls    = `rounded-2xl border ${border} ${bg} p-4 space-y-3`;
+  const rowCls    = `rounded-[14px] border ${border} ${bg} p-[18px] space-y-3`;
 
   const handleSave = async () => {
     try {
@@ -106,11 +106,11 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const sel = (v, current) => v === current;
 
   return (
-    <div className="space-y-4 max-w-[720px]">
-      <div className={`rounded-2xl border ${border} ${bg} px-4 py-3 flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
+    <div className="space-y-[18px] max-w-[560px]">
+      <div className={`rounded-[14px] border ${border} ${bg} px-[18px] py-[14px] flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
         <div className="flex-1 min-w-0">
-          <p className={`text-sm font-black ${headText}`}>Design</p>
-          <p className={`text-[11px] ${mutedText}`}>Customize the public profile. The preview and /p/ profile use these same saved settings.</p>
+          <p className={`text-[16px] font-extrabold ${headText}`}>Design</p>
+          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Style the same profile your visitors see at /p/{username}.</p>
         </div>
         <button type="button" onClick={onPreview}
           className={`xl:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
@@ -128,7 +128,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       </div>
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
-      <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
+      <div className={`flex gap-1 p-1 rounded-[12px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
         {SECTIONS.map(s => (
           <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
             className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
