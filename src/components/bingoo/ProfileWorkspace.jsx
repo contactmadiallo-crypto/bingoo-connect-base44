@@ -238,23 +238,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           <p className={`text-[11px] mt-0.5 ${mutedText}`}>Manage the identity and presentation details shown on your public profile.</p>
         </div>
 
-        {/* Figma architecture: visual identity first, then basic identity, then contact routing. */}
-        <div className="relative group overflow-hidden" style={{ height: 112 }}>
-          {liveForm.cover_photo
-            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: liveForm.cover_position || "center" }} />
-            : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"}, ${(liveForm.cover_color || "#2563eb")}bb)` }} />}
-          <label className="absolute right-3 bottom-3 cursor-pointer rounded-lg bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
-            {t("change_cover", lang)}
-            <input type="file" accept="image/*" className="hidden" onChange={async e => {
-              const file = e.target.files[0]; if (!file) return;
-              const { file_url } = await base44.integrations.Core.UploadFile({ file });
-              setVal("cover_photo", file_url);
-            }} />
-          </label>
-        </div>
-
         <div className="px-5 pb-5 pt-5">
-          <div className="flex items-end gap-4 -mt-11 mb-5 relative z-10">
+          <div className="flex items-center gap-4 mb-5 relative z-10">
             <div className="relative flex-shrink-0">
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
@@ -343,7 +328,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               <Link2 className="w-4 h-4 mt-0.5 text-orange-500" />
               <div>
                 <p className={`text-xs font-black ${headText}`}>Contact & Social Links</p>
-                <p className={`text-[11px] mt-1 leading-5 ${mutedText}`}>Phone, WhatsApp, email, website, location and social accounts are organized in Links so each item has one source of truth and one public-profile visibility control.</p>
+                <p className={`text-[11px] mt-1 leading-5 ${mutedText}`}>Phone, WhatsApp, email, website, location and social accounts stay in Links, where they can be edited and shown or hidden on the public profile without duplicate fields here.</p>
               </div>
             </div>
           </div>
