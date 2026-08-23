@@ -126,7 +126,19 @@ const EDITABLE_FIELDS = [
 function buildPayload(liveForm) {
   const payload = {};
   for (const key of EDITABLE_FIELDS) {
-    if (liveForm[key] !== undefined) {
+    if (liveForm[key] !== undefined) payload[key] = liveForm[key];
+  }
+  return payload;
+}
+
+// Only send fields the user actually changed. This prevents legacy values in
+// unrelated sections (for example an old website without https://) from making
+// a basic Info save fail validation.
+function buildChangedPayload(liveForm, persistedProfile) {
+  const payload = {};
+  for (const key of EDITABLE_FIELDS) {
+    if (liveForm[key] === undefined) continue;
+    if (JSON.stringify(liveForm[key]) !== JSON.stringify(persistedProfile?.[key])) {
       payload[key] = liveForm[key];
     }
   }
@@ -212,6 +224,7 @@ function SaveBtn({ onSave, isPending, label }) {
 // ── INFO PANEL ────────────────────────────────────────────────────────────
 function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, profile, userPlan, lang }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
+  const isBusinessIdentity = ["business", "lawfirm", "salon", "corporate"].includes(liveForm.profile_type) || liveForm.profile_category === "business";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
@@ -220,51 +233,13 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   return (
     <div className="space-y-[18px] max-w-[520px]">
       <div className={`rounded-[14px] border ${panelBorder} ${panelBg} overflow-hidden`}>
-        {/* Cover */}
-        <div className="relative cursor-pointer group overflow-hidden" style={{ height: "110px" }}>
-          {liveForm.cover_photo
-            ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: liveForm.cover_position || "center" }} />
-            : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${(liveForm.cover_color || "#2563eb")}cc 100%)` }} />
-          }
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center gap-2">
-            <label className="cursor-pointer opacity-0 group-hover:opacity-100 transition-all bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-lg">
-              {t("change_cover", lang)}
-              <input type="file" accept="image/*" className="hidden" onChange={async e => {
-                const file = e.target.files[0]; if (!file) return;
-                const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                setVal("cover_photo", file_url);
-              }} />
-            </label>
-            {liveForm.cover_photo && (
-              <button type="button" onClick={() => setVal("cover_photo", "")}
-                className="opacity-0 group-hover:opacity-100 transition-all bg-red-500/90 text-white text-xs font-bold px-2 py-1.5 rounded-lg">
-                Remove
-              </button>
-            )}
-          </div>
-          {/* Cover position controls */}
-          {liveForm.cover_photo && (
-            <div className="absolute bottom-2 right-2 flex gap-1" onClick={e => e.stopPropagation()}>
-              {[["center","●"],["top","↑"],["bottom","↓"],["left center","←"],["right center","→"]].map(([pos, icon]) => (
-                <button key={pos} type="button" onClick={() => setVal("cover_position", pos)}
-                  title={pos}
-                  className={`w-6 h-6 rounded-full text-xs font-black transition-all flex items-center justify-center ${(liveForm.cover_position||"center")===pos ? "bg-orange-500 text-white" : "bg-black/40 text-white/70 hover:bg-black/60"}`}>
-                  {icon}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="absolute top-3 right-3 flex gap-1.5 flex-wrap">
-            {COVER_COLORS.map(c => (
-              <button type="button" key={c} onClick={() => setVal("cover_color", c)}
-                className={`w-4 h-4 rounded-full border-2 transition-transform hover:scale-125 ${liveForm.cover_color === c ? "border-white scale-125" : "border-white/40"}`}
-                style={{ background: c }} />
-            ))}
-          </div>
+        <div className="px-5 py-4 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,.08)" : "#E5EAF2" }}>
+          <p className={`text-[15px] font-black ${headText}`}>Basic Information</p>
+          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Your identity details. Contact methods are managed in Links.</p>
         </div>
 
-        <div className="px-5 pb-5 pt-2">
-          <div className="flex items-end gap-4 -mt-9 mb-5">
+        <div className="px-5 pb-5 pt-5">
+          <div className="flex items-end gap-4 mb-5">
             <div className="relative flex-shrink-0">
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
@@ -295,61 +270,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             </div>
           </div>
 
-          {/* Avatar shape selector */}
-          <div className="mb-4">
-            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Photo Shape</Label>
-            <div className="flex gap-2 flex-wrap">
-              {[
-                { v: "circle",   label: "Circle",  r: "50%" },
-                { v: "rounded",  label: "Rounded", r: "20%" },
-                { v: "squircle", label: "iOS Icon", r: "28%" },
-                { v: "card",     label: "Card",    r: "12px" },
-              ].map(({ v, label, r }) => {
-                const sel = (liveForm.avatar_shape || "circle") === v;
-                const photoSrc = liveForm.profile_photo;
-                return (
-                  <button key={v} type="button" onClick={() => setVal("avatar_shape", v)}
-                    className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all ${sel ? "border-orange-400" : isDark ? "border-white/10" : "border-slate-200"}`}
-                    style={{ minWidth: 64 }}>
-                    <div style={{ width: 40, height: 40, borderRadius: r, overflow: "hidden", border: sel ? "2px solid #f97316" : "2px solid #e2e8f0", background: liveForm.cover_color || "#2563eb", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {photoSrc
-                        ? <img src={photoSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }} />
-                        : <span style={{ color: "#fff", fontWeight: 900, fontSize: 16 }}>{liveForm.display_name?.charAt(0) || "?"}</span>
-                      }
-                    </div>
-                    <span className={`text-xs font-bold ${sel ? "text-orange-500" : mutedText}`}>{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Avatar position (focal point) */}
-          {liveForm.profile_photo && (
-            <div className="mb-4">
-              <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Photo Focal Point</Label>
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { v: "center top", label: "Top" },
-                  { v: "center", label: "Center" },
-                  { v: "center bottom", label: "Bottom" },
-                  { v: "left center", label: "Left" },
-                  { v: "right center", label: "Right" },
-                ].map(({ v, label }) => {
-                  const sel = (liveForm.avatar_position || "center top") === v;
-                  return (
-                    <button key={v} type="button" onClick={() => setVal("avatar_position", v)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all ${sel ? "border-orange-400 bg-orange-50 text-orange-600" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
-                      {sel && "✓ "}{label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Business / Brand Logo upload — shown for all plans (salon, law firm, corporate, business, pro) */}
-          <div className="mb-4">
+          {/* Business-only identity */}
+          {isBusinessIdentity && <div className="mb-4">
             <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Brand / Company Logo</Label>
             <div className="flex items-center gap-3">
               {liveForm.company_logo ? (
@@ -376,7 +298,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                 <p className={`text-xs mt-1 ${mutedText}`}>PNG, SVG or JPG · shown on your public profile</p>
               </div>
             </div>
-          </div>
+          </div>}
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
@@ -387,35 +309,17 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("job_title", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.job_title || ""} onChange={set("job_title")} placeholder="CEO / Consultant" />
             </div>
-            <div>
+            {isBusinessIdentity && <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("company", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.company_name || ""} onChange={set("company_name")} placeholder="Company Name" />
-            </div>
-            <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("location", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.location || ""} onChange={set("location")} placeholder="City, State" />
-            </div>
-            <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("phone", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.phone || ""} onChange={set("phone")} placeholder="+1 555 000 0000" />
-            </div>
-            <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("whatsapp", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.whatsapp_number || ""} onChange={set("whatsapp_number")} placeholder="+1 555 000 0000" />
-            </div>
-            <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("email", lang)}</Label>
-              <Input type="email" className={`mt-1 ${inputCls}`} value={liveForm.email || ""} onChange={set("email")} placeholder="you@example.com" />
-            </div>
-            <div>
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("website", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.website || ""} onChange={set("website")} placeholder="https://yoursite.com" />
-            </div>
+            </div>}
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
-              <Textarea className={`mt-1 ${inputCls}`} rows={3} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
+              <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
             </div>
           </div>
+
+          <button type="button" onClick={() => selectInnerTab?.("links")} className="hidden" aria-hidden="true" />
         </div>
       </div>
       <div className="flex items-center gap-4">
