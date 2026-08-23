@@ -42,7 +42,7 @@ export const NEVER_WRITABLE = new Set([
 export const FREE_FIELDS = new Set([
   'display_name','username','job_title','company_name','bio','phone','email',
   'website','location','show_location','language','privacy_settings','custom_links','hidden_links',
-  'cover_color','qr_color','qr_label','profile_type','profile_category',
+  'cover_color','qr_color','qr_label','profile_type','profile_category','lead_capture_enabled',
   'whatsapp_number','facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url',
 ]);
 
@@ -299,6 +299,7 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
         continue;
       }
       case 'show_location':
+      case 'lead_capture_enabled':
       case 'booking_enabled':
       case 'qr_watermark':
         sanitized[key] = !!value; continue;
@@ -369,7 +370,7 @@ const OWNER_PROFILE_FIELDS = [
   'button_style','phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','payment_link',
   'custom_payments','custom_links','hidden_links','privacy_settings','language','google_review_url',
-  'whatsapp_booking_message','profile_type','profile_category','booking_enabled','booking_slot_duration',
+  'whatsapp_booking_message','profile_type','profile_category','lead_capture_enabled','booking_enabled','booking_slot_duration',
   'booking_restricted_emails','business_hours','is_verified','verification_type',
   'verification_status',
 ];
@@ -394,7 +395,7 @@ const PUBLIC_PROFILE_FIELDS = [
   'phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
   'qr_color','qr_label','qr_watermark','language','is_verified','verification_type',
-  'booking_enabled','booking_slot_duration','business_hours',
+  'lead_capture_enabled','booking_enabled','booking_slot_duration','business_hours',
 ];
 
 export function pickPublicProfileFields(profile, privacy) {
