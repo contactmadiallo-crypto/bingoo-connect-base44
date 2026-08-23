@@ -1,5 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { usePlan } from "@/hooks/usePlan";
+import ProfileTypeSelector from "@/components/bingoo/ProfileTypeSelector";
 import {
   Check,
   ChevronDown,
@@ -68,8 +72,20 @@ export function ProfileSelectorDropdown({
 }) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [typeOpen, setTypeOpen] = useState(false);
+  const [typeSaving, setTypeSaving] = useState(false);
+  const [typeError, setTypeError] = useState("");
+  const [localProfile, setLocalProfile] = useState(selectedProfile || null);
   const rootRef = useRef(null);
   const menuId = useId();
+  const qc = useQueryClient();
+  const { plan: userPlan } = usePlan();
+
+  useEffect(() => {
+    setLocalProfile(selectedProfile || null);
+    setTypeOpen(false);
+    setTypeError("");
+  }, [selectedProfile?.id, selectedProfile?.profile_category, selectedProfile?.profile_type]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -95,13 +111,44 @@ export function ProfileSelectorDropdown({
     setOpen(false);
   };
 
+  const saveProfileType = async (category) => {
+    if (!selectedProfile?.id || !category || typeSaving) return;
+    setTypeSaving(true);
+    setTypeError("");
+    try {
+      const response = await base44.functions.invoke("updateProfileGated", {
+        profile_id: selectedProfile.id,
+        data: {
+          profile_category: category.id,
+          profile_type: category.profileType,
+        },
+      });
+      const fresh = response?.data?.profile || {
+        ...localProfile,
+        profile_category: category.id,
+        profile_type: category.profileType,
+      };
+      setLocalProfile(fresh);
+      qc.setQueryData(["profile-ws", selectedProfile.id], (current) => ({
+        ...(current || selectedProfile),
+        ...fresh,
+      }));
+      qc.invalidateQueries({ queryKey: ["my-profile"] });
+      qc.invalidateQueries({ queryKey: ["my-profiles"] });
+    } catch (error) {
+      setTypeError(error?.message || "Could not save profile type.");
+    } finally {
+      setTypeSaving(false);
+    }
+  };
+
   const onKeyDown = (event) => {
     if (!open && ["ArrowDown", "Enter", " "].includes(event.key)) {
       event.preventDefault();
       setOpen(true);
       return;
     }
-    if (!open) return;
+    if (!open || typeOpen) return;
     if (event.key === "Escape") {
       event.preventDefault();
       setOpen(false);
@@ -119,6 +166,7 @@ export function ProfileSelectorDropdown({
 
   if (!selectedProfile) return null;
 
+  const displayProfile = localProfile || selectedProfile;
   const panel = isDark
     ? "bg-[#111827] border-white/10 text-white"
     : "bg-white border-slate-200 text-slate-900";
@@ -134,13 +182,13 @@ export function ProfileSelectorDropdown({
         onClick={() => setOpen((value) => !value)}
         className={`min-h-[44px] flex items-center gap-2 rounded-2xl border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${compact ? "px-2.5" : "px-3"} ${isDark ? "border-white/10 bg-white/8 hover:bg-white/12 text-white" : "border-slate-200 bg-white hover:border-slate-300 text-slate-900 shadow-sm"}`}
       >
-        <ProfileAvatar profile={selectedProfile} size={32} />
+        <ProfileAvatar profile={displayProfile} size={32} />
         <span className="min-w-0 text-left hidden sm:block">
           <span className="block text-xs font-black truncate max-w-[130px]">
-            {selectedProfile.display_name || "Profile"}
+            {displayProfile.display_name || "Profile"}
           </span>
           <span className={`block text-[10px] font-semibold truncate max-w-[130px] ${secondary}`}>
-            @{selectedProfile.username || "profile"}
+            @{displayProfile.username || "profile"}
           </span>
         </span>
         <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform ${open ? "rotate-180" : ""} ${secondary}`} />
@@ -151,13 +199,14 @@ export function ProfileSelectorDropdown({
           id={menuId}
           role="listbox"
           aria-label="Select profile workspace"
-          className={`absolute right-0 mt-2 w-[min(360px,calc(100vw-24px))] max-h-[420px] overflow-y-auto rounded-2xl border shadow-2xl p-2 z-50 ${panel}`}
+          className={`absolute right-0 mt-2 w-[min(420px,calc(100vw-24px))] max-h-[78vh] overflow-y-auto rounded-2xl border shadow-2xl p-2 z-50 ${panel}`}
         >
           <div className="px-3 pt-2 pb-2">
             <p className="text-xs font-black">Profile workspace</p>
             <p className={`text-[11px] mt-0.5 ${secondary}`}>Account identity stays signed in while you switch.</p>
           </div>
-          {profiles.map((profile, index) => {
+
+          {!typeOpen && profiles.map((profile, index) => {
             const selected = profile.id === selectedProfile.id;
             const status = profile.profile_status || "Live";
             return (
@@ -190,6 +239,42 @@ export function ProfileSelectorDropdown({
               </button>
             );
           })}
+
+          <div className="mt-2 pt-2 border-t border-current/10">
+            {!typeOpen ? (
+              <button
+                type="button"
+                onClick={() => setTypeOpen(true)}
+                className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-left transition-colors ${isDark ? "hover:bg-white/10" : "hover:bg-slate-50"}`}
+              >
+                <span>
+                  <span className="block text-sm font-black">Profile Type</span>
+                  <span className={`block text-xs mt-0.5 ${secondary}`}>Choose the role and public action for this profile.</span>
+                </span>
+                <ChevronDown className="w-4 h-4 -rotate-90 flex-shrink-0" />
+              </button>
+            ) : (
+              <div className="p-2">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setTypeOpen(false)}
+                    className={`text-xs font-black px-2.5 py-1.5 rounded-lg ${isDark ? "bg-white/8 text-white/70" : "bg-slate-100 text-slate-600"}`}
+                  >
+                    ← Profiles
+                  </button>
+                  {typeSaving && <span className={`text-[11px] font-semibold ${secondary}`}>Saving…</span>}
+                </div>
+                <ProfileTypeSelector
+                  profile={displayProfile}
+                  plan={userPlan || "free"}
+                  isDark={isDark}
+                  onChange={saveProfileType}
+                />
+                {typeError && <p className="text-xs font-semibold text-red-500 mt-3">{typeError}</p>}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
