@@ -404,6 +404,11 @@
       "type": "boolean",
       "default": true
     },
+    "lead_capture_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Owner-controlled visibility of the lead capture form on the public profile"
+    },
     "booking_enabled": {
       "type": "boolean",
       "default": false
