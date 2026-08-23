@@ -118,7 +118,7 @@ const EDITABLE_FIELDS = [
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
-  "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
+  "layout", "bg_style", "button_style", "button_color", "font_style", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
   "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
 ];
@@ -948,7 +948,7 @@ export default function ProfileWorkspace({
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
   const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
-  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "bg_style", "button_style", "theme_background_color"];
+  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "bg_style", "button_style", "button_color", "font_style", "theme_background_color"];
   const designHasChanges = designKeys.some((key) => JSON.stringify(liveForm?.[key]) !== JSON.stringify(profile?.[key]));
   const hasUnsavedChanges = useMemo(() => {
     if (!profile || !liveForm) return false;
