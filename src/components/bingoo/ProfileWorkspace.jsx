@@ -218,10 +218,10 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
-    <div className="space-y-5">
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
+    <div className="space-y-[18px] max-w-[520px]">
+      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} overflow-hidden`}>
         {/* Cover */}
-        <div className="relative cursor-pointer group overflow-hidden" style={{ height: "140px" }}>
+        <div className="relative cursor-pointer group overflow-hidden" style={{ height: "110px" }}>
           {liveForm.cover_photo
             ? <img src={liveForm.cover_photo} alt="" className="absolute inset-0 w-full h-full" style={{ objectFit: "cover", objectPosition: liveForm.cover_position || "center" }} />
             : <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${(liveForm.cover_color || "#2563eb")}cc 100%)` }} />
