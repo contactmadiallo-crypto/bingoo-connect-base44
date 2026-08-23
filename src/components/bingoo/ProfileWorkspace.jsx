@@ -117,7 +117,7 @@ const EDITABLE_FIELDS = [
   "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position",
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
-  "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
+  "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
   "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
@@ -429,6 +429,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
 // ── LINKS PANEL — wraps LinkStore sheet ──────────────────────────────────────
 function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang }) {
   const [storeOpen, setStoreOpen] = useState(false);
+  const [editingLinkId, setEditingLinkId] = useState(null);
   const headText  = isDark ? "text-white"    : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const panelBg   = isDark ? "bg-[#13162a]"  : "bg-white";
@@ -502,7 +503,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                 <div className="flex-1 min-w-0">
                   <p className={`text-[13px] font-bold ${headText} truncate`}>{r.label}</p>
                 </div>
-                <button type="button" onClick={() => setStoreOpen(true)}
+                <button type="button" onClick={() => { setEditingLinkId(r.key); setStoreOpen(true); }}
                   className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
                   Edit
                 </button>
@@ -520,7 +521,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               <div className="flex-1 min-w-0">
                 <p className={`text-[13px] font-bold ${headText} truncate`}>{link.label}</p>
               </div>
-              <button type="button" onClick={() => setStoreOpen(true)}
+              <button type="button" onClick={() => { setEditingLinkId(link._catalog_id || null); setStoreOpen(true); }}
                 className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
                 Edit
               </button>
@@ -530,7 +531,16 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         </div>
       )}
 
+      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} px-[14px] py-[13px] flex items-center gap-3`}>
+        <div className="flex-1 min-w-0">
+          <p className={`text-[13px] font-bold ${headText}`}>Lead Capture</p>
+          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Show the contact form on this public profile.</p>
+        </div>
+        <Toggle value={liveForm.lead_capture_enabled !== false} onChange={(v) => setVal("lead_capture_enabled", v)} />
+      </div>
+
       <div className="pt-1 flex items-center gap-4" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
+        <SaveBtn onSave={onSave} isPending={isPending} label="Save Links" />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
 
@@ -539,7 +549,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:p-6">
           <div className="absolute inset-0 bg-black/50" onClick={() => setStoreOpen(false)} />
           <div className={`relative w-full md:w-[640px] md:max-w-[calc(100vw-48px)] md:rounded-[20px] rounded-t-[20px] flex flex-col shadow-2xl overflow-hidden ${isDark ? "bg-[#0e1223]" : "bg-white"}`}
-            style={{ maxHeight: "88vh", height: "auto", minHeight: "560px" }}>
+            style={{ height: "min(760px, 88dvh)", maxHeight: "88dvh", minHeight: "0" }}>
             <LinkStore
               liveForm={liveForm}
               setVal={setVal}
@@ -548,7 +558,8 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               isPending={isPending}
               isDark={isDark}
               lang={lang}
-              onClose={() => setStoreOpen(false)}
+              initialEditingId={editingLinkId}
+              onClose={() => { setStoreOpen(false); setEditingLinkId(null); }}
             />
           </div>
         </div>
