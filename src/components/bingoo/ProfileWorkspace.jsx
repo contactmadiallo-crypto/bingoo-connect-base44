@@ -534,12 +534,12 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
 
-      {/* ── Link Store overlay ── */}
+      {/* ── Link Store overlay — Figma Make desktop modal dimensions ── */}
       {storeOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setStoreOpen(false)} />
-          <div className={`relative w-full md:max-w-lg md:mx-4 md:rounded-3xl rounded-t-3xl flex flex-col shadow-2xl ${isDark ? "bg-[#0e1223]" : "bg-white"}`}
-            style={{ maxHeight: "90vh", height: "90vh" }}>
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:p-6">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setStoreOpen(false)} />
+          <div className={`relative w-full md:w-[640px] md:max-w-[calc(100vw-48px)] md:rounded-[20px] rounded-t-[20px] flex flex-col shadow-2xl overflow-hidden ${isDark ? "bg-[#0e1223]" : "bg-white"}`}
+            style={{ maxHeight: "88vh", height: "auto", minHeight: "560px" }}>
             <LinkStore
               liveForm={liveForm}
               setVal={setVal}
