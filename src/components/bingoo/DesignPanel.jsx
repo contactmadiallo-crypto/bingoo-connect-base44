@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { Check, Upload, Sparkles, Palette, Layout, User, Eye, RotateCcw, Save } from "lucide-react";
+import { Check, Upload, Palette, User, Eye, RotateCcw, Save, Image as ImageIcon, MousePointer2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import LayoutPicker from "@/components/bingoo/LayoutPicker";
 import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
 
 
@@ -54,8 +53,9 @@ const AVATAR_FOCAL = [
 ];
 
 const SECTIONS = [
-  { id: "theme",    label: "Theme",        icon: Sparkles },
-  { id: "general",  label: "Profile",      icon: Palette },
+  { id: "theme", label: "Theme", icon: Palette },
+  { id: "media", label: "Photos", icon: ImageIcon },
+  { id: "buttons", label: "Buttons", icon: MousePointer2 },
 ];
 
 export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
@@ -190,8 +190,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         </div>
       )}
 
-      {/* ── GENERAL section: cover photo, avatar, button style ── */}
-      {section === "general" && (
+      {/* ── PHOTOS section: cover + avatar presentation ── */}
+      {section === "media" && (
         <div className="space-y-4">
           {/* Cover Photo */}
           <div className={rowCls}>
@@ -313,19 +313,29 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             </div>
           </div>
 
-          {/* Button Style */}
+        </div>
+      )}
+
+      {/* ── BUTTONS section ── */}
+      {section === "buttons" && (
+        <div className="space-y-4">
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Link Button Style</p>
-            <div className="flex gap-2 flex-wrap">
+            <div>
+              <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Link Button Style</p>
+              <p className={`text-xs mt-1 ${mutedText}`}>This style is used by the links and actions on the public profile.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {BTN_STYLES.map(o => {
                 const active = sel(o.v, liveForm.button_style || "pill");
                 return (
                   <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
-                    className={`flex items-center gap-1 px-4 py-2 text-xs font-bold border-2 transition-all ${
-                      active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/50" : "text-slate-500"} hover:border-slate-300`
-                    }`}
-                    style={{ borderRadius: o.radius, ...(active && isDark ? { background: "rgba(249,115,22,0.1)", borderColor: "#f97316", color: "#f97316" } : {}) }}>
-                    {active && <Check className="w-3 h-3" />}{o.label}
+                    className={`flex items-center gap-3 p-3 border-2 transition-all text-left ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
+                    style={{ borderRadius: 12, ...(active && isDark ? { background: "rgba(249,115,22,0.08)", borderColor: "#f97316" } : {}) }}>
+                    <span className="flex-1 px-4 py-2 text-center text-xs font-bold"
+                      style={{ borderRadius: o.radius, background: o.v === "outlined" ? "transparent" : (liveForm.cover_color || "#0b2149"), color: o.v === "outlined" ? (liveForm.cover_color || "#0b2149") : "#fff", border: o.v === "outlined" ? `2px solid ${liveForm.cover_color || "#0b2149"}` : "2px solid transparent" }}>
+                      {o.label}
+                    </span>
+                    {active && <Check className="w-4 h-4 text-orange-500 flex-shrink-0" />}
                   </button>
                 );
               })}
