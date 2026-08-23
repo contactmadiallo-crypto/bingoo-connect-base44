@@ -319,7 +319,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             </div>
           </div>
 
-          <button type="button" onClick={() => selectInnerTab?.("links")} className="hidden" aria-hidden="true" />
         </div>
       </div>
       <div className="flex items-center gap-4">
@@ -989,8 +988,9 @@ export default function ProfileWorkspace({
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!profileId || !liveForm) throw new Error("No profile loaded");
-      const payload = buildPayload(liveForm);
-      // 1. Send the update through the ownership-aware backend gate.
+      const payload = buildChangedPayload(liveForm, profile);
+      if (Object.keys(payload).length === 0) return profile;
+      // 1. Send only changed fields through the ownership-aware backend gate.
       const updateResponse = await base44.functions.invoke("updateProfileGated", { profile_id: profileId, data: payload });
       // 2. Refetch through the same ProfileAccess ownership path to verify persistence.
       const freshResponse = await base44.functions.invoke("getMyProfiles", { profile_id: profileId });
@@ -1038,10 +1038,14 @@ export default function ProfileWorkspace({
       }
     },
     onError: (err) => {
-      const msg = err?.message || "Unknown error";
+      const backend = err?.response?.data;
+      const validation = Array.isArray(backend?.errors) && backend.errors.length
+        ? backend.errors.map((item) => `${item.field}: ${item.error}`).join(", ")
+        : null;
+      const msg = validation || backend?.error || err?.message || "Unknown error";
       setSaveStatus("error");
       setSaveError(msg);
-      toast.error(msg, { id: "bingoo-save", duration: 4000 });
+      toast.error(msg, { id: "bingoo-save", duration: 5000 });
     },
   });
 
