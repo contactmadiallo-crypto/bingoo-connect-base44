@@ -1163,18 +1163,15 @@ export default function ProfileWorkspace({
   });
 
   return (
-    <div className="flex flex-col min-h-0 relative">
-      {/* ── Sticky header (top bar + tabs) — fixed below mobile header on scroll ── */}
-      <div className="sticky z-30 top-[calc(56px+env(safe-area-inset-top))] md:top-0 -mx-3 sm:-mx-6 px-3 sm:px-6 pt-1 pb-2"
-        style={{ background: isDark ? "#0a0c14" : "#f5f7fb", pointerEvents: "auto" }}>
-      {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 mb-2 flex-wrap" style={{ position: "relative", zIndex: 30 }}>
+    <div className="flex flex-col min-h-0 relative" style={{ background: isDark ? "#0a0c14" : "#F7F9FC" }}>
+      {/* ── Figma Make top bar ── */}
+      <div className={`flex items-center gap-3 px-[18px] py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
         <button type="button" onClick={onBack} aria-label="Back to profiles"
-          className={`flex items-center gap-1.5 text-xs font-semibold min-h-[44px] px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
-          <ChevronLeft className="w-4 h-4" /> {t("back_profiles", lang)}
+          className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+          <ChevronLeft className="w-[15px] h-[15px]" />
         </button>
 
-        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        <div className="flex-1 min-w-0">
           <ProfileSelectorDropdown
             profiles={profiles}
             selectedProfile={profiles.find((item) => item.id === profileId) || profile}
@@ -1183,22 +1180,19 @@ export default function ProfileWorkspace({
           />
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        {profileUrl && (
           <a href={profileUrl} target="_blank" rel="noopener noreferrer" aria-label="Preview profile"
-            className={`flex items-center gap-1.5 text-xs font-bold min-h-[44px] px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-            <Eye className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{t("preview", lang)}</span>
+            className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
+            <Eye className="w-[14px] h-[14px]" />
           </a>
-          <button type="button" onClick={copyUrl} aria-label={copiedUrl ? "Link copied" : "Copy profile link"}
-            className={`flex items-center gap-1.5 text-xs font-bold min-h-[44px] px-3 py-2 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-            {copiedUrl ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{copiedUrl ? t("copied", lang) : t("copy_link", lang)}</span>
-          </button>
-          <button type="button" onClick={() => setInnerTab("share")} aria-label="Share profile"
-            className="flex items-center gap-1.5 text-xs font-bold min-h-[44px] px-3 py-2 rounded-xl text-white hover:opacity-90 transition-all"
-            style={{ background: "#f97316" }}>
-            <QrCode className="w-3.5 h-3.5" /> <span className="hidden sm:inline">{t("share", lang)}</span>
-          </button>
-        </div>
+        )}
+
+        <button type="button" onClick={() => handleSave(innerTab)} disabled={saveMutation.isPending || !hasUnsavedChanges}
+          className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
+          style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.30)" }}>
+          {saveMutation.isPending && <Save className="w-[13px] h-[13px] animate-pulse" />}
+          Save
+        </button>
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs (ScrollableTabBand pattern) ── */}
@@ -1218,8 +1212,8 @@ export default function ProfileWorkspace({
       </div>
       </div>
 
-      {/* ── Main layout ── */}
-      <div className="flex flex-1 min-h-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#0f1220]">
+      {/* ── Main layout: exact Figma 3-column architecture ── */}
+      <div className="flex flex-1 min-h-0 max-w-full overflow-hidden">
         {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
         <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
           {INNER_TABS.map(tab => (
@@ -1236,8 +1230,8 @@ export default function ProfileWorkspace({
         </div>
 
         {/* Editing panel */}
-        <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#f8fafc] dark:bg-[#0a0c14]">
-          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-5 lg:px-7 py-6">
+        <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
+          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-7 py-6">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
@@ -1365,8 +1359,8 @@ export default function ProfileWorkspace({
           </div>
 
           {/* Live preview — desktop only, inline phone frame */}
-          <div className={`hidden xl:block flex-shrink-0 border-l px-5 py-6 ${isDark ? "bg-[#0f1220] border-white/10" : "bg-white border-slate-200"}`} style={{ width: 276 }}>
-            <div style={{ position: "sticky", top: 80 }}>
+          <div className={`hidden xl:block flex-shrink-0 border-l overflow-y-auto ${isDark ? "bg-[#0f1220] border-white/10" : "bg-[#F7F9FC] border-[#E5EAF2]"}`} style={{ width: 250, padding: "18px 14px" }}>
+            <div style={{ position: "sticky", top: 18 }}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
               <div style={{ background: "#0f172a", borderRadius: 32, padding: "10px 12px", boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", width: "fit-content" }}>
