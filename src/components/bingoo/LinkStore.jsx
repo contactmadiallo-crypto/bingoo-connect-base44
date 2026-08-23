@@ -122,29 +122,18 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
 function CatalogRow({ item, added, valuePreview, onEdit, isDark }) {
   const headText = isDark ? "text-white" : "text-slate-900";
   return (
-    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl border transition-all ${
-      added
-        ? isDark ? "border-emerald-500/25 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50/60"
-        : isDark ? "border-white/6 bg-white/[0.025] hover:bg-white/[0.05]" : "border-slate-100 bg-white hover:bg-slate-50"
-    }`}>
-      <item.Icon size={16} />
-      <div className="flex-1 min-w-0">
-        <p className={`font-semibold text-sm ${headText}`}>{item.label}</p>
-        {added && valuePreview && (
-          <p className={`text-xs truncate ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>{valuePreview}</p>
-        )}
+    <button onClick={onEdit}
+      className={`w-full flex items-center gap-2 px-[11px] py-[10px] rounded-[11px] border text-left transition-all ${
+        added
+          ? isDark ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-200 bg-emerald-50/40"
+          : isDark ? "border-white/10 bg-transparent hover:bg-white/5" : "border-slate-200 bg-white hover:bg-slate-50"
+      }`}>
+      <div className="w-[30px] h-[30px] flex items-center justify-center flex-shrink-0 overflow-hidden rounded-lg">
+        <item.Icon size={28} />
       </div>
-      <button
-        onClick={onEdit}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold flex-shrink-0 transition-all ${
-          added
-            ? isDark ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25" : "bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100"
-            : "text-white hover:opacity-90"
-        }`}
-        style={!added ? { background: "#f97316" } : {}}>
-        {added ? <><Check className="w-3 h-3" />Edit</> : <><Plus className="w-3 h-3" />Add</>}
-      </button>
-    </div>
+      <p className={`font-semibold text-[11px] ${added ? "text-emerald-600" : headText} flex-1 min-w-0 truncate`}>{item.label}</p>
+      {added ? <Check className="w-[11px] h-[11px] text-emerald-500 flex-shrink-0" /> : <Plus className={`w-[11px] h-[11px] flex-shrink-0 ${isDark ? "text-white/40" : "text-slate-400"}`} />}
+    </button>
   );
 }
 
