@@ -14,6 +14,13 @@
 const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const FONT_BODY    = "'Inter', system-ui, sans-serif";
 
+export function resolveProfileFont(profile) {
+  const style = profile?.font_style || "modern";
+  if (style === "classic") return "Georgia, 'Times New Roman', serif";
+  if (style === "clean") return "'Inter', system-ui, sans-serif";
+  return FONT_DISPLAY;
+}
+
 // ── Custom background helper — returns the layout's own fallback ─
 export function resolvePageBg(profile, fallbackBg) {
   const style = profile?.bg_style || "clean";
