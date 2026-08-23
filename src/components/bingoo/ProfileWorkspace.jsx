@@ -1219,26 +1219,25 @@ export default function ProfileWorkspace({
       </div>
 
       {/* ── Main layout ── */}
-      <div className="flex gap-4 flex-1 min-h-0 max-w-full">
-        {/* Desktop vertical nav */}
-        <div className="hidden md:flex flex-col gap-1 w-36 flex-shrink-0">
+      <div className="flex flex-1 min-h-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-[#0f1220]">
+        {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
+        <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left w-full ${
+              className={`flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-[10px] text-[9px] font-semibold transition-all text-center w-full min-h-[58px] ${
                 innerTab === tab.id
-                  ? (isDark ? "bg-white/10 text-white" : "bg-blue-50 text-blue-700")
-                  : (isDark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800")
-              }`}
-              style={innerTab === tab.id ? { borderLeft: "3px solid #f97316", borderRadius: "0 12px 12px 0" } : {}}>
-              <tab.icon className="w-4 h-4 flex-shrink-0" />
-              {tab.label}
+                  ? (isDark ? "bg-blue-500/15 text-blue-300" : "bg-blue-50 text-blue-500")
+                  : (isDark ? "text-white/45 hover:bg-white/5 hover:text-white" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600")
+              }`}>
+              <tab.icon className="w-[18px] h-[18px] flex-shrink-0" />
+              <span className="leading-none">{tab.label}</span>
             </button>
           ))}
         </div>
 
         {/* Editing panel */}
-        <div className="flex gap-4 flex-1 min-w-0 min-h-0 max-w-full">
-          <div className="flex-1 min-w-0 min-h-0 pb-safe">
+        <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#f8fafc] dark:bg-[#0a0c14]">
+          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-5 lg:px-7 py-6">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
@@ -1366,7 +1365,7 @@ export default function ProfileWorkspace({
           </div>
 
           {/* Live preview — desktop only, inline phone frame */}
-          <div className="hidden xl:block flex-shrink-0" style={{ width: 240 }}>
+          <div className={`hidden xl:block flex-shrink-0 border-l px-5 py-6 ${isDark ? "bg-[#0f1220] border-white/10" : "bg-white border-slate-200"}`} style={{ width: 276 }}>
             <div style={{ position: "sticky", top: 80 }}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
               {/* Phone shell */}
