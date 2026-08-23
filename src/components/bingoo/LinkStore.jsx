@@ -346,27 +346,22 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
         </>
       ) : (
         <>
-          {/* Category pills + Search */}
-          <div className={`px-4 py-3 border-b ${borderCls} flex-shrink-0 space-y-2 max-h-28 overflow-y-auto`}>
+          {/* Category pills — Figma has search in the toolbar above */}
+          <div className="px-[22px] pb-[10px] flex-shrink-0">
             <div className="flex gap-1.5 min-w-0 overflow-x-auto scrollbar-hide">
               {CATEGORIES.map(c => (
                 <button key={c.id} onClick={() => setCat(c.id)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all flex-shrink-0 ${
-                    cat === c.id ? "text-white" : isDark ? "bg-white/5 text-white/50 hover:bg-white/10" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                  }`}
-                  style={cat === c.id ? { background: "#0b2149" } : {}}>
+                  className={`px-[13px] py-[5px] rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
+                    cat === c.id ? "text-white border-blue-500 bg-blue-500" : isDark ? "border-white/10 bg-transparent text-white/60" : "border-slate-200 bg-white text-slate-800"
+                  }`}>
                   {c.label}
                 </button>
               ))}
             </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-              <input type="text" className={inputCls + " pl-8"} placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
-            </div>
           </div>
 
           {/* Catalog */}
-          <div className="flex-1 overflow-y-auto px-4 py-3">
+          <div className="flex-1 overflow-y-auto px-[22px] pb-[22px]">
             {filtered.length === 0 && (
               <p className={`text-center py-8 text-sm ${mutedText}`}>No links found</p>
             )}
@@ -382,7 +377,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                         Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
                       </p>
                     )}
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {items.map(item => (
                         <CatalogRow key={item.id} item={item} added={isAdded(item)}
                           valuePreview={getValuePreview(item)} onEdit={() => setEditing(item)} isDark={isDark} />
@@ -393,7 +388,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               </div>
             ) : (
               // Flat view
-              <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {cat === "payment" && (
                   <p className={`text-[10px] leading-relaxed pb-1 ${mutedText}`}>
                     Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
@@ -407,16 +402,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             )}
           </div>
 
-          {/* Done button */}
-          <div className={`flex-shrink-0 px-4 py-4 border-t ${borderCls}`}
-            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
-            <button
-              onClick={onClose}
-              className="w-full py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #0b2149, #13284f)" }}>
-              Done
-            </button>
-          </div>
+
         </>
       )}
     </div>
