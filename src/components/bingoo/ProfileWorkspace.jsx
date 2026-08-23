@@ -469,74 +469,68 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   const totalCount = FIELD_LINKS.length + links.length;
 
   return (
-    <div className="space-y-3 pb-4">
-      {/* Open Link Store button */}
-      <button type="button" onClick={() => setStoreOpen(true)}
-        className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border-2 border-dashed transition-all font-bold text-sm"
-        style={{ borderColor: "#f97316", color: "#f97316", background: isDark ? "rgba(249,115,22,0.05)" : "rgba(249,115,22,0.03)" }}>
-        <Plus className="w-5 h-5" />
-        Add Links from Link Store
-        {totalCount > 0 && <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>{totalCount}</span>}
-      </button>
-
-      {/* Active Links list */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} overflow-hidden`}>
-        <div className="px-4 py-3 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f9" }}>
-          <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Active Links</p>
-          <p className={`text-xs mt-0.5 ${mutedText}`}>Toggle to show/hide on public profile</p>
+    <div className="space-y-[18px] pb-4 max-w-[520px]">
+      {/* Figma Make links toolbar */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className={`text-[16px] font-extrabold ${headText}`}>Links</h2>
+          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Manage what appears on your public profile.</p>
         </div>
-        {totalCount === 0 ? (
-          <p className={`px-4 py-6 text-center text-sm ${mutedText}`}>No links added yet. Tap "Add Links" above.</p>
-        ) : (
-          <div className="divide-y" style={{ borderColor: isDark ? "rgba(255,255,255,0.04)" : "#f8fafc" }}>
-            {/* Field-type links — toggle uses hidden_links */}
-            {FIELD_LINKS.map(r => {
-              const isHidden = hiddenLinks.has(r.key);
-              return (
-                <div key={r.key} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${isHidden ? "opacity-40" : ""}`}>
-                  <r.Icon size={14} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold ${headText} truncate`}>{r.label}</p>
-                    <p className={`text-xs truncate ${mutedText}`}>{liveForm[r.key]}</p>
-                  </div>
-                  <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
-                    {r.category}
-                  </span>
-                  <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
-                  <button type="button" onClick={() => setVal(r.key, "")} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
-            {/* Custom links — toggle uses enabled field */}
-            {links.map((link, idx) => {
-              const catLabel = link.category
-                ? link.category.charAt(0).toUpperCase() + link.category.slice(1)
-                : "Custom";
-              return (
-                <div key={link.id || String(idx)} className={`flex items-center gap-3 px-3 py-2.5 transition-opacity ${!link.enabled ? "opacity-40" : ""}`}>
-                  <div className="flex-shrink-0">{getLinkIcon(link, 14)}</div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold ${headText} truncate`}>{link.label}</p>
-                    <p className={`text-xs truncate ${mutedText}`}>{link.url}</p>
-                  </div>
-                  <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${isDark ? "bg-white/8 text-white/30" : "bg-slate-100 text-slate-400"}`}>
-                    {catLabel}
-                  </span>
-                  <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
-                  <button type="button" onClick={() => removeLink(idx)} className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <button type="button" onClick={() => setStoreOpen(true)}
+          className="flex items-center gap-1.5 px-[18px] py-[9px] rounded-lg text-[13px] font-bold text-white flex-shrink-0"
+          style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}>
+          <Plus className="w-[14px] h-[14px]" /> Add Link
+        </button>
       </div>
 
-      <div className="pt-2 flex items-center gap-4" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
-        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
+      {totalCount === 0 ? (
+        <div className={`text-center px-5 py-9 rounded-[14px] border border-dashed ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
+          <div className="text-[30px] mb-2">🔗</div>
+          <div className={`text-[14px] font-bold mb-1 ${headText}`}>No links yet</div>
+          <div className={`text-[12px] ${mutedText}`}>Add social media, contact info, payments, and more.</div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {FIELD_LINKS.map(r => {
+            const isHidden = hiddenLinks.has(r.key);
+            return (
+              <div key={r.key} className={`flex items-center gap-[10px] px-[14px] py-[11px] rounded-[11px] border transition-opacity ${panelBg} ${panelBorder} ${isHidden ? "opacity-55" : ""}`}>
+                <GripVertical className="w-[15px] h-[15px] text-slate-300 flex-shrink-0" />
+                <div className={`w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/8" : "bg-[#F7F9FC]"}`}>
+                  <r.Icon size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-[13px] font-bold ${headText} truncate`}>{r.label}</p>
+                </div>
+                <button type="button" onClick={() => setStoreOpen(true)}
+                  className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                  Edit
+                </button>
+                <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
+              </div>
+            );
+          })}
+
+          {links.map((link, idx) => (
+            <div key={link.id || String(idx)} className={`flex items-center gap-[10px] px-[14px] py-[11px] rounded-[11px] border transition-opacity ${panelBg} ${panelBorder} ${!link.enabled ? "opacity-55" : ""}`}>
+              <GripVertical className="w-[15px] h-[15px] text-slate-300 flex-shrink-0" />
+              <div className="w-[34px] h-[34px] rounded-[9px] overflow-hidden flex items-center justify-center flex-shrink-0">
+                {getLinkIcon(link, 18)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-[13px] font-bold ${headText} truncate`}>{link.label}</p>
+              </div>
+              <button type="button" onClick={() => setStoreOpen(true)}
+                className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                Edit
+              </button>
+              <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="pt-1 flex items-center gap-4" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
 
