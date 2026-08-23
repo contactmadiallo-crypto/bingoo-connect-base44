@@ -138,7 +138,7 @@ function CatalogRow({ item, added, valuePreview, onEdit, isDark }) {
 }
 
 // ── Main LinkStore sheet ──────────────────────────────────────────────────────
-export default function LinkStore({ liveForm, setVal, set, onSave, isPending, isDark, lang, onClose }) {
+export default function LinkStore({ liveForm, setVal, set, onSave, isPending, isDark, lang, onClose, initialEditingId = null }) {
   const [cat, setCat]           = useState("all");
   const [search, setSearch]     = useState("");
   const [editing, setEditing]   = useState(null);
@@ -146,6 +146,15 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
   const [webOpen, setWebOpen]   = useState(false);
   const [webLabel, setWebLabel] = useState("");
   const [webUrl, setWebUrl]     = useState("https://");
+
+  useEffect(() => {
+    if (!initialEditingId) return;
+    const item = LINK_CATALOG.find(entry => entry.id === initialEditingId || entry.field === initialEditingId);
+    if (item) {
+      setWebOpen(false);
+      setEditing(item);
+    }
+  }, [initialEditingId]);
 
   const headText  = isDark ? "text-white"    : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
@@ -262,7 +271,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
   const addedCount = LINK_CATALOG.filter(i => isCatalogItemActive(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);
 
   return (
-    <div className="flex flex-col h-full safe-top">
+    <div className="flex flex-col h-full min-h-0 overflow-hidden safe-top">
       {/* Header — exact Figma hierarchy */}
       <div className={`flex items-center justify-between px-[22px] py-[18px] border-b ${borderCls} flex-shrink-0`}>
         <h2 className={`font-black text-[17px] ${headText}`}>Add Link</h2>
@@ -315,21 +324,15 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               saveRef={editSaveRef}
             />
           </div>
-          {/* Sticky Save — fixed above bottom nav, always visible on iOS Safari + Android */}
-          <div style={{
-            position: "fixed",
-            bottom: "calc(84px + env(safe-area-inset-bottom))",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "calc(100% - 32px)",
-            maxWidth: 520,
-            zIndex: 100,
-          }}>
+          {/* Save footer stays inside the modal so the edit form remains scrollable */}
+          <div className={`flex-shrink-0 px-4 pt-3 border-t ${borderCls}`}
+            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))", background: isDark ? "#0e1223" : "#fff" }}>
             <button
               onClick={() => editSaveRef.current?.()}
-              className="w-full py-3.5 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 20px rgba(249,115,22,0.4)" }}>
-              Save
+              disabled={isPending}
+              className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-60"
+              style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.24)" }}>
+              {isPending ? "Saving…" : "Save"}
             </button>
           </div>
         </>
@@ -350,7 +353,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
           </div>
 
           {/* Catalog */}
-          <div className="flex-1 overflow-y-auto px-[22px] pb-[22px]">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-[22px] pb-[22px]" style={{ WebkitOverflowScrolling: "touch" }}>
             {filtered.length === 0 && (
               <p className={`text-center py-8 text-sm ${mutedText}`}>No links found</p>
             )}
