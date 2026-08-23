@@ -55,8 +55,7 @@ const AVATAR_FOCAL = [
 
 const SECTIONS = [
   { id: "theme",    label: "Theme",        icon: Sparkles },
-  { id: "general",  label: "General",      icon: Palette },
-  { id: "layout",   label: "Layout",       icon: Layout },
+  { id: "general",  label: "Profile",      icon: Palette },
 ];
 
 export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
@@ -332,25 +331,6 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               })}
             </div>
           </div>
-        </div>
-      )}
-
-      {/* ── LAYOUT section: layout picker ── */}
-      {section === "layout" && (
-        <div className={rowCls}>
-          <p className={`text-xs font-black uppercase tracking-widest mb-3 ${mutedText}`}>Profile Layout</p>
-          <LayoutPicker
-            value={liveForm.layout || "classic"}
-            onChange={v => {
-              setVal("layout", v);
-              // Auto-save layout selection after short debounce
-              setTimeout(() => onLayoutChange?.(v), 100);
-            }}
-            color={liveForm.cover_color}
-            plan={userPlan || "free"}
-            isAdmin={user?.role === "admin"}
-            profile={liveForm}
-          />
         </div>
       )}
 
