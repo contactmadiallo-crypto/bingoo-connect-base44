@@ -511,9 +511,12 @@ export default function BingooDashboard() {
     performProfileSwitch(profileId);
   };
 
-  const openWorkspace = (profileId) => {
+  const openWorkspace = (profileId, editorTab = null) => {
     performProfileSwitch(profileId);
-    navigate(`/bingoo?view=${VIEW_WORKSPACE}`, { replace: false });
+    const params = new URLSearchParams({ view: VIEW_WORKSPACE });
+    if (profileId) params.set("profileId", profileId);
+    if (editorTab) params.set("editorTab", editorTab);
+    navigate(`/bingoo?${params.toString()}`, { replace: false });
   };
 
   const openNewProfile = () => {
@@ -735,6 +738,14 @@ export default function BingooDashboard() {
                 /* Profile workspace with inner tabs — onBack goes to hub, save stays on same inner tab */
                 <ProfileWorkspace
                   profileId={activeProfile.id}
+                  initialTab={searchParams.get("editorTab")}
+                  onTabChange={(tab) => {
+                    const next = new URLSearchParams(searchParams);
+                    next.set("view", VIEW_WORKSPACE);
+                    next.set("profileId", activeProfile.id);
+                    next.set("editorTab", tab);
+                    setSearchParams(next, { replace: true });
+                  }}
                   user={user}
                   onBack={openHub}
                   isDark={isDark}
