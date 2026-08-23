@@ -53,7 +53,7 @@ const AVATAR_FOCAL = [
 ];
 
 const SECTIONS = [
-  { id: "theme", label: "Theme", icon: Palette },
+  { id: "theme", label: "Appearance", icon: Palette },
   { id: "media", label: "Photos", icon: ImageIcon },
   { id: "buttons", label: "Buttons", icon: MousePointer2 },
 ];
@@ -110,7 +110,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       <div className={`rounded-2xl border ${border} ${bg} px-4 py-3 flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-black ${headText}`}>Design</p>
-          <p className={`text-[11px] ${mutedText}`}>Changes appear in the live preview before you publish them.</p>
+          <p className={`text-[11px] ${mutedText}`}>Customize the public profile. The preview and /p/ profile use these same saved settings.</p>
         </div>
         <button type="button" onClick={onPreview}
           className={`xl:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
@@ -147,7 +147,10 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       {section === "theme" && (
         <div className="space-y-4">
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Accent Color</p>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Profile color</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Used for your cover, accents and public-profile actions.</p>
+            </div>
             <div className="flex gap-2 flex-wrap">
               {COVER_COLORS.map(c => (
                 <button type="button" key={c} onClick={() => setVal("cover_color", c)} aria-label={c + ' color'}
@@ -169,7 +172,10 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           </div>
 
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Background Style</p>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Background</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose the atmosphere behind your public profile.</p>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {BG_STYLES.map(o => {
                 const active = sel(o.v, liveForm.bg_style || "clean");
@@ -197,7 +203,10 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         <div className="space-y-4">
           {/* Cover Photo */}
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Cover Photo</p>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Cover photo</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Optional image displayed at the top of your public profile.</p>
+            </div>
             {/* Large cover preview */}
             <div className={`w-full rounded-2xl overflow-hidden relative ${liveForm.cover_photo ? "" : (isDark ? "bg-white/5 border border-white/10" : "bg-slate-100 border border-slate-200")}`}
               style={{ height: 160 }}>
@@ -226,7 +235,10 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
           {/* Avatar */}
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Profile Photo</p>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Profile photo</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>The same photo shown on your public profile.</p>
+            </div>
             <div className="flex items-center gap-4">
               {/* Large circular avatar preview */}
               <div className="flex-shrink-0 relative">
@@ -323,8 +335,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         <div className="space-y-4">
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Link Button Style</p>
-              <p className={`text-xs mt-1 ${mutedText}`}>This style is used by the links and actions on the public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>Link buttons</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose how links and actions appear on the public profile.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {BTN_STYLES.map(o => {
