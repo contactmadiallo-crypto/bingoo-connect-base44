@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, Upload, Sparkles, Palette, Layout, User } from "lucide-react";
+import { Check, Upload, Sparkles, Palette, Layout, User, Eye, RotateCcw, Save } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import LayoutPicker from "@/components/bingoo/LayoutPicker";
@@ -59,7 +59,7 @@ const SECTIONS = [
   { id: "layout",   label: "Layout",       icon: Layout },
 ];
 
-export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange }) {
+export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
   const [section, setSection] = useState("theme");
   const [uploading, setUploading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -105,7 +105,27 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const sel = (v, current) => v === current;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-[720px]">
+      <div className={`rounded-2xl border ${border} ${bg} px-4 py-3 flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-black ${headText}`}>Design</p>
+          <p className={`text-[11px] ${mutedText}`}>Changes appear in the live preview before you publish them.</p>
+        </div>
+        <button type="button" onClick={onPreview}
+          className={`xl:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
+          <Eye className="w-3.5 h-3.5" /> Preview
+        </button>
+        <button type="button" onClick={onReset} disabled={!hasChanges || isPending}
+          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold disabled:opacity-40 ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
+          <RotateCcw className="w-3.5 h-3.5" /> Reset
+        </button>
+        <button type="button" onClick={handleSave} disabled={!hasChanges || isPending}
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white disabled:opacity-50"
+          style={{ background: "#f97316" }}>
+          <Save className={`w-3.5 h-3.5 ${isPending ? "animate-pulse" : ""}`} /> {isPending ? "Saving…" : "Save"}
+        </button>
+      </div>
+
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
       <div className={`flex gap-1 p-1 rounded-2xl ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
         {SECTIONS.map(s => (
