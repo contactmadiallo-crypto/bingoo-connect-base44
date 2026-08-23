@@ -58,6 +58,12 @@ const SECTIONS = [
   { id: "buttons", label: "Buttons", icon: MousePointer2 },
 ];
 
+const FONT_STYLES = [
+  { v: "modern", label: "Modern", family: "'Plus Jakarta Sans', 'Inter', sans-serif" },
+  { v: "clean", label: "Clean", family: "'Inter', sans-serif" },
+  { v: "classic", label: "Classic", family: "Georgia, serif" },
+];
+
 const BRAND = { navy: "#0b2149", orange: "#f97316", canvas: "#F7F9FC", border: "#E5EAF2" };
 
 export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
@@ -168,6 +174,26 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 <input type="color" value={liveForm.cover_color || "#2563eb"} onChange={e => setVal("cover_color", e.target.value)}
                   className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom" />
               </div>
+            </div>
+          </div>
+
+          <div className={rowCls}>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Typography</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose the type style used by the public profile.</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {FONT_STYLES.map(o => {
+                const active = sel(o.v, liveForm.font_style || "modern");
+                return (
+                  <button type="button" key={o.v} onClick={() => setVal("font_style", o.v)}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
+                    style={{ fontFamily: o.family, ...(active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.08)" } : {}) }}>
+                    <span className={`block text-lg font-bold ${active ? "text-orange-600" : headText}`}>Aa</span>
+                    <span className={`block text-[11px] mt-1 ${mutedText}`}>{o.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -338,6 +364,15 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               <p className={`text-xs font-black ${headText}`}>Link buttons</p>
               <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose how links and actions appear on the public profile.</p>
             </div>
+            <div className="mb-4">
+              <p className={`text-[11px] font-bold mb-2 ${mutedText}`}>Button color</p>
+              <div className="flex items-center gap-3">
+                <input type="color" value={liveForm.button_color || liveForm.cover_color || "#0b2149"}
+                  onChange={e => setVal("button_color", e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0" />
+                <button type="button" onClick={() => setVal("button_color", liveForm.cover_color || "#0b2149")}
+                  className={`px-3 py-2 rounded-lg border text-xs font-bold ${isDark ? "border-white/10 text-white/60" : "border-slate-200 text-slate-600"}`}>Use profile color</button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {BTN_STYLES.map(o => {
                 const active = sel(o.v, liveForm.button_style || "pill");
@@ -346,7 +381,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                     className={`flex items-center gap-3 p-3 border-2 transition-all text-left ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
                     style={{ borderRadius: 12, ...(active && isDark ? { background: "rgba(249,115,22,0.08)", borderColor: "#f97316" } : {}) }}>
                     <span className="flex-1 px-4 py-2 text-center text-xs font-bold"
-                      style={{ borderRadius: o.radius, background: o.v === "outlined" ? "transparent" : (liveForm.cover_color || "#0b2149"), color: o.v === "outlined" ? (liveForm.cover_color || "#0b2149") : "#fff", border: o.v === "outlined" ? `2px solid ${liveForm.cover_color || "#0b2149"}` : "2px solid transparent" }}>
+                      style={{ borderRadius: o.radius, background: o.v === "outlined" ? "transparent" : (liveForm.button_color || liveForm.cover_color || "#0b2149"), color: o.v === "outlined" ? (liveForm.button_color || liveForm.cover_color || "#0b2149") : "#fff", border: o.v === "outlined" ? `2px solid ${liveForm.button_color || liveForm.cover_color || "#0b2149"}` : "2px solid transparent" }}>
                       {o.label}
                     </span>
                     {active && <Check className="w-4 h-4 text-orange-500 flex-shrink-0" />}
