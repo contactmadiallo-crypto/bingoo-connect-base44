@@ -16,6 +16,15 @@ const FONT_BODY    = "'Inter', system-ui, sans-serif";
 
 // ── Custom background helper — returns the layout's own fallback ─
 export function resolvePageBg(profile, fallbackBg) {
+  const style = profile?.bg_style || "clean";
+  const color = profile?.cover_color || "#0b2149";
+  const custom = profile?.theme_background_color;
+  if (custom) return custom;
+  if (style === "night") return "#071A3D";
+  if (style === "gradient") return `linear-gradient(160deg, ${hexRgb(color, 0.14)} 0%, #F7F9FC 58%, #ffffff 100%)`;
+  if (style === "mesh") return `radial-gradient(circle at 15% 15%, ${hexRgb(color, 0.20)}, transparent 38%), radial-gradient(circle at 85% 10%, rgba(249,115,22,0.13), transparent 34%), #F7F9FC`;
+  if (style === "blur") return `linear-gradient(145deg, ${hexRgb(color, 0.12)}, rgba(255,255,255,0.94))`;
+  if (style === "animated") return `linear-gradient(135deg, ${hexRgb(color, 0.18)}, rgba(249,115,22,0.12), #F7F9FC)`;
   return fallbackBg;
 }
 
