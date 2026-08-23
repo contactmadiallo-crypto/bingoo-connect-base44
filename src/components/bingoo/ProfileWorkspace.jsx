@@ -948,6 +948,8 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 // ─────────────────────────────────────────────────────────────────────────
 export default function ProfileWorkspace({
   profileId,
+  initialTab,
+  onTabChange,
   user,
   onBack,
   isDark,
@@ -974,9 +976,19 @@ export default function ProfileWorkspace({
 
   const INNER_TABS = getProfileEditorTabs(lang);
 
-  const [innerTab, setInnerTab] = useState("info");
+  const validInitialTab = INNER_TABS.some((tab) => tab.id === initialTab) ? initialTab : "info";
+  const [innerTab, setInnerTab] = useState(validInitialTab);
+  const selectInnerTab = useCallback((tabId) => {
+    if (!INNER_TABS.some((tab) => tab.id === tabId)) return;
+    setInnerTab(tabId);
+    onTabChange?.(tabId);
+  }, [INNER_TABS, onTabChange]);
   useEffect(() => {
-    if (!INNER_TABS.some((tab) => tab.id === innerTab)) setInnerTab("info");
+    const next = INNER_TABS.some((tab) => tab.id === initialTab) ? initialTab : "info";
+    if (next !== innerTab) setInnerTab(next);
+  }, [initialTab]);
+  useEffect(() => {
+    if (!INNER_TABS.some((tab) => tab.id === innerTab)) selectInnerTab("info");
   }, [innerTab, userPlan]);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   // Track which tab triggered the current save (for post-save routing)
@@ -1083,7 +1095,8 @@ export default function ProfileWorkspace({
       // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
-        "cover_color","layout","language","is_active","show_location","booking_enabled","profile_category","profile_type"]; 
+        "cover_color","layout","bg_style","button_style","avatar_shape","avatar_position","avatar_placement",
+        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
         return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
@@ -1204,7 +1217,7 @@ export default function ProfileWorkspace({
       <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30, WebkitOverflowScrolling: "touch" }}>
         <div className="flex w-max min-w-full gap-2 px-1 whitespace-nowrap">
           {INNER_TABS.map(tab => (
-            <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)} aria-label={tab.label}
+            <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
               className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
                 innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
               }`}
@@ -1221,7 +1234,7 @@ export default function ProfileWorkspace({
         {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
         <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
           {INNER_TABS.map(tab => (
-            <button type="button" key={tab.id} onClick={() => setInnerTab(tab.id)}
+            <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)}
               className={`flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-[10px] text-[9px] font-semibold transition-all text-center w-full min-h-[58px] ${
                 innerTab === tab.id
                   ? (isDark ? "bg-blue-500/15 text-blue-300" : "bg-blue-50 text-blue-500")
