@@ -23,6 +23,7 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import ProfileTypeSelector from "@/components/bingoo/ProfileTypeSelector";
 import { ProfileSelectorDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import BusinessToolsPanel from "@/components/bingoo/BusinessToolsPanel";
@@ -41,6 +42,7 @@ import {
 } from "@/components/bingoo/BrandIcons";
 import { usePlan } from "@/hooks/usePlan";
 import { PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
+import { getProfileEditorTabs } from "@/lib/profileEditorTabs";
 import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
@@ -118,7 +120,7 @@ const EDITABLE_FIELDS = [
   "orangemoney_link", "booking_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
-  "bg_watermark_image", "bg_watermark_opacity",
+  "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
 ];
 
 function buildPayload(liveForm) {
@@ -965,23 +967,7 @@ export default function ProfileWorkspace({
 
   const lang = langProp || getLang();
 
-  const allInnerTabs = [
-    { id: "info",      label: t("info", lang),      icon: Info },
-    { id: "design",    label: t("design", lang),    icon: Palette },
-    { id: "links",     label: t("links", lang),     icon: Link2 },
-    { id: "media",     label: "Media",              icon: ImageIcon },
-    { id: "business",  label: "Business",           icon: Briefcase },
-    { id: "share",     label: t("share", lang),     icon: Share2 },
-    { id: "lostmode",  label: t("lost_mode", lang), icon: AlertOctagon },
-    { id: "settings",  label: t("settings", lang),  icon: Settings },
-  ];
-  const INNER_TABS = allInnerTabs.filter((tab) => {
-    if (user?.role === "admin") return true;
-    if (tab.id === "media") return canAccess(userPlan, "portfolio");
-    if (tab.id === "business") return canAccess(userPlan, "business_profile");
-    if (tab.id === "lostmode") return canAccess(userPlan, "lost_mode");
-    return true;
-  });
+  const INNER_TABS = getProfileEditorTabs(lang);
 
   const [innerTab, setInnerTab] = useState("info");
   useEffect(() => {
@@ -1092,7 +1078,7 @@ export default function ProfileWorkspace({
       // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
-        "cover_color","layout","language","is_active","show_location","booking_enabled"];
+        "cover_color","layout","language","is_active","show_location","booking_enabled","profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
         return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
@@ -1255,6 +1241,25 @@ export default function ProfileWorkspace({
           <div className="flex-1 min-w-0 min-h-0 pb-safe">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
+            )}
+            {innerTab === "profiletype" && (
+              <div className="space-y-5">
+                <div className={`rounded-2xl border p-5 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
+                  <ProfileTypeSelector
+                    profile={liveForm}
+                    plan={userPlan || "free"}
+                    isDark={isDark}
+                    onChange={(category) => {
+                      setVal("profile_category", category.id);
+                      setVal("profile_type", category.profileType);
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <SaveBtn onSave={() => handleSave("profiletype")} isPending={saveMutation.isPending} label="Save Profile Type" />
+                  <SaveStatus status={saveTabRef.current === "profiletype" ? saveStatus : null} time={saveTime} error={saveError} lang={lang} />
+                </div>
+              </div>
             )}
             {innerTab === "links" && (
               <LinksPanel {...makeSaveProps("links")} liveForm={liveForm} setVal={setVal} set={set} />
