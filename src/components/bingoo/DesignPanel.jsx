@@ -58,6 +58,8 @@ const SECTIONS = [
   { id: "buttons", label: "Buttons", icon: MousePointer2 },
 ];
 
+const BRAND = { navy: "#0b2149", orange: "#f97316", canvas: "#F7F9FC", border: "#E5EAF2" };
+
 export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
   const [section, setSection] = useState("theme");
   const [uploading, setUploading] = useState(false);
