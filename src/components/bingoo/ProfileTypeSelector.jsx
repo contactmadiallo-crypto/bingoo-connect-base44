@@ -1,11 +1,11 @@
 import { Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2 } from "lucide-react";
 
 const TYPES = [
-  { id: "personal", profileType: "personal", label: "Personal", description: "A clean personal profile with simple contact actions.", icon: UserRound, minPlan: "free" },
-  { id: "content_creator", profileType: "professional", label: "Content Creator", description: "Creator profile with a Book a Collab lead action.", icon: Sparkles, minPlan: "professional" },
-  { id: "photographer", profileType: "professional", label: "Photographer / Filmmaker", description: "Portfolio-led profile with a Book a Session lead action.", icon: Camera, minPlan: "professional" },
-  { id: "model", profileType: "professional", label: "Model", description: "Model profile with a Collab / Shooting lead action.", icon: Aperture, minPlan: "professional" },
-  { id: "business", profileType: "business", label: "Business / Brand", description: "Business identity with brand details and business features.", icon: Building2, minPlan: "business" },
+  { id: "personal", profileType: "personal", label: "Personal", icon: UserRound, minPlan: "free" },
+  { id: "content_creator", profileType: "professional", label: "Content Creator", icon: Sparkles, minPlan: "professional" },
+  { id: "photographer", profileType: "professional", label: "Photographer / Filmmaker", icon: Camera, minPlan: "professional" },
+  { id: "model", profileType: "professional", label: "Model", icon: Aperture, minPlan: "professional" },
+  { id: "business", profileType: "business", label: "Business / Brand", icon: Building2, minPlan: "business" },
 ];
 
 const RANK = { free: 0, professional: 1, pro: 1, salon: 2, restaurant: 2, lawfirm: 2, business: 2, corporate: 2, enterprise: 3 };
@@ -23,9 +23,6 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
     <div>
       <div className="mb-4">
         <h2 className={`text-base font-black ${isDark ? "text-white" : "text-slate-900"}`}>Profile Type</h2>
-        <p className={`text-xs mt-1 ${isDark ? "text-white/45" : "text-slate-500"}`}>
-          Choose how this profile works. Your selection controls the matching public-profile action while keeping Info and Contact clean.
-        </p>
       </div>
       <div className="grid gap-2.5">
         {TYPES.map((item) => {
@@ -50,7 +47,6 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
                     {selected && <Check className="w-4 h-4 text-orange-500" />}
                     {locked && <Lock className={`w-3.5 h-3.5 ml-auto ${isDark ? "text-white/35" : "text-slate-400"}`} />}
                   </div>
-                  <p className={`text-xs mt-1 leading-relaxed ${isDark ? "text-white/45" : "text-slate-500"}`}>{item.description}</p>
                   {locked && <p className="text-[11px] mt-1.5 font-bold text-orange-500">Requires {item.minPlan === "business" ? "Business" : "Professional"}</p>}
                 </div>
               </div>
