@@ -283,7 +283,7 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
 }
 
 // ════════════════════════════════════════════════════════════
-export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track }) {
+export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track, primaryContactDocked = false }) {
   const [bookOpen, setBookOpen] = useState(false);
   const [bookService, setBookService] = useState(null);
   const [bookStylist, setBookStylist] = useState(null);
@@ -337,16 +337,20 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   // True generic custom links — anything that didn't resolve to a known category
   const clGeneric  = activeCustomLinks.filter(l => getLinkCategory(l) === "generic");
 
-  // ── Primary contact row ───────────────────────────────────────────────────
+  // ── Public action groups ──────────────────────────────────────────────────
+  // Call / WhatsApp may be docked in the persistent bottom action bar. When they
+  // are docked, never repeat them inside the scrollable content stack.
   const contactIcons = [
-    profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: "Call", ev: "phone_click" },
-    supportsWhatsAppBooking && waBookingHref && profile.whatsapp_booking_message && !hiddenLinks.has("whatsapp_number")
+    !primaryContactDocked && profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: "Call", ev: "phone_click" },
+    !primaryContactDocked && (supportsWhatsAppBooking && waBookingHref && profile.whatsapp_booking_message && !hiddenLinks.has("whatsapp_number")
       ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
-      : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" },
+      : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" }),
     profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
+  ].filter(Boolean);
+
+  const bookingItems = [
     profileCategoryMeta.cta && profile.email && { href: `mailto:${profile.email}?subject=${encodeURIComponent(profileCategory === "content_creator" ? "Collaboration inquiry" : profileCategory === "photographer" ? "Session inquiry" : "Collaboration / shooting inquiry")}`, icon: <BICalendar size={58} />, label: profileCategoryMeta.cta, ev: null },
-    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book", ev: null },
-    // Booking custom link goes into contact row too
+    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book Appointment", ev: null },
     ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
       href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
       icon: <BICalendar size={58} />, label: l.label, ev: null,
@@ -385,15 +389,18 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   // ── Business Info row ─────────────────────────────────────────────────────
   const businessCustomLinks = clBusiness.filter(l => l._catalog_id !== "booking");
 
-  // Figma List mode is one unified iOS-style link surface, not mixed grids/cards.
-  const listItems = [
-    ...contactIcons.map(item => ({ ...item, icon: item.icon && React.cloneElement(item.icon, { size: 36 }) })),
-    ...socialIcons.map(item => ({ ...item, icon: item.icon && React.cloneElement(item.icon, { size: 36 }) })),
-    ...clContent.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
-    ...clGeneric.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+  const toSmallIcon = (item) => ({ ...item, icon: item.icon && React.cloneElement(item.icon, { size: 36 }) });
+  const contactListItems = contactIcons.map(toSmallIcon);
+  const bookingListItems = bookingItems.map(toSmallIcon);
+  const socialListItems = socialIcons.map(toSmallIcon);
+  const businessListItems = [
     profile.website && !hiddenLinks.has("website") && { href: profile.website.startsWith("http") ? profile.website : `https://${profile.website}`, icon: <BIWebsite size={36} />, label: profile.website.replace(/^https?:\/\//, ""), ev: "website_click" },
     profile.location && profile.show_location !== false && !hiddenLinks.has("location") && { href: `https://maps.google.com/?q=${encodeURIComponent(profile.location)}`, icon: <BILocation size={36} />, label: profile.location, ev: "location_click" },
     ...businessCustomLinks.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+  ].filter(Boolean);
+  const otherListItems = [
+    ...clContent.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+    ...clGeneric.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
   ].filter(Boolean);
 
   return (
