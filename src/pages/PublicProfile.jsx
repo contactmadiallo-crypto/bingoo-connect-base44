@@ -342,6 +342,7 @@ export default function PublicProfile() {
     <ProfileContentSections
       profile={profile} color={color} isDark={isDark}
       isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+      primaryContactDocked={Boolean(profile.phone || profile.whatsapp_number)}
     />
   );
 
