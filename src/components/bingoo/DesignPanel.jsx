@@ -372,8 +372,40 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         <div className="space-y-4">
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Link buttons</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose how links and actions appear on the public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>Link display style</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Figma architecture for how links appear on the public profile.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {LINK_DISPLAY_STYLES.map(o => {
+                const active = sel(o.v, liveForm.link_display_style || "icons");
+                return <button type="button" key={o.v} onClick={() => setVal("link_display_style", o.v)}
+                  className={`min-h-[112px] rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${active ? "border-blue-500 bg-blue-50" : isDark ? "border-white/10" : "border-slate-200"}`}>
+                  <span className={`text-3xl ${active ? "text-blue-500" : mutedText}`}>{o.glyph}</span>
+                  <span className={`text-xs font-black ${active ? "text-blue-600" : headText}`}>{o.label}</span>
+                  <span className={`text-[10px] ${mutedText}`}>{o.desc}</span>
+                </button>;
+              })}
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>Icon shape</p>
+                <div className="flex rounded-xl overflow-hidden border border-slate-200">
+                  {LINK_ICON_SHAPES.map(o => <button type="button" key={o.v} onClick={() => setVal("link_icon_shape", o.v)} className={`flex-1 px-2 py-2 text-[10px] font-bold ${sel(o.v, liveForm.link_icon_shape || "rounded") ? "bg-blue-50 text-blue-600" : headText}`}>{o.label}</button>)}
+                </div>
+              </div>
+              <div>
+                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>Row style</p>
+                <div className="flex rounded-xl overflow-hidden border border-slate-200">
+                  {LINK_ROW_STYLES.map(o => <button type="button" key={o.v} onClick={() => setVal("link_row_style", o.v)} className={`flex-1 px-2 py-2 text-[10px] font-bold ${sel(o.v, liveForm.link_row_style || "ios") ? "bg-blue-50 text-blue-600" : headText}`}>{o.label}</button>)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className={rowCls}>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>Save contact style</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Use the iOS-style action treatment from the Figma design.</p>
             </div>
             <div className="mb-4">
               <p className={`text-[11px] font-bold mb-2 ${mutedText}`}>Button color</p>
