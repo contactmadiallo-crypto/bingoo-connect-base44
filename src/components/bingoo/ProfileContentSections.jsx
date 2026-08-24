@@ -215,17 +215,19 @@ function PaymentBtn({ p, color, isDark, buttonDesign }) {
   );
 }
 
-function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign }) {
+function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign, rowStyle = "ios", iconShape = "rounded" }) {
+  const radius = rowStyle === "pill" ? 999 : 14;
+  const iconRadius = iconShape === "circle" ? "50%" : iconShape === "square" ? 6 : 10;
   const style = {
-    display: "flex", alignItems: "center", gap: 14,
-    padding: "13px 16px", borderRadius: buttonDesign.radius,
-    background: buttonDesign.outlined ? "transparent" : (isDark ? "rgba(255,255,255,0.05)" : buttonDesign.flat ? "transparent" : "#f7f8fa"),
-    border: buttonDesign.outlined ? `2px solid ${buttonDesign.color}` : (buttonDesign.flat ? "1px solid transparent" : (isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ebebeb")),
+    display: "flex", alignItems: "center", gap: 12,
+    padding: "11px 14px", borderRadius: radius,
+    background: rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.06)" : "#f7f8fa"),
+    border: rowStyle === "outline" ? `1.5px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #edf0f4"),
     textDecoration: "none", color: "inherit",
   };
   const content = (
     <>
-      <div style={{ flexShrink: 0 }}>{iconEl}</div>
+      <div style={{ flexShrink: 0, width: 36, height: 36, borderRadius: iconRadius, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>{iconEl}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ margin: 0, fontWeight: 600, fontSize: 14, fontFamily: FONT_BODY,
           color: isDark ? "rgba(255,255,255,0.9)" : "#1e293b",
@@ -287,6 +289,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const [shared, setShared] = useState(false);
 
   const buttonDesign = resolveButtonDesign(profile, color);
+  const linkDisplayStyle = profile.link_display_style || "icons";
+  const linkRowStyle = profile.link_row_style || "ios";
+  const linkIconShape = profile.link_icon_shape || "rounded";
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
   const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
