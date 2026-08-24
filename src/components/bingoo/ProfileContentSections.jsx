@@ -444,7 +444,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                   href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
                   iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
                   title={link.label}
-                  isDark={isDark} track={track}
+                  isDark={isDark} track={track} buttonDesign={buttonDesign}
                 />
               </motion.div>
             ))}
@@ -462,26 +462,26 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
               <RowLink href={profile.website} ev="website_click" track={track}
                 iconEl={<WebsiteIcon size={20} color={color} />}
                 title={profile.website.replace(/^https?:\/\//, "")}
-                isDark={isDark} />
+                isDark={isDark} buttonDesign={buttonDesign} />
             )}
             {profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
               <RowLink href={`https://maps.google.com/?q=${encodeURIComponent(profile.location)}`} ev="location_click" track={track}
                 iconEl={<MapPinIcon size={20} color="#ef4444" />}
                 title={profile.location} subtitle="Get Directions →"
-                isDark={isDark} />
+                isDark={isDark} buttonDesign={buttonDesign} />
             )}
             {profile.google_review_url && (
               <RowLink href={profile.google_review_url} track={track}
                 iconEl={<span style={{ fontSize: 22 }}>⭐</span>}
                 title="Leave a Google Review" subtitle="Share your experience →"
-                isDark={isDark} />
+                isDark={isDark} buttonDesign={buttonDesign} />
             )}
             {businessCustomLinks.map((link, i) => (
               <RowLink key={link.id || i}
                 href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
                 iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
                 title={link.label}
-                isDark={isDark} track={track}
+                isDark={isDark} track={track} buttonDesign={buttonDesign}
               />
             ))}
           </div>
@@ -494,7 +494,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Send Money</SLabel>
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(payments.length, 4)}, 1fr)`, gap: 10 }}>
-            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} />)}
+            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} />)}
           </div>
         </>
       )}
