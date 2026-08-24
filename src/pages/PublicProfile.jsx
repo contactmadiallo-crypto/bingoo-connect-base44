@@ -168,7 +168,37 @@ export default function PublicProfile() {
         if (res.status === 404 || res.data?.not_found) {
           return { profile: null, not_found: true };
         }
-        return { profile: res.data?.profile || null, not_found: false };
+
+        const gatedProfile = res.data?.profile || null;
+        if (!gatedProfile) return { profile: null, not_found: true };
+
+        // getPublicProfile remains the access/privacy gate. After it succeeds,
+        // overlay only non-sensitive visual fields from the fresh active Profile
+        // record so newly saved Figma Design settings cannot be hidden by a stale
+        // deployed function bundle.
+        let freshVisual = null;
+        try {
+          const rows = await base44.entities.Profile.filter({ username, is_active: true }, "-updated_date", 1);
+          freshVisual = rows?.[0] || null;
+        } catch (visualErr) {
+          console.warn("[PublicProfile] fresh visual overlay unavailable", visualErr?.message || visualErr);
+        }
+
+        const VISUAL_FIELDS = [
+          "layout", "profile_layout", "profile_theme", "bg_style",
+          "cover_color", "cover_photo", "theme_background_color", "bg_watermark_image", "bg_watermark_opacity",
+          "profile_photo", "avatar_shape", "avatar_placement", "avatar_position", "cover_position",
+          "button_style", "button_color", "font_style",
+          "link_display_style", "link_row_style", "link_icon_shape"
+        ];
+        const profile = { ...gatedProfile };
+        if (freshVisual) {
+          for (const field of VISUAL_FIELDS) {
+            if (freshVisual[field] !== undefined) profile[field] = freshVisual[field];
+          }
+        }
+
+        return { profile, not_found: false };
       } catch (err) {
         // axios throws on 4xx — check if it's a 404
         if (err?.response?.status === 404) {
