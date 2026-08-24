@@ -354,7 +354,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           </div>
 
         </div>
-      </div>
       <div className="flex items-center gap-4">
         <SaveBtn onSave={onSave} isPending={isPending} label={t("save_info", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
