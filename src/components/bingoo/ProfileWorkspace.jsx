@@ -23,6 +23,7 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
+import DesignTab from "@/components/bingoo/DesignTab";
 import ProfileTypeSelector from "@/components/bingoo/ProfileTypeSelector";
 import { ProfileSelectorDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
@@ -236,7 +237,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className={`text-[16px] font-extrabold ${headText}`}>Profile</h2>
-          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Manage the identity visitors see on your public profile.</p>
         </div>
         <button type="button" onClick={onSave} disabled={isPending}
           className="inline-flex items-center gap-1.5 px-[18px] py-[9px] rounded-[10px] text-[13px] font-bold text-white disabled:opacity-50 flex-shrink-0"
@@ -251,7 +251,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <p className={`text-[13px] font-black ${headText}`}>Profile photo</p>
-            <p className={`text-[11px] mt-0.5 ${mutedText}`}>Your main profile image and account plan.</p>
           </div>
           {(() => {
             const ep = userPlan || "free";
@@ -316,7 +315,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                     setVal("company_logo", file_url);
                   }} />
                 </label>
-                <p className={`text-xs mt-1 ${mutedText}`}>PNG, SVG or JPG · shown on your public profile</p>
+
               </div>
             </div>
           </div>}
@@ -340,16 +339,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
               <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
-            </div>
-          </div>
-
-          <div className={`mt-5 rounded-xl border p-4 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
-            <div className="flex items-start gap-3">
-              <Link2 className="w-4 h-4 mt-0.5 text-orange-500" />
-              <div>
-                <p className={`text-xs font-black ${headText}`}>Contact & Social Links</p>
-                <p className={`text-[11px] mt-1 leading-5 ${mutedText}`}>Phone, WhatsApp, email, website, location and social accounts stay in Links, where they can be edited and shown or hidden on the public profile without duplicate fields here.</p>
-              </div>
             </div>
           </div>
 
@@ -1222,6 +1211,12 @@ export default function ProfileWorkspace({
                 onReset={resetDesign}
                 hasChanges={designHasChanges}
               />
+            )}
+            {innerTab === "layouts" && (
+              <DesignTab profile={{ ...(profile || {}), ...(liveForm || {}) }} user={user} onSaved={async () => {
+                const refreshed = await refetchProfile();
+                if (refreshed?.data) setLiveForm({ ...refreshed.data });
+              }} />
             )}
             {innerTab === "media" && (
               <PortfolioPanel profileId={profileId} user={user} />
