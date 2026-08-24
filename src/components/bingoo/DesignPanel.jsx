@@ -324,22 +324,20 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             </div>
           </div>
 
-          {/* Avatar Focal Point */}
-          <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Photo Focal Point</p>
-            <p className={`text-xs mb-2 ${mutedText}`}>Where to crop when zooming in</p>
-            <div className="flex gap-2 flex-wrap">
-              {AVATAR_FOCAL.map(o => {
-                const active = sel(o.v, liveForm.avatar_position || "center top");
-                return (
-                  <button type="button" key={o.v} onClick={() => setVal("avatar_position", o.v)}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition-all ${active ? "border-orange-400 bg-orange-50 text-orange-600" : `border-slate-200 ${isDark ? "border-white/10 text-white/50" : "text-slate-500"}`}`}
-                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.1)", color: "#f97316" } : {}}>
-                    {active && <Check className="w-3 h-3" />}{o.label}
-                  </button>
-                );
-              })}
+          {/* Real avatar crop / reposition / zoom */}
+          {liveForm.profile_photo && <div className={rowCls}>
+            <div>
+              <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Crop & Position Profile Photo</p>
+              <p className={`text-xs mt-1 ${mutedText}`}>Move the image horizontally/vertically and zoom it in. The public profile uses these exact values.</p>
             </div>
+            <div className="mx-auto w-40 h-40 overflow-hidden bg-slate-100" style={{ borderRadius: liveForm.avatar_shape === "square" ? 10 : liveForm.avatar_shape === "rounded" ? 28 : "50%" }}>
+              <img src={liveForm.profile_photo} alt="Profile crop preview" className="w-full h-full" style={{ objectFit: "cover", objectPosition: `${liveForm.avatar_crop_x ?? 50}% ${liveForm.avatar_crop_y ?? 50}%`, transform: `scale(${liveForm.avatar_zoom || 1})` }} />
+            </div>
+            {[['avatar_crop_x','Horizontal',0,100,1],['avatar_crop_y','Vertical',0,100,1],['avatar_zoom','Zoom',1,3,.05]].map(([key,label,min,max,step]) => <label key={key} className="block">
+              <div className="flex justify-between mb-1"><span className={`text-[11px] font-bold ${headText}`}>{label}</span><span className={`text-[10px] ${mutedText}`}>{key === 'avatar_zoom' ? `${Number(liveForm[key] || 1).toFixed(2)}×` : `${liveForm[key] ?? 50}%`}</span></div>
+              <input type="range" min={min} max={max} step={step} value={liveForm[key] ?? (key === 'avatar_zoom' ? 1 : 50)} onChange={e => setVal(key, Number(e.target.value))} className="w-full accent-orange-500" />
+            </label>)}
+            <button type="button" onClick={() => { setVal('avatar_crop_x',50); setVal('avatar_crop_y',50); setVal('avatar_zoom',1); }} className={`text-xs font-bold self-start ${mutedText}`}>Reset crop</button>
           </div>
 
           {/* Avatar Placement */}
