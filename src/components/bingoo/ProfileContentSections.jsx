@@ -2,7 +2,7 @@
  * ProfileContentSections — Circo-inspired modern layout.
  * Custom links are routed to their correct category row via getLinkCategory().
  */
-import { useState } from "react";
+import React, { useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import AppointmentBooking from "@/components/bingoo/AppointmentBooking";
