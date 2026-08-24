@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 
-export default function SaveProfileButton({ profile, source = "manual", color = "#0b2149" }) {
+export default function SaveProfileButton({ profile, source = "manual", color = "#0b2149", buttonStyle = "pill" }) {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -59,6 +59,10 @@ export default function SaveProfileButton({ profile, source = "manual", color = 
 
   if (!checked) return null;
 
+  const radius = buttonStyle === "pill" ? 999 : buttonStyle === "rounded" ? 14 : buttonStyle === "sharp" ? 6 : buttonStyle === "flat" ? 8 : 14;
+  const outlined = buttonStyle === "outlined";
+  const flat = buttonStyle === "flat";
+
   return (
     <>
       <motion.button
@@ -68,13 +72,13 @@ export default function SaveProfileButton({ profile, source = "manual", color = 
         disabled={saved || saving}
         style={{
           width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-          padding: "13px 10px", borderRadius: 14,
+          padding: "13px 10px", borderRadius: radius,
           background: saved
             ? "linear-gradient(135deg, #10b981, #059669)"
-            : `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
-          color: "#fff", fontWeight: 800, fontSize: 13.5,
-          border: "none", cursor: saved ? "default" : "pointer",
-          boxShadow: saved ? "0 6px 20px rgba(16,185,129,0.4)" : `0 6px 20px ${hexRgb(color, 0.4)}`,
+            : outlined ? "transparent" : flat ? color : `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
+          color: saved ? "#fff" : outlined ? color : "#fff", fontWeight: 800, fontSize: 13.5,
+          border: saved ? "none" : outlined ? `2px solid ${color}` : "none", cursor: saved ? "default" : "pointer",
+          boxShadow: saved ? "0 6px 20px rgba(16,185,129,0.4)" : (outlined || flat ? "none" : `0 6px 20px ${hexRgb(color, 0.4)}`),
           opacity: saving ? 0.7 : 1,
           transition: "all 0.3s ease",
         }}
