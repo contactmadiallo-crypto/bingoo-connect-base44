@@ -154,7 +154,7 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
   const cardBg= isDark ? "#111827" : "#fff";
   const text  = isDark ? "#fff" : "#0f172a";
   const sub   = isDark ? "rgba(255,255,255,0.52)" : "#64748b";
-  const heroH = mobile ? 210 : 248;
+  const heroH = mobile ? 184 : 220;
   const pullUp= (size + ringW * 2) / 2;
 
   const pageBg = resolvePageBg(profile, bg);
@@ -195,8 +195,8 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
         </div>
 
         {/* IDENTITY */}
-        <div style={{ textAlign: "center", padding: mobile ? "12px 22px 18px" : "15px 36px 22px", position: "relative", zIndex: 5 }}>
-          <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 25 : 29, fontWeight: 850, color: text, lineHeight: 1.08, letterSpacing: "-0.035em", fontFamily: resolveProfileFont(profile) }}>
+        <div style={{ textAlign: "center", padding: mobile ? "8px 22px 14px" : "10px 36px 16px", position: "relative", zIndex: 5 }}>
+          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 23 : 27, fontWeight: 850, color: text, lineHeight: 1.08, letterSpacing: "-0.035em", fontFamily: resolveProfileFont(profile) }}>
             {profile?.display_name}
           </h1>
           {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 13, fontWeight: 700, color, fontFamily: FONT_BODY, letterSpacing: "-0.005em" }}>{profile.job_title}</p>}
@@ -206,12 +206,12 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
 
       {/* Integrated content surface — closer to the Figma profile architecture */}
       <div style={{
-        margin: mobile ? "0 12px 86px" : "0 18px 72px",
+        margin: mobile ? "0 10px 82px" : "0 16px 68px",
         background: cardBg,
-        borderRadius: mobile ? 20 : 22,
-        boxShadow: isDark ? "0 8px 30px rgba(0,0,0,0.24)" : "0 8px 28px rgba(15,23,42,0.055)",
-        border: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(15,23,42,0.045)",
-        padding: mobile ? "16px 14px 32px" : "22px 22px 44px",
+        borderRadius: mobile ? 18 : 20,
+        boxShadow: isDark ? "0 6px 22px rgba(0,0,0,0.20)" : "0 6px 22px rgba(15,23,42,0.045)",
+        border: isDark ? "1px solid rgba(255,255,255,0.055)" : "1px solid rgba(15,23,42,0.04)",
+        padding: mobile ? "14px 12px 26px" : "18px 18px 34px",
       }}>
         {contentSections}
       </div>
