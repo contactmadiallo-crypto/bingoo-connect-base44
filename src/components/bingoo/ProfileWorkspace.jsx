@@ -1229,8 +1229,8 @@ export default function ProfileWorkspace({
                 profile={profile}
                 user={user}
                 onSaved={() => {
-                  queryClient.invalidateQueries({ queryKey: ["my-profile"] });
-                  queryClient.invalidateQueries({ queryKey: ["public-profile", profile?.username] });
+                  qc.invalidateQueries({ queryKey: ["my-profile"] });
+                  qc.invalidateQueries({ queryKey: ["public-profile", profile?.username] });
                 }}
               />
             )}
