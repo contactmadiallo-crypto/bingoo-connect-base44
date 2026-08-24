@@ -47,17 +47,24 @@ export default function ProfileLayoutShell({ profile, color, isDark, children })
   const pageBg = hasCustomBg ? "transparent" : getShellBg(layout, color, isDark);
 
   return (
-    <div style={{ minHeight: "100vh", background: pageBg }}>
+    <div style={{
+      minHeight: "100vh",
+      background: pageBg,
+      padding: mobile ? 0 : "24px 18px 56px",
+    }}>
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, y: 18, scale: mobile ? 1 : 0.992 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
         style={{
           width: "100%",
-          maxWidth: mobile ? "100%" : 480,
+          maxWidth: mobile ? "100%" : 460,
+          minHeight: mobile ? "100vh" : "calc(100vh - 80px)",
           margin: "0 auto",
-          // CRITICAL: no overflow:hidden here — avatar must escape the cover
           position: "relative",
+          borderRadius: mobile ? 0 : 28,
+          boxShadow: mobile ? "none" : (isDark ? "0 28px 80px rgba(0,0,0,.38)" : "0 24px 70px rgba(15,23,42,.14)"),
+          isolation: "isolate",
         }}
       >
         {children}
