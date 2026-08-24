@@ -385,14 +385,14 @@ export default function PublicProfile() {
             {profile.phone && (
               <a href={`tel:${profile.phone}`}
                 onClick={() => track("phone_click")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#16a34a,#15803d)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(22,163,74,0.35)", letterSpacing: "0.01em" }}>
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 48, padding: "11px 14px", borderRadius: 14, background: "#16a34a", color: "#fff", fontWeight: 800, fontSize: 13, textDecoration: "none", boxShadow: "0 5px 16px rgba(22,163,74,0.22)", letterSpacing: "-0.01em" }}>
                 <PhoneIcon size={18} /> Call Now
               </a>
             )}
             {profile.whatsapp_number && (
               <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
                 onClick={() => track("whatsapp_click")}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 16px", borderRadius: 16, background: "linear-gradient(135deg,#25D366,#128C7E)", color: "#fff", fontWeight: 800, fontSize: 14, textDecoration: "none", boxShadow: "0 8px 24px rgba(37,211,102,0.35)", letterSpacing: "0.01em" }}>
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 48, padding: "11px 14px", borderRadius: 14, background: "#25D366", color: "#fff", fontWeight: 800, fontSize: 13, textDecoration: "none", boxShadow: "0 5px 16px rgba(37,211,102,0.22)", letterSpacing: "-0.01em" }}>
                 <WhatsAppIcon size={18} /> {isSalonOrRestaurant && profile.whatsapp_booking_message ? "Book via WA" : "WhatsApp"}
               </a>
             )}
