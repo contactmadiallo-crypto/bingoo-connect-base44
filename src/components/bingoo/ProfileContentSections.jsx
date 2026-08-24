@@ -215,16 +215,16 @@ function PaymentBtn({ p, color, isDark, buttonDesign }) {
   );
 }
 
-function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign, rowStyle = "ios", iconShape = "rounded" }) {
-  const radius = rowStyle === "pill" ? 999 : 14;
-  const iconRadius = iconShape === "circle" ? "50%" : iconShape === "square" ? 6 : 10;
+function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign, rowStyle = "ios", iconShape = "rounded", grouped = false }) {
+  const radius = grouped ? 0 : (rowStyle === "pill" ? 999 : 14);
+  const iconRadius = iconShape === "circle" ? "50%" : iconShape === "square" ? 7 : 10;
   const style = {
     display: "flex", alignItems: "center", gap: 12,
-    minHeight: 58, padding: "10px 12px", borderRadius: radius,
-    background: rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.07)" : "rgba(248,250,252,0.96)"),
-    border: rowStyle === "outline" ? `1px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)"),
-    boxShadow: rowStyle === "ios" ? (isDark ? "0 1px 0 rgba(255,255,255,0.03) inset" : "0 1px 2px rgba(15,23,42,0.035)") : "none",
-    textDecoration: "none", color: "inherit", transition: "transform .16s ease, background .16s ease, box-shadow .16s ease",
+    minHeight: 58, padding: grouped ? "10px 14px" : "10px 12px", borderRadius: radius,
+    background: grouped ? "transparent" : (rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.07)" : "rgba(248,250,252,0.96)")),
+    border: grouped ? "none" : (rowStyle === "outline" ? `1px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)")),
+    boxShadow: grouped ? "none" : (rowStyle === "ios" ? (isDark ? "0 1px 0 rgba(255,255,255,0.03) inset" : "0 1px 2px rgba(15,23,42,0.035)") : "none"),
+    textDecoration: "none", color: "inherit", transition: "background .16s ease",
   };
   const content = (
     <>
@@ -238,8 +238,8 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
       {chevron && <span aria-hidden="true" style={{ color: isDark ? "rgba(255,255,255,0.36)" : "#94a3b8", fontSize: 24, lineHeight: 1, fontWeight: 300, flexShrink: 0 }}>›</span>}
     </>
   );
-  if (href) return <motion.a href={href} target="_blank" rel="noopener noreferrer" style={style} whileHover={{ x: 3 }} onClick={() => ev && track(ev)}>{content}</motion.a>;
-  return <motion.button onClick={onClick} style={{ ...style, width: "100%", border: style.border, cursor: "pointer" }} whileHover={{ x: 3 }}>{content}</motion.button>;
+  if (href) return <motion.a href={href} target="_blank" rel="noopener noreferrer" style={style} whileTap={{ scale: .99 }} onClick={() => ev && track(ev)}>{content}</motion.a>;
+  return <motion.button onClick={onClick} style={{ ...style, width: "100%", border: style.border, cursor: "pointer" }} whileTap={{ scale: .99 }}>{content}</motion.button>;
 }
 
 // ── Icon grid row renderer ────────────────────────────────────
