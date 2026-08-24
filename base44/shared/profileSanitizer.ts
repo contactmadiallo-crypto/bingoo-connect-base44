@@ -25,6 +25,9 @@ const VALID_AVATAR_POSITIONS = new Set(['center top','center','center bottom','l
 const VALID_COVER_POSITIONS = new Set(['center','top','bottom','left center','right center']);
 const VALID_BG_STYLES = new Set(['clean','gradient','mesh','night','blur','animated']);
 const VALID_BUTTON_STYLES = new Set(['pill','rounded','sharp','outlined','flat']);
+const VALID_LINK_DISPLAY_STYLES = new Set(['list','icons']);
+const VALID_LINK_ROW_STYLES = new Set(['ios','pill','outline']);
+const VALID_LINK_ICON_SHAPES = new Set(['rounded','square','circle']);
 const VALID_FONT_STYLES = new Set(['modern','clean','classic']);
 const VALID_PROFILE_THEMES = new Set(['modern','classic','glassmorphic']);
 const VALID_PROFILE_LAYOUTS = new Set(['default','ny_championship','lions_teranga']);
@@ -51,7 +54,7 @@ export const PROFESSIONAL_ADDITIONAL = new Set([
   'profile_photo','cover_photo','company_logo','theme_background_color',
   'bg_watermark_image','bg_watermark_opacity','avatar_shape','avatar_placement',
   'avatar_position','cover_position','qr_watermark','layout','profile_layout',
-  'profile_theme','bg_style','button_style','button_color','font_style','payment_link','custom_payments',
+  'profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','payment_link','custom_payments',
   'google_review_url','whatsapp_booking_message',
 ]);
 
@@ -81,6 +84,9 @@ const FIELD_REQUIRES_FEATURE = {
   button_style: 'custom_branding',
   button_color: 'custom_branding',
   font_style: 'custom_branding',
+  link_display_style: 'custom_branding',
+  link_row_style: 'custom_branding',
+  link_icon_shape: 'custom_branding',
   payment_link: 'product_showcase',
   custom_payments: 'product_showcase',
   google_review_url: 'google_reviews',
@@ -293,6 +299,9 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
       case 'cover_position': sanitized.cover_position = validateEnum(value, 'cover_position', VALID_COVER_POSITIONS, errors); continue;
       case 'bg_style': sanitized.bg_style = validateEnum(value, 'bg_style', VALID_BG_STYLES, errors); continue;
       case 'button_style': sanitized.button_style = validateEnum(value, 'button_style', VALID_BUTTON_STYLES, errors); continue;
+      case 'link_display_style': sanitized.link_display_style = validateEnum(value, 'link_display_style', VALID_LINK_DISPLAY_STYLES, errors); continue;
+      case 'link_row_style': sanitized.link_row_style = validateEnum(value, 'link_row_style', VALID_LINK_ROW_STYLES, errors); continue;
+      case 'link_icon_shape': sanitized.link_icon_shape = validateEnum(value, 'link_icon_shape', VALID_LINK_ICON_SHAPES, errors); continue;
       case 'font_style': sanitized.font_style = validateEnum(value, 'font_style', VALID_FONT_STYLES, errors); continue;
       case 'profile_theme': sanitized.profile_theme = validateEnum(value, 'profile_theme', VALID_PROFILE_THEMES, errors); continue;
       case 'profile_layout': sanitized.profile_layout = validateEnum(value, 'profile_layout', VALID_PROFILE_LAYOUTS, errors); continue;
@@ -372,7 +381,7 @@ const OWNER_PROFILE_FIELDS = [
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
   'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position',
   'qr_color','qr_label','qr_watermark','layout','profile_layout','profile_theme','bg_style',
-  'button_style','button_color','font_style','phone','whatsapp_number','email','website','location','show_location',
+  'button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','payment_link',
   'custom_payments','custom_links','hidden_links','privacy_settings','language','google_review_url',
   'whatsapp_booking_message','profile_type','profile_category','lead_capture_enabled','booking_enabled','booking_slot_duration',
@@ -396,7 +405,7 @@ const PUBLIC_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
   'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position',
-  'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','profile_type','profile_category',
+  'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','profile_type','profile_category',
   'phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
   'qr_color','qr_label','qr_watermark','language','is_verified','verification_type',
