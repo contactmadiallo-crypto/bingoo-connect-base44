@@ -270,7 +270,7 @@ export default function PublicProfile() {
     </div>
   );
 
-  const color = profile.button_color || profile.cover_color || B.navy;
+  const color = profile.cover_color || B.navy;
   const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev);
 
