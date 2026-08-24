@@ -462,6 +462,18 @@
       "default": "personal",
       "description": "Profile category/vertical \u2014 drives sidebar navigation sections. NOT a subscription plan. Paid entitlement comes from the Subscription entity only."
     },
+    "profile_category": {
+      "type": "string",
+      "enum": [
+        "personal",
+        "content_creator",
+        "photographer",
+        "model",
+        "business"
+      ],
+      "default": "personal",
+      "description": "User-selected public profile category/subtype used to drive the matching public-profile presentation and actions."
+    },
     "plan": {
       "type": "string",
       "enum": [
