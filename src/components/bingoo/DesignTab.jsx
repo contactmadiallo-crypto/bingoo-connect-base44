@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { layouts } from "./LayoutPicker";
 import LayoutMiniPreview from "./LayoutMiniPreview";
-import { Check, CheckCircle, Crown, ExternalLink, LayoutGrid, Palette, Sparkles, Upload } from "lucide-react";
+import { Check, CheckCircle, ExternalLink, LayoutGrid, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
@@ -49,6 +49,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   const [saving, setSaving] = useState(null);
 
   const [pendingChanges, setPendingChanges] = useState({});
+  const [layoutFilter, setLayoutFilter] = useState("all");
 
   const isAdmin = user?.role === 'admin';
   // isPro: derived from subscription plan (usePlan), NOT profile.plan — prevents free users
@@ -56,7 +57,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   const { plan: subPlan } = usePlan();
   const isPro = isAdmin || (subPlan && subPlan !== 'free');
   const currentLayout = profile?.layout || "classic";
-  const color = pendingChanges.cover_color ?? profile?.cover_color ?? "#2563eb";
+  const color = profile?.cover_color ?? "#2563eb";
   const profileUrl = publicProfileUrl(profile?.username);
 
   const headText = isDark ? "text-white" : "text-slate-900";
@@ -68,10 +69,6 @@ export default function DesignTab({ profile, user, onSaved }) {
 
   const selectLayout = (layoutId) => {
     setPendingChanges(prev => ({ ...prev, layout: layoutId }));
-  };
-
-  const updateProfile = (data) => {
-    setPendingChanges(prev => ({ ...prev, ...data }));
   };
 
   const handleSave = async () => {
@@ -110,19 +107,6 @@ export default function DesignTab({ profile, user, onSaved }) {
     }
   };
 
-  const handleCoverPhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setSaving("cover");
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      await updateProfile({ cover_photo: file_url });
-    } catch (err) {
-      console.error("Upload failed:", err);
-      setSaving(null);
-    }
-  };
-
   if (!profile) {
     return (
       <div className="text-center py-20">
@@ -131,8 +115,15 @@ export default function DesignTab({ profile, user, onSaved }) {
     );
   }
 
-  // Merged profile reflects pending changes for live preview
-  const previewProfile = { ...profile, ...pendingChanges };
+  const selectedLayout = pendingChanges.layout || currentLayout;
+  const visibleLayouts = useMemo(() => {
+    return layouts.filter((layout) => {
+      if (layoutFilter === "standard") return !layout.pro;
+      if (layoutFilter === "premium") return layout.pro && !["ny_championship", "lions_teranga"].includes(layout.id);
+      if (layoutFilter === "editions") return ["ny_championship", "lions_teranga"].includes(layout.id);
+      return true;
+    });
+  }, [layoutFilter]);
 
   return (
     <div className="space-y-8">
