@@ -347,16 +347,17 @@ export default function PublicProfile() {
   return (
     <div ref={topRef} style={{ position: "relative", minHeight: "100vh", background: "#fff" }}>
 
-      {/* Back button — frosted glass */}
+      {/* Figma/iOS public-profile navigation chrome */}
       <motion.button
+        aria-label="Go back"
         onClick={() => window.history.back()}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.3 }}
-        whileHover={{ scale: 1.05 }}
-        style={{ position: "fixed", top: 16, left: 16, zIndex: 100, display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 999, background: "rgba(255,255,255,0.88)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", boxShadow: "0 2px 16px rgba(0,0,0,0.1)", border: "1px solid rgba(255,255,255,0.6)", color: "#374151", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+        initial={{ opacity: 0, scale: .9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        whileTap={{ scale: .94 }}
+        style={{ position: "fixed", top: "max(14px, env(safe-area-inset-top))", left: 14, zIndex: 100, width: 40, height: 40, borderRadius: 13, background: "rgba(255,255,255,0.82)", backdropFilter: "blur(24px) saturate(160%)", WebkitBackdropFilter: "blur(24px) saturate(160%)", boxShadow: "0 6px 24px rgba(15,23,42,0.12)", border: "1px solid rgba(255,255,255,0.72)", color: "#0f172a", fontWeight: 800, fontSize: 20, lineHeight: 1, cursor: "pointer", display: "grid", placeItems: "center" }}
       >
-        ← Back
+        ‹
       </motion.button>
 
       {/* Main card — real layout renderer */}
@@ -374,13 +375,13 @@ export default function PublicProfile() {
           transition={{ delay: 0.8, type: "spring", stiffness: 200, damping: 25 }}
           style={{
             position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
-            padding: "12px 16px calc(12px + env(safe-area-inset-bottom))",
-            background: "rgba(255,255,255,0.95)", backdropFilter: "blur(20px)",
-            borderTop: "1px solid rgba(0,0,0,0.06)",
-            boxShadow: "0 -8px 40px rgba(0,0,0,0.08)",
+            padding: "10px 14px calc(10px + env(safe-area-inset-bottom))",
+            background: "rgba(248,250,252,0.84)", backdropFilter: "blur(28px) saturate(170%)", WebkitBackdropFilter: "blur(28px) saturate(170%)",
+            borderTop: "1px solid rgba(255,255,255,0.72)",
+            boxShadow: "0 -10px 34px rgba(15,23,42,0.08)",
           }}
         >
-          <div style={{ maxWidth: 440, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && profile.whatsapp_number ? "1fr 1fr" : "1fr", gap: 10 }}>
+          <div style={{ maxWidth: 432, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && profile.whatsapp_number ? "1fr 1fr" : "1fr", gap: 8 }}>
             {profile.phone && (
               <a href={`tel:${profile.phone}`}
                 onClick={() => track("phone_click")}
