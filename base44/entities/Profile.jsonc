@@ -190,7 +190,37 @@
         "outlined",
         "flat"
       ],
-      "default": "pill"
+      "default": "pill",
+      "description": "Save/contact action style. Legacy values map to Figma iOS Filled, Light, Text, Outline and Ghost styles."
+    },
+    "link_display_style": {
+      "type": "string",
+      "enum": [
+        "list",
+        "icons"
+      ],
+      "default": "icons",
+      "description": "Figma Design link display mode"
+    },
+    "link_row_style": {
+      "type": "string",
+      "enum": [
+        "ios",
+        "pill",
+        "outline"
+      ],
+      "default": "ios",
+      "description": "Visual treatment for public profile link rows"
+    },
+    "link_icon_shape": {
+      "type": "string",
+      "enum": [
+        "rounded",
+        "square",
+        "circle"
+      ],
+      "default": "rounded",
+      "description": "Shape used behind leading link icons"
     },
     "button_color": {
       "type": "string",
