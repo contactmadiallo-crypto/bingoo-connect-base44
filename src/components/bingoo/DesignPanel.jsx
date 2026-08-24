@@ -248,7 +248,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             <div className={`w-full rounded-2xl overflow-hidden relative ${liveForm.cover_photo ? "" : (isDark ? "bg-white/5 border border-white/10" : "bg-slate-100 border border-slate-200")}`}
               style={{ height: 160 }}>
               {liveForm.cover_photo
-                ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
+                ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: `${liveForm.cover_crop_x ?? 50}% ${liveForm.cover_crop_y ?? 50}%`, transform: `scale(${liveForm.cover_zoom || 1})` }} />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${liveForm.cover_color || "#2563eb"}99 100%)` }}>
                     <p className="text-xs font-bold text-white/60">No cover photo</p>
                     <p className="text-xs text-white/40">Using accent color</p>
@@ -268,6 +268,14 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
                 </button>
               )}
             </div>
+            {liveForm.cover_photo && <div className="space-y-3 pt-1">
+              <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Crop & Position Cover</p>
+              {[['cover_crop_x','Horizontal',0,100,1],['cover_crop_y','Vertical',0,100,1],['cover_zoom','Zoom',1,3,.05]].map(([key,label,min,max,step]) => <label key={key} className="block">
+                <div className="flex justify-between mb-1"><span className={`text-[11px] font-bold ${headText}`}>{label}</span><span className={`text-[10px] ${mutedText}`}>{key === 'cover_zoom' ? `${Number(liveForm[key] || 1).toFixed(2)}×` : `${liveForm[key] ?? 50}%`}</span></div>
+                <input type="range" min={min} max={max} step={step} value={liveForm[key] ?? (key === 'cover_zoom' ? 1 : 50)} onChange={e => setVal(key, Number(e.target.value))} className="w-full accent-orange-500" />
+              </label>)}
+              <button type="button" onClick={() => { setVal('cover_crop_x',50); setVal('cover_crop_y',50); setVal('cover_zoom',1); }} className={`text-xs font-bold ${mutedText}`}>Reset crop</button>
+            </div>}
           </div>
 
           {/* Avatar */}
