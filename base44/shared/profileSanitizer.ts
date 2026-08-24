@@ -410,8 +410,9 @@ const PUBLIC_PROFILE_FIELDS = [
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
   'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position','avatar_crop_x','avatar_crop_y','avatar_zoom','cover_crop_x','cover_crop_y','cover_zoom',
   'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','profile_type','profile_category',
-  'phone','whatsapp_number','email','website','location','show_location',
+  'phone','whatsapp_number','email','website','location','show_location','hidden_links',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
+  'payment_link','zelle_link','zelle_qr','cashapp_link','cashapp_qr','orangemoney_link','orangemoney_qr','wave_link','wave_qr',
   'qr_color','qr_label','qr_watermark','language','is_verified','verification_type',
   'lead_capture_enabled','booking_enabled','booking_slot_duration','business_hours',
 ];
@@ -430,13 +431,13 @@ export function pickPublicProfileFields(profile, privacy) {
     out.custom_links = profile.custom_links
       .filter((l) => l && l.enabled !== false && !hidden.includes(l._catalog_id) && !hidden.includes(l.id))
       .filter((l) => isUrl(l.url, WEB_PROTOCOLS))
-      .map((l) => ({ label: l.label, url: l.url, category: l.category }));
+      .map((l) => ({ id: l.id, label: l.label, url: l.url, category: l.category, _catalog_id: l._catalog_id }));
   }
 
   if (Array.isArray(profile.custom_payments)) {
     out.custom_payments = profile.custom_payments
       .filter((pm) => pm && (isUrl(pm.link, WEB_PROTOCOLS) || isUrl(pm.qr, WEB_PROTOCOLS)))
-      .map((pm) => ({ label: pm.label, emoji: pm.emoji, link: pm.link }));
+      .map((pm) => ({ label: pm.label, emoji: pm.emoji, link: pm.link, qr: pm.qr }));
   }
 
   return out;
