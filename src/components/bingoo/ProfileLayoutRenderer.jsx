@@ -911,7 +911,7 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
           marginTop: profile?.cover_photo ? (mobile ? -20 : -24) : 0,
         }}>
           <div style={{ height: 3, background: `repeating-linear-gradient(90deg, ${accent} 0, ${accent} 8px, transparent 8px, transparent 14px)`, marginBottom: 20 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 20, ...getInlineAvatarPlacement(profile) }}>
             <div style={{ flexShrink: 0,
               border: `3px solid ${accent}`,
               borderRadius: `calc(${radius} + 3px)`,
