@@ -107,14 +107,6 @@ export default function DesignTab({ profile, user, onSaved }) {
     }
   };
 
-  if (!profile) {
-    return (
-      <div className="text-center py-20">
-        <p className={`text-lg font-semibold ${subText}`}>Create a profile first to customize its design.</p>
-      </div>
-    );
-  }
-
   const selectedLayout = pendingChanges.layout || currentLayout;
   const visibleLayouts = useMemo(() => {
     return layouts.filter((layout) => {
@@ -124,6 +116,14 @@ export default function DesignTab({ profile, user, onSaved }) {
       return true;
     });
   }, [layoutFilter]);
+
+  if (!profile) {
+    return (
+      <div className="text-center py-20">
+        <p className={`text-lg font-semibold ${subText}`}>Create a profile first to customize its design.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-24 max-w-[1040px]">
