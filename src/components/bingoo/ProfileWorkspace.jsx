@@ -231,14 +231,34 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
-    <div className="space-y-[18px] max-w-[560px]">
-      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} overflow-hidden`}>
-        <div className="px-5 py-4 border-b" style={{ borderColor: isDark ? "rgba(255,255,255,.08)" : "#E5EAF2" }}>
-          <p className={`text-[15px] font-black ${headText}`}>Profile Information</p>
-          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Manage the identity and presentation details shown on your public profile.</p>
+    <div className="space-y-[18px] pb-4 max-w-[560px]">
+      {/* Figma Profile page toolbar */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className={`text-[16px] font-extrabold ${headText}`}>Profile</h2>
+          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Manage the identity visitors see on your public profile.</p>
         </div>
+        <button type="button" onClick={onSave} disabled={isPending}
+          className="inline-flex items-center gap-1.5 px-[18px] py-[9px] rounded-[10px] text-[13px] font-bold text-white disabled:opacity-50 flex-shrink-0"
+          style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.24)" }}>
+          <Save className={`w-[14px] h-[14px] ${isPending ? "animate-pulse" : ""}`} />
+          {isPending ? "Saving…" : "Save Profile"}
+        </button>
+      </div>
 
-        <div className="px-5 pb-5 pt-5">
+      {/* Profile identity / photo card */}
+      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-[18px]`}>
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <p className={`text-[13px] font-black ${headText}`}>Profile photo</p>
+            <p className={`text-[11px] mt-0.5 ${mutedText}`}>Your main profile image and account plan.</p>
+          </div>
+          {(() => {
+            const ep = userPlan || "free";
+            const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
+            return <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide" style={{ background: colors.bg, color: colors.text }}>{PLAN_LABELS[ep] || "Free"}</span>;
+          })()}
+        </div>
           <div className="flex items-center gap-4 mb-5 relative z-10">
             <div className="relative flex-shrink-0">
               {(() => {
