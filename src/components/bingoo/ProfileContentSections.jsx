@@ -417,11 +417,20 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Business profile extras: logo, offer, gallery, review CTA ── */}
       <BusinessProfileExtras profile={profile} color={color} isDark={isDark} track={track} />
 
-      {/* ── Contact row: Call / WhatsApp / Email / Book ── */}
-      <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
-
-      {/* ── Social row: wrapping grid, 5 per row ── */}
-      <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
+      {/* ── Figma Link Display Style: icon grid or iOS list ── */}
+      {linkDisplayStyle === "icons" ? (
+        <>
+          <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
+          <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
+        </>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+          {[...contactIcons, ...socialIcons].map((item, i) => (
+            <RowLink key={item.label + i} href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
+              ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} rowStyle={linkRowStyle} iconShape={linkIconShape} />
+          ))}
+        </div>
+      )}
 
       {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
       {clContent.length > 0 && (
@@ -449,7 +458,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                   href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
                   iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
                   title={link.label}
-                  isDark={isDark} track={track} buttonDesign={buttonDesign}
+                  isDark={isDark} track={track} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape}
                 />
               </motion.div>
             ))}
@@ -467,26 +476,26 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
               <RowLink href={profile.website} ev="website_click" track={track}
                 iconEl={<WebsiteIcon size={20} color={color} />}
                 title={profile.website.replace(/^https?:\/\//, "")}
-                isDark={isDark} buttonDesign={buttonDesign} />
+                isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
             {profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
               <RowLink href={`https://maps.google.com/?q=${encodeURIComponent(profile.location)}`} ev="location_click" track={track}
                 iconEl={<MapPinIcon size={20} color="#ef4444" />}
                 title={profile.location} subtitle="Get Directions →"
-                isDark={isDark} buttonDesign={buttonDesign} />
+                isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
             {profile.google_review_url && (
               <RowLink href={profile.google_review_url} track={track}
                 iconEl={<span style={{ fontSize: 22 }}>⭐</span>}
                 title="Leave a Google Review" subtitle="Share your experience →"
-                isDark={isDark} buttonDesign={buttonDesign} />
+                isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
             {businessCustomLinks.map((link, i) => (
               <RowLink key={link.id || i}
                 href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
                 iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
                 title={link.label}
-                isDark={isDark} track={track} buttonDesign={buttonDesign}
+                isDark={isDark} track={track} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape}
               />
             ))}
           </div>
@@ -499,7 +508,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Send Money</SLabel>
           <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(payments.length, 4)}, 1fr)`, gap: 10 }}>
-            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} />)}
+            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />)}
           </div>
         </>
       )}
