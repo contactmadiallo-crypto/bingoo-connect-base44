@@ -1,4 +1,4 @@
-import { Info, Layers3, Link2, Palette, Share2, Settings } from "lucide-react";
+import { Info, Layers3, Link2, Palette, Share2, Settings, LayoutGrid } from "lucide-react";
 import { t } from "@/lib/i18n";
 
 export function getProfileEditorTabs(lang) {
@@ -7,6 +7,7 @@ export function getProfileEditorTabs(lang) {
     { id: "profiletype", label: "Profile Type", icon: Layers3 },
     { id: "links", label: t("links", lang), icon: Link2 },
     { id: "design", label: t("design", lang), icon: Palette },
+    { id: "layouts", label: "Layouts", icon: LayoutGrid },
     { id: "share", label: t("share", lang), icon: Share2 },
     { id: "settings", label: t("settings", lang), icon: Settings },
   ];
