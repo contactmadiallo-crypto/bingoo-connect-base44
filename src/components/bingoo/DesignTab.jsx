@@ -1,13 +1,11 @@
 import { publicProfileUrl } from '@/lib/publicProfileUrl';
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { layouts } from "./LayoutPicker";
 import LayoutMiniPreview from "./LayoutMiniPreview";
-import { Link } from "react-router-dom";
-import { Eye, Check, Upload, Palette, CheckCircle, Sparkles } from "lucide-react";
+import { Check, CheckCircle, Crown, ExternalLink, LayoutGrid, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 
