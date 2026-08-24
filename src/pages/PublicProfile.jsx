@@ -335,6 +335,21 @@ export default function PublicProfile() {
     ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
     : null;
 
+  const profileCategory = profile.profile_category || (profile.profile_type === "business" ? "business" : "personal");
+  const profileTypeCta = {
+    content_creator: { label: "Book a Collab", subject: "Collaboration inquiry" },
+    photographer: { label: "Book a Session", subject: "Session inquiry" },
+    model: { label: "Collab / Shooting", subject: "Collaboration / shooting inquiry" },
+    business: { label: "Business Inquiry", subject: "Business inquiry" },
+  }[profileCategory] || null;
+  const profileTypeCtaHref = profileTypeCta
+    ? (profile.email
+        ? `mailto:${profile.email}?subject=${encodeURIComponent(profileTypeCta.subject)}`
+        : profile.whatsapp_number
+          ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}?text=${encodeURIComponent(profileTypeCta.subject)}`
+          : null)
+    : null;
+
   const isDark = profile.bg_style === "night" || isLayoutDark(profile.layout);
   const layoutType = profile.layout || "classic";
 
@@ -410,7 +425,7 @@ export default function PublicProfile() {
       </div>
 
       {/* ── STICKY BOTTOM BAR ── */}
-      {(profile.phone || profile.whatsapp_number) && (
+      {(profile.phone || profileTypeCtaHref || profile.whatsapp_number) && (
         <motion.div
           initial={{ y: 100 }}
           animate={{ y: 0 }}
@@ -423,7 +438,7 @@ export default function PublicProfile() {
             boxShadow: "0 -10px 34px rgba(15,23,42,0.08)",
           }}
         >
-          <div style={{ maxWidth: 432, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && profile.whatsapp_number ? "1fr 1fr" : "1fr", gap: 8 }}>
+          <div style={{ maxWidth: 432, margin: "0 auto", display: "grid", gridTemplateColumns: profile.phone && (profileTypeCtaHref || profile.whatsapp_number) ? "1fr 1fr" : "1fr", gap: 8 }}>
             {profile.phone && (
               <a href={`tel:${profile.phone}`}
                 onClick={() => track("phone_click")}
