@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { pickPublicProfileFields } from '../../shared/profileSanitizer.ts';
 
+// Redeploy marker: public profile design/link fields synchronized with shared sanitizer.
+
 Deno.serve(async (req) => {
   const correlationId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'err-' + Date.now();
   try {
