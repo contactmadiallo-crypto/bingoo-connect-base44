@@ -95,7 +95,7 @@ export function AvatarRenderer({ profile, size = 96, extraStyle = {} }) {
   if (profile?.profile_photo) {
     return (
       <img src={profile.profile_photo} alt={profile.display_name || ""}
-        style={{ ...base, objectFit: "cover", objectPosition: profile.avatar_position || "center top" }} />
+        style={{ ...base, objectFit: "cover", objectPosition: `${profile.avatar_crop_x ?? 50}% ${profile.avatar_crop_y ?? 50}%`, transform: `scale(${profile.avatar_zoom || 1})` }} />
     );
   }
   return (
@@ -131,7 +131,7 @@ function CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = 
       {profile?.cover_photo ? (
         <img src={profile.cover_photo} alt=""
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+            objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
       ) : (
         <div style={{ position: "absolute", inset: 0,
           background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 100%)` }} />
@@ -167,7 +167,7 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
           {profile?.cover_photo ? (
             <img src={profile.cover_photo} alt=""
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-                objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+                objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
           ) : (
             <div style={{ position: "absolute", inset: 0,
               background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
@@ -241,7 +241,7 @@ export function MinimalLayout({ profile, color, isDark, mobile, contentSections 
         {profile?.cover_photo && (
           <div style={{ height: 110, position: "relative" }}>
             <img src={profile.cover_photo} alt=""
-              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
             <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.32)}, transparent)` }} />
           </div>
         )}
@@ -287,7 +287,7 @@ export function CardLayout({ profile, color, isDark, mobile, contentSections }) 
         {profile?.cover_photo ? (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
         ) : (
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.55)})` }} />
         )}
@@ -347,7 +347,7 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: heroH, overflow: "hidden" }}>
           {hasPhoto ? (
             <img src={profile.cover_photo} alt=""
-              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
           ) : (
             <div style={{ width: "100%", height: "100%",
               background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.6)} 60%, ${hexRgb(color, 0.3)} 100%)` }} />
@@ -419,7 +419,7 @@ export function GlassLayout({ profile, color, isDark, mobile, contentSections })
       {profile?.cover_photo && (
         <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
           <img src={profile.cover_photo} alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
           {/* Light tint only — image must remain clearly visible */}
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(155deg, ${hexRgb(color, 0.38)}, ${hexRgb(color, 0.18)})` }} />
         </div>
@@ -486,7 +486,7 @@ export function DarkPremiumLayout({ profile, color, mobile, contentSections }) {
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`,
               opacity: 0.72 }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 30%, #0a0f1e 100%)" }} />
@@ -551,7 +551,7 @@ export function AuroraLayout({ profile, color, mobile, contentSections }) {
             {profile?.cover_photo && (
               <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 100, overflow: "hidden", zIndex: 0 }}>
                 <img src={profile.cover_photo} alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center", opacity: 0.6 }} />
+                  style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`, opacity: 0.6 }} />
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(15,12,41,0.3) 0%, rgba(15,12,41,0.95) 100%)" }} />
               </div>
             )}
@@ -596,7 +596,7 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55))" }} />
         {/* Magazine title tag — shows plan label */}
@@ -658,7 +658,7 @@ export function ExecutiveLayout({ profile, color, isDark, mobile, contentSection
         {profile?.cover_photo ? (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
         ) : (
           <div style={{ position: "absolute", inset: 0,
             background: `linear-gradient(150deg, ${color} 0%, ${hexRgb(color, 0.55)} 100%)` }} />
@@ -719,7 +719,7 @@ export function ModernSaasLayout({ profile, color, isDark, mobile, contentSectio
         <div style={{ height: 110, position: "relative" }}>
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, ${hexRgb(color, 0.28)}, transparent)` }} />
         </div>
       )}
@@ -776,7 +776,7 @@ export function ColorLayout({ profile, color, isDark, mobile, contentSections })
           {profile?.cover_photo && (
             <img src={profile.cover_photo} alt=""
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-                objectFit: "cover", objectPosition: profile.cover_position || "center",
+                objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`,
                 opacity: 0.35, pointerEvents: "none" }} />
           )}
           {profile?.company_logo && (
@@ -837,7 +837,7 @@ export function NeonLayout({ profile, color, mobile, contentSections }) {
           {profile?.cover_photo && (
             <img src={profile.cover_photo} alt=""
               style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-                objectFit: "cover", objectPosition: profile.cover_position || "center",
+                objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`,
                 opacity: 0.45 }} />
           )}
           <div style={{ position: "absolute", inset: 0,
@@ -896,7 +896,7 @@ export function RetroLayout({ profile, color, isDark, mobile, contentSections })
         <div style={{ height: mobile ? 130 : 160, position: "relative" }}>
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`,
               filter: "sepia(20%) saturate(90%) brightness(0.95)" }} />
           <div style={{ position: "absolute", inset: 0,
             background: `linear-gradient(to bottom, transparent 40%, ${pageBg} 100%)` }} />
@@ -960,7 +960,7 @@ export function FloatingLayout({ profile, color, isDark, mobile, contentSections
           marginBottom: 16, position: "relative",
           boxShadow: "0 8px 32px rgba(0,0,0,0.14)" }}>
           <img src={profile.cover_photo} alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
           <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to bottom, transparent 40%, ${hexRgb(color, 0.4)})` }} />
         </div>
       )}
@@ -1013,7 +1013,7 @@ export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
         {profile?.cover_photo && (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center",
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})`,
               opacity: 0.65 }} />
         )}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 25%, #0c0700 100%)" }} />
@@ -1083,7 +1083,7 @@ export function PortraitLayout({ profile, color, isDark, mobile, contentSections
         {profile?.cover_photo ? (
           <img src={profile.cover_photo} alt=""
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: profile.cover_position || "center" }} />
+              objectFit: "cover", objectPosition: `${profile.cover_crop_x ?? 50}% ${profile.cover_crop_y ?? 50}%`, transform: `scale(${profile.cover_zoom || 1})` }} />
         ) : (
           <div style={{ position: "absolute", inset: 0,
             background: `linear-gradient(135deg, ${color} 0%, ${hexRgb(color, 0.7)} 100%)` }} />
