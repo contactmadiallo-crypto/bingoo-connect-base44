@@ -23,7 +23,6 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
 import DesignPanel from "@/components/bingoo/DesignPanel";
-import DesignTab from "@/components/bingoo/DesignTab";
 import ProfileTypeSelector from "@/components/bingoo/ProfileTypeSelector";
 import { ProfileSelectorDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
@@ -1222,16 +1221,6 @@ export default function ProfileWorkspace({
                 onPreview={() => setMobilePreviewOpen(true)}
                 onReset={resetDesign}
                 hasChanges={designHasChanges}
-              />
-            )}
-            {innerTab === "layouts" && (
-              <DesignTab
-                profile={profile}
-                user={user}
-                onSaved={() => {
-                  qc.invalidateQueries({ queryKey: ["my-profile"] });
-                  qc.invalidateQueries({ queryKey: ["public-profile", profile?.username] });
-                }}
               />
             )}
             {innerTab === "media" && (
