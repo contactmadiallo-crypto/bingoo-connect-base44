@@ -50,6 +50,18 @@ export function getAvatarRadius(shape) {
   return MAP[shape] || "50%";
 }
 
+// Figma Design avatar-placement token -> layout-safe positioning.
+// Layout structure remains intact; this only changes the avatar's alignment/overlap.
+export function getAvatarPlacementStyle(profile, pullUp = 0) {
+  switch (profile?.avatar_placement || "center_overlap") {
+    case "left_overlap": return { justifyContent: "flex-start", paddingLeft: 24, marginTop: -pullUp };
+    case "right_overlap": return { justifyContent: "flex-end", paddingRight: 24, marginTop: -pullUp };
+    case "lower_center": return { justifyContent: "center", marginTop: -(pullUp * 0.55) };
+    case "floating_card": return { justifyContent: "center", marginTop: 16 };
+    default: return { justifyContent: "center", marginTop: -pullUp };
+  }
+}
+
 // ── AvatarRenderer ─────────────────────────────────────────────
 export function AvatarRenderer({ profile, size = 96, extraStyle = {} }) {
   const radius = getAvatarRadius(profile?.avatar_shape);
@@ -147,7 +159,7 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
         </div>
 
         {/* AVATAR — sibling, centered, zIndex:20 */}
-        <div style={{ display: "flex", justifyContent: "center", position: "relative", zIndex: 20, marginTop: -pullUp }}>
+        <div style={{ display: "flex", position: "relative", zIndex: 20, ...getAvatarPlacementStyle(profile, pullUp) }}>
           <div style={{
             padding: ringW,
             borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
