@@ -428,7 +428,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
       {/* ── 3-button action row ── */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+        style={{ display: "flex", gap: 8, marginBottom: 18 }}>
         <motion.button onClick={() => { track("save_contact_click"); saveContact(profile); }}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
