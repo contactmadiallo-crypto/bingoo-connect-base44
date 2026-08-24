@@ -62,6 +62,30 @@ export function getAvatarPlacementStyle(profile, pullUp = 0) {
   }
 }
 
+export function getInlineAvatarPlacement(profile) {
+  switch (profile?.avatar_placement || "center_overlap") {
+    case "right_overlap":
+      return { flexDirection: "row-reverse", textAlign: "right" };
+    case "center_overlap":
+    case "lower_center":
+    case "floating_card":
+      return { flexDirection: "column", alignItems: "center", textAlign: "center" };
+    default:
+      return { flexDirection: "row", textAlign: "left" };
+  }
+}
+
+export function getHeroAvatarPlacement(profile, mobile) {
+  const edge = mobile ? 18 : 28;
+  switch (profile?.avatar_placement || "right_overlap") {
+    case "left_overlap": return { left: edge, right: "auto", bottom: 0 };
+    case "center_overlap": return { left: "50%", right: "auto", bottom: 0, transform: "translateX(-50%)" };
+    case "lower_center": return { left: "50%", right: "auto", bottom: -20, transform: "translateX(-50%)" };
+    case "floating_card": return { left: "50%", right: "auto", bottom: -42, transform: "translateX(-50%)" };
+    default: return { right: edge, left: "auto", bottom: 0 };
+  }
+}
+
 // ── AvatarRenderer ─────────────────────────────────────────────
 export function AvatarRenderer({ profile, size = 96, extraStyle = {} }) {
   const radius = getAvatarRadius(profile?.avatar_shape);
