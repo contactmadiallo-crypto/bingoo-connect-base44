@@ -76,7 +76,38 @@
         "left center",
         "right center"
       ],
-      "default": "center top"
+      "default": "center top",
+      "description": "Legacy focal-point field kept for backward compatibility"
+    },
+    "avatar_crop_x": {
+      "type": "number",
+      "default": 50,
+      "description": "Profile photo crop horizontal position, 0-100"
+    },
+    "avatar_crop_y": {
+      "type": "number",
+      "default": 50,
+      "description": "Profile photo crop vertical position, 0-100"
+    },
+    "avatar_zoom": {
+      "type": "number",
+      "default": 1,
+      "description": "Profile photo zoom, 1-3"
+    },
+    "cover_crop_x": {
+      "type": "number",
+      "default": 50,
+      "description": "Cover crop horizontal position, 0-100"
+    },
+    "cover_crop_y": {
+      "type": "number",
+      "default": 50,
+      "description": "Cover crop vertical position, 0-100"
+    },
+    "cover_zoom": {
+      "type": "number",
+      "default": 1,
+      "description": "Cover photo zoom, 1-3"
     },
     "cover_position": {
       "type": "string",
