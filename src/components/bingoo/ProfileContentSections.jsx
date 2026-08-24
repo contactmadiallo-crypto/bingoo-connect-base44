@@ -427,7 +427,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
           {[...contactIcons, ...socialIcons].map((item, i) => (
             <RowLink key={item.label + i} href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
-              ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} rowStyle={linkRowStyle} iconShape={linkIconShape} />
+              ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
           ))}
         </div>
       )}
