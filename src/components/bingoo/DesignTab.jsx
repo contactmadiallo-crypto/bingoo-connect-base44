@@ -133,189 +133,22 @@ export default function DesignTab({ profile, user, onSaved }) {
   // Merged profile reflects pending changes for live preview
   const previewProfile = { ...profile, ...pendingChanges };
 
+  const selectedLayoutId = pendingChanges.layout || currentLayout;
+  const [filter, setFilter] = useState("all");
+  const visibleLayouts = useMemo(() => layouts.filter((layout) => {
+    if (filter === "free") return !layout.pro;
+    if (filter === "premium") return layout.pro && !["ny_championship", "lions_teranga"].includes(layout.id);
+    if (filter === "edition") return ["ny_championship", "lions_teranga"].includes(layout.id);
+    return true;
+  }), [filter]);
+  const selectedMeta = layouts.find(l => l.id === selectedLayoutId) || layouts[0];
   return (
-    <div className="space-y-8">
-      {/* HIDDEN: LivePreviewPanel moved to backlog as Preview V2 — blocking editor on desktop */}
-      {/* 
-      <LivePreviewPanel
-        profile={profile}
-        pendingProfile={previewProfile}
-        hasChanges={hasChanges}
-        isDark={isDark}
-        previewMode="design"
-      />
-      */}
-
-      <div>
-        <h2 className={`text-2xl font-black ${headText}`}>Profile Design</h2>
-        <p className={`text-sm mt-1 ${subText}`}>
-          Choose a layout for <span className="font-bold">/p/{profile.username}</span>. Changes preview instantly on the right →
-        </p>
-      </div>
-
-      {/* ── Standard Layouts ── */}
-      <div>
-        <h3 className={`text-base font-black mb-4 ${headText}`}>Standard Layouts</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {layouts.filter(l => !PREMIUM_THEME_IDS.has(l.id) && l.id !== "ny_championship" && l.id !== "lions_teranga").map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Premium Themes ── */}
-      <div>
-        <div className={`flex items-center gap-3 mb-4 pb-3 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            <h3 className={`text-base font-black ${headText}`}>Premium Themes</h3>
-          </div>
-          <span className={`text-xs font-black px-2 py-0.5 rounded-full ${isDark ? "text-amber-300 bg-amber-500/20" : "text-amber-600 bg-amber-100"}`}>NEW</span>
-          <p className={`text-xs ml-auto ${subText}`}>Exclusive animated & luxury designs</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {layouts.filter(l => PREMIUM_THEME_IDS.has(l.id)).map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} isPremiumTheme />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Championship Layouts ── */}
-      <div>
-        <h3 className={`text-base font-black mb-4 ${headText}`}>🏆 Championship Edition</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {layouts.filter(l => l.id === "ny_championship" || l.id === "lions_teranga").map((layout) => (
-            <LayoutCard key={layout.id} layout={layout} isActive={(pendingChanges.layout || currentLayout) === layout.id} saving={saving} isDark={isDark} headText={headText} subText={subText} cardBase={cardBase} profileUrl={profileUrl} onSelect={selectLayout} />
-          ))}
-        </div>
-      </div>
-
-      {/* Design Customization */}
-      <div className="space-y-6">
-        <div>
-          <h3 className={`text-lg font-black mb-4 flex items-center gap-2 ${headText}`}>
-            <Palette className="w-5 h-5" /> Design Options
-          </h3>
-        </div>
-
-        {/* Cover Photo */}
-        <div>
-          <label className={`block text-sm font-bold mb-3 ${headText}`}>Cover Photo</label>
-          <div className={`rounded-xl p-4 text-center cursor-pointer transition-all ${cardBase} hover:shadow-md`}>
-            <label className="cursor-pointer">
-              <div className="flex flex-col items-center gap-2">
-                <Upload className="w-5 h-5" />
-                <div>
-                  <p className={`font-semibold text-sm ${headText}`}>Upload Cover Image</p>
-                  <p className={`text-xs mt-1 ${subText}`}>PNG, JPG up to 5MB</p>
-                </div>
-              </div>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleCoverPhotoUpload} 
-                disabled={saving === "cover"}
-                className="hidden"
-              />
-            </label>
-          </div>
-        </div>
-
-        {/* Color Picker */}
-        <div>
-          <label className={`block text-sm font-bold mb-3 ${headText}`}>Primary Color</label>
-          <div className="flex gap-3 flex-wrap">
-            {["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2", "#db2777", "#64748b"].map((c) => (
-              <button
-                key={c}
-                onClick={() => updateProfile({ cover_color: c })}
-                className={`w-12 h-12 rounded-xl border-2 transition-all ${
-                  color === c 
-                    ? isDark ? "border-white shadow-lg" : "border-slate-900 shadow-lg"
-                    : isDark ? "border-white/20 hover:border-white/50" : "border-slate-200 hover:border-slate-400"
-                }`}
-                style={{ background: c }}
-                title={c}
-              />
-            ))}
-            <div className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center ${isDark ? "border-white/20" : "border-slate-300"}`}>
-              <input
-                type="color"
-                value={color}
-                onChange={(e) => updateProfile({ cover_color: e.target.value })}
-                className="w-10 h-10 rounded cursor-pointer"
-                title="Custom color"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Background Style */}
-        <div>
-          <label className={`block text-sm font-bold mb-3 ${headText}`}>Background Style</label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {["clean", "gradient", "mesh", "night", "blur", "animated"].map((style) => (
-              <button
-                key={style}
-                onClick={() => updateProfile({ bg_style: style })}
-                className={`p-3 rounded-lg font-semibold text-sm transition-all ${
-                  previewProfile.bg_style === style
-                    ? isDark
-                      ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
-                      : "bg-blue-100 border-2 border-blue-600 text-blue-700"
-                    : isDark
-                    ? "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
-                    : "bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {style.charAt(0).toUpperCase() + style.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Button Style */}
-        <div>
-          <label className={`block text-sm font-bold mb-3 ${headText}`}>Button Style</label>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            {["pill", "rounded", "sharp", "outlined", "flat"].map((style) => (
-              <button
-                key={style}
-                onClick={() => updateProfile({ button_style: style })}
-                className={`p-3 rounded-lg font-semibold text-sm transition-all ${
-                  previewProfile.button_style === style
-                    ? isDark
-                      ? "bg-blue-500/30 border-2 border-blue-400 text-blue-300"
-                      : "bg-blue-100 border-2 border-blue-600 text-blue-700"
-                    : isDark
-                    ? "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
-                    : "bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {style.charAt(0).toUpperCase() + style.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Save Bar */}
-      {hasChanges && (
-        <div className={`sticky bottom-4 z-20 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-2xl ${isDark ? "bg-slate-800 border border-white/15" : "bg-slate-900 border border-slate-700"}`}>
-          <p className="text-white text-sm font-semibold">You have unsaved design changes</p>
-          <Button
-            onClick={handleSave}
-            disabled={saving === "saving"}
-            className="bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2 flex-shrink-0"
-          >
-            {saving === "saving" ? (
-              <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> Saving…</>
-            ) : (
-              <><CheckCircle className="w-4 h-4" /> Save Changes</>
-            )}
-          </Button>
-        </div>
-      )}
+    <div className="space-y-[18px] pb-24 max-w-[980px]">
+      <div className="flex items-start justify-between gap-4 flex-wrap"><div><div className="flex items-center gap-2"><LayoutGrid className="w-[18px] h-[18px] text-orange-500" /><h2 className={`text-[17px] font-extrabold ${headText}`}>Profile Layouts</h2></div><p className={`text-[12px] mt-1 ${subText}`}>Choose the structure of your public profile. Design colors, links and buttons stay in Design.</p></div><a href={profileUrl} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] border text-[12px] font-bold ${isDark ? "border-white/10 text-white/70 bg-white/5" : "border-[#E5EAF2] text-slate-700 bg-white"}`}>View public profile <ExternalLink className="w-3.5 h-3.5" /></a></div>
+      <div className={`rounded-[14px] border p-4 flex items-center gap-4 ${cardBase}`}><div className="w-[74px] h-[94px] rounded-[10px] overflow-hidden flex-shrink-0 border border-black/5"><LayoutMiniPreview layoutId={selectedLayoutId} isSelected previewHeight={94} /></div><div className="flex-1 min-w-0"><div className="flex items-center gap-2 flex-wrap"><p className={`text-[14px] font-black ${headText}`}>{selectedMeta?.name}</p><span className="text-[9px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full bg-orange-50 text-orange-600">Selected</span></div><p className={`text-[11px] mt-1 ${subText}`}>{selectedMeta?.desc}</p><p className={`text-[10px] mt-2 ${subText}`}>This same renderer is used on /p/{profile.username}.</p></div></div>
+      <div className={`inline-flex p-1 rounded-[11px] border ${isDark ? "border-white/10 bg-white/5" : "border-[#E5EAF2] bg-[#F7F9FC]"}`}>{[["all","All"],["free","Standard"],["premium","Premium"],["edition","Editions"]].map(([id,label]) => <button key={id} type="button" onClick={() => setFilter(id)} className={`px-3.5 py-2 rounded-[8px] text-[11px] font-bold transition-all ${filter === id ? (isDark ? "bg-white/10 text-white shadow-sm" : "bg-white text-slate-900 shadow-sm") : subText}`}>{label}</button>)}</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[14px]">{visibleLayouts.map((layout) => { const active=selectedLayoutId===layout.id; const locked=layout.pro&&!isPro; return <button key={layout.id} type="button" disabled={locked} onClick={() => !locked && selectLayout(layout.id)} className={`relative text-left rounded-[15px] overflow-hidden border transition-all ${active ? "ring-2 ring-orange-500 border-orange-400" : (isDark ? "border-white/10 bg-white/5 hover:border-white/20" : "border-[#E5EAF2] bg-white hover:border-slate-300")} ${locked ? "opacity-80" : ""}`}><div className="relative"><LayoutMiniPreview layoutId={layout.id} isSelected={active} previewHeight={250} />{active&&<span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-black shadow"><Check className="w-3 h-3" /> Selected</span>}{locked&&<div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center"><span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-amber-700 text-[10px] font-black shadow"><Crown className="w-3 h-3" /> Professional</span></div>}</div><div className="px-3.5 py-3"><div className="flex items-center justify-between gap-2"><p className={`text-[13px] font-black ${headText}`}>{layout.name}</p>{layout.pro&&<Sparkles className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />}</div><p className={`text-[10px] mt-1 ${subText}`}>{layout.desc}</p></div></button>; })}</div>
+      {hasChanges && <div className={`sticky bottom-4 z-20 rounded-[14px] px-4 py-3 flex items-center justify-between gap-4 shadow-xl border ${isDark ? "bg-[#171a2d] border-white/10" : "bg-white border-[#E5EAF2]"}`}><div className="min-w-0"><p className={`text-[12px] font-black ${headText}`}>Apply {selectedMeta?.name}</p><p className={`text-[10px] mt-0.5 ${subText}`}>Updates the real public profile layout.</p></div><button type="button" onClick={handleSave} disabled={saving === "saving"} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] bg-orange-500 text-white text-[12px] font-black shadow-lg disabled:opacity-50">{saving === "saving" ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}{saving === "saving" ? "Applying…" : "Apply Layout"}</button></div>}
     </div>
   );
 }
