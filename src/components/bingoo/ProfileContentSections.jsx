@@ -215,12 +215,12 @@ function PaymentBtn({ p, color, isDark, buttonDesign }) {
   );
 }
 
-function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track }) {
+function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign }) {
   const style = {
     display: "flex", alignItems: "center", gap: 14,
-    padding: "13px 16px", borderRadius: 16,
-    background: isDark ? "rgba(255,255,255,0.05)" : "#f7f8fa",
-    border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ebebeb",
+    padding: "13px 16px", borderRadius: buttonDesign.radius,
+    background: buttonDesign.outlined ? "transparent" : (isDark ? "rgba(255,255,255,0.05)" : buttonDesign.flat ? "transparent" : "#f7f8fa"),
+    border: buttonDesign.outlined ? `2px solid ${buttonDesign.color}` : (buttonDesign.flat ? "1px solid transparent" : (isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #ebebeb")),
     textDecoration: "none", color: "inherit",
   };
   const content = (
@@ -286,6 +286,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const [bookStylist, setBookStylist] = useState(null);
   const [shared, setShared] = useState(false);
 
+  const buttonDesign = resolveButtonDesign(profile, color);
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
   const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
@@ -378,10 +379,10 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         <motion.button onClick={() => { track("save_contact_click"); saveContact(profile); }}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            padding: "13px 8px", borderRadius: 14,
-            background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`,
-            color: "#fff", fontWeight: 800, fontSize: 12.5, border: "none", cursor: "pointer",
-            boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`, fontFamily: FONT_BODY }}>
+            padding: "13px 8px", borderRadius: buttonDesign.radius,
+            background: buttonDesign.outlined ? "transparent" : buttonDesign.flat ? buttonDesign.color : `linear-gradient(135deg, ${buttonDesign.color}, ${hexRgb(buttonDesign.color, 0.8)})`,
+            color: buttonDesign.outlined ? buttonDesign.color : "#fff", fontWeight: 800, fontSize: 12.5, border: buttonDesign.outlined ? `2px solid ${buttonDesign.color}` : "none", cursor: "pointer",
+            boxShadow: buttonDesign.flat || buttonDesign.outlined ? "none" : `0 6px 20px ${hexRgb(buttonDesign.color, 0.35)}`, fontFamily: FONT_BODY }}>
           <SaveContactIcon size={15} /> Save
         </motion.button>
         <div style={{ flex: 1 }}>
