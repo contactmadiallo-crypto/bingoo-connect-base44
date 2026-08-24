@@ -378,7 +378,7 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
         </div>
 
         {/* Avatar — on outer wrapper (NOT inside the clip div), zIndex 20 */}
-        <div style={{ position: "absolute", bottom: 0, right: mobile ? 18 : 28, zIndex: 20 }}>
+        <div style={{ position: "absolute", zIndex: 20, ...getHeroAvatarPlacement(profile, mobile) }}>
           <div style={{
             padding: ringW, background: "#fff",
             borderRadius: `calc(${radius} + ${ringW}px)`,
