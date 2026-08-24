@@ -376,6 +376,17 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   // ── Business Info row ─────────────────────────────────────────────────────
   const businessCustomLinks = clBusiness.filter(l => l._catalog_id !== "booking");
 
+  // Figma List mode is one unified iOS-style link surface, not mixed grids/cards.
+  const listItems = [
+    ...contactIcons.map(item => ({ ...item, icon: item.icon && React.cloneElement(item.icon, { size: 36 }) })),
+    ...socialIcons.map(item => ({ ...item, icon: item.icon && React.cloneElement(item.icon, { size: 36 }) })),
+    ...clContent.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+    ...clGeneric.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+    profile.website && !hiddenLinks.has("website") && { href: profile.website.startsWith("http") ? profile.website : `https://${profile.website}`, icon: <BIWebsite size={36} />, label: profile.website.replace(/^https?:\/\//, ""), ev: "website_click" },
+    profile.location && profile.show_location !== false && !hiddenLinks.has("location") && { href: `https://maps.google.com/?q=${encodeURIComponent(profile.location)}`, icon: <BILocation size={36} />, label: profile.location, ev: "location_click" },
+    ...businessCustomLinks.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
+  ].filter(Boolean);
+
   return (
     <div>
 
@@ -425,16 +436,21 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
         </>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
-          {[...contactIcons, ...socialIcons].map((item, i) => (
-            <RowLink key={item.label + i} href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
-              ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
+        <div style={{ overflow: "hidden", borderRadius: 16, marginBottom: 20,
+          background: isDark ? "rgba(255,255,255,0.065)" : "rgba(248,250,252,0.96)",
+          border: isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)",
+          boxShadow: isDark ? "0 8px 24px rgba(0,0,0,.12)" : "0 6px 20px rgba(15,23,42,.045)" }}>
+          {listItems.map((item, i) => (
+            <div key={item.label + i} style={{ borderBottom: i < listItems.length - 1 ? (isDark ? "1px solid rgba(255,255,255,.07)" : "1px solid rgba(15,23,42,.065)") : "none" }}>
+              <RowLink href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
+                ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle="ios" iconShape={linkIconShape} grouped />
+            </div>
           ))}
         </div>
       )}
 
       {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
-      {clContent.length > 0 && (
+      {linkDisplayStyle === "icons" && clContent.length > 0 && (
         <IconRow
           items={clContent.map(l => ({
             href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
@@ -447,7 +463,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       )}
 
       {/* ── Generic custom links (true custom web links) ── */}
-      {clGeneric.length > 0 && (
+      {linkDisplayStyle === "icons" && clGeneric.length > 0 && (
         <>
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Links</SLabel>
@@ -468,18 +484,18 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       )}
 
       {/* ── Website / Location / Google Review + business custom links ── */}
-      {(profile.website && !hiddenLinks.has("website") || (profile.location && profile.show_location !== false && !hiddenLinks.has("location")) || profile.google_review_url || businessCustomLinks.length > 0) && (
+      {(linkDisplayStyle === "icons" && (profile.website && !hiddenLinks.has("website") || (profile.location && profile.show_location !== false && !hiddenLinks.has("location")) || businessCustomLinks.length > 0) || profile.google_review_url) && (
         <>
           <Div isDark={isDark} />
           <SLabel isDark={isDark}>Business Info</SLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {profile.website && !hiddenLinks.has("website") && (
+            {linkDisplayStyle === "icons" && profile.website && !hiddenLinks.has("website") && (
               <RowLink href={profile.website} ev="website_click" track={track}
                 iconEl={<WebsiteIcon size={20} color={color} />}
                 title={profile.website.replace(/^https?:\/\//, "")}
                 isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
-            {profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
+            {linkDisplayStyle === "icons" && profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
               <RowLink href={`https://maps.google.com/?q=${encodeURIComponent(profile.location)}`} ev="location_click" track={track}
                 iconEl={<MapPinIcon size={20} color="#ef4444" />}
                 title={profile.location} subtitle="Get Directions →"
@@ -491,7 +507,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                 title="Leave a Google Review" subtitle="Share your experience →"
                 isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
-            {businessCustomLinks.map((link, i) => (
+            {linkDisplayStyle === "icons" && businessCustomLinks.map((link, i) => (
               <RowLink key={link.id || i}
                 href={link.url.startsWith("http") ? link.url : `https://${link.url}`}
                 iconEl={<div style={{ width: 36, height: 36, borderRadius: 10, overflow: "hidden" }}>{getLinkBrandIcon(link, 36)}</div>}
