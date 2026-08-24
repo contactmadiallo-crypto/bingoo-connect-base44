@@ -446,7 +446,13 @@ export default function PublicProfile() {
                 <PhoneIcon size={18} /> Call Now
               </a>
             )}
-            {profile.whatsapp_number && (
+            {profileTypeCtaHref ? (
+              <a href={profileTypeCtaHref}
+                onClick={() => track("profile_type_cta_click")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 48, padding: "11px 14px", borderRadius: 14, background: color, color: "#fff", fontWeight: 800, fontSize: 13, textDecoration: "none", boxShadow: `0 5px 16px ${hexRgb(color, 0.28)}`, letterSpacing: "-0.01em" }}>
+                {profileTypeCta.label}
+              </a>
+            ) : profile.whatsapp_number && (
               <a href={waBookingHref || `https://wa.me/${(profile.whatsapp_number||"").replace(/\D/g,"")}`}
                 onClick={() => track("whatsapp_click")}
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, minHeight: 48, padding: "11px 14px", borderRadius: 14, background: "#25D366", color: "#fff", fontWeight: 800, fontSize: 13, textDecoration: "none", boxShadow: "0 5px 16px rgba(37,211,102,0.22)", letterSpacing: "-0.01em" }}>
