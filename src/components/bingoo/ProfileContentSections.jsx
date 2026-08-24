@@ -220,10 +220,11 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
   const iconRadius = iconShape === "circle" ? "50%" : iconShape === "square" ? 6 : 10;
   const style = {
     display: "flex", alignItems: "center", gap: 12,
-    padding: "11px 14px", borderRadius: radius,
-    background: rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.06)" : "#f7f8fa"),
-    border: rowStyle === "outline" ? `1.5px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #edf0f4"),
-    textDecoration: "none", color: "inherit",
+    minHeight: 58, padding: "10px 12px", borderRadius: radius,
+    background: rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.07)" : "rgba(248,250,252,0.96)"),
+    border: rowStyle === "outline" ? `1px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)"),
+    boxShadow: rowStyle === "ios" ? (isDark ? "0 1px 0 rgba(255,255,255,0.03) inset" : "0 1px 2px rgba(15,23,42,0.035)") : "none",
+    textDecoration: "none", color: "inherit", transition: "transform .16s ease, background .16s ease, box-shadow .16s ease",
   };
   const content = (
     <>
@@ -234,7 +235,7 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</p>
         {subtitle && <p style={{ margin: 0, fontSize: 11, color: "#0077b6", fontWeight: 600, fontFamily: FONT_BODY }}>{subtitle}</p>}
       </div>
-      {chevron && <span style={{ color: "#c0c8d4", fontSize: 18, fontWeight: 300, flexShrink: 0 }}>›</span>}
+      {chevron && <span aria-hidden="true" style={{ color: isDark ? "rgba(255,255,255,0.36)" : "#94a3b8", fontSize: 24, lineHeight: 1, fontWeight: 300, flexShrink: 0 }}>›</span>}
     </>
   );
   if (href) return <motion.a href={href} target="_blank" rel="noopener noreferrer" style={style} whileHover={{ x: 3 }} onClick={() => ev && track(ev)}>{content}</motion.a>;
