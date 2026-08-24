@@ -114,7 +114,7 @@ function getLinkIcon(link, size = 14) {
 const EDITABLE_FIELDS = [
   "display_name", "job_title", "company_name", "company_logo", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
-  "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position",
+  "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position", "avatar_crop_x", "avatar_crop_y", "avatar_zoom", "cover_crop_x", "cover_crop_y", "cover_zoom",
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
@@ -948,7 +948,7 @@ export default function ProfileWorkspace({
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
   const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
-  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "bg_style", "button_style", "button_color", "font_style", "theme_background_color"];
+  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "avatar_crop_x", "avatar_crop_y", "avatar_zoom", "cover_crop_x", "cover_crop_y", "cover_zoom", "bg_style", "button_style", "button_color", "font_style", "theme_background_color"];
   const designHasChanges = designKeys.some((key) => JSON.stringify(liveForm?.[key]) !== JSON.stringify(profile?.[key]));
   const hasUnsavedChanges = useMemo(() => {
     if (!profile || !liveForm) return false;
@@ -1013,7 +1013,7 @@ export default function ProfileWorkspace({
       // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
-        "cover_color","layout","bg_style","button_style","avatar_shape","avatar_position","avatar_placement",
+        "cover_color","layout","bg_style","button_style","avatar_shape","avatar_position","avatar_placement","avatar_crop_x","avatar_crop_y","avatar_zoom","cover_crop_x","cover_crop_y","cover_zoom",
         "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
