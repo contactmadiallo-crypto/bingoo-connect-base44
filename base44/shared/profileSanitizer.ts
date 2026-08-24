@@ -53,7 +53,7 @@ export const FREE_FIELDS = new Set([
 export const PROFESSIONAL_ADDITIONAL = new Set([
   'profile_photo','cover_photo','company_logo','theme_background_color',
   'bg_watermark_image','bg_watermark_opacity','avatar_shape','avatar_placement',
-  'avatar_position','cover_position','qr_watermark','layout','profile_layout',
+  'avatar_position','cover_position','avatar_crop_x','avatar_crop_y','avatar_zoom','cover_crop_x','cover_crop_y','cover_zoom','qr_watermark','layout','profile_layout',
   'profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','payment_link','custom_payments',
   'google_review_url','whatsapp_booking_message',
 ]);
@@ -76,6 +76,8 @@ const FIELD_REQUIRES_FEATURE = {
   avatar_placement: 'custom_branding',
   avatar_position: 'custom_branding',
   cover_position: 'custom_branding',
+  avatar_crop_x: 'custom_branding', avatar_crop_y: 'custom_branding', avatar_zoom: 'custom_branding',
+  cover_crop_x: 'custom_branding', cover_crop_y: 'custom_branding', cover_zoom: 'custom_branding',
   qr_watermark: 'custom_branding',
   layout: 'custom_branding',
   profile_layout: 'custom_branding',
@@ -297,6 +299,8 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
       case 'avatar_placement': sanitized.avatar_placement = validateEnum(value, 'avatar_placement', VALID_AVATAR_PLACEMENTS, errors); continue;
       case 'avatar_position': sanitized.avatar_position = validateEnum(value, 'avatar_position', VALID_AVATAR_POSITIONS, errors); continue;
       case 'cover_position': sanitized.cover_position = validateEnum(value, 'cover_position', VALID_COVER_POSITIONS, errors); continue;
+      case 'avatar_crop_x': case 'avatar_crop_y': case 'cover_crop_x': case 'cover_crop_y': sanitized[field] = Math.max(0, Math.min(100, Number(value) || 0)); continue;
+      case 'avatar_zoom': case 'cover_zoom': sanitized[field] = Math.max(1, Math.min(3, Number(value) || 1)); continue;
       case 'bg_style': sanitized.bg_style = validateEnum(value, 'bg_style', VALID_BG_STYLES, errors); continue;
       case 'button_style': sanitized.button_style = validateEnum(value, 'button_style', VALID_BUTTON_STYLES, errors); continue;
       case 'link_display_style': sanitized.link_display_style = validateEnum(value, 'link_display_style', VALID_LINK_DISPLAY_STYLES, errors); continue;
@@ -379,7 +383,7 @@ export function mapLegacyPlan(plan) {
 const OWNER_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
-  'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position',
+  'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position','avatar_crop_x','avatar_crop_y','avatar_zoom','cover_crop_x','cover_crop_y','cover_zoom',
   'qr_color','qr_label','qr_watermark','layout','profile_layout','profile_theme','bg_style',
   'button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','payment_link',
@@ -404,7 +408,7 @@ export function pickOwnerProfileFields(profile, access, effectivePlan) {
 const PUBLIC_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
-  'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position',
+  'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position','avatar_crop_x','avatar_crop_y','avatar_zoom','cover_crop_x','cover_crop_y','cover_zoom',
   'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','profile_type','profile_category',
   'phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
