@@ -154,6 +154,13 @@ const Div = ({ isDark }) => (
   <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.07)" : "#f0f0f0", margin: "22px 0" }} />
 );
 
+function resolveButtonDesign(profile, fallbackColor) {
+  const style = profile?.button_style || "pill";
+  const color = profile?.button_color || fallbackColor || "#0b2149";
+  const radius = style === "pill" ? 999 : style === "rounded" ? 14 : style === "sharp" ? 6 : style === "flat" ? 8 : 14;
+  return { style, color, radius, outlined: style === "outlined", flat: style === "flat" };
+}
+
 function IconGridItem({ href, onClick, icon, label, ev, track, isDark, tileSize = 58 }) {
   const inner = (
     <motion.div
@@ -186,7 +193,7 @@ function IconGridItem({ href, onClick, icon, label, ev, track, isDark, tileSize 
   );
 }
 
-function PaymentBtn({ p, color, isDark }) {
+function PaymentBtn({ p, color, isDark, buttonDesign }) {
   const [open, setOpen] = useState(false);
   const iconEl = p.e === "wave" ? <WaveIconNew size={32} /> : p.e === "orangemoney" ? <OrangeMoneyIconNew size={32} /> : p.e === "zelle" ? <ZelleIcon size={32} /> : p.e === "cashapp" ? <CashAppIcon size={32} /> : <span style={{ fontSize: 26 }}>{p.e}</span>;
   return (
@@ -194,10 +201,10 @@ function PaymentBtn({ p, color, isDark }) {
       <motion.button type="button" onClick={() => setOpen(true)}
         whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.94 }}
         style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 7,
-          padding: "14px 8px", borderRadius: 18, cursor: "pointer",
-          background: isDark ? "rgba(255,255,255,0.06)" : hexRgb(color, 0.07),
-          border: `1.5px solid ${hexRgb(color, isDark ? 0.15 : 0.18)}`,
-          color, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+          padding: "14px 8px", borderRadius: buttonDesign.radius, cursor: "pointer",
+          background: buttonDesign.outlined ? "transparent" : (isDark ? "rgba(255,255,255,0.06)" : hexRgb(buttonDesign.color, buttonDesign.flat ? 0.03 : 0.07)),
+          border: buttonDesign.outlined ? `2px solid ${buttonDesign.color}` : `1.5px solid ${hexRgb(buttonDesign.color, isDark ? 0.15 : 0.18)}`,
+          color: buttonDesign.color, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.04em" }}>
         {iconEl}
         <span style={{ textAlign: "center", lineHeight: 1.2 }}>{p.l}{p.qr ? " 🔲" : ""}</span>
       </motion.button>
