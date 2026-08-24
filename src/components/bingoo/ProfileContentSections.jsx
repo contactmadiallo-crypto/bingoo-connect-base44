@@ -293,8 +293,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const linkDisplayStyle = profile.link_display_style || "icons";
   const linkRowStyle = profile.link_row_style || "ios";
   const linkIconShape = profile.link_icon_shape || "rounded";
+  const profileCategory = profile.profile_category || (profile.profile_type === "business" ? "business" : "personal");
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
-  const isBusinessProfile = ["business", "corporate"].includes(profile.plan);
+  const isBusinessProfile = ["business", "corporate"].includes(profile.plan) || profileCategory === "business";
   const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
   // Corporate does NOT manage services (no Services sidebar tab) — exclude from public display
   const showsServicesAndTeam = isSalonOrRestaurant || profile.plan === "business";
@@ -336,6 +337,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
       : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" },
     profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
+    profileCategory === "content_creator" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Collaboration inquiry")}`, icon: <BICalendar size={58} />, label: "Book a Collab", ev: null },
+    profileCategory === "photographer" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Session inquiry")}`, icon: <BICalendar size={58} />, label: "Book a Session", ev: null },
+    profileCategory === "model" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Collaboration / shooting inquiry")}`, icon: <BICalendar size={58} />, label: "Collab / Shooting", ev: null },
     canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book", ev: null },
     // Booking custom link goes into contact row too
     ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
