@@ -244,7 +244,7 @@ function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDar
 
 // ── Icon grid row renderer ────────────────────────────────────
 // wrap=true → CSS grid that wraps (social), wrap=false → single scrollable flex row (contact)
-function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
+function IconRow({ items, isDark, track, delay = 0.3, wrap = false, compact = false }) {
   if (!items.length) return null;
 
   if (wrap) {
@@ -254,12 +254,12 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false }) {
         style={{ marginBottom: 18 }}>
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-          gap: 10,
-          padding: "2px 0 4px",
+          gridTemplateColumns: compact ? "repeat(auto-fit, minmax(72px, 1fr))" : "repeat(5, minmax(0, 1fr))",
+          gap: compact ? 14 : 10,
+          padding: "4px 0 6px",
         }}>
           {items.map((item, i) => (
-            <IconGridItem key={item.label + i} {...item} track={track} isDark={isDark} tileSize={58} />
+            <IconGridItem key={item.label + i} {...item} track={track} isDark={isDark} tileSize={compact ? 48 : 58} />
           ))}
         </div>
       </motion.div>
@@ -481,9 +481,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Public links are organized by purpose, not dumped into one stack ── */}
       {linkDisplayStyle === "icons" ? (
         <>
-          <IconRow items={bookingItems} isDark={isDark} track={track} delay={0.28} maxInline={3} />
-          <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={3} />
-          {socialIcons.length > 0 && <><SLabel isDark={isDark}>Social</SLabel><IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} /></>}
+          {bookingItems.length > 0 && <><SLabel isDark={isDark}>Booking</SLabel><IconRow items={bookingItems} isDark={isDark} track={track} delay={0.28} wrap compact /></>}
+          {contactIcons.length > 0 && <><SLabel isDark={isDark}>Contact</SLabel><IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} wrap compact /></>}
+          {socialIcons.length > 0 && <><SLabel isDark={isDark}>Social</SLabel><IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap compact /></>}
         </>
       ) : (
         <>
@@ -497,6 +497,8 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
 
       {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
       {linkDisplayStyle === "icons" && clContent.length > 0 && (
+        <>
+        <SLabel isDark={isDark}>Content</SLabel>
         <IconRow
           items={clContent.map(l => ({
             href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
@@ -504,8 +506,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             label: l.label,
             ev: null,
           }))}
-          isDark={isDark} track={track} delay={0.36} wrap={true}
+          isDark={isDark} track={track} delay={0.36} wrap compact
         />
+        </>
       )}
 
       {/* ── Generic custom links (true custom web links) ── */}
@@ -565,13 +568,13 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </>
       )}
 
-      {/* ── Payments ── */}
+      {/* ── Payments are a utility section, visually separate from links ── */}
       {payments.length > 0 && (
         <>
           <Div isDark={isDark} />
-          <SLabel isDark={isDark}>Send Money</SLabel>
-          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(payments.length, 4)}, 1fr)`, gap: 10 }}>
-            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />)}
+          <SLabel isDark={isDark}>Payments</SLabel>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(118px, 1fr))", gap: 10 }}>
+            {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} />)}
           </div>
         </>
       )}
