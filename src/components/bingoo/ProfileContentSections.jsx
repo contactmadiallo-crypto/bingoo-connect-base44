@@ -294,6 +294,13 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const linkRowStyle = profile.link_row_style || "ios";
   const linkIconShape = profile.link_icon_shape || "rounded";
   const profileCategory = profile.profile_category || (profile.profile_type === "business" ? "business" : "personal");
+  const profileCategoryMeta = {
+    personal: { label: "Personal", cta: null },
+    content_creator: { label: "Content Creator", cta: "Book a Collab" },
+    photographer: { label: "Photographer / Filmmaker", cta: "Book a Session" },
+    model: { label: "Model", cta: "Collab / Shooting" },
+    business: { label: "Business / Brand", cta: null },
+  }[profileCategory] || { label: "Personal", cta: null };
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan) || profileCategory === "business";
   const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
@@ -337,9 +344,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
       : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" },
     profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
-    profileCategory === "content_creator" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Collaboration inquiry")}`, icon: <BICalendar size={58} />, label: "Book a Collab", ev: null },
-    profileCategory === "photographer" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Session inquiry")}`, icon: <BICalendar size={58} />, label: "Book a Session", ev: null },
-    profileCategory === "model" && { href: `mailto:${profile.email || ""}?subject=${encodeURIComponent("Collaboration / shooting inquiry")}`, icon: <BICalendar size={58} />, label: "Collab / Shooting", ev: null },
+    profileCategoryMeta.cta && profile.email && { href: `mailto:${profile.email}?subject=${encodeURIComponent(profileCategory === "content_creator" ? "Collaboration inquiry" : profileCategory === "photographer" ? "Session inquiry" : "Collaboration / shooting inquiry")}`, icon: <BICalendar size={58} />, label: profileCategoryMeta.cta, ev: null },
     canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book", ev: null },
     // Booking custom link goes into contact row too
     ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
@@ -420,6 +425,19 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           {shared ? "✓" : "Share"}
         </motion.button>
       </motion.div>
+
+      {/* ── Profile Type — saved editor selection mirrored publicly ── */}
+      {profileCategory !== "personal" && (
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.23 }}
+          style={{ display: "flex", justifyContent: "center", margin: "-8px 0 16px" }}>
+          <span style={{
+            display: "inline-flex", alignItems: "center", minHeight: 28, padding: "5px 11px", borderRadius: 999,
+            background: isDark ? "rgba(255,255,255,0.08)" : "#f8fafc",
+            border: isDark ? "1px solid rgba(255,255,255,0.10)" : "1px solid #e5e7eb",
+            color: isDark ? "rgba(255,255,255,0.76)" : "#475569", fontSize: 11, fontWeight: 800, fontFamily: FONT_BODY
+          }}>{profileCategoryMeta.label}</span>
+        </motion.div>
+      )}
 
       {/* ── Bio ── */}
       {profile.bio && (
