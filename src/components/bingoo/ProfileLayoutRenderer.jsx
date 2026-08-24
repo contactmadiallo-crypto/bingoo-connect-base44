@@ -497,8 +497,8 @@ export function DarkPremiumLayout({ profile, color, mobile, contentSections }) {
 
       {/* STICKY: Avatar + Identity */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#0a0f1e" }}>
-        <div style={{ display: "flex", justifyContent: "center", position: "relative",
-          marginTop: -((size + ringW * 2) * 0.5) }}>
+        <div style={{ display: "flex", position: "relative",
+          ...getAvatarPlacementStyle(profile, (size + ringW * 2) * 0.5) }}>
           <div style={{
             padding: ringW,
             background: `linear-gradient(135deg, ${accentColor}, ${hexRgb(accentColor, 0.3)})`,
@@ -1026,8 +1026,8 @@ export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
 
       {/* STICKY: Avatar + Identity */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#0c0700" }}>
-        <div style={{ display: "flex", justifyContent: "center", position: "relative",
-          marginTop: -((size + ringW * 2) * 0.5) }}>
+        <div style={{ display: "flex", position: "relative",
+          ...getAvatarPlacementStyle(profile, (size + ringW * 2) * 0.5) }}>
           <div style={{
             padding: ringW,
             background: `linear-gradient(135deg, ${goldLt}, ${gold}, #8B6914)`,
@@ -1093,7 +1093,7 @@ export function PortraitLayout({ profile, color, isDark, mobile, contentSections
 
       {/* STICKY: Avatar + identity */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: bg }}>
-        <div style={{ display: "flex", justifyContent: "center", position: "relative", marginTop: -((size + ringW * 2) / 2) }}>
+        <div style={{ display: "flex", position: "relative", ...getAvatarPlacementStyle(profile, (size + ringW * 2) / 2) }}>
           <div style={{ padding: ringW, borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
             background: cardBg, boxShadow: `0 0 0 4px ${hexRgb(color, 0.25)}, 0 24px 64px ${hexRgb(color, 0.3)}` }}>
             <AvatarRenderer profile={profile} size={size} />
