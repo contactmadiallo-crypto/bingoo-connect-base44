@@ -118,7 +118,7 @@ const EDITABLE_FIELDS = [
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
-  "layout", "bg_style", "button_style", "button_color", "font_style", "username", "is_active", "show_location", "language",
+  "layout", "bg_style", "button_style", "button_color", "font_style", "link_display_style", "link_row_style", "link_icon_shape", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
   "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
 ];
