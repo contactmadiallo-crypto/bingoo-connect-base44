@@ -22,11 +22,22 @@ const BG_STYLES = [
 ];
 
 const BTN_STYLES = [
-  { v: "pill",     label: "Pill",     radius: 999 },
-  { v: "rounded",  label: "Rounded",  radius: 12 },
-  { v: "sharp",    label: "Sharp",    radius: 6 },
-  { v: "outlined", label: "Outlined", radius: 12 },
-  { v: "flat",     label: "Flat",     radius: 8 },
+  { v: "pill",     label: "iOS Filled",  radius: 14 },
+  { v: "rounded",  label: "iOS Light",   radius: 14 },
+  { v: "outlined", label: "iOS Outline", radius: 14 },
+  { v: "flat",     label: "iOS Ghost",   radius: 14 },
+  { v: "sharp",    label: "Text",        radius: 10 },
+];
+
+const LINK_DISPLAY_STYLES = [
+  { v: "list", label: "List", glyph: "☰", desc: "Full-width iOS rows" },
+  { v: "icons", label: "Icons", glyph: "▦", desc: "Compact icon grid" },
+];
+const LINK_ROW_STYLES = [
+  { v: "ios", label: "iOS" }, { v: "pill", label: "Pill" }, { v: "outline", label: "Outline" },
+];
+const LINK_ICON_SHAPES = [
+  { v: "rounded", label: "Rounded" }, { v: "square", label: "Square" }, { v: "circle", label: "Circle" },
 ];
 
 const AVATAR_SHAPES = [
