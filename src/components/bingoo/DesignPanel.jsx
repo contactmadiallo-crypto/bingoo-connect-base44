@@ -346,7 +346,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               <input type="range" min={min} max={max} step={step} value={liveForm[key] ?? (key === 'avatar_zoom' ? 1 : 50)} onChange={e => setVal(key, Number(e.target.value))} className="w-full accent-orange-500" />
             </label>)}
             <button type="button" onClick={() => { setVal('avatar_crop_x',50); setVal('avatar_crop_y',50); setVal('avatar_zoom',1); }} className={`text-xs font-bold self-start ${mutedText}`}>Reset crop</button>
-          </div>
+          </div>}
 
           {/* Avatar Placement */}
           <div className={rowCls}>
