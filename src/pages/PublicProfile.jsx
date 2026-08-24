@@ -189,12 +189,23 @@ export default function PublicProfile() {
           "cover_color", "cover_photo", "theme_background_color", "bg_watermark_image", "bg_watermark_opacity",
           "profile_photo", "avatar_shape", "avatar_placement", "avatar_position", "cover_position",
           "button_style", "button_color", "font_style",
-          "link_display_style", "link_row_style", "link_icon_shape"
+          "link_display_style", "link_row_style", "link_icon_shape",
+          // Current public presentation state: keep visibility and Profile Type
+          // synchronized with the editor after the privacy gate succeeds.
+          "hidden_links", "custom_links",
+          "profile_type", "profile_category"
         ];
         const profile = { ...gatedProfile };
         if (freshVisual) {
           for (const field of VISUAL_FIELDS) {
             if (freshVisual[field] !== undefined) profile[field] = freshVisual[field];
+          }
+          // Never revive disabled custom links when overlaying the fresh record.
+          if (Array.isArray(profile.custom_links)) {
+            const hidden = new Set(Array.isArray(profile.hidden_links) ? profile.hidden_links : []);
+            profile.custom_links = profile.custom_links.filter((link) =>
+              link && link.enabled !== false && !hidden.has(link._catalog_id) && !hidden.has(link.id)
+            );
           }
         }
 
