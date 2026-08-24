@@ -77,6 +77,16 @@ Deno.serve(async (req) => {
     // pickPublicProfileFields also revalidates legacy custom link / payment URLs.
     const publicProfile = pickPublicProfileFields(profile, profile.privacy_settings || {});
 
+    // Public Design architecture fields are explicitly carried by this endpoint.
+    // Keep these here as well as in the shared sanitizer so a stale shared bundle
+    // cannot silently make the public profile fall back to legacy defaults.
+    publicProfile.link_display_style = profile.link_display_style || 'icons';
+    publicProfile.link_row_style = profile.link_row_style || 'ios';
+    publicProfile.link_icon_shape = profile.link_icon_shape || 'rounded';
+    publicProfile.button_style = profile.button_style || 'pill';
+    publicProfile.button_color = profile.button_color || profile.cover_color || '#0b2149';
+    publicProfile.font_style = profile.font_style || 'modern';
+
     return Response.json({ profile: publicProfile });
   } catch (error) {
     console.error(`[getPublicProfile] [${correlationId}]`, error.message);
