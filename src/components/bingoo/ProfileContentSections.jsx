@@ -403,6 +403,26 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     ...clGeneric.map(l => ({ href: l.url.startsWith("http") ? l.url : `https://${l.url}`, icon: getLinkBrandIcon(l, 36), label: l.label })),
   ].filter(Boolean);
 
+  const renderGroupedList = (label, items) => {
+    if (!items.length) return null;
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <SLabel isDark={isDark}>{label}</SLabel>
+        <div style={{ overflow: "hidden", borderRadius: 16,
+          background: isDark ? "rgba(255,255,255,0.065)" : "rgba(248,250,252,0.96)",
+          border: isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)",
+          boxShadow: isDark ? "0 8px 24px rgba(0,0,0,.10)" : "0 6px 18px rgba(15,23,42,.04)" }}>
+          {items.map((item, i) => (
+            <div key={(item.label || label) + i} style={{ borderBottom: i < items.length - 1 ? (isDark ? "1px solid rgba(255,255,255,.07)" : "1px solid rgba(15,23,42,.065)") : "none" }}>
+              <RowLink href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
+                ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle="ios" iconShape={linkIconShape} grouped />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
 
@@ -458,24 +478,21 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Business profile extras: logo, offer, gallery, review CTA ── */}
       <BusinessProfileExtras profile={profile} color={color} isDark={isDark} track={track} />
 
-      {/* ── Figma Link Display Style: icon grid or iOS list ── */}
+      {/* ── Public links are organized by purpose, not dumped into one stack ── */}
       {linkDisplayStyle === "icons" ? (
         <>
-          <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={4} />
-          <IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} />
+          <IconRow items={bookingItems} isDark={isDark} track={track} delay={0.28} maxInline={3} />
+          <IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} maxInline={3} />
+          {socialIcons.length > 0 && <><SLabel isDark={isDark}>Social</SLabel><IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap={true} /></>}
         </>
       ) : (
-        <div style={{ overflow: "hidden", borderRadius: 16, marginBottom: 20,
-          background: isDark ? "rgba(255,255,255,0.065)" : "rgba(248,250,252,0.96)",
-          border: isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)",
-          boxShadow: isDark ? "0 8px 24px rgba(0,0,0,.12)" : "0 6px 20px rgba(15,23,42,.045)" }}>
-          {listItems.map((item, i) => (
-            <div key={item.label + i} style={{ borderBottom: i < listItems.length - 1 ? (isDark ? "1px solid rgba(255,255,255,.07)" : "1px solid rgba(15,23,42,.065)") : "none" }}>
-              <RowLink href={item.href} onClick={item.onClick} iconEl={item.icon} title={item.label}
-                ev={item.ev} track={track} isDark={isDark} buttonDesign={buttonDesign} rowStyle="ios" iconShape={linkIconShape} grouped />
-            </div>
-          ))}
-        </div>
+        <>
+          {renderGroupedList("Booking", bookingListItems)}
+          {renderGroupedList("Contact", contactListItems)}
+          {renderGroupedList("Social", socialListItems)}
+          {renderGroupedList("Website & Business", businessListItems)}
+          {renderGroupedList("More Links", otherListItems)}
+        </>
       )}
 
       {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
