@@ -386,15 +386,15 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <SaveContactIcon size={15} /> Save
         </motion.button>
         <div style={{ flex: 1 }}>
-          <SaveProfileButton profile={profile} color={color} source={deviceCodeParam ? "nfc_scan" : "manual"} />
+          <SaveProfileButton profile={profile} color={buttonDesign.color} buttonStyle={buttonDesign.style} source={deviceCodeParam ? "nfc_scan" : "manual"} />
         </div>
         <motion.button onClick={handleShare}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
           style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-            padding: "13px 8px", borderRadius: 14,
-            background: isDark ? "rgba(255,255,255,0.09)" : "#f0f2f5",
-            color: isDark ? "#fff" : "#374151", fontWeight: 800, fontSize: 12.5,
-            border: isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e4e7ec", cursor: "pointer", fontFamily: FONT_BODY }}>
+            padding: "13px 8px", borderRadius: buttonDesign.radius,
+            background: buttonDesign.outlined || buttonDesign.flat ? "transparent" : (isDark ? "rgba(255,255,255,0.09)" : "#f0f2f5"),
+            color: buttonDesign.outlined ? buttonDesign.color : (isDark ? "#fff" : "#374151"), fontWeight: 800, fontSize: 12.5,
+            border: buttonDesign.outlined ? `2px solid ${buttonDesign.color}` : (buttonDesign.flat ? "1px solid transparent" : (isDark ? "1px solid rgba(255,255,255,0.12)" : "1px solid #e4e7ec")), cursor: "pointer", fontFamily: FONT_BODY }}>
           <ShareIcon size={15} color={isDark ? "#fff" : "#374151"} />
           {shared ? "✓" : "Share"}
         </motion.button>
