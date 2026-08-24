@@ -148,20 +148,20 @@ function CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = 
 // 1. CLASSIC — Circo-style: full-bleed cover, centered overlapping avatar, white card
 // ═══════════════════════════════════════════════════════════════
 export function ClassicLayout({ profile, color, isDark, mobile, contentSections }) {
-  const size  = mobile ? 96 : 112;
-  const ringW = 4;
-  const bg    = isDark ? "#111827" : "#eef4ff";
-  const cardBg= isDark ? "#1e293b" : "#fff";
+  const size  = mobile ? 94 : 108;
+  const ringW = 3;
+  const bg    = isDark ? "#0f172a" : "#f6f8fb";
+  const cardBg= isDark ? "#111827" : "#fff";
   const text  = isDark ? "#fff" : "#0f172a";
-  const sub   = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
-  const heroH = mobile ? 240 : 300;
+  const sub   = isDark ? "rgba(255,255,255,0.52)" : "#64748b";
+  const heroH = mobile ? 210 : 248;
   const pullUp= (size + ringW * 2) / 2;
 
   const pageBg = resolvePageBg(profile, bg);
   return (
     <div style={{ background: pageBg, minHeight: "100vh" }}>
-      {/* STICKY HEADER: cover + avatar + identity */}
-      <div style={{ position: "sticky", top: 0, zIndex: 10, background: pageBg }}>
+      {/* Figma-style profile header: cover + overlap avatar + identity */}
+      <div style={{ position: "relative", zIndex: 10, background: pageBg }}>
         {/* HERO — full-bleed, NO overflow:hidden */}
         <div style={{ position: "relative", height: heroH }}>
           {profile?.cover_photo ? (
@@ -172,11 +172,11 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
             <div style={{ position: "absolute", inset: 0,
               background: `linear-gradient(160deg, ${color} 0%, ${hexRgb(color, 0.65)} 60%, ${hexRgb(color, 0.35)} 100%)` }} />
           )}
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.22) 60%, " + bg + " 100%)" }} />
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.16) 66%, " + bg + " 100%)" }} />
           {profile?.company_logo && (
             <div style={{ position: "absolute", top: 16, right: 16, zIndex: 5,
-              width: 42, height: 42, borderRadius: 12, background: "rgba(255,255,255,0.95)",
-              padding: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", overflow: "hidden" }}>
+              width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.92)",
+              padding: 5, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", boxShadow: "0 6px 20px rgba(15,23,42,0.14)", overflow: "hidden" }}>
               <img src={profile.company_logo} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </div>
           )}
@@ -188,29 +188,30 @@ export function ClassicLayout({ profile, color, isDark, mobile, contentSections 
             padding: ringW,
             borderRadius: `calc(${getAvatarRadius(profile?.avatar_shape)} + ${ringW}px)`,
             background: cardBg,
-            boxShadow: `0 0 0 2px ${hexRgb(color, 0.15)}, 0 16px 48px rgba(0,0,0,0.24)`,
+            boxShadow: `0 0 0 1px ${hexRgb(color, 0.10)}, 0 10px 28px rgba(15,23,42,0.18)`,
           }}>
             <AvatarRenderer profile={profile} size={size} />
           </div>
         </div>
 
         {/* IDENTITY */}
-        <div style={{ textAlign: "center", padding: mobile ? "14px 24px 12px" : "18px 40px 16px", position: "relative", zIndex: 5 }}>
-          <h1 style={{ margin: "0 0 5px", fontSize: mobile ? 24 : 28, fontWeight: 900, color: text, lineHeight: 1.1, letterSpacing: "-0.02em", fontFamily: resolveProfileFont(profile) }}>
+        <div style={{ textAlign: "center", padding: mobile ? "12px 22px 18px" : "15px 36px 22px", position: "relative", zIndex: 5 }}>
+          <h1 style={{ margin: "0 0 6px", fontSize: mobile ? 25 : 29, fontWeight: 850, color: text, lineHeight: 1.08, letterSpacing: "-0.035em", fontFamily: resolveProfileFont(profile) }}>
             {profile?.display_name}
           </h1>
-          {profile?.job_title && <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 700, color, fontFamily: FONT_BODY, letterSpacing: "0.01em" }}>{profile.job_title}</p>}
-          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 500, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
+          {profile?.job_title && <p style={{ margin: "0 0 3px", fontSize: 13, fontWeight: 700, color, fontFamily: FONT_BODY, letterSpacing: "-0.005em" }}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{ margin: 0, fontSize: 12, color: sub, fontWeight: 550, fontFamily: FONT_BODY }}>{profile.company_name}</p>}
         </div>
       </div>
 
-      {/* SCROLLABLE CONTENT CARD */}
+      {/* Integrated content surface — closer to the Figma profile architecture */}
       <div style={{
-        margin: mobile ? "16px 14px 80px" : "20px 24px 80px",
-        background: cardBg, borderRadius: 24,
-        boxShadow: isDark ? "0 4px 32px rgba(0,0,0,0.45)" : "0 2px 20px rgba(0,0,0,0.07)",
-        border: isDark ? "1px solid rgba(255,255,255,0.07)" : "none",
-        padding: mobile ? "20px 16px 36px" : "28px 28px 56px",
+        margin: mobile ? "0 12px 86px" : "0 18px 72px",
+        background: cardBg,
+        borderRadius: mobile ? 20 : 22,
+        boxShadow: isDark ? "0 8px 30px rgba(0,0,0,0.24)" : "0 8px 28px rgba(15,23,42,0.055)",
+        border: isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(15,23,42,0.045)",
+        padding: mobile ? "16px 14px 32px" : "22px 22px 44px",
       }}>
         {contentSections}
       </div>
