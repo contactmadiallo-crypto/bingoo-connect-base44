@@ -1,7 +1,7 @@
 # Bingoo 2.0 — Professional Identity Operating System
 
-**Backlog Document · Last updated: 2026-07-07**
-**Status: BACKLOG ONLY — No implementation started. All current production flows remain untouched.**
+**Backlog Document · Last audited: 2026-09-06**
+**Status: ACTIVE BACKLOG / DISCUSSION MODE — production contains work completed since this document was created. The NFC reset below is planning only and must not be deployed until explicitly approved.**
 
 ---
 
@@ -24,7 +24,9 @@ One place for professional profile identity, NFC and QR sharing, wallet cards, C
 Every phase must preserve:
 - Current login and auth
 - Existing profiles and public profile URLs (`/p/:username`)
-- NFC activation and scan URLs (`/n/:deviceCode`, `/activate-device`)
+- Public profile URLs (`/p/:username`) remain profile-only
+- NFC activation flow (`/activate-device`) remains separate from the permanent device URL
+- NFC device URLs migrate from the platform-conflicting `/n/:deviceCode` namespace to canonical `/d/:deviceCode` only after explicit approval
 - QR links
 - Leads, Appointments, Analytics
 - Lost mode (`/lost/:deviceCode`)
@@ -166,6 +168,45 @@ Old routes redirect until all new routes are tested.
 - Device URL, activation code
 - Activate Device: enter code, scan QR, assign to profile, confirm
 - **Reassignment rule:** If profile is deleted, devices move to `unassigned` (not deleted). Admin can recover/reassign.
+
+### NFC URL Reset / Clean Restart — Current Backlog
+**Status: DISCUSSION / NOT DEPLOYED**
+
+**Why:** The current `/n/:deviceCode` entry path is intercepted by the hosting platform before React reaches `NFCRedirect`. The downstream resolver/activation architecture should be preserved; the canonical physical-device URL needs a safe route namespace.
+
+**Agreed URL responsibilities:**
+- Public profile: `https://bingooconnect.com/p/<username>`
+- Permanent NFC/device URL: `https://bingooconnect.com/d/BG-000001`
+- Activation UI: `https://bingooconnect.com/activate-device?code=BG-000001`
+- The physical NFC chip and device/packaging QR should contain the permanent `/d/<deviceCode>` URL, not the activation URL.
+- The same physical URL remains on the tag after activation; server-side device state decides whether it opens activation, an asset/lost flow, or the assigned public profile.
+
+**Clean restart proposal:**
+- User currently has all existing physical Bingoo NFC devices and can rewrite them with NFC Tools.
+- Reset the canonical device sequence so the new clean inventory begins at `BG-000001`.
+- Decide explicitly how to handle existing NFCDevice records before reset: delete, archive, or retire. Do not touch profiles, users, assets, subscriptions, shop products, or unrelated production data.
+- New manufacturing/device generation must use the canonical `BG-######` sequence and `/d/` URL.
+
+**Admin NFC requirement — permanent:**
+For every generated NFC device, Admin NFC Manager must always visibly show:
+1. Device code, e.g. `BG-000001`
+2. Canonical NFC URL, e.g. `https://bingooconnect.com/d/BG-000001`
+3. Copy URL action
+4. Open/Test URL action
+5. QR generated from that exact canonical URL
+6. Activation URL may be shown secondarily: `https://bingooconnect.com/activate-device?code=BG-000001`
+
+The canonical NFC URL is the primary value because it is the exact URL written to the physical tag using NFC Tools.
+
+**Implementation audit before approval:**
+- Update app route from `/n/:deviceCode` to `/d/:deviceCode`.
+- Centralize device URL construction in one shared helper to prevent future route drift.
+- Replace all hard-coded `/n/` generators and internal return URLs, including checkout/manufacturing, My NFC Devices, admin NFC tools, capture/setup tools, and activation login/register return paths.
+- Preserve `getDeviceByCode`, `activateNfcDevice`, lost/asset/profile routing logic unless testing identifies an independent bug.
+- Verify profile-direct QR remains `/p/<username>?source=qr` and is not changed by the NFC reset.
+- Verify asset routes that already use `/asset/<code>` independently.
+- Test at minimum: unknown code, unclaimed device, claimed profile device, asset device, lost device, disabled device, and replaced device.
+- Only after all tests pass should physical tags be rewritten in NFC Tools and production deployment be approved.
 
 ---
 
