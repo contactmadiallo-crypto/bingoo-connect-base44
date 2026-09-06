@@ -67,7 +67,7 @@ export default function CaptureNfc() {
       {/* Device list */}
       <div className="space-y-4">
         {demoNfcDevices.map((device, idx) => {
-          const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
+          const deviceUrl = `${PROD_BASE_URL}/d/${device.device_code}`;
           const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
           const isLost = device.status === "lost";
           const isExpanded = idx === 0; // first device expanded to show QR

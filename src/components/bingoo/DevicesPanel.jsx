@@ -65,7 +65,7 @@ export default function DevicesPanel({ profileId }) {
                 {device.assigned_at && <p className="text-xs text-slate-400 mt-1">Assigned: {device.assigned_at?.slice(0,10)}</p>}
                 <div className="mt-3 pt-3 border-t border-slate-100">
                   <p className="text-xs text-slate-500 font-medium">Tap URL:</p>
-                  <a href={`/n/${device.device_code}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-mono">/n/{device.device_code}</a>
+                  <a href={`/d/${device.device_code}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline font-mono">/d/{device.device_code}</a>
                 </div>
               </div>
             );

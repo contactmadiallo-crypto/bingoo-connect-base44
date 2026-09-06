@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
       old_status: old_status || device.status,
       new_status: 'active',
       notes: asset_id
-        ? `Activated and assigned to asset ${asset_id} via /n/${device.device_code}`
+        ? `Activated and assigned to asset ${asset_id} via /d/${device.device_code}`
         : 'Activated by user via NFC tap flow',
     }).catch(e => console.warn('Audit log failed (non-blocking):', e.message));
 

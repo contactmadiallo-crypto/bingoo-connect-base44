@@ -225,7 +225,7 @@ export default function PublicProfile() {
   // Safety net: if a device code is in the URL (from NFC redirect), verify it
   // isn't marked lost. If it is, redirect to the lost device page instead of
   // rendering the profile. This catches direct profile URL access that
-  // bypasses the /n/:deviceCode route.
+  // bypasses the /d/:deviceCode route.
   const { data: deviceCheck } = useQuery({
     queryKey: ["profile-device-check", deviceCodeParam],
     queryFn: () => base44.functions.invoke("getDeviceByCode", { device_code: deviceCodeParam }),

@@ -259,12 +259,12 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
   // ── Auth redirect handlers ──
   const handleLoginRedirect = () => {
-    const returnUrl = `/n/${deviceCode}`;
+    const returnUrl = `/d/${deviceCode}`;
     base44.auth.redirectToLogin(returnUrl);
   };
 
   const handleRegisterRedirect = () => {
-    window.location.href = `/register?next=${encodeURIComponent(`/n/${deviceCode}`)}`;
+    window.location.href = `/register?next=${encodeURIComponent(`/d/${deviceCode}`)}`;
   };
 
   const handleRetry = () => {

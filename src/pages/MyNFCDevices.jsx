@@ -517,7 +517,7 @@ export default function MyNFCDevices() {
                     {/* Devices in this group */}
                     <div className={`space-y-4 ${isMulti ? "sm:pl-2" : ""}`}>
             {devices.map(device => {
-              const deviceUrl = `${PROD_BASE_URL}/n/${device.device_code}`;
+              const deviceUrl = `${PROD_BASE_URL}/d/${device.device_code}`;
               const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
               const isExpanded = expandedId === device.id;
               const isLost = device.status === "lost";

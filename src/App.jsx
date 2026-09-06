@@ -68,7 +68,7 @@ function LegacyRedirects() {
   if (path === '/activate') {
     const params = new URLSearchParams(window.location.search);
     const code = (params.get('code') || '').toUpperCase().trim();
-    window.location.replace(code ? `/n/${code}` : '/activate-device');
+    window.location.replace(code ? `/d/${code}` : '/activate-device');
     return null;
   }
   if (path === '/signup') {
@@ -100,7 +100,7 @@ const AuthenticatedApp = () => {
       <Route path="/activate" element={<Navigate to="/activate-device" replace />} />
       <Route path="/signup" element={<Navigate to="/register" replace />} />
       <Route path="/p/:username" element={<PublicProfile />} />
-      <Route path="/n/:deviceCode" element={<NFCRedirect />} />
+      <Route path="/d/:deviceCode" element={<NFCRedirect />} />
       <Route path="/resume/:resumeId" element={<PublicResume />} />
       <Route path="/r/:resumeId" element={<PublicResume />} />
       <Route path="/firm/:username" element={<PublicLawFirmProfile />} />

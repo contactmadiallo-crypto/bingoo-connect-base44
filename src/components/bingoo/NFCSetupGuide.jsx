@@ -6,7 +6,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 export default function NFCSetupGuide({ device, onClose }) {
   const { isDark } = useBingooTheme();
 
-  const deviceUrl = `${window.location.origin}/n/${device.device_code}`;
+  const deviceUrl = `${window.location.origin}/d/${device.device_code}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(deviceUrl)}&color=1e293b&bgcolor=f8fafc`;
 
   const cardBg = isDark ? "bg-[#13284f]" : "bg-white";

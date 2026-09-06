@@ -158,7 +158,7 @@ async function generateManufacturingDevices(base44, shopOrder, orderId) {
 
       for (let i = 0; i < qty; i++) {
         const code = `BG-${String(nextNum + i).padStart(6, '0')}`;
-        const qrUrl = `https://bingooconnect.com/n/${code}`;
+        const qrUrl = `https://bingooconnect.com/d/${code}`;
         codes.push({ code, qr_url: qrUrl });
 
         allDevices.push({

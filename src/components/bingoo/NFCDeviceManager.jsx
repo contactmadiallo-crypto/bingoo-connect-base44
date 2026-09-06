@@ -31,7 +31,7 @@ const navyCard = "#0b2149";
 function padCode(n) { return `BG-${String(n).padStart(6, "0")}`; }
 
 function QRCell({ code }) {
-  const url = `https://bingooconnect.com/n/${code}`;
+  const url = `https://bingooconnect.com/d/${code}`;
   return (
     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(url)}`}
       alt={code} className="w-10 h-10 rounded-md bg-white p-0.5" />
@@ -233,7 +233,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
     const rows = [["Device ID", "Device Code", "Type", "Status", "Owner", "Profile Username", "Activation Date", "NFC URL"]];
     list.forEach(d => {
       const profile = profiles.find(p => p.id === d.profile_id);
-      rows.push([d.id, d.device_code, d.device_type, d.status, profile?.display_name || "Unclaimed", profile?.username || "", d.assigned_at?.slice(0, 10) || "", `https://bingooconnect.com/n/${d.device_code}`]);
+      rows.push([d.id, d.device_code, d.device_type, d.status, profile?.display_name || "Unclaimed", profile?.username || "", d.assigned_at?.slice(0, 10) || "", `https://bingooconnect.com/d/${d.device_code}`]);
     });
     const csv = rows.map(r => r.map(c => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -246,7 +246,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   const handleExportMfg = () => {
     const rows = [["Device Code", "NFC URL", "QR Image URL", "Device Type", "Status"]];
     devices.forEach(d => {
-      const url = `https://bingooconnect.com/n/${d.device_code}`;
+      const url = `https://bingooconnect.com/d/${d.device_code}`;
       const qr = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}`;
       rows.push([d.device_code, url, qr, d.device_type, d.status]);
     });
@@ -267,7 +267,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
       .code{font-size:10px;font-weight:bold;margin-top:5px}.type{font-size:9px;color:#888}.url{font-size:8px;color:#555;word-break:break-all;margin-top:2px}
       @media print{@page{size:A4 portrait;margin:8mm}}</style></head><body><div class="grid">`);
     list.forEach(d => {
-      const url = `https://bingooconnect.com/n/${d.device_code}`;
+      const url = `https://bingooconnect.com/d/${d.device_code}`;
       const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
       w.document.write(`<div class="card"><img src="${qr}" alt="${d.device_code}" /><div class="code">${d.device_code}</div><div class="type">${d.device_type}</div><div class="url">${url}</div></div>`);
     });
@@ -1073,7 +1073,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               { icon: Printer, label: "Print Device IDs", desc: "Printable list of all device codes, types, and URLs.", color: "#06b6d4", action: () => {
                 const w = window.open("", "_blank");
                 w.document.write(`<html><head><title>Bingoo Device IDs</title><style>body{font-family:monospace;font-size:12px;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px 10px;text-align:left}th{background:#f0f0f0}</style></head><body><h2>Bingoo NFC Devices — ${new Date().toLocaleDateString()}</h2><table><tr><th>Device Code</th><th>Type</th><th>Status</th><th>URL</th></tr>`);
-                devices.forEach(d => { w.document.write(`<tr><td>${d.device_code}</td><td>${d.device_type}</td><td>${d.status}</td><td>https://bingooconnect.com/n/${d.device_code}</td></tr>`); });
+                devices.forEach(d => { w.document.write(`<tr><td>${d.device_code}</td><td>${d.device_type}</td><td>${d.status}</td><td>https://bingooconnect.com/d/${d.device_code}</td></tr>`); });
                 w.document.write("</table></body></html>");
                 w.document.close();
                 w.onload = () => w.print();

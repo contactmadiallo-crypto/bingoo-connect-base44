@@ -24,7 +24,7 @@ function generateCode(prefix, index) {
 }
 
 function QRCodeCell({ deviceCode }) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`https://bingooconnect.com/n/${deviceCode}`)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`https://bingooconnect.com/d/${deviceCode}`)}`;
   return <img src={qrUrl} alt={`QR-${deviceCode}`} className="w-12 h-12 rounded-lg bg-white p-0.5" />;
 }
 
@@ -97,7 +97,7 @@ export default function AdminNFCManager({ profiles = [] }) {
         d.device_type,
         d.status,
         profile?.display_name || "",
-        `https://bingooconnect.com/n/${d.device_code}`,
+        `https://bingooconnect.com/d/${d.device_code}`,
         d.assigned_at?.slice(0, 10) || "",
       ]);
     });
@@ -123,7 +123,7 @@ export default function AdminNFCManager({ profiles = [] }) {
       @media print{@page{size:A4 portrait}}
       </style></head><body><div class="grid">`);
     toprint.forEach(d => {
-      const url = `https://bingooconnect.com/n/${d.device_code}`;
+      const url = `https://bingooconnect.com/d/${d.device_code}`;
       const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
       w.document.write(`<div class="card">
         <img src="${qr}" alt="${d.device_code}" />
@@ -337,9 +337,9 @@ export default function AdminNFCManager({ profiles = [] }) {
                       ) : <span className="text-white/25 italic">Unclaimed</span>}
                     </td>
                     <td className="px-4 py-3">
-                      <a href={`/n/${d.device_code}`} target="_blank" rel="noopener noreferrer"
+                      <a href={`/d/${d.device_code}`} target="_blank" rel="noopener noreferrer"
                         className="text-xs font-mono hover:underline" style={{ color: orange }}>
-                        /n/{d.device_code}
+                        /d/{d.device_code}
                       </a>
                     </td>
                     <td className="px-4 py-3 text-xs text-white/35">{d.assigned_at?.slice(0, 10) || "—"}</td>
@@ -403,9 +403,9 @@ export default function AdminNFCManager({ profiles = [] }) {
                     className="hover:underline text-orange-400 font-bold text-sm">{profile.display_name}</a>
                 ) : <span className="text-white/25 italic text-sm">Unclaimed</span>}
               </div>
-              <a href={`/n/${d.device_code}`} target="_blank" rel="noopener noreferrer"
+              <a href={`/d/${d.device_code}`} target="_blank" rel="noopener noreferrer"
                 className="text-xs font-mono hover:underline block" style={{ color: orange }}>
-                /n/{d.device_code}
+                /d/{d.device_code}
               </a>
               {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
               <div className="flex items-center gap-1.5 flex-wrap pt-1">
