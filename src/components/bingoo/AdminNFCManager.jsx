@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Plus, Download, Printer, Search, Edit, Trash2, Wifi, QrCode, RefreshCw, X, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
 
 const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker"];
 const DEVICE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫", sticker: "🏷️" };
@@ -20,11 +21,12 @@ const orange = "#f97316";
 const gold = "#FDBA21";
 
 function generateCode(prefix, index) {
-  return `${prefix}${String(index).padStart(4, "0")}`;
+  const normalizedPrefix = (prefix || "BG-").trim().toUpperCase();
+  return `${normalizedPrefix}${String(index).padStart(6, "0")}`;
 }
 
 function QRCodeCell({ deviceCode }) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(`https://bingooconnect.com/d/${deviceCode}`)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(buildDeviceUrl(deviceCode))}`;
   return <img src={qrUrl} alt={`QR-${deviceCode}`} className="w-12 h-12 rounded-lg bg-white p-0.5" />;
 }
 
@@ -39,7 +41,7 @@ export default function AdminNFCManager({ profiles = [] }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   // Bulk generation state
-  const [bulkPrefix, setBulkPrefix] = useState("BNG-");
+  const [bulkPrefix, setBulkPrefix] = useState("BG-");
   const [bulkStart, setBulkStart] = useState(1);
   const [bulkCount, setBulkCount] = useState(10);
   const [bulkType, setBulkType] = useState("card");
@@ -97,7 +99,7 @@ export default function AdminNFCManager({ profiles = [] }) {
         d.device_type,
         d.status,
         profile?.display_name || "",
-        `https://bingooconnect.com/d/${d.device_code}`,
+        buildDeviceUrl(d.device_code),
         d.assigned_at?.slice(0, 10) || "",
       ]);
     });
@@ -123,7 +125,7 @@ export default function AdminNFCManager({ profiles = [] }) {
       @media print{@page{size:A4 portrait}}
       </style></head><body><div class="grid">`);
     toprint.forEach(d => {
-      const url = `https://bingooconnect.com/d/${d.device_code}`;
+      const url = buildDeviceUrl(d.device_code);
       const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
       w.document.write(`<div class="card">
         <img src="${qr}" alt="${d.device_code}" />
@@ -217,7 +219,7 @@ export default function AdminNFCManager({ profiles = [] }) {
               <label className="text-white/50 text-xs font-bold block mb-1">Prefix</label>
               <input className="w-full px-3 py-2.5 rounded-xl text-sm font-mono outline-none"
                 style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
-                value={bulkPrefix} onChange={e => setBulkPrefix(e.target.value.toUpperCase())} placeholder="BNG-" />
+                value={bulkPrefix} onChange={e => setBulkPrefix(e.target.value.toUpperCase())} placeholder="BG-" />
             </div>
             <div>
               <label className="text-white/50 text-xs font-bold block mb-1">Start Number</label>
