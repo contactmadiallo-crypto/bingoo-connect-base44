@@ -375,48 +375,88 @@ export default function DeviceActivationPage({ deviceCode, device }) {
             </motion.div>
           )}
 
-          {/* ── LANDING (logged out) ── */}
+          {/* ── LANDING (logged out) — Bingoo infinity activation architecture ── */}
           {step === "landing" && authChecked && (
             <motion.div key="landing"
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
-              className="rounded-3xl p-8 text-center"
-              style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", backdropFilter: "blur(20px)" }}>
+              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}
+              className="rounded-[32px] px-5 py-7 md:px-10 md:py-9 text-center relative overflow-hidden"
+              style={{ background: "linear-gradient(155deg,rgba(10,37,79,.94),rgba(4,21,47,.96))", border: "1px solid rgba(59,130,246,.48)", boxShadow: "0 30px 80px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.05)", backdropFilter: "blur(22px)" }}>
+              <div className="pointer-events-none absolute inset-x-[18%] top-[112px] h-[220px] rounded-full blur-3xl" style={{ background: "rgba(249,115,22,.16)" }} />
 
-              {/* Device badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
-                style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)" }}>
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-green-400 text-xs font-bold">Ready to Activate</span>
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 md:mb-5"
+                  style={{ background: "rgba(16,185,129,.10)", border: "1px solid rgba(52,211,153,.75)", boxShadow: "0 0 24px rgba(16,185,129,.09)" }}>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-emerald-300 text-sm font-black">Ready to Activate</span>
+                </div>
+
+                <div className="mx-auto mb-2 flex h-[190px] w-[220px] md:h-[230px] md:w-[280px] items-center justify-center">
+                  {deviceImage ? (
+                    <img src={deviceImage} alt={deviceTypeLabel} className="w-full h-full object-contain drop-shadow-[0_24px_28px_rgba(0,0,0,.45)]" />
+                  ) : storeProduct ? (
+                    <FactoryProductMedia product={storeProduct} className="w-full h-full" />
+                  ) : (
+                    <div className="text-7xl">{deviceEmoji}</div>
+                  )}
+                </div>
+
+                <h1 className="text-[30px] md:text-[40px] leading-[1.02] font-black text-white tracking-[-0.04em] mb-3">
+                  Activate Your Bingoo Device
+                </h1>
+                <p className="text-white/58 text-sm md:text-base mb-5">
+                  Turn your {deviceTypeLabel} into a powerful digital connection.
+                </p>
+
+                <div className="mx-auto mb-5 flex items-stretch overflow-hidden rounded-2xl text-left"
+                  style={{ background: "rgba(2,15,34,.50)", border: "1px solid rgba(96,165,250,.30)" }}>
+                  <div className="w-[72px] md:w-[92px] flex items-center justify-center border-r border-white/5 bg-white/[.025]">
+                    <Link2 className="w-7 h-7 text-blue-300/80" />
+                  </div>
+                  <div className="min-w-0 flex-1 px-4 py-3.5">
+                    <p className="text-[11px] font-semibold text-white/50">Device code</p>
+                    <p className="font-mono text-xl md:text-2xl font-black text-orange-400 tracking-[-0.025em]">{deviceCode}</p>
+                  </div>
+                  <div className="flex items-center pr-3 md:pr-4">
+                    <span className="rounded-full px-3 py-2 text-xs md:text-sm font-black text-white whitespace-nowrap"
+                      style={{ background: "linear-gradient(135deg,rgba(16,58,129,.95),rgba(7,44,104,.95))", border: "1px solid rgba(59,130,246,.38)" }}>
+                      {deviceTypeLabel}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Button onClick={handleLoginRedirect}
+                    className="w-full h-[58px] md:h-[64px] text-base md:text-lg font-black gap-3 rounded-2xl border-0 shadow-[0_14px_34px_rgba(249,115,22,.22)]"
+                    style={{ background: "linear-gradient(100deg,#ff9d19 0%,#ff6a13 55%,#ff4b1f 100%)", color: "#fff" }}>
+                    <LogIn className="w-5 h-5" /> Log In to Activate
+                  </Button>
+                  <Button onClick={handleRegisterRedirect} variant="outline"
+                    className="w-full h-[56px] md:h-[60px] text-base font-black gap-3 rounded-2xl text-white bg-transparent hover:bg-white/[.04] hover:text-white"
+                    style={{ border: "1px solid rgba(249,115,22,.78)" }}>
+                    <UserPlus className="w-5 h-5" /> Create Account
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 md:gap-4 mt-7 pt-6 border-t border-white/[.055]">
+                  <div className="text-center">
+                    <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><Link2 className="w-5 h-5 text-white" /></div>
+                    <p className="text-[11px] font-black text-white">One Tap</p><p className="text-[10px] text-white/45">Share Anything</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><InfinityMark size={23} color="#fff" strokeWidth={2.3} /></div>
+                    <p className="text-[11px] font-black text-white">Endless</p><p className="text-[10px] text-white/45">Possibilities</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><ShieldCheck className="w-5 h-5 text-white" /></div>
+                    <p className="text-[11px] font-black text-white">Secure</p><p className="text-[10px] text-white/45">and Yours</p>
+                  </div>
+                </div>
+
+                <div className="mt-7 text-center">
+                  <p className="text-xs text-white/45">Bingoo Connect</p>
+                  <p className="mt-1 text-[8px] font-bold tracking-[.34em] uppercase text-white/35">Smart NFC Profiles</p>
+                </div>
               </div>
-
-              {deviceImage ? (
-                <img src={deviceImage} alt={deviceTypeLabel} className="mx-auto object-contain mb-4 rounded-2xl" style={{ width: 96, height: 96 }} />
-              ) : (
-                <div className="text-6xl mb-4">{deviceEmoji}</div>
-              )}
-              <h1 className="text-2xl font-black text-white mb-2">Activate Your Bingoo Device</h1>
-              <p className="text-white/50 text-sm mb-1">
-                Device code: <span className="font-mono font-bold text-orange-400">{deviceCode}</span>
-              </p>
-              <p className="text-white/40 text-xs mb-8">{deviceTypeLabel}</p>
-
-              <div className="space-y-3">
-                <Button onClick={handleLoginRedirect}
-                  className="w-full h-13 text-base font-bold gap-3 rounded-2xl"
-                  style={{ background: `linear-gradient(135deg, ${ORANGE}, #e86e00)`, color: "#fff" }}>
-                  <LogIn className="w-5 h-5" />
-                  Log In to Activate
-                </Button>
-                <Button onClick={handleRegisterRedirect} variant="outline"
-                  className="w-full h-13 text-base font-bold gap-3 rounded-2xl border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">
-                  <UserPlus className="w-5 h-5" />
-                  Create Account
-                </Button>
-              </div>
-
-              <p className="text-white/30 text-xs mt-6">
-                Your NFC device will be linked to your Bingoo profile after login.
-              </p>
             </motion.div>
           )}
 
