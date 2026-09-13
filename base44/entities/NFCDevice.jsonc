@@ -26,7 +26,21 @@
     },
     "device_code": {
       "type": "string",
-      "description": "Unique identifier printed on device e.g. BG-000001"
+      "description": "Current canonical device identifier printed/written to the physical device e.g. BG-000001."
+    },
+    "legacy_device_code": {
+      "type": "string",
+      "description": "Original device code retained when an old NFCDevice record is retired during a namespace reset."
+    },
+    "retired_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this historical device record was retired from the active NFC namespace."
+    },
+    "retired_reason": {
+      "type": "string",
+      "description": "Reason this historical device record was retired.",
+      "maxLength": 500
     },
     "product_sku": {
       "type": "string",
@@ -62,10 +76,11 @@
         "disabled",
         "replaced",
         "invalid",
-        "pending_manufacturing"
+        "pending_manufacturing",
+        "retired"
       ],
       "default": "available",
-      "description": "available=ready to activate, active=already activated, assigned=claimed, lost=lost/stolen, replaced=superseded, invalid=bad code, pending_manufacturing=not yet shipped"
+      "description": "available=ready to activate, active=already activated, assigned=claimed, lost=lost/stolen, replaced=superseded, invalid=bad code, pending_manufacturing=not yet shipped, retired=historical record removed from the active device namespace."
     },
     "assigned_at": {
       "type": "string",
