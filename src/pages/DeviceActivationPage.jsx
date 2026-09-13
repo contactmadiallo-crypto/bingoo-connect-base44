@@ -284,19 +284,26 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   const successAsset = myAssets.find(a => a.id === selectedAssetId);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
-      style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #0f3d8c 100%)" }}>
-
-      {/* Logo */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-          <span className="text-white font-black text-lg">B</span>
-        </div>
-        <span className="text-white font-black text-xl tracking-tight">Bingoo</span>
+    <div className="min-h-screen relative overflow-hidden px-4 py-8 md:py-12"
+      style={{ background: "radial-gradient(circle at 50% 28%, rgba(249,115,22,.12), transparent 24%), linear-gradient(145deg,#041226 0%,#061a39 45%,#082b63 100%)" }}>
+      <div className="pointer-events-none absolute -right-40 -top-24 opacity-[0.08] rotate-[-8deg]">
+        <InfinityMark size={520} color="#3b82f6" strokeWidth={1.35} />
+      </div>
+      <div className="pointer-events-none absolute -left-44 bottom-[-160px] opacity-[0.07] rotate-[10deg]">
+        <InfinityMark size={560} color={ORANGE} strokeWidth={1.3} />
       </div>
 
-      <div className="w-full max-w-md">
+      <div className="relative z-10 mx-auto w-full max-w-[760px]">
+        {/* Bingoo brand */}
+        <div className="flex flex-col items-center mb-7 md:mb-9">
+          <div className="flex items-center gap-1.5 leading-none">
+            <span className="text-white font-black text-[42px] md:text-[52px] tracking-[-0.055em]">Bing</span>
+            <InfinityMark size={56} color={ORANGE} strokeWidth={3.9} glow />
+          </div>
+          <span className="mt-1 text-[9px] md:text-[10px] font-bold uppercase tracking-[.36em] text-white/65">Connect What Matters</span>
+        </div>
+
+        <div className="w-full">
         <AnimatePresence mode="wait">
 
           {/* ── LOADING ── */}
