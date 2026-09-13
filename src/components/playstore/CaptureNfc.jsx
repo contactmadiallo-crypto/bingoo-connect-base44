@@ -4,14 +4,13 @@ import DeviceBadges from "@/components/bingoo/nfc/DeviceBadges";
 import { DEVICE_TYPES } from "@/lib/deviceTypes";
 import { CheckCircle, ExternalLink, ChevronDown, Zap } from "lucide-react";
 import { demoNfcDevices, demoProfile } from "@/lib/playstoreCaptureData";
+import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
 
 const isDark = true;
 const headText = "text-white";
 const mutedText = "text-white/40";
 const bg = "rgba(255,255,255,0.04)";
 const border = "rgba(255,255,255,0.07)";
-
-const PROD_BASE_URL = "https://bingooconnect.com";
 
 function StatusBadge({ status }) {
   const map = {
@@ -67,7 +66,7 @@ export default function CaptureNfc() {
       {/* Device list */}
       <div className="space-y-4">
         {demoNfcDevices.map((device, idx) => {
-          const deviceUrl = `${PROD_BASE_URL}/d/${device.device_code}`;
+          const deviceUrl = buildDeviceUrl(device.device_code);
           const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
           const isLost = device.status === "lost";
           const isExpanded = idx === 0; // first device expanded to show QR
