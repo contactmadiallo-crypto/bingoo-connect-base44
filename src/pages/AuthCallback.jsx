@@ -47,9 +47,17 @@ export default function AuthCallback() {
         const needsOnboarding = !!user?.id && profiles.length === 0 && !onboardingDone;
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
-        const destination = needsOnboarding
-          ? "/bingoo?onboarding=1"
-          : (next && next.startsWith("/") && next !== "/auth") ? next : "/bingoo";
+        // A pending NFC activation is an explicit continuation and must win
+        // over first-login/dashboard onboarding. Otherwise a user who taps an
+        // unclaimed device, signs in, and already has a valid session gets
+        // dumped at the dashboard and has to tap the physical device again.
+        const safeNext = (next && next.startsWith("/") && !next.startsWith("//") && next !== "/auth") ? next : null;
+        const isNfcContinuation = !!safeNext && (/^\/d\/BG-[A-Z0-9-]+(?:[/?#]|$)/i.test(safeNext) || /^\/activate-device(?:[?#]|$)/i.test(safeNext));
+        const destination = isNfcContinuation
+          ? safeNext
+          : needsOnboarding
+            ? "/bingoo?onboarding=1"
+            : safeNext || "/bingoo";
         navigate(destination, { replace: true });
       };
 
