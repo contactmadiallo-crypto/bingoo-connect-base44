@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
     const devices = deviceResults
       .flat()
       .filter(d => {
+        if (d.status === 'retired') return false;
         if (seen.has(d.id)) return false;
         seen.add(d.id);
         return true;
