@@ -767,7 +767,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
         </AnimatePresence>
       </div>
 
-      <p className="text-white/20 text-xs mt-8">Bingoo Connect · Smart NFC Profiles</p>
+        <p className="text-center text-white/20 text-xs mt-8">Bingoo Connect · Smart NFC Profiles</p>
+      </div>
     </div>
   );
 }
