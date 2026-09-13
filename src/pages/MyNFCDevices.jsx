@@ -23,8 +23,7 @@ import { usePlan } from "@/hooks/usePlan";
 import { toast } from "sonner";
 import { DEVICE_TYPES } from "@/lib/deviceTypes";
 import { useNavigate } from "react-router-dom";
-
-const PROD_BASE_URL = "https://bingooconnect.com";
+import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
 
 function QRImage({ url, isDark }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
@@ -517,7 +516,7 @@ export default function MyNFCDevices() {
                     {/* Devices in this group */}
                     <div className={`space-y-4 ${isMulti ? "sm:pl-2" : ""}`}>
             {devices.map(device => {
-              const deviceUrl = `${PROD_BASE_URL}/d/${device.device_code}`;
+              const deviceUrl = buildDeviceUrl(device.device_code);
               const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
               const isExpanded = expandedId === device.id;
               const isLost = device.status === "lost";
