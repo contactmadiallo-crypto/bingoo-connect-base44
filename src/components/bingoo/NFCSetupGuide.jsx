@@ -2,11 +2,12 @@ import { motion } from "framer-motion";
 import { Smartphone, X, CheckCircle, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
 
 export default function NFCSetupGuide({ device, onClose }) {
   const { isDark } = useBingooTheme();
 
-  const deviceUrl = `${window.location.origin}/d/${device.device_code}`;
+  const deviceUrl = buildDeviceUrl(device.device_code);
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(deviceUrl)}&color=1e293b&bgcolor=f8fafc`;
 
   const cardBg = isDark ? "bg-[#13284f]" : "bg-white";
