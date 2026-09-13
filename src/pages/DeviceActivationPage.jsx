@@ -5,9 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle, Wifi, LogIn, UserPlus, ChevronRight, Loader2,
   RefreshCw, Briefcase, Package, Plus, AlertCircle, Info, Smartphone,
+  Link2, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getDeviceTypeLabel, getDeviceEmoji, getDeviceDisplayName, getDeviceDisplayImage } from "@/lib/deviceTypes";
+import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
+import { PRODUCTS } from "@/lib/shopProducts";
+import FactoryProductMedia from "@/components/shop/FactoryProductMedia";
 
 // ── Status display config ──
 const STATUS_CONFIG = {
@@ -53,8 +57,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   const deviceStatus = device?.status || "available";
   const statusConfig = STATUS_CONFIG[deviceStatus] || STATUS_CONFIG.available;
   const deviceEmoji = getDeviceEmoji(device?.device_type);
-  const deviceTypeLabel = getDeviceDisplayName(device);
-  const deviceImage = getDeviceDisplayImage(device);
+  const storeProduct = PRODUCTS.find((p) => p.id === String(device?.product_sku || "").replace(/_/g, "-"))
+    || PRODUCTS.find((p) => p.category === device?.device_type && p.availability === "active")
+    || null;
+  const deviceTypeLabel = device?.product_name || storeProduct?.name || getDeviceDisplayName(device);
+  const deviceImage = getDeviceDisplayImage(device) || storeProduct?.image || null;
   const isActivatable = deviceStatus === "available" || deviceStatus === "assigned";
 
   // If device is in a non-activatable state (replaced, disabled, lost), show error_state
