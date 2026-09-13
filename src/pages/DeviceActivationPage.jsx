@@ -266,8 +266,10 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
   // ── Auth redirect handlers ──
   const handleLoginRedirect = () => {
+    // Use Bingoo's own login route so the NFC continuation is explicit and
+    // survives email/password as well as Google/Apple OAuth.
     const returnUrl = `/d/${deviceCode}`;
-    base44.auth.redirectToLogin(returnUrl);
+    window.location.href = `/login?next=${encodeURIComponent(returnUrl)}`;
   };
 
   const handleRegisterRedirect = () => {
