@@ -471,6 +471,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <td className="px-4 py-3"><QRCell code={d.device_code} /></td>
                         <td className="px-4 py-3">
                           <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
+                          <p className="font-mono text-[10px] text-orange-400/80 mt-1 break-all">{buildDeviceUrl(d.device_code)}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success("NFC URL copied"); }} className="text-[10px] font-bold text-white/40 hover:text-white inline-flex items-center gap-1"><Copy className="w-3 h-3" /> Copy</button>
+                            <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white/40 hover:text-white inline-flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Test</a>
+                          </div>
                           {d.replaced_by_code && <p className="text-xs text-purple-400 mt-0.5">→ {d.replaced_by_code}</p>}
                         </td>
                         <td className="px-4 py-3 text-sm capitalize text-white/60">{DEVICE_EMOJIS[d.device_type]} {d.device_type}</td>
@@ -534,7 +539,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               return (
                 <div key={d.id} className="rounded-2xl border p-4 space-y-3" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
+                    <div className="min-w-0 flex-1">
+                      <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
+                      <p className="font-mono text-[10px] text-orange-400/80 mt-1 break-all">{buildDeviceUrl(d.device_code)}</p>
+                    </div>
                     <StatusBadge status={d.status} />
                   </div>
                   <div className="flex items-center gap-2 text-sm text-white/60 capitalize">
@@ -549,6 +557,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     ) : <span className="text-white/25 text-xs italic">Unassigned</span>}
                   </div>
                   {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success("NFC URL copied"); }} className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
+                    <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Test</a>
+                  </div>
                   <div className="flex items-center gap-1 flex-wrap pt-1">
                     <button aria-label="Edit device" onClick={() => setEditingDevice({ ...d })}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
