@@ -116,6 +116,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   const [singleCode, setSingleCode] = useState("");
   const [singleProductId, setSingleProductId] = useState(DEFAULT_PRODUCT_ID);
   const [singleGenerating, setSingleGenerating] = useState(false);
+  const [singleGeneratingCode, setSingleGeneratingCode] = useState("");
+  const [lastGeneratedDevice, setLastGeneratedDevice] = useState(null);
   const [bulkStart, setBulkStart] = useState("");
   const [bulkCount, setBulkCount] = useState(10);
   const [bulkProductId, setBulkProductId] = useState(DEFAULT_PRODUCT_ID);
@@ -161,10 +163,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
       invalidate();
       queryClient.invalidateQueries({ queryKey: ["device-audit-logs"] });
       setSingleCode("");
-      toast.success("Device created!");
+      setLastGeneratedDevice(d);
+      toast.success(`${d.device_code} created successfully`);
     },
-    onError: (e) => { invalidate(); toast.error(e.message); },
-    onSettled: () => setSingleGenerating(false),
+    onError: (e) => { invalidate(); setLastGeneratedDevice(null); toast.error(e.message); },
+    onSettled: () => { setSingleGenerating(false); setSingleGeneratingCode(""); },
   });
 
   const updateDevice = useMutation({
@@ -695,13 +698,26 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   if (devices.some(d => d.device_code?.toUpperCase() === code)) { toast.error("Device code already exists."); return; }
                   if (!product) { toast.error("Choose a Bingoo Shop product first."); return; }
                   if (singleGenerating || createDevice.isPending) return;
+                  setLastGeneratedDevice(null);
                   setSingleGenerating(true);
+                  setSingleGeneratingCode(code);
                   createDevice.mutate({ device_code: code, ...productToDeviceData(product) });
                 }}
                   disabled={singleGenerating || createDevice.isPending}
                   style={{ background: orange, color: "#fff" }} className="w-full font-bold">
-                  {createDevice.isPending ? "Creating..." : "Create Shop-Matched Device"}
+                  {(singleGenerating || createDevice.isPending) ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating {singleGeneratingCode || (singleCode || padCode(nextBgNumber())).trim().toUpperCase()}…</> : "Create Shop-Matched Device"}
                 </Button>
+                {lastGeneratedDevice && (
+                  <div className="rounded-xl p-3" style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.28)" }}>
+                    <p className="text-green-400 text-sm font-black">{lastGeneratedDevice.device_code} Created ✓</p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-white/35">Permanent NFC URL</p>
+                    <p className="mt-1 font-mono text-xs text-orange-400 break-all">{buildDeviceUrl(lastGeneratedDevice.device_code)}</p>
+                    <div className="flex gap-2 mt-3">
+                      <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(lastGeneratedDevice.device_code)); toast.success("NFC URL copied"); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
+                      <a href={buildDeviceUrl(lastGeneratedDevice.device_code)} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Open/Test</a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
