@@ -15,6 +15,21 @@ const PRODUCT_TO_PLAN = {
 // canonical NFCDevice inventory. Keep these IDs aligned with createShopCheckout
 // and src/lib/shopProducts.js. This is manufacturing identity, not pricing.
 const SHOP_NFC_PRODUCTS = {
+  // Standalone Design Studio manufacturing identities. No retail Shop image is
+  // attached: the purchased product is the customer's submitted design.
+  'studio-business-card':     { device_type: 'card',     name: 'Custom NFC Card',      image: '' },
+  'studio-business-keychain': { device_type: 'keychain', name: 'Custom NFC Keychain',  image: '' },
+  'studio-business-sticker':  { device_type: 'sticker',  name: 'Custom NFC Sticker',   image: '' },
+  'studio-business-bracelet': { device_type: 'bracelet', name: 'Custom NFC Bracelet',  image: '' },
+  'studio-business-tag':      { device_type: 'tag',      name: 'Custom NFC Tag',       image: '' },
+  'studio-business-stand':    { device_type: 'stand',    name: 'Custom NFC Stand',     image: '' },
+  'studio-pro-card':          { device_type: 'card',     name: 'Custom NFC Card',      image: '' },
+  'studio-pro-keychain':      { device_type: 'keychain', name: 'Custom NFC Keychain',  image: '' },
+  'studio-pro-sticker':       { device_type: 'sticker',  name: 'Custom NFC Sticker',   image: '' },
+  'studio-pro-bracelet':      { device_type: 'bracelet', name: 'Custom NFC Bracelet',  image: '' },
+  'studio-pro-tag':           { device_type: 'tag',      name: 'Custom NFC Tag',       image: '' },
+  'studio-pro-stand':         { device_type: 'stand',    name: 'Custom NFC Stand',     image: '' },
+
   'nfc-card':         { device_type: 'card',     name: 'NFC Card',           image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/e20177e15_nfc-card.webp' },
   'nfc-keychain':     { device_type: 'keychain', name: 'NFC Keychain',       image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/ec99291e4_nfc-keychain.webp' },
   'nfc-metal-card':   { device_type: 'metal_card', name: 'NFC Metal Card',  image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/1a49f3891_nfc-metal-card.webp' },
