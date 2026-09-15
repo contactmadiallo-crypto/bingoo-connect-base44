@@ -8,7 +8,7 @@ import {
   Package, Phone, Mail, MessageCircle, ArrowLeft, MapPin, AlertTriangle,
   Send, CheckCircle2, Loader2, MapPinned, Gift, HeartPulse, ShieldCheck, PawPrint, Luggage,
 } from 'lucide-react';
-import BingooLogo from '@/components/bingoo/BingooLogo';
+import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import { useLostScanLogger } from '@/hooks/useLostScanLogger';
 import { getDeviceDisplayName } from '@/lib/deviceTypes';
 
@@ -79,7 +79,7 @@ export default function AssetFinder() {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
         <div className="text-center">
-          <BingooLogo className="w-14 h-14 mx-auto mb-4" animated />
+          <div className="flex items-center justify-center gap-1 mb-4"><span className="text-white font-black text-4xl tracking-[-0.055em]">Bing</span><InfinityMark size={48} color="#f97316" strokeWidth={3.8} glow /></div>
           <p className="text-white/60 font-semibold text-sm">Checking device…</p>
         </div>
       </div>
@@ -127,16 +127,18 @@ export default function AssetFinder() {
   }
 
   return (
-    <div className="min-h-screen pb-10" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 55%, #13284f 100%)' }}>
-      <div className="max-w-md mx-auto px-4 pt-6 space-y-4">
+    <div className="min-h-screen pb-10 relative overflow-hidden" style={{ background: 'radial-gradient(circle at 80% 18%, rgba(59,130,246,.15), transparent 25%), linear-gradient(160deg, #031226 0%, #071d42 55%, #062b62 100%)' }}>
+      <div className="pointer-events-none absolute -right-36 -top-20 opacity-[0.08]"><InfinityMark size={430} color="#3b82f6" strokeWidth={1.3} /></div>
+      <div className="pointer-events-none absolute -left-40 bottom-[-170px] opacity-[0.07]"><InfinityMark size={500} color="#f97316" strokeWidth={1.3} /></div>
+      <div className="relative z-10 max-w-md mx-auto px-4 pt-6 space-y-4">
 
-        {/* Brand header */}
-        <div className="flex items-center gap-2.5">
-          <BingooLogo className="w-9 h-9" animated={false} />
-          <div>
-            <p className="text-white font-black text-sm leading-none">Bingoo Connect</p>
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mt-0.5">{isLost ? 'Lost Asset Recovery' : 'Asset Identified'}</p>
+        {/* New Bingoo infinity brand */}
+        <div className="flex flex-col items-center py-2">
+          <div className="flex items-center gap-1 leading-none">
+            <span className="text-white font-black text-[42px] tracking-[-0.055em]">Bing</span>
+            <InfinityMark size={55} color="#f97316" strokeWidth={3.9} glow />
           </div>
+          <span className="mt-1 text-[9px] font-bold uppercase tracking-[.34em] text-white/65">Connect What Matters</span>
         </div>
 
         {/* Lost banner */}
@@ -155,7 +157,7 @@ export default function AssetFinder() {
             )}
           </div>
         ) : (
-          <div className="rounded-3xl p-5 flex items-center gap-3 shadow-lg" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)' }}>
+          <div className="rounded-3xl p-5 flex items-center gap-3 shadow-lg backdrop-blur-xl" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(96,165,250,0.30)' }}>
             <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(249,115,22,0.25)' }}>
               <Package className="w-5 h-5 text-orange-400" />
             </div>
@@ -376,7 +378,10 @@ export default function AssetFinder() {
           </div>
         )}
 
-        <p className="text-center text-xs text-white/40 pb-2">Powered by Bingoo Connect</p>
+        <div className="pt-5 pb-3 text-center">
+          <div className="flex items-center justify-center gap-1 opacity-80"><span className="text-white font-black text-lg tracking-[-0.04em]">Bing</span><InfinityMark size={25} color="#f97316" strokeWidth={3.4} /></div>
+          <p className="mt-1 text-[9px] font-bold uppercase tracking-[.28em] text-white/35">Assets That Stay Closer</p>
+        </div>
       </div>
     </div>
   );
