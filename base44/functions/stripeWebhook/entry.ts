@@ -313,18 +313,23 @@ Deno.serve(async (req) => {
         }
         if (!shopOrder) {
           console.error('Webhook: ShopOrder not found for order_id:', order_id);
-        } else if (shopOrder.payment_status === 'paid') {
-          console.log('Webhook: order already paid, skipping update:', order_id);
         } else {
-          await base44.asServiceRole.entities.ShopOrder.update(order_id, {
-            payment_status: 'paid',
-            stripe_session_id: session.id,
-            stripe_payment_intent: session.payment_intent || '',
-          });
-          console.log('Order marked as paid:', order_id, '| session:', session.id);
+          if (shopOrder.payment_status !== 'paid') {
+            await base44.asServiceRole.entities.ShopOrder.update(order_id, {
+              payment_status: 'paid',
+              stripe_session_id: session.id,
+              stripe_payment_intent: session.payment_intent || '',
+            });
+            console.log('Order marked as paid:', order_id, '| session:', session.id);
+          } else {
+            console.log('Webhook: order already paid; verifying manufacturing allocation:', order_id);
+          }
 
-          // Generate activation codes for custom NFC items (non-blocking)
-          await generateManufacturingDevices(base44, shopOrder, order_id);
+          // Always verify manufacturing allocation on a completed-payment retry.
+          // generateManufacturingDevices is itself idempotent and immediately exits
+          // when this order already owns canonical device codes.
+          const freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
+          await generateManufacturingDevices(base44, freshOrder || shopOrder, order_id);
         }
 
       } else if (session.mode === 'subscription') {
