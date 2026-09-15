@@ -189,19 +189,32 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
   const handleBulkGenerate = async () => {
     setBulkGenerating(true);
+    const product = ADMIN_PRODUCTS.find(p => p.id === bulkProductId);
+    if (!product) { toast.error("Choose a Bingoo Shop product first."); setBulkGenerating(false); return; }
     const existingCodes = new Set(devices.map(d => d.device_code?.toUpperCase()));
     const toCreate = [];
-    let index = parseInt(bulkStart) || 1;
+    const requestedStart = parseInt(bulkStart);
+    let index = Number.isFinite(requestedStart) && requestedStart > 0 ? requestedStart : nextBgNumber();
+    const firstIndex = index;
     let created = 0;
     while (created < Math.min(bulkCount, 200)) {
       const code = padCode(index).toUpperCase();
-      if (!existingCodes.has(code)) { toCreate.push({ device_code: code, device_type: bulkType, status: "available" }); created++; }
+      if (!existingCodes.has(code)) {
+        toCreate.push({ device_code: code, ...productToDeviceData(product) });
+        existingCodes.add(code);
+        created++;
+      }
       index++;
     }
     try {
-      await base44.entities.NFCDevice.bulkCreate(toCreate);
+      const createdDevices = await base44.entities.NFCDevice.bulkCreate(toCreate);
+      for (const d of (createdDevices || [])) {
+        await writeAuditLog({ device_id: d.id, device_code: d.device_code, action: "generated", performed_by: currentUser?.id, performed_by_name: currentUser?.full_name, new_status: "available", notes: `${product.name} · ${product.id}` });
+      }
       invalidate();
-      toast.success(`${toCreate.length} devices generated! (BG-${String(parseInt(bulkStart)).padStart(6,"0")} → BG-${String(index-1).padStart(6,"0")})`);
+      queryClient.invalidateQueries({ queryKey: ["device-audit-logs"] });
+      setBulkStart("");
+      toast.success(`${toCreate.length} ${product.name} devices generated! (${padCode(firstIndex)} → ${padCode(index - 1)})`);
     } catch (e) { toast.error("Bulk generation failed: " + e.message); }
     setBulkGenerating(false);
   };
