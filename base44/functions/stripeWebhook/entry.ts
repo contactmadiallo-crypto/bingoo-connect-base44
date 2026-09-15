@@ -11,6 +11,24 @@ const PRODUCT_TO_PLAN = {
   'prod_UsKCo8sDBXEsuY': 'corporate',
 };
 
+// Physical Shop catalog metadata used when converting a paid ShopOrder into
+// canonical NFCDevice inventory. Keep these IDs aligned with createShopCheckout
+// and src/lib/shopProducts.js. This is manufacturing identity, not pricing.
+const SHOP_NFC_PRODUCTS = {
+  'nfc-card':         { device_type: 'card',     name: 'NFC Card',           image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/e20177e15_nfc-card.webp' },
+  'nfc-keychain':     { device_type: 'keychain', name: 'NFC Keychain',       image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/ec99291e4_nfc-keychain.webp' },
+  'nfc-metal-card':   { device_type: 'metal_card', name: 'NFC Metal Card',  image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/1a49f3891_nfc-metal-card.webp' },
+  'nfc-wood-card':    { device_type: 'card',     name: 'NFC Wood Card',      image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/ef8e36d9a_nfc-wood-card.webp' },
+  'nfc-sticker':      { device_type: 'sticker',  name: 'NFC Sticker',        image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/73a89b588_nfc-sticker.webp' },
+  'nfc-bracelet':     { device_type: 'bracelet', name: 'NFC Bracelet',       image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/c61eb39e9_nfc-bracelet.webp' },
+  'nfc-silicone-tag': { device_type: 'tag',      name: 'NFC Silicone Tag',   image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/60a904175_nfc-silicone-tag.webp' },
+  'nfc-key-fob':      { device_type: 'keychain', name: 'NFC Key Fob',        image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/034a5179c_nfc-key-fob.webp' },
+  'nfc-table-stand':  { device_type: 'stand',    name: 'NFC Table Stand',    image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/ef2d6166e_nfc-table-stand.webp' },
+  'nfc-phone-stand':  { device_type: 'stand',    name: 'NFC Phone Stand',    image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/5a7033e82_nfc-phone-stand.webp' },
+  'nfc-pet-collar':   { device_type: 'tag',      name: 'NFC Pet Collar Tag', image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/0f7c80692_nfc-pet-collar.webp' },
+  'nfc-luggage-tag':  { device_type: 'tag',      name: 'NFC Luggage Tag',    image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/6bf4206d2_nfc-luggage-tag.webp' },
+};
+
 // ── Test Account Overrides ──────────────────────────────────────────────────
 // MUST stay in sync with src/lib/testAccounts.js and getUserFeatures/entry.ts
 // Protected test accounts never get downgraded by Stripe events.
