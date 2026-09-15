@@ -640,17 +640,42 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   <p className="text-white/25 text-xs mt-1">Next suggested: <span className="font-mono text-orange-400">{padCode(nextBgNumber())}</span></p>
                 </div>
                 <div>
-                  <label className="text-white/50 text-xs font-bold block mb-1">Device Type</label>
+                  <label className="text-white/50 text-xs font-bold block mb-1">Bingoo Shop Product</label>
                   <DarkSelect
-                    value={singleType}
-                    onValueChange={setSingleType}
-                    items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                    value={singleProductId}
+                    onValueChange={setSingleProductId}
+                    items={ADMIN_PRODUCTS.map(p => ({ value: p.id, label: `${p.name} · ${p.collection}` }))}
                   />
                 </div>
-                <Button onClick={() => createDevice.mutate({ device_code: singleCode || padCode(nextBgNumber()), device_type: singleType, status: "available" })}
+                {(() => {
+                  const product = ADMIN_PRODUCTS.find(p => p.id === singleProductId);
+                  const code = (singleCode || padCode(nextBgNumber())).trim().toUpperCase();
+                  const url = buildDeviceUrl(code);
+                  return product ? (
+                    <div className="rounded-xl p-3 space-y-3" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      <div className="flex items-center gap-3">
+                        {product.image && <img src={product.image} alt={product.name} className="w-14 h-14 rounded-xl object-cover bg-white/5" />}
+                        <div className="min-w-0 flex-1"><p className="font-bold text-white text-sm">{product.name}</p><p className="text-xs text-white/35">SKU: {product.id} · {product.category}</p></div>
+                      </div>
+                      <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/35">Permanent NFC URL</p><p className="font-mono text-xs text-orange-400 break-all mt-1">{url}</p></div>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => { navigator.clipboard?.writeText(url); toast.success("NFC URL copied"); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Test URL</a>
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+                <Button onClick={() => {
+                  const product = ADMIN_PRODUCTS.find(p => p.id === singleProductId);
+                  const code = (singleCode || padCode(nextBgNumber())).trim().toUpperCase();
+                  if (!/^BG-\d{6}$/.test(code)) { toast.error("Device code must use BG-000000 format."); return; }
+                  if (devices.some(d => d.device_code?.toUpperCase() === code)) { toast.error("Device code already exists."); return; }
+                  if (!product) { toast.error("Choose a Bingoo Shop product first."); return; }
+                  createDevice.mutate({ device_code: code, ...productToDeviceData(product) });
+                }}
                   disabled={createDevice.isPending}
                   style={{ background: orange, color: "#fff" }} className="w-full font-bold">
-                  {createDevice.isPending ? "Creating..." : "Create Device"}
+                  {createDevice.isPending ? "Creating..." : "Create Shop-Matched Device"}
                 </Button>
               </div>
             </div>
