@@ -226,7 +226,7 @@ async function generateManufacturingDevices(base44, shopOrder, orderId) {
           device_type: productType,
           product_sku: item.product_id,
           product_name: product.name,
-          product_image: product.image,
+          product_image: cd.logoUrl || product.image || '',
           status: 'available',
           description: descriptionParts.length ? descriptionParts.join(' · ') : `${product.name} · Shop order ${orderId}`,
         });
