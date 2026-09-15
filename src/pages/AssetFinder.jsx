@@ -126,6 +126,142 @@ export default function AssetFinder() {
     );
   }
 
+  if (!isLost) {
+    return (
+      <div className="min-h-screen relative overflow-hidden pb-10" style={{ background: 'radial-gradient(circle at 78% 18%, rgba(37,99,235,.18), transparent 26%), radial-gradient(circle at 10% 76%, rgba(249,115,22,.10), transparent 23%), linear-gradient(155deg,#020d1f 0%,#051a3c 54%,#062b62 100%)' }}>
+        <div className="pointer-events-none absolute -right-40 -top-16 opacity-[0.09]"><InfinityMark size={520} color="#3b82f6" strokeWidth={1.25} /></div>
+        <div className="pointer-events-none absolute -left-48 bottom-[-190px] opacity-[0.07]"><InfinityMark size={560} color="#f97316" strokeWidth={1.2} /></div>
+
+        <main className="relative z-10 mx-auto w-full max-w-md px-4 pt-7">
+          <header className="mb-7 flex flex-col items-center">
+            <div className="flex items-center gap-1 leading-none">
+              <span className="text-white font-black text-[46px] tracking-[-0.06em]">Bing</span>
+              <InfinityMark size={61} color="#f97316" strokeWidth={4} glow />
+            </div>
+            <p className="mt-1 text-[9px] font-bold uppercase tracking-[.36em] text-white/65">Connect What Matters</p>
+          </header>
+
+          <section className="mb-4 flex items-center gap-3 rounded-[26px] px-5 py-4 backdrop-blur-xl" style={{ background: 'rgba(8,30,66,.76)', border: '1px solid rgba(96,165,250,.34)', boxShadow: '0 18px 50px rgba(0,0,0,.20)' }}>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: 'rgba(249,115,22,.18)' }}>
+              <Package className="h-6 w-6 text-orange-400" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-base font-black text-white">Asset Identified</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-white/58">This {device ? 'NFC tag' : 'QR code'} is linked to a registered Bingoo asset.</p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-black text-emerald-300" style={{ background: 'rgba(16,185,129,.10)', border: '1px solid rgba(52,211,153,.42)' }}>
+              <span className="h-2 w-2 rounded-full bg-emerald-400" /> Active
+            </span>
+          </section>
+
+          <section className="overflow-hidden rounded-[30px]" style={{ background: 'linear-gradient(160deg,rgba(7,31,68,.96),rgba(3,18,42,.98))', border: '1px solid rgba(96,165,250,.27)', boxShadow: '0 30px 75px rgba(0,0,0,.34)' }}>
+            {assetData.photo_url ? (
+              <div className="relative h-[300px] overflow-hidden sm:h-[330px]">
+                <img src={assetData.photo_url} alt={assetData.name} className="h-full w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#04142e] via-black/5 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <div className="flex items-end justify-between gap-3">
+                    <div className="min-w-0">
+                      <h1 className="truncate text-[34px] font-black uppercase leading-none tracking-[-0.04em] text-white">{assetData.name}</h1>
+                      {assetData.description && <p className="mt-2 line-clamp-1 text-[10px] font-bold uppercase tracking-[.22em] text-white/70">{assetData.description}</p>}
+                    </div>
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/90 px-3 py-2 text-[11px] font-black uppercase text-slate-700 backdrop-blur-sm">
+                      <TypeIcon className="h-3.5 w-3.5" /> {assetData.asset_type}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="px-6 pb-5 pt-7">
+                <h1 className="text-[34px] font-black uppercase tracking-[-0.04em] text-white">{assetData.name}</h1>
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 text-[11px] font-black uppercase text-white/70"><TypeIcon className="h-3.5 w-3.5" /> {assetData.asset_type}</span>
+              </div>
+            )}
+
+            <div className="space-y-3 p-4 sm:p-5">
+              {device && (
+                <div className="flex items-center gap-3 rounded-[22px] px-4 py-4" style={{ background: 'rgba(12,42,86,.78)', border: '1px solid rgba(96,165,250,.25)' }}>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: 'rgba(249,115,22,.16)' }}><Package className="h-5 w-5 text-orange-400" /></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-blue-200/60">Linked NFC Device</p>
+                    <p className="mt-0.5 truncate text-base font-black text-white">{productLabel}</p>
+                  </div>
+                  <button type="button" onClick={() => normalizedCode && navigator.clipboard?.writeText(normalizedCode)} className="shrink-0 rounded-xl px-2 py-1.5 font-mono text-xs font-bold text-white/60 hover:bg-white/5" aria-label="Copy device code">{normalizedCode}</button>
+                </div>
+              )}
+
+              <div className="overflow-hidden rounded-[22px]" style={{ background: 'rgba(8,31,67,.72)', border: '1px solid rgba(96,165,250,.18)' }}>
+                <div className="flex items-center gap-3 border-b border-white/[.06] px-4 py-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[.06]"><ShieldCheck className="h-5 w-5 text-blue-200/70" /></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">Registered By</p>
+                    <p className="truncate text-sm font-black text-white">{owner.display_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 px-4 py-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[.06]"><MapPin className="h-5 w-5 text-blue-200/70" /></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">Asset Information</p>
+                    <p className="truncate text-sm font-semibold capitalize text-white/75">{assetData.public_last_known_context || `${assetData.asset_type} · Registered Bingoo asset`}</p>
+                  </div>
+                </div>
+              </div>
+
+              {isPet && assetData.public_medical_notes && (
+                <div className="rounded-[20px] p-4" style={{ background: 'rgba(239,68,68,.09)', border: '1px solid rgba(248,113,113,.28)' }}>
+                  <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[.16em] text-red-300"><HeartPulse className="h-3.5 w-3.5" /> Medical / Allergy Notes</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/75">{assetData.public_medical_notes}</p>
+                </div>
+              )}
+
+              {owner.contact.phone && (
+                <a href={`tel:${owner.contact.phone}`} className="flex min-h-[76px] items-center gap-3 rounded-[22px] px-4 text-white transition-transform active:scale-[.99]" style={{ background: 'linear-gradient(100deg,#ff9b18 0%,#ff6b13 56%,#ff4a21 100%)', boxShadow: '0 14px 34px rgba(249,115,22,.18)' }}>
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15"><Phone className="h-5 w-5" /></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/70">Call Owner</p>
+                    <p className="truncate text-lg font-black">{owner.contact.phone}</p>
+                  </div>
+                  <span className="text-2xl font-light text-white/75">›</span>
+                </a>
+              )}
+
+              {(owner.contact.email || owner.contact.whatsapp) && (
+                <a href={owner.contact.email ? `mailto:${owner.contact.email}` : `https://wa.me/${owner.contact.whatsapp.replace(/[^0-9]/g, '')}`} target={owner.contact.email ? undefined : '_blank'} rel={owner.contact.email ? undefined : 'noopener noreferrer'} className="flex min-h-[64px] items-center gap-3 rounded-[22px] px-4 text-white transition-colors hover:bg-white/[.04]" style={{ border: '1px solid rgba(249,115,22,.82)' }}>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[.05]">{owner.contact.email ? <Mail className="h-5 w-5 text-white/70" /> : <MessageCircle className="h-5 w-5 text-white/70" />}</div>
+                  <span className="flex-1 text-sm font-black">Send a Message</span>
+                  <span className="text-2xl font-light text-white/60">›</span>
+                </a>
+              )}
+
+              <div className="grid grid-cols-3 gap-1 border-t border-white/[.06] pt-5">
+                <div className="px-1 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><ShieldCheck className="h-4.5 w-4.5 text-white/80" /></div>
+                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Safer Tomorrow</p>
+                  <p className="mt-1 text-[9px] leading-tight text-white/35">For what matters</p>
+                </div>
+                <div className="border-x border-white/[.06] px-1 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><InfinityMark size={21} color="#fff" strokeWidth={2.2} /></div>
+                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Connected</p>
+                  <p className="mt-1 text-[9px] leading-tight text-white/35">People · Pets · Possessions</p>
+                </div>
+                <div className="px-1 text-center">
+                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><HeartPulse className="h-4.5 w-4.5 text-white/80" /></div>
+                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Kinder World</p>
+                  <p className="mt-1 text-[9px] leading-tight text-white/35">One tap at a time</p>
+                </div>
+              </div>
+
+              <div className="pb-1 pt-3 text-center">
+                <div className="flex items-center justify-center gap-1 opacity-80"><span className="text-white font-black text-lg tracking-[-0.04em]">Bing</span><InfinityMark size={25} color="#f97316" strokeWidth={3.4} /></div>
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[.32em] text-white/30">Assets That Stay Closer</p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-10 relative overflow-hidden" style={{ background: 'radial-gradient(circle at 80% 18%, rgba(59,130,246,.15), transparent 25%), linear-gradient(160deg, #031226 0%, #071d42 55%, #062b62 100%)' }}>
       <div className="pointer-events-none absolute -right-36 -top-20 opacity-[0.08]"><InfinityMark size={430} color="#3b82f6" strokeWidth={1.3} /></div>
