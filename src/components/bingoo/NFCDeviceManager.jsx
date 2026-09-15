@@ -3,17 +3,33 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MobileSelect } from "@/components/ui/mobile-select";
-import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
+import { deviceUrl as buildDeviceUrl, activationUrl as buildActivationUrl } from "@/lib/nfcUrl";
+import { PRODUCTS } from "@/lib/shopProducts";
 import { toast } from "sonner";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
   BarChart3, Wifi, AlertTriangle, Activity, Package, MapPin,
   ArrowRightLeft, RotateCcw, Clock, Layers,
-  RefreshCw, History
+  RefreshCw, History, Copy, ExternalLink
 } from "lucide-react";
 
-const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker"];
-const DEVICE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫", sticker: "🏷️" };
+const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker", "tag"];
+const DEVICE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫", sticker: "🏷️", tag: "🏷️" };
+
+// Admin generation must use the same physical products customers see in Shop.
+// This keeps product identity stable from manufacturing → activation → profile/asset.
+const ADMIN_PRODUCTS = PRODUCTS.filter(p => p.availability === "active" && p.stripeReady);
+const DEFAULT_PRODUCT_ID = ADMIN_PRODUCTS.find(p => p.id === "nfc-key-fob")?.id || ADMIN_PRODUCTS[0]?.id || "";
+
+function productToDeviceData(product) {
+  return {
+    device_type: product?.category || "card",
+    product_sku: product?.id || "",
+    product_name: product?.name || "NFC Device",
+    product_image: product?.image || "",
+    status: "available",
+  };
+}
 const ALL_STATUSES = ["available", "assigned", "active", "lost", "disabled", "replaced"];
 
 const STATUS_COLORS = {
@@ -98,10 +114,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
   // Generation state
   const [singleCode, setSingleCode] = useState("");
-  const [singleType, setSingleType] = useState("card");
-  const [bulkStart, setBulkStart] = useState(1);
+  const [singleProductId, setSingleProductId] = useState(DEFAULT_PRODUCT_ID);
+  const [bulkStart, setBulkStart] = useState("");
   const [bulkCount, setBulkCount] = useState(10);
-  const [bulkType, setBulkType] = useState("card");
+  const [bulkProductId, setBulkProductId] = useState(DEFAULT_PRODUCT_ID);
   const [bulkGenerating, setBulkGenerating] = useState(false);
 
   const { data: devices = [], refetch } = useQuery({
