@@ -4,7 +4,7 @@ import { Upload, Nfc, ShoppingCart, Check, Clock, Package, Shield, Save, Trash2,
 import { usePlan } from '@/hooks/usePlan';
 import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
-import { PRODUCTS } from '@/lib/shopProducts';
+import { getDesignStudioProduct } from '@/lib/designStudioCatalog';
 import { getDrafts, saveDraft, deleteDraft } from '@/lib/draftStore';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import { PRODUCT_TYPES, ProductTypeIcon, ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
@@ -142,22 +142,9 @@ export default function DesignStudio({ isDark }) {
   };
 
   const handlePlaceOrder = () => {
-    // Design Studio must enter checkout as a real Stripe-backed Shop SKU.
-    // The visual customization rides alongside that SKU as customDesign data;
-    // it never creates a fake custom-nfc-* product ID or its own NFC namespace.
-    const skuByType = {
-      card: 'nfc-card',
-      keychain: 'nfc-keychain',
-      sticker: 'nfc-sticker',
-      bracelet: 'nfc-bracelet',
-      tag: 'nfc-silicone-tag',
-      stand: 'nfc-table-stand',
-    };
-    const sku = skuByType[productType] || 'nfc-card';
-    const shopProduct = PRODUCTS.find(p => p.id === sku && p.availability === 'active' && p.stripeReady);
-    if (!shopProduct) return;
+    const studioProduct = getDesignStudioProduct(productType, 'business');
 
-    addToCart({ ...shopProduct }, quantity, {
+    addToCart({ ...studioProduct }, quantity, {
       productType,
       cardColor,
       accentColor,
@@ -174,6 +161,7 @@ export default function DesignStudio({ isDark }) {
       removeBranding,
       brandPattern,
       designMode: 'business',
+      designStore: true,
     });
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
