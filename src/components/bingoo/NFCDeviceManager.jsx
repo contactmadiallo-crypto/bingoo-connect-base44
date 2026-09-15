@@ -669,7 +669,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         {product.image && <img src={product.image} alt={product.name} className="w-14 h-14 rounded-xl object-cover bg-white/5" />}
                         <div className="min-w-0 flex-1"><p className="font-bold text-white text-sm">{product.name}</p><p className="text-xs text-white/35">SKU: {product.id} · {product.category}</p></div>
                       </div>
-                      <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/35">Permanent NFC URL</p><p className="font-mono text-xs text-orange-400 break-all mt-1">{url}</p></div>
+                      <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/35">Permanent NFC URL · write this to the physical tag</p><p className="font-mono text-xs text-orange-400 break-all mt-1">{url}</p></div>
+                      <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/25">Activation URL · secondary</p><p className="font-mono text-[10px] text-white/40 break-all mt-1">{buildActivationUrl(code)}</p></div>
                       <div className="flex gap-2">
                         <button type="button" onClick={() => { navigator.clipboard?.writeText(url); toast.success("NFC URL copied"); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
                         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Test URL</a>
