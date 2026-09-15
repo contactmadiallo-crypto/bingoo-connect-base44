@@ -52,6 +52,12 @@ function sanitizeCustomDesign(input) {
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
+function makeOrderNumber(orderId) {
+  const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const suffix = String(orderId || '').replace(/[^a-z0-9]/gi, '').slice(-6).toUpperCase().padStart(6, '0');
+  return `BC-${stamp}-${suffix}`;
+}
+
 function buildSessionParams({ lineItems, customerEmail, orderId }) {
   const params = {
     payment_method_types: ['card'],
@@ -273,8 +279,15 @@ Deno.serve(async (req) => {
       total: totalCents / 100,
       payment_status: 'unpaid',
       fulfillment_status: 'processing',
+      manufacturing_status: 'pending',
       idempotency_key,
     });
+
+    // Assign a permanent customer-facing order number as soon as the order exists.
+    // It is independent from Stripe and remains stable throughout fulfillment.
+    const orderNumber = makeOrderNumber(order.id);
+    await base44.asServiceRole.entities.ShopOrder.update(order.id, { order_number: orderNumber });
+    order.order_number = orderNumber;
 
     // ── 6b. Reconcile concurrent creates ──────────────────────────────────────
     // Two simultaneous requests can both pass the "no existing order" check and
