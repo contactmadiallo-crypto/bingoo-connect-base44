@@ -688,9 +688,9 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="text-white/50 text-xs font-bold block mb-1">Start Number</label>
+                  <label className="text-white/50 text-xs font-bold block mb-1">Start Number (optional)</label>
                   <input type="number" className="w-full px-3 py-2.5 rounded-xl text-sm font-mono outline-none" style={inputSt}
-                    value={bulkStart} onChange={e => setBulkStart(e.target.value)} min={1} />
+                    value={bulkStart} onChange={e => setBulkStart(e.target.value)} min={1} placeholder={String(nextBgNumber())} />
                 </div>
                 <div>
                   <label className="text-white/50 text-xs font-bold block mb-1">Count (max 200)</label>
@@ -698,17 +698,18 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     value={bulkCount} onChange={e => setBulkCount(Math.min(200, parseInt(e.target.value) || 1))} min={1} max={200} />
                 </div>
                 <div className="col-span-2">
-                  <label className="text-white/50 text-xs font-bold block mb-1">Device Type</label>
+                  <label className="text-white/50 text-xs font-bold block mb-1">Bingoo Shop Product</label>
                   <DarkSelect
-                    value={bulkType}
-                    onValueChange={setBulkType}
-                    items={DEVICE_TYPES.map(t => ({ value: t, label: `${DEVICE_EMOJIS[t]} ${t}` }))}
+                    value={bulkProductId}
+                    onValueChange={setBulkProductId}
+                    items={ADMIN_PRODUCTS.map(p => ({ value: p.id, label: `${p.name} · ${p.collection}` }))}
                   />
                 </div>
               </div>
-              <p className="text-white/30 text-xs mb-3">
-                Range: <span className="font-mono text-orange-400">{padCode(parseInt(bulkStart) || 1)} → {padCode((parseInt(bulkStart) || 1) + bulkCount - 1)}</span>
+              <p className="text-white/30 text-xs mb-1">
+                Range: <span className="font-mono text-orange-400">{padCode(parseInt(bulkStart) || nextBgNumber())} → {padCode((parseInt(bulkStart) || nextBgNumber()) + bulkCount - 1)}</span>
               </p>
+              <p className="text-white/25 text-xs mb-3">Leave Start Number blank to continue automatically from the next available canonical BG code.</p>
               <Button onClick={handleBulkGenerate} disabled={bulkGenerating}
                 style={{ background: gold, color: "#071A3D" }} className="w-full font-black">
                 {bulkGenerating ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating…</> : `Generate ${bulkCount} Devices`}
