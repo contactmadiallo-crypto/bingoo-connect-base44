@@ -267,6 +267,7 @@ async function generateManufacturingDevices(base44, shopOrder, orderId) {
       await base44.asServiceRole.entities.ShopOrder.update(orderId, {
         manufacturing_items: manufacturingItems,
         assigned_device_codes: allCodes,
+        manufacturing_status: 'device_allocated',
       });
       console.log(`Shop manufacturing ready: order ${orderId} | ${totalCreated} NFC devices | ${allCodes.join(', ')}`);
     }
@@ -328,8 +329,30 @@ Deno.serve(async (req) => {
           // Always verify manufacturing allocation on a completed-payment retry.
           // generateManufacturingDevices is itself idempotent and immediately exits
           // when this order already owns canonical device codes.
-          const freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
+          let freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
           await generateManufacturingDevices(base44, freshOrder || shopOrder, order_id);
+
+          // Send Bingoo's own purchase confirmation after payment. Stripe/Link's
+          // receipt is payment-provider confirmation, not the Bingoo fulfillment receipt.
+          freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
+          if (freshOrder && !freshOrder.confirmation_email_sent_at) {
+            const orderNumber = freshOrder.order_number || `BC-${String(order_id).slice(-8).toUpperCase()}`;
+            const itemLines = (freshOrder.items || []).map(i => `• ${i.product_name} × ${i.quantity}`).join('\n');
+            const trackUrl = `${appOrigin}/my-orders?order=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(freshOrder.customer_email || '')}`;
+            try {
+              await base44.asServiceRole.integrations.Core.SendEmail({
+                to: freshOrder.customer_email,
+                subject: `Bingoo order ${orderNumber} confirmed`,
+                from_name: 'Bingoo Connect',
+                body: `Hi ${freshOrder.customer_name || 'there'},\n\nYour Bingoo order is confirmed and payment has been received.\n\nOrder: ${orderNumber}\n${itemLines}\nTotal: $${Number(freshOrder.total || 0).toFixed(2)}\n\nYour Bingoo device is now entering preparation. Shipping tracking will appear as soon as your package is handed to the carrier.\n\nTrack your order: ${trackUrl}\n\nConnect what matters.\nBingoo Connect`,
+              });
+              await base44.asServiceRole.entities.ShopOrder.update(order_id, {
+                confirmation_email_sent_at: new Date().toISOString(),
+              });
+            } catch (emailErr) {
+              console.error('Shop confirmation email failed (retryable):', emailErr.message);
+            }
+          }
         }
 
       } else if (session.mode === 'subscription') {
