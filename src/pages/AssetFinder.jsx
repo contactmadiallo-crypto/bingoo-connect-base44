@@ -109,6 +109,30 @@ export default function AssetFinder() {
 
   const hasContact = owner.contact.phone || owner.contact.email || owner.contact.whatsapp;
 
+  const footerSignals = (() => {
+    if (isLost) {
+      return [
+        { Icon: AlertTriangle, title: 'Reported Lost', subtitle: isPet ? 'Help reunite this pet' : 'Help return this asset' },
+        { Icon: isPet ? PawPrint : ShieldCheck, title: isPet ? 'Help Reunite' : 'Return Ready', subtitle: assetData.recovery_instructions ? 'Return instructions available' : 'Safe recovery flow active' },
+        { Icon: hasContact ? Phone : Send, title: hasContact ? 'Contact Owner' : 'Finder Report', subtitle: hasContact ? 'Reach the registered owner' : 'Send a safe recovery report' },
+      ];
+    }
+
+    if (isPet) {
+      return [
+        { Icon: ShieldCheck, title: 'Protected Pet', subtitle: 'Registered Bingoo identity' },
+        { Icon: device ? InfinityMark : PawPrint, title: device ? 'NFC Connected' : 'Registered', subtitle: device ? 'One tap to identify' : 'QR identity active', infinity: !!device },
+        { Icon: hasContact ? Phone : HeartPulse, title: hasContact ? 'Owner Reachable' : 'Care Details', subtitle: hasContact ? 'Contact options available' : (assetData.public_medical_notes ? 'Public care notes available' : 'Owner-managed asset') },
+      ];
+    }
+
+    return [
+      { Icon: ShieldCheck, title: 'Registered', subtitle: 'Verified Bingoo asset' },
+      { Icon: device ? InfinityMark : Package, title: device ? 'NFC Connected' : 'QR Connected', subtitle: device ? 'One tap to identify' : 'Scan to identify', infinity: !!device },
+      { Icon: hasContact ? Phone : MapPin, title: hasContact ? 'Return Ready' : 'Asset Details', subtitle: hasContact ? 'Owner contact available' : (assetData.public_last_known_context ? 'Context available' : 'Recovery profile active') },
+    ];
+  })();
+
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
@@ -234,21 +258,15 @@ export default function AssetFinder() {
               )}
 
               <div className="grid grid-cols-3 gap-1 border-t border-white/[.06] pt-5">
-                <div className="px-1 text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><ShieldCheck className="h-4.5 w-4.5 text-white/80" /></div>
-                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Safer Tomorrow</p>
-                  <p className="mt-1 text-[9px] leading-tight text-white/35">For what matters</p>
-                </div>
-                <div className="border-x border-white/[.06] px-1 text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><InfinityMark size={21} color="#fff" strokeWidth={2.2} /></div>
-                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Connected</p>
-                  <p className="mt-1 text-[9px] leading-tight text-white/35">People · Pets · Possessions</p>
-                </div>
-                <div className="px-1 text-center">
-                  <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]"><HeartPulse className="h-4.5 w-4.5 text-white/80" /></div>
-                  <p className="text-[9px] font-black uppercase tracking-wide text-white/70">Kinder World</p>
-                  <p className="mt-1 text-[9px] leading-tight text-white/35">One tap at a time</p>
-                </div>
+                {footerSignals.map(({ Icon, title, subtitle, infinity }, index) => (
+                  <div key={`${title}-${index}`} className={`${index === 1 ? 'border-x border-white/[.06]' : ''} px-1 text-center`}>
+                    <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]">
+                      {infinity ? <InfinityMark size={21} color="#fff" strokeWidth={2.2} /> : <Icon className="h-4.5 w-4.5 text-white/80" />}
+                    </div>
+                    <p className="text-[9px] font-black uppercase tracking-wide text-white/70">{title}</p>
+                    <p className="mt-1 text-[9px] leading-tight text-white/35">{subtitle}</p>
+                  </div>
+                ))}
               </div>
 
               <div className="pb-1 pt-3 text-center">
@@ -514,6 +532,17 @@ export default function AssetFinder() {
           </div>
         )}
 
+        <div className="grid grid-cols-3 gap-1 border-t border-white/[.08] pt-5">
+          {footerSignals.map(({ Icon, title, subtitle, infinity }, index) => (
+            <div key={`lost-${title}-${index}`} className={`${index === 1 ? 'border-x border-white/[.08]' : ''} px-1 text-center`}>
+              <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-blue-300/20 bg-white/[.04]">
+                {infinity ? <InfinityMark size={21} color="#fff" strokeWidth={2.2} /> : <Icon className="h-4.5 w-4.5 text-white/80" />}
+              </div>
+              <p className="text-[9px] font-black uppercase tracking-wide text-white/70">{title}</p>
+              <p className="mt-1 text-[9px] leading-tight text-white/35">{subtitle}</p>
+            </div>
+          ))}
+        </div>
         <div className="pt-5 pb-3 text-center">
           <div className="flex items-center justify-center gap-1 opacity-80"><span className="text-white font-black text-lg tracking-[-0.04em]">Bing</span><InfinityMark size={25} color="#f97316" strokeWidth={3.4} /></div>
           <p className="mt-1 text-[9px] font-bold uppercase tracking-[.28em] text-white/35">Assets That Stay Closer</p>
