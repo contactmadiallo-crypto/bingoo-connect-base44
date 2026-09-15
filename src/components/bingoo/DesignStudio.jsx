@@ -4,6 +4,7 @@ import { Upload, Nfc, ShoppingCart, Check, Clock, Package, Shield, Save, Trash2,
 import { usePlan } from '@/hooks/usePlan';
 import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
+import { PRODUCTS } from '@/lib/shopProducts';
 import { getDrafts, saveDraft, deleteDraft } from '@/lib/draftStore';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import { PRODUCT_TYPES, ProductTypeIcon, ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
@@ -141,14 +142,39 @@ export default function DesignStudio({ isDark }) {
   };
 
   const handlePlaceOrder = () => {
-    addToCart({
-      id: `custom-nfc-${Date.now()}`,
-      name: `Custom NFC ${productLabel} (Bulk)${removeBranding ? ' — No Branding' : ''}`,
-      price: total,
-      image: logoUrl,
-      activationCode: 'CUSTOM-BULK',
-      customDesign: { productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, assignProfileId, finish, quantity, removeBranding, brandPattern, unitPrice: UNIT_PRICE, setupFee: SETUP_FEE },
-    }, 1);
+    // Design Studio must enter checkout as a real Stripe-backed Shop SKU.
+    // The visual customization rides alongside that SKU as customDesign data;
+    // it never creates a fake custom-nfc-* product ID or its own NFC namespace.
+    const skuByType = {
+      card: 'nfc-card',
+      keychain: 'nfc-keychain',
+      sticker: 'nfc-sticker',
+      bracelet: 'nfc-bracelet',
+      tag: 'nfc-silicone-tag',
+      stand: 'nfc-table-stand',
+    };
+    const sku = skuByType[productType] || 'nfc-card';
+    const shopProduct = PRODUCTS.find(p => p.id === sku && p.availability === 'active' && p.stripeReady);
+    if (!shopProduct) return;
+
+    addToCart({ ...shopProduct }, quantity, {
+      productType,
+      cardColor,
+      accentColor,
+      nameText,
+      holderName,
+      roleText,
+      phone,
+      email,
+      website,
+      assignProfileId,
+      finish,
+      quantity,
+      logoUrl,
+      removeBranding,
+      brandPattern,
+      designMode: 'business',
+    });
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
   };
