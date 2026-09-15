@@ -111,7 +111,7 @@ export default function OrderConfirmation() {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
           <p className="text-slate-500 mb-6">
-            Thank you for your purchase. We'll send a confirmation email to <strong>{order.customer_email}</strong> shortly.
+            Payment received. Your Bingoo is now entering preparation. A Bingoo order confirmation is being sent to <strong>{order.customer_email}</strong>.
           </p>
           <div className="bg-slate-50 rounded-xl p-4 text-left mb-6 text-sm space-y-2">
             {order.order_number && <p className="font-semibold text-slate-800">Order #{order.order_number}</p>}
@@ -128,7 +128,7 @@ export default function OrderConfirmation() {
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Link to="/my-orders"><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> Track My Order</Button></Link>
+            <Link to={`/my-orders?order=${encodeURIComponent(order.order_number || '')}&email=${encodeURIComponent(order.customer_email || '')}`}><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> Track My Order</Button></Link>
             <Link to="/shop"><Button variant="outline" className="w-full gap-2">Continue Shopping <ArrowRight className="w-4 h-4" /></Button></Link>
           </div>
         </div>
