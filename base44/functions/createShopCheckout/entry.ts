@@ -12,6 +12,22 @@ import { computeShipping } from '../../shared/shippingConfig.ts';
  * Any product_id not in this map is rejected (including Coming Soon concepts).
  */
 const NFC_PRODUCTS = {
+  // Design Studio is a separate storefront. These SKUs intentionally use Stripe
+  // price_data without a retail Shop productId so the receipt preserves the
+  // customer's custom-device identity instead of showing a stock Shop product.
+  'studio-business-card':     { amount: 399, label: 'Custom NFC Card', studio: true, deviceType: 'card' },
+  'studio-business-keychain': { amount: 399, label: 'Custom NFC Keychain', studio: true, deviceType: 'keychain' },
+  'studio-business-sticker':  { amount: 399, label: 'Custom NFC Sticker', studio: true, deviceType: 'sticker' },
+  'studio-business-bracelet': { amount: 399, label: 'Custom NFC Bracelet', studio: true, deviceType: 'bracelet' },
+  'studio-business-tag':      { amount: 399, label: 'Custom NFC Tag', studio: true, deviceType: 'tag' },
+  'studio-business-stand':    { amount: 399, label: 'Custom NFC Stand', studio: true, deviceType: 'stand' },
+  'studio-pro-card':          { amount: 499, label: 'Custom NFC Card', studio: true, deviceType: 'card' },
+  'studio-pro-keychain':      { amount: 499, label: 'Custom NFC Keychain', studio: true, deviceType: 'keychain' },
+  'studio-pro-sticker':       { amount: 499, label: 'Custom NFC Sticker', studio: true, deviceType: 'sticker' },
+  'studio-pro-bracelet':      { amount: 499, label: 'Custom NFC Bracelet', studio: true, deviceType: 'bracelet' },
+  'studio-pro-tag':           { amount: 499, label: 'Custom NFC Tag', studio: true, deviceType: 'tag' },
+  'studio-pro-stand':         { amount: 499, label: 'Custom NFC Stand', studio: true, deviceType: 'stand' },
+
   'nfc-card':         { productId: 'prod_UdL2gP4j6Q9aP2',  amount: 1999, label: 'NFC Card' },
   'nfc-keychain':     { productId: 'prod_UdL2pKDQZQrBJ1',  amount: 1499, label: 'NFC Keychain' },
   'nfc-metal-card':   { productId: 'prod_UpruIOuKBCAvw4',  amount: 2999, label: 'NFC Metal Card' },
@@ -39,7 +55,7 @@ const APP_URL = 'https://bingooconnect.com';
 const PERMITTED_CUSTOM_DESIGN_KEYS = new Set([
   'productType', 'cardColor', 'accentColor', 'nameText', 'holderName', 'roleText',
   'phone', 'email', 'website', 'assignProfileId', 'finish', 'quantity',
-  'removeBranding', 'brandPattern', 'logoUrl', 'nfcDestination', 'designMode',
+  'removeBranding', 'brandPattern', 'logoUrl', 'nfcDestination', 'designMode', 'designStore',
 ]);
 
 function sanitizeCustomDesign(input) {
@@ -183,9 +199,23 @@ Deno.serve(async (req) => {
     const productSubtotalCents = items.reduce(
       (sum, item) => sum + NFC_PRODUCTS[item.product_id].amount * item.quantity, 0
     );
+    // Business Design Studio charges one design/setup fee per custom cart line,
+    // plus an optional no-branding fee. These are server-authoritative.
+    const studioFeesCents = items.reduce((sum, item) => {
+      const info = NFC_PRODUCTS[item.product_id];
+      const design = sanitizeCustomDesign(item.customDesign) || {};
+      if (!info?.studio || design.designMode !== 'business') return sum;
+      return sum + 2500 + (design.removeBranding ? 250 : 0);
+    }, 0);
+    if (studioFeesCents > 0) {
+      lineItems.push({
+        price_data: { currency: 'usd', unit_amount: studioFeesCents, product_data: { name: 'Design Studio setup & customization' } },
+        quantity: 1,
+      });
+    }
     // Shipping is computed server-side via shared config — never trusted from client.
-    const shippingCostCents = computeShipping(productSubtotalCents);
-    const totalCents = productSubtotalCents + shippingCostCents;
+    const shippingCostCents = computeShipping(productSubtotalCents + studioFeesCents);
+    const totalCents = productSubtotalCents + studioFeesCents + shippingCostCents;
 
     lineItems.push({
       price_data: {
