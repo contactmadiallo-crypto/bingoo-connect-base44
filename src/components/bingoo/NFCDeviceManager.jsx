@@ -115,6 +115,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   // Generation state
   const [singleCode, setSingleCode] = useState("");
   const [singleProductId, setSingleProductId] = useState(DEFAULT_PRODUCT_ID);
+  const [singleGenerating, setSingleGenerating] = useState(false);
   const [bulkStart, setBulkStart] = useState("");
   const [bulkCount, setBulkCount] = useState(10);
   const [bulkProductId, setBulkProductId] = useState(DEFAULT_PRODUCT_ID);
@@ -148,7 +149,13 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["nfc-manager-devices"] });
 
   const createDevice = useMutation({
-    mutationFn: (data) => base44.entities.NFCDevice.create(data),
+    mutationFn: async (data) => {
+      // Re-check the database immediately before creation. This protects against
+      // stale Admin tabs and accidental rapid clicks using the same BG code.
+      const existing = await base44.entities.NFCDevice.filter({ device_code: data.device_code }, "-created_date", 20);
+      if ((existing || []).some(d => d.status !== "retired")) throw new Error(`${data.device_code} already exists. Refreshing inventory instead.`);
+      return base44.entities.NFCDevice.create(data);
+    },
     onSuccess: async (d) => {
       await writeAuditLog({ device_id: d.id, device_code: d.device_code, action: "generated", performed_by: currentUser?.id, performed_by_name: currentUser?.full_name, new_status: "available" });
       invalidate();
@@ -156,7 +163,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
       setSingleCode("");
       toast.success("Device created!");
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => { invalidate(); toast.error(e.message); },
+    onSettled: () => setSingleGenerating(false),
   });
 
   const updateDevice = useMutation({
@@ -188,10 +196,12 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   };
 
   const handleBulkGenerate = async () => {
+    if (bulkGenerating) return;
     setBulkGenerating(true);
     const product = ADMIN_PRODUCTS.find(p => p.id === bulkProductId);
     if (!product) { toast.error("Choose a Bingoo Shop product first."); setBulkGenerating(false); return; }
-    const existingCodes = new Set(devices.map(d => d.device_code?.toUpperCase()));
+    const freshDevices = await base44.entities.NFCDevice.list("-created_date", 500);
+    const existingCodes = new Set((freshDevices || []).filter(d => d.status !== "retired").map(d => d.device_code?.toUpperCase()));
     const toCreate = [];
     const requestedStart = parseInt(bulkStart);
     let index = Number.isFinite(requestedStart) && requestedStart > 0 ? requestedStart : nextBgNumber();
@@ -684,9 +694,11 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   if (!/^BG-\d{6}$/.test(code)) { toast.error("Device code must use BG-000000 format."); return; }
                   if (devices.some(d => d.device_code?.toUpperCase() === code)) { toast.error("Device code already exists."); return; }
                   if (!product) { toast.error("Choose a Bingoo Shop product first."); return; }
+                  if (singleGenerating || createDevice.isPending) return;
+                  setSingleGenerating(true);
                   createDevice.mutate({ device_code: code, ...productToDeviceData(product) });
                 }}
-                  disabled={createDevice.isPending}
+                  disabled={singleGenerating || createDevice.isPending}
                   style={{ background: orange, color: "#fff" }} className="w-full font-bold">
                   {createDevice.isPending ? "Creating..." : "Create Shop-Matched Device"}
                 </Button>
