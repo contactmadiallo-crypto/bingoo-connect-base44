@@ -149,51 +149,100 @@ async function upsertSubscription(base44, { customer_email, customer_name, plan,
 // Entitlement is resolved at read-time by getUserFeatures / getEffectivePlan from the Subscription entity.
 
 // ── Generate manufacturing devices and activation codes after payment ────────
-// For each custom NFC item in the order, creates NFCDevice records with unique
-// activation codes (BG-XXXXXX). Devices are created with status "available" —
-// the customer activates them after receiving the physical product.
+// Every paid physical NFC unit — standard Shop purchase OR Design Studio item —
+// receives one canonical NFCDevice record and one permanent /d/BG-###### URL.
+// The order stores the same device codes for manufacturing/fulfillment.
 async function generateManufacturingDevices(base44, shopOrder, orderId) {
   try {
-    const items = shopOrder.items || [];
-    const customItems = items.filter(item => item.customDesign);
-    if (customItems.length === 0) return;
+    const items = Array.isArray(shopOrder.items) ? shopOrder.items : [];
+    if (items.length === 0) return;
 
-    // Find the highest existing BG-XXXXXX number to continue sequentially
+    // Order-level idempotency: once manufacturing codes exist for this paid order,
+    // a Stripe webhook retry must never allocate another set of physical devices.
+    if ((shopOrder.assigned_device_codes || []).length > 0 || (shopOrder.manufacturing_items || []).length > 0) {
+      console.log(`Manufacturing already generated for order ${orderId}; skipping duplicate allocation.`);
+      return;
+    }
+
+    // Find the highest canonical BG code. Codes are zero-padded, so descending
+    // lexical order is also descending numeric order.
     const existing = await base44.asServiceRole.entities.NFCDevice.filter({}, '-device_code', 1);
     let nextNum = 1;
     if (existing.length > 0 && existing[0].device_code) {
-      const match = String(existing[0].device_code).match(/BG-(\d+)/i);
+      const match = String(existing[0].device_code).match(/^BG-(\d{6})$/i);
       if (match) nextNum = parseInt(match[1], 10) + 1;
     }
 
     const manufacturingItems = [];
-    const allDevices = [];
+    const allocatedCodes = new Set();
+    let totalCreated = 0;
 
-    for (const item of customItems) {
-      const cd = item.customDesign;
-      const qty = Math.min(item.quantity || 1, 500);
+    for (const item of items) {
+      const product = SHOP_NFC_PRODUCTS[item.product_id];
+      if (!product) {
+        console.warn(`Skipping unknown Shop product during manufacturing: ${item.product_id}`);
+        continue;
+      }
+
+      const cd = item.customDesign && typeof item.customDesign === 'object' ? item.customDesign : {};
+      const qty = Math.max(1, Math.min(Number(item.quantity) || 1, 500));
+      const productType = product.device_type;
       const codes = [];
 
       for (let i = 0; i < qty; i++) {
-        const code = `BG-${String(nextNum + i).padStart(6, '0')}`;
-        const qrUrl = `https://bingooconnect.com/d/${code}`;
-        codes.push({ code, qr_url: qrUrl });
+        // Re-check each candidate against the live database. This also protects the
+        // Shop allocator from codes generated manually in Admin moments earlier.
+        let code;
+        let attempts = 0;
+        while (attempts < 1000) {
+          code = `BG-${String(nextNum).padStart(6, '0')}`;
+          nextNum += 1;
+          attempts += 1;
+          if (allocatedCodes.has(code)) continue;
+          const collision = await base44.asServiceRole.entities.NFCDevice.filter({ device_code: code }, '-created_date', 5);
+          if (!collision || collision.length === 0) break;
+          code = null;
+        }
+        if (!code) throw new Error('Unable to allocate a unique NFC device code.');
 
-        allDevices.push({
+        const descriptionParts = [cd.nameText, cd.holderName, cd.finish].filter(Boolean);
+        const device = await base44.asServiceRole.entities.NFCDevice.create({
           device_code: code,
-          device_type: cd.productType || 'card',
-          product_sku: item.product_id || '',
-          product_name: item.product_name || `NFC ${cd.productType || 'Card'}`,
+          device_type: productType,
+          product_sku: item.product_id,
+          product_name: product.name,
+          product_image: product.image,
           status: 'available',
-          description: `${cd.nameText || ''} — ${cd.holderName || ''} (${cd.finish || 'Matte'})`.trim(),
+          description: descriptionParts.length ? descriptionParts.join(' · ') : `${product.name} · Shop order ${orderId}`,
         });
+
+        allocatedCodes.add(code);
+        totalCreated += 1;
+        codes.push({
+          code,
+          qr_url: `https://bingooconnect.com/d/${code}`,
+          device_id: device.id,
+        });
+
+        // Keep Shop-generated hardware visible in the same audit history as Admin-generated devices.
+        try {
+          await base44.asServiceRole.entities.DeviceAuditLog.create({
+            device_id: device.id,
+            device_code: code,
+            action: 'generated',
+            new_status: 'available',
+            notes: `Stripe Shop order ${orderId} · ${product.name} · ${item.product_id}`,
+          });
+        } catch (auditErr) {
+          console.error('Shop NFC audit log failed (non-blocking):', auditErr.message);
+        }
       }
 
       manufacturingItems.push({
-        product_type: cd.productType || 'card',
-        product_sku: item.product_id || '',
-        product_name: item.product_name || `NFC ${cd.productType || 'Card'}`,
-        finish: cd.finish || 'Matte',
+        product_type: productType,
+        product_sku: item.product_id,
+        product_name: product.name,
+        finish: cd.finish || 'Standard',
         quantity: qty,
         company_name: cd.nameText || '',
         holder_name: cd.holderName || '',
@@ -207,31 +256,19 @@ async function generateManufacturingDevices(base44, shopOrder, orderId) {
         accent_color: cd.accentColor || '',
         remove_branding: cd.removeBranding || false,
         brand_pattern: cd.brandPattern || null,
-        design_data: cd,
+        design_data: Object.keys(cd).length ? cd : {},
         activation_codes: codes,
         manufacturing_status: 'pending',
       });
-
-      nextNum += qty;
     }
 
-    // Bulk create NFCDevice records in batches of 100
-    if (allDevices.length > 0) {
-      for (let i = 0; i < allDevices.length; i += 100) {
-        const batch = allDevices.slice(i, i + 100);
-        await base44.asServiceRole.entities.NFCDevice.bulkCreate(batch);
-      }
-      console.log(`Created ${allDevices.length} NFCDevice records for order ${orderId}`);
-    }
-
-    // Update ShopOrder with manufacturing items + all device codes
     if (manufacturingItems.length > 0) {
       const allCodes = manufacturingItems.flatMap(m => m.activation_codes.map(c => c.code));
       await base44.asServiceRole.entities.ShopOrder.update(orderId, {
         manufacturing_items: manufacturingItems,
         assigned_device_codes: allCodes,
       });
-      console.log(`Generated ${allCodes.length} activation codes for order ${orderId}`);
+      console.log(`Shop manufacturing ready: order ${orderId} | ${totalCreated} NFC devices | ${allCodes.join(', ')}`);
     }
   } catch (e) {
     console.error('generateManufacturingDevices error (non-blocking):', e.message);
