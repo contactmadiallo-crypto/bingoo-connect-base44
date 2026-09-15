@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Package, Truck, Search, RefreshCw, Cpu, Copy, ExternalLink } from 'lucide-react';
+import { Package, Truck, Search, RefreshCw, Cpu, Copy, ExternalLink, FileCheck2 } from 'lucide-react';
+import ProductionProofModal from './ProductionProofModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ export default function AdminManufacturingTab() {
   const [search, setSearch] = useState('');
   const [shipping, setShipping] = useState({});
   const [busy, setBusy] = useState('');
+  const [proofOrder, setProofOrder] = useState(null);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-shop-orders'],
@@ -83,6 +85,7 @@ export default function AdminManufacturingTab() {
                   <div className="rounded-2xl bg-black/10 border border-white/10 p-4">
                     <p className="font-black text-sm mb-3"><Package className="w-4 h-4 inline mr-2 text-orange-400" />Products & NFC</p>
                     {(order.items || []).map((i, k) => <div key={k} className="text-sm text-white/65 mb-1"><strong className="text-white">{i.product_name}</strong> × {i.quantity}</div>)}
+                    {(order.items || []).some(i => i.customDesign || String(i.product_id || '').startsWith('studio-')) && <Button size="sm" onClick={() => setProofOrder(order)} className="mt-3 w-full bg-orange-500/15 border border-orange-400/30 text-orange-200 hover:bg-orange-500/25"><FileCheck2 className="w-4 h-4 mr-2" />View Production Design</Button>}
                     {(order.assigned_device_codes || []).length > 0 && <div className="mt-4"><p className="text-[10px] tracking-widest text-white/30 font-black">ALLOCATED NFC DEVICES</p>{order.assigned_device_codes.map(c => <div key={c} className="flex items-center gap-2 mt-2"><span className="font-mono text-orange-300 font-bold">{c}</span><button title="Copy NFC URL" onClick={() => navigator.clipboard.writeText(`https://bingooconnect.com/d/${c}`)}><Copy className="w-3.5 h-3.5 text-white/40 hover:text-white" /></button><a href={`https://bingooconnect.com/d/${c}`} target="_blank" rel="noreferrer"><ExternalLink className="w-3.5 h-3.5 text-white/40 hover:text-white" /></a></div>)}</div>}
                   </div>
 
@@ -109,6 +112,7 @@ export default function AdminManufacturingTab() {
           })}
         </div>
       )}
+      {proofOrder && <ProductionProofModal order={proofOrder} onClose={() => setProofOrder(null)} />}
     </div>
   );
 }
