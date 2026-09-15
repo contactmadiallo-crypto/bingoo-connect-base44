@@ -494,35 +494,35 @@ export default function AssetFinder() {
           <div className="bg-white rounded-3xl shadow-lg p-6">
             <h2 className="font-black text-slate-900 text-base mb-1">{isPet ? 'I Found This Pet' : 'I Found This Item'}</h2>
             <p className="text-slate-400 text-xs mb-4">Leave your details so the owner can contact you to arrange the return.</p>
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3 text-slate-900">
               <div>
                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Your Name</label>
-                <Input placeholder="Enter your name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl" />
+                <Input placeholder="Enter your name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Phone Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="pl-9 rounded-xl" type="tel" />
+                  <Input placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" type="tel" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input placeholder="your@email.com" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="pl-9 rounded-xl" type="email" />
+                  <Input placeholder="your@email.com" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" type="email" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Where did you find it?</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input placeholder="e.g. Outside Starbucks on 5th Ave" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl" />
+                  <Input placeholder="e.g. Outside Starbucks on 5th Ave" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Message to owner (optional)</label>
-                <Textarea placeholder="e.g. I found your pet near the park. They're safe with me." value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none" rows={3} />
+                <Textarea placeholder="e.g. I found your pet near the park. They're safe with me." value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" rows={3} />
               </div>
               <Button type="submit" disabled={submitting || (!form.name && !form.phone && !form.email)} className="w-full rounded-xl font-bold gap-2 h-12" style={{ background: '#f97316' }}>
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
