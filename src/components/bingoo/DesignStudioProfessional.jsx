@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Upload, ShoppingCart, Check, Save, Trash2, Nfc } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
-import { PRODUCTS } from '@/lib/shopProducts';
+import { getDesignStudioProduct } from '@/lib/designStudioCatalog';
 import { getDrafts, saveDraft, deleteDraft } from '@/lib/draftStore';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import { PRODUCT_TYPES, ProductTypeIcon, ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
@@ -95,19 +95,9 @@ export default function DesignStudioProfessional({ isDark, profile }) {
   };
 
   const handlePlaceOrder = () => {
-    const skuByType = {
-      card: 'nfc-card',
-      keychain: 'nfc-keychain',
-      sticker: 'nfc-sticker',
-      bracelet: 'nfc-bracelet',
-      tag: 'nfc-silicone-tag',
-      stand: 'nfc-table-stand',
-    };
-    const sku = skuByType[productType] || 'nfc-card';
-    const shopProduct = PRODUCTS.find(p => p.id === sku && p.availability === 'active' && p.stripeReady);
-    if (!shopProduct) return;
+    const studioProduct = getDesignStudioProduct(productType, 'professional');
 
-    addToCart({ ...shopProduct }, quantity, {
+    addToCart({ ...studioProduct }, quantity, {
       productType,
       cardColor,
       accentColor,
@@ -118,6 +108,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
       quantity,
       logoUrl,
       designMode: 'professional',
+      designStore: true,
     });
     setOrdered(true);
     setTimeout(() => { setOrdered(false); navigate('/cart'); }, 1200);
