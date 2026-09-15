@@ -39,7 +39,7 @@ const APP_URL = 'https://bingooconnect.com';
 const PERMITTED_CUSTOM_DESIGN_KEYS = new Set([
   'productType', 'cardColor', 'accentColor', 'nameText', 'holderName', 'roleText',
   'phone', 'email', 'website', 'assignProfileId', 'finish', 'quantity',
-  'removeBranding', 'brandPattern', 'logoUrl',
+  'removeBranding', 'brandPattern', 'logoUrl', 'nfcDestination', 'designMode',
 ]);
 
 function sanitizeCustomDesign(input) {
