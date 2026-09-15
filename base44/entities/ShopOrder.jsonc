@@ -225,14 +225,53 @@
       "type": "string",
       "enum": [
         "processing",
+        "ready_to_ship",
         "shipped",
         "delivered",
         "cancelled"
       ],
       "default": "processing"
     },
+    "manufacturing_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "device_allocated",
+        "in_production",
+        "programmed",
+        "ready_to_ship",
+        "shipped"
+      ],
+      "default": "pending"
+    },
+    "carrier": {
+      "type": "string"
+    },
     "tracking_number": {
       "type": "string"
+    },
+    "tracking_url": {
+      "type": "string"
+    },
+    "estimated_delivery": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "shipped_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "confirmation_email_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "shipped_email_sent_at": {
+      "type": "string",
+      "format": "date-time"
     },
     "stripe_session_id": {
       "type": "string"
