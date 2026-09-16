@@ -626,7 +626,7 @@ export default function BingooDashboard() {
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
-        <div className="max-w-5xl mx-auto px-3 sm:px-6 pb-24 pt-1 sm:pt-2">
+        <div className={`${view === VIEW_DESIGN ? 'max-w-[1480px]' : 'max-w-5xl'} mx-auto px-3 sm:px-6 pb-24 pt-1 sm:pt-2`}>
           <ScreenPullToRefresh onRefresh={handlePullRefresh} disabled={ptrDisabled} />
 
           {/* Hub uses the clean shared Figma-style header without a second toolbar. */}
