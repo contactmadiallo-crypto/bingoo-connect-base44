@@ -211,14 +211,14 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
 
   const templateCardFront = ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'modern' ? (
     <div className="relative z-10 flex-1 flex flex-col justify-between">
-      <div className="flex items-start gap-3">{renderLogo(42)}<div className="min-w-0 pt-0.5"><p className="font-black leading-[0.95] tracking-tight" style={{ color: NAVY, fontSize: 16 }}>{nameText || 'AH LAW FIRM PLLC'}</p></div></div>
-      <div className="mb-1"><p className="font-black leading-none tracking-tight" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'AHSAN HABIB'}</p><p className="font-semibold tracking-wide mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'MANAGING ATTORNEY'}</p></div>
-      <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>{(tagline || 'TRUST · GUIDANCE · RESULTS').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}</p></div></div>
+      <div className="flex items-start gap-3">{renderLogo(42)}<div className="min-w-0 pt-0.5"><p className="font-black leading-[0.95] tracking-tight" style={{ color: NAVY, fontSize: 16 }}>{nameText || 'Your Company'}</p></div></div>
+      <div className="mb-1"><p className="font-black leading-none tracking-tight" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold tracking-wide mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div>
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>{(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}</p></div></div>
     </div>
   ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'minimal' ? (
-    <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center">{renderLogo(44)}<p className="font-black mt-3" style={{ color: textColor, fontSize: 17 }}>{holderName || nameText || 'YOUR NAME'}</p><p className="font-semibold mt-1" style={{ color: textColor, opacity: 0.65, fontSize: 9 }}>{roleText || 'ROLE / POSITION'}</p></div>
+    <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center">{renderLogo(44)}<p className="font-black mt-3" style={{ color: textColor, fontSize: 17 }}>{holderName || nameText || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: textColor, opacity: 0.65, fontSize: 9 }}>{roleText || 'Your Role'}</p></div>
   ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'corporate' ? (
-    <div className="relative z-10 flex-1 flex flex-col justify-between"><div className="flex items-center justify-between">{renderLogo(38)}<span className="font-black tracking-widest" style={{ color: textColor, fontSize: 8 }}>{nameText || 'COMPANY'}</span></div><div><p className="font-black" style={{ color: textColor, fontSize: 20 }}>{holderName || 'YOUR NAME'}</p><p className="font-semibold" style={{ color: textColor, opacity: .65, fontSize: 9 }}>{roleText || 'ROLE / POSITION'}</p></div><div className="flex flex-wrap gap-2">{phone && <span className="text-[7px]" style={{ color: textColor }}>☎ {phone}</span>}{email && <span className="text-[7px]" style={{ color: textColor }}>✉ {email}</span>}</div></div>
+    <div className="relative z-10 flex-1 flex flex-col justify-between"><div className="flex items-center justify-between">{renderLogo(38)}<span className="font-black tracking-widest" style={{ color: textColor, fontSize: 8 }}>{nameText || 'Your Company'}</span></div><div><p className="font-black" style={{ color: textColor, fontSize: 20 }}>{holderName || 'YOUR NAME'}</p><p className="font-semibold" style={{ color: textColor, opacity: .65, fontSize: 9 }}>{roleText || 'Your Role'}</p></div><div className="flex flex-wrap gap-2">{phone && <span className="text-[7px]" style={{ color: textColor }}>☎ {phone}</span>}{email && <span className="text-[7px]" style={{ color: textColor }}>✉ {email}</span>}</div></div>
   ) : null;
 
   const frontContent = templateCardFront || (() => {
@@ -226,9 +226,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
       return (
         <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
           {renderLogo(isSmall ? 36 : 42)}
-          <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 11 : 13 }}>{nameText || 'Company Name'}</p>
+          <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 11 : 13 }}>{nameText || 'Your Company'}</p>
           {holderName && <p className="font-bold leading-tight" style={{ color: textColor, fontSize: isSmall ? 9 : 10, opacity: 0.85 }}>{holderName}</p>}
-          <p className="text-[9px] mt-0.5" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
+          <p className="text-[9px] mt-0.5" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Role'}</p>
         </div>
       );
     }
@@ -237,9 +237,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div className="flex-1 flex items-center justify-center gap-3 relative z-10 px-4">
           {renderLogo(36)}
           <div className="text-left min-w-0">
-            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: 12 }}>{nameText || 'Company Name'}</p>
+            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: 12 }}>{nameText || 'Your Company'}</p>
             {holderName && <p className="font-bold leading-tight truncate" style={{ color: textColor, fontSize: 9, opacity: 0.85 }}>{holderName}</p>}
-            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
+            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Role'}</p>
           </div>
         </div>
       );
@@ -249,9 +249,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div className="flex items-start gap-2">
           {renderLogo(isSmall ? 28 : 36)}
           <div className="min-w-0">
-            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: isSmall ? 10 : 13 }}>{nameText || 'Company Name'}</p>
+            <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: isSmall ? 10 : 13 }}>{nameText || 'Your Company'}</p>
             {holderName && <p className="font-bold leading-tight truncate" style={{ color: textColor, fontSize: isSmall ? 8 : 10, opacity: 0.85 }}>{holderName}</p>}
-            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Role / Position'}</p>
+            <p className="text-[8px]" style={{ color: textColor, opacity: subOpacity }}>{roleText || 'Your Role'}</p>
           </div>
         </div>
         <div>
