@@ -92,97 +92,34 @@ export function ProductTypeIcon({ typeId, active }) {
   }
 }
 
-// ── Brand Pattern Layer (repeated logo watermark) ────────────────────────────
-function BrandPatternLayer({ logoUrl, pattern }) {
+// ── Template-driven logo artwork ─────────────────────────────────────────────
+// The uploaded company logo is real artwork, never a faded watermark.
+function BrandPatternLayer({ logoUrl, pattern, templateId = 'modern' }) {
   if (!pattern?.enabled || !logoUrl) return null;
+  const sizeMap = { small: 48, medium: 68, large: 94 };
+  const tile = sizeMap[pattern.size] || 68;
+  const common = { position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' };
+  const logo = (style = {}) => <img src={logoUrl} alt="" style={{ objectFit: 'contain', ...style }} />;
 
-  const sizeMap = { small: 44, medium: 68, large: 100 };
-  const tile = sizeMap[pattern.size] || 58;
-  const opacity = Math.min(Math.max((pattern.opacity || 10) / 100, 0.03), 0.25);
-
-  const maskMap = {
-    full: 'none',
-    top_fade: 'linear-gradient(to bottom, black 0%, black 25%, transparent 65%)',
-    bottom_fade: 'linear-gradient(to bottom, transparent 35%, black 75%, black 100%)',
-    center_fade: 'radial-gradient(ellipse at center, transparent 20%, black 60%)',
-    edge_fade: 'radial-gradient(ellipse at center, black 35%, transparent 80%)',
-  };
-  const mask = maskMap[pattern.coverage] || 'none';
-  const maskProps = mask !== 'none'
-    ? { maskImage: mask, WebkitMaskImage: mask }
-    : {};
-
-  // ── Diagonal: rotate the tiling container to create 45° pattern ──
-  if (pattern.direction === 'diagonal') {
-    return (
-      <div style={{
-        position: 'absolute', top: '-30%', left: '-30%', width: '160%', height: '160%',
-        transform: 'rotate(45deg)', transformOrigin: 'center',
-        backgroundImage: `url(${logoUrl})`,
-        backgroundSize: `${tile}px ${tile}px`,
-        backgroundRepeat: 'repeat',
-        opacity, ...maskProps,
-        pointerEvents: 'none', zIndex: 1,
-      }} />
-    );
+  if (templateId === 'minimal') {
+    return <div style={common}>{logo({ position:'absolute', width:tile * 1.65, height:tile * 1.65, right:-10, bottom:-12 })}</div>;
   }
-
-  // ── Offset Grid: two layers offset by half-tile (brick pattern) ──
-  if (pattern.direction === 'offset') {
-    return (
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: `url(${logoUrl}), url(${logoUrl})`,
-        backgroundSize: `${tile}px ${tile}px, ${tile}px ${tile}px`,
-        backgroundPosition: `0 0, ${tile / 2}px ${tile / 2}px`,
-        backgroundRepeat: 'repeat, repeat',
-        opacity, ...maskProps,
-        pointerEvents: 'none', zIndex: 1,
-      }} />
-    );
+  if (templateId === 'corporate') {
+    return <div style={common}>
+      {logo({ position:'absolute', width:tile, height:tile, right:18, top:18 })}
+      {logo({ position:'absolute', width:tile * .72, height:tile * .72, right:98, bottom:16 })}
+    </div>;
   }
-
-  // ── Large Centered Watermark: single large logo in center ──
-  if (pattern.direction === 'centered') {
-    return (
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        opacity, ...maskProps,
-        pointerEvents: 'none', zIndex: 1,
-      }}>
-        <img src={logoUrl} alt="" style={{ width: tile * 1.6, height: tile * 1.6, objectFit: 'contain' }} />
-      </div>
-    );
+  if (templateId === 'creative') {
+    return <div style={common}>
+      {logo({ position:'absolute', width:tile * 1.7, height:tile * 1.7, right:-18, top:-22 })}
+      {logo({ position:'absolute', width:tile * .9, height:tile * .9, left:18, bottom:12 })}
+    </div>;
   }
-
-  // ── Corner Fade: logos fading from top-left corner ──
-  if (pattern.direction === 'corner_fade') {
-    const cornerMask = 'radial-gradient(circle at 0% 0%, black 0%, black 25%, transparent 65%)';
-    return (
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundImage: `url(${logoUrl})`,
-        backgroundSize: `${tile}px ${tile}px`,
-        backgroundRepeat: 'repeat',
-        opacity,
-        maskImage: cornerMask, WebkitMaskImage: cornerMask,
-        pointerEvents: 'none', zIndex: 1,
-      }} />
-    );
-  }
-
-  // ── Straight: simple repeat grid ──
-  return (
-    <div style={{
-      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundImage: `url(${logoUrl})`,
-      backgroundSize: `${tile}px ${tile}px`,
-      backgroundRepeat: 'repeat',
-      opacity, ...maskProps,
-      pointerEvents: 'none', zIndex: 1,
-    }} />
-  );
+  return <div style={common}>
+    {logo({ position:'absolute', width:tile, height:tile, right:22, top:16, transform:'rotate(-8deg)' })}
+    {logo({ position:'absolute', width:tile * .72, height:tile * .72, right:110, bottom:12, transform:'rotate(-8deg)' })}
+  </div>;
 }
 
 // ── Realistic 3D product preview ─────────────────────────────────────────────
@@ -190,7 +127,7 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
   const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];
   const isFront = side === 'front';
   const light = isLightHex(cardColor);
-  const bg = light ? `linear-gradient(160deg, ${cardColor}, #cbd5e1)` : `linear-gradient(160deg, ${cardColor}, ${NAVY_DEEP})`;
+  const bg = '#FFFFFF';
   const textColor = light ? NAVY : '#fff';
   const subOpacity = light ? 0.65 : 0.5;
   const brandColor = light ? NAVY : accentColor;
@@ -209,16 +146,12 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </div>
   );
 
-  const templateCardFront = ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'modern' ? (
+  const templateCardFront = ['card','metal_card','wood_card'].includes(shape.id) && ['modern','minimal','corporate','creative'].includes(templateId) ? (
     <div className="relative z-10 flex-1 flex flex-col justify-between">
       <div className="flex items-start gap-3">{renderLogo(42)}<div className="min-w-0 pt-0.5"><p className="font-black leading-[0.95] tracking-tight" style={{ color: NAVY, fontSize: 16 }}>{nameText || 'Your Company'}</p></div></div>
       <div className="mb-1"><p className="font-black leading-none tracking-tight" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold tracking-wide mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div>
       <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>{(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}</p></div></div>
     </div>
-  ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'minimal' ? (
-    <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center">{renderLogo(44)}<p className="font-black mt-3" style={{ color: textColor, fontSize: 17 }}>{holderName || nameText || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: textColor, opacity: 0.65, fontSize: 9 }}>{roleText || 'Your Role'}</p></div>
-  ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'corporate' ? (
-    <div className="relative z-10 flex-1 flex flex-col justify-between"><div className="flex items-center justify-between">{renderLogo(38)}<span className="font-black tracking-widest" style={{ color: textColor, fontSize: 8 }}>{nameText || 'Your Company'}</span></div><div><p className="font-black" style={{ color: textColor, fontSize: 20 }}>{holderName || 'Your Name'}</p><p className="font-semibold" style={{ color: textColor, opacity: .65, fontSize: 9 }}>{roleText || 'Your Role'}</p></div><div className="flex flex-wrap gap-2">{phone && <span className="text-[7px]" style={{ color: textColor }}>☎ {phone}</span>}{email && <span className="text-[7px]" style={{ color: textColor }}>✉ {email}</span>}</div></div>
   ) : null;
 
   const frontContent = templateCardFront || (() => {
@@ -291,7 +224,7 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
   );
 
   const content = isFront ? frontContent : backContent;
-  const bodyBg = isFront ? bg : '#fff';
+  const bodyBg = '#fff';
   const bodyBorder = isFront ? 'none' : `1px solid ${BORDER}`;
   const highlight = isFront
     ? { position: 'absolute', top: 0, left: 0, right: 0, height: '45%',
@@ -314,14 +247,18 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     <div style={{ position: 'absolute', top: -15, right: -15, width: 90, height: 90, borderRadius: '50%', background: accentColor, opacity: 0.08, filter: 'blur(36px)', pointerEvents: 'none' }} />
   ) : null;
 
-  const templateDecoration = isFront && ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'modern' ? (
-    <><div style={{position:'absolute',inset:0,background:'linear-gradient(135deg, rgba(255,255,255,.96), rgba(235,244,255,.86))',zIndex:0}}/><div style={{position:'absolute',top:-32,right:-12,width:145,height:145,transform:'rotate(45deg)',background:'linear-gradient(135deg, rgba(219,234,254,.78), rgba(255,255,255,.15))',zIndex:1}}/><div style={{position:'absolute',top:-18,right:24,width:100,height:125,transform:'rotate(45deg)',borderLeft:`2px solid ${accentColor}`,opacity:.9,zIndex:1}}/><div style={{position:'absolute',bottom:-34,right:62,width:130,height:130,transform:'rotate(45deg)',background:'rgba(226,232,240,.42)',zIndex:1}}/></>
-  ) : isFront && ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'corporate' ? (
-    <div style={{position:'absolute',inset:0,background:`linear-gradient(135deg, ${cardColor} 0%, ${cardColor} 58%, ${accentColor} 58%, ${accentColor} 100%)`,zIndex:0}}/>
+  const templateDecoration = isFront ? (
+    <>
+      <div style={{position:'absolute',inset:0,background:'#fff',zIndex:0}} />
+      {templateId === 'modern' && <><div style={{position:'absolute',inset:'0 0 0 62%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',top:-30,right:76,width:110,height:280,transform:'rotate(38deg)',background:accentColor,zIndex:0}}/></>}
+      {templateId === 'minimal' && <><div style={{position:'absolute',left:0,bottom:0,width:'100%',height:'34%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:0,top:0,width:7,height:'100%',background:accentColor,zIndex:0}}/></>}
+      {templateId === 'corporate' && <><div style={{position:'absolute',inset:0,background:NAVY_DEEP,zIndex:0}}/><div style={{position:'absolute',right:-45,top:-40,width:190,height:300,transform:'rotate(34deg)',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:74,top:-50,width:4,height:310,transform:'rotate(34deg)',background:accentColor,zIndex:0}}/></>}
+      {templateId === 'creative' && <><div style={{position:'absolute',inset:0,background:'#fff',zIndex:0}}/><div style={{position:'absolute',left:-45,bottom:-80,width:190,height:190,borderRadius:'50%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:-55,top:-80,width:190,height:190,borderRadius:'50%',background:accentColor,zIndex:0}}/></>}
+    </>
   ) : null;
 
   const patternLayer = isFront && brandPattern?.enabled && logoUrl
-    ? <BrandPatternLayer logoUrl={logoUrl} pattern={brandPattern} />
+    ? <BrandPatternLayer logoUrl={logoUrl} pattern={brandPattern} templateId={templateId} />
     : null;
 
   // ── Card ──
