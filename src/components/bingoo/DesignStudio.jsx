@@ -100,7 +100,7 @@ export default function DesignStudio({ isDark }) {
   return (
     <div className="bg-[#f7f9fc] text-slate-900 rounded-2xl overflow-hidden border border-slate-200">
       <StudioHeader />
-      <div className="grid 2xl:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_300px] gap-3 p-3 items-start">
+      <div className="grid 2xl:grid-cols-[370px_minmax(0,1fr)_310px] xl:grid-cols-[340px_minmax(0,1fr)_290px] gap-3 p-3 items-start">
         <div className="space-y-3 min-w-0">
           <DevicePicker productType={productType} setProductType={setProductType} />
           <TemplatePicker activeTemplate={activeTemplate} onSelect={handleSelectTemplate} />
@@ -121,6 +121,8 @@ export default function DesignStudio({ isDark }) {
             removeBranding={removeBranding} setRemoveBranding={setRemoveBranding}
             brandPattern={brandPattern} setBrandPattern={setBrandPattern}
           />
+        </div>
+        <div className="space-y-3 min-w-0">
           <LivePreviewSection
             previewProps={previewProps} viewMode={viewMode} setViewMode={setViewMode}
             previewView={previewView} setPreviewView={setPreviewView}
