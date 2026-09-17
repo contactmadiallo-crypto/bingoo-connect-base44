@@ -12,6 +12,8 @@ export const PRODUCT_TYPES = [
   { id: 'bracelet', label: 'Bracelet', w: 330, h: 140, hole: false, base: false, layout: 'horizontal' },
   { id: 'tag',      label: 'Tag',      w: 195, h: 265, hole: true,  base: false, layout: 'standard' },
   { id: 'stand',    label: 'Stand',    w: 280, h: 170, hole: false, base: true,  layout: 'standard' },
+  { id: 'metal_card', label: 'Metal Card', w: 340, h: 214, hole: false, base: false, layout: 'standard' },
+  { id: 'wood_card',  label: 'Wood Card',  w: 340, h: 214, hole: false, base: false, layout: 'standard' },
 ];
 
 function isLightHex(hex) {
@@ -56,6 +58,8 @@ export function ProductTypeIcon({ typeId, active }) {
 
   switch (typeId) {
     case 'card':
+    case 'metal_card':
+    case 'wood_card':
       return <div style={{ width: 22, height: 14, borderRadius: 3, background: c, boxShadow: sh }} />;
     case 'keychain':
       return (
@@ -182,7 +186,7 @@ function BrandPatternLayer({ logoUrl, pattern }) {
 }
 
 // ── Realistic 3D product preview ─────────────────────────────────────────────
-export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern, finish, holderName, activationCode, phone, email, website, templateId = 'modern' }) {
+export function ProductPreview({ productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding, side, isDark, brandPattern, finish, holderName, activationCode, phone, email, website, tagline, templateId = 'modern' }) {
   const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];
   const isFront = side === 'front';
   const light = isLightHex(cardColor);
@@ -205,15 +209,15 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </div>
   );
 
-  const templateCardFront = shape.id === 'card' && templateId === 'modern' ? (
+  const templateCardFront = ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'modern' ? (
     <div className="relative z-10 flex-1 flex flex-col justify-between">
       <div className="flex items-start gap-3">{renderLogo(42)}<div className="min-w-0 pt-0.5"><p className="font-black leading-[0.95] tracking-tight" style={{ color: NAVY, fontSize: 16 }}>{nameText || 'AH LAW FIRM PLLC'}</p></div></div>
       <div className="mb-1"><p className="font-black leading-none tracking-tight" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'AHSAN HABIB'}</p><p className="font-semibold tracking-wide mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'MANAGING ATTORNEY'}</p></div>
-      <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>TRUST<br/>GUIDANCE<br/>RESULTS</p></div></div>
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>{(tagline || 'TRUST · GUIDANCE · RESULTS').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}</p></div></div>
     </div>
-  ) : shape.id === 'card' && templateId === 'minimal' ? (
+  ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'minimal' ? (
     <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center">{renderLogo(44)}<p className="font-black mt-3" style={{ color: textColor, fontSize: 17 }}>{holderName || nameText || 'YOUR NAME'}</p><p className="font-semibold mt-1" style={{ color: textColor, opacity: 0.65, fontSize: 9 }}>{roleText || 'ROLE / POSITION'}</p></div>
-  ) : shape.id === 'card' && templateId === 'corporate' ? (
+  ) : ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'corporate' ? (
     <div className="relative z-10 flex-1 flex flex-col justify-between"><div className="flex items-center justify-between">{renderLogo(38)}<span className="font-black tracking-widest" style={{ color: textColor, fontSize: 8 }}>{nameText || 'COMPANY'}</span></div><div><p className="font-black" style={{ color: textColor, fontSize: 20 }}>{holderName || 'YOUR NAME'}</p><p className="font-semibold" style={{ color: textColor, opacity: .65, fontSize: 9 }}>{roleText || 'ROLE / POSITION'}</p></div><div className="flex flex-wrap gap-2">{phone && <span className="text-[7px]" style={{ color: textColor }}>☎ {phone}</span>}{email && <span className="text-[7px]" style={{ color: textColor }}>✉ {email}</span>}</div></div>
   ) : null;
 
@@ -310,9 +314,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     <div style={{ position: 'absolute', top: -15, right: -15, width: 90, height: 90, borderRadius: '50%', background: accentColor, opacity: 0.08, filter: 'blur(36px)', pointerEvents: 'none' }} />
   ) : null;
 
-  const templateDecoration = isFront && shape.id === 'card' && templateId === 'modern' ? (
+  const templateDecoration = isFront && ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'modern' ? (
     <><div style={{position:'absolute',inset:0,background:'linear-gradient(135deg, rgba(255,255,255,.96), rgba(235,244,255,.86))',zIndex:0}}/><div style={{position:'absolute',top:-32,right:-12,width:145,height:145,transform:'rotate(45deg)',background:'linear-gradient(135deg, rgba(219,234,254,.78), rgba(255,255,255,.15))',zIndex:1}}/><div style={{position:'absolute',top:-18,right:24,width:100,height:125,transform:'rotate(45deg)',borderLeft:`2px solid ${accentColor}`,opacity:.9,zIndex:1}}/><div style={{position:'absolute',bottom:-34,right:62,width:130,height:130,transform:'rotate(45deg)',background:'rgba(226,232,240,.42)',zIndex:1}}/></>
-  ) : isFront && shape.id === 'card' && templateId === 'corporate' ? (
+  ) : isFront && ['card','metal_card','wood_card'].includes(shape.id) && templateId === 'corporate' ? (
     <div style={{position:'absolute',inset:0,background:`linear-gradient(135deg, ${cardColor} 0%, ${cardColor} 58%, ${accentColor} 58%, ${accentColor} 100%)`,zIndex:0}}/>
   ) : null;
 
@@ -321,7 +325,7 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     : null;
 
   // ── Card ──
-  if (shape.id === 'card') {
+  if (['card','metal_card','wood_card'].includes(shape.id)) {
     return (
       <div style={{ width: shape.w, height: shape.h, position: 'relative' }}>
         <div style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden', position: 'relative', background: bodyBg, border: bodyBorder, boxShadow: SHADOW_3D }}>
