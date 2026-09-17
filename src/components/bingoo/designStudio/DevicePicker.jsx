@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { PRODUCT_TYPES, ProductTypeIcon } from './ProductPreview';
+import { PRODUCT_TYPES } from './ProductPreview';
+import { PRODUCTS } from '@/lib/shopProducts';
+
+const SHOP_DEVICE_BY_TYPE = {
+  card: 'nfc-card',
+  keychain: 'nfc-key-fob',
+  sticker: 'nfc-sticker',
+  bracelet: 'nfc-bracelet',
+  tag: 'nfc-silicone-tag',
+  stand: 'nfc-table-stand',
+};
+
+const shopProductFor = (typeId) => PRODUCTS.find(p => p.id === SHOP_DEVICE_BY_TYPE[typeId]);
 
 export default function DevicePicker({ productType, setProductType }) {
   const [expanded, setExpanded] = useState(false);
@@ -13,19 +25,31 @@ export default function DevicePicker({ productType, setProductType }) {
         </button>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-        {visible.map(p => (
-          <button key={p.id} onClick={() => setProductType(p.id)}
-            className={`group relative rounded-2xl border p-3.5 min-h-[132px] flex flex-col text-left overflow-hidden transition-all duration-200 ${productType === p.id ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-white shadow-[0_8px_24px_rgba(249,115,22,.12)] ring-1 ring-orange-200' : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg'}`}>
-            <div className="h-[76px] w-full rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center relative overflow-hidden">
-              <div className={`transition-transform duration-200 group-hover:scale-110 ${productType === p.id ? 'scale-110' : 'scale-100'}`}><ProductTypeIcon typeId={p.id} active={productType === p.id} /></div>
-              {productType === p.id && <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-orange-500 text-white text-[11px] font-black flex items-center justify-center">✓</span>}
-            </div>
-            <div className="pt-2.5 flex items-center justify-between gap-2 w-full">
-              <div><p className="text-[12px] font-black text-[#0b2149] leading-tight">NFC {p.label}</p><p className="text-[9px] text-slate-400 mt-1">Customize this device</p></div>
-              <span className={`text-[9px] font-black uppercase tracking-wide ${productType === p.id ? 'text-orange-500' : 'text-slate-300'}`}>{productType === p.id ? 'Selected' : 'Choose'}</span>
-            </div>
-          </button>
-        ))}
+        {visible.map(p => {
+          const shopProduct = shopProductFor(p.id);
+          return (
+            <button key={p.id} onClick={() => setProductType(p.id)}
+              className={`group relative rounded-2xl border p-3 min-h-[150px] flex flex-col text-left overflow-hidden transition-all duration-200 ${productType === p.id ? 'border-orange-500 bg-white shadow-[0_10px_30px_rgba(249,115,22,.16)] ring-1 ring-orange-200' : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg'}`}>
+              <div className="h-[92px] w-full rounded-xl bg-gradient-to-b from-white to-slate-50 flex items-center justify-center relative overflow-hidden border border-slate-100">
+                {shopProduct?.image ? (
+                  <img src={shopProduct.image} alt={shopProduct.name || p.label} className="w-full h-full object-contain p-2 transition-transform duration-200 group-hover:scale-105" />
+                ) : (
+                  <div className="text-xs font-bold text-slate-400">NFC {p.label}</div>
+                )}
+                {productType === p.id && <span className="absolute top-2 right-2 px-2 py-1 rounded-full bg-orange-500 text-white text-[9px] font-black tracking-wide">SELECTED</span>}
+              </div>
+              <div className="pt-2.5 w-full">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-[12px] font-black text-[#0b2149] leading-tight">{shopProduct?.name || `NFC ${p.label}`}</p>
+                    <p className="text-[9px] text-slate-400 mt-1">Use as your custom design base</p>
+                  </div>
+                  <span className={`mt-0.5 text-[9px] font-black ${productType === p.id ? 'text-orange-500' : 'text-slate-300'}`}>{productType === p.id ? '✓' : '→'}</span>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
