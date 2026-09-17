@@ -1,7 +1,8 @@
 import React from 'react';
 import { TEMPLATES } from './studioConstants';
+import { ProductPreview } from './ProductPreview';
 
-export default function TemplatePicker({ activeTemplate, onSelect }) {
+export default function TemplatePicker({ activeTemplate, onSelect, previewProps }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex items-center justify-between mb-3">
@@ -12,8 +13,8 @@ export default function TemplatePicker({ activeTemplate, onSelect }) {
         {TEMPLATES.map(t => (
           <button key={t.id} onClick={() => onSelect(t)}
             className={`rounded-xl border-2 p-1.5 transition-all ${activeTemplate === t.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 hover:border-slate-300'}`}>
-            <div className="h-12 rounded-lg relative overflow-hidden" style={{ background: t.cardColor }}>
-              <div className="absolute right-0 top-0 w-1/2 h-full opacity-30" style={{ background: t.accentColor, clipPath: 'polygon(100% 0,100% 100%,0 100%)' }} />
+            <div className="h-14 rounded-lg relative overflow-hidden bg-slate-50 flex items-center justify-center">
+              <div style={{ transform:'scale(.22)', transformOrigin:'center' }}><ProductPreview {...previewProps} productType="card" templateId={t.id} cardColor={t.cardColor} accentColor={t.accentColor} finish={t.finish} brandPattern={t.pattern} side="front" /></div>
             </div>
             <p className="text-[10px] font-bold mt-1 text-center">{t.name}</p>
           </button>
