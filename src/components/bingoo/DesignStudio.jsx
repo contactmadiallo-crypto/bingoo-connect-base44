@@ -103,7 +103,7 @@ export default function DesignStudio({ isDark }) {
       <div className="grid 2xl:grid-cols-[370px_minmax(0,1fr)_310px] xl:grid-cols-[340px_minmax(0,1fr)_290px] gap-3 p-3 items-start">
         <div className="space-y-3 min-w-0">
           <DevicePicker productType={productType} setProductType={setProductType} />
-          <TemplatePicker activeTemplate={activeTemplate} onSelect={handleSelectTemplate} />
+          <TemplatePicker activeTemplate={activeTemplate} onSelect={handleSelectTemplate} previewProps={previewProps} />
           <CustomizePanel
             tab={customizeTab} setTab={setCustomizeTab}
             holderName={holderName} setHolderName={setHolderName}
