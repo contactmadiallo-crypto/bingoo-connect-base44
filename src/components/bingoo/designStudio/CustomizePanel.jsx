@@ -110,34 +110,17 @@ export default function CustomizePanel({
             <input type="checkbox" checked={removeBranding} onChange={e => setRemoveBranding(e.target.checked)} className="w-4 h-4 accent-orange-500" />
             Remove Bingoo branding (+$2.50)
           </label>
-          <div>
-            <p className="text-xs font-bold mb-2 text-slate-700">Brand Pattern (Watermark)</p>
-            <label className="flex items-center gap-2 text-xs font-bold text-slate-600 mb-2">
-              <input type="checkbox" checked={brandPattern.enabled} onChange={e => setBrandPattern({ ...brandPattern, enabled: e.target.checked })} className="w-4 h-4 accent-orange-500" />
-              Repeat logo as watermark
-            </label>
-            {brandPattern.enabled && (
-              <div className="grid grid-cols-2 gap-3">
-                <Field label="Opacity (%)">
-                  <input type="range" min="3" max="25" value={brandPattern.opacity} onChange={e => setBrandPattern({ ...brandPattern, opacity: Number(e.target.value) })} className="w-full accent-orange-500" />
-                </Field>
-                <Field label="Size">
-                  <select className={input} value={brandPattern.size} onChange={e => setBrandPattern({ ...brandPattern, size: e.target.value })}>
-                    <option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option>
-                  </select>
-                </Field>
-                <Field label="Direction">
-                  <select className={input} value={brandPattern.direction} onChange={e => setBrandPattern({ ...brandPattern, direction: e.target.value })}>
-                    <option value="straight">Straight</option><option value="diagonal">Diagonal</option><option value="offset">Offset</option><option value="centered">Centered</option><option value="corner_fade">Corner Fade</option>
-                  </select>
-                </Field>
-                <Field label="Coverage">
-                  <select className={input} value={brandPattern.coverage} onChange={e => setBrandPattern({ ...brandPattern, coverage: e.target.value })}>
-                    <option value="full">Full</option><option value="top_fade">Top Fade</option><option value="bottom_fade">Bottom Fade</option><option value="edge_fade">Edge Fade</option>
-                  </select>
-                </Field>
-              </div>
-            )}
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-black text-[#0b2149]">Logo Artwork</p>
+            <p className="text-[10px] text-slate-500 mt-1">Your uploaded company logo is automatically composed by the selected template at full visual strength. No opacity or watermark effect.</p>
+            <div className="grid grid-cols-2 gap-3 mt-3">
+              <Field label="Logo scale">
+                <select className={input} value={brandPattern.size || 'medium'} onChange={e => setBrandPattern({ ...brandPattern, enabled: true, size: e.target.value })}>
+                  <option value="small">Compact</option><option value="medium">Balanced</option><option value="large">Statement</option>
+                </select>
+              </Field>
+              <div className="flex items-end"><div className="h-10 w-full rounded-lg bg-white border border-slate-200 px-3 flex items-center text-[10px] font-bold text-slate-500">Template controlled</div></div>
+            </div>
           </div>
         </div>
       )}
