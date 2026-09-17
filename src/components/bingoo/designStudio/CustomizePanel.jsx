@@ -50,21 +50,21 @@ export default function CustomizePanel({
       {tab === 'content' && (
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Full Name"><input className={input} value={holderName} onChange={e => setHolderName(e.target.value)} placeholder="Ahsan Habib" /></Field>
-            <Field label="Title / Role"><input className={input} value={roleText} onChange={e => setRoleText(e.target.value)} placeholder="Managing Attorney" /></Field>
-            <Field label="Company / Organization"><input className={input} value={nameText} onChange={e => setNameText(e.target.value)} placeholder="AH Law Firm PLLC" /></Field>
-            <Field label="Tagline (optional)"><input className={input} value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Trust · Guidance · Results" /></Field>
+            <Field label="Full Name"><input className={input} value={holderName} onChange={e => setHolderName(e.target.value)} placeholder="Your Name" /></Field>
+            <Field label="Title / Role"><input className={input} value={roleText} onChange={e => setRoleText(e.target.value)} placeholder="Your Role" /></Field>
+            <Field label="Company / Organization"><input className={input} value={nameText} onChange={e => setNameText(e.target.value)} placeholder="Your Company" /></Field>
+            <Field label="Tagline (optional)"><input className={input} value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Your Tagline Here" /></Field>
           </div>
           <Field label="Phone">
             <input className={input} value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 234 567 8900" />
           </Field>
           <div className="pl-1"><Toggle checked={showPhone} onChange={setShowPhone} label="Show on card" /></div>
           <Field label="Email">
-            <input className={input} value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" />
+            <input className={input} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@yourcompany.com" />
           </Field>
           <div className="pl-1"><Toggle checked={showEmail} onChange={setShowEmail} label="Show on card" /></div>
           <Field label="Website">
-            <input className={input} value={website} onChange={e => setWebsite(e.target.value)} placeholder="www.company.com" />
+            <input className={input} value={website} onChange={e => setWebsite(e.target.value)} placeholder="www.yourcompany.com" />
           </Field>
           <div className="pl-1"><Toggle checked={showWebsite} onChange={setShowWebsite} label="Show on card" /></div>
           <button onClick={() => fileInputRef.current?.click()}
