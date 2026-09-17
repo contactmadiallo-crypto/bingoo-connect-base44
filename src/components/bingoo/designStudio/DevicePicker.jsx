@@ -34,21 +34,21 @@ export default function DevicePicker({ productType, setProductType }) {
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {visible.map(p => {
           const active = productType === p.id;
           return (
             <button
               key={p.id}
               onClick={() => setProductType(p.id)}
-              className={`relative rounded-xl border-2 px-2 py-2.5 min-h-[104px] flex flex-col items-center justify-between transition-all ${active ? 'border-orange-500 bg-orange-50 shadow-[0_4px_14px_rgba(249,115,22,.10)]' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              className={`relative rounded-lg border px-1.5 py-2 min-h-[88px] flex flex-col items-center justify-between transition-all ${active ? 'border-orange-500 bg-orange-50 ring-1 ring-orange-500' : 'border-slate-200 bg-white hover:border-slate-300'}`}
             >
-              <div className="h-[68px] w-full rounded-lg bg-gradient-to-b from-white to-slate-50 flex items-center justify-center overflow-hidden">
-                <div style={{ transform: 'scale(0.28)', transformOrigin: 'center' }}>
+              <div className="h-[56px] w-full rounded-md bg-white flex items-center justify-center overflow-hidden">
+                <div style={{ transform: 'scale(0.24)', transformOrigin: 'center' }}>
                   <ProductPreview {...THUMB_PROPS} productType={p.id} side="front" />
                 </div>
               </div>
-              <span className={`text-[10px] font-black leading-tight mt-1 ${active ? 'text-[#0b2149]' : 'text-slate-700'}`}>{p.id === 'keychain' ? 'Key Fob' : p.label}</span>
+              <span className={`text-[9px] font-black leading-tight mt-1 ${active ? 'text-[#0b2149]' : 'text-slate-700'}`}>{p.id === 'keychain' ? 'NFC Key Fob' : p.id === 'card' ? 'NFC Card' : p.id === 'sticker' ? 'NFC Sticker' : p.id === 'bracelet' ? 'NFC Bracelet' : p.id === 'tag' ? 'NFC Tag' : p.id === 'stand' ? 'Table Stand' : p.label}</span>
               {active && <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">✓</span>}
             </button>
           );
