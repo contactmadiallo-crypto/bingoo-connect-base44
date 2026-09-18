@@ -146,11 +146,72 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </div>
   );
 
-  const templateCardFront = ['card','metal_card','wood_card'].includes(shape.id) && ['modern','minimal','corporate','creative'].includes(templateId) ? (
-    <div className="relative z-10 flex-1 flex flex-col justify-between">
-      <div className="flex items-start gap-3">{renderLogo(42)}<div className="min-w-0 pt-0.5"><p className="font-black leading-[0.95] tracking-tight" style={{ color: NAVY, fontSize: 16 }}>{nameText || 'Your Company'}</p></div></div>
-      <div className="mb-1"><p className="font-black leading-none tracking-tight" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold tracking-wide mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div>
-      <div className="grid grid-cols-[1fr_auto] gap-3 items-end"><div className="space-y-1">{phone && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>☎ {phone}</p>}{email && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>✉ {email}</p>}{website && <p className="font-semibold" style={{ color: NAVY, fontSize: 8 }}>◉ {website}</p>}</div><div className="flex items-stretch gap-2 pr-1"><div style={{ width: 2, background: accentColor, borderRadius: 2 }} /><p className="font-semibold tracking-[0.24em] leading-[1.25]" style={{ color: NAVY, fontSize: 7 }}>{(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}</p></div></div>
+  const cardTemplates = ['card','metal_card','wood_card'].includes(shape.id);
+  const contactList = (color) => (
+    <div className="space-y-1">
+      {phone && <p className="font-semibold" style={{ color, fontSize: 8 }}>☎ {phone}</p>}
+      {email && <p className="font-semibold" style={{ color, fontSize: 8 }}>✉ {email}</p>}
+      {website && <p className="font-semibold" style={{ color, fontSize: 8 }}>◉ {website}</p>}
+    </div>
+  );
+  const taglineBlock = (color) => (
+    <div className="flex items-stretch gap-2">
+      <div style={{ width: 2, background: accentColor, borderRadius: 2 }} />
+      <p className="font-semibold tracking-[0.22em] leading-[1.25]" style={{ color, fontSize: 7 }}>
+        {(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}
+      </p>
+    </div>
+  );
+
+  const templateCardFront = cardTemplates && templateId === 'modern' ? (
+    <div className="relative z-10 h-full grid grid-cols-[58%_42%]">
+      <div className="p-5 flex flex-col justify-between">
+        <div>
+          <p className="font-black tracking-tight" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p>
+          <div className="mt-7"><p className="font-black leading-none" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div>
+        </div>
+        <div className="flex items-end justify-between gap-3">{contactList(NAVY)}{taglineBlock(NAVY)}</div>
+      </div>
+      <div className="relative flex items-center justify-center p-5">
+        <div className="w-full h-full rounded-[14px] flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `1px solid ${accentColor}55` }}>
+          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[84%] max-h-[76%] object-contain" /> : renderLogo(70)}
+        </div>
+      </div>
+    </div>
+  ) : cardTemplates && templateId === 'minimal' ? (
+    <div className="relative z-10 h-full p-5 flex flex-col justify-between">
+      <div className="flex items-start justify-between gap-4">
+        <div><p className="font-black" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 8 }}>{roleText || 'Your Role'}</p></div>
+        <div className="w-[92px] h-[58px] flex items-center justify-center overflow-hidden rounded-xl" style={{ background: cardColor }}>
+          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[82%] max-h-[82%] object-contain" /> : renderLogo(46)}
+        </div>
+      </div>
+      <div><p className="font-black leading-none" style={{ color: NAVY, fontSize: 24 }}>{holderName || 'Your Name'}</p><div className="mt-5 flex items-end justify-between gap-3">{contactList(NAVY)}{taglineBlock(NAVY)}</div></div>
+    </div>
+  ) : cardTemplates && templateId === 'corporate' ? (
+    <div className="relative z-10 h-full grid grid-cols-[62%_38%]">
+      <div className="p-5 flex flex-col justify-between">
+        <div><p className="font-black tracking-tight text-white" style={{ fontSize: 14 }}>{nameText || 'Your Company'}</p><div className="mt-7"><p className="font-black leading-none text-white" style={{ fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1 text-white/80" style={{ fontSize: 10 }}>{roleText || 'Your Role'}</p></div></div>
+        <div className="flex items-end justify-between gap-3">{contactList('#FFFFFF')}{taglineBlock('#FFFFFF')}</div>
+      </div>
+      <div className="relative flex items-center justify-center p-5">
+        <div className="w-full h-full rounded-[14px] flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `1px solid ${accentColor}` }}>
+          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[86%] max-h-[78%] object-contain" /> : renderLogo(70)}
+        </div>
+      </div>
+    </div>
+  ) : cardTemplates && templateId === 'creative' ? (
+    <div className="relative z-10 h-full grid grid-cols-[56%_44%]">
+      <div className="p-5 flex flex-col justify-between">
+        <div><p className="font-black" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p><div className="mt-7"><p className="font-black leading-none" style={{ color: NAVY, fontSize: 21 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div></div>
+        <div>{contactList(NAVY)}</div>
+      </div>
+      <div className="relative flex flex-col items-center justify-center p-5 gap-4">
+        <div className="w-[104px] h-[104px] rounded-full flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `6px solid ${accentColor}` }}>
+          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[78%] max-h-[78%] object-contain" /> : renderLogo(62)}
+        </div>
+        {taglineBlock(NAVY)}
+      </div>
     </div>
   ) : null;
 
