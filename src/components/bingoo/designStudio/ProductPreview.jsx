@@ -163,10 +163,10 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </div>
   );
 
-  const brandArtwork = (className = '', style = {}) => (
-    <div className={className} style={{ overflow:'hidden', ...style }}>
+  const brandArtwork = (className = '', style = {}, imageStyle = {}) => (
+    <div className={className} style={{ overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', ...style }}>
       {logoUrl
-        ? <img src={logoUrl} alt="Company artwork" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+        ? <img src={logoUrl} alt="Company artwork" style={{ maxWidth:'100%', maxHeight:'100%', width:'auto', height:'auto', objectFit:'contain', display:'block', ...imageStyle }} />
         : <div className="w-full h-full flex items-center justify-center">{renderLogo(68)}</div>}
     </div>
   );
@@ -185,19 +185,18 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     <div className="relative z-10 h-full">
       <div className="absolute inset-y-0 left-0 w-[60%] p-5 flex flex-col justify-between">
         <div>{identityBlock(NAVY)}</div>
-        <div>{contactList(NAVY)}</div>
+        <div className="flex items-end justify-between gap-3">{contactList(NAVY)}{taglineBlock(NAVY)}</div>
       </div>
-      <div className="absolute inset-y-0 right-0 w-[40%]">
-        {brandArtwork('absolute inset-0')}
+      <div className="absolute inset-y-0 right-0 w-[40%] p-4 flex items-center justify-center">
+        {brandArtwork('w-full h-full', {}, {maxWidth:'88%',maxHeight:'82%'})}
         <div className="absolute inset-y-0 left-0 w-[5px]" style={{background:accentColor}} />
-        <div className="absolute right-4 bottom-4 bg-white/95 rounded-lg px-3 py-2">{taglineBlock(NAVY)}</div>
       </div>
     </div>
   ) : cardTemplates && templateId === 'minimal' ? (
     <div className="relative z-10 h-full p-5 flex flex-col justify-between">
       <div className="flex items-start justify-between gap-6">
         <div>{identityBlock(NAVY)}</div>
-        {brandArtwork('w-[128px] h-[72px] rounded-xl shrink-0', {border:`1px solid ${accentColor}44`})}
+        {brandArtwork('w-[128px] h-[72px] rounded-xl shrink-0 p-2', {border:`1px solid ${accentColor}44`})}
       </div>
       <div className="flex items-end justify-between gap-4">{contactList(NAVY)}{taglineBlock(NAVY)}</div>
     </div>
@@ -205,12 +204,11 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     <div className="relative z-10 h-full">
       <div className="absolute inset-y-0 left-0 w-[60%] p-5 flex flex-col justify-between">
         <div>{identityBlock('#FFFFFF')}</div>
-        <div>{contactList('#FFFFFF')}</div>
+        <div className="flex items-end justify-between gap-3">{contactList('#FFFFFF')}{taglineBlock('#FFFFFF')}</div>
       </div>
-      <div className="absolute inset-y-0 right-0 w-[40%]">
-        {brandArtwork('absolute inset-0')}
+      <div className="absolute inset-y-0 right-0 w-[40%] p-4 flex items-center justify-center">
+        {brandArtwork('w-full h-full', {}, {maxWidth:'88%',maxHeight:'82%'})}
         <div className="absolute inset-y-0 left-0 w-[5px]" style={{background:accentColor}} />
-        <div className="absolute right-4 bottom-4 bg-white/95 rounded-lg px-3 py-2">{taglineBlock(NAVY)}</div>
       </div>
     </div>
   ) : cardTemplates && templateId === 'creative' ? (
@@ -220,7 +218,7 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
         <div>{contactList(NAVY)}</div>
       </div>
       <div className="absolute inset-y-0 right-0 w-[42%] overflow-hidden">
-        <div className="absolute -right-5 -top-5 w-[165px] h-[165px] rounded-full overflow-hidden" style={{border:`8px solid ${accentColor}`}}>
+        <div className="absolute -right-5 -top-5 w-[165px] h-[165px] rounded-full overflow-hidden p-5" style={{border:`8px solid ${accentColor}`,background:cardColor}}>
           {brandArtwork('w-full h-full')}
         </div>
         <div className="absolute right-5 bottom-5">{taglineBlock(NAVY)}</div>
