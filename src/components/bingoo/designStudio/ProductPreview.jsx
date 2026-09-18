@@ -318,7 +318,8 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </>
   ) : null;
 
-  const patternLayer = isFront && brandPattern?.enabled && logoUrl
+  // Card templates own logo placement. Never add a second decorative logo layer on cards.
+  const patternLayer = isFront && !cardTemplates && brandPattern?.enabled && logoUrl
     ? <BrandPatternLayer logoUrl={logoUrl} pattern={brandPattern} templateId={templateId} />
     : null;
 
