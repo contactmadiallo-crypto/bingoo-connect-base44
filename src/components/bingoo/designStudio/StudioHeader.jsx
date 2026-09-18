@@ -1,6 +1,5 @@
 import React from 'react';
 import { WandSparkles, Eye, ShoppingCart } from 'lucide-react';
-import { NAVY } from './studioConstants';
 
 export default function StudioHeader() {
   const steps = [
@@ -11,10 +10,10 @@ export default function StudioHeader() {
   return (
     <div className="px-5 lg:px-7 py-5 bg-white border-b border-slate-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
       <div>
-        <h1 className="text-3xl font-black text-[#0b2149]">Design Studio</h1>
+        <h1 className="text-2xl xl:text-3xl font-black text-[#0b2149]">Design Studio</h1>
         <p className="text-sm text-slate-500">Create your own NFC device. Your brand. Your way.</p>
       </div>
-      <div className="flex items-center gap-6 text-xs font-bold">
+      <div className="flex items-center gap-4 text-xs font-bold">
         {steps.map((s, i) => (
           <React.Fragment key={s.label}>
             <span className={`flex items-center gap-2 ${s.active ? 'text-[#f97316]' : 'text-slate-400'}`}>

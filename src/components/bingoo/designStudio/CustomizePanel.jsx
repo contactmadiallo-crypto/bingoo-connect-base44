@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
-import { Upload } from 'lucide-react';
-import { CARD_COLORS, ACCENTS, FINISHES, DEFAULT_PATTERN } from './studioConstants';
+import { Upload, X } from 'lucide-react';
+import { CARD_COLORS, ACCENTS, FINISHES } from './studioConstants';
 
 const TABS = ['Content', 'Style', 'Branding', 'Finish'];
-const input = 'w-full h-10 rounded-lg border border-slate-200 px-3 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-orange-300';
+const input = 'w-full h-10 rounded-lg border border-slate-200 px-3 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-orange-300 placeholder:text-slate-400';
 
 function Field({ label, children }) {
   return (
@@ -31,13 +31,13 @@ export default function CustomizePanel({
   holderName, setHolderName, roleText, setRoleText, nameText, setNameText,
   phone, setPhone, email, setEmail, website, setWebsite, tagline, setTagline,
   showPhone, setShowPhone, showEmail, setShowEmail, showWebsite, setShowWebsite,
-  logoUrl, uploading, onUpload, fileInputRef,
+  logoUrl, uploading, onUpload, fileInputRef, onRemoveLogo,
   cardColor, setCardColor, accentColor, setAccentColor,
-  finish, setFinish, removeBranding, setRemoveBranding, brandPattern, setBrandPattern,
+  finish, setFinish, removeBranding, setRemoveBranding,
 }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
-      <h3 className="font-black text-sm mb-3 text-[#0b2149]"><span className="mr-1">3.</span>Customize Your Design</h3>
+      <h3 className="font-black text-sm mb-3 text-[#0b2149]"><span className="mr-1 text-[#f97316]">3.</span>Customize Your Design</h3>
       <div className="flex gap-1 mb-4 border-b border-slate-100">
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t.toLowerCase())}
@@ -53,51 +53,58 @@ export default function CustomizePanel({
             <Field label="Full Name"><input className={input} value={holderName} onChange={e => setHolderName(e.target.value)} placeholder="Your Name" /></Field>
             <Field label="Title / Role"><input className={input} value={roleText} onChange={e => setRoleText(e.target.value)} placeholder="Your Role" /></Field>
             <Field label="Company / Organization"><input className={input} value={nameText} onChange={e => setNameText(e.target.value)} placeholder="Your Company" /></Field>
-            <Field label="Tagline (optional)"><input className={input} value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Your Tagline Here" /></Field>
+            <Field label="Tagline (optional)"><input className={input} value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Connect · Share · Grow" /></Field>
           </div>
           <Field label="Phone">
             <input className={input} value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 234 567 8900" />
           </Field>
           <div className="pl-1"><Toggle checked={showPhone} onChange={setShowPhone} label="Show on card" /></div>
           <Field label="Email">
-            <input className={input} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@yourcompany.com" />
+            <input className={input} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@email.com" />
           </Field>
           <div className="pl-1"><Toggle checked={showEmail} onChange={setShowEmail} label="Show on card" /></div>
           <Field label="Website">
             <input className={input} value={website} onChange={e => setWebsite(e.target.value)} placeholder="www.yourcompany.com" />
           </Field>
           <div className="pl-1"><Toggle checked={showWebsite} onChange={setShowWebsite} label="Show on card" /></div>
-          <button onClick={() => fileInputRef.current?.click()}
-            className="mt-1 w-full rounded-xl border-2 border-dashed border-slate-200 p-3 flex items-center gap-3 hover:border-orange-400 transition-colors">
-            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center overflow-hidden">
-              {logoUrl ? <img src={logoUrl} className="max-w-full max-h-full object-contain" /> : <Upload className="w-5 h-5 text-orange-500" />}
-            </div>
-            <div className="text-left">
-              <p className="text-xs font-black">{uploading ? 'Uploading…' : 'Upload Your Logo'}</p>
-              <p className="text-[10px] text-slate-400">JPG, PNG or SVG</p>
-            </div>
-          </button>
-          <input ref={fileInputRef} type="file" className="hidden" accept="image/png,image/jpeg,image/svg+xml" onChange={onUpload} />
+          <div className="relative">
+            <button onClick={() => fileInputRef.current?.click()}
+              className="mt-1 w-full rounded-xl border-2 border-dashed border-slate-200 p-3 flex items-center gap-3 hover:border-orange-400 transition-colors">
+              <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center overflow-hidden shrink-0">
+                {logoUrl ? <img src={logoUrl} className="max-w-full max-h-full object-contain" /> : <Upload className="w-5 h-5 text-orange-500" />}
+              </div>
+              <div className="text-left min-w-0">
+                <p className="text-xs font-black">{uploading ? 'Uploading…' : logoUrl ? 'Logo uploaded' : 'Upload Your Logo'}</p>
+                <p className="text-[10px] text-slate-400">{logoUrl ? 'Click to replace · JPG, PNG or SVG' : 'JPG, PNG or SVG'}</p>
+              </div>
+            </button>
+            {logoUrl && (
+              <button onClick={onRemoveLogo} className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <input ref={fileInputRef} type="file" className="hidden" accept="image/png,image/jpeg,image/svg+xml" onChange={onUpload} />
+          </div>
         </div>
       )}
 
       {tab === 'style' && (
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-bold mb-2 text-slate-700">Base Color</p>
+            <p className="text-xs font-bold mb-2 text-slate-700">Base Color <span className="text-slate-400 font-normal">— part of the template graphic system</span></p>
             <div className="flex flex-wrap gap-2">
               {CARD_COLORS.map(c => (
                 <button key={c.value} onClick={() => setCardColor(c.value)} title={c.name}
-                  className={`w-8 h-8 rounded-lg border-2 transition-transform ${cardColor === c.value ? 'ring-2 ring-orange-300 scale-110' : 'border-slate-200'}`}
+                  className={`w-8 h-8 rounded-lg border-2 transition-transform ${cardColor === c.value ? 'ring-2 ring-orange-300 scale-110 border-white' : 'border-slate-200'}`}
                   style={{ background: c.value }} />
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs font-bold mb-2 text-slate-700">Accent Color</p>
+            <p className="text-xs font-bold mb-2 text-slate-700">Accent Color <span className="text-slate-400 font-normal">— controls graphic accents & separators</span></p>
             <div className="flex flex-wrap gap-2">
               {ACCENTS.map(c => (
-                <button key={c} onClick={() => setAccentColor(c)} className={`w-8 h-8 rounded-lg border-2 transition-transform ${accentColor === c ? 'ring-2 ring-orange-300 scale-110' : 'border-slate-200'}`} style={{ background: c }} />
+                <button key={c} onClick={() => setAccentColor(c)} className={`w-8 h-8 rounded-lg border-2 transition-transform ${accentColor === c ? 'ring-2 ring-orange-300 scale-110 border-white' : 'border-slate-200'}`} style={{ background: c }} />
               ))}
             </div>
           </div>
@@ -112,15 +119,9 @@ export default function CustomizePanel({
           </label>
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
             <p className="text-xs font-black text-[#0b2149]">Logo Artwork</p>
-            <p className="text-[10px] text-slate-500 mt-1">Your uploaded company logo is automatically composed by the selected template at full visual strength. No opacity or watermark effect.</p>
-            <div className="grid grid-cols-2 gap-3 mt-3">
-              <Field label="Logo scale">
-                <select className={input} value={brandPattern.size || 'medium'} onChange={e => setBrandPattern({ ...brandPattern, enabled: true, size: e.target.value })}>
-                  <option value="small">Compact</option><option value="medium">Balanced</option><option value="large">Statement</option>
-                </select>
-              </Field>
-              <div className="flex items-end"><div className="h-10 w-full rounded-lg bg-white border border-slate-200 px-3 flex items-center text-[10px] font-bold text-slate-500">Template controlled</div></div>
-            </div>
+            <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+              Your uploaded company logo is composed by the selected template at full visual strength — never as a faded watermark, never duplicated, and always aspect-ratio preserved within the device surface.
+            </p>
           </div>
         </div>
       )}

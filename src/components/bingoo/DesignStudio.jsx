@@ -19,7 +19,6 @@ export default function DesignStudio({ isDark }) {
   const fileInputRef = useRef(null);
 
   const [productType, setProductType] = useState('card');
-  const [viewMode, setViewMode] = useState('desktop');
   const [previewView, setPreviewView] = useState('front');
   const [customizeTab, setCustomizeTab] = useState('content');
 
@@ -68,6 +67,8 @@ export default function DesignStudio({ isDark }) {
     } finally { setUploading(false); }
   };
 
+  const handleRemoveLogo = () => setLogoUrl(null);
+
   const handleSelectTemplate = (t) => {
     setActiveTemplate(t.id);
     setCardColor(t.cardColor);
@@ -80,6 +81,7 @@ export default function DesignStudio({ isDark }) {
     saveDraft({
       productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, tagline,
       showPhone, showEmail, showWebsite, finish, quantity, logoUrl, removeBranding, brandPattern,
+      activeTemplate,
       name: `${nameText || 'Untitled'} — ${productLabel}`,
     });
     setSaved(true);
@@ -91,6 +93,7 @@ export default function DesignStudio({ isDark }) {
     addToCart({ ...p }, quantity, {
       productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, tagline,
       showPhone, showEmail, showWebsite, finish, quantity, logoUrl, removeBranding, brandPattern,
+      activeTemplate,
       designMode: 'business', designStore: true,
     });
     setOrdered(true);
@@ -100,7 +103,7 @@ export default function DesignStudio({ isDark }) {
   return (
     <div className="bg-[#f7f9fc] text-slate-900 rounded-2xl overflow-hidden border border-slate-200">
       <StudioHeader />
-      <div className="grid 2xl:grid-cols-[370px_minmax(0,1fr)_310px] xl:grid-cols-[340px_minmax(0,1fr)_290px] gap-3 p-3 items-start">
+      <div className="grid 2xl:grid-cols-[370px_minmax(0,1fr)_310px] xl:grid-cols-[340px_minmax(0,1fr)_300px] gap-3 p-3 items-start">
         <div className="space-y-3 min-w-0">
           <DevicePicker productType={productType} setProductType={setProductType} />
           <TemplatePicker activeTemplate={activeTemplate} onSelect={handleSelectTemplate} previewProps={previewProps} />
@@ -115,19 +118,23 @@ export default function DesignStudio({ isDark }) {
             showEmail={showEmail} setShowEmail={setShowEmail}
             showWebsite={showWebsite} setShowWebsite={setShowWebsite}
             logoUrl={logoUrl} uploading={uploading} onUpload={handleUpload} fileInputRef={fileInputRef}
+            onRemoveLogo={handleRemoveLogo}
             cardColor={cardColor} setCardColor={setCardColor}
             accentColor={accentColor} setAccentColor={setAccentColor}
             finish={finish} setFinish={setFinish}
             removeBranding={removeBranding} setRemoveBranding={setRemoveBranding}
-            brandPattern={brandPattern} setBrandPattern={setBrandPattern}
           />
         </div>
         <div className="space-y-3 min-w-0">
           <LivePreviewSection
-            previewProps={previewProps} viewMode={viewMode} setViewMode={setViewMode}
+            previewProps={previewProps}
             previewView={previewView} setPreviewView={setPreviewView}
           />
-          <TemplateLogoPreview previewProps={previewProps} />
+          <TemplateLogoPreview
+            previewProps={previewProps}
+            activeTemplate={activeTemplate}
+            onSelect={handleSelectTemplate}
+          />
         </div>
         <SummarySidebar
           previewProps={previewProps} productLabel={productLabel}

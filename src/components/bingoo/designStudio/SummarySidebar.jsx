@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShoppingCart, Save, Check, Shield, Truck, Headphones, MessageCircle } from 'lucide-react';
 import { ProductPreview } from './ProductPreview';
-import { FINISHES, UNIT_PRICE, SETUP_FEE, SHIPPING } from './studioConstants';
+import { FINISHES, UNIT_PRICE, SETUP_FEE, SHIPPING, REMOVE_BRANDING_FEE } from './studioConstants';
 
 function Row({ a, b }) {
   return <div className="flex justify-between gap-3"><span className="text-slate-500">{a}</span><span className="font-bold text-right">{b}</span></div>;
@@ -13,14 +13,14 @@ export default function SummarySidebar({
 }) {
   return (
     <aside className="bg-white rounded-xl border border-slate-200 p-4 h-fit min-w-0 xl:sticky xl:top-4 space-y-4">
-      <h2 className="font-black text-[#0b2149]">Product Summary</h2>
+      <h2 className="font-black text-[#0b2149]"><span className="mr-1 text-[#f97316]">6.</span>Product Summary</h2>
       <div className="flex gap-3 items-center pb-4 border-b">
-        <div className="w-24 h-20 rounded-xl bg-slate-50 overflow-hidden flex items-center justify-center">
+        <div className="w-24 h-20 rounded-xl bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
           <div style={{ transform: 'scale(0.24)' }}><ProductPreview {...previewProps} side="front" /></div>
         </div>
         <div className="min-w-0">
           <p className="font-black text-sm">Custom NFC {productLabel}</p>
-          <p className="text-lg font-black mt-1">${subtotal.toFixed(2)} <span className="text-[10px] text-slate-400 font-bold">/ unit</span></p>
+          <p className="text-lg font-black mt-1">${subtotal.toFixed(2)} <span className="text-[10px] text-slate-400 font-bold">/ total</span></p>
           <p className="text-[9px] text-slate-400 mt-1">Design/setup: ${SETUP_FEE.toFixed(2)} + hardware</p>
         </div>
       </div>
@@ -30,7 +30,7 @@ export default function SummarySidebar({
           <p className="text-[11px] font-semibold text-slate-500 mb-1">Finish</p>
           <select value={finish} onChange={e => setFinish(e.target.value)}
             className="w-full h-9 rounded-lg border border-slate-200 px-2 text-sm text-slate-800 outline-none focus:ring-2 focus:ring-orange-300">
-            {FINISHES.map(f => <option key={f} value={f}>{f} (Matte)</option>)}
+            {FINISHES.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
         <div className="flex items-center gap-4">
@@ -54,7 +54,7 @@ export default function SummarySidebar({
       </div>
 
       <div className="border-t pt-4 space-y-2 text-sm">
-        <Row a="Subtotal" b={`$${subtotal.toFixed(2)}`} />
+        <Row a="Hardware + Design" b={`$${subtotal.toFixed(2)}`} />
         <Row a="Shipping" b={`$${SHIPPING.toFixed(2)}`} />
         <div className="flex justify-between text-lg font-black pt-2 border-t"><span>Total</span><span>${total.toFixed(2)}</span></div>
       </div>
