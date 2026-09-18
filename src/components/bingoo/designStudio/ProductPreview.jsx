@@ -132,88 +132,131 @@ function LogoPlaceholder({ size, accentColor, removeBranding }) {
 // The accent color controls deliberate graphic accents and separators.
 
 const TEMPLATES = {
-  // Modern: clean split — light bg, accent vertical bar, logo panel right
+  // MODERN — bright editorial: white base, strong diagonal accent field (~42%),
+  // logo embedded as major artwork inside the diagonal field, content on clean left zone
   modern: {
     isDark: false,
-    textOnPanel: false,
     cardBackground: (cardColor, accentColor) => (
       <>
         <div style={{ position: 'absolute', inset: 0, background: '#fff', zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, width: '40%', height: '100%', background: `linear-gradient(160deg, ${cardColor}, #ffffff)`, zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: '40%', top: 0, width: 3, height: '100%', background: accentColor, zIndex: 1 }} />
+        {/* Diagonal accent field — trapezoid, wider at bottom (~45%) narrowing at top (~38%) */}
+        <div style={{
+          position: 'absolute', top: 0, right: 0, width: '48%', height: '100%',
+          background: `linear-gradient(135deg, ${cardColor}, ${hexToRgba(cardColor, 0.82)})`,
+          clipPath: 'polygon(100% 0, 100% 100%, 38% 100%, 58% 0)',
+          zIndex: 0,
+        }} />
+        {/* Accent diagonal edge along the field boundary */}
+        <div style={{
+          position: 'absolute', top: 0, right: '48%', width: 3, height: '100%',
+          background: accentColor, transformOrigin: 'top right', transform: 'skewX(-28deg)',
+          zIndex: 1,
+        }} />
       </>
     ),
-    // Layout: content left, logo right
-    layout: 'split-right-logo',
   },
-  // Minimal: maximum whitespace, thin accent bottom, small logo corner
+  // MINIMAL — high-whitespace premium: white base, top brand zone (full-width edge treatment),
+  // thin accent rules, logo as deliberate brand-zone anchor not a floating tile
   minimal: {
     isDark: false,
-    textOnPanel: false,
     cardBackground: (cardColor, accentColor) => (
       <>
         <div style={{ position: 'absolute', inset: 0, background: '#fff', zIndex: 0 }} />
-        <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', height: 6, background: `linear-gradient(90deg, ${accentColor}, ${cardColor})`, zIndex: 0 }} />
+        {/* Top brand zone — subtle tinted gradient band, full width */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+          background: `linear-gradient(180deg, ${hexToRgba(cardColor, 0.14)}, ${hexToRgba(cardColor, 0.03)})`,
+          zIndex: 0,
+        }} />
+        {/* Thin accent rule under brand zone */}
+        <div style={{ position: 'absolute', top: '32%', left: 22, right: 22, height: 1.5, background: accentColor, opacity: 0.55, zIndex: 1 }} />
       </>
     ),
-    layout: 'corner-logo',
   },
-  // Corporate: dark navy, professional, logo panel right
+  // CORPORATE — premium dark: layered diagonal/geometric panels (NOT 50/50 split),
+  // strong brand-art zone upper-right, protected readable content zone lower-left
   corporate: {
     isDark: true,
-    textOnPanel: true,
     cardBackground: (cardColor, accentColor) => (
       <>
         <div style={{ position: 'absolute', inset: 0, background: NAVY_DEEP, zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, width: '38%', height: '100%', background: `linear-gradient(160deg, ${cardColor}, ${NAVY_DEEP})`, zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: '38%', top: 0, width: 3, height: '100%', background: accentColor, zIndex: 1 }} />
+        {/* Upper-right diagonal triangle panel — brand art zone */}
+        <div style={{
+          position: 'absolute', top: 0, right: 0, width: '56%', height: '62%',
+          background: `linear-gradient(135deg, ${cardColor}, ${NAVY_DEEP})`,
+          clipPath: 'polygon(100% 0, 100% 100%, 0 0)',
+          zIndex: 0,
+        }} />
+        {/* Accent diagonal edge along the triangle hypotenuse */}
+        <div style={{
+          position: 'absolute', top: 0, right: 0, width: '56%', height: '62%',
+          borderTop: `2px solid ${accentColor}`,
+          clipPath: 'polygon(0 0, 100% 0, 100% 100%)',
+          zIndex: 1,
+        }} />
+        {/* Lower-left accent bar */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '42%', height: 4, background: accentColor, zIndex: 1 }} />
       </>
     ),
-    layout: 'split-right-logo',
   },
-  // Creative: bold geometric, accent circle with logo, cardColor circle bottom
+  // CREATIVE — asymmetric editorial: bold arc/cutout shape right side,
+  // logo integrated into the main visual shape at substantial size, content left
   creative: {
     isDark: false,
-    textOnPanel: false,
     cardBackground: (cardColor, accentColor) => (
       <>
         <div style={{ position: 'absolute', inset: 0, background: '#fff', zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: -50, top: -60, width: 170, height: 170, borderRadius: '50%', background: accentColor, zIndex: 0 }} />
-        <div style={{ position: 'absolute', right: 18, bottom: -70, width: 140, height: 140, borderRadius: '50%', background: hexToRgba(cardColor, 0.5), zIndex: 0 }} />
+        {/* Large arc shape — main visual element, partially off-card right */}
+        <div style={{
+          position: 'absolute', top: '-12%', right: '-22%', width: '78%', height: '124%',
+          borderRadius: '50%',
+          background: `linear-gradient(140deg, ${accentColor}, ${cardColor})`,
+          zIndex: 0,
+        }} />
+        {/* Inner arc ring for depth */}
+        <div style={{
+          position: 'absolute', top: '2%', right: '-8%', width: '58%', height: '96%',
+          borderRadius: '50%',
+          border: `2px solid ${hexToRgba(accentColor, 0.3)}`,
+          zIndex: 0,
+        }} />
       </>
     ),
-    layout: 'circle-logo',
   },
 };
 
 // ── Content rendering for card-shaped devices (card, metal_card, wood_card) ──
+// ── Card content: four distinct fixed composition systems ───────────────────
+// Each system treats the customer logo as a major graphic design asset embedded
+// into the composition geometry — never a small floating tile. Text safe zones
+// are protected with overflow/truncation so content never collides with graphics.
 function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
-  const subColor = tpl.isDark ? 'rgba(255,255,255,0.65)' : 'rgba(11,33,73,0.65)';
-  const isWood = shape.id === 'wood_card';
-  const isMetal = shape.id === 'metal_card';
+  const subColor = tpl.isDark ? 'rgba(255,255,255,0.68)' : 'rgba(11,33,73,0.6)';
 
-  const logoBox = (w, h, extra = {}) => (
-    <div style={{ width: w, height: h, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', ...extra }}>
+  // Logo renderer — preserves aspect ratio via objectFit:contain inside a large
+  // composition-level container. Wide logos stay wide, square logos stay square.
+  const renderLogo = (containerStyle) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', ...containerStyle }}>
       {logoUrl
-        ? <LogoImage src={logoUrl} style={{ maxWidth: '90%', maxHeight: '90%' }} />
-        : <LogoPlaceholder size={Math.min(w, h)} accentColor={accentColor} removeBranding={removeBranding} />}
+        ? <img src={logoUrl} alt="Logo" style={{ maxWidth: '88%', maxHeight: '88%', width: 'auto', height: 'auto', objectFit: 'contain', display: 'block' }} />
+        : <LogoPlaceholder size={56} accentColor={accentColor} removeBranding={removeBranding} />}
     </div>
   );
 
   const contactInfo = (
-    <div className="space-y-0.5">
-      {phone && <p className="font-semibold" style={{ color: subColor, fontSize: 8 }}>☎ {phone}</p>}
+    <div className="space-y-0.5 overflow-hidden">
+      {phone && <p className="font-semibold truncate" style={{ color: subColor, fontSize: 8 }}>☎ {phone}</p>}
       {email && <p className="font-semibold truncate" style={{ color: subColor, fontSize: 8 }}>✉ {email}</p>}
       {website && <p className="font-semibold truncate" style={{ color: subColor, fontSize: 8 }}>◉ {website}</p>}
     </div>
   );
 
   const taglineBlock = (
-    <div className="flex items-stretch gap-1.5">
+    <div className="flex items-stretch gap-1.5 overflow-hidden">
       <div style={{ width: 2, background: accentColor, borderRadius: 2, flexShrink: 0 }} />
-      <p className="font-semibold tracking-[0.18em] leading-[1.2]" style={{ color: subColor, fontSize: 7 }}>
+      <p className="font-semibold tracking-[0.18em] leading-[1.2] truncate" style={{ color: subColor, fontSize: 7 }}>
         {(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}
       </p>
     </div>
@@ -221,71 +264,90 @@ function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, ho
 
   const identity = (
     <>
-      <p className="font-black tracking-tight" style={{ color: textColor, fontSize: 13 }}>{nameText || 'Your Company'}</p>
-      <div className="mt-6">
-        <p className="font-black leading-none" style={{ color: textColor, fontSize: 22 }}>{holderName || 'Your Name'}</p>
-        <p className="font-semibold mt-1" style={{ color: subColor, fontSize: 9 }}>{roleText || 'Your Role'}</p>
+      <p className="font-black tracking-tight truncate" style={{ color: textColor, fontSize: 13 }}>{nameText || 'Your Company'}</p>
+      <div className="mt-5">
+        <p className="font-black leading-none truncate" style={{ color: textColor, fontSize: 20 }}>{holderName || 'Your Name'}</p>
+        <p className="font-semibold mt-1 truncate" style={{ color: subColor, fontSize: 9 }}>{roleText || 'Your Role'}</p>
       </div>
     </>
   );
 
-  // Card templates deliberately reserve readable identity space and treat the
-  // customer's artwork as the visual anchor — never as a floating logo tile.
+  // ── MODERN: diagonal accent field right, content on clean left zone ──
   if (templateId === 'modern') {
     return (
       <div className="relative z-10 h-full">
-        <div className="absolute left-0 top-0 bottom-0 w-[58%] p-5 flex flex-col justify-between">
+        {/* Content safe zone — left 55% */}
+        <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between p-5 overflow-hidden" style={{ width: '55%' }}>
           <div>{identity}</div>
-          <div>{contactInfo}</div>
+          <div className="space-y-2">
+            {contactInfo}
+            {taglineBlock}
+          </div>
         </div>
-        <div className="absolute right-0 top-0 bottom-0 w-[42%] flex items-center justify-center px-5">
-          {logoBox('100%', 112)}
+        {/* Logo as major artwork — embedded in the diagonal field */}
+        <div className="absolute top-0 right-0 flex items-center justify-center overflow-hidden" style={{ width: '45%', height: '100%', padding: '0 18px' }}>
+          {renderLogo({ width: '100%', height: '52%' })}
         </div>
-        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
       </div>
     );
   }
 
+  // ── MINIMAL: top brand zone with logo, content below with whitespace ──
   if (templateId === 'minimal') {
     return (
-      <div className="relative z-10 h-full p-5">
-        <div className="absolute left-5 top-5 right-5 flex items-start justify-between gap-8">
-          <div style={{maxWidth:'58%'}}>{identity}</div>
-          <div className="flex-1 flex justify-end">{logoBox(112, 54)}</div>
+      <div className="relative z-10 h-full">
+        {/* Brand zone — top 30%, full-width edge treatment with logo */}
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-center overflow-hidden" style={{ height: '30%', padding: '0 24px' }}>
+          {renderLogo({ height: '78%', maxWidth: '42%' })}
         </div>
-        <div className="absolute left-5 right-5 bottom-5 flex items-end justify-between gap-5">
-          {contactInfo}{taglineBlock}
+        {/* Content safe zone — below brand zone, generous whitespace */}
+        <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-between p-5 overflow-hidden" style={{ top: '34%' }}>
+          <div>{identity}</div>
+          <div className="space-y-2">
+            {contactInfo}
+            {taglineBlock}
+          </div>
         </div>
       </div>
     );
   }
 
+  // ── CORPORATE: dark layered panels, logo upper-right, content lower-left ──
   if (templateId === 'corporate') {
     return (
       <div className="relative z-10 h-full">
-        <div className="absolute left-0 top-0 bottom-0 w-[61%] p-5 flex flex-col justify-between">
+        {/* Logo embedded in upper-right geometric panel */}
+        <div className="absolute top-0 right-0 flex items-center justify-center overflow-hidden" style={{ width: '52%', height: '58%', padding: '18px 22px' }}>
+          {renderLogo({ width: '100%', height: '48%' })}
+        </div>
+        {/* Content safe zone — lower-left protected area */}
+        <div className="absolute left-0 right-0 bottom-0 flex flex-col justify-end gap-3 p-5 overflow-hidden" style={{ top: '42%' }}>
           <div>{identity}</div>
-          <div>{contactInfo}</div>
+          <div className="space-y-2">
+            {contactInfo}
+            {taglineBlock}
+          </div>
         </div>
-        <div className="absolute right-0 top-0 bottom-0 w-[39%] flex items-center justify-center px-5">
-          {logoBox('100%', 112)}
-        </div>
-        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
       </div>
     );
   }
 
+  // ── CREATIVE: asymmetric arc right with logo, content left ──
   if (templateId === 'creative') {
     return (
       <div className="relative z-10 h-full">
-        <div className="absolute left-0 top-0 bottom-0 w-[58%] p-5 flex flex-col justify-between">
+        {/* Content safe zone — left 48% */}
+        <div className="absolute left-0 top-0 bottom-0 flex flex-col justify-between p-5 overflow-hidden" style={{ width: '48%' }}>
           <div>{identity}</div>
-          <div>{contactInfo}</div>
+          <div className="space-y-2">
+            {contactInfo}
+            {taglineBlock}
+          </div>
         </div>
-        <div className="absolute right-0 top-0 w-[44%] h-[72%] flex items-center justify-center px-5">
-          {logoBox('100%', 108)}
+        {/* Logo integrated into the arc shape — major visual element */}
+        <div className="absolute top-0 right-0 flex items-center justify-center overflow-hidden" style={{ width: '52%', height: '100%', padding: '0 16px' }}>
+          {renderLogo({ width: '72%', height: '48%' })}
         </div>
-        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
       </div>
     );
   }
