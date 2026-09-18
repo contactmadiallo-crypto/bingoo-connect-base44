@@ -163,54 +163,61 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
     </div>
   );
 
+  const logoPiece = (style, imgStyle = {}) => (
+    <div style={{ position:'absolute', overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', ...style }}>
+      {logoUrl
+        ? <img src={logoUrl} alt="Logo artwork" style={{ width:'100%', height:'100%', objectFit:'cover', ...imgStyle }} />
+        : renderLogo(Math.min(style.width || 64, style.height || 64))}
+    </div>
+  );
+
   const templateCardFront = cardTemplates && templateId === 'modern' ? (
-    <div className="relative z-10 h-full grid grid-cols-[58%_42%]">
-      <div className="p-5 flex flex-col justify-between">
+    <div className="relative z-10 h-full">
+      <div className="absolute inset-y-0 left-0 w-[58%] p-5 flex flex-col justify-between">
         <div>
           <p className="font-black tracking-tight" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p>
           <div className="mt-7"><p className="font-black leading-none" style={{ color: NAVY, fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div>
         </div>
         <div className="flex items-end justify-between gap-3">{contactList(NAVY)}{taglineBlock(NAVY)}</div>
       </div>
-      <div className="relative flex items-center justify-center p-5">
-        <div className="w-full h-full rounded-[14px] flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `1px solid ${accentColor}55` }}>
-          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[84%] max-h-[76%] object-contain" /> : renderLogo(70)}
-        </div>
+      <div className="absolute inset-y-0 right-0 w-[42%] overflow-hidden">
+        {logoPiece({ width:96, height:96, right:18, top:18, borderRadius:28, transform:'rotate(-7deg)', border:`3px solid ${accentColor}` })}
+        {logoPiece({ width:58, height:58, left:10, bottom:18, borderRadius:18, transform:'rotate(8deg)' })}
+        <div style={{position:'absolute',left:14,top:88,width:70,height:3,background:accentColor,borderRadius:4}} />
       </div>
     </div>
   ) : cardTemplates && templateId === 'minimal' ? (
     <div className="relative z-10 h-full p-5 flex flex-col justify-between">
       <div className="flex items-start justify-between gap-4">
         <div><p className="font-black" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 8 }}>{roleText || 'Your Role'}</p></div>
-        <div className="w-[92px] h-[58px] flex items-center justify-center overflow-hidden rounded-xl" style={{ background: cardColor }}>
-          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[82%] max-h-[82%] object-contain" /> : renderLogo(46)}
+        <div className="relative w-[120px] h-[72px] overflow-hidden">
+          {logoPiece({ width:72, height:72, right:0, top:0, borderRadius:20 })}
+          {logoPiece({ width:36, height:36, left:4, bottom:2, borderRadius:10 })}
         </div>
       </div>
       <div><p className="font-black leading-none" style={{ color: NAVY, fontSize: 24 }}>{holderName || 'Your Name'}</p><div className="mt-5 flex items-end justify-between gap-3">{contactList(NAVY)}{taglineBlock(NAVY)}</div></div>
     </div>
   ) : cardTemplates && templateId === 'corporate' ? (
-    <div className="relative z-10 h-full grid grid-cols-[62%_38%]">
-      <div className="p-5 flex flex-col justify-between">
+    <div className="relative z-10 h-full">
+      <div className="absolute inset-y-0 left-0 w-[62%] p-5 flex flex-col justify-between">
         <div><p className="font-black tracking-tight text-white" style={{ fontSize: 14 }}>{nameText || 'Your Company'}</p><div className="mt-7"><p className="font-black leading-none text-white" style={{ fontSize: 22 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1 text-white/80" style={{ fontSize: 10 }}>{roleText || 'Your Role'}</p></div></div>
         <div className="flex items-end justify-between gap-3">{contactList('#FFFFFF')}{taglineBlock('#FFFFFF')}</div>
       </div>
-      <div className="relative flex items-center justify-center p-5">
-        <div className="w-full h-full rounded-[14px] flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `1px solid ${accentColor}` }}>
-          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[86%] max-h-[78%] object-contain" /> : renderLogo(70)}
-        </div>
+      <div className="absolute inset-y-0 right-0 w-[38%] overflow-hidden">
+        {logoPiece({ width:88, height:88, right:14, top:18, borderRadius:22, border:`2px solid ${accentColor}` })}
+        {logoPiece({ width:44, height:44, left:10, bottom:18, borderRadius:12 })}
       </div>
     </div>
   ) : cardTemplates && templateId === 'creative' ? (
-    <div className="relative z-10 h-full grid grid-cols-[56%_44%]">
-      <div className="p-5 flex flex-col justify-between">
+    <div className="relative z-10 h-full">
+      <div className="absolute inset-y-0 left-0 w-[56%] p-5 flex flex-col justify-between">
         <div><p className="font-black" style={{ color: NAVY, fontSize: 14 }}>{nameText || 'Your Company'}</p><div className="mt-7"><p className="font-black leading-none" style={{ color: NAVY, fontSize: 21 }}>{holderName || 'Your Name'}</p><p className="font-semibold mt-1" style={{ color: NAVY, fontSize: 10 }}>{roleText || 'Your Role'}</p></div></div>
         <div>{contactList(NAVY)}</div>
       </div>
-      <div className="relative flex flex-col items-center justify-center p-5 gap-4">
-        <div className="w-[104px] h-[104px] rounded-full flex items-center justify-center overflow-hidden" style={{ background: cardColor, border: `6px solid ${accentColor}` }}>
-          {logoUrl ? <img src={logoUrl} alt="Logo artwork" className="max-w-[78%] max-h-[78%] object-contain" /> : renderLogo(62)}
-        </div>
-        {taglineBlock(NAVY)}
+      <div className="absolute inset-y-0 right-0 w-[44%] overflow-hidden">
+        {logoPiece({ width:112, height:112, right:12, top:14, borderRadius:'50%', border:`6px solid ${accentColor}` })}
+        {logoPiece({ width:48, height:48, left:8, bottom:18, borderRadius:14 })}
+        <div className="absolute right-4 bottom-4">{taglineBlock(NAVY)}</div>
       </div>
     </div>
   ) : null;
