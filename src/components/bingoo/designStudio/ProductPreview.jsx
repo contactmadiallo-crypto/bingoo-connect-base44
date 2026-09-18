@@ -334,7 +334,9 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
           {frostedLayer}
           {glareLayer}
           <div style={highlight} />
-          <div className="flex flex-col h-full p-5">{content}</div>
+          {isFront && templateCardFront
+            ? <div className="h-full relative z-10">{content}</div>
+            : <div className="flex flex-col h-full p-5">{content}</div>}
         </div>
       </div>
     );
