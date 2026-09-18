@@ -229,48 +229,63 @@ function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, ho
     </>
   );
 
-  // ── Modern / Corporate: split with logo right ──
-  if (tpl.layout === 'split-right-logo') {
+  // Card templates deliberately reserve readable identity space and treat the
+  // customer's artwork as the visual anchor — never as a floating logo tile.
+  if (templateId === 'modern') {
     return (
       <div className="relative z-10 h-full">
-        <div className="absolute inset-y-0 left-0 w-[60%] p-5 flex flex-col justify-between">
-          <div>{identity}</div>
-          <div className="flex items-end justify-between gap-3">{contactInfo}{taglineBlock}</div>
-        </div>
-        <div className="absolute inset-y-0 right-0 w-[40%] p-4 flex items-center justify-center">
-          {logoBox('100%', '100%')}
-        </div>
-      </div>
-    );
-  }
-
-  // ── Minimal: corner logo, centered content ──
-  if (tpl.layout === 'corner-logo') {
-    return (
-      <div className="relative z-10 h-full p-5 flex flex-col justify-between">
-        <div className="flex items-start justify-between gap-4">
-          <div>{identity}</div>
-          {logoBox(64, 64, { borderRadius: 12, border: `1px solid ${hexToRgba(accentColor, 0.3)}`, background: '#fff', padding: 4, flexShrink: 0 })}
-        </div>
-        <div className="flex items-end justify-between gap-4">{contactInfo}{taglineBlock}</div>
-      </div>
-    );
-  }
-
-  // ── Creative: circle logo top-right, content left ──
-  if (tpl.layout === 'circle-logo') {
-    return (
-      <div className="relative z-10 h-full">
-        <div className="absolute inset-y-0 left-0 w-[58%] p-5 flex flex-col justify-between">
+        <div className="absolute left-0 top-0 bottom-0 w-[58%] p-5 flex flex-col justify-between">
           <div>{identity}</div>
           <div>{contactInfo}</div>
         </div>
-        <div className="absolute inset-y-0 right-0 w-[42%] flex items-center justify-center">
-          <div style={{ width: 130, height: 130, borderRadius: '50%', overflow: 'hidden', background: '#fff', border: `4px solid ${accentColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 10 }}>
-            {logoBox('100%', '100%')}
-          </div>
+        <div className="absolute right-0 top-0 bottom-0 w-[42%] flex items-center justify-center px-5">
+          {logoBox('100%', 112)}
         </div>
-        <div className="absolute right-4 bottom-4 z-10">{taglineBlock}</div>
+        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
+      </div>
+    );
+  }
+
+  if (templateId === 'minimal') {
+    return (
+      <div className="relative z-10 h-full p-5">
+        <div className="absolute left-5 top-5 right-5 flex items-start justify-between gap-8">
+          <div style={{maxWidth:'58%'}}>{identity}</div>
+          <div className="flex-1 flex justify-end">{logoBox(112, 54)}</div>
+        </div>
+        <div className="absolute left-5 right-5 bottom-5 flex items-end justify-between gap-5">
+          {contactInfo}{taglineBlock}
+        </div>
+      </div>
+    );
+  }
+
+  if (templateId === 'corporate') {
+    return (
+      <div className="relative z-10 h-full">
+        <div className="absolute left-0 top-0 bottom-0 w-[61%] p-5 flex flex-col justify-between">
+          <div>{identity}</div>
+          <div>{contactInfo}</div>
+        </div>
+        <div className="absolute right-0 top-0 bottom-0 w-[39%] flex items-center justify-center px-5">
+          {logoBox('100%', 112)}
+        </div>
+        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
+      </div>
+    );
+  }
+
+  if (templateId === 'creative') {
+    return (
+      <div className="relative z-10 h-full">
+        <div className="absolute left-0 top-0 bottom-0 w-[58%] p-5 flex flex-col justify-between">
+          <div>{identity}</div>
+          <div>{contactInfo}</div>
+        </div>
+        <div className="absolute right-0 top-0 w-[44%] h-[72%] flex items-center justify-center px-5">
+          {logoBox('100%', 108)}
+        </div>
+        <div className="absolute right-5 bottom-4">{taglineBlock}</div>
       </div>
     );
   }
