@@ -318,10 +318,24 @@ export function ProductPreview({ productType, cardColor, accentColor, logoUrl, n
   const templateDecoration = isFront ? (
     <>
       <div style={{position:'absolute',inset:0,background:'#fff',zIndex:0}} />
-      {templateId === 'modern' && <><div style={{position:'absolute',inset:'0 0 0 62%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',top:-30,right:76,width:110,height:280,transform:'rotate(38deg)',background:accentColor,zIndex:0}}/></>}
-      {templateId === 'minimal' && <><div style={{position:'absolute',left:0,bottom:0,width:'100%',height:'34%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:0,top:0,width:7,height:'100%',background:accentColor,zIndex:0}}/></>}
-      {templateId === 'corporate' && <><div style={{position:'absolute',inset:0,background:NAVY_DEEP,zIndex:0}}/><div style={{position:'absolute',right:-45,top:-40,width:190,height:300,transform:'rotate(34deg)',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:74,top:-50,width:4,height:310,transform:'rotate(34deg)',background:accentColor,zIndex:0}}/></>}
-      {templateId === 'creative' && <><div style={{position:'absolute',inset:0,background:'#fff',zIndex:0}}/><div style={{position:'absolute',left:-45,bottom:-80,width:190,height:190,borderRadius:'50%',background:cardColor,zIndex:0}}/><div style={{position:'absolute',right:-55,top:-80,width:190,height:190,borderRadius:'50%',background:accentColor,zIndex:0}}/></>}
+      {templateId === 'modern' && <>
+        <div style={{position:'absolute',right:0,top:0,width:'42%',height:'100%',background:`linear-gradient(160deg, ${cardColor}, #ffffff)`,zIndex:0}}/>
+        <div style={{position:'absolute',right:'42%',top:0,width:4,height:'100%',background:accentColor,zIndex:0}}/>
+      </>}
+      {templateId === 'minimal' && <>
+        <div style={{position:'absolute',left:0,bottom:0,width:'100%',height:9,background:cardColor,zIndex:0}}/>
+        <div style={{position:'absolute',right:0,top:0,width:5,height:'100%',background:accentColor,zIndex:0}}/>
+      </>}
+      {templateId === 'corporate' && <>
+        <div style={{position:'absolute',inset:0,background:NAVY_DEEP,zIndex:0}}/>
+        <div style={{position:'absolute',right:0,top:0,width:'38%',height:'100%',background:`linear-gradient(160deg, ${cardColor}, ${NAVY_DEEP})`,zIndex:0}}/>
+        <div style={{position:'absolute',right:'38%',top:0,width:4,height:'100%',background:accentColor,zIndex:0}}/>
+      </>}
+      {templateId === 'creative' && <>
+        <div style={{position:'absolute',inset:0,background:'#fff',zIndex:0}}/>
+        <div style={{position:'absolute',right:-60,top:-72,width:180,height:180,borderRadius:'50%',background:accentColor,zIndex:0}}/>
+        <div style={{position:'absolute',right:22,bottom:-72,width:150,height:150,borderRadius:'50%',background:cardColor,zIndex:0}}/>
+      </>}
     </>
   ) : null;
 
