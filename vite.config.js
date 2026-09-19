@@ -18,7 +18,6 @@ export default defineConfig({
         manualChunks: {
           'three': ['three'],
           'pdf-tools': ['html2canvas', 'jspdf'],
-          'editor': ['react-quill'],
           'maps': ['react-leaflet', 'leaflet'],
         }
       }
