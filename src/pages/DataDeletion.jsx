@@ -48,6 +48,7 @@ export default function DataDeletion() {
   const [confirmIdentity, setConfirmIdentity] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const activeType = REQUEST_TYPES.find(t => t.id === requestType);
 
@@ -55,15 +56,22 @@ export default function DataDeletion() {
     e.preventDefault();
     if (!confirmIdentity) return;
     setSubmitting(true);
-    const response = await base44.functions.invoke("submitPrivacyRequest", {
-      request_type: requestType,
-      email: form.email,
-      full_name: form.name,
-      details: form.details,
-    });
-    if (response?.data?.error) throw new Error(response.data.error);
-    setSubmitted(true);
-    setSubmitting(false);
+    setSubmitError("");
+    try {
+      const response = await base44.functions.invoke("submitPrivacyRequest", {
+        request_type: requestType,
+        email: form.email,
+        full_name: form.name,
+        details: form.details,
+      });
+      if (response?.data?.error) throw new Error(response.data.error);
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Privacy request failed:", error);
+      setSubmitError(error?.message || "Unable to submit your request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -161,6 +169,11 @@ export default function DataDeletion() {
 
           {/* Request form */}
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+            {submitError && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {submitError}
+              </div>
+            )}
             <h3 className="text-base font-bold text-slate-900 mb-5">Submit Your Request</h3>
 
             <div className="mb-4">
