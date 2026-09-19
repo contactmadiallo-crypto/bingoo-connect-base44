@@ -57,6 +57,7 @@ const PlaystoreCapture = lazy(() => import('@/pages/PlaystoreCapture'));
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 import RouteTransition from '@/components/mobile/RouteTransition';
+import NativeAndroidBridge from '@/components/mobile/NativeAndroidBridge';
 
 function SitemapRedirect() {
   window.location.replace('/api/functions/sitemapXml');
@@ -157,6 +158,7 @@ function App() {
         <PWASplashScreen />
         <Router>
           <NavigationStackProvider>
+            <NativeAndroidBridge />
             <NavigationTracker />
             <ScrollRestoration />
             <LegacyRedirects />
