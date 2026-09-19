@@ -4,13 +4,12 @@
 - Existing Google Play app package: `com.bingooconnect.app`
 - This is an UPDATE of the existing listing, not a second Play Store app.
 - Proposed release name: `2.0.0`
-- Proposed versionCode: `2` **only if the highest code already in Play Console is 1**.
+- Proposed versionCode: `1` for the first uploaded app bundle. Play Console currently shows no prior app bundles/releases for this listing.
 - Production domain: `https://bingooconnect.com`
 - Android target/compile SDK: 36
 
 ## Critical rule before upload
-Open **Play Console → Bingoo Connect → App bundle explorer** and note the highest version code ever uploaded.
-Set `BINGOO_VERSION_CODE` in `android/gradle.properties` to a number greater than that value.
+Play Console currently shows **Latest app bundles: None**, so this listing has no previously uploaded bundle version code. Use `BINGOO_VERSION_CODE=1` for the first bundle. Every later upload must increment it.
 
 Do not change the applicationId. Keeping `com.bingooconnect.app` is what makes this release update the existing Bingoo Connect app.
 
