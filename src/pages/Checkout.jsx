@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { getCart } from '@/lib/cartStore';
 import { cartLineTotal } from '@/lib/designStudioCatalog';
+import { openExternalUrl } from '@/lib/nativePlatform';
 
 const SHIPPING_COST = 5;
 
@@ -32,7 +33,7 @@ export default function Checkout() {
         items:cart.map(item=>({product_id:item.id,quantity:item.quantity,...(item.customDesign&&{customDesign:item.customDesign})})),
       });
       clearTimeout(timeoutId); const stripeUrl=res?.data?.url,serverError=res?.data?.error;
-      if(serverError)throw new Error(serverError); if(!stripeUrl)throw new Error('No checkout URL returned from server. Please try again.'); window.location.href=stripeUrl;
+      if(serverError)throw new Error(serverError); if(!stripeUrl)throw new Error('No checkout URL returned from server. Please try again.'); await openExternalUrl(stripeUrl);
     }catch(err){clearTimeout(timeoutId);console.error('Checkout error:',err);setLoading(false);setError(err.message||'Checkout failed. Please try again.');}
   };
 
