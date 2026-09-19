@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
+import { openExternalUrl } from "@/lib/nativePlatform";
 
 const FONT_BODY = "'Inter', system-ui, sans-serif";
 
@@ -66,7 +67,7 @@ export default function WalletPassButtons({ profile, color, isDark, stacked = fa
       });
       const saveUrl = response?.data?.save_url;
       if (!saveUrl) throw new Error("No save URL returned");
-      window.open(saveUrl, "_blank");
+      await openExternalUrl(saveUrl);
     } catch (err) {
       console.error("Google Wallet error:", err);
       setError(err?.response?.data?.error || err?.message || "Google Wallet pass unavailable — try again later.");
