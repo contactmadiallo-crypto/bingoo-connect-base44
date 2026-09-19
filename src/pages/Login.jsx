@@ -10,6 +10,7 @@ import AppleIcon from "@/components/AppleIcon";
 import AuthTopNav from "@/components/auth/AuthTopNav";
 import RegisterBenefitsPanel from "@/components/auth/RegisterBenefitsPanel";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { productionCallback } from "@/lib/nativePlatform";
 
 // V3 split-screen palette (from Figma source of truth)
 const HEADING = "#0f172a";
@@ -59,13 +60,13 @@ export default function Login() {
 
   const handleGoogle = () => {
     const nextUrl = getNextUrl();
-    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    const callbackUrl = productionCallback(`/auth?next=${encodeURIComponent(nextUrl)}`);
     base44.auth.loginWithProvider("google", callbackUrl);
   };
 
   const handleApple = () => {
     const nextUrl = getNextUrl();
-    const callbackUrl = `${window.location.origin}/auth?next=${encodeURIComponent(nextUrl)}`;
+    const callbackUrl = productionCallback(`/auth?next=${encodeURIComponent(nextUrl)}`);
     base44.auth.loginWithProvider("apple", callbackUrl);
   };
 
