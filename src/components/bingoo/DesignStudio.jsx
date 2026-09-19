@@ -13,6 +13,7 @@ import LivePreviewSection from '@/components/bingoo/designStudio/LivePreviewSect
 import TemplateLogoPreview from '@/components/bingoo/designStudio/TemplateLogoPreview';
 import SummarySidebar from '@/components/bingoo/designStudio/SummarySidebar';
 import { UNIT_PRICE, SETUP_FEE, REMOVE_BRANDING_FEE, SHIPPING, DEFAULT_PATTERN } from '@/components/bingoo/designStudio/studioConstants';
+import { validateUpload } from '@/lib/nativePlatform';
 
 export default function DesignStudio({ isDark }) {
   const navigate = useNavigate();
@@ -60,11 +61,16 @@ export default function DesignStudio({ isDark }) {
   const handleUpload = async e => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const uploadError = validateUpload(file, { imagesOnly: true, maxBytes: 10 * 1024 * 1024 });
+    if (uploadError) { window.alert(uploadError); e.target.value = ''; return; }
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setLogoUrl(file_url);
-    } finally { setUploading(false); }
+    } catch (error) {
+      console.error('Design Studio logo upload failed:', error);
+      window.alert(error?.message || 'Logo upload failed. Please try again.');
+    } finally { setUploading(false); if (e.target) e.target.value = ''; }
   };
 
   const handleRemoveLogo = () => setLogoUrl(null);
