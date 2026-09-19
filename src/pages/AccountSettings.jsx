@@ -157,29 +157,35 @@ export default function AccountSettings() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm !== user.email) return;
     setDeleting(true);
-    const response = await base44.functions.invoke("submitPrivacyRequest", {
-      request_type: "account_deletion",
-      email: user.email,
-      full_name: user.full_name,
-      details: "Authenticated user requested permanent account deletion from Account Settings.",
-    });
-    if (response?.data?.error) throw new Error(response.data.error);
-    await base44.entities.ActivityLog.create({
-      user_id: user.id,
-      user_email: user.email,
-      action: "account_deletion_requested",
-      description: `Authenticated account deletion request ${response?.data?.request_id || ""}`.trim(),
-      timestamp: new Date().toISOString(),
-    }).catch(() => {});
-    toast.success("Deletion request verified and submitted. We'll process it within 30 days.");
-    setDeleteConfirm("");
-    setDeleting(false);
+    try {
+      const response = await base44.functions.invoke("submitPrivacyRequest", {
+        request_type: "account_deletion",
+        email: user.email,
+        full_name: user.full_name,
+        details: "Authenticated user requested permanent account deletion from Account Settings.",
+      });
+      if (response?.data?.error) throw new Error(response.data.error);
+      await base44.entities.ActivityLog.create({
+        user_id: user.id,
+        user_email: user.email,
+        action: "account_deletion_requested",
+        description: `Authenticated account deletion request ${response?.data?.request_id || ""}`.trim(),
+        timestamp: new Date().toISOString(),
+      }).catch(() => {});
+      toast.success("Deletion request verified and submitted. We'll process it within 30 days.");
+      setDeleteConfirm("");
+    } catch (error) {
+      console.error("Account deletion request failed:", error);
+      toast.error(error?.message || "Unable to submit deletion request. Please try again.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const ACTION_COLORS = {
     login: "#22c55e", logout: "#94a3b8", profile_update: "#06b6d4",
     device_activated: "#FDBA21", admin_action: "#f97316",
-    account_deleted: "#ef4444", data_exported: "#8b5cf6",
+    account_deleted: "#ef4444", account_deletion_requested: "#ef4444", data_exported: "#8b5cf6",
   };
 
   if (loading) {
