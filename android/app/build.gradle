@@ -10,8 +10,8 @@ android {
         // IMPORTANT: This is a NEW Google Play release of the existing app.
         // versionCode must always be greater than every version previously uploaded to Play Console.
         // Set BINGOO_VERSION_CODE in android/gradle.properties or with -PBINGOO_VERSION_CODE=<n>.
-        def bingooVersionCode = project.findProperty("BINGOO_VERSION_CODE") ?: "2"
-        def bingooVersionName = project.findProperty("BINGOO_VERSION_NAME") ?: "2.0.0"
+        def bingooVersionCode = project.findProperty("BINGOO_VERSION_CODE") ?: "1"
+        def bingooVersionName = project.findProperty("BINGOO_VERSION_NAME") ?: "1.0.0"
         versionCode bingooVersionCode.toInteger()
         versionName bingooVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
