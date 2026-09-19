@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "properties": {
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "account_deletion",
+        "data_export",
+        "data_correction",
+        "document_deletion"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "identity_verification_required",
+        "verified",
+        "processing",
+        "completed",
+        "rejected"
+      ]
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string"
+    },
+    "identity_verified": {
+      "type": "boolean"
+    },
+    "submitted_at": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_type",
+    "status",
+    "email",
+    "submitted_at"
+  ],
+  "name": "PrivacyRequest"
+}
