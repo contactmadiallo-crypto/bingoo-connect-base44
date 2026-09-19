@@ -28,6 +28,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="bingooconnect.com" />
                 <data android:scheme="https" android:host="www.bingooconnect.com" />
+                <data android:scheme="https" android:host="www.bingooconnect.com" />
             </intent-filter>
 
         </activity>
