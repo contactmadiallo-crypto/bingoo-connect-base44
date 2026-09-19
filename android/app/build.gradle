@@ -21,10 +21,27 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def storeFilePath = project.findProperty("BINGOO_RELEASE_STORE_FILE") ?: System.getenv("BINGOO_RELEASE_STORE_FILE")
+            def storePasswordValue = project.findProperty("BINGOO_RELEASE_STORE_PASSWORD") ?: System.getenv("BINGOO_RELEASE_STORE_PASSWORD")
+            def keyAliasValue = project.findProperty("BINGOO_RELEASE_KEY_ALIAS") ?: System.getenv("BINGOO_RELEASE_KEY_ALIAS")
+            def keyPasswordValue = project.findProperty("BINGOO_RELEASE_KEY_PASSWORD") ?: System.getenv("BINGOO_RELEASE_KEY_PASSWORD")
+            if (storeFilePath && storePasswordValue && keyAliasValue && keyPasswordValue) {
+                storeFile file(storeFilePath)
+                storePassword storePasswordValue
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (signingConfigs.release.storeFile != null) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
