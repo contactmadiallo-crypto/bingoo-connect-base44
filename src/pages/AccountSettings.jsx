@@ -157,20 +157,21 @@ export default function AccountSettings() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm !== user.email) return;
     setDeleting(true);
+    const response = await base44.functions.invoke("submitPrivacyRequest", {
+      request_type: "account_deletion",
+      email: user.email,
+      full_name: user.full_name,
+      details: "Authenticated user requested permanent account deletion from Account Settings.",
+    });
+    if (response?.data?.error) throw new Error(response.data.error);
     await base44.entities.ActivityLog.create({
       user_id: user.id,
       user_email: user.email,
-      action: "account_deleted",
-      description: "User initiated account deletion request",
+      action: "account_deletion_requested",
+      description: `Authenticated account deletion request ${response?.data?.request_id || ""}`.trim(),
       timestamp: new Date().toISOString(),
-    });
-    // Send deletion request email
-    await base44.integrations.Core.SendEmail({
-      to: "privacy@bingooconnect.com",
-      subject: `Account Deletion Request — ${user.email}`,
-      body: `User ${user.full_name} (${user.email}, ID: ${user.id}) has requested account deletion.\n\nDate: ${new Date().toISOString()}`,
     }).catch(() => {});
-    toast.success("Deletion request submitted. We'll process it within 30 days.");
+    toast.success("Deletion request verified and submitted. We'll process it within 30 days.");
     setDeleteConfirm("");
     setDeleting(false);
   };
