@@ -55,11 +55,13 @@ export default function DataDeletion() {
     e.preventDefault();
     if (!confirmIdentity) return;
     setSubmitting(true);
-    await base44.integrations.Core.SendEmail({
-      to: "privacy@bingooconnect.com",
-      subject: `${activeType.label} Request — ${form.email}`,
-      body: `Request Type: ${activeType.label}\nName: ${form.name}\nEmail: ${form.email}\nIdentity Verified: Yes\n\nDetails:\n${form.details}`,
-    }).catch(() => {});
+    const response = await base44.functions.invoke("submitPrivacyRequest", {
+      request_type: requestType,
+      email: form.email,
+      full_name: form.name,
+      details: form.details,
+    });
+    if (response?.data?.error) throw new Error(response.data.error);
     setSubmitted(true);
     setSubmitting(false);
   };
