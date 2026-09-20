@@ -856,7 +856,7 @@ export default function BingooDashboard() {
                 isDark={isDark}
                 canAnalytics={planLoading || canAccessFeature("analytics")}
                 canLeads={planLoading || canAccessFeature("lead_collection")}
-                initialTab="overview"
+                initialTab={searchParams.get("activityTab") || "overview"}
                 onTabChange={(activityTab) => {
                   const next = new URLSearchParams(searchParams);
                   next.set("view", VIEW_CONNECTIONS);
