@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Menu, X, Sun, Moon, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, X, Sun, Moon, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { useNavBadges } from "@/hooks/useNavBadges";
@@ -244,9 +244,9 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
 
       <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4" style={{ background: "linear-gradient(135deg, #061a38 0%, #03162f 100%)", borderBottom: "2px solid #f97316", paddingTop: "env(safe-area-inset-top)", height: "calc(56px + env(safe-area-inset-top))" }}>
         <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
-        <div className="flex items-center gap-1">
-          <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors bg-white/10 hover:bg-white/18 text-white flex items-center justify-center">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
-          <button onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation menu" className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors hover:bg-white/10 text-white flex items-center justify-center">{mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}</button>
+        <div className="flex items-center gap-1.5">
+          <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-2xl transition-all bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] text-white flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
+          <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark />
         </div>
       </header>
 
