@@ -264,7 +264,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
       <main className={`flex-1 md:pt-[72px] min-w-0 min-h-screen flex flex-col transition-[margin] duration-200 ${sidebarCollapsed ? "md:ml-[76px]" : "md:ml-64"}`} style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
         <div className="md:hidden flex-shrink-0" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
         <div className="flex-1 min-w-0 min-h-0">{children}</div>
-        <div className="md:hidden flex-shrink-0" style={{ height: "calc(60px + env(safe-area-inset-bottom))" }} />
+        <div className="md:hidden flex-shrink-0" style={{ height: "calc(68px + env(safe-area-inset-bottom))" }} />
       </main>
     </div>
   );
