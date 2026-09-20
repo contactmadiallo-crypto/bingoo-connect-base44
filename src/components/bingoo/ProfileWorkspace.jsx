@@ -1287,8 +1287,8 @@ export default function ProfileWorkspace({
                 <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden px-3 py-3" style={{ paddingBottom: "calc(.75rem + env(safe-area-inset-bottom))" }}>
                   <div className="w-full h-full flex items-center justify-center min-h-0">
                     <div style={{
-                      width: "min(330px, calc(100vw - 34px))",
-                      height: "min(620px, calc(100dvh - 118px))",
+                      width: "min(292px, calc(100vw - 56px))",
+                      height: "min(500px, calc(100dvh - 190px))",
                       background: "#0f172a",
                       borderRadius: 32,
                       padding: 9,
@@ -1317,16 +1317,17 @@ export default function ProfileWorkspace({
                       >
                         <div style={{
                           width: 375,
-                          zoom: 0.8,
+                          zoom: 0.68,
                           minHeight: "100%",
                           pointerEvents: "none",
-                          userSelect: "none"
+                          userSelect: "none",
+                          paddingBottom: 40
                         }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
                       </div>
 
-                      <div style={{ display: "flex", justifyContent: "center", height: 15, alignItems: "end", flexShrink: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: 18, flexShrink: 0 }}>
                         <div style={{ width: 54, height: 3, borderRadius: 999, background: "#334155" }} />
                       </div>
                     </div>
