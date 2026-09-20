@@ -6,51 +6,58 @@
       "type": "string",
       "description": "Owner user ID \u2014 must match the authenticated user"
     },
+    "transport": {
+      "type": "string",
+      "enum": [
+        "webpush",
+        "fcm"
+      ],
+      "default": "webpush",
+      "description": "Push delivery transport"
+    },
     "endpoint": {
       "type": "string",
-      "description": "Browser push endpoint URL from PushManager subscription"
+      "description": "Web Push endpoint URL"
     },
     "p256dh": {
       "type": "string",
-      "description": "P-256 ECDH public key (base64url) for payload encryption"
+      "description": "Web Push P-256 ECDH public key"
     },
     "auth": {
       "type": "string",
-      "description": "Authentication secret (base64url) for payload encryption"
+      "description": "Web Push authentication secret"
+    },
+    "fcm_token": {
+      "type": "string",
+      "description": "Firebase Cloud Messaging registration token for native Android"
     },
     "device_label": {
       "type": "string",
-      "description": "Friendly device label e.g. 'iPhone Safari', 'Chrome Desktop'"
+      "description": "Friendly device label"
     },
     "browser": {
       "type": "string",
-      "description": "Detected browser name e.g. Chrome, Safari, Firefox, Edge"
+      "description": "Browser name for web subscriptions"
     },
     "platform": {
       "type": "string",
-      "description": "Detected platform/OS e.g. iOS, Android, macOS, Windows"
+      "description": "Platform/OS"
     },
     "enabled": {
       "type": "boolean",
-      "default": true,
-      "description": "Whether this subscription should receive pushes"
+      "default": true
     },
     "created_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "When this subscription was first saved"
+      "format": "date-time"
     },
     "last_used_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "Last time a push was delivered to this endpoint"
+      "format": "date-time"
     }
   },
   "required": [
-    "user_id",
-    "endpoint",
-    "p256dh",
-    "auth"
+    "user_id"
   ],
   "rls": {
     "create": {
