@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, Smartphone, Briefcase, Menu } from 'lucide-react';
+import { Home, UserRound, Radio, BriefcaseBusiness, LayoutGrid } from 'lucide-react';
 import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
@@ -44,9 +44,9 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
 
   const tabs = [
     { id: 'home', label: lang === 'fr' ? 'Accueil' : 'Home', icon: Home, path: '/bingoo?view=home', owns: ownsHome },
-    { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: User, path: '/bingoo?view=workspace', owns: ownsProfiles },
-    { id: 'nfc', label: 'NFC', icon: Smartphone, path: '/my-nfc-devices', owns: ownsNfc },
-    { id: 'business', label: lang === 'fr' ? 'Business' : 'Business', icon: Briefcase, path: '/bingoo?view=leads', owns: ownsBusiness },
+    { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: UserRound, path: '/bingoo?view=workspace', owns: ownsProfiles },
+    { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
+    { id: 'business', label: lang === 'fr' ? 'Business' : 'Business', icon: BriefcaseBusiness, path: '/bingoo?view=leads', owns: ownsBusiness },
   ];
 
   // Track the current path in the owning tab's stack so we can restore it on
@@ -90,14 +90,22 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
         onClick={() => handlePress(tab)}
         aria-label={tab.label}
         aria-current={active ? 'page' : undefined}
-        className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[60px] transition-colors active:opacity-60"
+        className="relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
         style={{ touchAction: 'manipulation' }}
       >
-        <span className="w-8 h-8 rounded-xl flex items-center justify-center"
-          style={{ background: active ? 'rgba(249,115,22,0.25)' : 'rgba(255,255,255,0.08)' }}>
-          <tab.icon className="w-5 h-5" style={{ color: active ? ORANGE : 'rgba(255,255,255,0.4)' }} aria-hidden="true" />
+        <span
+          className={`relative flex items-center justify-center transition-all duration-200 ${tab.primary ? '-mt-5 w-12 h-12 rounded-[18px]' : 'w-9 h-9 rounded-[14px]'}`}
+          style={{
+            background: tab.primary
+              ? (active ? 'linear-gradient(145deg,#ff8a1f,#f97316)' : 'linear-gradient(145deg,#17365f,#102a50)')
+              : (active ? 'rgba(249,115,22,0.18)' : 'transparent'),
+            border: tab.primary ? '1px solid rgba(255,255,255,.16)' : '1px solid transparent',
+            boxShadow: tab.primary ? '0 8px 22px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.18)' : 'none'
+          }}>
+          <tab.icon className={tab.primary ? "w-6 h-6" : "w-[21px] h-[21px]"} style={{ color: active ? ORANGE : (tab.primary ? '#fff' : 'rgba(255,255,255,0.52)') }} aria-hidden="true" />
+          {active && !tab.primary && <span className="absolute -bottom-1 w-1 h-1 rounded-full" style={{ background: ORANGE }} />}
         </span>
-        <span className="text-xs font-semibold" style={{ color: active ? ORANGE : 'rgba(255,255,255,0.4)' }}>
+        <span className="text-[10px] font-bold tracking-tight" style={{ color: active ? '#fff' : 'rgba(255,255,255,0.48)' }}>
           {tab.label}
         </span>
       </button>
@@ -109,10 +117,13 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
       aria-label="Primary navigation"
       className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #0a1d3f 0%, #071A3D 100%)',
-        borderTop: '1px solid rgba(249,115,22,0.4)',
+        background: 'linear-gradient(180deg, rgba(10,29,63,.97) 0%, rgba(5,22,49,.99) 100%)',
+        borderTop: '1px solid rgba(255,255,255,0.10)',
+        boxShadow: '0 -12px 34px rgba(3,22,47,.18), inset 0 1px 0 rgba(255,255,255,.04)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         paddingBottom: 'env(safe-area-inset-bottom)',
-        height: 'calc(60px + env(safe-area-inset-bottom))',
+        height: 'calc(68px + env(safe-area-inset-bottom))',
       }}
     >
       {tabs.map(renderTab)}
@@ -120,11 +131,11 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
         type="button"
         onClick={onMore}
         aria-label={lang === 'fr' ? "Plus d'options" : 'More options'}
-        className="relative flex-1 flex flex-col items-center justify-center gap-1 min-h-[60px] transition-colors active:opacity-60"
+        className="relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
         style={{ touchAction: 'manipulation' }}
       >
-        <span className="relative w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.08)' }}>
-          <Menu className="w-5 h-5" style={{ color: 'rgba(255,255,255,0.4)' }} aria-hidden="true" />
+        <span className="relative w-9 h-9 rounded-[14px] flex items-center justify-center">
+          <LayoutGrid className="w-[21px] h-[21px]" style={{ color: 'rgba(255,255,255,0.52)' }} aria-hidden="true" />
           {totalUnread > 0 && (
             <span
               className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
@@ -135,7 +146,7 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
             </span>
           )}
         </span>
-        <span className="text-xs font-semibold" style={{ color: 'rgba(255,255,255,0.4)' }}>
+        <span className="text-[10px] font-bold tracking-tight" style={{ color: 'rgba(255,255,255,0.48)' }}>
           {lang === 'fr' ? 'Plus' : 'More'}
         </span>
       </button>
