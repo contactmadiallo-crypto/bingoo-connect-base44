@@ -17,8 +17,9 @@ const config: CapacitorConfig = {
       style: 'DARK',
       backgroundColor: '#ffffff',
     },
-    PushNotifications: {
-      presentationOptions: ['badge', 'sound', 'alert'],
+    LocalNotifications: {
+      smallIcon: 'ic_stat_bingoo',
+      iconColor: '#ff7617',
     },
   },
 };
