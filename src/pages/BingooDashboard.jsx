@@ -11,6 +11,7 @@ const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPan
 const OnboardingWizard = React.lazy(() => import("@/components/bingoo/OnboardingWizard"));
 const AppointmentsTabMerged = React.lazy(() => import("@/components/bingoo/AppointmentsTabMerged"));
 const ConnectionsPanel = React.lazy(() => import("@/components/bingoo/ConnectionsPanel"));
+const ActivityHub = React.lazy(() => import("@/components/bingoo/ActivityHub"));
 const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
@@ -848,7 +849,23 @@ export default function BingooDashboard() {
           {view === VIEW_CONNECTIONS && (
             <div>
               <ProfileChip />
-              <ConnectionsPanel isDark={isDark} profileId={activeProfile?.id} />
+              <ActivityHub
+                profileId={activeProfile?.id}
+                profileIds={profiles.map(p => p.id)}
+                user={user}
+                isDark={isDark}
+                canAnalytics={planLoading || canAccessFeature("analytics")}
+                canLeads={planLoading || canAccessFeature("lead_collection")}
+                initialTab="overview"
+                onTabChange={(activityTab) => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set("view", VIEW_CONNECTIONS);
+                  if (activityTab === "overview") next.delete("activityTab");
+                  else next.set("activityTab", activityTab);
+                  setSearchParams(next, { replace: true });
+                }}
+                highlightLeadId={highlightLeadId}
+              />
             </div>
           )}
 
