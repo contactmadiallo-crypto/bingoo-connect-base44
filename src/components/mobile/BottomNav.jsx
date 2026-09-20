@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, UserRound, Radio, BriefcaseBusiness, LayoutGrid } from 'lucide-react';
+import { Home, UserRound, Radio, Activity, LayoutGrid } from 'lucide-react';
 import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
@@ -22,9 +22,10 @@ function ownsProfiles(loc) {
 function ownsNfc(loc) {
   return loc.pathname === '/my-nfc-devices' || loc.pathname === '/activate-device';
 }
-function ownsBusiness(loc) {
+function ownsActivity(loc) {
   if (loc.pathname !== '/bingoo') return false;
-  return new URLSearchParams(loc.search).get('view') === 'leads';
+  const v = new URLSearchParams(loc.search).get('view');
+  return ['connections', 'analytics', 'leads'].includes(v);
 }
 
 /**
@@ -46,7 +47,7 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
     { id: 'home', label: lang === 'fr' ? 'Accueil' : 'Home', icon: Home, path: '/bingoo?view=home', owns: ownsHome },
     { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: UserRound, path: '/bingoo?view=workspace', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
-    { id: 'business', label: lang === 'fr' ? 'Business' : 'Business', icon: BriefcaseBusiness, path: '/bingoo?view=leads', owns: ownsBusiness },
+    { id: 'activity', label: lang === 'fr' ? 'Activité' : 'Activity', icon: Activity, path: '/bingoo?view=connections', owns: ownsActivity },
   ];
 
   // Track the current path in the owning tab's stack so we can restore it on
