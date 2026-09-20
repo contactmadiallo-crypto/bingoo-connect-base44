@@ -2,10 +2,13 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 const PROD_HOSTS = new Set(["bingooconnect.com", "www.bingooconnect.com"]);
 
 function internalDestination(rawUrl) {
+  if (!rawUrl) return null;
+  if (rawUrl.startsWith("/") && !rawUrl.startsWith("//")) return rawUrl;
   try {
     const url = new URL(rawUrl);
     if (!PROD_HOSTS.has(url.hostname.toLowerCase())) return null;
@@ -13,6 +16,11 @@ function internalDestination(rawUrl) {
   } catch {
     return null;
   }
+}
+
+function notificationDestination(notification) {
+  const data = notification?.data || {};
+  return internalDestination(data.url || data.action_url || data.route || "/bingoo");
 }
 
 /**
@@ -46,6 +54,14 @@ export default function NativeAndroidBridge() {
         } else {
           CapacitorApp.exitApp();
         }
+      }));
+
+      // Native FCM notification taps must land inside the signed-in Bingoo app,
+      // not open a second browser window or fall back to the marketing page.
+      handles.push(await PushNotifications.addListener("pushNotificationActionPerformed", ({ notification }) => {
+        if (disposed) return;
+        const destination = notificationDestination(notification);
+        if (destination) navigate(destination, { replace: false });
       }));
 
       const launch = await CapacitorApp.getLaunchUrl();
