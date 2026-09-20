@@ -123,29 +123,16 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const sel = (v, current) => v === current;
 
   return (
-    <div className="space-y-[18px] max-w-[560px]">
-      <div className={`rounded-[14px] border ${border} ${bg} px-[18px] py-[14px] flex items-center gap-3 sticky top-0 z-20 shadow-sm`}>
-        <div className="flex-1 min-w-0">
-          <p className={`text-[16px] font-extrabold ${headText}`}>Design</p>
-          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Style the same profile your visitors see at /p/{profile?.username || "your-handle"}.</p>
+    <div className="space-y-4 sm:space-y-[18px] w-full max-w-[680px] mx-auto">
+      <div className={`rounded-2xl border ${border} ${bg} px-4 sm:px-[18px] py-4 shadow-sm`}>
+        <div className="min-w-0">
+          <p className={`text-lg font-extrabold ${headText}`}>Design</p>
+          <p className={`text-[12px] mt-1 leading-relaxed ${mutedText}`}>Customize the look of /p/{profile?.username || "your-handle"}.</p>
         </div>
-        <button type="button" onClick={onPreview}
-          className={`xl:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
-          <Eye className="w-3.5 h-3.5" /> Preview
-        </button>
-        <button type="button" onClick={onReset} disabled={!hasChanges || isPending}
-          className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold disabled:opacity-40 ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}>
-          <RotateCcw className="w-3.5 h-3.5" /> Reset
-        </button>
-        <button type="button" onClick={handleSave} disabled={!hasChanges || isPending}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white disabled:opacity-50"
-          style={{ background: "#f97316" }}>
-          <Save className={`w-3.5 h-3.5 ${isPending ? "animate-pulse" : ""}`} /> {isPending ? "Saving…" : "Save"}
-        </button>
       </div>
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
-      <div className={`flex gap-1 p-1 rounded-[12px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
+      <div className={`grid grid-cols-3 gap-1 p-1 rounded-[14px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
         {SECTIONS.map(s => (
           <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
             className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
@@ -362,19 +349,11 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         </div>
       )}
 
-      {/* ── Save bar — mobile safe area ── */}
-      <div className="flex items-center gap-4 pt-4 pb-safe" style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}>
-        <button type="button" onClick={handleSave} disabled={isPending} aria-label="Save design changes"
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex-shrink-0 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:outline-none"
-          style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-          {isPending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : "Apply & Save"}
-        </button>
-        {saved && (
-          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <Check className="w-3.5 h-3.5" /> Saved!
-          </span>
-        )}
-      </div>
+      {saved && (
+        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 px-1">
+          <Check className="w-3.5 h-3.5" /> Design saved
+        </div>
+      )}
     </div>
   );
 }
