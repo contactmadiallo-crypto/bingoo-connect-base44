@@ -151,7 +151,7 @@ export function ProfileSelectorDropdown({
           id={menuId}
           role="listbox"
           aria-label="Select profile workspace"
-          className={`fixed sm:absolute top-[68px] sm:top-auto right-3 sm:right-0 sm:mt-2 w-[min(340px,calc(100vw-24px))] max-h-[58vh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[70] ${panel}`}
+          className={`fixed sm:absolute top-[68px] sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 sm:w-[340px] max-h-[52dvh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[70] ${panel}`}
         >
           <div className="px-3 pt-2 pb-2">
             <p className="text-xs font-black">Profile workspace</p>
@@ -240,7 +240,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className={`fixed sm:absolute top-[68px] sm:top-auto right-3 sm:right-0 sm:mt-2 w-[min(320px,calc(100vw-24px))] max-h-[calc(100dvh-150px)] overflow-y-auto rounded-[22px] border shadow-2xl p-2 z-[70] ${panel}`}>
+        <div id={menuId} role="menu" className={`fixed sm:absolute top-[68px] sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 sm:w-[320px] max-h-[calc(100dvh-160px)] overflow-y-auto rounded-[22px] border shadow-2xl p-2 z-[70] ${panel}`}>
           <div className="px-3 py-2.5 border-b border-current/10">
             <div className="flex items-center gap-3">
               <span className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white bg-gradient-to-br from-orange-500 to-amber-400">
