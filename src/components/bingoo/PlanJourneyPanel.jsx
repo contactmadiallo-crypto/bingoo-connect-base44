@@ -82,16 +82,13 @@ function buildPlanJourneys(currentPlan) {
   });
 }
 
-export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSource }) {
+export default function PlanJourneyPanel({ isDark, currentPlan }) {
   const [selected, setSelected] = useState(currentPlan || 'free');
 
   // Build plan journeys dynamically from planPermissions.js
   // Extra safety: explicitly filter out 'admin' — it must NEVER appear as a plan option
   const VISIBLE_PLANS = buildPlanJourneys(currentPlan).filter(p => p.id !== 'admin');
   const active = VISIBLE_PLANS.find(p => p.id === selected) || VISIBLE_PLANS[0];
-
-  // Debug: admin-only, ?debug=1
-  const showDebug = userRole === 'admin' && new URLSearchParams(window.location.search).get('debug') === '1';
 
   const t = {
     card: isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200',
@@ -110,19 +107,6 @@ export default function PlanJourneyPanel({ isDark, currentPlan, userRole, planSo
           <p className={`text-sm ${t.sub}`}>Explore what each plan unlocks — pick your path</p>
         </div>
       </div>
-
-      {/* Admin-only debug */}
-      {showDebug && (
-        <div className={`rounded-xl border border-dashed p-3 text-[11px] font-mono space-y-0.5 ${isDark ? 'border-orange-400/40 bg-orange-500/10 text-orange-200' : 'border-orange-300 bg-orange-50 text-orange-900'}`}>
-          <p className="font-bold">DEBUG — Plan Journey Audit (admin only)</p>
-          <p>userRole: <strong>{userRole || 'unknown'}</strong></p>
-          <p>currentPlan: <strong>{currentPlan || 'free'}</strong></p>
-          <p>planSource: <strong>{planSource || 'none'}</strong></p>
-          <p>visiblePlans: <strong>{VISIBLE_PLANS.map(p => p.id).join(', ')}</strong></p>
-          <p>adminInList: <strong>{String(VISIBLE_PLANS.some(p => p.id === 'admin'))}</strong></p>
-          <p>dataDriven: <strong>true</strong> (prices from PLAN_PRICES_USD, features from PLAN_FEATURES)</p>
-        </div>
-      )}
 
       {/* Plan selector pills */}
       <div className="w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: "touch" }}>
