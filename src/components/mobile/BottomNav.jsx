@@ -11,8 +11,9 @@ const TAB_KEY = 'bingoo_bottom_tab_';
 function ownsHome(loc) {
   if (loc.pathname !== '/bingoo') return false;
   const v = new URLSearchParams(loc.search).get('view');
-  // Home owns all /bingoo views EXCEPT the Profiles (hub/workspace) and Business (leads) tabs.
-  return !v || v === 'home' || !['hub', 'workspace', 'leads'].includes(v);
+  // Home is deliberately strict: only the dashboard owns Home.
+  // Activity/analytics/etc. must never be remembered as a Home destination.
+  return !v || v === 'home';
 }
 function ownsProfiles(loc) {
   if (loc.pathname !== '/bingoo') return false;
@@ -65,12 +66,19 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
   const handlePress = (tab) => {
     const active = tab.owns(location);
     if (active) {
-      // Already on this tab — scroll to top, keep current state (no navigation).
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    // Restore the tab's last path: prefer the in-memory per-tab stack, fall
-    // back to sessionStorage (covers reload), then the tab root.
+
+    // Root tabs are navigation anchors, not browser-history shortcuts.
+    // Home must always open the dashboard; Activity always opens Connections.
+    // This avoids stale session history sending Home back into Activity.
+    if (tab.id === 'home' || tab.id === 'activity' || tab.id === 'nfc') {
+      navigate(tab.path);
+      return;
+    }
+
+    // Profiles is the only tab where restoring the last editor/workspace is useful.
     const stack = stacks[tab.id];
     let target = (stack && stack.length > 0) ? stack[stack.length - 1] : tab.path;
     if (!stack || stack.length === 0) {
