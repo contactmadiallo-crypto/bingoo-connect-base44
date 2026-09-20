@@ -26,7 +26,7 @@ function ownsNfc(loc) {
 function ownsActivity(loc) {
   if (loc.pathname !== '/bingoo') return false;
   const v = new URLSearchParams(loc.search).get('view');
-  return ['connections', 'analytics', 'leads'].includes(v);
+  return ['connections', 'analytics', 'leads', 'appointments'].includes(v);
 }
 
 /**
