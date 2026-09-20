@@ -42,7 +42,7 @@ export default function LandingV2() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 font-sans text-slate-950">
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#071A3D]/95 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#071A3D]/95 backdrop-blur-xl" style={{ paddingTop: "env(safe-area-inset-top)" }}>
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
           <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Bingoo Connect home">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500 shadow-lg shadow-orange-500/20">
@@ -69,12 +69,12 @@ export default function LandingV2() {
         </div>
       </nav>
 
-      <header className="relative overflow-hidden px-4 py-16 sm:py-20 md:px-6 md:py-24 lg:py-28" style={{ background: "radial-gradient(circle at 15% 20%,rgba(249,115,22,.18),transparent 30%),radial-gradient(circle at 85% 30%,rgba(59,130,246,.13),transparent 28%),linear-gradient(145deg,#050A14,#071A3D 48%,#0b2149)" }}>
+      <header className="relative overflow-hidden px-4 py-10 sm:py-16 md:px-6 md:py-20 lg:py-24" style={{ background: "radial-gradient(circle at 15% 20%,rgba(249,115,22,.18),transparent 30%),radial-gradient(circle at 85% 30%,rgba(59,130,246,.13),transparent 28%),linear-gradient(145deg,#050A14,#071A3D 48%,#0b2149)" }}>
         <div className="absolute inset-0 opacity-[.045]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px,white 1px,transparent 0)", backgroundSize: "34px 34px" }} />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }}>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-xs font-black uppercase tracking-[.16em] text-orange-400"><Wifi className="h-4 w-4" /> Smart identity platform</div>
-            <h1 className="max-w-3xl text-5xl font-black leading-[1.02] tracking-tight text-white sm:text-6xl lg:text-7xl">One identity.<br /><span className="text-orange-400">One tap.</span><br />Every connection.</h1>
+            <h1 className="max-w-3xl text-[clamp(2.65rem,12vw,4.5rem)] font-black leading-[1.01] tracking-tight text-white sm:text-6xl lg:text-7xl">One identity.<br /><span className="text-orange-400">One tap.</span><br />Every connection.</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/65 md:text-xl">Share who you are, capture the opportunity and manage what happens next — from one Bingoo identity connected to NFC and QR.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button size="lg" onClick={goSignIn} className="h-14 rounded-xl bg-orange-500 px-7 text-base font-black text-white hover:bg-orange-600">{authed ? "Open your Bingoo" : "Create your Bingoo"} <ArrowRight className="ml-2 h-5 w-5" /></Button>

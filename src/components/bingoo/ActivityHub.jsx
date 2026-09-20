@@ -21,12 +21,15 @@ export default function ActivityHub({
   isDark = false,
   canAnalytics = true,
   canLeads = true,
+  canAppointments = true,
   initialTab = "overview",
   onTabChange,
   highlightLeadId,
   highlightAppointmentId,
 }) {
-  const [tab, setTab] = useState(initialTab || "overview");
+  const allowedInitialTab = (initialTab === "leads" && !canLeads) || (initialTab === "appointments" && !canAppointments) ? "overview" : (initialTab || "overview");
+  const [tab, setTab] = useState(allowedInitialTab);
+  const visibleTabs = TABS.filter((item) => (item.id !== "leads" || canLeads) && (item.id !== "appointments" || canAppointments));
 
   const choose = (next) => {
     setTab(next);
@@ -56,7 +59,7 @@ export default function ActivityHub({
   const { data: appointments = [] } = useQuery({
     queryKey: ["activity-hub-appointments", user?.id],
     queryFn: () => user?.id ? base44.entities.Appointment.filter({ owner_user_id: user.id }, "-date", 200) : [],
-    enabled: !!user?.id,
+    enabled: !!user?.id && canAppointments,
   });
 
   const totalInteractions = analytics.length;
@@ -74,8 +77,8 @@ export default function ActivityHub({
         <p className={`text-sm mt-1 ${sub}`}>Connections, engagement, analytics and leads in one place.</p>
       </div>
 
-      <div className={`grid grid-cols-5 gap-1 p-1 rounded-2xl border ${card}`}>
-        {TABS.map((item) => {
+      <div className={`grid gap-1 p-1 rounded-2xl border ${card}`} style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}>
+        {visibleTabs.map((item) => {
           const blocked = (item.id === "analytics" && !canAnalytics) || (item.id === "leads" && !canLeads);
           const Icon = item.icon;
           const active = tab === item.id;
@@ -102,7 +105,7 @@ export default function ActivityHub({
               { label: "Connections", value: totalConnections, icon: Users, action: "connections", enabled: true },
               { label: "Interactions", value: canAnalytics ? totalInteractions : "—", icon: BarChart3, action: "analytics", enabled: canAnalytics },
               { label: "Leads", value: canLeads ? totalLeads : "—", icon: UserPlus, action: "leads", enabled: canLeads },
-              { label: "Appointments", value: appointments.length, icon: CalendarDays, action: "appointments", enabled: true },
+              ...(canAppointments ? [{ label: "Appointments", value: appointments.length, icon: CalendarDays, action: "appointments", enabled: true }] : []),
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -138,7 +141,7 @@ export default function ActivityHub({
 
       {tab === "connections" && <ConnectionsPanel isDark={isDark} profileId={profileId} />}
       {tab === "analytics" && canAnalytics && <AnalyticsPanel profileId={profileId} />}
-      {tab === "appointments" && (
+      {tab === "appointments" && canAppointments && (
         <button type="button" onClick={() => { window.location.href = `/bingoo?view=appointments${highlightAppointmentId ? `&appointmentId=${encodeURIComponent(highlightAppointmentId)}` : ""}`; }} className={`w-full rounded-2xl border p-4 text-left flex items-center justify-between ${card}`}>
           <div><p className={`font-black ${head}`}>Manage appointments</p><p className={`text-sm mt-1 ${sub}`}>Open bookings, confirm, reschedule or complete appointments.</p></div><ChevronRight className={`w-5 h-5 ${sub}`} />
         </button>

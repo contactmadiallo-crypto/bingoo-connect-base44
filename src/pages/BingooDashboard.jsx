@@ -427,7 +427,7 @@ export default function BingooDashboard() {
   const { data: leads = [], isLoading: leadsLoading } = useQuery({
     queryKey: ["leads", activeProfile?.id],
     queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: activeProfile.id }).then(res => res.data.leads),
-    enabled: !!activeProfile?.id,
+    enabled: !!activeProfile?.id && (planLoading || canAccessFeature("lead_collection")),
     staleTime: 30_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -443,7 +443,7 @@ export default function BingooDashboard() {
   const { data: appointments = [] } = useQuery({
     queryKey: ["appointments", activeProfile?.id],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: activeProfile.id }, "-created_date"),
-    enabled: !!activeProfile?.id && ownershipReady,
+    enabled: !!activeProfile?.id && ownershipReady && (planLoading || canAccessFeature("appointment_booking")),
     staleTime: 30_000,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -856,6 +856,7 @@ export default function BingooDashboard() {
                 isDark={isDark}
                 canAnalytics={planLoading || canAccessFeature("analytics")}
                 canLeads={planLoading || canAccessFeature("lead_collection")}
+                canAppointments={planLoading || canAccessFeature("appointment_booking")}
                 initialTab={searchParams.get("activityTab") || "overview"}
                 onTabChange={(activityTab) => {
                   const next = new URLSearchParams(searchParams);
