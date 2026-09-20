@@ -263,7 +263,7 @@ export default function PhoneAlertsSection({ user }) {
         </Button>}
       </div>
 
-      {/* Device list */
+      {/* Device list */}
       {!nativeAndroid && <div className="mt-5">
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-slate-400">
