@@ -1129,10 +1129,10 @@ export default function ProfileWorkspace({
         </div>
 
         {profileUrl && (
-          <a href={profileUrl} target="_blank" rel="noopener noreferrer" aria-label="Preview profile"
+          <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Preview profile"
             className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
             <Eye className="w-[14px] h-[14px]" />
-          </a>
+          </button>
         )}
 
         <button type="button" onClick={() => handleSave(innerTab)} disabled={saveMutation.isPending || !hasUnsavedChanges}
@@ -1283,33 +1283,51 @@ export default function ProfileWorkspace({
                     </a>
                   ) : <span className="w-10" />}
                 </div>
-                {/* Preview content — proportional phone, fully contained in the available viewport */}
+                {/* Preview content — compact phone shell; the screen itself scrolls like a real app */}
                 <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden px-3 py-3" style={{ paddingBottom: "calc(.75rem + env(safe-area-inset-bottom))" }}>
-                  <div className="w-full h-full flex flex-col items-center justify-center min-h-0">
+                  <div className="w-full h-full flex items-center justify-center min-h-0">
                     <div style={{
-                      width: "min(360px, calc(100vw - 24px))",
-                      height: "min(700px, calc(100dvh - 120px))",
-                      background: "#0f172a", borderRadius: 34, padding: 10,
-                      boxShadow: "0 18px 42px rgba(0,0,0,0.30), inset 0 0 0 1.5px rgba(255,255,255,0.07)",
-                      display: "flex", flexDirection: "column", minHeight: 0
+                      width: "min(330px, calc(100vw - 34px))",
+                      height: "min(620px, calc(100dvh - 118px))",
+                      background: "#0f172a",
+                      borderRadius: 32,
+                      padding: 9,
+                      boxShadow: "0 18px 42px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.08)",
+                      display: "flex",
+                      flexDirection: "column",
+                      minHeight: 0
                     }}>
-                      <div style={{ display: "flex", justifyContent: "center", height: 16, flexShrink: 0 }}>
-                        <div style={{ width: 58, height: 12, borderRadius: 999, background: "#26364f", marginTop: 1 }} />
+                      <div style={{ display: "flex", justifyContent: "center", height: 15, flexShrink: 0 }}>
+                        <div style={{ width: 54, height: 10, borderRadius: 999, background: "#26364f", marginTop: 1 }} />
                       </div>
-                      <div style={{ borderRadius: 24, overflow: "hidden", background: "#f1f5f9", flex: 1, minHeight: 0, position: "relative" }}
-                        onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+
+                      <div
+                        className="preview-phone-scroll"
+                        style={{
+                          borderRadius: 22,
+                          overflowY: "auto",
+                          overflowX: "hidden",
+                          WebkitOverflowScrolling: "touch",
+                          scrollbarWidth: "none",
+                          background: "#f1f5f9",
+                          flex: 1,
+                          minHeight: 0,
+                          position: "relative"
+                        }}
+                      >
                         <div style={{
                           width: 375,
-                          height: "100%",
-                          transform: "scale(calc((min(360px, calc(100vw - 24px)) - 20px) / 375))",
-                          transformOrigin: "top left",
-                          pointerEvents: "none", userSelect: "none"
+                          zoom: 0.8,
+                          minHeight: "100%",
+                          pointerEvents: "none",
+                          userSelect: "none"
                         }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "center", height: 16, alignItems: "end", flexShrink: 0 }}>
-                        <div style={{ width: 58, height: 3, borderRadius: 999, background: "#334155" }} />
+
+                      <div style={{ display: "flex", justifyContent: "center", height: 15, alignItems: "end", flexShrink: 0 }}>
+                        <div style={{ width: 54, height: 3, borderRadius: 999, background: "#334155" }} />
                       </div>
                     </div>
                   </div>
