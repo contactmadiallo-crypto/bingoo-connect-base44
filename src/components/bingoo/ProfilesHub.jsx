@@ -248,7 +248,7 @@ export default function ProfilesHub({
 
         {/* Cover */}
         <div className="relative" style={{ borderRadius: "24px 24px 0 0", overflow: "hidden" }}>
-          <div style={{ height: 145 }}>
+          <div className="h-[96px] sm:h-[145px]">
             {profile.cover_photo ? (
               <img src={profile.cover_photo} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
@@ -259,13 +259,13 @@ export default function ProfilesHub({
         </div>
 
         {/* Avatar row */}
-        <div className="flex items-start justify-between px-5" style={{ marginTop: -36 }}>
+        <div className="flex items-start justify-between px-3 sm:px-5 -mt-7 sm:-mt-9">
           {(() => {
             const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "50%";
             return profile.profile_photo ? (
               <img src={profile.profile_photo} alt=""
                 style={{
-                  width: 72, height: 72, borderRadius: shapeR, flexShrink: 0,
+                  width: "clamp(56px, 15vw, 72px)", height: "clamp(56px, 15vw, 72px)", borderRadius: shapeR, flexShrink: 0,
                   objectFit: "cover", objectPosition: "center top",
                   border: isDark ? "3px solid #13162a" : "3px solid white",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
@@ -286,7 +286,7 @@ export default function ProfilesHub({
             );
           })()}
           {/* Bottom badges — Live + profile category */}
-          <div className="flex items-center gap-2 pt-10">
+          <div className="flex items-center gap-1.5 pt-8 sm:pt-10">
             {profile.is_active && (
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -301,7 +301,7 @@ export default function ProfilesHub({
         </div>
 
         {/* Name + username */}
-        <div className="px-5 pb-5">
+        <div className="px-3 pb-3 sm:px-5 sm:pb-5">
           <div className="mb-1">
             <p className={`font-black text-base truncate ${headText}`}>{profile.display_name}</p>
             <p className={`text-sm truncate ${mutedText}`}>/{profile.username}</p>
@@ -313,12 +313,12 @@ export default function ProfilesHub({
             </p>
           )}
 
-          <span className="inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full mb-4"
+          <span className="hidden sm:inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full mb-4"
             style={{ background: isDark ? "rgba(99,102,241,0.16)" : "#eef2ff", color: isDark ? "#a5b4fc" : "#4338ca" }}>
             {layoutLabel}
           </span>
 
-          <div className="mb-4">
+          <div className="hidden sm:block mb-4">
             <div className="flex items-center justify-between text-xs mb-1.5">
               <span className={subText}>Profile completion</span>
               <span className="font-black text-orange-500">{completion}%</span>
@@ -328,7 +328,7 @@ export default function ProfilesHub({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="hidden sm:grid grid-cols-3 gap-2 mb-3">
             <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
               <p className={`text-base font-black ${headText}`}>{viewCount}</p><p className={`text-[10px] ${mutedText}`}>Views</p>
             </div>
@@ -341,7 +341,7 @@ export default function ProfilesHub({
             </div>
           </div>
 
-          <div className={`flex items-center gap-2 rounded-xl border px-3 py-2 mb-3 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
+          <div className={`hidden sm:flex items-center gap-2 rounded-xl border px-3 py-2 mb-3 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
             <span className={`text-xs truncate flex-1 ${subText}`}>/p/{profile.username}</span>
             <button onClick={(e) => { e.stopPropagation(); copyLink(profile); }} className={`text-xs font-bold flex items-center gap-1 ${headText}`}>
               {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy
@@ -349,10 +349,10 @@ export default function ProfilesHub({
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-2 mt-3 items-center">
+          <div className="flex gap-2 mt-2 sm:mt-3 items-center">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 min-w-0"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 min-w-0"
               style={{ background: "#0b2149" }}>
               <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Edit</span>
             </button>
@@ -453,11 +453,11 @@ export default function ProfilesHub({
   );
 
   return (
-    <div className="space-y-7 py-4">
+    <div className="space-y-4 sm:space-y-7 py-3 sm:py-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className={`text-3xl font-black tracking-tight ${headText}`}>My Profiles</h2>
+          <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${headText}`}>My Profiles</h2>
           <p className={`text-sm mt-0.5 ${subText}`}>
             {loading ? "Loading your profiles…" : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`}
           </p>
@@ -470,7 +470,7 @@ export default function ProfilesHub({
             </button>
           ) : (
             <button onClick={onCreateNew}
-              className="flex items-center gap-1.5 px-5 py-3 rounded-2xl text-sm font-bold text-white transition-all"
+              className="flex items-center gap-1.5 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold text-white transition-all"
               style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
               <Plus className="w-3.5 h-3.5" /> New Profile
             </button>
