@@ -151,7 +151,7 @@ export function ProfileSelectorDropdown({
           id={menuId}
           role="listbox"
           aria-label="Select profile workspace"
-          className={`absolute right-0 mt-2 w-[min(360px,calc(100vw-24px))] max-h-[420px] overflow-y-auto rounded-2xl border shadow-2xl p-2 z-50 ${panel}`}
+          className={`fixed sm:absolute top-[68px] sm:top-auto right-3 sm:right-0 sm:mt-2 w-[min(340px,calc(100vw-24px))] max-h-[58vh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[70] ${panel}`}
         >
           <div className="px-3 pt-2 pb-2">
             <p className="text-xs font-black">Profile workspace</p>
@@ -168,7 +168,7 @@ export function ProfileSelectorDropdown({
                 key={profile.id}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => choose(profile)}
-                className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${index === activeIndex ? (isDark ? "bg-white/10" : "bg-slate-50") : ""}`}
+                className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors ${index === activeIndex ? (isDark ? "bg-white/10" : "bg-slate-50") : ""}`}
               >
                 <ProfileAvatar profile={profile} size={40} />
                 <span className="flex-1 min-w-0">
@@ -216,7 +216,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
     ? "bg-[#111827] border-white/10 text-white"
     : "bg-white border-slate-200 text-slate-900";
   const secondary = isDark ? "text-white/45" : "text-slate-500";
-  const item = `min-h-[44px] w-full flex items-center gap-3 px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "hover:bg-white/10 text-white/75" : "hover:bg-slate-50 text-slate-700"}`;
+  const item = `min-h-[40px] w-full flex items-center gap-3 px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "hover:bg-white/10 text-white/75" : "hover:bg-slate-50 text-slate-700"}`;
 
   return (
     <div ref={rootRef} className="relative">
@@ -240,10 +240,10 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className={`absolute right-0 mt-2 w-[min(310px,calc(100vw-24px))] rounded-2xl border shadow-2xl p-2 z-50 ${panel}`}>
-          <div className="px-3 py-3 border-b border-current/10">
+        <div id={menuId} role="menu" className={`fixed sm:absolute top-[68px] sm:top-auto right-3 sm:right-0 sm:mt-2 w-[min(320px,calc(100vw-24px))] max-h-[calc(100dvh-150px)] overflow-y-auto rounded-[22px] border shadow-2xl p-2 z-[70] ${panel}`}>
+          <div className="px-3 py-2.5 border-b border-current/10">
             <div className="flex items-center gap-3">
-              <span className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black text-white bg-gradient-to-br from-orange-500 to-amber-400">
+              <span className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black text-white bg-gradient-to-br from-orange-500 to-amber-400">
                 {initials(name)}
               </span>
               <div className="min-w-0">
@@ -254,7 +254,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
             </div>
           </div>
 
-          <div className="py-2">
+          <div className="py-1.5">
             <Link role="menuitem" to="/bingoo?view=home" onClick={() => setOpen(false)} className={item}>
               <LayoutDashboard className="w-4 h-4" /> Dashboard
             </Link>
@@ -269,8 +269,8 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
             </Link>
           </div>
 
-          <div className="pt-2 border-t border-current/10">
-            <div className={`px-3 py-2 flex items-center gap-2 text-[11px] ${secondary}`}>
+          <div className="pt-1.5 border-t border-current/10">
+            <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] ${secondary}`}>
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>Signed in as this account</span>
             </div>
