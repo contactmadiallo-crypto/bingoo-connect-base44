@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Bell, BellRing, Trash2, Loader2, Smartphone, Send, Info } from "lucide-react";
 import { toast } from "sonner";
-import { isNativeAndroid, enableNativePush, disableNativePush } from "@/lib/nativePush";
+import { isNativeAndroid, ensureLocalNotificationPermission, scheduleAppointmentReminders } from "@/lib/nativeLocalNotifications";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -71,18 +71,19 @@ export default function PhoneAlertsSection({ user }) {
     if (nativeAndroid) {
       setSubscribing(true);
       try {
-        const result = await enableNativePush(user?.id);
+        const result = await ensureLocalNotificationPermission();
         if (result?.enabled) {
           setPermission("granted");
-          toast.success("Android alerts enabled. Bingoo can now notify you of leads and appointments even when the app is closed.");
-          await fetchSubs();
-        } else if (result?.permission !== "granted") {
+          const appointments = await base44.entities.Appointment.filter({ owner_user_id: user?.id }, "-date", 200);
+          const scheduled = await scheduleAppointmentReminders(appointments);
+          toast.success(`Android appointment reminders enabled · ${scheduled.scheduled || 0} reminder(s) scheduled.`);
+        } else {
           setPermission("denied");
           toast.error("Android notification permission is off. Enable notifications for Bingoo Connect in Android Settings.");
         }
       } catch (e) {
-        console.error("Native push subscribe error:", e);
-        toast.error("Could not enable Android alerts: " + (e.message || "Unknown error"));
+        console.error("Local notification setup error:", e);
+        toast.error("Could not enable Android reminders: " + (e.message || "Unknown error"));
       } finally {
         setSubscribing(false);
       }
@@ -157,17 +158,6 @@ export default function PhoneAlertsSection({ user }) {
   };
 
   const handleRemove = async (sub) => {
-    if (nativeAndroid && sub.transport === "fcm") {
-      try {
-        await disableNativePush(user?.id);
-        await base44.entities.PushSubscription.delete(sub.id);
-        setSubs((prev) => prev.filter((s) => s.id !== sub.id));
-        toast.success("Android alerts removed");
-      } catch (e) {
-        toast.error("Could not remove Android alerts");
-      }
-      return;
-    }
     // Unsubscribe from the browser push manager if this is the current device
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -221,8 +211,8 @@ export default function PhoneAlertsSection({ user }) {
           <h2 className="text-base font-semibold text-slate-900">Phone Alerts</h2>
           <p className="mt-0.5 text-sm text-slate-500">
             {nativeAndroid
-              ? "Native Android alerts for new leads, appointments and reminders — including while Bingoo is in the background."
-              : "Get instant push notifications on your phone for new leads and upcoming appointment reminders."}
+              ? "Native Android appointment reminders are scheduled on this device. New leads and appointment changes remain live inside Bingoo and by email."
+              : "Get instant browser notifications for new leads and upcoming appointment reminders."}
           </p>
         </div>
       </div>
