@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Activity, Users, BarChart3, UserPlus, Lock, ChevronRight } from "lucide-react";
+import { Activity, Users, BarChart3, UserPlus, Lock, ChevronRight, CalendarDays } from "lucide-react";
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
@@ -11,6 +11,7 @@ const TABS = [
   { id: "connections", label: "Connections", icon: Users },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "leads", label: "Leads", icon: UserPlus },
+  { id: "appointments", label: "Appointments", icon: CalendarDays },
 ];
 
 export default function ActivityHub({
@@ -23,6 +24,7 @@ export default function ActivityHub({
   initialTab = "overview",
   onTabChange,
   highlightLeadId,
+  highlightAppointmentId,
 }) {
   const [tab, setTab] = useState(initialTab || "overview");
 
@@ -51,6 +53,12 @@ export default function ActivityHub({
     enabled: !!profileId && canLeads,
   });
 
+  const { data: appointments = [] } = useQuery({
+    queryKey: ["activity-hub-appointments", user?.id],
+    queryFn: () => user?.id ? base44.entities.Appointment.filter({ owner_user_id: user.id }, "-date", 200) : [],
+    enabled: !!user?.id,
+  });
+
   const totalInteractions = analytics.length;
   const totalConnections = connections.length;
   const totalLeads = leads.length;
@@ -66,7 +74,7 @@ export default function ActivityHub({
         <p className={`text-sm mt-1 ${sub}`}>Connections, engagement, analytics and leads in one place.</p>
       </div>
 
-      <div className={`grid grid-cols-4 gap-1 p-1 rounded-2xl border ${card}`}>
+      <div className={`grid grid-cols-5 gap-1 p-1 rounded-2xl border ${card}`}>
         {TABS.map((item) => {
           const blocked = (item.id === "analytics" && !canAnalytics) || (item.id === "leads" && !canLeads);
           const Icon = item.icon;
@@ -89,11 +97,12 @@ export default function ActivityHub({
 
       {tab === "overview" && (
         <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { label: "Connections", value: totalConnections, icon: Users, action: "connections", enabled: true },
               { label: "Interactions", value: canAnalytics ? totalInteractions : "—", icon: BarChart3, action: "analytics", enabled: canAnalytics },
               { label: "Leads", value: canLeads ? totalLeads : "—", icon: UserPlus, action: "leads", enabled: canLeads },
+              { label: "Appointments", value: appointments.length, icon: CalendarDays, action: "appointments", enabled: true },
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -129,6 +138,11 @@ export default function ActivityHub({
 
       {tab === "connections" && <ConnectionsPanel isDark={isDark} profileId={profileId} />}
       {tab === "analytics" && canAnalytics && <AnalyticsPanel profileId={profileId} />}
+      {tab === "appointments" && (
+        <button type="button" onClick={() => { window.location.href = `/bingoo?view=appointments${highlightAppointmentId ? `&appointmentId=${encodeURIComponent(highlightAppointmentId)}` : ""}`; }} className={`w-full rounded-2xl border p-4 text-left flex items-center justify-between ${card}`}>
+          <div><p className={`font-black ${head}`}>Manage appointments</p><p className={`text-sm mt-1 ${sub}`}>Open bookings, confirm, reschedule or complete appointments.</p></div><ChevronRight className={`w-5 h-5 ${sub}`} />
+        </button>
+      )}
       {tab === "leads" && canLeads && (
         <LeadsPanel
           profileId={profileId}
