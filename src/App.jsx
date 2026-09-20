@@ -58,6 +58,7 @@ import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 import RouteTransition from '@/components/mobile/RouteTransition';
 import NativeAndroidBridge from '@/components/mobile/NativeAndroidBridge';
+import { useThemeStatusBar } from '@/hooks/useThemeStatusBar';
 
 function SitemapRedirect() {
   window.location.replace('/api/functions/sitemapXml');
@@ -151,6 +152,7 @@ const AuthenticatedApp = () => {
 };
 
 function App() {
+  useThemeStatusBar();
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>

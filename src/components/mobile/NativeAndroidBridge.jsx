@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Capacitor } from "@capacitor/core";
@@ -6,7 +6,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { base44 } from "@/api/base44Client";
 import { scheduleAppointmentReminders } from "@/lib/nativeLocalNotifications";
-import { useNavigationStack } from "@/components/mobile/NavigationStack";
+import { useAndroidBackButton } from "@/hooks/useAndroidBackButton";
 
 const PROD_HOSTS = new Set(["bingooconnect.com", "www.bingooconnect.com"]);
 
@@ -54,11 +54,8 @@ export default function NativeAndroidBridge() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const navStack = useNavigationStack();
-  // Ref so the long-lived Capacitor listeners always read the latest
-  // per-tab stack state without re-registering on every navigation.
-  const navStackRef = useRef(navStack);
-  navStackRef.current = navStack;
+  // Hardware back button is handled by the dedicated top-level hook.
+  useAndroidBackButton();
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android") return;
@@ -76,23 +73,6 @@ export default function NativeAndroidBridge() {
           return;
         }
         if (destination) navigate(destination, { replace: false });
-      }));
-      handles.push(await CapacitorApp.addListener("backButton", ({ canGoBack }) => {
-        if (disposed) return;
-        // Navigate sub-views within the active tab's stack first (via
-        // NavigationStackProvider), then fall back to browser history, and
-        // only exit the app when there is nowhere left to go back to.
-        const { stacks, activeTabId, popStack } = navStackRef.current;
-        const tabStack = activeTabId ? stacks[activeTabId] : null;
-        if (tabStack && tabStack.length > 1) {
-          popStack(activeTabId);
-          return;
-        }
-        if (canGoBack || window.history.length > 1) {
-          navigate(-1);
-          return;
-        }
-        CapacitorApp.exitApp();
       }));
       handles.push(await CapacitorApp.addListener("appStateChange", ({ isActive }) => {
         if (!disposed && isActive) syncNativeState(queryClient);
