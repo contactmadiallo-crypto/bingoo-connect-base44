@@ -1,8 +1,5 @@
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Unlink, RefreshCw, Trash2, Package, User, ChevronDown } from "lucide-react";
+import { BottomSheetSelect } from "@/components/ui/BottomSheetSelect";
+import { Unlink, RefreshCw, Trash2, Package, User } from "lucide-react";
 
 /**
  * Device action buttons: Link to Profile, Link to Asset, Unlink, Replace, Delete.
@@ -24,46 +21,38 @@ export default function DeviceActionsBar({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 
         {/* Link to Profile */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={`${btnBase} bg-blue-600 text-white hover:bg-blue-500`}>
-              <User className="w-3.5 h-3.5" /> Link Profile
-              <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto">
-            <DropdownMenuLabel>Select Profile</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {profiles.length === 0 ? (
-              <DropdownMenuItem disabled>No profiles available</DropdownMenuItem>
-            ) : profiles.map((p) => (
-              <DropdownMenuItem key={p.id} onClick={() => onLinkProfile(device.id, p.id)}>
-                {p.display_name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {profiles.length === 0 ? (
+          <button disabled className={`${btnBase} bg-blue-600/50 text-white/60 cursor-not-allowed`}>
+            <User className="w-3.5 h-3.5" /> No Profiles
+          </button>
+        ) : (
+          <BottomSheetSelect
+            value=""
+            onValueChange={(pid) => onLinkProfile(device.id, pid)}
+            placeholder="Link Profile"
+            ariaLabel="Link to profile"
+            options={profiles.map(p => ({ value: p.id, label: p.display_name }))}
+            className="w-full rounded-xl text-xs font-bold"
+            style={isDark ? { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } : {}}
+          />
+        )}
 
         {/* Link to Asset */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className={`${btnBase} bg-purple-600 text-white hover:bg-purple-500`}>
-              <Package className="w-3.5 h-3.5" /> Link Asset
-              <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto">
-            <DropdownMenuLabel>Select Asset</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {assets.length === 0 ? (
-              <DropdownMenuItem disabled>No assets available</DropdownMenuItem>
-            ) : assets.map((a) => (
-              <DropdownMenuItem key={a.id} onClick={() => onLinkAsset(device.id, a.id)}>
-                {a.name} <span className="text-xs opacity-60 capitalize">({a.asset_type})</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {assets.length === 0 ? (
+          <button disabled className={`${btnBase} bg-purple-600/50 text-white/60 cursor-not-allowed`}>
+            <Package className="w-3.5 h-3.5" /> No Assets
+          </button>
+        ) : (
+          <BottomSheetSelect
+            value=""
+            onValueChange={(aid) => onLinkAsset(device.id, aid)}
+            placeholder="Link Asset"
+            ariaLabel="Link to asset"
+            options={assets.map(a => ({ value: a.id, label: `${a.name} (${a.asset_type})` }))}
+            className="w-full rounded-xl text-xs font-bold"
+            style={isDark ? { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } : {}}
+          />
+        )}
 
         {/* Unlink — clears both profile and asset */}
         {(hasProfile || hasAsset) && (

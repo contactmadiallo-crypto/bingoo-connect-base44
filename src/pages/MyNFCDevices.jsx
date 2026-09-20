@@ -196,18 +196,34 @@ export default function MyNFCDevices() {
     setActivating(false);
   };
 
+  // Optimistic cache helper — updates a device in the devices query cache and
+  // returns a snapshot for rollback. Lets assignments, lost-mode toggles, and
+  // unlinks reflect instantly in the UI before the server round-trip completes.
+  const optimisticUpdate = async (deviceId, patch) => {
+    await qc.cancelQueries({ queryKey: ["my-nfc-devices-page"] });
+    const snapshot = qc.getQueryData(["my-nfc-devices-page", user?.id]);
+    qc.setQueryData(["my-nfc-devices-page", user?.id], (old) =>
+      (old || []).map(d => d.id === deviceId ? { ...d, ...(typeof patch === "function" ? patch(d) : patch) } : d)
+    );
+    return { snapshot };
+  };
+
   const reportLost = useMutation({
     mutationFn: async (device) => {
       const res = await base44.functions.invoke("updateNfcDeviceStatus", { device_id: device.id, status: "lost" });
       if (res?.data?.error) throw new Error(res.data.error);
       return res;
     },
+    onMutate: async (device) => optimisticUpdate(device.id, { status: "lost" }),
     onSuccess: () => {
       toast.success("🔒 Lost Mode activated. Scans are now disabled.");
       setLostDialogDevice(null);
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message || "Failed to activate Lost Mode"),
+    onError: (e, device, context) => {
+      if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
+      toast.error(e.message || "Failed to activate Lost Mode");
+    },
   });
 
   const reactivate = useMutation({
@@ -216,18 +232,26 @@ export default function MyNFCDevices() {
       if (res?.data?.error) throw new Error(res.data.error);
       return res;
     },
+    onMutate: async (device) => optimisticUpdate(device.id, { status: "active" }),
     onSuccess: () => {
       toast.success("Device reactivated!");
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
-    onError: (e) => toast.error(e.message || "Failed to turn off Lost Mode"),
+    onError: (e, device, context) => {
+      if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
+      toast.error(e.message || "Failed to turn off Lost Mode");
+    },
   });
 
   // ── Link device to profile ──
   const linkProfile = useMutation({
     mutationFn: async ({ deviceId, profileId }) => base44.entities.NFCDevice.update(deviceId, { profile_id: profileId }),
+    onMutate: async ({ deviceId, profileId }) => optimisticUpdate(deviceId, { profile_id: profileId }),
     onSuccess: () => { toast.success("Device linked to profile"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
-    onError: (e) => toast.error(e.message || "Failed to link profile"),
+    onError: (e, vars, context) => {
+      if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
+      toast.error(e.message || "Failed to link profile");
+    },
   });
 
   // ── Link device to asset (bidirectional) ──
@@ -236,8 +260,12 @@ export default function MyNFCDevices() {
       await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: assetId });
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
     },
+    onMutate: async ({ deviceId, assetId }) => optimisticUpdate(deviceId, { assigned_asset_id: assetId }),
     onSuccess: () => { toast.success("Device linked to asset"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
-    onError: (e) => toast.error(e.message || "Failed to link asset"),
+    onError: (e, vars, context) => {
+      if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
+      toast.error(e.message || "Failed to link asset");
+    },
   });
 
   // ── Unlink device from profile and/or asset ──
@@ -251,8 +279,12 @@ export default function MyNFCDevices() {
       }
       await base44.entities.NFCDevice.update(device.id, updates);
     },
+    onMutate: async (device) => optimisticUpdate(device.id, { profile_id: "", assigned_asset_id: "" }),
     onSuccess: () => { toast.success("Device unlinked"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
-    onError: (e) => toast.error(e.message || "Failed to unlink device"),
+    onError: (e, device, context) => {
+      if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
+      toast.error(e.message || "Failed to unlink device");
+    },
   });
 
   // ── Delete device ──
