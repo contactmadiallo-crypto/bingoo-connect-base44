@@ -183,16 +183,16 @@ export default function ProfilesHub({
           <GripVertical className="w-3.5 h-3.5" />
         </button>
       )}
-      {/* Mobile move up/down */}
+      {/* Mobile move up/down — compact so controls never cover profile content */}
       {canReorder && (
-        <div className="flex sm:hidden items-center gap-0.5 rounded-lg overflow-hidden"
+        <div className="flex sm:hidden items-center gap-0 rounded-xl overflow-hidden shadow-sm"
           style={{ background: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.9)", border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)"}` }}>
           <button
             type="button"
             aria-label="Move profile up"
             disabled={index === 0}
             onClick={(e) => { e.stopPropagation(); moveBy(index, -1); }}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-30 transition-colors"
+            className="w-9 h-9 flex items-center justify-center disabled:opacity-30 transition-colors"
             style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
             <ChevronUp className="w-4 h-4" />
           </button>
@@ -202,7 +202,7 @@ export default function ProfilesHub({
             aria-label="Move profile down"
             disabled={index === items.length - 1}
             onClick={(e) => { e.stopPropagation(); moveBy(index, 1); }}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center disabled:opacity-30 transition-colors"
+            className="w-9 h-9 flex items-center justify-center disabled:opacity-30 transition-colors"
             style={{ color: isDark ? "#cbd5e1" : "#475569" }}>
             <ChevronDown className="w-4 h-4" />
           </button>
