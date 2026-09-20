@@ -1144,12 +1144,12 @@ export default function ProfileWorkspace({
         </button>
       </div>
 
-      {/* ── Mobile: horizontal scrollable pill tabs (ScrollableTabBand pattern) ── */}
+      {/* ── Mobile: clean scrollable editor navigation ── */}
       <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-200/70 bg-white/95 dark:bg-[#13162a]/95" style={{ position: "relative", zIndex: 20, WebkitOverflowScrolling: "touch" }}>
-        <div className="flex w-max min-w-full gap-1.5 px-3 py-2 whitespace-nowrap">
+        <div className="flex w-max min-w-full gap-1 px-2.5 py-2 whitespace-nowrap">
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
-              className={`flex items-center gap-1.5 min-h-[38px] px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all flex-shrink-0 ${
+              className={`flex items-center gap-1.5 min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 ${
                 innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
               }`}
               style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
@@ -1266,46 +1266,52 @@ export default function ProfileWorkspace({
 
             {/* Full-screen overlay */}
             {mobilePreviewOpen && (
-              <div className="fixed inset-0 z-50 flex flex-col safe-top safe-bottom" style={{ background: isDark ? "#0a0c14" : "#f1f5f9" }}>
+              <div className="fixed inset-0 z-[100] flex flex-col" style={{ background: isDark ? "#0a0c14" : "#f1f5f9", height: "100dvh" }}>
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-4 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(1rem + env(safe-area-inset-top))" }}>
-                  <div className="flex items-center gap-2">
-                    <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"} mr-auto`}>Live Preview</p>
-                    {profileUrl && (
-                      <a href={profileUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
-                        className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-                        <ExternalLink className="w-3.5 h-3.5" /> Open live
-                      </a>
-                    )}
-                    <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMobilePreviewOpen(false); }}
-                      className={`p-2 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-600"}`}
-                      title="Close preview (ESC)">
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2 px-3 py-3 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(.75rem + env(safe-area-inset-top))" }}>
+                  <button type="button" onClick={() => setMobilePreviewOpen(false)}
+                    className={`h-10 px-3 rounded-xl flex items-center gap-1.5 flex-shrink-0 text-sm font-bold transition-colors ${isDark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-700"}`}
+                    aria-label="Back to editor">
+                    <ChevronLeft className="w-4 h-4" /> Back
+                  </button>
+                  <p className={`font-black text-sm flex-1 text-center ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
+                  {profileUrl ? (
+                    <a href={profileUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
+                      className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}
+                      aria-label="Open public profile">
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : <span className="w-10" />}
                 </div>
-                {/* Preview content — scrollable */}
-                <div className="flex-1 overflow-y-auto pb-safe">
-                  <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px" }}>
-                    {/* Phone shell */}
-                    <div style={{ background: "#0f172a", borderRadius: 32, padding: 10, boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", margin: "0 auto", maxWidth: 340 }}>
-                      <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
-                        <div style={{ width: 64, height: 14, background: "#0f172a", borderRadius: "0 0 12px 12px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
-                          <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#334155" }} />
-                          <div style={{ width: 22, height: 3, borderRadius: 999, background: "#334155" }} />
-                        </div>
+                {/* Preview content — proportional phone, fully contained in the available viewport */}
+                <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden px-3 py-3" style={{ paddingBottom: "calc(.75rem + env(safe-area-inset-bottom))" }}>
+                  <div className="w-full h-full flex flex-col items-center justify-center min-h-0">
+                    <div style={{
+                      width: "min(360px, calc(100vw - 24px))",
+                      height: "min(700px, calc(100dvh - 120px))",
+                      background: "#0f172a", borderRadius: 34, padding: 10,
+                      boxShadow: "0 18px 42px rgba(0,0,0,0.30), inset 0 0 0 1.5px rgba(255,255,255,0.07)",
+                      display: "flex", flexDirection: "column", minHeight: 0
+                    }}>
+                      <div style={{ display: "flex", justifyContent: "center", height: 16, flexShrink: 0 }}>
+                        <div style={{ width: 58, height: 12, borderRadius: 999, background: "#26364f", marginTop: 1 }} />
                       </div>
-                      <div style={{ borderRadius: 22, overflowY: "auto", overflowX: "hidden", background: "#f1f5f9", maxHeight: "70vh", position: "relative" }}
+                      <div style={{ borderRadius: 24, overflow: "hidden", background: "#f1f5f9", flex: 1, minHeight: 0, position: "relative" }}
                         onClickCapture={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                        <div style={{ width: 375, transform: "scale(0.747)", transformOrigin: "top left", minHeight: Math.round(520 / 0.747), pointerEvents: "none", userSelect: "none" }}>
+                        <div style={{
+                          width: 375,
+                          height: "100%",
+                          transform: "scale(calc((min(360px, calc(100vw - 24px)) - 20px) / 375))",
+                          transformOrigin: "top left",
+                          pointerEvents: "none", userSelect: "none"
+                        }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                        <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
+                      <div style={{ display: "flex", justifyContent: "center", height: 16, alignItems: "end", flexShrink: 0 }}>
+                        <div style={{ width: 58, height: 3, borderRadius: 999, background: "#334155" }} />
                       </div>
                     </div>
-                    <p className={`text-[11px] text-center mt-3 ${isDark ? "text-white/30" : "text-slate-400"}`}>Updates as you type</p>
                   </div>
                 </div>
               </div>
