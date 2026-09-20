@@ -865,6 +865,7 @@ export default function BingooDashboard() {
                   setSearchParams(next, { replace: true });
                 }}
                 highlightLeadId={highlightLeadId}
+                highlightAppointmentId={highlightAppointmentId}
               />
             </div>
           )}
