@@ -195,7 +195,7 @@ export default function PhoneAlertsSection({ user }) {
     }
   };
 
-  const activeCount = subs.filter((s) => s.enabled).length;
+  const activeCount = nativeAndroid ? (permission === "granted" ? 1 : 0) : subs.filter((s) => s.enabled).length;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
@@ -250,7 +250,7 @@ export default function PhoneAlertsSection({ user }) {
             </>
           )}
         </Button>
-        <Button variant="outline" onClick={handleTest} disabled={testing || subs.length === 0}>
+        {!nativeAndroid && <Button variant="outline" onClick={handleTest} disabled={testing || subs.length === 0}>
           {testing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" /> Sending…
@@ -260,11 +260,11 @@ export default function PhoneAlertsSection({ user }) {
               <Send className="h-4 w-4" /> Send test
             </>
           )}
-        </Button>
+        </Button>}
       </div>
 
-      {/* Device list */}
-      <div className="mt-5">
+      {/* Device list */
+      {!nativeAndroid && <div className="mt-5">
         {loading ? (
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading devices…
@@ -305,7 +305,7 @@ export default function PhoneAlertsSection({ user }) {
             ))}
           </ul>
         )}
-      </div>
+      </div>}
     </div>
   );
 }
