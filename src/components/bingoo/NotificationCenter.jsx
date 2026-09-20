@@ -11,6 +11,7 @@ const EVENT_ICONS = {
   appointment_confirmed: CheckCircle,
   appointment_cancelled: AlertTriangle,
   appointment_rescheduled: CalendarDays,
+  appointment_reminder: CalendarDays,
   nfc_activated: Smartphone,
   lost_device_reported: AlertTriangle,
   new_review: Star,
@@ -28,6 +29,7 @@ const EVENT_COLORS = {
   appointment_confirmed: { dark: "bg-green-500/20 text-green-400", light: "bg-green-100 text-green-600" },
   appointment_cancelled: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
   appointment_rescheduled: { dark: "bg-blue-500/20 text-blue-400", light: "bg-blue-100 text-blue-600" },
+  appointment_reminder: { dark: "bg-amber-500/20 text-amber-300", light: "bg-amber-100 text-amber-700" },
   nfc_activated: { dark: "bg-purple-500/20 text-purple-400", light: "bg-purple-100 text-purple-600" },
   lost_device_reported: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
   subscription_created: { dark: "bg-blue-500/20 text-blue-400", light: "bg-blue-100 text-blue-600" },
@@ -97,15 +99,26 @@ export default function NotificationCenter({ userId, isDark }) {
   const handleClick = (n) => {
     if (!n.is_read) markReadMutation.mutate(n.id);
     setOpen(false);
-    if (n.action_url) {
-      // In-app navigation preserves session/state and supports deep links like
-      // /bingoo?view=leads&profileId=...&leadId=... or /billing?subscriptionId=...
-      if (/^https?:\/\//i.test(n.action_url)) {
-        window.location.assign(n.action_url);
+
+    // Prefer the backend-provided deep link. Fall back to a deterministic
+    // in-app destination so older notification records remain actionable.
+    let target = n.action_url;
+    if (!target) {
+      const profile = n.profile_id ? `&profileId=${encodeURIComponent(n.profile_id)}` : "";
+      const related = n.related_id ? encodeURIComponent(n.related_id) : "";
+      if (n.event_type === "new_lead") {
+        target = `/bingoo?view=leads${profile}${related ? `&leadId=${related}` : ""}`;
+      } else if (["new_appointment","appointment_confirmed","appointment_cancelled","appointment_rescheduled","appointment_reminder"].includes(n.event_type)) {
+        target = `/bingoo?view=appointments${profile}${related ? `&appointmentId=${related}` : ""}`;
+      } else if (n.event_type === "new_contact") {
+        target = `/bingoo?view=connections${profile}`;
       } else {
-        navigate(n.action_url);
+        target = "/bingoo?view=home";
       }
     }
+
+    if (/^https?:\/\//i.test(target)) window.location.assign(target);
+    else navigate(target);
   };
 
   const headText = isDark ? "text-white" : "text-slate-900";
