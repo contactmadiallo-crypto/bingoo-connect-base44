@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Bell, BellRing, Trash2, Loader2, Smartphone, Send, Info } from "lucide-react";
 import { toast } from "sonner";
+import { isNativeAndroid, enableNativePush, disableNativePush } from "@/lib/nativePush";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -33,12 +34,13 @@ export default function PhoneAlertsSection({ user }) {
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
   const [testing, setTesting] = useState(false);
+  const nativeAndroid = isNativeAndroid();
   // Robust push support detection: PushManager may be exposed on window OR only on
   // ServiceWorkerRegistration.prototype (Safari/iOS). Check both to avoid false negatives.
   const hasSW = typeof navigator !== "undefined" && "serviceWorker" in navigator;
   const hasPushGlobal = typeof window !== "undefined" && "PushManager" in window;
   const hasPushProto = typeof ServiceWorkerRegistration !== "undefined" && "pushManager" in ServiceWorkerRegistration.prototype;
-  const supported = hasSW && (hasPushGlobal || hasPushProto);
+  const supported = nativeAndroid || (hasSW && (hasPushGlobal || hasPushProto));
   const inIframe = typeof window !== "undefined" && window.self !== window.top;
   // iOS requires "Add to Home Screen" (PWA install) for web push to actually work
   const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent);
@@ -66,6 +68,27 @@ export default function PhoneAlertsSection({ user }) {
   }, [fetchSubs]);
 
   const handleEnable = async () => {
+    if (nativeAndroid) {
+      setSubscribing(true);
+      try {
+        const result = await enableNativePush(user?.id);
+        if (result?.enabled) {
+          setPermission("granted");
+          toast.success("Android alerts enabled. Bingoo can now notify you of leads and appointments even when the app is closed.");
+          await fetchSubs();
+        } else if (result?.permission !== "granted") {
+          setPermission("denied");
+          toast.error("Android notification permission is off. Enable notifications for Bingoo Connect in Android Settings.");
+        }
+      } catch (e) {
+        console.error("Native push subscribe error:", e);
+        toast.error("Could not enable Android alerts: " + (e.message || "Unknown error"));
+      } finally {
+        setSubscribing(false);
+      }
+      return;
+    }
+
     if (!supported) {
       toast.error("Push notifications are not supported in this browser.");
       return;
@@ -134,6 +157,17 @@ export default function PhoneAlertsSection({ user }) {
   };
 
   const handleRemove = async (sub) => {
+    if (nativeAndroid && sub.transport === "fcm") {
+      try {
+        await disableNativePush(user?.id);
+        await base44.entities.PushSubscription.delete(sub.id);
+        setSubs((prev) => prev.filter((s) => s.id !== sub.id));
+        toast.success("Android alerts removed");
+      } catch (e) {
+        toast.error("Could not remove Android alerts");
+      }
+      return;
+    }
     // Unsubscribe from the browser push manager if this is the current device
     try {
       const reg = await navigator.serviceWorker.ready;
@@ -186,7 +220,9 @@ export default function PhoneAlertsSection({ user }) {
         <div className="flex-1">
           <h2 className="text-base font-semibold text-slate-900">Phone Alerts</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            Get instant push notifications on your phone for new leads and upcoming appointment reminders.
+            {nativeAndroid
+              ? "Native Android alerts for new leads, appointments and reminders — including while Bingoo is in the background."
+              : "Get instant push notifications on your phone for new leads and upcoming appointment reminders."}
           </p>
         </div>
       </div>
