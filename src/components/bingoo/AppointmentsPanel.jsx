@@ -67,14 +67,14 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
     return () => unsub();
   }, [profileId]);
 
-  const { data: byProfile = [] } = useQuery({
+  const { data: byProfile = [], isLoading: profileLoading } = useQuery({
     queryKey: ["appointments", profileId],
     queryFn: () => base44.entities.Appointment.filter({ profile_id: profileId }, "-created_date"),
     enabled: !!profileId,
     refetchOnMount: "always",
   });
 
-  const { data: byOwner = [] } = useQuery({
+  const { data: byOwner = [], isLoading: ownerLoading } = useQuery({
     queryKey: ["appointments-owner", userId],
     queryFn: () => base44.entities.Appointment.filter({ owner_user_id: userId }, "-created_date"),
     enabled: !!userId && !profileId,
@@ -87,6 +87,24 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
     seen.add(a.id);
     return true;
   });
+
+  // Open the exact appointment surfaced by Activity, email, or a native local reminder.
+  useEffect(() => {
+    if (!highlightId || profileLoading || ownerLoading || all.length === 0) return;
+    const match = all.find(a => a.id === highlightId);
+    if (!match) {
+      toast.info("This appointment may have been moved or deleted.");
+      return;
+    }
+    setFilterTab("all");
+    setSearch("");
+    setFlashId(highlightId);
+    requestAnimationFrame(() => {
+      listRef.current?.querySelector(`[data-appointment-id="${highlightId}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    const t = setTimeout(() => setFlashId(null), 5000);
+    return () => clearTimeout(t);
+  }, [highlightId, profileLoading, ownerLoading, all.length]);
 
   const update = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
@@ -178,7 +196,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
     const s = a.status || "pending";
     const isDone = DONE.includes(s);
     return (
-      <div className="rounded-2xl p-5 space-y-3" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
+      <div data-appointment-id={a.id} className="rounded-2xl p-5 space-y-3 transition-all" style={{ background: cardBg, border: `1px solid ${flashId === a.id ? "#10b981" : cardBorder}`, boxShadow: flashId === a.id ? "0 0 0 3px rgba(16,185,129,0.22)" : "none" }}>
         {/* Header */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
@@ -330,7 +348,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
           <p className={`text-sm mt-1 ${mutedText}`}>{search ? "Try a different search." : "Enable booking on your profile so visitors can schedule time."}</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div ref={listRef} className="space-y-3">
           {filtered.map(a => <Card key={a.id} a={a} />)}
         </div>
       )}
