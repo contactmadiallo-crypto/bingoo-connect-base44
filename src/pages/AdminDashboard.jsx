@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { toast } from "sonner";
 import {
   Users, BarChart3, Star, Shield, Search, CreditCard, Clock, AlertTriangle,
@@ -347,18 +347,22 @@ export default function AdminDashboard() {
                               <a href={`/p/${p.username}`} target="_blank" rel="noopener" className="text-sm font-mono hover:underline" style={{ color: "#f97316" }}>/{p.username}</a>
                             </td>
                             <td className="px-5 py-4">
-                              <Select value={realPlan} onValueChange={v => updatePlan.mutate({ profile: p, plan: v })} disabled={updatePlan.isPending}>
-                                <SelectTrigger className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer h-7"
-                                  style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="free">Free</SelectItem>
-                                  <SelectItem value="professional">Professional</SelectItem>
-                                  <SelectItem value="business">Business</SelectItem>
-                                  <SelectItem value="salon">Salon</SelectItem>
-                                  <SelectItem value="lawfirm">Law Firm</SelectItem>
-                                  <SelectItem value="corporate">Corporate</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <MobileSelect
+                                value={realPlan}
+                                onValueChange={v => updatePlan.mutate({ profile: p, plan: v })}
+                                disabled={updatePlan.isPending}
+                                options={[
+                                  { value: "free", label: "Free" },
+                                  { value: "professional", label: "Professional" },
+                                  { value: "business", label: "Business" },
+                                  { value: "salon", label: "Salon" },
+                                  { value: "lawfirm", label: "Law Firm" },
+                                  { value: "corporate", label: "Corporate" },
+                                ]}
+                                className="px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer h-7"
+                                style={{ background: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "1px solid rgba(253,186,33,0.3)" }}
+                                ariaLabel="Change plan"
+                              />
                             </td>
                             <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{p.company_name || "—"}</td>
                             <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{owner?.email || p.email || "—"}</td>

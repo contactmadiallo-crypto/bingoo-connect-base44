@@ -7,6 +7,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { motion, AnimatePresence } from "framer-motion";
 import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pencil, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MobileSelect } from "@/components/ui/mobile-select";
 import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel, getDeviceDisplayName } from "@/lib/deviceTypes";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { ArrowRight, ArrowLeft, Check, Radio, Package } from "lucide-react";
@@ -532,15 +533,13 @@ export default function ActivateDevice() {
                 value={newCode}
                 onChange={e => setNewCode(e.target.value.toUpperCase())}
               />
-              <select
-                className={`${inputCls} w-36`}
+              <MobileSelect
                 value={newType}
-                onChange={e => setNewType(e.target.value)}
-              >
-                {DEVICE_TYPES.map(t => (
-                  <option key={t.value} value={t.value}>{t.emoji} {t.label}</option>
-                ))}
-              </select>
+                onValueChange={setNewType}
+                options={DEVICE_TYPES.map(t => ({ value: t.value, label: `${t.emoji} ${t.label}` }))}
+                placeholder="Type"
+                className={`w-36 ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"} rounded-xl`}
+              />
               <Button onClick={handleCreateCode} disabled={creatingCode || !newCode.trim()} className="bg-violet-600 hover:bg-violet-500 text-white font-bold gap-2 px-6">
                 <Plus className="w-4 h-4" /> Create
               </Button>
@@ -584,15 +583,13 @@ export default function ActivateDevice() {
               >
                 <h3 className={`font-black text-lg mb-1 ${headText}`}>Reassign Device</h3>
                 <p className={`text-sm mb-4 ${mutedText}`}>Choose which profile to link this device to</p>
-                <select
-                  className={inputCls}
+                <MobileSelect
                   value={reassignDevice.newProfileId || reassignDevice.device.profile_id || ""}
-                  onChange={e => setReassignDevice({ ...reassignDevice, newProfileId: e.target.value })}
-                >
-                  {profiles.map(p => (
-                    <option key={p.id} value={p.id}>{p.display_name || p.username}</option>
-                  ))}
-                </select>
+                  onValueChange={v => setReassignDevice({ ...reassignDevice, newProfileId: v })}
+                  options={profiles.map(p => ({ value: p.id, label: p.display_name || p.username }))}
+                  placeholder="Select a profile"
+                  className={isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}
+                />
                 <div className="flex gap-2 mt-4">
                   <Button onClick={handleReassign} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold">Save</Button>
                   <Button variant="outline" onClick={() => setReassignDevice(null)} className="flex-1">Cancel</Button>

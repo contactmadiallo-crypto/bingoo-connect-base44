@@ -70,15 +70,9 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
       return;
     }
 
-    // Root tabs are navigation anchors, not browser-history shortcuts.
-    // Home must always open the dashboard; Activity always opens Connections.
-    // This avoids stale session history sending Home back into Activity.
-    if (tab.id === 'home' || tab.id === 'activity' || tab.id === 'nfc') {
-      navigate(tab.path);
-      return;
-    }
-
-    // Profiles is the only tab where restoring the last editor/workspace is useful.
+    // All tabs restore their last visited page from the NavigationStackProvider's
+    // per-tab history stack, falling back to the tab's root path. A sessionStorage
+    // mirror handles page reloads where the in-memory stack is lost.
     const stack = stacks[tab.id];
     let target = (stack && stack.length > 0) ? stack[stack.length - 1] : tab.path;
     if (!stack || stack.length === 0) {

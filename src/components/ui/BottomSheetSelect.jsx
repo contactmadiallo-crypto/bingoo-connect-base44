@@ -24,7 +24,7 @@ function useIsMobile() {
  *
  * Props: value, onValueChange, options [{value, label}], placeholder, className, ariaLabel
  */
-export function BottomSheetSelect({ value, onValueChange, options, placeholder, className, ariaLabel, style }) {
+export function BottomSheetSelect({ value, onValueChange, options, placeholder, className, ariaLabel, style, disabled }) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
 
@@ -32,7 +32,7 @@ export function BottomSheetSelect({ value, onValueChange, options, placeholder, 
 
   if (!isMobile) {
     return (
-      <Select value={value} onValueChange={onValueChange}>
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
         <SelectTrigger className={className} aria-label={ariaLabel} style={style}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -50,6 +50,7 @@ export function BottomSheetSelect({ value, onValueChange, options, placeholder, 
       <button
         type="button"
         onClick={() => setOpen(true)}
+        disabled={disabled}
         className={cn(
           "flex h-11 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
           className
