@@ -1266,7 +1266,16 @@ export default function ProfileWorkspace({
 
             {/* Full-screen overlay */}
             {mobilePreviewOpen && (
-              <div className="fixed inset-0 z-[100] flex flex-col" style={{ background: isDark ? "#0a0c14" : "#f1f5f9", height: "100dvh" }}>
+              <div
+                className="fixed inset-0 z-[100] flex flex-col"
+                style={{
+                  background: isDark ? "#0a0c14" : "#f1f5f9",
+                  height: "100dvh",
+                  pointerEvents: "auto",
+                  touchAction: "none"
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
                 {/* Header */}
                 <div className="flex items-center gap-2 px-3 py-3 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(.75rem + env(safe-area-inset-top))" }}>
                   <button type="button" onClick={() => setMobilePreviewOpen(false)}
@@ -1305,15 +1314,21 @@ export default function ProfileWorkspace({
                         className="preview-phone-scroll"
                         style={{
                           borderRadius: 22,
-                          overflowY: "auto",
+                          overflowY: "scroll",
                           overflowX: "hidden",
                           WebkitOverflowScrolling: "touch",
+                          overscrollBehavior: "contain",
+                          touchAction: "pan-y",
                           scrollbarWidth: "none",
+                          msOverflowStyle: "none",
                           background: "#f1f5f9",
                           flex: 1,
                           minHeight: 0,
-                          position: "relative"
+                          position: "relative",
+                          pointerEvents: "auto"
                         }}
+                        onTouchMove={(e) => e.stopPropagation()}
+                        onWheel={(e) => e.stopPropagation()}
                       >
                         <div style={{
                           width: 375,
@@ -1321,7 +1336,7 @@ export default function ProfileWorkspace({
                           minHeight: "100%",
                           pointerEvents: "none",
                           userSelect: "none",
-                          paddingBottom: 40
+                          paddingBottom: 80
                         }}>
                           <WorkspaceLayoutPreview liveForm={{ ...(profile || {}), ...liveForm }} />
                         </div>
