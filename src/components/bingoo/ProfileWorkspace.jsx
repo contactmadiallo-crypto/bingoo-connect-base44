@@ -1111,9 +1111,9 @@ export default function ProfileWorkspace({
   });
 
   return (
-    <div className="flex flex-col min-h-0 relative" style={{ background: isDark ? "#0a0c14" : "#F7F9FC" }}>
+    <div className="flex flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#0a0c14" : "#F7F9FC" }}>
       {/* ── Figma Make top bar ── */}
-      <div className={`flex items-center gap-3 px-[18px] py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
+      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-2.5 sm:py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
         <button type="button" onClick={onBack} aria-label="Back to profiles"
           className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
           <ChevronLeft className="w-[15px] h-[15px]" />
@@ -1136,19 +1136,20 @@ export default function ProfileWorkspace({
         )}
 
         <button type="button" onClick={() => handleSave(innerTab)} disabled={saveMutation.isPending || !hasUnsavedChanges}
-          className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 w-[42px] sm:w-auto px-0 sm:px-5 py-2 rounded-xl text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
           style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.30)" }}>
           {saveMutation.isPending && <Save className="w-[13px] h-[13px] animate-pulse" />}
-          Save
+          <span className="hidden sm:inline">Save</span>
+          <Save className="sm:hidden w-4 h-4" />
         </button>
       </div>
 
       {/* ── Mobile: horizontal scrollable pill tabs (ScrollableTabBand pattern) ── */}
-      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide pb-1" style={{ position: "relative", zIndex: 30, WebkitOverflowScrolling: "touch" }}>
-        <div className="flex w-max min-w-full gap-2 px-1 whitespace-nowrap">
+      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-200/70 bg-white/95 dark:bg-[#13162a]/95" style={{ position: "relative", zIndex: 20, WebkitOverflowScrolling: "touch" }}>
+        <div className="flex w-max min-w-full gap-1.5 px-3 py-2 whitespace-nowrap">
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
-              className={`flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-full text-xs font-bold transition-all flex-shrink-0 ${
+              className={`flex items-center gap-1.5 min-h-[38px] px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all flex-shrink-0 ${
                 innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
               }`}
               style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
@@ -1178,7 +1179,7 @@ export default function ProfileWorkspace({
 
         {/* Editing panel */}
         <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
-          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-7 py-6">
+          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-4 sm:px-7 py-4 sm:py-6">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
@@ -1257,10 +1258,10 @@ export default function ProfileWorkspace({
             <button
               type="button"
               onClick={() => setMobilePreviewOpen(true)}
-              className="fixed z-30 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl text-white text-sm font-bold"
+              className="fixed z-30 flex items-center justify-center w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-full shadow-xl text-white text-sm font-bold"
               style={{ background: "#0b2149", boxShadow: "0 8px 28px rgba(11,33,73,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
             >
-              <Eye className="w-4 h-4" /> Preview
+              <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Preview</span>
             </button>
 
             {/* Full-screen overlay */}
