@@ -1,8 +1,11 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
-import { PushNotifications } from "@capacitor/push-notifications";
+import { LocalNotifications } from "@capacitor/local-notifications";
+import { base44 } from "@/api/base44Client";
+import { scheduleAppointmentReminders } from "@/lib/nativeLocalNotifications";
 
 const PROD_HOSTS = new Set(["bingooconnect.com", "www.bingooconnect.com"]);
 
@@ -13,30 +16,29 @@ function internalDestination(rawUrl) {
     const url = new URL(rawUrl);
     if (!PROD_HOSTS.has(url.hostname.toLowerCase())) return null;
     return url.pathname + url.search + url.hash;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
 
-function notificationDestination(notification) {
-  const data = notification?.data || {};
-  return internalDestination(data.url || data.action_url || data.route || "/bingoo");
+async function syncNativeState(queryClient) {
+  try {
+    const user = await base44.auth.me();
+    if (!user?.id) return;
+    const appointments = await base44.entities.Appointment.filter({ owner_user_id: user.id }, "-date", 200);
+    await scheduleAppointmentReminders(appointments);
+    queryClient.invalidateQueries({ queryKey: ["bingoo-notifications", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["appointments"] });
+    queryClient.invalidateQueries({ queryKey: ["appointments-owner", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["leads"] });
+  } catch (error) { console.warn("[NativeAndroidBridge sync]", error); }
 }
 
-/**
- * Android-native navigation bridge.
- * - Converts verified bingooconnect.com App Links (NFC /d/*, profiles /p/*,
- *   assets /a/*, lost mode, auth/checkout returns) into React Router navigation.
- * - Makes the Android system Back button follow browser history before exiting.
- * - Does not intercept external URLs such as Stripe or Google Wallet.
- */
 export default function NativeAndroidBridge() {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android") return;
-
     let disposed = false;
     const handles = [];
 
@@ -46,21 +48,17 @@ export default function NativeAndroidBridge() {
         const destination = internalDestination(url);
         if (destination) navigate(destination, { replace: false });
       }));
-
       handles.push(await CapacitorApp.addListener("backButton", ({ canGoBack }) => {
         if (disposed) return;
-        if (canGoBack || window.history.length > 1) {
-          navigate(-1);
-        } else {
-          CapacitorApp.exitApp();
-        }
+        if (canGoBack || window.history.length > 1) navigate(-1);
+        else CapacitorApp.exitApp();
       }));
-
-      // Native FCM notification taps must land inside the signed-in Bingoo app,
-      // not open a second browser window or fall back to the marketing page.
-      handles.push(await PushNotifications.addListener("pushNotificationActionPerformed", ({ notification }) => {
+      handles.push(await CapacitorApp.addListener("appStateChange", ({ isActive }) => {
+        if (!disposed && isActive) syncNativeState(queryClient);
+      }));
+      handles.push(await LocalNotifications.addListener("localNotificationActionPerformed", ({ notification }) => {
         if (disposed) return;
-        const destination = notificationDestination(notification);
+        const destination = internalDestination(notification?.extra?.route || "/bingoo?view=appointments");
         if (destination) navigate(destination, { replace: false });
       }));
 
@@ -70,15 +68,15 @@ export default function NativeAndroidBridge() {
         const current = location.pathname + location.search + location.hash;
         if (destination && destination !== current) navigate(destination, { replace: true });
       }
+      if (!disposed) await syncNativeState(queryClient);
     };
 
     register().catch((error) => console.warn("[NativeAndroidBridge]", error));
-
     return () => {
       disposed = true;
       handles.forEach((handle) => handle?.remove?.());
     };
-  }, [navigate]);
+  }, [navigate, queryClient]);
 
   return null;
 }
