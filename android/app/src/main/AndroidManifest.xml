@@ -31,6 +31,14 @@
                 <data android:scheme="https" android:host="www.bingooconnect.com" />
             </intent-filter>
 
+            <!-- Native OAuth return: closes the external Custom Tab and resumes Bingoo. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bingooconnect" android:host="auth" />
+            </intent-filter>
+
         </activity>
 
         <provider

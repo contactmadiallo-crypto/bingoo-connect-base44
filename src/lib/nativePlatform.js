@@ -16,7 +16,7 @@ export async function openExternalUrl(url) {
 export function productionCallback(path) {
   const normalized = String(path || "/").startsWith("/") ? path : `/${path}`;
   return isNativeAndroid()
-    ? `https://bingooconnect.com${normalized}`
+    ? `bingooconnect://auth${normalized}`
     : `${window.location.origin}${normalized}`;
 }
 
