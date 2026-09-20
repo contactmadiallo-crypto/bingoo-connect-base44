@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
 
     // Configure Web Push only when at least one browser subscription exists.
     const webSubscriptions = subscriptions.filter((sub) =>
-      sub.transport !== 'fcm' && sub.endpoint && sub.p256dh && sub.auth
+      sub.endpoint && sub.p256dh && sub.auth
     );
     if (webSubscriptions.length > 0) {
       const keyPairs = await base44.asServiceRole.entities.VapidKeyPair.list();
@@ -133,9 +133,8 @@ Deno.serve(async (req) => {
         failed++;
         console.error(`Push failed for sub ${sub.id} (${sub.transport || 'webpush'}):`, err.statusCode, err.message);
         const text = String(err.responseText || err.message || '');
-        const staleWeb = sub.transport !== 'fcm' && (err.statusCode === 410 || err.statusCode === 404);
-        const staleFcm = sub.transport === 'fcm' && /UNREGISTERED|registration-token-not-registered/i.test(text);
-        if (staleWeb || staleFcm) staleIds.push(sub.id);
+        const staleWeb = (err.statusCode === 410 || err.statusCode === 404);
+        if (staleWeb) staleIds.push(sub.id);
       }
     }
 
