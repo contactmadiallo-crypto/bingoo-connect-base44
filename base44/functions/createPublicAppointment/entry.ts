@@ -191,6 +191,22 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Send immediate push notification to the profile owner (if opted in).
+    // The in-app record above remains the durable source of truth; push is best-effort.
+    if (ownerUserId) {
+      try {
+        await base44.asServiceRole.functions.invoke('sendPushNotification', {
+          user_id: ownerUserId,
+          title: `📅 New booking from ${visitor_name}`,
+          body: `${date || ''} ${time_slot || ''}${service_name ? ` · ${service_name}` : ''}`.trim() || 'Tap to review the booking',
+          url: actionUrl,
+          _internalToken: Deno.env.get('VAPID_PRIVATE_KEY'),
+        });
+      } catch (pushErr) {
+        console.error('Appointment push notification failed (non-blocking):', pushErr.message);
+      }
+    }
+
     // Use ownerPlan (Subscription-derived) — not profile.plan — for consistent email formatting
     const isRestaurant = ownerPlan === "restaurant";
     const isLawFirm = ownerPlan === "lawfirm";
