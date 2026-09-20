@@ -1332,7 +1332,7 @@ export default function ProfileWorkspace({
                       >
                         <div style={{
                           width: 375,
-                          zoom: 0.68,
+                          zoom: 0.73,
                           minHeight: "100%",
                           pointerEvents: "none",
                           userSelect: "none",
