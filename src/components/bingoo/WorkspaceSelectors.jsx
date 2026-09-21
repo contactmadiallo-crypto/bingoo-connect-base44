@@ -240,7 +240,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className={`fixed sm:absolute top-[72px] sm:top-auto left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-0 sm:mt-2 w-[calc(100vw-32px)] max-w-[360px] sm:w-[320px] max-h-[min(520px,calc(100dvh-150px))] overflow-y-auto overscroll-contain rounded-[22px] border shadow-2xl p-2 z-[70] ${panel}`}>
+        <div id={menuId} role="menu" className={`fixed sm:absolute top-[72px] sm:top-auto left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-0 sm:mt-2 w-[calc(100vw-32px)] max-w-[360px] sm:w-[320px] max-h-[min(520px,calc(100dvh-150px))] overflow-y-auto overscroll-contain rounded-[22px] border shadow-2xl p-2 z-[120] ${panel}`}>
           <div className="px-3 py-2 border-b border-current/10">
             <div className="flex items-center gap-3">
               <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white bg-gradient-to-br from-orange-500 to-amber-400 flex-shrink-0">
