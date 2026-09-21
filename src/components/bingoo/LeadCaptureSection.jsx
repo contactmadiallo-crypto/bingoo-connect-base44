@@ -53,11 +53,10 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
       message: form.message,
       preferred_contact_method: form.preferred_contact,
     });
-    base44.entities.Analytics.create({
+    base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profileId,
       event_type: "lead_submitted",
       visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-      created_at: new Date().toISOString(),
     }).catch(() => {});
     setLoading(false);
     setDone(true);

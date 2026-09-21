@@ -8,12 +8,12 @@ import { MobileSelect } from "@/components/ui/mobile-select";
 const STORAGE_KEY = "bingoo_prospect_closed";
 const INTERESTS = ["NFC Card", "Business Profile", "Resume Profile", "Restaurant Menu", "Appointment Booking", "Team Cards"];
 
-function trackProspect(event, profileId) {
-  base44.entities.Analytics.create({
+function trackProspect(event, profileId, deviceCode = null) {
+  base44.functions.invoke("trackPublicAnalytics", {
     profile_id: profileId,
     event_type: event,
+    ...(deviceCode ? { device_code: deviceCode } : {}),
     visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-    created_at: new Date().toISOString(),
   }).catch(() => {});
 }
 
@@ -38,7 +38,7 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
     if (closed && Date.now() - parseInt(closed, 10) < 24 * 60 * 60 * 1000) return;
     const timer = setTimeout(() => {
       setVisible(true);
-      if (profileId) trackProspect("prospect_popup_shown", profileId);
+      if (profileId) trackProspect("prospect_popup_shown", profileId, deviceCode);
     }, 5000);
     return () => clearTimeout(timer);
   }, [profileId, isDemo, isOwner]);
@@ -49,13 +49,13 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
   };
 
   const handleLearnMore = () => {
-    if (profileId) trackProspect("prospect_learn_more_clicked", profileId);
+    if (profileId) trackProspect("prospect_learn_more_clicked", profileId, deviceCode);
     dismiss();
     window.location.href = "/";
   };
 
   const handleSignup = () => {
-    if (profileId) trackProspect("prospect_signup_clicked", profileId);
+    if (profileId) trackProspect("prospect_signup_clicked", profileId, deviceCode);
     setStep("form");
   };
 
@@ -75,7 +75,7 @@ export default function ProspectPopup({ profileId, profileOwnerId, deviceCode, i
       // Non-blocking: the prospect may still have been created server-side; continue to register.
       console.error("createPublicProspect failed (non-blocking):", e?.message);
     }
-    if (profileId) trackProspect("prospect_lead_submitted", profileId);
+    if (profileId) trackProspect("prospect_lead_submitted", profileId, deviceCode);
     setDone(true);
     setTimeout(() => {
       dismiss();

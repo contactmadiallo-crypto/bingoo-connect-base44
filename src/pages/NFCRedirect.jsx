@@ -28,21 +28,22 @@ export default function NFCRedirect() {
   const isReplaced = device?.status === "replaced";
   const isDisabled = device?.status === "disabled";
 
-  // Track NFC tap (profile or asset context)
+  // Track NFC tap server-side. Public visitors do not have direct Analytics
+  // create permission, so the public route must use the validated server function.
   useEffect(() => {
     if (isClaimed && device?.id) {
       const trackProfileId = isAsset ? (asset?.profile_id || null) : (profile?.id || null);
       if (trackProfileId) {
-        base44.entities.Analytics.create({
+        base44.functions.invoke("trackPublicAnalytics", {
           profile_id: trackProfileId,
           device_id: device.id,
           event_type: "nfc_tap",
+          device_code: normalizedCode,
           visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-          created_at: new Date().toISOString(),
         }).catch(() => {});
       }
     }
-  }, [isClaimed, isAsset, asset?.profile_id, profile?.id, device?.id]);
+  }, [isClaimed, isAsset, asset?.profile_id, profile?.id, device?.id, normalizedCode]);
 
   // ASSET REDIRECT: If device is assigned to an asset, route to asset finder.
   // Asset assignment takes precedence over profile assignment.

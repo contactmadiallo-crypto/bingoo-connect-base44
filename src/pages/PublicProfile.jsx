@@ -18,11 +18,12 @@ import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLa
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21", teal: "#0D9488" };
 
 // ── Analytics
-const trackEvent = (profileId, eventType) => {
-  base44.entities.Analytics.create({
-    profile_id: profileId, event_type: eventType,
+const trackEvent = (profileId, eventType, deviceCode = null) => {
+  base44.functions.invoke("trackPublicAnalytics", {
+    profile_id: profileId,
+    event_type: eventType,
+    ...(deviceCode ? { device_code: deviceCode } : {}),
     visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-    created_at: new Date().toISOString(),
   }).catch((err) => console.warn("[Analytics] track failed:", eventType, err?.message || err));
 };
 
@@ -272,9 +273,9 @@ export default function PublicProfile() {
   useEffect(() => {
     if (!profile?.id || isDemo) return;
     // Always track a profile view
-    trackEvent(profile.id, "profile_view");
+    trackEvent(profile.id, "profile_view", deviceCodeParam);
     // Also track source-specific events
-    if (sourceParam === "qr") trackEvent(profile.id, "qr_scan");
+    if (sourceParam === "qr") trackEvent(profile.id, "qr_scan", deviceCodeParam);
     // NFC taps are tracked in NFCRedirect before redirecting here
   }, [profile?.id]);
 
@@ -313,7 +314,7 @@ export default function PublicProfile() {
 
   const color = profile.cover_color || B.navy;
   const r = btnRadius(profile.button_style || "pill");
-  const track = (ev) => !isDemo && trackEvent(profile.id, ev);
+  const track = (ev) => !isDemo && trackEvent(profile.id, ev, deviceCodeParam);
 
   // ── Render championship full-page layouts — pass all content as children
   const effectiveLayout = profile.layout || profile.profile_layout || "default";
