@@ -1,5 +1,5 @@
 const CART_KEY = 'bingoo_cart';
-const MAX_QUANTITY_PER_ITEM = 500;
+const MAX_QUANTITY_PER_ITEM = 50;
 
 export function getCart() {
   try {
