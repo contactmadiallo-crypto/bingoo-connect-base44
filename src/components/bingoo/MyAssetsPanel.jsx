@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
@@ -30,7 +30,7 @@ function AssetTypeBadge({ type }) {
 // Never trust an API response to be an array — guard every downstream use.
 const ensureArray = (v) => Array.isArray(v) ? v : [];
 
-export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
+export default function MyAssetsPanel({ isDark }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -48,11 +48,6 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
 
-  // Temporary development logging — authenticated user ID.
-  React.useEffect(() => {
-    if (user?.id) console.info('[MyAssetsPanel] authenticated user:', user.id);
-  }, [user?.id]);
-
   // ── AssetItem query ──────────────────────────────────────────────────────
   // Explicit error handling: isError captures permission/schema failures so we
   // can show a visible error state instead of a blank page.
@@ -69,12 +64,6 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
     retry: 1,
   });
   const assets = ensureArray(assetsRaw);
-
-  // Temporary dev logging — AssetItem query result / error.
-  React.useEffect(() => {
-    if (assetsIsError) console.error('[MyAssetsPanel] AssetItem query error:', assetsError);
-    else if (!assetsLoading) console.info('[MyAssetsPanel] AssetItem count:', assets.length);
-  }, [assetsIsError, assetsError, assetsLoading, assets.length]);
 
   // ── NFC devices query ─────────────────────────────────────────────────────
   // Explicit error handling + array guard: getMyNfcDevices may return null or
@@ -96,12 +85,6 @@ export default function MyAssetsPanel({ isDark, nfcDevices = [] }) {
     retry: 1,
   });
   const myDevices = ensureArray(myDevicesRaw);
-
-  // Temporary dev logging — getMyNfcDevices result / error.
-  React.useEffect(() => {
-    if (devicesIsError) console.error('[MyAssetsPanel] getMyNfcDevices error:', devicesError);
-    else if (!devicesLoading) console.info('[MyAssetsPanel] NFC devices count:', myDevices.length);
-  }, [devicesIsError, devicesError, devicesLoading, myDevices.length]);
 
   const deviceMap = {};
   myDevices.forEach(d => { deviceMap[d.id] = d; });

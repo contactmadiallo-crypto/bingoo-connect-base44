@@ -55,15 +55,16 @@ export default class MyAssetsErrorBoundary extends React.Component {
           Something went wrong while loading this section.
         </p>
 
-        {/* Development error detail */}
-        <div className={`w-full max-w-md text-left rounded-xl p-3 mb-5 overflow-auto max-h-48 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
-          <p className={`text-[11px] font-mono break-words ${isDark ? 'text-red-300' : 'text-red-600'}`}>{msg}</p>
-          {stack && (
-            <pre className={`mt-2 text-[10px] font-mono whitespace-pre-wrap break-words ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
-              {String(stack).slice(0, 800)}
-            </pre>
-          )}
-        </div>
+        {import.meta.env.DEV && (
+          <div className={`w-full max-w-md text-left rounded-xl p-3 mb-5 overflow-auto max-h-48 ${isDark ? 'bg-white/5 border border-white/10' : 'bg-slate-50 border border-slate-200'}`}>
+            <p className={`text-[11px] font-mono break-words ${isDark ? 'text-red-300' : 'text-red-600'}`}>{msg}</p>
+            {stack && (
+              <pre className={`mt-2 text-[10px] font-mono whitespace-pre-wrap break-words ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
+                {String(stack).slice(0, 800)}
+              </pre>
+            )}
+          </div>
+        )}
 
         <div className="flex gap-2">
           <button onClick={this.handleRetry}
