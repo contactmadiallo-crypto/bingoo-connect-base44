@@ -53,7 +53,6 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
       message: form.message,
       preferred_contact_method: form.preferred_contact,
       source,
-      ...(deviceCode ? { source_device_code: deviceCode } : {}),
     });
     base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profileId,

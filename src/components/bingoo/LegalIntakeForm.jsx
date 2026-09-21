@@ -96,7 +96,6 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
       legal_category: form.legal_category,
       ...form,
       source,
-      ...(deviceCode ? { source_device_code: deviceCode } : {}),
     });
 
     base44.functions.invoke("trackPublicAnalytics", {

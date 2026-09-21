@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Search, Download, Phone, Mail, MessageSquare, Inbox, TrendingUp } from "lucide-react";
+import { Search, Download, Phone, Mail, MessageSquare, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { MobileSelect } from "@/components/ui/mobile-select";
@@ -72,7 +72,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
     const t = setTimeout(() => setFlashId(null), 5000);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [highlightId, isLoading, leads]);
 
   const updateLead = useMutation({
