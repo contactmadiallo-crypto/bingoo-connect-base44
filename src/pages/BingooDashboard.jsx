@@ -855,8 +855,8 @@ export default function BingooDashboard() {
                 user={user}
                 isDark={isDark}
                 canAnalytics={planLoading || canAccessFeature("analytics")}
-                canLeads={planLoading || canAccessFeature("lead_collection")}
-                canAppointments={planLoading || canAccessFeature("appointment_booking")}
+                canLeads={!planLoading && !["free", "professional"].includes(activeProfilePlan) && canAccessFeature("lead_collection")}
+                canAppointments={!planLoading && !["free", "professional"].includes(activeProfilePlan) && canAccessFeature("appointment_booking")}
                 initialTab={searchParams.get("activityTab") || "overview"}
                 onTabChange={(activityTab) => {
                   const next = new URLSearchParams(searchParams);
