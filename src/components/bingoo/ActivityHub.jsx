@@ -27,7 +27,7 @@ export default function ActivityHub({
   highlightLeadId,
   highlightAppointmentId,
 }) {
-  const allowedInitialTab = (initialTab === "leads" && !canLeads) || (initialTab === "appointments" && !canAppointments) ? "overview" : (initialTab || "overview");
+  const allowedInitialTab = (initialTab === "analytics" && !canAnalytics) || (initialTab === "leads" && !canLeads) || (initialTab === "appointments" && !canAppointments) ? "overview" : (initialTab || "overview");
   const [tab, setTab] = useState(allowedInitialTab);
   const visibleTabs = TABS.filter((item) => (item.id !== "leads" || canLeads) && (item.id !== "appointments" || canAppointments));
 
@@ -132,8 +132,8 @@ export default function ActivityHub({
           <div className={`rounded-2xl border p-4 ${card}`}>
             <p className={`font-black text-sm ${head}`}>Your activity center</p>
             <p className={`text-sm mt-1 leading-relaxed ${sub}`}>
-              Save people you meet under Connections, monitor profile/NFC engagement under Analytics,
-              and manage captured prospects under Leads.
+              Save people you meet under Connections and monitor profile/NFC engagement under Analytics.
+              {canLeads ? " Manage captured prospects under Leads." : ""}{canAppointments ? " Manage bookings under Appointments." : ""}
             </p>
           </div>
         </div>
