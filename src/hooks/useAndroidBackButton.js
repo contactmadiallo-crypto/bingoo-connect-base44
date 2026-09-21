@@ -41,8 +41,18 @@ export function useAndroidBackButton() {
     const register = async () => {
       handle = await CapacitorApp.addListener("backButton", ({ canGoBack }) => {
         if (disposed) return;
+        const current = locationRef.current;
+        const view = current.pathname === ROOT_DASHBOARD ? new URLSearchParams(current.search).get("view") : null;
+
+        // Edit Profile and account settings always return to the Profiles card hub.
+        // This keeps Android back consistent with the visible in-app Back control.
+        if ((current.pathname === ROOT_DASHBOARD && view === "workspace") || current.pathname === "/account-settings") {
+          navigate("/bingoo?view=hub");
+          return;
+        }
+
         const hasHistory = canGoBack || window.history.length > 1;
-        if (hasHistory && !isRootDashboard(locationRef.current)) {
+        if (hasHistory && !isRootDashboard(current)) {
           navigate(-1);
         } else {
           CapacitorApp.exitApp();
