@@ -196,11 +196,7 @@ export default function AccountSettings() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button type="button" onClick={() => {
-            const idx = window.history.state?.idx;
-            if (typeof idx === "number" && idx > 0) navigate(-1);
-            else navigate("/bingoo?view=home", { replace: true });
-          }} aria-label="Back" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
+          <button type="button" onClick={() => navigate("/bingoo?view=hub")} aria-label="Back to profiles" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
