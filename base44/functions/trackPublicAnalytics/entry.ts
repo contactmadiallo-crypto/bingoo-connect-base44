@@ -5,7 +5,8 @@ const ALLOWED_EVENTS = new Set([
   'instagram_click', 'facebook_click', 'tiktok_click', 'linkedin_click',
   'youtube_click', 'website_click', 'payment_click', 'location_click',
   'save_contact_click', 'lead_submitted', 'appointment_booked', 'qr_scan',
-  'nfc_tap', 'prospect_popup_shown', 'request_info_click',
+  'nfc_tap', 'prospect_popup_shown', 'prospect_learn_more_clicked',
+  'prospect_signup_clicked', 'prospect_lead_submitted', 'request_info_click',
 ]);
 
 const DEVICE_TYPES = new Set(['mobile', 'desktop']);

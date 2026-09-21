@@ -93,11 +93,10 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
 
     await base44.functions.invoke("createPublicLead", { profile_id: profileId, legal_category: form.legal_category, ...form });
 
-    base44.entities.Analytics.create({
+    base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profileId,
       event_type: "lead_submitted",
       visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-      created_at: new Date().toISOString(),
     }).catch(() => {});
 
     setLoading(false);

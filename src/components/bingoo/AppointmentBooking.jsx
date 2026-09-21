@@ -156,11 +156,10 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
     setSaving(false);
     if (res.data?.error) { setError(res.data.error); return; }
 
-    base44.entities.Analytics.create({
+    base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profile.id,
       event_type: "appointment_booked",
       visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
-      created_at: new Date().toISOString(),
     }).catch(() => {});
     setStep(3);
   };
