@@ -46,7 +46,7 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
 
   const tabs = [
     { id: 'home', label: lang === 'fr' ? 'Accueil' : 'Home', icon: Home, path: '/bingoo?view=home', owns: ownsHome },
-    { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: UserRound, path: '/bingoo?view=workspace', owns: ownsProfiles },
+    { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
     { id: 'activity', label: lang === 'fr' ? 'Activité' : 'Activity', icon: Activity, path: '/bingoo?view=connections', owns: ownsActivity },
   ];
@@ -64,6 +64,18 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
   }, [location]);
 
   const handlePress = (tab) => {
+    // Profiles is a root destination: tapping it must always show the profile-card hub,
+    // never restore the Edit Profile workspace from a previous visit.
+    if (tab.id === 'profiles') {
+      const currentView = location.pathname === '/bingoo' ? new URLSearchParams(location.search).get('view') : null;
+      if (currentView === 'hub') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate('/bingoo?view=hub');
+      }
+      return;
+    }
+
     const active = tab.owns(location);
     if (active) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
