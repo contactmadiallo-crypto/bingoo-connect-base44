@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
+import { resolveEffectivePlan } from '../../shared/entitlementResolver.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -10,7 +11,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { device_id, profile_id, asset_id, user_id, user_name, profile_name, old_status } = await req.json();
+    const { device_id, profile_id, asset_id, user_name, profile_name } = await req.json();
 
     if (!device_id || !profile_id) {
       return Response.json({ error: 'device_id and profile_id are required' }, { status: 400 });
@@ -30,8 +31,18 @@ Deno.serve(async (req) => {
     if (!device) {
       return Response.json({ error: 'Device not found' }, { status: 404 });
     }
+    const blockedStatuses = new Set(['disabled', 'replaced', 'invalid', 'pending_manufacturing', 'retired']);
+    if (blockedStatuses.has(device.status)) {
+      return Response.json({ error: `This device cannot be activated while its status is ${device.status}.` }, { status: 409 });
+    }
+    if (device.account_id && device.account_id !== user.id && user.role !== 'admin') {
+      return Response.json({ error: 'This device is already owned by another account' }, { status: 409 });
+    }
     if (device.profile_id && device.profile_id !== profile_id) {
-      return Response.json({ error: 'This device was just activated by another account' }, { status: 409 });
+      return Response.json({ error: 'This device is already assigned to another profile' }, { status: 409 });
+    }
+    if (device.assigned_asset_id && device.assigned_asset_id !== asset_id) {
+      return Response.json({ error: 'This device is already assigned to another asset' }, { status: 409 });
     }
 
     // If asset_id provided, verify it belongs to the user
@@ -62,12 +73,9 @@ Deno.serve(async (req) => {
       return DEVICE_LIMITS[p] !== undefined ? p : 'free';
     }
 
-    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
-    const sub = subs?.[0];
-    let plan = 'free';
-    if (sub && (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due')) {
-      plan = normalizeDevicePlan(sub.plan);
-    }
+    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email }, '-updated_date', 10);
+    const resolved = resolveEffectivePlan(subs, user.email);
+    const plan = normalizeDevicePlan(resolved.plan);
     const limit = DEVICE_LIMITS[plan] ?? 0;
 
     if (limit === 0) {
@@ -75,6 +83,21 @@ Deno.serve(async (req) => {
       return Response.json({
         error: 'Your current plan does not include NFC device activation. Upgrade to Professional or higher to activate devices.',
       }, { status: 403 });
+    }
+
+    // Same owner + same target is idempotent and must not consume another slot.
+    const sameTarget = device.account_id === user.id &&
+      device.profile_id === profile_id &&
+      (device.assigned_asset_id || null) === (asset_id || null) &&
+      (device.status === 'active' || device.status === 'assigned');
+    if (sameTarget) {
+      return Response.json({
+        success: true,
+        already_active: true,
+        device_code: device.device_code,
+        device_type: device.device_type,
+        assigned_asset_id: asset_id || null,
+      });
     }
 
     // Count currently active/assigned devices for this profile to enforce the cap
@@ -114,12 +137,12 @@ Deno.serve(async (req) => {
     base44.asServiceRole.entities.DeviceAuditLog.create({
       device_id: device_id,
       device_code: device.device_code,
-      action: asset_id ? 'activated_asset' : 'activated',
+      action: 'activated',
       performed_by: user.id,
       performed_by_name: user_name || user.full_name,
       profile_id: profile_id,
       profile_name: profile_name || profile.display_name,
-      old_status: old_status || device.status,
+      old_status: device.status,
       new_status: 'active',
       notes: asset_id
         ? `Activated and assigned to asset ${asset_id} via /d/${device.device_code}`
