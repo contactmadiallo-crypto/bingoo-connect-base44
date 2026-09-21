@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Shield, Lock } from "lucide-react";
+import { isAdminUser } from "@/lib/auth";
 
 export default function AdminAuthGuard({ children }) {
   const [user, setUser] = useState(null);
@@ -17,7 +18,7 @@ export default function AdminAuthGuard({ children }) {
   const checkAuth = async () => {
     try {
       const currentUser = await base44.auth.me();
-      if (currentUser.role !== 'admin') {
+      if (!isAdminUser(currentUser)) {
         alert("Admin access required");
         base44.auth.redirectToLogin();
         return;
