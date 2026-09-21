@@ -65,8 +65,8 @@ self.addEventListener("push", (event) => {
   const title = data.title || "Bingoo Connect";
   const options = {
     body: data.body || "",
-    icon: "/icon-192.png",
-    badge: "/icon-192.png",
+    icon: "/favicon.svg",
+    badge: "/favicon.svg",
     data: { url: data.url || "/bingoo" },
     tag: data.tag || "bingoo-notification",
     renotify: true,
