@@ -1,4 +1,5 @@
 const CART_KEY = 'bingoo_cart';
+const MAX_QUANTITY_PER_ITEM = 500;
 
 export function getCart() {
   try {
@@ -26,6 +27,7 @@ export function getCartLineKey(item) {
 
 export function addToCart(product, quantity = 1, customDesign) {
   const cart = getCart();
+  const safeQuantity = Math.max(1, Math.min(MAX_QUANTITY_PER_ITEM, Number.isFinite(Number(quantity)) ? Math.floor(Number(quantity)) : 1));
   const item = {
     ...product,
     ...(customDesign ? { customDesign } : {}),
@@ -33,10 +35,10 @@ export function addToCart(product, quantity = 1, customDesign) {
   const lineKey = getCartLineKey(item);
   const existing = cart.find(cartItem => getCartLineKey(cartItem) === lineKey);
   if (existing) {
-    existing.quantity += quantity;
+    existing.quantity = Math.min(MAX_QUANTITY_PER_ITEM, (Number(existing.quantity) || 0) + safeQuantity);
     existing.lineKey = lineKey;
   } else {
-    cart.push({ ...item, quantity, lineKey });
+    cart.push({ ...item, quantity: safeQuantity, lineKey });
   }
   saveCart(cart);
   return cart;
@@ -50,10 +52,11 @@ export function updateCartItem(lineKey, quantity) {
   const cart = getCart();
   const idx = cart.findIndex(item => getCartLineKey(item) === lineKey || item.id === lineKey);
   if (idx !== -1) {
-    if (quantity <= 0) {
+    const safeQuantity = Math.min(MAX_QUANTITY_PER_ITEM, Math.floor(Number(quantity) || 0));
+    if (safeQuantity <= 0) {
       cart.splice(idx, 1);
     } else {
-      cart[idx].quantity = quantity;
+      cart[idx].quantity = safeQuantity;
       cart[idx].lineKey = getCartLineKey(cart[idx]);
     }
   }
