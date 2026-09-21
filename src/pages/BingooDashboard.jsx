@@ -745,7 +745,7 @@ export default function BingooDashboard() {
                     next.set("view", VIEW_WORKSPACE);
                     next.set("profileId", activeProfile.id);
                     next.set("editorTab", tab);
-                    setSearchParams(next, { replace: true });
+                    setSearchParams(next, { replace: false });
                   }}
                   user={user}
                   onBack={openHub}
@@ -863,8 +863,8 @@ export default function BingooDashboard() {
                   next.set("view", VIEW_CONNECTIONS);
                   if (activityTab === "overview") next.delete("activityTab");
                   else next.set("activityTab", activityTab);
-                  setSearchParams(next, { replace: true });
-                }}
+                  setSearchParams(next, { replace: false });
+                  }}
                 highlightLeadId={highlightLeadId}
                 highlightAppointmentId={highlightAppointmentId}
               />

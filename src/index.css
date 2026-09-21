@@ -37,6 +37,14 @@ body {
   overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
 }
+/* Stop rubber-banding on scrollable regions inside the Android WebView */
+.overflow-auto,
+.overflow-y-auto,
+.tab-scroll,
+.scrollbar-hide {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
 /* Global horizontal overflow prevention — on #root (NOT html/body).
    overflow-x:clip on the root element (html) makes overflow-y compute to clip
    via CSS spec quirk, which disables viewport vertical scrolling entirely.
@@ -47,8 +55,8 @@ body {
   overflow-x: clip;
 }
 
-/* Disable text selection on interactive UI elements */
-button, a, nav, [role="tab"], [role="button"] {
+/* Disable text selection on interactive UI elements and static UI icons */
+button, a, nav, [role="tab"], [role="button"], svg {
   -webkit-user-select: none;
   user-select: none;
 }
