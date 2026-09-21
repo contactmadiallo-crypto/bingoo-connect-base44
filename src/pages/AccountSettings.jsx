@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Shield, Download, Trash2, CheckCircle2, AlertTriangle, Loader2, ArrowLeft, User, Building2 } from "lucide-react";
+import { Shield, Download, Trash2, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 
 function AccountTypeSection({ user, onUpdated }) {
@@ -224,9 +223,6 @@ export default function AccountSettings() {
             </div>
           </div>
         </div>
-
-        {/* Account type */}
-        <AccountTypeSection user={user} onUpdated={setUser} />
 
         {/* Notifications */}
         <PhoneAlertsSection user={user} />
