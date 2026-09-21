@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 
-function AccountTypeSection({ user, onUpdated }) {
+/* Account type selection lives in the profile/account setup flow, not Account Settings. */
+function AccountTypeSection_UNUSED({ user, onUpdated }) {
   const [saving, setSaving] = useState(false);
   const [accountType, setAccountType] = useState(user?.account_type || "");
   const [businessType, setBusinessType] = useState(user?.business_type || "");
