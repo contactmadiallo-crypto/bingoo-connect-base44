@@ -127,8 +127,8 @@ const AuthenticatedApp = () => {
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/bingoo" element={<BingooDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/monitor" element={<SubscriberMonitoring />} />
+        <Route path="/admin" element={<AdminAuthGuard><AdminDashboard /></AdminAuthGuard>} />
+        <Route path="/monitor" element={<AdminAuthGuard><SubscriberMonitoring /></AdminAuthGuard>} />
         <Route path="/activate-device" element={<ActivateDevice />} />
         <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
         <Route path="/cart" element={<Cart />} />
@@ -139,7 +139,7 @@ const AuthenticatedApp = () => {
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/advanced-admin" element={<Navigate to="/admin" replace />} />
         </Route>
-        <Route path="/shop-admin" element={<ShopAdmin />} />
+        <Route path="/shop-admin" element={<AdminAuthGuard><ShopAdmin /></AdminAuthGuard>} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/playstore-capture" element={<AdminAuthGuard><PlaystoreCapture /></AdminAuthGuard>} />
       </Route>
