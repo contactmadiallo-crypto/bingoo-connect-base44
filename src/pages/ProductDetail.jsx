@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus, ArrowLeft, Check, Shield, Truck, RefreshCw, Bell, PackageCheck, Smartphone } from 'lucide-react';
 import { PRODUCTS, PERFECT_FOR, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';

@@ -8,7 +8,7 @@ import {
   Link2, ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getDeviceTypeLabel, getDeviceEmoji, getDeviceDisplayName, getDeviceDisplayImage } from "@/lib/deviceTypes";
+import { getDeviceEmoji, getDeviceDisplayName, getDeviceDisplayImage } from "@/lib/deviceTypes";
 import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 import { PRODUCTS } from "@/lib/shopProducts";
 import FactoryProductMedia from "@/components/shop/FactoryProductMedia";

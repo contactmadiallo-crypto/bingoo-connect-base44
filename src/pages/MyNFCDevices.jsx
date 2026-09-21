@@ -14,8 +14,7 @@ import DeviceActionsBar from "@/components/bingoo/nfc/DeviceActionsBar";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Smartphone, Copy, ExternalLink, X, ChevronDown, ChevronUp,
-  CheckCircle, AlertCircle, Info, Zap, Clock, AlertTriangle, Layers,
-  RefreshCw, ArrowRightLeft, Plus
+  CheckCircle, AlertCircle, Info, Zap, Layers, ArrowRightLeft, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";

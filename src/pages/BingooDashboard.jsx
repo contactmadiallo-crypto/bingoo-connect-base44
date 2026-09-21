@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
@@ -33,13 +33,9 @@ import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 import { PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
-import {
-  BarChart3, Star, Settings, TrendingUp, CalendarDays,
-  Zap, Briefcase, Users, AlertTriangle,
-  Shield, Scissors, Clock, GitBranch, UserCheck, Scale, Building2, ChevronLeft,
-  AlertOctagon
+import { ChevronLeft
 } from "lucide-react";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
@@ -407,7 +403,7 @@ export default function BingooDashboard() {
         .then(() => qc.invalidateQueries({ queryKey: ["bingoo-notifications"] }))
         .catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [qProfileId, qLeadId, qApptId, qNotifId, profiles]);
 
   // ── Sync selectedProfileId to URL so it survives refresh/back navigation ──
@@ -420,7 +416,7 @@ export default function BingooDashboard() {
       next.set("profileId", selectedProfileId);
       setSearchParams(next, { replace: true });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [selectedProfileId]);
 
   // Queries scoped to activeProfile

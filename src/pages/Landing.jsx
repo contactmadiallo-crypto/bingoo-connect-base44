@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowRight, Wifi, Users, BarChart3, Calendar, Star, Shield, Zap, Globe, QrCode, MapPin, Wallet, Apple, Search, FileText } from "lucide-react";
+import { ArrowRight, Wifi, Users, BarChart3, Calendar, Shield, Globe, QrCode, MapPin, Wallet, Apple, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { useRef, useState, useEffect } from "react";
-import NFCTapMockup from "@/components/bingoo/NFCTapMockup";
+import { useState, useEffect } from "react";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
 import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
 import ProfileForEveryProfession from "@/components/landing/ProfileForEveryProfession";
@@ -23,7 +21,6 @@ import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import { useAuth } from "@/lib/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 
-import BingooLogo from "@/components/bingoo/BingooLogo";
 import { BingooLogo as BingooWordmark, InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 import { base44 } from "@/api/base44Client";
 import { getLang, setLang, t } from "@/lib/i18n";
