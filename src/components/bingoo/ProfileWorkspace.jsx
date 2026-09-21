@@ -1,20 +1,15 @@
 import { publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronLeft, Eye, QrCode, Copy, Check, Download, Info, Link2,
-  Palette, Share2, Settings, ExternalLink, Plus, Trash2, GripVertical,
-  Save, Shield, AlertTriangle, Globe, Mail, Phone, Instagram, Linkedin,
-  Facebook, Youtube, Smartphone, CreditCard, AlertOctagon, Lock, Star, X,
-  Image as ImageIcon, Briefcase
+  ChevronLeft, Eye, Copy, Check, Download, ExternalLink, Plus, Trash2, GripVertical,
+  Save, Shield, AlertTriangle, Lock, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import LivePreviewPanel from "@/components/bingoo/LivePreviewPanel";
-import { ProfileHeaderPreview } from "@/components/bingoo/SectionPreview";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
 import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
@@ -42,7 +37,7 @@ import {
   ShopIcon as BIShop, PortfolioIcon as BIPortfolio, CalendarIcon as BICalendar,
 } from "@/components/bingoo/BrandIcons";
 import { usePlan } from "@/hooks/usePlan";
-import { PLAN_LABELS, PLAN_COLORS, canAccess, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
+import { PLAN_LABELS, PLAN_COLORS, resolveActivePlan, normalizePlan } from "@/lib/planPermissions";
 import { getProfileEditorTabs } from "@/lib/profileEditorTabs";
 import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
 import { toast } from "sonner";
@@ -571,7 +566,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
     qrImg.onerror = () => { if (!cancelled) setPreviewDataUrl(null); };
     qrImg.src = qrSrc;
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [profileQrUrl, qrColor, displayLabel, logoWatermark, isPro, hasLogo, profile?.company_logo]);
 
   const handleDownloadQR = () => {

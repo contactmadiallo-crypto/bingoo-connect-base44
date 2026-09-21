@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";

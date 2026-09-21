@@ -103,9 +103,10 @@ const TAB_TO_VIEW = {
 function resolveView(searchParams) {
   const v = searchParams.get("view");
   if (v === "docwallet") return VIEW_QR; // Document Wallet consolidated into QR & Wallet
-  if (v) return v;
+  if (v && TAB_TO_VIEW[v]) return TAB_TO_VIEW[v];
   const tab = searchParams.get("tab");
   if (tab && TAB_TO_VIEW[tab]) return TAB_TO_VIEW[tab];
+  // Never allow an unknown/deprecated query-param view to render a blank dashboard.
   return VIEW_HOME;
 }
 // ── NewProfileForm ──────────────────────────────────────────────────────────
@@ -628,7 +629,7 @@ export default function BingooDashboard() {
 
           {/* Hub uses the clean shared Figma-style header without a second toolbar. */}
           {view !== VIEW_HUB && (
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="min-w-0">
                 <h1 className={`text-base font-black leading-none truncate ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -639,7 +640,7 @@ export default function BingooDashboard() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
               {view !== VIEW_WORKSPACE && (
                 <ProfileSelectorDropdown
                   profiles={orderedProfiles}
