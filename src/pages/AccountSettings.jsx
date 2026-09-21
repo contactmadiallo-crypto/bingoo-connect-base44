@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Shield, Download, Trash2, Activity, CheckCircle2, AlertTriangle, Loader2, ArrowLeft, User, Building2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Shield, Download, Trash2, CheckCircle2, AlertTriangle, Loader2, ArrowLeft, User, Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";
@@ -87,6 +87,7 @@ function AccountTypeSection({ user, onUpdated }) {
 }
 
 export default function AccountSettings() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState("");
@@ -181,12 +182,6 @@ export default function AccountSettings() {
     }
   };
 
-  const ACTION_COLORS = {
-    login: "#22c55e", logout: "#94a3b8", profile_update: "#06b6d4",
-    device_activated: "#FDBA21", admin_action: "#f97316",
-    account_deleted: "#ef4444", account_deletion_requested: "#ef4444", data_exported: "#8b5cf6",
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -201,29 +196,28 @@ export default function AccountSettings() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/bingoo" aria-label="Back to dashboard" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
+          <button type="button" onClick={() => {
+            const idx = window.history.state?.idx;
+            if (typeof idx === "number" && idx > 0) navigate(-1);
+            else navigate("/bingoo?view=home", { replace: true });
+          }} aria-label="Back" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
             <ArrowLeft className="w-4 h-4" /> Back
-          </Link>
+          </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
           <Shield className="w-4 h-4 text-white/70" />
-          <span className="text-white font-bold">Account Security & Privacy</span>
+          <span className="text-white font-bold">Account Settings</span>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-10 space-y-8">
-
-        {/* Account Type */}
-        <AccountTypeSection user={user} onUpdated={setUser} />
-
-        {/* Phone Alerts (push notifications) */}
-        <PhoneAlertsSection user={user} />
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
 
         {/* Account info */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
-          <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" /> Account Information
+          <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <Shield className="w-5 h-5 text-blue-600" /> Your Account
           </h2>
-          <div className="grid sm:grid-cols-2 gap-4 text-sm">
+          <p className="text-slate-500 text-sm mb-4">Your sign-in identity and account preferences.</p>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div className="bg-slate-50 rounded-xl p-4">
               <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Full Name</p>
               <p className="font-bold text-slate-900">{user?.full_name || "—"}</p>
@@ -232,70 +226,14 @@ export default function AccountSettings() {
               <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Email</p>
               <p className="font-bold text-slate-900">{user?.email}</p>
             </div>
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Role</p>
-              <p className="font-bold text-slate-900 capitalize">{user?.role || "user"}</p>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Account ID</p>
-              <p className="font-mono text-xs text-slate-500">{user?.id}</p>
-            </div>
           </div>
         </div>
 
-        {/* Security status */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
-          <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600" /> Security Status
-          </h2>
-          <div className="space-y-3">
-            {[
-              { label: "Email Verified", status: true, note: "Your email was verified via OTP at registration" },
-              { label: "Strong Password Policy", status: true, note: "Min 8 chars, uppercase, number and special character" },
-              { label: "Data Encryption", status: true, note: "All data transmitted over HTTPS / TLS 1.3" },
-              { label: "Row-Level Data Security", status: true, note: "You can only access your own data" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
-                <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{item.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{item.note}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Account type */}
+        <AccountTypeSection user={user} onUpdated={setUser} />
 
-        {/* Activity log */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
-          <h2 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-600" /> Recent Activity
-          </h2>
-          {activityLogs.length > 0 ? (
-            <div className="space-y-2">
-              {activityLogs.slice(0, 20).map(log => (
-                <div key={log.id} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                    style={{ background: ACTION_COLORS[log.action] || "#94a3b8" }} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 capitalize">
-                      {log.action?.replace(/_/g, " ")}
-                    </p>
-                    {log.description && <p className="text-xs text-slate-400 truncate">{log.description}</p>}
-                  </div>
-                  <p className="text-xs text-slate-400 whitespace-nowrap">
-                    {log.timestamp ? new Date(log.timestamp).toLocaleDateString() : "—"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-slate-400">
-              <Activity className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">No activity recorded yet</p>
-            </div>
-          )}
-        </div>
+        {/* Notifications */}
+        <PhoneAlertsSection user={user} />
 
         {/* Export data */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
@@ -303,7 +241,7 @@ export default function AccountSettings() {
             <Download className="w-5 h-5 text-blue-600" /> Export My Data
           </h2>
           <p className="text-slate-500 text-sm mb-4">
-            Download a copy of all your personal data including profiles, devices, leads, appointments, and activity logs in JSON format.
+            Download a copy of your Bingoo account data in JSON format.
           </p>
           <Button onClick={handleExport} disabled={exporting} variant="outline"
             className="gap-2 font-bold border-blue-200 text-blue-700 hover:bg-blue-50">
