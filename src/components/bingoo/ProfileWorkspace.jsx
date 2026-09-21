@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronLeft, Eye, Copy, Check, Download, ExternalLink, Plus, Trash2, GripVertical,
+  ChevronLeft, Eye, Copy, Check, Download, ExternalLink, Plus, Trash2,
   Save, Shield, AlertTriangle, Lock, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ function getLinkIcon(link, size = 14) {
 const EDITABLE_FIELDS = [
   "display_name", "job_title", "company_name", "company_logo", "location", "phone",
   "whatsapp_number", "email", "website", "bio", "cover_color", "cover_photo",
-  "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "cover_position", "avatar_crop_x", "avatar_crop_y", "avatar_zoom", "cover_crop_x", "cover_crop_y", "cover_zoom",
+  "profile_photo", "avatar_shape",
   "instagram_url", "linkedin_url", "facebook_url", "tiktok_url",
   "youtube_url", "payment_link", "zelle_link", "cashapp_link", "wave_link",
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
@@ -229,8 +229,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   return (
     <div className="space-y-[18px] pb-4 max-w-[560px]">
       {/* Figma Profile page toolbar */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
+        <div className="min-w-0">
           <h2 className={`text-[16px] font-extrabold ${headText}`}>Profile</h2>
         </div>
         <button type="button" onClick={onSave} disabled={isPending}
@@ -398,7 +398,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
           <p className={`text-[12px] mt-0.5 ${mutedText}`}>Manage what appears on your public profile.</p>
         </div>
         <button type="button" onClick={() => setStoreOpen(true)}
-          className="flex items-center gap-1.5 px-[18px] py-[9px] rounded-lg text-[13px] font-bold text-white flex-shrink-0"
+          className="flex items-center justify-center gap-1.5 w-full xs:w-auto px-[18px] py-[10px] rounded-xl text-[13px] font-bold text-white flex-shrink-0"
           style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}>
           <Plus className="w-[14px] h-[14px]" /> Add Link
         </button>
@@ -416,7 +416,6 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
             const isHidden = hiddenLinks.has(r.key);
             return (
               <div key={r.key} className={`flex items-center gap-[10px] px-[14px] py-[11px] rounded-[11px] border transition-opacity ${panelBg} ${panelBorder} ${isHidden ? "opacity-55" : ""}`}>
-                <GripVertical className="w-[15px] h-[15px] text-slate-300 flex-shrink-0" />
                 <div className={`w-[34px] h-[34px] rounded-[9px] flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/8" : "bg-[#F7F9FC]"}`}>
                   <r.Icon size={18} />
                 </div>
@@ -434,7 +433,6 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 
           {links.map((link, idx) => (
             <div key={link.id || String(idx)} className={`flex items-center gap-[10px] px-[14px] py-[11px] rounded-[11px] border transition-opacity ${panelBg} ${panelBorder} ${!link.enabled ? "opacity-55" : ""}`}>
-              <GripVertical className="w-[15px] h-[15px] text-slate-300 flex-shrink-0" />
               <div className="w-[34px] h-[34px] rounded-[9px] overflow-hidden flex items-center justify-center flex-shrink-0">
                 {getLinkIcon(link, 18)}
               </div>
@@ -951,7 +949,7 @@ export default function ProfileWorkspace({
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
   const setVal = useCallback((k, v) => setLiveForm(f => ({ ...f, [k]: v })), []);
-  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "avatar_position", "avatar_placement", "avatar_crop_x", "avatar_crop_y", "avatar_zoom", "cover_crop_x", "cover_crop_y", "cover_zoom", "bg_style", "button_style", "button_color", "font_style", "theme_background_color"];
+  const designKeys = ["layout", "cover_color", "cover_photo", "profile_photo", "avatar_shape", "bg_style", "button_style", "button_color", "font_style", "theme_background_color"];
   const designHasChanges = designKeys.some((key) => JSON.stringify(liveForm?.[key]) !== JSON.stringify(profile?.[key]));
   const hasUnsavedChanges = useMemo(() => {
     if (!profile || !liveForm) return false;
@@ -1016,7 +1014,7 @@ export default function ProfileWorkspace({
       // 3. Verify key scalar fields persisted — skip arrays (custom_links, etc.)
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
-        "cover_color","layout","bg_style","button_style","avatar_shape","avatar_position","avatar_placement","avatar_crop_x","avatar_crop_y","avatar_zoom","cover_crop_x","cover_crop_y","cover_zoom",
+        "cover_color","layout","bg_style","button_style","avatar_shape",
         "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
@@ -1124,9 +1122,10 @@ export default function ProfileWorkspace({
         </div>
 
         {profileUrl && (
-          <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Preview profile"
-            className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
+          <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Preview public profile"
+            className={`h-[34px] px-2.5 sm:px-3 rounded-lg border flex items-center justify-center gap-1.5 flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
             <Eye className="w-[14px] h-[14px]" />
+            <span className="hidden sm:inline text-[11px] font-bold">Public Profile</span>
           </button>
         )}
 

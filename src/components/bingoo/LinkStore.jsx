@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { X, Plus, Check, Search, ChevronLeft } from "lucide-react";
 import {
   PhoneIcon, WhatsAppIcon, EmailIcon, WebsiteIcon, LocationIcon,
