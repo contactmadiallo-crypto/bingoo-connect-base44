@@ -283,7 +283,7 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false, compact = fa
 }
 
 // ════════════════════════════════════════════════════════════
-export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, track, primaryContactDocked = false }) {
+export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, sourceParam, track, primaryContactDocked = false }) {
   const [bookOpen, setBookOpen] = useState(false);
   const [bookService, setBookService] = useState(null);
   const [bookStylist, setBookStylist] = useState(null);
@@ -439,7 +439,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <SaveContactIcon size={15} /> Save
         </motion.button>
         <div style={{ flex: 1 }}>
-          <SaveProfileButton profile={profile} color={buttonDesign.color} buttonStyle={buttonDesign.style} source={deviceCodeParam ? "nfc_scan" : "manual"} />
+          <SaveProfileButton profile={profile} color={buttonDesign.color} buttonStyle={buttonDesign.style} source={sourceParam === "qr" ? "qr_scan" : (deviceCodeParam || sourceParam === "nfc") ? "nfc_scan" : "manual"} />
         </div>
         <motion.button onClick={handleShare}
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
@@ -692,7 +692,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {profile.lead_capture_enabled !== false && (
         <>
           <Div isDark={isDark} />
-          <LeadCaptureSection profileId={profile.id} color={color} isLawFirm={isLawFirmProfile} />
+          <LeadCaptureSection profileId={profile.id} color={color} isLawFirm={isLawFirmProfile} source={sourceParam === "qr" ? "qr" : (deviceCodeParam || sourceParam === "nfc") ? "nfc" : "profile"} deviceCode={deviceCodeParam} />
         </>
       )}
 
@@ -718,6 +718,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           onClose={() => { setBookOpen(false); setBookService(null); setBookStylist(null); }}
           prefilledService={bookService}
           prefilledStylist={bookStylist}
+          analyticsDeviceCode={deviceCodeParam}
         />,
         document.body
       )}

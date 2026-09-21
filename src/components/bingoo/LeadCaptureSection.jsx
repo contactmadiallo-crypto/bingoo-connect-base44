@@ -15,7 +15,7 @@ const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
 const RATE_LIMIT_KEY = "bingoo_lead_last_submit";
 const RATE_LIMIT_MS = 60_000; // 60 seconds
 
-export default function LeadCaptureSection({ profileId, color = "#0b2149", isLawFirm = false }) {
+export default function LeadCaptureSection({ profileId, color = "#0b2149", isLawFirm = false, source = "profile", deviceCode = null }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "", preferred_contact: "WhatsApp" });
   const [loading, setLoading] = useState(false);
@@ -25,7 +25,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
-  if (isLawFirm) return <LegalIntakeForm profileId={profileId} color={color} isLawFirm={true} />;
+  if (isLawFirm) return <LegalIntakeForm profileId={profileId} color={color} isLawFirm={true} source={source} deviceCode={deviceCode} />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +52,8 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
       email: form.email,
       message: form.message,
       preferred_contact_method: form.preferred_contact,
+      source,
+      ...(deviceCode ? { source_device_code: deviceCode } : {}),
     });
     base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profileId,

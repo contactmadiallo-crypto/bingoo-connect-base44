@@ -51,7 +51,7 @@ function getProfileType(profile) {
   return "general";
 }
 
-export default function AppointmentBooking({ profile, onClose, prefilledService, prefilledStylist }) {
+export default function AppointmentBooking({ profile, onClose, prefilledService, prefilledStylist, analyticsDeviceCode = null }) {
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -159,6 +159,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
     base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profile.id,
       event_type: "appointment_booked",
+      ...(analyticsDeviceCode ? { device_code: analyticsDeviceCode } : {}),
       visitor_device: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop",
     }).catch(() => {});
     setStep(3);

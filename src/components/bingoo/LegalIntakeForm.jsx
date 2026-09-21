@@ -29,7 +29,7 @@ function YesNo({ label, value, onChange }) {
   );
 }
 
-export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false }) {
+export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false, source = "profile", deviceCode = null }) {
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -91,7 +91,13 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
     setLoading(true);
     localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
 
-    await base44.functions.invoke("createPublicLead", { profile_id: profileId, legal_category: form.legal_category, ...form });
+    await base44.functions.invoke("createPublicLead", {
+      profile_id: profileId,
+      legal_category: form.legal_category,
+      ...form,
+      source,
+      ...(deviceCode ? { source_device_code: deviceCode } : {}),
+    });
 
     base44.functions.invoke("trackPublicAnalytics", {
       profile_id: profileId,

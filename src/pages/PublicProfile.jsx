@@ -321,7 +321,7 @@ export default function PublicProfile() {
   const championContentSections = (
     <ProfileContentSections
       profile={profile} color={color} isDark={true}
-      isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+      isDemo={isDemo} deviceCodeParam={deviceCodeParam} sourceParam={sourceParam} track={track}
     />
   );
   if (effectiveLayout === "ny_championship" || profile.profile_layout === "ny_championship") {
@@ -357,7 +357,7 @@ export default function PublicProfile() {
   const layoutContentSections = (
     <ProfileContentSections
       profile={profile} color={color} isDark={isDark}
-      isDemo={isDemo} deviceCodeParam={deviceCodeParam} track={track}
+      isDemo={isDemo} deviceCodeParam={deviceCodeParam} sourceParam={sourceParam} track={track}
       primaryContactDocked={Boolean(profile.phone || profile.whatsapp_number)}
     />
   );
