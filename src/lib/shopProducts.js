@@ -58,7 +58,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: true,
     bestFor: 'Professional networking',
-    activationCode: 'BNG-00001',
     features: [
       'Premium matte PVC finish',
       'Embossed Bingoo infinity logo',
@@ -81,7 +80,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Everyday carry',
-    activationCode: 'BNG-00002',
     features: [
       'Durable round NFC tag',
       'Matte navy finish',
@@ -104,7 +102,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Events & networking',
-    activationCode: 'BNG-00006',
     features: [
       'Soft silicone wristband',
       'Water-resistant design',
@@ -127,7 +124,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Flexible sharing',
-    activationCode: 'BNG-00005',
     features: [
       'Strong adhesive backing',
       'Ultra-thin round design',
@@ -224,7 +220,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: true,
     bestFor: 'Premium networking',
-    activationCode: 'BNG-00003',
     features: [
       'Brushed gunmetal finish',
       'Heavy-duty premium build',
@@ -247,7 +242,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: true,
     bestFor: 'Natural premium',
-    activationCode: 'BNG-00004',
     features: [
       'Real walnut wood grain',
       'Matte stained finish',
@@ -410,7 +404,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Front desks & counters',
-    activationCode: 'BNG-00009',
     features: [
       'Stable weighted base',
       'Embedded NFC chip',
@@ -433,7 +426,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Desks & workspaces',
-    activationCode: 'BNG-00010',
     features: [
       'Angled phone holder',
       'Embedded NFC chip',
@@ -618,7 +610,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Suitcases & travel bags',
-    activationCode: 'BNG-00012',
     features: [
       'NFC tap + QR code backup',
       'Durable travel-grade material',
@@ -642,7 +633,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Pet identification & recovery',
-    activationCode: 'BNG-00011',
     features: [
       'Durable pet-safe silicone',
       'Fits any standard collar',
@@ -666,7 +656,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Bags & equipment',
-    activationCode: 'BNG-00007',
     features: [
       'Soft silicone teardrop',
       'Durable & flexible',
@@ -689,7 +678,6 @@ export const PRODUCTS = [
     stripeReady: true,
     customizable: false,
     bestFor: 'Keys & portable assets',
-    activationCode: 'BNG-00008',
     features: [
       'Teardrop key fob design',
       'Silver keyring included',
