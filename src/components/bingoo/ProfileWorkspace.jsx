@@ -423,8 +423,8 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                   <p className={`text-[13px] font-bold ${headText} truncate`}>{r.label}</p>
                 </div>
                 <button type="button" onClick={() => { setEditingLinkId(r.key); setStoreOpen(true); }}
-                  className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
-                  Edit
+                  aria-label={`Edit ${r.label}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                  <span className="hidden xs:inline">Edit</span><span className="xs:hidden">•••</span>
                 </button>
                 <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
               </div>
@@ -440,8 +440,8 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                 <p className={`text-[13px] font-bold ${headText} truncate`}>{link.label}</p>
               </div>
               <button type="button" onClick={() => { setEditingLinkId(link._catalog_id || null); setStoreOpen(true); }}
-                className={`px-[11px] py-[5px] rounded-[7px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
-                Edit
+                aria-label={`Edit ${link.label || "link"}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                <span className="hidden xs:inline">Edit</span><span className="xs:hidden">•••</span>
               </button>
               <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
             </div>

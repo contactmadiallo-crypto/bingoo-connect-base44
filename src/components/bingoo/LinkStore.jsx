@@ -283,10 +283,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
       {/* Web Link quick-add */}
       {webOpen && (
         <div className={`px-4 py-3 border-b ${borderCls} space-y-2 flex-shrink-0 ${isDark ? "bg-white/[0.03]" : "bg-slate-50"} max-h-24 overflow-y-auto`}>
-          <div className="flex gap-2">
-            <input type="text" className={inputCls + " flex-1"} placeholder="Label (e.g. Book Now)" value={webLabel} onChange={e => setWebLabel(e.target.value)} />
-            <input type="text" className={inputCls + " flex-1"} placeholder="https://..." value={webUrl} onChange={e => setWebUrl(e.target.value)} />
-            <button onClick={handleAddWebLink} className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#f97316" }}>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input type="text" className={inputCls + " flex-1 min-w-0"} placeholder="Label (e.g. Book Now)" value={webLabel} onChange={e => setWebLabel(e.target.value)} />
+            <input type="text" className={inputCls + " flex-1 min-w-0"} placeholder="https://..." value={webUrl} onChange={e => setWebUrl(e.target.value)} />
+            <button onClick={handleAddWebLink} className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#f97316" }}>
               <Plus className="w-3.5 h-3.5" />Add
             </button>
           </div>
@@ -294,10 +294,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
       )}
 
       {!editing && !webOpen && (
-        <div className="px-[22px] pt-3 pb-2 flex gap-[9px] items-center flex-shrink-0">
+        <div className="px-4 sm:px-[22px] pt-3 pb-2 flex flex-col xs:flex-row gap-[9px] xs:items-center flex-shrink-0">
           <button
             onClick={() => setWebOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
+            className="flex items-center justify-center gap-1.5 w-full xs:w-auto px-4 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
             style={{ background: "#3b82f6" }}>
             <Plus className="w-3 h-3" /> Web Link
           </button>
