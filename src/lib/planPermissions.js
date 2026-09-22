@@ -332,18 +332,17 @@ export function maxTeamMembers(userPlan) {
   return map[normalized] ?? 0;
 }
 
-// Industry/business-tier plans fall back to Professional (not Free) when a subscription
-// is canceled or a trial ends unpaid — they're built on top of Professional.
-// Professional itself falls back to Free. Mirrors the policy in getUserFeatures.
-const INDUSTRY_PLANS = new Set(['salon', 'restaurant', 'lawfirm', 'business', 'corporate']);
-function downgradedPlan(plan) {
-  return INDUSTRY_PLANS.has(plan) ? 'professional' : 'free';
+// Terminal subscription states remove paid entitlement. The user's data remains
+// stored, but paid mutations stay locked until a valid paid entitlement returns.
+function downgradedPlan(_plan) {
+  return 'free';
 }
+
 
 /**
  * Resolves active plan from a subscription record.
  * - No subscription → free
- * - canceled → Professional if it was a business-tier plan, else Free
+ * - canceled / terminal → Free (data retained; paid mutations locked)
  * - past_due → keep current plan (grace period, Stripe retries)
  * - active → use plan field
  */
