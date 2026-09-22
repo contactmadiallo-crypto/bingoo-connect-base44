@@ -22,7 +22,7 @@ export function usePlan() {
 
   const { data: subscriptions, isLoading: loadingSub, isFetching: fetchingSub } = useQuery({
     queryKey: ['my-subscription', user?.email],
-    queryFn: () => base44.entities.Subscription.filter({ customer_email: user.email }),
+    queryFn: () => base44.entities.Subscription.filter({ customer_email: user.email }, '-updated_date', 10),
     enabled: !!user?.email,
   });
 

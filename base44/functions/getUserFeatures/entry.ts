@@ -40,9 +40,11 @@ Deno.serve(async (req) => {
     }
 
     // ── 2. Fetch subscription ──────────────────────────────────────────────
-    const subscriptions = await base44.entities.Subscription.filter({
-      customer_email: user.email,
-    });
+    const subscriptions = await base44.entities.Subscription.filter(
+      { customer_email: user.email },
+      '-updated_date',
+      10
+    );
 
     const subscription = subscriptions?.[0] || null;
     let subPlan = 'free';

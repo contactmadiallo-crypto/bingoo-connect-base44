@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS, PLAN_CONFIG, getPlanConfig, formatPlanPrice } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS, PLAN_CONFIG, formatPlanPrice } from '@/lib/planPermissions';
 import { isAdminSwitcher, isProtectedTestAccount } from '@/lib/testAccounts';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -338,7 +338,7 @@ export default function Billing() {
                   Your subscription is {statusKey === 'past_due' ? 'past due' : 'canceled'}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: '#78350f' }}>
-                  Premium features are locked. Your data is safe. Resubscribe anytime to restore access.
+                  Your paid plan has changed under the current billing policy. Your data is safe. Resubscribe anytime to restore the plan's full feature set.
                 </p>
               </div>
             </div>
