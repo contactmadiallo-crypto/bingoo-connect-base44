@@ -18,6 +18,20 @@ const PLAN_MAP = {
 
 const STRIPE_SUPPORTED_CURRENCIES = ['usd', 'eur', 'gbp', 'cad'];
 const APP_URL = 'https://bingooconnect.com';
+const SELF_SERVE_PLANS = new Set(['professional', 'pro', 'business', 'salon', 'lawfirm']);
+
+function safeReturnUrl(raw, fallbackPath) {
+  if (!raw) return `${APP_URL}${fallbackPath}`;
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'https:') return `${APP_URL}${fallbackPath}`;
+    const host = u.hostname.toLowerCase();
+    if (host !== 'bingooconnect.com' && host !== 'www.bingooconnect.com') return `${APP_URL}${fallbackPath}`;
+    return u.toString();
+  } catch {
+    return `${APP_URL}${fallbackPath}`;
+  }
+}
 
 /**
  * Resolves a fixed, reusable Stripe Price ID for a plan + currency + interval.
@@ -74,6 +88,12 @@ Deno.serve(async (req) => {
     if (!plan || !PLAN_MAP[plan]) {
       return Response.json({ error: 'Invalid plan: ' + plan }, { status: 400 });
     }
+    if (!SELF_SERVE_PLANS.has(plan)) {
+      return Response.json({
+        error: 'This plan is not available through self-service checkout. Please contact Bingoo Connect sales.',
+        contact_sales: true,
+      }, { status: 403 });
+    }
 
     const interval = billing_cycle === 'annual' ? 'year' : 'month';
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -85,7 +105,11 @@ Deno.serve(async (req) => {
 
     // Find existing Stripe customer for this user
     let customerId;
-    const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: user.email });
+    const subs = await base44.asServiceRole.entities.Subscription.filter(
+      { customer_email: user.email },
+      '-updated_date',
+      10
+    );
     if (subs?.[0]?.stripe_customer_id) {
       customerId = subs[0].stripe_customer_id;
     }
@@ -129,8 +153,8 @@ Deno.serve(async (req) => {
       payment_method_types: ['card'],
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: bodySuccessUrl || `${APP_URL}/plans?success=1`,
-      cancel_url: bodyCancelUrl || `${APP_URL}/plans?canceled=1`,
+      success_url: safeReturnUrl(bodySuccessUrl, '/plans?success=1'),
+      cancel_url: safeReturnUrl(bodyCancelUrl, '/plans?canceled=1'),
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
         user_id: user.id,
