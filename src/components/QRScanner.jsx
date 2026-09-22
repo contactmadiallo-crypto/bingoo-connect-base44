@@ -227,7 +227,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         </div>
       </DialogContent>
       
-      <style jsx>{`
+      <style>{`
         @keyframes scan {
           0% { top: 0%; }
           50% { top: 100%; }
