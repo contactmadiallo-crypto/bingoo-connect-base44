@@ -81,6 +81,41 @@ const UNIVERSAL_NEVER = new Set([
 const SCOPE_NEVER = new Set(['profile_id', 'restaurant_id']);
 
 export const GATED_ENTITIES = {
+  Lead: {
+    feature: 'lead_collection', scope: 'profile',
+    requiredCreate: [],
+    fields: {
+      name: (v) => strVal(v, 200),
+      phone: (v) => phoneVal(v),
+      email: (v) => emailVal(v),
+      message: (v) => strVal(v, 5000),
+      status: (v) => enumVal(v, new Set(['new','contacted','qualified','won','lost','reviewed','consultation_scheduled','documents_requested','retained','declined','closed'])),
+      description: (v) => strVal(v, 5000),
+      preferred_contact_method: (v) => enumVal(v, new Set(['WhatsApp','Phone','Email'])),
+      follow_up_date: (v) => strVal(v, 20),
+      latest_interaction: (v) => strVal(v, 2000),
+      assigned_attorney_id: (v) => strVal(v, 100),
+      assigned_attorney_name: (v) => strVal(v, 200),
+      legal_category: (v) => enumVal(v, new Set(['Immigration','Civil','Criminal'])),
+      legal_service: (v) => strVal(v, 300),
+      urgency: (v) => enumVal(v, new Set(['low','medium','high','emergency'])),
+    },
+    never: new Set(['source']),
+  },
+
+  Appointment: {
+    feature: 'appointment_booking', scope: 'profile',
+    requiredCreate: [],
+    fields: {
+      status: (v) => enumVal(v, new Set(['pending','confirmed','accepted','completed','cancelled','canceled','declined','rescheduled','no_show'])),
+      description: (v) => strVal(v, 2000),
+      date: (v) => strVal(v, 20),
+      time_slot: (v) => strVal(v, 20),
+      duration: (v) => numVal(v, 1, 1440),
+    },
+    never: new Set(['visitor_name','visitor_email','visitor_phone','service_name','stylist_name','guest_count','case_type','a_number','case_number','notes','source','reminder_sent_at']),
+  },
+
   TeamMember: {
     feature: 'team_members', scope: 'profile',
     requiredCreate: ['name'],

@@ -76,7 +76,10 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
   }, [highlightId, isLoading, leads]);
 
   const updateLead = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'Lead', profile_id: profileId, op: 'update', record_id: id, data });
+      return res.data.record;
+    },
     onMutate: async ({ id, data }) => {
       await qc.cancelQueries({ queryKey });
       const previousLeads = qc.getQueryData(queryKey);

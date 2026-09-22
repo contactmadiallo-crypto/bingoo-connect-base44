@@ -1,13 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, X, ChevronDown, Phone, Mail, MessageSquare, ArrowRight } from "lucide-react";
+import { Pencil, Trash2, X, Phone, Mail } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { dbOp, logInvalidate } from "@/lib/dbDebug";
 
 const STAGES = [
   { id: "new",       label: "New",        color: "#6366f1" },
@@ -41,12 +40,18 @@ export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Lead.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'Lead', profile_id: profileId, op: 'update', record_id: id, data });
+      return res.data.record;
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey }); setEditing(null); toast.success("Saved Successfully"); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Lead.delete(id),
+    mutationFn: async (id) => {
+      await base44.functions.invoke('createGatedRecord', { entity_name: 'Lead', profile_id: profileId, op: 'delete', record_id: id });
+      return id;
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey }); },
   });
 

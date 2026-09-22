@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -107,7 +107,11 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
   }, [highlightId, profileLoading, ownerLoading, all.length]);
 
   const update = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      if (!profileId) throw new Error('A profile is required to update appointments');
+      const res = await base44.functions.invoke('createGatedRecord', { entity_name: 'Appointment', profile_id: profileId, op: 'update', record_id: id, data });
+      return res.data.record;
+    },
     onMutate: async ({ id, data }) => {
       const keys = [];
       if (profileId) keys.push(["appointments", profileId]);
