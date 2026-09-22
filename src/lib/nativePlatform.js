@@ -4,9 +4,11 @@ import { Browser } from "@capacitor/browser";
 export const isNativeAndroid = () =>
   Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
 
+export const isNativeApp = () => Capacitor.isNativePlatform();
+
 export async function openExternalUrl(url) {
   if (!url) return;
-  if (isNativeAndroid()) {
+  if (isNativeApp()) {
     await Browser.open({ url, presentationStyle: "popover" });
     return;
   }
@@ -15,7 +17,7 @@ export async function openExternalUrl(url) {
 
 export function productionCallback(path) {
   const normalized = String(path || "/").startsWith("/") ? path : `/${path}`;
-  return isNativeAndroid()
+  return isNativeApp()
     ? `bingooconnect://auth${normalized}`
     : `${window.location.origin}${normalized}`;
 }

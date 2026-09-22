@@ -58,7 +58,7 @@ export default function NativeAndroidBridge() {
   useAndroidBackButton();
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android") return;
+    if (!Capacitor.isNativePlatform()) return;
     let disposed = false;
     const handles = [];
 
