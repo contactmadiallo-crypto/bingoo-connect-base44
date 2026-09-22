@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { PRODUCT_TYPES, ProductPreview } from './ProductPreview';
 
 // Primary 6 devices shown by default; extras (metal_card, wood_card) behind "View all"

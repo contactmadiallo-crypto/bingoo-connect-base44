@@ -1,5 +1,4 @@
-import React from 'react';
-import { PhoneFrame, Badge } from '@/components/mockups/MockupFrame';
+import { PhoneFrame } from '@/components/mockups/MockupFrame';
 import { Icon } from '@/components/mockups/BingooIcons';
 
 const NAVY = '#0b2149', NAVY_DEEP = '#071A3D', ORANGE = '#f97316', BG = '#F7F9FC', BORDER = '#E5EAF2', INK = '#0F172A', MUTED = '#64748B';

@@ -1,4 +1,3 @@
-import React from "react";
 
 /**
  * LayoutFamilyPreview — CSS-based structural thumbnails for the 8 layout families.

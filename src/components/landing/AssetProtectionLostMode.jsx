@@ -11,7 +11,6 @@ import {
   MapPin,
   MessageCircle,
   Package,
-  Phone,
   Shield,
   ShieldCheck,
   Tag,

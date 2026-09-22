@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { X, Download, FileArchive, Printer, CheckCircle2 } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { X, Download, FileArchive, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
 

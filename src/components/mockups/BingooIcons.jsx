@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Custom Bingoo icon set — premium stroke-based SVGs, 24x24 viewBox.
 // Distinctive style: 1.75 stroke, rounded caps, clean geometric forms.

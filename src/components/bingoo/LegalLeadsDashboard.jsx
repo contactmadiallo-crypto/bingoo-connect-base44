@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
-import { X, Phone, Mail, MessageSquare, FileText, User, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { Phone, Mail, FileText, User, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { toast } from "sonner";
 import { dbOp, logInvalidate } from "@/lib/dbDebug";
-import { LEGAL_LEAD_STAGES, URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES, LEGAL_SERVICES } from "@/lib/legalData";
+import { URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES } from "@/lib/legalData";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 

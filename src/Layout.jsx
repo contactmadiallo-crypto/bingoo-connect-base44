@@ -1,4 +1,3 @@
-import React from "react";
 import { PullToRefreshContainer } from '@/components/mobile/PullToRefreshContainer';
 import { Link, useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";

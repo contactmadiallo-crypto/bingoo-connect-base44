@@ -1,4 +1,3 @@
-import React from "react";
 import BingooLogo from "@/components/bingoo/BingooLogo";
 import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 

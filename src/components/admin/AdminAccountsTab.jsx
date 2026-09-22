@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import {
   Search, ChevronLeft, QrCode, Smartphone, Package, CreditCard,
-  Star, CheckCircle2, Headphones, Mail, Phone, ExternalLink, User,
+  Star, CheckCircle2, Headphones, ExternalLink, User,
 } from "lucide-react";
 
 // Column metadata for the accounts list summary counts

@@ -58,7 +58,7 @@ export default function CaptureShare() {
     qrImg.onerror = () => { if (!cancelled) setPreview(null); };
     qrImg.src = qrSrc;
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [profileQrUrl, qrColor, displayLabel]);
 
   const copyUrl = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };

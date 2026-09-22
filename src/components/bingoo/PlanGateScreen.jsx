@@ -1,7 +1,7 @@
 import { Lock, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { FEATURE_DESCRIPTIONS, PLAN_LABELS, COMING_SOON_PLANS } from '@/lib/planPermissions';
+import { FEATURE_DESCRIPTIONS, COMING_SOON_PLANS } from '@/lib/planPermissions';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 

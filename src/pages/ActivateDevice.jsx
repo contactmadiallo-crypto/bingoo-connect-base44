@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import NFCSetupGuide from "@/components/bingoo/NFCSetupGuide";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { motion, AnimatePresence } from "framer-motion";
-import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Eye, Pencil, X, Shield } from "lucide-react";
+import { Smartphone, CheckCircle, AlertCircle, Plus, Trash2, RefreshCw, Pencil, X, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileSelect } from "@/components/ui/mobile-select";
-import { DEVICE_TYPES, getDeviceEmoji, getDeviceTypeLabel, getDeviceDisplayName } from "@/lib/deviceTypes";
+import { DEVICE_TYPES, getDeviceEmoji, getDeviceDisplayName } from "@/lib/deviceTypes";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { ArrowRight, ArrowLeft, Check, Radio, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";

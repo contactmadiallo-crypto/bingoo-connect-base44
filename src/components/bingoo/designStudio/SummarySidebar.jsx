@@ -1,7 +1,6 @@
-import React from 'react';
 import { ShoppingCart, Save, Check, Shield, Truck, Headphones, MessageCircle } from 'lucide-react';
 import { ProductPreview } from './ProductPreview';
-import { FINISHES, UNIT_PRICE, SETUP_FEE, SHIPPING, REMOVE_BRANDING_FEE } from './studioConstants';
+import { FINISHES, SETUP_FEE, SHIPPING } from './studioConstants';
 
 function Row({ a, b }) {
   return <div className="flex justify-between gap-3"><span className="text-slate-500">{a}</span><span className="font-bold text-right">{b}</span></div>;

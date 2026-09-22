@@ -1,6 +1,4 @@
-import React from "react";
 import { MobileSelect } from "@/components/ui/mobile-select";
-import { Globe } from "lucide-react";
 
 const languages = [
   { code: "en", name: "English", flag: "🇬🇧" },

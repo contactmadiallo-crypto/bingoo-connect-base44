@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, MapPin, Star, DollarSign, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Filter, Search } from "lucide-react";
+import { ArrowLeft, MapPin, Star, MessageSquare, Truck, Phone, Package, Clock, User, Key, CheckCircle, MessageCircle, ShoppingCart, Calendar, Search } from "lucide-react";
 import { useTranslation } from "../translations";
 import { useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import DeliveryMap from "../DeliveryMap";
 import ChatWindow from "../chat/ChatWindow";
 import { motion } from "framer-motion";

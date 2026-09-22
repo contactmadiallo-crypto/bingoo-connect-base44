@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MockupSection } from '@/components/mockups/MockupFrame';
-import { InfinityMark, BingooAppIcon, BingooWordmark } from '@/components/mockups/brand/InfinityMark';
+import { BingooAppIcon, BingooWordmark } from '@/components/mockups/brand/InfinityMark';
 import { Icon } from '@/components/mockups/BingooIcons';
 
 // Original mockups

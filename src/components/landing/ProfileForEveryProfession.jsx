@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Briefcase, Camera, Code2, QrCode, Users, Calendar, Phone, Mail, Globe2 } from "lucide-react";
+import { Briefcase, Camera, QrCode, Users, Calendar, Phone, Mail, Globe2 } from "lucide-react";
 
 const B = {
   navy: "#0b2149",

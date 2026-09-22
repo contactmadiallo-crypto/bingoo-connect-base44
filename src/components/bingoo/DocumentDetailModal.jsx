@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/dialog";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
-  Download, Trash2, Pencil, Save, Upload, Calendar, AlertCircle, Lock, X, Layers,
+  Download, Trash2, Pencil, Save, Upload, Calendar, AlertCircle, Lock, Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import {

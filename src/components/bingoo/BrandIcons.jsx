@@ -2,7 +2,6 @@
  * BrandIcons — Official-style app icons for the Bingoo Link Store.
  * Each icon renders as a rounded-square "app icon" with brand colors.
  */
-import React from "react";
 
 // Helper: rounded-square wrapper
 function AppIcon({ bg, size = 40, radius = 10, children, shadow }) {

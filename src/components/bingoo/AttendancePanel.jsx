@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { Button } from "@/components/ui/button";
-import { Clock, LogIn, LogOut, Calendar, Users, Download, ChevronDown } from "lucide-react";
+import { Clock, LogIn, LogOut, Calendar, Users, Download } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { format, parseISO, differenceInMinutes } from "date-fns";
 

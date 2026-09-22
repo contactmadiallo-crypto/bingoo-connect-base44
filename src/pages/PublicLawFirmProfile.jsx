@@ -1,8 +1,7 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Mail, Phone, MessageCircle, MapPin, Award, Globe } from "lucide-react";
+import { Mail, Phone, MessageCircle, MapPin } from "lucide-react";
 import LegalIntakeForm from "@/components/bingoo/LegalIntakeForm";
 
 export default function PublicLawFirmProfile() {

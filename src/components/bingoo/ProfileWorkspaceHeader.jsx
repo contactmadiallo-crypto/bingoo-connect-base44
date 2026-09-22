@@ -1,6 +1,5 @@
-import React, { useState } from "react";
-import { ChevronLeft, Eye, Copy, Check, ExternalLink } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { ChevronLeft, Eye, Copy, Check } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 

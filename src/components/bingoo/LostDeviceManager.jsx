@@ -3,9 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import {
-  AlertTriangle, CheckCircle2, MapPin, Phone, Mail, MessageSquare,
+  AlertTriangle, CheckCircle2, MapPin, Phone, Mail,
   CreditCard, Key, Award, Shield, Wifi, Clock, User, ChevronDown, ChevronUp,
-  Trash2, ExternalLink, Link2, Unlink, RefreshCw, Edit2, Package, Smartphone, Tag,
+  Trash2, ExternalLink, Link2, Unlink, Edit2, Package, Smartphone, Tag,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";

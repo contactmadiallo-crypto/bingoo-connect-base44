@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { X, Send, Upload, Sparkles, ArrowRight, CheckCircle, PenLine } from "lucide-react";
 import { ACCOUNT_TYPES, BUSINESS_TYPES } from "@/lib/accountTypes";

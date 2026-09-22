@@ -61,7 +61,7 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
     qrImg.onerror = () => { if (!cancelled) setPreview(null); };
     qrImg.src = qrSrc;
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [open, assetUrl, asset?.name]);
 
   const handleDownload = () => {

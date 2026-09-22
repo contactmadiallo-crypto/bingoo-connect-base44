@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Truck, MapPin, Phone, Clock, CheckCircle, AlertCircle, DollarSign, TrendingUp, Star, Bell, Settings, User, Upload, Loader2, BarChart3, Target, Award } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Truck, MapPin, Phone, Clock, DollarSign, TrendingUp, Star, Bell, Settings, User, Loader2, BarChart3, Target, Award } from "lucide-react";
 
 export default function DeliveryPartnerDashboard() {
   const [verifyDialog, setVerifyDialog] = useState(false);

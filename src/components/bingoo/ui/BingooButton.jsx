@@ -1,4 +1,3 @@
-import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 const NAVY = '#0b2149', ORANGE = '#f97316';

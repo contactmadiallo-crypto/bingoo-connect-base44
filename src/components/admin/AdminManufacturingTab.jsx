@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Package, Truck, Search, RefreshCw, Cpu, Copy, ExternalLink, FileCheck2 } from 'lucide-react';

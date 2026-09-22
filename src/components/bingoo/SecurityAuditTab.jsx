@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Shield, Flag, Activity, AlertTriangle, CheckCircle2, Clock, Eye, Ban, Users } from "lucide-react";
+import { Shield, Flag, Activity, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { MobileSelect } from "@/components/ui/mobile-select";
 

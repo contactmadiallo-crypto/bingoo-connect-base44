@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, ArrowLeft, Zap, Star, Shield, Crown, Scissors, Building2, ArrowRight, ChevronDown, Lock } from 'lucide-react';
+import { Check, ArrowLeft, ArrowRight, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';

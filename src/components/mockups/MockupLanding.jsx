@@ -1,6 +1,6 @@
 import React from 'react';
 import { DesktopFrame } from './MockupFrame';
-import { Icon, IconBadge } from './BingooIcons';
+import { Icon } from './BingooIcons';
 import { NFCCardVisual, NFCKeychainVisual, NFCStickerVisual, NFCBraceletVisual, NFCStandVisual, NFCBadgeVisual } from './MockupFrame';
 
 const NAVY = '#0b2149';

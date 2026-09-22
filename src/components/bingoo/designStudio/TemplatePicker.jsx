@@ -1,4 +1,3 @@
-import React from 'react';
 import { TEMPLATES } from './studioConstants';
 import { ProductPreview } from './ProductPreview';
 

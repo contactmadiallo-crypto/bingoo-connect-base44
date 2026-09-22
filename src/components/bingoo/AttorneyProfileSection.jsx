@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Phone, Mail, MapPin, Star, BookOpen, Award, Languages, Scale } from "lucide-react";
+import { MapPin, Star, BookOpen, Award, Languages, Scale } from "lucide-react";
 import { LEGAL_SERVICES, CATEGORY_COLORS } from "@/lib/legalData";
 
 function ContactBtn({ href, label, emoji, color }) {

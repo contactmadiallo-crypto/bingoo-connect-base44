@@ -1,7 +1,6 @@
-import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Palette, Check, X, Eye } from 'lucide-react';
+import { Palette, Check, X } from 'lucide-react';
 
 const STATUS_LABELS = {
   draft: { label: 'Draft', color: 'bg-slate-100 text-slate-600' },

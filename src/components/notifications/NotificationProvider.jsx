@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, Package, Truck, Star, Gift, AlertCircle } from "lucide-react";
+import { Bell, Package, Star, Gift, AlertCircle } from "lucide-react";
 
 const NotificationContext = createContext();
 

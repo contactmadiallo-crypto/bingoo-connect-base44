@@ -1,10 +1,10 @@
-import React, { useState, useMemo, lazy, Suspense } from "react";
+import { useState, useMemo, lazy, Suspense } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MobileSelect } from "@/components/ui/mobile-select";
-import { TrendingUp, Clock, DollarSign, Star, CheckCircle, XCircle, MapPin, Award, Calendar } from "lucide-react";
+import { TrendingUp, Clock, DollarSign, Star, CheckCircle, MapPin, Award, Calendar } from "lucide-react";
 
 const AnalyticsDashboardMapInner = lazy(() => import("./AnalyticsDashboardMapInner"));
 

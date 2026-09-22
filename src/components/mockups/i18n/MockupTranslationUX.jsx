@@ -1,5 +1,4 @@
-import React from 'react';
-import { PhoneFrame, DesktopFrame, Badge } from '@/components/mockups/MockupFrame';
+import { PhoneFrame } from '@/components/mockups/MockupFrame';
 import { BingooLogo, BingooAppIcon, InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import { Icon } from '@/components/mockups/BingooIcons';
 

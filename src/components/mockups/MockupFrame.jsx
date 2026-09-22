@@ -1,4 +1,3 @@
-import React from 'react';
 import { Icon } from './BingooIcons';
 import { InfinityMark } from './brand/InfinityMark';
 

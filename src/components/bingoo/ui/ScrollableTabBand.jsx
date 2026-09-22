@@ -22,7 +22,6 @@
  *  - as: element type for inner row (default "div")
  *  - children: the tab/action buttons
  */
-import React from "react";
 
 export default function ScrollableTabBand({
   children,

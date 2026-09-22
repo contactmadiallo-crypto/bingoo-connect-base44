@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
-import { HeadphonesIcon, MapPin, ScrollText, Mail, Phone, MessageSquare, Send } from 'lucide-react';
+import { HeadphonesIcon, MapPin, ScrollText, Send } from 'lucide-react';
 
 function PriorityBadge({ priority }) {
   const colors = { low: 'bg-slate-100 text-slate-600', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Leaf, GlassWater, Wheat, Moon, Milk, Nut, Flame } from "lucide-react";
+import { CheckCircle, Leaf, Wheat, Moon, Milk, Nut, Flame } from "lucide-react";
 import { toast } from "sonner";
 
 const dietaryOptions = [

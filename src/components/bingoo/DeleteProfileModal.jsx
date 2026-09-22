@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Trash2, AlertTriangle, Loader2, Shield, Nfc, Calendar, Users, ArrowRight } from "lucide-react";
+import { Trash2, AlertTriangle, Loader2, Shield, Nfc, Calendar, Users } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 
 /**

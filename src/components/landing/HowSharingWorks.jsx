@@ -1,11 +1,8 @@
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   BarChart3,
   Bell,
   Briefcase,
-  Calendar,
-  Check,
   ChevronRight,
   CreditCard,
   QrCode,

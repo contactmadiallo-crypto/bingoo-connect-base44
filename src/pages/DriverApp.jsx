@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Clock, TrendingUp, Bike, Bell, Key, Loader2, Wallet, MessageCircle, BarChart3, Settings } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Navigation, Phone, Package, CheckCircle, User, DollarSign, Bike, Bell, Key, Loader2, Wallet, MessageCircle, BarChart3, Settings } from "lucide-react";
 import DriverOrderMap from "../components/driver/DriverOrderMap";
 import DriverWallet from "../components/driver/DriverWallet";
 import RouteOptimizer from "../components/driver/RouteOptimizer";

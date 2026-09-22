@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { FileText, Edit2, Eye, Link2, Download, Trash2, Plus, CheckCircle, Globe, EyeOff, ExternalLink } from "lucide-react";
+import { FileText, Edit2, Link2, Download, Trash2, Plus, Globe, EyeOff, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 const FIELD_LABELS = {

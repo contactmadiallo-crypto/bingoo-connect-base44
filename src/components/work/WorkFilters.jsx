@@ -1,4 +1,3 @@
-import React from 'react';
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";

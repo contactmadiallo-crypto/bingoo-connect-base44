@@ -1,4 +1,3 @@
-import React, { useRef } from 'react';
 import { Upload, X } from 'lucide-react';
 import { CARD_COLORS, ACCENTS, FINISHES } from './studioConstants';
 

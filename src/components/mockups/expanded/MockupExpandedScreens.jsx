@@ -1,4 +1,3 @@
-import React from 'react';
 import { PhoneFrame, DesktopFrame, Badge, StatCard, SectionLabel, NFCCardVisual, WalletPassVisual } from '@/components/mockups/MockupFrame';
 import { InfinityMark, BingooAppIcon, BingooWordmark, LoadingDots } from '@/components/mockups/brand/InfinityMark';
 import { Icon } from '@/components/mockups/BingooIcons';

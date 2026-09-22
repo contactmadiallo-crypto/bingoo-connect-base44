@@ -2,7 +2,7 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { ChevronLeft, ChevronRight, CalendarDays, Clock, User, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, isToday, addMonths, subMonths, parseISO } from "date-fns";
 
 const STATUS_STYLES = {

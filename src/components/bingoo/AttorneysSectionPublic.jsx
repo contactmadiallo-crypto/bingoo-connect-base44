@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import AttorneyProfileSection from "@/components/bingoo/AttorneyProfileSection";
-import { Users } from "lucide-react";
 
 export default function AttorneysSectionPublic({ profileId, color = "#0b2149" }) {
   const { data: attorneys = [], isLoading } = useQuery({

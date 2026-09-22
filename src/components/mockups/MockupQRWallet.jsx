@@ -1,7 +1,5 @@
-import React from 'react';
 import { PhoneFrame, MobileBottomNav, Badge } from './MockupFrame';
 import { Icon } from './BingooIcons';
-import { WalletPassVisual } from './MockupFrame';
 
 const NAVY = '#0b2149';
 const ORANGE = '#f97316';

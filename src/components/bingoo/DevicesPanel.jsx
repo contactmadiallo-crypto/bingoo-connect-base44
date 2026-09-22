@@ -1,6 +1,5 @@
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "@/components/ui/badge";
 import { Smartphone, CreditCard, Key, Award, Shield, Wifi } from "lucide-react";
 
 const deviceIcons = { card: CreditCard, keychain: Key, bracelet: Award, stand: Shield, badge: Wifi };

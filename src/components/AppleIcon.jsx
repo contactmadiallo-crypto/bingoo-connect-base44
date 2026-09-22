@@ -1,4 +1,3 @@
-import React from "react";
 
 export default function AppleIcon({ className = "w-5 h-5" }) {
   return (

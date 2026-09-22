@@ -1,5 +1,5 @@
 import { publicProfileUrl } from '@/lib/publicProfileUrl';
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, ShoppingCart, Check, Save, Trash2, Nfc } from 'lucide-react';
 import { base44 } from '@/api/base44Client';

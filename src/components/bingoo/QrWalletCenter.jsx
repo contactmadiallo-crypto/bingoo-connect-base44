@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Download, Copy, Check, Lock, FileText, ExternalLink, Save, Info } from "lucide-react";
+import { Download, Copy, Check, Lock, ExternalLink, Save, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
@@ -114,7 +114,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
     qrImg.onerror = () => { if (!cancelled) setPreviewDataUrl(null); };
     qrImg.src = qrSrc;
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [profileQrUrl, qrColor, displayLabel, logoWatermark, isPro, hasLogo, profile?.company_logo]);
 
   const handleDownloadQR = () => {

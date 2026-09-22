@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Lock, PenTool, Infinity as InfinityIcon, ArrowRight, Sparkles } from 'lucide-react';
 

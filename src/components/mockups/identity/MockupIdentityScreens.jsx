@@ -1,4 +1,3 @@
-import React from 'react';
 import { PhoneFrame, MobileBottomNav, Badge, StatCard } from '@/components/mockups/MockupFrame';
 import { Icon } from '@/components/mockups/BingooIcons';
 

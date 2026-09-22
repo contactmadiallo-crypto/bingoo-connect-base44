@@ -1,4 +1,3 @@
-import React from 'react';
 import { ProductPreview } from './ProductPreview';
 
 const THUMBS = [

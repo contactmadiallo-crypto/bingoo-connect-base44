@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Send, Phone, Loader2, Play, Pause, MapPin, Zap, Languages } from "lucide-react";
 import { format } from "date-fns";
 import VoiceRecorder from "./VoiceRecorder";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 const quickMessages = {

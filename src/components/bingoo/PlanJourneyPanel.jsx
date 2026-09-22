@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Check, ArrowRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
 import {
   PLAN_PRICES_USD, PLAN_FEATURES, PLAN_LABELS, PLAN_TAGLINES,
-  PURCHASABLE_PLANS, COMING_SOON_PLANS, CONTACT_SALES_PLANS,
-  PLAN_CONFIG, CUSTOMER_PLAN_IDS, getPlanConfig,
+  PURCHASABLE_PLANS, COMING_SOON_PLANS, CONTACT_SALES_PLANS, CUSTOMER_PLAN_IDS, getPlanConfig,
 } from '@/lib/planPermissions';
 
 const BUSINESS_TOOL_ROUTES = {

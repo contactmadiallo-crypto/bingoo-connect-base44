@@ -1,5 +1,4 @@
-import React from 'react';
-import { PhoneFrame, MobileBottomNav, Badge } from '@/components/mockups/MockupFrame';
+import { PhoneFrame, Badge } from '@/components/mockups/MockupFrame';
 import { Icon } from '@/components/mockups/BingooIcons';
 import { NFCCardVisual } from '@/components/mockups/MockupFrame';
 

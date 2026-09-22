@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Navigation, User, Phone, Package, MessageSquare, Zap, MapPin, Clock } from "lucide-react";
+import { Navigation, User, Phone, Package, MessageSquare, Zap, MapPin } from "lucide-react";
 import AdminAuthGuard from "../components/AdminAuthGuard";
 import DriverNotificationDialog from "../components/admin/DriverNotificationDialog";
-import { toast } from "sonner";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({

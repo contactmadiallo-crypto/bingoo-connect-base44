@@ -4,7 +4,7 @@
  * Switch statement mirrors PublicProfile.jsx renderActiveLayout() exactly.
  */
 import {
-  ClassicLayout, ImageHeroLayout, GlassLayout,
+  ClassicLayout, ImageHeroLayout,
   DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout,
   ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout,
   AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout,
@@ -282,7 +282,7 @@ function GlassThumbnail({ profile }) {
 
 // EXACTLY mirrors PublicProfile.jsx renderActiveLayout()
 function LayoutRenderer({ layoutId }) {
-  const cfg     = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic; // eslint-disable-line no-unused-vars
+  const cfg     = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;  
   const profile = buildSampleProfile(layoutId);
   const color   = cfg.color;
   const isDark  = cfg.isDark;

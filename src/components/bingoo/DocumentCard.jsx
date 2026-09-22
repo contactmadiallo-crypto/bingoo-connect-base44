@@ -1,4 +1,3 @@
-import React from "react";
 import { Lock, AlertCircle, Layers } from "lucide-react";
 import { getFileIcon, getFileColor, isImageFile, getCatInfo, formatBytes } from "@/lib/docWalletUtils";
 

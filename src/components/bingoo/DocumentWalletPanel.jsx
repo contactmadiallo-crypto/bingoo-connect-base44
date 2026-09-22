@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  Upload, Trash2, Plus, Lock, X, FileText, Layers,
+  Upload, Plus, Lock, X, FileText, Layers,
 } from "lucide-react";
 import {
-  DOC_CATEGORIES, ID_TYPES, getFileIcon, getFileColor, isImageFile, getCatInfo, formatBytes,
+  DOC_CATEGORIES, ID_TYPES, getFileIcon, getFileColor, isImageFile, formatBytes,
 } from "@/lib/docWalletUtils";
 import DocumentCard from "@/components/bingoo/DocumentCard";
 import DocumentDetailModal from "@/components/bingoo/DocumentDetailModal";

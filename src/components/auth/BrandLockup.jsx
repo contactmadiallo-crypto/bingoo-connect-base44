@@ -1,4 +1,3 @@
-import React from "react";
 import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 
 const ORANGE = "#f97316";

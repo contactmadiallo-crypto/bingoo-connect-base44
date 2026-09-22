@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DesktopFrame, Badge } from '@/components/mockups/MockupFrame';
 import { BingooLogo } from '@/components/mockups/brand/InfinityMark';
 import { Icon } from '@/components/mockups/BingooIcons';

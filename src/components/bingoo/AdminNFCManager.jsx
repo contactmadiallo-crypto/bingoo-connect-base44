@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Plus, Download, Printer, Search, Edit, Trash2, Wifi, QrCode, RefreshCw, X, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+import { Plus, Download, Printer, Search, Edit, Trash2, QrCode, RefreshCw, X, Loader2 } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
 

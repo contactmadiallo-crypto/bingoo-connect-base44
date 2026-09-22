@@ -1,5 +1,4 @@
-import React from 'react';
-import { DesktopFrame, Badge } from './MockupFrame';
+import { DesktopFrame } from './MockupFrame';
 import { Icon } from './BingooIcons';
 
 const NAVY = '#0b2149';

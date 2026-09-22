@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Radio, QrCode, Users, Clock, TrendingUp, Zap } from "lucide-react";
+import { Radio, Users, Clock, TrendingUp, Zap } from "lucide-react";
 
 const NAVY = "#0b2149", ORANGE = "#f97316";
 

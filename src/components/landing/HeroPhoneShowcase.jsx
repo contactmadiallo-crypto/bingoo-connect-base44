@@ -5,7 +5,6 @@ import {
   Bell,
   Check,
   Calendar,
-  ChevronDown,
   Globe2,
   Instagram,
   Linkedin,
@@ -14,7 +13,6 @@ import {
   MessageCircle,
   Phone,
   QrCode,
-  TrendingUp,
   Users,
   Wifi,
 } from "lucide-react";

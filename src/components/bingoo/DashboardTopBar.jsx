@@ -1,4 +1,3 @@
-import React from 'react';
 import { ChevronLeft, Grid3x3, Wand2, RotateCw, Plus, MoreHorizontal, Eye, Monitor, Maximize, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { DesktopFrame, Badge } from './MockupFrame';
 import { Icon } from './BingooIcons';
 

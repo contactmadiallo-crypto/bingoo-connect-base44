@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link2, X, AlertTriangle, Check, Smartphone, Search, Wifi } from 'lucide-react';
 import { getDeviceShortLabel } from '@/lib/deviceTypes';
 

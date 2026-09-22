@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
-import { Package, Factory, CreditCard, Palette, Check, X, Plus, Truck } from 'lucide-react';
+import { Factory, CreditCard, Palette, Check, X, Plus } from 'lucide-react';
 
 function StatusBadge({ status }) {
   const colors = {

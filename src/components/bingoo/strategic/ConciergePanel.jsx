@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Phone, Mail, CheckCircle2, Circle, Loader2, Headphones, Sparkles } from "lucide-react";
+import { Phone, Mail, CheckCircle2, Loader2, Headphones, Sparkles } from "lucide-react";
 
 const NAVY = "#0b2149", ORANGE = "#f97316";
 

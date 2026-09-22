@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, MessageSquare, Instagram, Facebook } from 'lucide-react';
+import { ArrowLeft, Mail, MessageSquare, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 

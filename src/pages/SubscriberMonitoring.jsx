@@ -3,8 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { TrendingUp, TrendingDown, Users, DollarSign, AlertCircle, Download, RefreshCw, ArrowRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users, DollarSign, AlertCircle, Download, ArrowRight } from 'lucide-react';
 
 export default function SubscriberMonitoring() {
   const [user, setUser] = useState(null);

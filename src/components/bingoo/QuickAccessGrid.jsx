@@ -1,4 +1,4 @@
-import { User, Palette, Scissors, Users, Scale, MapPin, BarChart3, Link2, Briefcase, Building2 } from "lucide-react";
+import { User, Palette, Scissors, Users, Scale, MapPin, BarChart3, Link2, Briefcase } from "lucide-react";
 
 const MODULES = [
   {

@@ -1,10 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import SalonServicesPanel from "./SalonServicesPanel";
 import TeamMembersPanel from "./TeamMembersPanel";
-import { canAccess, normalizePlan } from "@/lib/planPermissions";
-import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, TYPE_CORPORATE, normalizeProfileType } from "@/lib/sidebarConfig";
-import { Scissors, Users, Scale, Clock, ChevronRight } from "lucide-react";
+import { canAccess } from "@/lib/planPermissions";
+import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, normalizeProfileType } from "@/lib/sidebarConfig";
+import { Scissors, Users, Clock, ChevronRight } from "lucide-react";
 import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
 
 // Profile types that should see salon/service tools (NOT law firm)

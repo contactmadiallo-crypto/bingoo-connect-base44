@@ -2,7 +2,6 @@
  * Lions of Teranga Edition — Senegal World Cup inspired premium layout
  * Deep green luxury background, gold/red accents, Senegal flag colors, lion & football motifs
  */
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 

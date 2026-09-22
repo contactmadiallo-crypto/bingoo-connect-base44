@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { Check, Upload, Palette, User, Eye, RotateCcw, Save, Image as ImageIcon, MousePointer2 } from "lucide-react";
+import { useState } from "react";
+import { Check, Upload, Palette, Image as ImageIcon, MousePointer2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
-import { AvatarRenderer, getAvatarRadius } from "@/components/bingoo/ProfileLayoutRenderer";
 
 
 const COVER_COLORS = [
