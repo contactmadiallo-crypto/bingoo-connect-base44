@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Package, Truck, Search, RefreshCw, Cpu, Copy, ExternalLink, FileCheck2 } from 'lucide-react';
+import { Package, Truck, Search, RefreshCw, Cpu, Copy, ExternalLink, FileCheck2, Factory, ShieldCheck, Plus, Globe2 } from 'lucide-react';
 import ProductionProofModal from './ProductionProofModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,11 +16,21 @@ export default function AdminManufacturingTab() {
   const [shipping, setShipping] = useState({});
   const [busy, setBusy] = useState('');
   const [proofOrder, setProofOrder] = useState(null);
+  const [section, setSection] = useState('queue');
+  const [partnerForm, setPartnerForm] = useState({ legal_name:'', country_code:'US', currency:'USD', city:'', nfc_encoding:true, uv_printing:true, packaging:true });
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ['admin-shop-orders'],
     queryFn: () => base44.entities.ShopOrder.list('-created_date', 200),
   });
+
+  const { data: jobs = [] } = useQuery({ queryKey:['admin-production-jobs'], queryFn:()=>base44.entities.ProductionJob.list('-created_date',300) });
+  const { data: partners = [] } = useQuery({ queryKey:['admin-manufacturing-partners'], queryFn:()=>base44.entities.ManufacturingPartner.list('-created_date',200) });
+  const { data: qcRecords = [] } = useQuery({ queryKey:['admin-production-qc'], queryFn:()=>base44.entities.QualityControlRecord.list('-created_date',500) });
+
+  const refreshOps = async()=>{ await Promise.all(['admin-shop-orders','admin-production-jobs','admin-manufacturing-partners','admin-production-qc'].map(queryKey=>qc.invalidateQueries({queryKey:[queryKey]}))); };
+  const operation = async(payload)=>{ setBusy(payload.job_id||payload.order_id||payload.partner_id||'operation'); try{ const res=await base44.functions.invoke('manageManufacturingOperations',payload); if(res.data?.error) throw new Error(res.data.error); await refreshOps(); return res.data; } catch(e){ alert(e.message||'Manufacturing operation failed.'); } finally{ setBusy(''); } };
+  const createPartner = async()=>{ if(!partnerForm.legal_name.trim()) return alert('Partner legal name is required.'); const ok=await operation({action:'create_partner',...partnerForm}); if(ok) setPartnerForm({ legal_name:'', country_code:'US', currency:'USD', city:'', nfc_encoding:true, uv_printing:true, packaging:true }); };
 
   const filtered = orders.filter(o => !search || [o.order_number, o.customer_email, o.customer_name, o.tracking_number, ...(o.assigned_device_codes || [])]
     .some(v => String(v || '').toLowerCase().includes(search.toLowerCase())));
@@ -48,15 +58,26 @@ export default function AdminManufacturingTab() {
     <div className="space-y-5 text-white">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-black flex items-center gap-2"><Package className="w-5 h-5 text-orange-400" /> Shop Orders & Fulfillment</h2>
-          <p className="text-sm text-white/45">{orders.length} shop order{orders.length === 1 ? '' : 's'} · payment → manufacturing → shipment → delivery</p>
+          <h2 className="text-xl font-black flex items-center gap-2"><Factory className="w-5 h-5 text-orange-400" /> Manufacturing Operations</h2>
+          <p className="text-sm text-white/45">Shop → production specification → facility → encoding → QC → shipment</p>
         </div>
         <Button variant="outline" onClick={() => qc.invalidateQueries({ queryKey: ['admin-shop-orders'] })} className="gap-2 bg-white/5 border-white/15 text-white hover:bg-white/10 hover:text-white">
           <RefreshCw className="w-4 h-4" /> Refresh
         </Button>
       </div>
 
-      <div className="relative">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{[
+        ['Paid orders',orders.filter(o=>o.payment_status==='paid').length],['Production jobs',jobs.length],['Approved partners',partners.filter(p=>p.status==='approved').length],['QC passed',qcRecords.filter(q=>q.status==='passed').length]
+      ].map(([label,value])=><div key={label} className="rounded-2xl bg-white/5 border border-white/10 p-4"><p className="text-2xl font-black">{value}</p><p className="text-xs text-white/40">{label}</p></div>)}</div>
+
+      <div className="flex gap-2 overflow-x-auto">{[['queue','Production Queue'],['partners','Partners / Facilities']].map(([id,label])=><Button key={id} size="sm" onClick={()=>setSection(id)} className={section===id?'bg-orange-500 hover:bg-orange-600':'bg-white/5 border border-white/15 text-white hover:bg-white/10'}>{label}</Button>)}</div>
+
+      {section==='partners' && <div className="space-y-4">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-5"><h3 className="font-black flex items-center gap-2 mb-4"><Plus className="w-4 h-4 text-orange-400"/>Add Manufacturing Partner</h3><div className="grid md:grid-cols-4 gap-3"><Input placeholder="Legal company name" value={partnerForm.legal_name} onChange={e=>setPartnerForm(x=>({...x,legal_name:e.target.value}))} className="bg-white/5 border-white/15 text-white"/><Input placeholder="City" value={partnerForm.city} onChange={e=>setPartnerForm(x=>({...x,city:e.target.value}))} className="bg-white/5 border-white/15 text-white"/><Input placeholder="Country (US)" maxLength={2} value={partnerForm.country_code} onChange={e=>setPartnerForm(x=>({...x,country_code:e.target.value.toUpperCase()}))} className="bg-white/5 border-white/15 text-white"/><Input placeholder="Currency (USD)" maxLength={3} value={partnerForm.currency} onChange={e=>setPartnerForm(x=>({...x,currency:e.target.value.toUpperCase()}))} className="bg-white/5 border-white/15 text-white"/></div><div className="flex flex-wrap gap-4 mt-3 text-xs text-white/60">{[['nfc_encoding','NFC encoding'],['uv_printing','UV printing'],['packaging','Packaging']].map(([key,label])=><label key={key} className="flex items-center gap-2"><input type="checkbox" checked={partnerForm[key]} onChange={e=>setPartnerForm(x=>({...x,[key]:e.target.checked}))}/>{label}</label>)}</div><Button onClick={createPartner} disabled={!!busy} className="mt-4 bg-orange-500 hover:bg-orange-600"><Plus className="w-4 h-4 mr-2"/>Create Pending Partner</Button></div>
+        <div className="grid md:grid-cols-2 gap-4">{partners.map(p=><div key={p.id} className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="flex justify-between gap-3"><div><p className="font-black flex items-center gap-2"><Globe2 className="w-4 h-4 text-orange-400"/>{p.display_name||p.legal_name}</p><p className="text-xs text-white/40">{p.partner_code} · {p.city?`${p.city}, `:''}{p.country_code} · {p.currency}</p></div><Badge className="bg-white/10 text-white">{p.status}</Badge></div><p className="text-xs text-white/50 mt-3">{[p.nfc_encoding&&'NFC encoding',p.uv_printing&&'UV printing',p.laser_engraving&&'Laser',p.packaging&&'Packaging'].filter(Boolean).join(' · ')||'Capabilities pending'}</p>{p.status==='pending_review'&&<Button size="sm" onClick={()=>operation({action:'set_partner_status',partner_id:p.id,status:'approved'})} className="mt-3 bg-emerald-600 hover:bg-emerald-700"><ShieldCheck className="w-4 h-4 mr-2"/>Approve</Button>}{p.status==='approved'&&<Button size="sm" variant="outline" onClick={()=>operation({action:'set_partner_status',partner_id:p.id,status:'suspended'})} className="mt-3 bg-white/5 border-white/15 text-white">Suspend</Button>}</div>)}</div>
+      </div>}
+
+      {section==='queue' && <><div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/35" />
         <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Order #, customer, email, BG device code, tracking…" className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
       </div>
@@ -91,8 +112,10 @@ export default function AdminManufacturingTab() {
 
                   <div className="rounded-2xl bg-black/10 border border-white/10 p-4">
                     <p className="font-black text-sm mb-2"><Cpu className="w-4 h-4 inline mr-2 text-orange-400" />Manufacturing</p>
-                    <p className="text-xs text-white/45 mb-3">Current: <strong className="text-white">{(order.manufacturing_status || 'pending').replaceAll('_', ' ')}</strong></p>
-                    <div className="flex flex-wrap gap-2">{MFG.map(m => <Button key={m} size="sm" disabled={busy === order.id} variant="outline" onClick={() => update(order, { manufacturing_status: m })} className={order.manufacturing_status === m ? 'bg-orange-500 border-orange-500 text-white hover:bg-orange-500' : 'bg-white/5 border-white/15 text-white/70 hover:bg-white/10 hover:text-white'}>{m.replaceAll('_', ' ')}</Button>)}</div>
+                    <p className="text-xs text-white/45 mb-3">Current: <strong className="text-white">{(order.manufacturing_status || 'pending').replaceAll('_', ' ')}</strong> · backbone <strong className="text-white">{order.production_backbone_status||'legacy'}</strong></p>
+                    {!(order.production_job_ids||[]).length && order.payment_status==='paid' && <Button size="sm" disabled={!!busy} onClick={()=>operation({action:'ensure_backbone',order_id:order.id})} className="mb-3 bg-orange-500 hover:bg-orange-600">Create Production Job</Button>}
+                    {(order.production_job_ids||[]).map(id=>{const job=jobs.find(j=>j.id===id); if(!job)return null; const next={draft:'assigned',assigned:'accepted',accepted:'artwork_review',artwork_review:'in_production',in_production:'encoding',encoding:'quality_control',quality_control:'ready_to_ship',ready_to_ship:'shipped',shipped:'completed'}[job.status]; return <div key={id} className="rounded-xl border border-white/10 p-3 mb-2"><p className="font-mono text-xs text-orange-300">{job.job_number}</p><p className="text-xs text-white/50 mt-1">Status: <strong className="text-white">{job.status.replaceAll('_',' ')}</strong>{job.partner_code?` · ${job.partner_code}`:''}</p>{!job.partner_id&&<select className="mt-2 w-full h-9 rounded-md px-2 text-xs bg-[#10264d] border border-white/15" defaultValue="" onChange={e=>e.target.value&&operation({action:'assign_partner',job_id:job.id,partner_id:e.target.value})}><option value="">Assign approved facility…</option>{partners.filter(p=>p.status==='approved').map(p=><option key={p.id} value={p.id}>{p.display_name||p.legal_name} · {p.country_code}</option>)}</select>}{job.status==='quality_control'&&<Button size="sm" onClick={()=>operation({action:'pass_qc',job_id:job.id})} className="mt-2 bg-emerald-600 hover:bg-emerald-700"><ShieldCheck className="w-3.5 h-3.5 mr-1"/>Attest QC Passed</Button>}{next && !(job.status==='draft'&&!job.partner_id) && <Button size="sm" variant="outline" onClick={()=>operation({action:'transition_job',job_id:job.id,status:next})} className="mt-2 bg-white/5 border-white/15 text-white">Move to {next.replaceAll('_',' ')}</Button>}</div>})}
+                    {(order.production_job_ids||[]).length===0&&<div className="flex flex-wrap gap-2">{MFG.map(m => <Button key={m} size="sm" disabled={busy === order.id} variant="outline" onClick={() => update(order, { manufacturing_status: m })} className={order.manufacturing_status === m ? 'bg-orange-500 border-orange-500 text-white hover:bg-orange-500' : 'bg-white/5 border-white/15 text-white/70 hover:bg-white/10 hover:text-white'}>{m.replaceAll('_', ' ')}</Button>)}</div>}
                   </div>
 
                   <div className="rounded-2xl bg-black/10 border border-white/10 p-4">
@@ -112,6 +135,7 @@ export default function AdminManufacturingTab() {
           })}
         </div>
       )}
+      </>}
       {proofOrder && <ProductionProofModal order={proofOrder} onClose={() => setProofOrder(null)} />}
     </div>
   );
