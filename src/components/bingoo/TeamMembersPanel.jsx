@@ -99,7 +99,15 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
   // Determine type — default to business if not specified
   const type = profileType || TYPE_BUSINESS;
-  const labels = LABELS[type] || DEFAULT_LABELS;
+  const rawLabels = LABELS[type] || DEFAULT_LABELS;
+  const labels = {
+    pageTitle: type === TYPE_LAWFIRM ? t("team_legal_title",language) : type === TYPE_SALON ? t("team_salon_title",language) : t("team_title",language),
+    addButton: type === TYPE_LAWFIRM ? t("team_add_legal",language) : type === TYPE_SALON ? t("team_add_salon",language) : t("team_add_member",language),
+    memberSingular: type === TYPE_LAWFIRM ? t("team_legal_singular",language) : type === TYPE_SALON ? t("team_staff_singular",language) : t("team_member_singular",language),
+    memberPlural: type === TYPE_LAWFIRM ? t("team_legal_plural",language) : type === TYPE_SALON ? t("team_staff_plural",language) : t("team_member_plural",language),
+    emptyBody: type === TYPE_LAWFIRM ? t("team_legal_empty",language) : type === TYPE_SALON ? t("team_salon_empty",language) : t("team_empty",language),
+  };
+  void rawLabels;
   const roleOptions = ROLE_OPTIONS[type] || ROLE_OPTIONS[TYPE_BUSINESS];
 
   const isLawFirm   = type === TYPE_LAWFIRM;
@@ -244,7 +252,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
         <div className={`rounded-2xl border p-5 space-y-4 ${card}`}>
           <div className="flex items-center justify-between">
             <p className={`font-bold text-sm ${head}`}>
-              {editing === "new" ? labels.addButton : `Edit ${labels.memberSingular}`}
+              {editing === "new" ? labels.addButton : `${t("team_edit_prefix",language)} ${labels.memberSingular}`}
             </p>
             <button onClick={() => setEditing(null)} aria-label="Close form"
               className={`w-11 h-11 rounded-full flex items-center justify-center ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
@@ -261,51 +269,51 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                 </div>
             }
             <label className={`cursor-pointer flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${dark ? "border-white/15 text-white/60 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-              <Upload className="w-3.5 h-3.5" /> {uploading ? "Uploading…" : "Upload Photo"}
+              <Upload className="w-3.5 h-3.5" /> {uploading ? t("team_uploading",language) : t("team_upload_photo",language)}
               <input type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
             </label>
           </div>
 
           {/* Common: name */}
           <div className="grid grid-cols-2 gap-3">
-            {field("name", "Full Name *")}
+            {field("name", t("team_full_name",language))}
 
             {/* Role type dropdown */}
             <Select
               value={form.role_type || ""}
               onValueChange={(v) => setForm(f => ({ ...f, role_type: v }))}>
               <SelectTrigger className={`rounded-xl text-sm border ${inputCls}`} style={dark ? { background: "#1a2235" } : {}}>
-                <SelectValue placeholder="Select Role..." />
+                <SelectValue placeholder={t("team_select_role",language)} />
               </SelectTrigger>
               <SelectContent className={dark ? "bg-[#1a2235] border-white/10" : ""}>
                 {roleOptions.map(r => (
                   <SelectItem key={r} value={r} className={dark ? "text-white/80 focus:bg-white/10 focus:text-white" : ""}>
-                    {r}
+                    {roleLabel(r, language)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            {field("email", "Email")}
-            {field("phone", "Phone")}
-            {isSalon && field("whatsapp", "WhatsApp number (e.g. +1234567890)")}
+            {field("email", t("team_email",language))}
+            {field("phone", t("team_phone",language))}
+            {isSalon && field("whatsapp", t("team_whatsapp",language))}
           </div>
 
           {/* ── LAW FIRM specific ── */}
           {isLawFirm && (
             <>
               <div className="grid grid-cols-2 gap-3">
-                {field("bar_states", "Bar Admitted States (e.g. NY, NJ, FL)")}
-                {field("languages", "Languages (e.g. English, Spanish, French)")}
-                {field("consultation_fee", "Consultation Fee (e.g. $150/hr)")}
-                {field("availability", "Availability (e.g. Mon–Fri 9am–5pm)")}
-                {field("office_address", "Office Address")}
-                {field("practice_areas", "Practice Areas (comma-separated)")}
+                {field("bar_states", t("team_bar_states",language))}
+                {field("languages", t("team_languages_law",language))}
+                {field("consultation_fee", t("team_consult_fee",language))}
+                {field("availability", t("team_availability_law",language))}
+                {field("office_address", t("team_office_address",language))}
+                {field("practice_areas", t("team_practice_areas",language))}
               </div>
 
               {/* Practice categories */}
               <div>
-                <p className={`text-xs font-bold mb-2 ${sub}`}>Practice Categories</p>
+                <p className={`text-xs font-bold mb-2 ${sub}`}>{t("team_practice_categories",language)}</p>
                 <div className="flex gap-2 flex-wrap">
                   {LEGAL_PRACTICE_CATEGORIES.map(cat => {
                     const colors = { Immigration: "#0b2149", Civil: "#7c3aed", Criminal: "#b91c1c" };
@@ -314,17 +322,17 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                       <button key={cat} type="button" onClick={() => toggleCat(cat)}
                         className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all ${checked ? "text-white border-transparent" : (dark ? "border-white/15 text-white/50 hover:border-white/30" : "border-slate-200 text-slate-500 hover:border-slate-300")}`}
                         style={checked ? { background: colors[cat] } : {}}>
-                        {cat}
+                        {practiceLabel(cat, language)}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {textArea("bio", "Bio / About the attorney", 2)}
-              {textArea("education", "Education (e.g. JD – NYU Law, 2010)", 2)}
-              {textArea("experience", "Experience highlights", 2)}
-              {textArea("awards", "Awards, bar memberships, honors", 2)}
+              {textArea("bio", t("team_bio_attorney",language), 2)}
+              {textArea("education", t("team_education_law",language), 2)}
+              {textArea("experience", t("team_experience_highlights",language), 2)}
+              {textArea("awards", t("team_awards_law",language), 2)}
             </>
           )}
 
