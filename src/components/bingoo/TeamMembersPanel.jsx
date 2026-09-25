@@ -99,7 +99,6 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
   // Determine type — default to business if not specified
   const type = profileType || TYPE_BUSINESS;
-  const rawLabels = LABELS[type] || DEFAULT_LABELS;
   const labels = {
     pageTitle: type === TYPE_LAWFIRM ? t("team_legal_title",language) : type === TYPE_SALON ? t("team_salon_title",language) : t("team_title",language),
     addButton: type === TYPE_LAWFIRM ? t("team_add_legal",language) : type === TYPE_SALON ? t("team_add_salon",language) : t("team_add_member",language),
@@ -107,7 +106,6 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
     memberPlural: type === TYPE_LAWFIRM ? t("team_legal_plural",language) : type === TYPE_SALON ? t("team_staff_plural",language) : t("team_member_plural",language),
     emptyBody: type === TYPE_LAWFIRM ? t("team_legal_empty",language) : type === TYPE_SALON ? t("team_salon_empty",language) : t("team_empty",language),
   };
-  void rawLabels;
   const roleOptions = ROLE_OPTIONS[type] || ROLE_OPTIONS[TYPE_BUSINESS];
 
   const isLawFirm   = type === TYPE_LAWFIRM;
