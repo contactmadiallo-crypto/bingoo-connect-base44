@@ -38,7 +38,7 @@ export default function ProductDetail() {
   const purchasable = isPurchasable(product);
   const perfectFor = PERFECT_FOR[product.category] || [];
   const collection = localizeCollection(COLLECTIONS.find((c) => c.id === product.collection), language);
-  const typeLabel = product.flow === 'asset_protection' ? 'Asset Device' : 'Profile Device';
+  const typeLabel = product.flow === 'asset_protection' ? t('shop_asset_device',language) : t('shop_profile_device',language);
   const customDesign = customizationConfig ? {
     productType: product.id,
     ...(selectedColor ? { cardColor: selectedColor } : {}),
@@ -67,7 +67,7 @@ export default function ProductDetail() {
             <div className="relative overflow-hidden rounded-[32px] border border-white/10" style={{ background: '#0a0a0a' }}>
               <div className="absolute left-5 top-5 z-10 flex flex-wrap gap-2"><span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-slate-200 backdrop-blur-sm">{typeLabel}</span>{product.badge && <span className="rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: purchasable ? ORANGE : '#64748b' }}>{product.badge}</span>}</div>
               <FactoryProductMedia product={product} selectedColor={selectedColor} className="h-[420px] w-full md:h-[570px]" showLabel={!purchasable} />
-              {selectedColorName && <div className="absolute bottom-5 left-5 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">Preview · {selectedColorName}</div>}
+              {selectedColorName && <div className="absolute bottom-5 left-5 rounded-full border border-white/15 bg-black/60 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">{t("ds_step_preview",language)} · {selectedColorName}</div>}
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3"><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><Smartphone className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">{t("product_no_app",language)}</b><span className="text-[11px] text-slate-400">{t("product_compatible_phone",language)}</span></div><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><PackageCheck className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">{t("product_real_hardware",language)}</b><span className="text-[11px] text-slate-400">{t("product_one_sku",language)}</span></div><div className="rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"><Shield className="mb-2 h-5 w-5" style={{ color: ORANGE }} /><b className="block text-xs text-white">{t("product_factory_ready",language)}</b><span className="text-[11px] text-slate-400">{t("product_finish_follows",language)}</span></div></div>
           </div>
