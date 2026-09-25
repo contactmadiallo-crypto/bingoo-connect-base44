@@ -6,9 +6,13 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useI18n } from "@/lib/I18nContext";
+import { Globe2 } from "lucide-react";
 
 export default function AccountSettings() {
   const navigate = useNavigate();
+  const { language, setLanguage } = useI18n();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState("");
@@ -144,6 +148,18 @@ export default function AccountSettings() {
               <p className="font-bold text-slate-900">{user?.email}</p>
             </div>
           </div>
+        </div>
+
+        {/* Language & region */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
+          <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
+            <Globe2 className="w-5 h-5 text-blue-600" /> Language & Region
+          </h2>
+          <p className="text-slate-500 text-sm mb-4">Choose the language used across Bingoo Connect on this device.</p>
+          <div className="max-w-xs">
+            <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
+          </div>
+          <p className="text-xs text-slate-400 mt-3">The interface updates immediately. Your profile content and customer-entered text are not automatically translated.</p>
         </div>
 
         {/* Notifications */}
