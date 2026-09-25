@@ -1,4 +1,6 @@
 import { ShieldCheck, ArrowRight } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const CHECKLIST = [
   { key: "profile_photo", weight: 15 },
@@ -28,6 +30,7 @@ function computeScore(profile) {
  * Updates in real time as the profile prop changes.
  */
 export default function ProfileScoreShortcut({ profile, isDark, onNavigate }) {
+  const { language } = useI18n();
   if (!profile) return null;
   const score = computeScore(profile);
 
@@ -57,7 +60,7 @@ export default function ProfileScoreShortcut({ profile, isDark, onNavigate }) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <p className={`font-bold text-sm ${head}`}>Profile Score</p>
+            <p className={`font-bold text-sm ${head}`}>{t("quality_short_title",language)}</p>
             <span className="text-sm font-black" style={{ color: scoreColor }}>
               {score}<span className="text-xs">/100</span>
             </span>
@@ -66,7 +69,7 @@ export default function ProfileScoreShortcut({ profile, isDark, onNavigate }) {
             <div className="h-full rounded-full transition-all duration-500"
               style={{ width: `${score}%`, background: scoreColor }} />
           </div>
-          <p className={`text-[11px] font-semibold mt-1.5 ${muted}`}>Tap to improve your profile</p>
+          <p className={`text-[11px] font-semibold mt-1.5 ${muted}`}>{t("quality_tap_improve",language)}</p>
         </div>
         <ArrowRight className={`w-4 h-4 flex-shrink-0 ${muted}`} />
       </div>
