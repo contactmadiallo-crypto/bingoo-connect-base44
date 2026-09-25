@@ -172,6 +172,13 @@ export const TRANSLATIONS = {
   core_recent_activity: { en: "Recent Activity", fr: "Activité récente" },
   core_live_activity_all_profiles: { en: "Live activity across every profile in this account", fr: "Activité en direct sur tous les profils de ce compte" },
   core_activity_empty: { en: "Your latest profile views, NFC taps, leads, appointments and device activity will appear here.", fr: "Vos dernières vues de profil, interactions NFC, prospects, rendez-vous et activités d'appareils apparaîtront ici." },
+  core_copied: { en: "Copied!", fr: "Copié !" },
+  core_qr_wallet: { en: "QR Code & Wallet", fr: "Code QR et portefeuille" },
+  core_profiles_action_copy: { en: "Create, switch or edit profiles", fr: "Créer, changer ou modifier des profils" },
+  core_view_all_profiles: { en: "View all profiles", fr: "Voir tous les profils" },
+  core_add_profile: { en: "Add Profile", fr: "Ajouter un profil" },
+  core_view_analytics: { en: "View analytics", fr: "Voir l'analytique" },
+  core_there: { en: "there", fr: "" },
 
   // ── Profiles hub ──
   profiles_primary: { en: "Primary", fr: "Principal" },
