@@ -26,6 +26,7 @@ const PracticeAreasPanel = React.lazy(() => import("@/components/bingoo/Practice
 const LegalServicesPanel = React.lazy(() => import("@/components/bingoo/LegalServicesPanel"));
 const OfficeLocationsPanel = React.lazy(() => import("@/components/bingoo/OfficeLocationsPanel"));
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { getLang, setLang as persistLang } from "@/lib/i18n";
 const ProfilesHub = React.lazy(() => import("@/components/bingoo/ProfilesHub"));
 const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWorkspace"));
 import { usePlan } from "@/hooks/usePlan";
@@ -536,17 +537,12 @@ export default function BingooDashboard() {
   };
 
   // Language
-  const [lang, setLang] = useState(() => {
-    const saved = localStorage.getItem("bingoo_lang");
-    if (saved) return saved;
-    const bl = navigator.language || "en";
-    return bl.toLowerCase().startsWith("fr") ? "fr" : "en";
-  });
-  const toggleLang = () => setLang(l => {
-    const next = l === "en" ? "fr" : "en";
-    localStorage.setItem("bingoo_lang", next);
-    return next;
-  });
+  const [lang, setLangState] = useState(() => getLang());
+  const toggleLang = () => {
+    const next = lang === "en" ? "fr" : "en";
+    persistLang(next);
+    setLangState(next);
+  };
   const TR = {
     en: { lostMode: "Lost Mode" },
     fr: { lostMode: "Mode Perdu" }
