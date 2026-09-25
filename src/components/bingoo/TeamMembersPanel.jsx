@@ -8,6 +8,8 @@ import { Plus, Pencil, Trash2, X, Check, User, Phone, Mail, Upload } from "lucid
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { TYPE_LAWFIRM, TYPE_SALON, TYPE_CORPORATE, TYPE_BUSINESS } from "@/lib/sidebarConfig";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // ── Role options by profile type ──────────────────────────────────────────────
 const ROLE_OPTIONS = {
@@ -77,7 +79,16 @@ const EMPTY_FORM = {
 
 const LEGAL_PRACTICE_CATEGORIES = ["Immigration", "Civil", "Criminal"];
 
+const ROLE_KEYS = {
+  Attorney: "role_attorney", Paralegal: "role_paralegal", "Legal Assistant": "role_legal_assistant", Interpreter: "role_interpreter", Translator: "role_translator", "Case Manager": "role_case_manager", Notary: "role_notary", Other: "role_other",
+  Stylist: "role_stylist", Barber: "role_barber", "Nail Technician": "role_nail_technician", Esthetician: "role_esthetician", "Massage Therapist": "role_massage_therapist", Manager: "role_manager", Sales: "role_sales", Support: "role_support", Admin: "role_admin", Staff: "role_staff", Developer: "role_developer", Designer: "role_designer", HR: "role_hr",
+};
+const PRACTICE_KEYS = { Immigration: "practice_immigration", Civil: "practice_civil", Criminal: "practice_criminal" };
+const roleLabel = (value, language) => ROLE_KEYS[value] ? t(ROLE_KEYS[value], language) : value;
+const practiceLabel = (value, language) => PRACTICE_KEYS[value] ? t(PRACTICE_KEYS[value], language) : value;
+
 export default function TeamMembersPanel({ profileId, profileType, isDark: propDark, onSaved }) {
+  const { language } = useI18n();
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
@@ -128,10 +139,10 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
       qc.invalidateQueries({ queryKey: ["team-members", profileId] });
       setEditing(null);
       setForm(EMPTY_FORM);
-      toast.success("Saved successfully");
+      toast.success(t("team_saved",language));
       if (onSaved) onSaved();
     },
-    onError: (err) => toast.error(`Failed to save: ${err.message}`),
+    onError: (err) => toast.error(`${t("team_save_failed",language)}: ${err.message}`),
   });
 
   const deleteMutation = useMutation({
@@ -213,7 +224,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
     ? "bg-[#1a2235] border-white/10 text-white placeholder:text-white/30 focus:border-blue-500/50"
     : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400";
 
-  if (!profileId) return <div className={`text-center py-12 ${sub}`}>Select a profile first.</div>;
+  if (!profileId) return <div className={`text-center py-12 ${sub}`}>{t("team_select_profile",language)}</div>;
 
   return (
     <div className="space-y-4">
