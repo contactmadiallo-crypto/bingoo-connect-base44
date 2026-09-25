@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link2, X, AlertTriangle, Check, Smartphone, Search, Wifi } from 'lucide-react';
 import { getDeviceShortLabel } from '@/lib/deviceTypes';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function AssetDeviceAssignModal({
   open, onClose, devices, assets, currentAssetId, onAssign, isDark
 }) {
+  const { language } = useI18n();
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState('');
 
@@ -72,7 +75,7 @@ export default function AssetDeviceAssignModal({
             <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
               <Link2 className="w-4 h-4 text-orange-500" />
             </div>
-            <h3 className={`text-sm font-black ${headText}`}>Select NFC Device</h3>
+            <h3 className={`text-sm font-black ${headText}`}>{t("asset_select_nfc", language)}</h3>
           </div>
           <button onClick={handleClose}><X className={`w-4 h-4 ${mutedText}`} /></button>
         </div>
@@ -81,7 +84,7 @@ export default function AssetDeviceAssignModal({
         <div className="p-3">
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${mutedText}`} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search device code…"
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("asset_search_device", language)}
               className={`w-full pl-9 pr-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
           </div>
         </div>
@@ -91,7 +94,7 @@ export default function AssetDeviceAssignModal({
           {filtered.length === 0 ? (
             <div className={`text-center py-8 ${mutedText}`}>
               <Smartphone className="w-6 h-6 mx-auto mb-2 opacity-40" />
-              <p className="text-xs">No devices found. Activate an NFC device first.</p>
+              <p className="text-xs">{t("asset_no_devices_found", language)}</p>
             </div>
           ) : filtered.map(d => {
             const isSelected = selectedId === d.id;
@@ -112,12 +115,12 @@ export default function AssetDeviceAssignModal({
                     <p className={`text-xs ${mutedText}`}>{getDeviceShortLabel(d.device_type)}</p>
                     {d.profile_id && (
                       <p className={`text-[11px] mt-0.5 flex items-center gap-1 ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
-                        <AlertTriangle className="w-3 h-3" /> Linked to a profile
+                        <AlertTriangle className="w-3 h-3" /> {t("asset_linked_profile", language)}
                       </p>
                     )}
                     {linkedAsset && (
                       <p className={`text-[11px] mt-0.5 flex items-center gap-1 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
-                        <Link2 className="w-3 h-3" /> Used by: {linkedAsset.name}
+                        <Link2 className="w-3 h-3" /> {t("asset_used_by", language)}: {linkedAsset.name}
                       </p>
                     )}
                   </div>
@@ -137,7 +140,7 @@ export default function AssetDeviceAssignModal({
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                     <p className={`text-xs ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
-                      This device is linked to a profile. Its NFC tag points to the profile page — linking it to an asset won't change that. The asset finder page is at <code>/asset/{selectedDevice?.device_code}</code>.
+                      {t("asset_profile_warning", language)} <code>/asset/{selectedDevice?.device_code}</code>.
                     </p>
                   </div>
                 )}
@@ -145,7 +148,7 @@ export default function AssetDeviceAssignModal({
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                     <p className={`text-xs ${isDark ? 'text-amber-300' : 'text-amber-700'}`}>
-                      This device is currently linked to asset "<strong>{conflictingAsset.name}</strong>". Assigning it here will unlink it from that asset.
+                      {t("asset_conflict_prefix", language)} "<strong>{conflictingAsset.name}</strong>". {t("asset_conflict_suffix", language)}
                     </p>
                   </div>
                 )}
@@ -155,7 +158,7 @@ export default function AssetDeviceAssignModal({
               <button onClick={handleConfirm}
                 className="flex-1 px-4 py-2.5 rounded-lg text-white text-xs font-bold"
                 style={{ background: '#f97316' }}>
-                {showWarning ? 'Confirm & Assign' : 'Assign Device'}
+                {showWarning ? t("asset_confirm_assign", language) : t("asset_assign_device", language)}
               </button>
               <button onClick={handleClose}
                 className={`px-4 py-2.5 rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>
