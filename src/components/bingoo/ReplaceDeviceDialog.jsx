@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RefreshCw, Loader2, AlertTriangle, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { base44 } from "@/api/base44Client";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * ReplaceDeviceDialog — user-facing flow to retire an old NFC device and
@@ -16,6 +18,7 @@ import { base44 } from "@/api/base44Client";
  *     update — RLS scopes this to the owner. The old record is NEVER deleted.
  */
 export default function ReplaceDeviceDialog({ open, onClose, device, profile, user, isDark, onSuccess }) {
+  const { language } = useI18n();
   const [newCode, setNewCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,19 +29,19 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
 
   const handleReplace = async () => {
     const code = newCode.trim().toUpperCase();
-    if (!code) { setError("Enter the code printed on your new NFC device."); return; }
-    if (device && code === device.device_code?.toUpperCase()) { setError("The new code must be different from the old one."); return; }
-    if (!device?.profile_id || !user) { setError("This device has no assigned profile to transfer."); return; }
+    if (!code) { setError(t("replace_enter_code_error", language)); return; }
+    if (device && code === device.device_code?.toUpperCase()) { setError(t("replace_same_code_error", language)); return; }
+    if (!device?.profile_id || !user) { setError(t("replace_no_profile_error", language)); return; }
 
     setLoading(true); setError("");
     try {
       // 1. Look up the new device
       const lookup = await base44.functions.invoke("getDeviceByCode", { code });
       const newDevice = lookup?.data?.device;
-      if (!newDevice) { setError("Device code not found. Check the code on your new card and try again."); setLoading(false); return; }
-      if (newDevice.status === "disabled") { setError("The new device has been disabled. Contact support."); setLoading(false); return; }
-      if (newDevice.status === "replaced") { setError("The new device has already been replaced."); setLoading(false); return; }
-      if (newDevice.id === device.id) { setError("The new code is the same device."); setLoading(false); return; }
+      if (!newDevice) { setError(t("replace_not_found_error", language)); setLoading(false); return; }
+      if (newDevice.status === "disabled") { setError(t("replace_disabled_error", language)); setLoading(false); return; }
+      if (newDevice.status === "replaced") { setError(t("replace_already_replaced_error", language)); setLoading(false); return; }
+      if (newDevice.id === device.id) { setError(t("replace_same_device_error", language)); setLoading(false); return; }
 
       // 2. Activate the new device to the old profile (enforces plan limits)
       const activateRes = await base44.functions.invoke("activateNfcDevice", {
@@ -49,7 +52,7 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
         profile_name: profile?.display_name,
         old_status: newDevice.status,
       });
-      if (activateRes?.data?.error) { setError("Activation failed: " + activateRes.data.error); setLoading(false); return; }
+      if (activateRes?.data?.error) { setError(`${t("replace_activation_failed", language)}: ${activateRes.data.error}`); setLoading(false); return; }
 
       // 3. Retire the old device (mark replaced — record is kept, never deleted)
       await base44.entities.NFCDevice.update(device.id, {
@@ -60,7 +63,7 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
       setDone(true);
       onSuccess?.();
     } catch (e) {
-      setError(e?.message || "Replacement failed.");
+      setError(e?.message || t("replace_failed", language));
     } finally {
       setLoading(false);
     }
@@ -91,12 +94,12 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
                     style={{ background: "rgba(6,182,212,0.15)", border: "1px solid rgba(6,182,212,0.3)" }}>
                     <CheckCircle className="w-7 h-7 text-cyan-500" />
                   </div>
-                  <h2 className={`font-black text-lg ${headText}`}>Device Replaced!</h2>
+                  <h2 className={`font-black text-lg ${headText}`}>{t("replace_done_title", language)}</h2>
                   <p className={`text-sm ${mutedText}`}>
-                    <span className="font-mono font-bold">{device.device_code}</span> is now retired.
-                    Your new device <span className="font-mono font-bold">{newCode.trim().toUpperCase()}</span> is active.
+                    <span className="font-mono font-bold">{device.device_code}</span> {t("replace_retired_label", language)}
+                    {t("replace_new_active_prefix", language)} <span className="font-mono font-bold">{newCode.trim().toUpperCase()}</span> {t("replace_new_active_suffix", language)}
                   </p>
-                  <Button onClick={handleClose} className="w-full font-bold rounded-xl" style={{ background: "#f97316", color: "#fff" }}>Done</Button>
+                  <Button onClick={handleClose} className="w-full font-bold rounded-xl" style={{ background: "#f97316", color: "#fff" }}>{t("replace_done", language)}</Button>
                 </div>
               ) : (
                 <>
@@ -106,23 +109,23 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
                       <RefreshCw className="w-6 h-6 text-cyan-500" />
                     </div>
                     <div>
-                      <h2 className={`font-black text-lg ${headText}`}>Replace Device</h2>
-                      <p className={`text-xs ${mutedText}`}>Retire <span className="font-mono font-bold">{device.device_code}</span> and activate a new card.</p>
+                      <h2 className={`font-black text-lg ${headText}`}>{t("replace_title", language)}</h2>
+                      <p className={`text-xs ${mutedText}`}>{t("replace_retire_copy", language)} <span className="font-mono font-bold">{device.device_code}</span></p>
                     </div>
                   </div>
 
                   <div className={`rounded-xl p-3 mb-4 space-y-1.5 text-xs ${isDark ? "bg-white/5 border border-white/10" : "bg-slate-50 border border-slate-200"}`}>
                     <div className="flex items-start gap-2">
                       <ArrowRight className="w-4 h-4 text-cyan-500 flex-shrink-0 mt-0.5" />
-                      <p className={isDark ? "text-white/70" : "text-slate-600"}>Your profile <strong>{profile?.display_name || "—"}</strong> moves to the new device.</p>
+                      <p className={isDark ? "text-white/70" : "text-slate-600"}>{t("replace_profile_prefix", language)} <strong>{profile?.display_name || "—"}</strong> {t("replace_profile_suffix", language)}</p>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <p className={isDark ? "text-white/70" : "text-slate-600"}>The old device is marked <strong>Replaced</strong> — scans stop, but the record is kept.</p>
+                      <p className={isDark ? "text-white/70" : "text-slate-600"}>{t("replace_old_marked", language)} <strong>{t("nfc_replaced", language)}</strong> {t("replace_old_suffix", language)}</p>
                     </div>
                   </div>
 
-                  <label className={`text-xs font-bold block mb-1 ${mutedText}`}>New Device Code</label>
+                  <label className={`text-xs font-bold block mb-1 ${mutedText}`}>{t("replace_new_code", language)}</label>
                   <input
                     className={`w-full px-4 py-3 rounded-xl text-sm font-mono outline-none mb-3 ${
                       isDark ? "bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-cyan-500/50"
@@ -144,10 +147,10 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
 
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={handleClose} disabled={loading}
-                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>Cancel</Button>
+                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
                     <Button onClick={handleReplace} disabled={loading}
                       className="flex-1 font-bold rounded-xl text-white" style={{ background: "#06b6d4" }}>
-                      {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Replacing…</> : <><RefreshCw className="w-4 h-4 mr-1" /> Replace</>}
+                      {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> {t("replace_replacing", language)}</> : <><RefreshCw className="w-4 h-4 mr-1" /> {t("assets_replace", language)}</>}
                     </Button>
                   </div>
                 </>
