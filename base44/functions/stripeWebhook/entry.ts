@@ -291,6 +291,94 @@ async function generateManufacturingDevices(base44, shopOrder, orderId) {
   }
 }
 
+// Build the international manufacturing backbone from the canonical paid ShopOrder.
+// Idempotent: one specification + one job per manufacturing line, recorded back on ShopOrder.
+async function ensureProductionBackbone(base44, shopOrder, orderId) {
+  try {
+    if (!shopOrder || shopOrder.payment_status !== 'paid') return;
+    if ((shopOrder.production_spec_ids || []).length > 0 || (shopOrder.production_job_ids || []).length > 0) {
+      console.log(`Production backbone already exists for order ${orderId}; skipping.`);
+      return;
+    }
+
+    const manufacturingItems = Array.isArray(shopOrder.manufacturing_items) ? shopOrder.manufacturing_items : [];
+    if (manufacturingItems.length === 0) {
+      console.warn(`Production backbone deferred for order ${orderId}: manufacturing allocation is not ready.`);
+      return;
+    }
+
+    const orderNumber = shopOrder.order_number || `BC-${String(orderId).slice(-8).toUpperCase()}`;
+    const specIds = [];
+    const jobIds = [];
+
+    for (let index = 0; index < manufacturingItems.length; index += 1) {
+      const item = manufacturingItems[index];
+      const line = String(index + 1).padStart(2, '0');
+      const specNumber = `SPEC-${orderNumber}-${line}`;
+      const jobNumber = `JOB-${orderNumber}-${line}`;
+
+      // Database-level lookup protects against webhook retries or a partial previous run.
+      let specs = await base44.asServiceRole.entities.ProductionSpecification.filter({ spec_number: specNumber }, '-created_date', 1);
+      let spec = specs?.[0];
+      if (!spec) {
+        spec = await base44.asServiceRole.entities.ProductionSpecification.create({
+          spec_number: specNumber,
+          shop_order_id: orderId,
+          shop_order_number: orderNumber,
+          version: 1,
+          status: 'locked_for_production',
+          product_sku: item.product_sku || '',
+          product_type: item.product_type || 'card',
+          quantity: Math.max(1, Number(item.quantity) || 1),
+          finish: item.finish || 'Standard',
+          logo_url: item.logo_url || '',
+          design_snapshot: item.design_data || {},
+          nfc_destination_policy: 'bingoo_device_redirect',
+          qr_url_pattern: 'https://bingooconnect.com/d/{device_code}',
+          encoding_instructions: 'Encode each NFC device to its allocated permanent Bingoo /d/BG-###### URL. Never encode a customer profile URL directly.',
+          packaging_instructions: 'Match the paid ShopOrder and locked production specification. Preserve device-code traceability through packing.',
+          customs_description: `Bingoo Connect NFC ${item.product_name || item.product_type || 'device'}`,
+          locked_at: new Date().toISOString(),
+          locked_by: 'stripe_webhook',
+        });
+      }
+      specIds.push(spec.id);
+
+      let jobs = await base44.asServiceRole.entities.ProductionJob.filter({ job_number: jobNumber }, '-created_date', 1);
+      let job = jobs?.[0];
+      if (!job) {
+        job = await base44.asServiceRole.entities.ProductionJob.create({
+          job_number: jobNumber,
+          shop_order_id: orderId,
+          shop_order_number: orderNumber,
+          production_spec_id: spec.id,
+          status: 'draft',
+          quantity: Math.max(1, Number(item.quantity) || 1),
+          currency: 'USD',
+          priority: 'standard',
+          notes: 'Automatically created after verified Stripe payment and canonical NFC device allocation. Awaiting manufacturing partner assignment.',
+        });
+      }
+      jobIds.push(job.id);
+    }
+
+    await base44.asServiceRole.entities.ShopOrder.update(orderId, {
+      production_spec_ids: specIds,
+      production_job_ids: jobIds,
+      production_backbone_status: 'generated',
+      production_backbone_generated_at: new Date().toISOString(),
+    });
+    console.log(`Production backbone generated for order ${orderId}: ${specIds.length} specs / ${jobIds.length} jobs.`);
+  } catch (e) {
+    console.error('ensureProductionBackbone error (non-blocking):', e.message);
+    try {
+      await base44.asServiceRole.entities.ShopOrder.update(orderId, { production_backbone_status: 'error' });
+    } catch (_) {
+      // Keep Stripe acknowledgement independent from non-payment manufacturing orchestration.
+    }
+  }
+}
+
 Deno.serve(async (req) => {
   try {
     const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -346,6 +434,11 @@ Deno.serve(async (req) => {
           // when this order already owns canonical device codes.
           let freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
           await generateManufacturingDevices(base44, freshOrder || shopOrder, order_id);
+
+          // Connect the paid order to the hardened international manufacturing backbone.
+          // Refresh first because device allocation writes manufacturing_items to ShopOrder.
+          freshOrder = await base44.asServiceRole.entities.ShopOrder.get(order_id);
+          await ensureProductionBackbone(base44, freshOrder || shopOrder, order_id);
 
           // Send Bingoo's own purchase confirmation after payment. Stripe/Link's
           // receipt is payment-provider confirmation, not the Bingoo fulfillment receipt.
