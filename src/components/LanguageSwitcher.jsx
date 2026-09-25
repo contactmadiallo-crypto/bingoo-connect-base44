@@ -1,27 +1,23 @@
 import { MobileSelect } from "@/components/ui/mobile-select";
-
-const languages = [
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "fr", name: "Français", flag: "🇫🇷" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
-  { code: "ar", name: "العربية", flag: "🇸🇦" },
-  { code: "zh", name: "中文", flag: "🇨🇳" },
-  { code: "pt", name: "Português", flag: "🇵🇹" },
-  { code: "de", name: "Deutsch", flag: "🇩🇪" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
-  { code: "ja", name: "日本語", flag: "🇯🇵" },
-  { code: "ko", name: "한국어", flag: "🇰🇷" },
-];
+import { useI18n } from "@/lib/I18nContext";
 
 export default function LanguageSwitcher({ language, onLanguageChange, compact = false }) {
+  const global = useI18n();
+  const activeLanguage = language || global.language;
+  const changeLanguage = onLanguageChange || global.setLanguage;
+  const languages = Object.entries(global.languages).map(([code, meta]) => ({
+    value: code,
+    label: `${meta.flag} ${meta.nativeName}`,
+  }));
+
   return (
     <MobileSelect
-      value={language}
-      onValueChange={onLanguageChange}
-      options={languages.map(lang => ({ value: lang.code, label: lang.flag + ' ' + lang.name }))}
+      value={activeLanguage}
+      onValueChange={changeLanguage}
+      options={languages}
       placeholder="Language"
       ariaLabel="Select language"
-      className={compact ? "w-[120px]" : "w-[160px]"}
+      className={compact ? "w-[140px]" : "w-[180px]"}
     />
   );
 }
