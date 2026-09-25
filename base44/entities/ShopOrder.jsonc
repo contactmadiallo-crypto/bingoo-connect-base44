@@ -289,6 +289,33 @@
       "type": "string",
       "description": "Order description or notes",
       "maxLength": 1000
+    },
+    "production_spec_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ProductionSpecification records generated for this paid order."
+    },
+    "production_job_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ProductionJob records generated for this paid order."
+    },
+    "production_backbone_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "generated",
+        "error"
+      ],
+      "default": "pending"
+    },
+    "production_backbone_generated_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [
