@@ -23,20 +23,22 @@ import { toast } from "sonner";
 import { DEVICE_TYPES } from "@/lib/deviceTypes";
 import { useNavigate } from "react-router-dom";
 import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 function QRImage({ url, isDark }) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
   return <img src={qrUrl} alt="QR Code" className={`w-40 h-40 rounded-xl shadow ${isDark ? "border border-white/10" : "border border-slate-200"}`} />;
 }
 
-function StatusBadge({ status, isDark }) {
+function StatusBadge({ status, isDark, language }) {
   const map = {
-    active:    { cls: isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700", label: "Active" },
-    assigned:  { cls: isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-700", label: "Assigned" },
-    available: { cls: isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500", label: "Available" },
-    lost:      { cls: isDark ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-700", label: "Lost" },
-    disabled:  { cls: isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-50 text-orange-700", label: "Disabled" },
-    replaced:  { cls: isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-50 text-purple-700", label: "Replaced" },
+    active:    { cls: isDark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-50 text-emerald-700", label: t("nfc_active", language) },
+    assigned:  { cls: isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-50 text-blue-700", label: t("nfc_assigned", language) },
+    available: { cls: isDark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500", label: t("nfc_available", language) },
+    lost:      { cls: isDark ? "bg-red-500/20 text-red-400" : "bg-red-50 text-red-700", label: t("nfc_lost", language) },
+    disabled:  { cls: isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-50 text-orange-700", label: t("nfc_disabled", language) },
+    replaced:  { cls: isDark ? "bg-purple-500/20 text-purple-400" : "bg-purple-50 text-purple-700", label: t("nfc_replaced", language) },
   };
   const s = map[status] || map.available;
   return <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${s.cls}`}>{s.label}</span>;
@@ -47,6 +49,7 @@ export default function MyNFCDevices() {
    const { maxNFCDevices, isLoading: planLoading, plan: accountPlan } = usePlan();
    const qc = useQueryClient();
    const navigate = useNavigate();
+   const { language } = useI18n();
 
    const [showActivate, setShowActivate] = useState(false);
    const [activateCode, setActivateCode] = useState("");
@@ -320,8 +323,8 @@ export default function MyNFCDevices() {
     const p = profiles.find(p => p.id === id);
     if (p) return p;
     // profile_id set but profile no longer in the user's list (deleted/orphaned) → unassigned state
-    if (id) return { display_name: "Unassigned", orphaned: true };
-    return { display_name: "Unassigned", orphaned: false };
+    if (id) return { display_name: t("nfc_unassigned", language), orphaned: true };
+    return { display_name: t("nfc_unassigned", language), orphaned: false };
   };
   // Per-device tap counts from nfc_tap analytics (matched by device_id)
   const tapsByDevice = nfcAnalytics.reduce((acc, a) => {
@@ -358,19 +361,19 @@ export default function MyNFCDevices() {
             📲
           </div>
           <div>
-            <p className={`font-black text-xl mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>NFC Devices — Professional Feature</p>
+            <p className={`font-black text-xl mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{t("nfc_professional_feature", language)}</p>
             <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>
-              Upgrade to the Professional plan to activate and manage NFC devices, enable Lost Mode, and track tap analytics.
+              {t("nfc_professional_copy", language)}
             </p>
           </div>
           <a href="/plans">
             <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#f97316", color: "#fff" }}>
-              View Plans
+              {t("nfc_view_plans", language)}
             </Button>
           </a>
           <a href="/shop" className="block">
             <Button variant="outline" className={`w-full font-bold gap-2 ${isDark ? "border-white/20 text-white/60 bg-transparent hover:bg-white/10" : ""}`}>
-              🛍️ Order NFC Hardware
+              🛍️ {t("nfc_order_hardware", language)}
             </Button>
           </a>
         </div>
@@ -386,24 +389,24 @@ export default function MyNFCDevices() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className={`text-3xl sm:text-4xl font-black ${headText}`}>NFC Devices</h1>
-            <p className={`text-sm mt-1 ${mutedText}`}>Manage your cards, keychains, bracelets, and connected assets.</p>
+            <h1 className={`text-3xl sm:text-4xl font-black ${headText}`}>{t("nfc_devices_title", language)}</h1>
+            <p className={`text-sm mt-1 ${mutedText}`}>{t("nfc_devices_subtitle", language)}</p>
           </div>
             <Button
               onClick={() => navigate("/activate-device")}
               className="h-12 px-6 rounded-xl font-black gap-2 flex-shrink-0"
               style={{ background: "#f97316", color: "#fff" }}
             >
-              <Plus className="w-5 h-5" /> Activate Device
+              <Plus className="w-5 h-5" /> {t("nfc_activate_device", language)}
             </Button>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
-            { label: "Total Devices", value: totalCount, icon: Smartphone, color: "#0b2149", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f1f5f9" },
-            { label: "Active", value: activeCount, icon: CheckCircle, color: "#22c55e", iconBg: isDark ? "rgba(34,197,94,.12)" : "#f0fdf4" },
-            { label: "Unassigned", value: unassignedCount, icon: X, color: "#64748b", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f8fafc" },
-            { label: "Total Taps", value: totalScans, icon: Zap, color: "#f97316", iconBg: isDark ? "rgba(249,115,22,.12)" : "#fff7ed" },
+            { label: t("nfc_total_devices", language), value: totalCount, icon: Smartphone, color: "#0b2149", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f1f5f9" },
+            { label: t("nfc_active", language), value: activeCount, icon: CheckCircle, color: "#22c55e", iconBg: isDark ? "rgba(34,197,94,.12)" : "#f0fdf4" },
+            { label: t("nfc_unassigned", language), value: unassignedCount, icon: X, color: "#64748b", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f8fafc" },
+            { label: t("nfc_total_taps", language), value: totalScans, icon: Zap, color: "#f97316", iconBg: isDark ? "rgba(249,115,22,.12)" : "#fff7ed" },
           ].map(stat => (
             <div key={stat.label} className="rounded-2xl border p-4 sm:p-5 min-h-[150px] flex flex-col justify-between" style={{ background: bg, borderColor: border }}>
               <span className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: stat.iconBg }}>
@@ -429,8 +432,8 @@ export default function MyNFCDevices() {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className={`font-black text-lg ${headText}`}>Activate New Device</h2>
-                  <p className={`text-xs mt-0.5 ${mutedText}`}>Enter the code printed on your NFC card, keychain, bracelet, or package.</p>
+                  <h2 className={`font-black text-lg ${headText}`}>{t("nfc_activate_new", language)}</h2>
+                  <p className={`text-xs mt-0.5 ${mutedText}`}>{t("nfc_activate_new_copy", language)}</p>
                 </div>
                 <button onClick={() => setShowActivate(false)} className={`${mutedText} hover:text-red-400 transition-colors`}>
                   <X className="w-5 h-5" />
@@ -439,7 +442,7 @@ export default function MyNFCDevices() {
 
               <div className={`flex items-start gap-2.5 p-3 rounded-xl text-xs font-medium ${isDark ? "bg-blue-500/10 border border-blue-500/20 text-blue-300" : "bg-blue-50 border border-blue-100 text-blue-700"}`}>
                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span>The code looks like <strong>BG-000001</strong>. Find it printed on the back of your NFC device or on the packaging label.</span>
+                <span>{t("nfc_code_hint", language)}</span>
               </div>
 
               <div className="flex gap-3">
@@ -453,7 +456,7 @@ export default function MyNFCDevices() {
                 <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
                   className="font-bold px-6"
                   style={{ background: "#22c55e", color: "#fff" }}>
-                  {activating ? "Checking…" : "Activate"}
+                  {activating ? t("nfc_checking_short", language) : t("nfc_activate_short", language)}
                 </Button>
               </div>
 
@@ -480,7 +483,7 @@ export default function MyNFCDevices() {
         {(!user || devicesLoading) && (
           <div className="rounded-2xl p-10 text-center" style={{ background: bg, border: `1px solid ${border}` }}>
             <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-3" />
-            <p className={`text-sm font-medium ${mutedText}`}>Loading your devices…</p>
+            <p className={`text-sm font-medium ${mutedText}`}>{t("nfc_loading_devices", language)}</p>
           </div>
         )}
 
@@ -492,16 +495,16 @@ export default function MyNFCDevices() {
               📲
             </div>
             <div>
-              <p className={`font-black text-lg mb-1 ${headText}`}>No NFC Devices Yet</p>
-              <p className={`text-sm ${mutedText}`}>Activate your first NFC device using the code printed on your card, keychain, or bracelet.</p>
+              <p className={`font-black text-lg mb-1 ${headText}`}>{t("nfc_none_yet", language)}</p>
+              <p className={`text-sm ${mutedText}`}>{t("nfc_none_copy", language)}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={() => navigate("/activate-device")} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
-                <Plus className="w-4 h-4" /> Activate Device
+                <Plus className="w-4 h-4" /> {t("nfc_activate_device", language)}
               </Button>
               <a href="/shop" target="_blank" rel="noopener noreferrer">
                 <Button variant="outline" className={`w-full sm:w-auto font-bold gap-2 ${isDark ? "border-white/20 text-white/70 hover:bg-white/10 bg-transparent" : ""}`}>
-                  🛍️ Order NFC Card
+                  🛍️ {t("nfc_order_card", language)}
                 </Button>
               </a>
             </div>
@@ -570,7 +573,7 @@ export default function MyNFCDevices() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className={`font-black text-sm font-mono ${headText}`}>{device.device_code}</p>
-                        <StatusBadge status={device.status} isDark={isDark} />
+                        <StatusBadge status={device.status} isDark={isDark} language={language} />
                       </div>
                       <p className={`text-xs mt-0.5 ${mutedText} flex items-center gap-1.5 flex-wrap`}>
                         <span className="font-semibold">{device.product_name || typeInfo.label}</span>
@@ -615,11 +618,11 @@ export default function MyNFCDevices() {
                           {/* Info Grid */}
                           <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                             {[
-                              { label: "Device Code", value: device.device_code },
-                              { label: "Type", value: typeInfo.label },
-                              { label: "Profile", value: profile?.orphaned ? "Unassigned" : (profile?.display_name || "—") },
-                              { label: "Status", value: device.status },
-                              { label: "Taps", value: tapsByDevice[device.id] || 0 },
+                              { label: t("nfc_device_code_label", language), value: device.device_code },
+                              { label: t("nfc_type", language), value: typeInfo.label },
+                              { label: t("nfc_profile_label", language), value: profile?.orphaned ? t("nfc_unassigned", language) : (profile?.display_name || "—") },
+                              { label: t("nfc_status_label", language), value: device.status },
+                              { label: t("nfc_taps_label", language), value: tapsByDevice[device.id] || 0 },
                             ].map(item => (
                               <div key={item.label} className={`rounded-xl p-3 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                                 <p className={`text-xs font-bold uppercase tracking-wider ${mutedText}`}>{item.label}</p>
@@ -631,12 +634,12 @@ export default function MyNFCDevices() {
                           {/* Device URL */}
                           {!isDisabled && (
                             <div>
-                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-2`}>Device URL</p>
+                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-2`}>{t("nfc_device_url", language)}</p>
                               <div className={`flex items-center gap-2 rounded-xl px-3 py-2.5 ${isDark ? "bg-white/5 border border-white/10" : "bg-slate-50 border border-slate-200"}`}>
                                 <span className={`font-mono text-sm flex-1 break-all ${headText}`}>{deviceUrl}</span>
                                 <button onClick={() => copyUrl(deviceUrl, device.id)}
                                   className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${copied === device.id ? "bg-emerald-100 text-emerald-700" : "bg-blue-600 text-white hover:bg-blue-500"}`}>
-                                  {copied === device.id ? <><CheckCircle className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+                                  {copied === device.id ? <><CheckCircle className="w-3.5 h-3.5" /> {t("nfc_copied", language)}</> : <><Copy className="w-3.5 h-3.5" /> {t("nfc_copy", language)}</>}
                                 </button>
                               </div>
                             </div>
@@ -645,15 +648,15 @@ export default function MyNFCDevices() {
                           {/* QR Code */}
                           {!isDisabled && (
                             <div>
-                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>QR Code</p>
+                              <p className={`text-xs font-bold uppercase tracking-wider ${mutedText} mb-3`}>{t("nfc_qr_code", language)}</p>
                               <div className="flex flex-col sm:flex-row gap-4 items-start">
                                 <QRImage url={deviceUrl} isDark={isDark} />
                                 <div className="space-y-2 text-sm">
-                                  <p className={`font-semibold ${headText}`}>Share via QR Code</p>
-                                  <p className={`${mutedText} text-xs`}>Right-click the QR image to save it, or share the URL directly.</p>
+                                  <p className={`font-semibold ${headText}`}>{t("nfc_share_qr", language)}</p>
+                                  <p className={`${mutedText} text-xs`}>{t("nfc_share_qr_copy", language)}</p>
                                   <a href={deviceUrl} target="_blank" rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors">
-                                    <ExternalLink className="w-3.5 h-3.5" /> Open Device URL
+                                    <ExternalLink className="w-3.5 h-3.5" /> {t("nfc_open_device_url", language)}
                                   </a>
                                 </div>
                               </div>
@@ -698,11 +701,11 @@ export default function MyNFCDevices() {
                           {!isDisabled && (profiles.length > 1 || profile?.orphaned) && (
                             <div className={`rounded-xl p-4 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                               <div className="flex items-center justify-between gap-3">
-                                <p className={`text-xs font-bold ${mutedText}`}>Reassign to another profile</p>
+                                <p className={`text-xs font-bold ${mutedText}`}>{t("nfc_reassign_profile", language)}</p>
                                 <button onClick={() => setReassignDialogDevice(device)}
                                   className="text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0"
                                   style={{ background: "rgba(168,85,247,0.12)", color: "#a855f7", border: "1px solid rgba(168,85,247,0.3)" }}>
-                                  <ArrowRightLeft className="w-3 h-3 inline mr-1" /> Reassign
+                                  <ArrowRightLeft className="w-3 h-3 inline mr-1" /> {t("nfc_reassign", language)}
                                 </button>
                               </div>
                             </div>
@@ -777,11 +780,11 @@ export default function MyNFCDevices() {
                   {/* Order CTA */}
         <div className="rounded-2xl p-5 text-center"
           style={{ background: "linear-gradient(135deg,#0b2149,#13284f)", border: "1px solid rgba(249,115,22,0.2)" }}>
-          <p className="font-black text-white mb-1">Need more NFC devices?</p>
-          <p className="text-white/50 text-xs mb-4">Cards, keychains, bracelets, counter stands — all Bingoo branded.</p>
+          <p className="font-black text-white mb-1">{t("nfc_need_more", language)}</p>
+          <p className="text-white/50 text-xs mb-4">{t("nfc_need_more_copy", language)}</p>
           <a href="/shop">
             <Button style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
-              🛍️ Shop NFC Devices
+              🛍️ {t("nfc_shop_devices", language)}
             </Button>
           </a>
         </div>
