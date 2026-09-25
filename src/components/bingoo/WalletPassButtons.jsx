@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { openExternalUrl } from "@/lib/nativePlatform";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const FONT_BODY = "'Inter', system-ui, sans-serif";
 
@@ -21,6 +23,7 @@ const GoogleLogo = ({ size = 14 }) => (
 );
 
 export default function WalletPassButtons({ profile, color, isDark, stacked = false }) {
+  const { language } = useI18n();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
 
@@ -48,7 +51,7 @@ export default function WalletPassButtons({ profile, color, isDark, stacked = fa
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Apple Wallet error:", err);
-      setError("Apple Wallet pass unavailable — certificates may not be configured yet.");
+      setError(t("wallet_apple_unavailable", language));
     } finally {
       setLoading(null);
     }
@@ -70,7 +73,7 @@ export default function WalletPassButtons({ profile, color, isDark, stacked = fa
       await openExternalUrl(saveUrl);
     } catch (err) {
       console.error("Google Wallet error:", err);
-      setError(err?.response?.data?.error || err?.message || "Google Wallet pass unavailable — try again later.");
+      setError(err?.response?.data?.error || err?.message || t("wallet_google_unavailable", language));
     } finally {
       setLoading(null);
     }
@@ -103,10 +106,10 @@ export default function WalletPassButtons({ profile, color, isDark, stacked = fa
             fontFamily: FONT_BODY,
             opacity: 0.5,
           }}
-          title="Apple Wallet passes are coming very soon"
+          title={t("wallet_apple_coming_title", language)}
         >
           <AppleLogo size={13} />
-          {stacked ? "Add to Apple Wallet · Coming soon" : "Apple Wallet · Very soon"}
+          {stacked ? t("wallet_apple_add_soon", language) : t("wallet_apple_soon", language)}
         </motion.button>
         <motion.button
           onClick={handleGoogle}
@@ -132,7 +135,7 @@ export default function WalletPassButtons({ profile, color, isDark, stacked = fa
           }}
         >
           <GoogleLogo size={13} />
-          {loading === "google" ? "Generating…" : stacked ? "Add to Google Wallet" : "Google Wallet"}
+          {loading === "google" ? t("wallet_google_generating", language) : stacked ? t("wallet_google_add", language) : t("wallet_google", language)}
         </motion.button>
       </div>
       {error && (
