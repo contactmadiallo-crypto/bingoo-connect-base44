@@ -6,10 +6,13 @@ import { Plus, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp } from "@/lib/dbDebug";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const PRACTICE_AREA_EMOJIS = ["⚖️", "🌎", "🔒", "👨‍👩‍👧‍👦", "🏠", "💼", "💰", "📋", "🚗", "📄"];
 
 export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -45,10 +48,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       qc.invalidateQueries({ queryKey: WRITE_KEY });
       setForm({ name: "", description: "", icon: "⚖️" });
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
-      toast.error(`Failed to add: ${err.message}`);
+      toast.error(`${t("legal_failed_add",language)}: ${err.message}`);
     },
   });
 
@@ -65,10 +68,10 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       setForm({ name: "", description: "", icon: "⚖️" });
       setEditId(null);
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
-      toast.error(`Failed to update: ${err.message}`);
+      toast.error(`${t("legal_failed_update",language)}: ${err.message}`);
     },
   });
 
@@ -81,14 +84,14 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["practice-areas", profileId], (old = []) => old.filter(a => a.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["practice-areas", profileId] });
-      toast.success("Practice area deleted");
+      toast.success(t("practice_deleted",language));
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.name.trim()) {
-      return toast.error("Name required");
+      return toast.error(t("legal_name_required",language));
     }
     if (editId) {
       updateMutation.mutate(form);
@@ -112,13 +115,13 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-black ${head}`}>Practice Areas</h2>
-          <p className={`text-xs mt-0.5 ${sub}`}>{areas.length} active areas</p>
+          <h2 className={`text-lg font-black ${head}`}>{t("practice_title",language)}</h2>
+          <p className={`text-xs mt-0.5 ${sub}`}>{areas.length} {t("practice_active_areas",language)}</p>
         </div>
         {!showForm && (
           <Button onClick={() => { setEditId(null); setForm({ name: "", description: "", icon: "⚖️" }); setShowForm(true); }}
             className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold gap-2">
-            <Plus className="w-4 h-4" /> Add Area
+            <Plus className="w-4 h-4" /> {t("practice_add",language)}
           </Button>
         )}
       </div>
@@ -127,7 +130,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
         <div className={`rounded-2xl border p-4 ${card}`}>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <p className={`text-xs font-bold mb-1.5 ${sub}`}>Icon</p>
+              <p className={`text-xs font-bold mb-1.5 ${sub}`}>{t("practice_icon",language)}</p>
               <div className="flex gap-1.5 flex-wrap">
                 {PRACTICE_AREA_EMOJIS.map(e => (
                   <button key={e} type="button" onClick={() => setForm(f => ({ ...f, icon: e }))}
@@ -138,22 +141,22 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
               </div>
             </div>
             <div>
-              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Name *</label>
+              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("practice_name",language)}</label>
               <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="e.g., Immigration Law" className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("practice_name_ph",language)} className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
             </div>
             <div>
-              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Description</label>
+              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("legal_description",language)}</label>
               <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Brief description of this practice area…" rows={2}
+                placeholder={t("practice_desc_ph",language)} rows={2}
                 className={`w-full px-3 py-2 rounded-xl border outline-none resize-none transition-colors text-sm ${inp}`} />
             </div>
             <div className="flex gap-2">
               <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold">
-                {editId ? "Update" : "Create"}
+                {editId ? t("legal_update",language) : t("legal_create",language)}
               </Button>
               <Button type="button" onClick={() => { setShowForm(false); setEditId(null); }}
-                variant="outline" className={`flex-1 rounded-xl ${isDark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>Cancel</Button>
+                variant="outline" className={`flex-1 rounded-xl ${isDark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>{t("legal_cancel",language)}</Button>
             </div>
           </form>
         </div>
@@ -161,8 +164,8 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
 
       {areas.length === 0 && !showForm && (
         <div className={`rounded-2xl border p-8 text-center ${card}`}>
-          <p className={`font-semibold text-sm ${sub}`}>No practice areas yet.</p>
-          <p className={`text-xs mt-1 ${sub}`}>Add your first practice area to get started.</p>
+          <p className={`font-semibold text-sm ${sub}`}>{t("practice_none",language)}</p>
+          <p className={`text-xs mt-1 ${sub}`}>{t("practice_none_copy",language)}</p>
         </div>
       )}
 
@@ -178,11 +181,11 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
             <div className="flex gap-2 flex-shrink-0">
               <button onClick={() => startEdit(area)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
-                Edit
+                {t("legal_edit",language)}
               </button>
               <button onClick={() => setDeleteTarget(area.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
-                Delete
+                {t("legal_delete",language)}
               </button>
             </div>
           </div>
@@ -190,8 +193,8 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title="Delete this practice area?"
-        description="This action cannot be undone."
+        title={t("practice_delete_title",language)}
+        description={t("team_remove_description",language)}
         onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
       />
       </div>
