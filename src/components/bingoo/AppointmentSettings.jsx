@@ -190,15 +190,15 @@ export default function AppointmentSettings({ profileId }) {
           <div className={cardCls}>
             <p className={labelCls}><Calendar className="w-4 h-4 text-blue-500" /> {t("booking_appointment_type",language)}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {APPT_TYPES.map(t => (
-                <button key={t.value} onClick={() => setApptType(t.value)}
+              {APPT_TYPES.map(typeItem => (
+                <button key={typeItem.value} onClick={() => setApptType(typeItem.value)}
                   className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border text-xs font-bold transition-all ${
-                    apptType === t.value
+                    apptType === typeItem.value
                       ? "border-blue-500 bg-blue-50 text-blue-700 shadow"
                       : isDark ? "border-white/15 text-white/50 hover:border-white/25" : "border-slate-200 text-slate-500 hover:border-slate-300"
                   }`}>
-                  <span className="text-xl">{t.emoji}</span>
-                  <span>{t.labelKey ? t(t.labelKey,language) : t.label}</span>
+                  <span className="text-xl">{typeItem.emoji}</span>
+                  <span>{typeItem.labelKey ? t(typeItem.labelKey,language) : typeItem.label}</span>
                 </button>
               ))}
             </div>
