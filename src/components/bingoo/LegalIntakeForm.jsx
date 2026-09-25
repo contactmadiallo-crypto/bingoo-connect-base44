@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Upload, X, AlertTriangle } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { LEGAL_CATEGORIES, LEGAL_SERVICES, URGENCY_LABELS, CATEGORY_COLORS } from "@/lib/legalData";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const CONTACT_METHODS = ["WhatsApp", "Phone", "Email"];
 const RATE_LIMIT_KEY = "bingoo_legal_lead_last_submit";
@@ -13,7 +15,7 @@ const RATE_LIMIT_MS = 60_000;
 const inp = "w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-blue-400 transition-colors";
 const sel = inp + " appearance-none";
 
-function YesNo({ label, value, onChange }) {
+function YesNo({ label, value, onChange, language }) {
   return (
     <div>
       <p className="text-xs font-semibold text-slate-600 mb-1.5">{label}</p>
@@ -21,7 +23,7 @@ function YesNo({ label, value, onChange }) {
         {["yes", "no"].map(v => (
           <button key={v} type="button" onClick={() => onChange(v)}
             className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all capitalize ${value === v ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}>
-            {v === "yes" ? "✅ Yes" : "❌ No"}
+            {v === "yes" ? `✅ ${t("legal_yes",language)}` : `❌ ${t("legal_no",language)}`}
           </button>
         ))}
       </div>
@@ -30,6 +32,7 @@ function YesNo({ label, value, onChange }) {
 }
 
 export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false, source = "profile", deviceCode = null }) {
+  const { language } = useI18n();
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -69,21 +72,21 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     setForm(f => ({ ...f, document_urls: [...(f.document_urls || []), file_url] }));
     setUploading(false);
-    toast.success("Document uploaded");
+    toast.success(t("intake_doc_uploaded",language));
   };
 
   const removeDoc = (idx) => setForm(f => ({ ...f, document_urls: f.document_urls.filter((_, i) => i !== idx) }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name) { setError("Please enter your name."); return; }
-    if (!form.phone && !form.email) { setError("Please enter a phone number or email."); return; }
-    if (!form.legal_category) { setError("Please select a practice category."); return; }
+    if (!form.name) { setError(t("intake_err_name",language)); return; }
+    if (!form.phone && !form.email) { setError(t("intake_err_contact",language)); return; }
+    if (!form.legal_category) { setError(t("intake_err_category",language)); return; }
 
     const lastSubmit = localStorage.getItem(RATE_LIMIT_KEY);
     if (lastSubmit && Date.now() - parseInt(lastSubmit) < RATE_LIMIT_MS) {
       const remaining = Math.ceil((RATE_LIMIT_MS - (Date.now() - parseInt(lastSubmit))) / 1000);
-      setError(`Please wait ${remaining}s before submitting again.`);
+      setError(`${t("intake_wait_prefix",language)} ${remaining}${t("intake_wait_suffix",language)}`);
       return;
     }
 
@@ -106,7 +109,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
 
     setLoading(false);
     setDone(true);
-    toast.success("Your legal request has been submitted!");
+    toast.success(t("intake_submitted_toast",language));
   };
 
   const cat = form.legal_category;
@@ -121,7 +124,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
         <motion.button onClick={() => setOpen(true)} whileHover={{ scale: 1.02, y: -2 }} whileTap={{ scale: 0.97 }}
           className="w-full py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
           style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 10px 28px rgba(11,33,73,0.35)` }}>
-          ⚖️ Request Legal Help
+          ⚖️ {t("intake_request_help",language)}
         </motion.button>
       )}
 
@@ -130,8 +133,8 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
           <motion.div key="done" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
             className="text-center py-8 rounded-3xl bg-blue-50 border border-blue-100">
             <div className="text-5xl mb-3">✅</div>
-            <h4 className="font-black text-slate-900 text-lg">Request Submitted!</h4>
-            <p className="text-slate-500 text-sm mt-1 px-4">A legal representative will contact you soon. Submitting this form does not create an attorney-client relationship.</p>
+            <h4 className="font-black text-slate-900 text-lg">{t("intake_submitted",language)}</h4>
+            <p className="text-slate-500 text-sm mt-1 px-4">{t("intake_submitted_copy",language)}</p>
           </motion.div>
         )}
 
@@ -145,11 +148,11 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">⚖️</span>
                   <div>
-                    <h3 className="font-black text-base">Legal Consultation Request</h3>
-                    <p className="text-blue-200 text-xs">Confidential & Secure</p>
+                    <h3 className="font-black text-base">{t("intake_title",language)}</h3>
+                    <p className="text-blue-200 text-xs">{t("intake_confidential_secure",language)}</p>
                   </div>
                 </div>
-                <button onClick={() => setOpen(false)} aria-label="Close form" className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white/80 hover:bg-white/30 transition-colors text-sm">✕</button>
+                <button onClick={() => setOpen(false)} aria-label={t("intake_close",language)} className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center text-white/80 hover:bg-white/30 transition-colors text-sm">✕</button>
               </div>
             </div>
 
@@ -158,33 +161,33 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
               <div className="flex gap-2.5 bg-amber-50 border border-amber-200 rounded-xl p-3">
                 <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-amber-700 leading-relaxed">
-                  <strong>Confidentiality Notice:</strong> Submitting this form does not create an attorney-client relationship. A legal representative must confirm representation separately.
+                  <strong>{t("intake_conf_notice",language)}</strong> {t("intake_conf_copy",language)}
                 </p>
               </div>
 
               {/* Basic info */}
               <div className="space-y-3">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-wider">Your Information</p>
-                <input className={inp} placeholder="Full Name *" value={form.name} onChange={set("name")} />
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("intake_your_info",language)}</p>
+                <input className={inp} placeholder={t("intake_full_name",language)} value={form.name} onChange={set("name")} />
                 <div className="grid grid-cols-2 gap-3">
-                  <input className={inp} placeholder="Phone Number" type="tel" value={form.phone} onChange={set("phone")} />
-                  <input className={inp} placeholder="Email Address" type="email" value={form.email} onChange={set("email")} />
+                  <input className={inp} placeholder={t("intake_phone",language)} type="tel" value={form.phone} onChange={set("phone")} />
+                  <input className={inp} placeholder={t("intake_email",language)} type="email" value={form.email} onChange={set("email")} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input className={inp} placeholder="Preferred Language" value={form.preferred_language} onChange={set("preferred_language")} />
-                  <input className={inp} placeholder="Preferred Consult Date" type="date" value={form.preferred_consult_date} onChange={set("preferred_consult_date")} />
+                  <input className={inp} placeholder={t("intake_pref_language",language)} value={form.preferred_language} onChange={set("preferred_language")} />
+                  <input className={inp} placeholder={t("intake_pref_date",language)} type="date" value={form.preferred_consult_date} onChange={set("preferred_consult_date")} />
                 </div>
               </div>
 
               {/* Contact preference */}
               <div>
-                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Preferred Contact Method</p>
+                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">{t("intake_contact_method",language)}</p>
                 <div className="flex gap-2">
                   {CONTACT_METHODS.map(m => (
                     <button key={m} type="button" onClick={() => setVal("preferred_contact_method", m)}
                       className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${form.preferred_contact_method === m ? "text-white border-transparent" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}
                       style={form.preferred_contact_method === m ? { background: color, borderColor: color } : {}}>
-                      {m === "WhatsApp" ? "💬" : m === "Phone" ? "📞" : "📧"} {m}
+                      {m === "WhatsApp" ? "💬" : m === "Phone" ? "📞" : "📧"} {m === "Phone" ? t("intake_phone_method",language) : m === "Email" ? t("intake_email_method",language) : m}
                     </button>
                   ))}
                 </div>
@@ -192,13 +195,13 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
 
               {/* Practice category */}
               <div className="space-y-3">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-wider">Legal Matter</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wider">{t("intake_legal_matter",language)}</p>
                 <div className="grid grid-cols-3 gap-2">
                   {LEGAL_CATEGORIES.map(c => (
                     <button key={c} type="button" onClick={() => { setVal("legal_category", c); setVal("legal_service", ""); }}
                       className={`py-3 rounded-xl text-xs font-bold border transition-all ${form.legal_category === c ? "text-white border-transparent" : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"}`}
                       style={form.legal_category === c ? { background: CATEGORY_COLORS[c], borderColor: CATEGORY_COLORS[c] } : {}}>
-                      {c === "Immigration" ? "🌎" : c === "Civil" ? "⚖️" : "🔒"} {c}
+                      {c === "Immigration" ? "🌎" : c === "Civil" ? "⚖️" : "🔒"} {t(`practice_${c.toLowerCase()}`,language)}
                     </button>
                   ))}
                 </div>
@@ -208,11 +211,11 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                     value={form.legal_service || "none"}
                     onValueChange={(v) => setVal("legal_service", v === "none" ? "" : v)}
                     options={[
-                      { value: "none", label: "-- Select Service Needed --" },
+                      { value: "none", label: t("intake_select_service",language) },
                       ...services.map(s => ({ value: s, label: s })),
                     ]}
-                    placeholder="-- Select Service Needed --"
-                    ariaLabel="Legal service needed"
+                    placeholder={t("intake_select_service",language)}
+                    ariaLabel={t("intake_select_service",language)}
                     className={inp}
                   />
                 )}
@@ -227,13 +230,13 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                   />
                 </div>
 
-                <textarea className={inp + " resize-none"} placeholder="Briefly describe your legal situation…" rows={3} value={form.message} onChange={set("message")} />
+                <textarea className={inp + " resize-none"} placeholder={t("intake_describe",language)} rows={3} value={form.message} onChange={set("message")} />
               </div>
 
               {/* Immigration-specific fields */}
               {cat === "Immigration" && (
                 <div className="space-y-3 rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
-                  <p className="text-xs font-black text-blue-700 uppercase tracking-wider">Immigration Details</p>
+                  <p className="text-xs font-black text-blue-700 uppercase tracking-wider">{t("legal_immigration_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { k: "immigration_a_number", p: "A-Number (Alien Number)" },
@@ -253,10 +256,10 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                     <input className={inp} placeholder="Immigration Court Date" type="date" value={form.immigration_court_date} onChange={set("immigration_court_date")} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <YesNo label="Prior Asylum Application?" value={form.immigration_prior_asylum} onChange={v => setVal("immigration_prior_asylum", v)} />
-                    <YesNo label="Currently Detained?" value={form.immigration_detained} onChange={v => setVal("immigration_detained", v)} />
-                    <YesNo label="Prior Removal / Deportation Order?" value={form.immigration_prior_removal} onChange={v => setVal("immigration_prior_removal", v)} />
-                    <YesNo label="Family Petition Pending?" value={form.immigration_family_petition} onChange={v => setVal("immigration_family_petition", v)} />
+                    <YesNo language={language} label={t("intake_prior_asylum",language)} value={form.immigration_prior_asylum} onChange={v => setVal("immigration_prior_asylum", v)} />
+                    <YesNo language={language} label={t("intake_detained",language)} value={form.immigration_detained} onChange={v => setVal("immigration_detained", v)} />
+                    <YesNo language={language} label={t("intake_prior_removal",language)} value={form.immigration_prior_removal} onChange={v => setVal("immigration_prior_removal", v)} />
+                    <YesNo language={language} label={t("intake_family_petition",language)} value={form.immigration_family_petition} onChange={v => setVal("immigration_family_petition", v)} />
                   </div>
                   <input className={inp} placeholder="Important Deadlines" value={form.immigration_deadlines} onChange={set("immigration_deadlines")} />
                   <textarea className={inp + " resize-none"} placeholder="Additional notes for attorney…" rows={2} value={form.immigration_notes} onChange={set("immigration_notes")} />
@@ -266,7 +269,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
               {/* Civil-specific fields */}
               {cat === "Civil" && (
                 <div className="space-y-3 rounded-2xl border border-purple-100 bg-purple-50/40 p-4">
-                  <p className="text-xs font-black text-purple-700 uppercase tracking-wider">Civil Matter Details</p>
+                  <p className="text-xs font-black text-purple-700 uppercase tracking-wider">{t("legal_civil_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { k: "civil_matter_type", p: "Type of Civil Matter" },
@@ -287,7 +290,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
               {/* Criminal-specific fields */}
               {cat === "Criminal" && (
                 <div className="space-y-3 rounded-2xl border border-red-100 bg-red-50/40 p-4">
-                  <p className="text-xs font-black text-red-700 uppercase tracking-wider">Criminal Matter Details</p>
+                  <p className="text-xs font-black text-red-700 uppercase tracking-wider">{t("legal_criminal_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       { k: "criminal_charge", p: "Charge or Accusation" },
@@ -302,18 +305,18 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                     <input className={inp} placeholder="Court Date" type="date" value={form.criminal_court_date} onChange={set("criminal_court_date")} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <YesNo label="Prior Criminal History?" value={form.criminal_prior_history} onChange={v => setVal("criminal_prior_history", v)} />
-                    <YesNo label="Currently Detained?" value={form.criminal_detained} onChange={v => setVal("criminal_detained", v)} />
+                    <YesNo language={language} label={t("intake_prior_history",language)} value={form.criminal_prior_history} onChange={v => setVal("criminal_prior_history", v)} />
+                    <YesNo language={language} label={t("intake_detained",language)} value={form.criminal_detained} onChange={v => setVal("criminal_detained", v)} />
                   </div>
                 </div>
               )}
 
               {/* Document upload */}
               <div>
-                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Upload Documents (optional)</p>
+                <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">{t("intake_upload_docs",language)}</p>
                 <label className="flex items-center gap-2 cursor-pointer px-4 py-3 rounded-xl border border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50/30 transition-all">
                   <Upload className="w-4 h-4 text-slate-400" />
-                  <span className="text-sm text-slate-500">{uploading ? "Uploading…" : "Upload a document or evidence file"}</span>
+                  <span className="text-sm text-slate-500">{uploading ? t("intake_uploading",language) : t("intake_upload_file",language)}</span>
                   <input type="file" className="hidden" onChange={handleDocUpload} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" />
                 </label>
                 {form.document_urls.length > 0 && (
@@ -321,7 +324,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                     {form.document_urls.map((url, i) => (
                       <div key={i} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
                         <span className="text-xs text-blue-700 truncate">📎 Document {i + 1}</span>
-                        <button type="button" onClick={() => removeDoc(i)} aria-label="Remove document" className="text-red-400 hover:text-red-600 ml-2 flex items-center justify-center"><X className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => removeDoc(i)} aria-label={t("intake_remove_doc",language)} className="text-red-400 hover:text-red-600 ml-2 flex items-center justify-center"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
@@ -333,11 +336,11 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
               <motion.button type="submit" disabled={loading} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 rounded-xl font-black text-white text-sm transition-all disabled:opacity-50"
                 style={{ background: `linear-gradient(135deg, ${color}, #1a4fa0)`, boxShadow: `0 8px 24px rgba(11,33,73,0.35)` }}>
-                {loading ? "Submitting…" : "Submit Legal Request →"}
+                {loading ? t("intake_submitting",language) : `${t("intake_submit",language)} →`}
               </motion.button>
 
               <p className="text-center text-xs text-slate-400 leading-relaxed">
-                🔒 Submitting this form does not create an attorney-client relationship. All information is kept strictly confidential.
+                🔒 {t("intake_footer_notice",language)}
               </p>
             </form>
           </motion.div>
