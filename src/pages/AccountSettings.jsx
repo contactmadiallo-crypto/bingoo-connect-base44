@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 import { Globe2 } from "lucide-react";
 
 export default function AccountSettings() {
@@ -153,13 +154,13 @@ export default function AccountSettings() {
         {/* Language & region */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
-            <Globe2 className="w-5 h-5 text-blue-600" /> Language & Region
+            <Globe2 className="w-5 h-5 text-blue-600" /> {t("language_region", language)}
           </h2>
-          <p className="text-slate-500 text-sm mb-4">Choose the language used across Bingoo Connect on this device.</p>
+          <p className="text-slate-500 text-sm mb-4">{t("account_language_copy", language)}</p>
           <div className="max-w-xs">
             <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
           </div>
-          <p className="text-xs text-slate-400 mt-3">The interface updates immediately. Your profile content and customer-entered text are not automatically translated.</p>
+          <p className="text-xs text-slate-400 mt-3">{t("account_language_note", language)}</p>
         </div>
 
         {/* Notifications */}
