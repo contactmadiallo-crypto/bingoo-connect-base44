@@ -340,33 +340,33 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
           {isSalon && (
             <>
               <div className="grid grid-cols-2 gap-3">
-                {field("practice_areas", "Specialties (e.g. Balayage, Acrylics, Color)")}
-                {field("languages", "Languages (e.g. English, Spanish)")}
-                {field("consultation_fee", "Rate / Price (e.g. $35+)")}
-                {field("availability", "Availability (e.g. Mon–Sat 9am–6pm)")}
-                {field("experience", "Experience (e.g. 5+ years)")}
+                {field("practice_areas", t("team_specialties",language))}
+                {field("languages", t("team_languages_salon",language))}
+                {field("consultation_fee", t("team_rate",language))}
+                {field("availability", t("team_availability_salon",language))}
+                {field("experience", t("team_experience",language))}
               </div>
-              {textArea("bio", "Short bio — shown in stylist profile…", 2)}
-              {textArea("education", "Training / Certifications (optional)", 2)}
-              {textArea("awards", "Awards or recognitions (optional)", 2)}
+              {textArea("bio", t("team_short_bio",language), 2)}
+              {textArea("education", t("team_training",language), 2)}
+              {textArea("awards", t("team_awards_salon",language), 2)}
             </>
           )}
 
           {/* ── CORPORATE / BUSINESS specific ── */}
           {isCorporate && !isLawFirm && !isSalon && (
             <>
-              {field("department", "Department (e.g. Sales, Engineering)")}
-              {textArea("bio", "Short bio…", 2)}
+              {field("department", t("team_department",language))}
+              {textArea("bio", t("team_short_bio_generic",language), 2)}
             </>
           )}
 
           {/* Status */}
           <div className="flex items-center gap-3">
-            <p className={`text-xs font-bold ${sub}`}>Status:</p>
+            <p className={`text-xs font-bold ${sub}`}>{t("team_status",language)}</p>
             {["active", "inactive"].map(s => (
               <button key={s} type="button" onClick={() => setForm(f => ({ ...f, status: s }))}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${form.status === s ? (s === "active" ? "bg-emerald-500 text-white border-transparent" : "bg-slate-500 text-white border-transparent") : (dark ? "border-white/15 text-white/40" : "border-slate-200 text-slate-500")}`}>
-                {s}
+                {t(s === "active" ? "team_active" : "team_inactive",language)}
               </button>
             ))}
           </div>
@@ -375,11 +375,11 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
             <Button size="sm" onClick={() => saveMutation.mutate(form)}
               disabled={!form.name || saveMutation.isPending}
               className="rounded-xl gap-1.5 font-bold text-white flex-1" style={{ background: "#0b2149" }}>
-              <Check className="w-3.5 h-3.5" /> {saveMutation.isPending ? "Saving…" : "Save"}
+              <Check className="w-3.5 h-3.5" /> {saveMutation.isPending ? t("team_saving",language) : t("team_save",language)}
             </Button>
             <Button size="sm" variant="outline" onClick={() => setEditing(null)}
               className={`rounded-xl ${dark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>
-              Cancel
+              {t("team_cancel",language)}
             </Button>
           </div>
         </div>
@@ -387,11 +387,11 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
 
       {/* Members list */}
       {isLoading ? (
-        <div className={`text-center py-10 text-sm ${sub}`}>Loading…</div>
+        <div className={`text-center py-10 text-sm ${sub}`}>{t("team_loading",language)}</div>
       ) : members.length === 0 ? (
         <div className={`rounded-2xl border p-10 text-center ${card}`}>
           <User className={`w-10 h-10 mx-auto mb-3 ${dark ? "text-white/10" : "text-slate-200"}`} />
-          <p className={`font-semibold text-sm ${sub}`}>No {labels.memberPlural.toLowerCase()} yet</p>
+          <p className={`font-semibold text-sm ${sub}`}>{t("team_none_prefix",language)} {labels.memberPlural.toLowerCase()} {t("team_none_suffix",language)}</p>
           <p className={`text-xs mt-1 mb-4 ${dark ? "text-white/30" : "text-slate-400"}`}>{labels.emptyBody}</p>
           <Button size="sm" onClick={openNew} className="rounded-xl gap-1.5 font-bold text-white" style={{ background: "#0b2149" }}>
             <Plus className="w-3.5 h-3.5" /> {labels.addButton}
@@ -411,22 +411,22 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <p className={`font-bold text-sm truncate ${head}`}>{m.name}</p>
                   <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${m.status === "active" ? (dark ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-100 text-emerald-700") : (dark ? "bg-white/10 text-white/40" : "bg-slate-100 text-slate-500")}`}>
-                    {m.status}
+                    {t(m.status === "active" ? "team_active" : "team_inactive",language)}
                   </span>
                 </div>
-                {m.role && <p className="text-xs font-semibold mt-0.5 truncate" style={{ color: "#f97316" }}>{m.role}</p>}
+                {m.role && <p className="text-xs font-semibold mt-0.5 truncate" style={{ color: "#f97316" }}>{roleLabel(m.role, language)}</p>}
                 {isLawFirm && (m.practice_categories || []).length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {(m.practice_categories || []).map(c => {
                       const catColors = { Immigration: "#0b2149", Civil: "#7c3aed", Criminal: "#b91c1c" };
-                      return <span key={c} className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0b2149" }}>{c}</span>;
+                      return <span key={c} className="text-xs px-2 py-0.5 rounded-full text-white font-bold" style={{ background: catColors[c] || "#0b2149" }}>{practiceLabel(c, language)}</span>;
                     })}
                   </div>
                 )}
-                {isLawFirm && m.bar_states && <p className={`text-xs mt-1 ${sub}`}>Bar: {m.bar_states}</p>}
-                {m.languages && <p className={`text-xs ${sub}`}>Languages: {m.languages}</p>}
-                {isSalon && m.practice_areas && <p className={`text-xs mt-1 ${sub}`}>Specialties: {m.practice_areas}</p>}
-                {isCorporate && m.department && <p className={`text-xs mt-1 ${sub}`}>Dept: {m.department}</p>}
+                {isLawFirm && m.bar_states && <p className={`text-xs mt-1 ${sub}`}>{t("team_bar_label",language)}: {m.bar_states}</p>}
+                {m.languages && <p className={`text-xs ${sub}`}>{t("team_languages_label",language)}: {m.languages}</p>}
+                {isSalon && m.practice_areas && <p className={`text-xs mt-1 ${sub}`}>{t("team_specialties_label",language)}: {m.practice_areas}</p>}
+                {isCorporate && m.department && <p className={`text-xs mt-1 ${sub}`}>{t("team_department_label",language)}: {m.department}</p>}
                 <div className={`flex items-center gap-2 mt-1 text-xs ${sub}`}>
                   {m.email && <span className="flex items-center gap-0.5 truncate"><Mail className="w-3 h-3" /> {m.email}</span>}
                   {m.phone && <span className="flex items-center gap-0.5 flex-shrink-0"><Phone className="w-3 h-3" /> {m.phone}</span>}
@@ -449,8 +449,8 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title={`Remove ${labels.memberSingular.toLowerCase()}?`}
-        description="This action cannot be undone."
+        title={`${t("team_remove_title_prefix",language)} ${labels.memberSingular.toLowerCase()} ?`}
+        description={t("team_remove_description",language)}
         onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
       />
     </div>
