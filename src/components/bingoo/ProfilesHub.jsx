@@ -4,6 +4,7 @@ import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
+import { useI18n } from "@/lib/I18nContext";
 
 export default function ProfilesHub({
   profiles = [],
@@ -23,6 +24,7 @@ export default function ProfilesHub({
   // Persist a new ordered array of profile IDs for the user.
   onReorder,
 }) {
+  const { t } = useI18n();
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
@@ -160,7 +162,7 @@ export default function ProfilesHub({
   // ── Figma-style primary status chip ──
   const renderStatusChip = (profile) => {
     if (!isDefault(profile)) return null;
-    return <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide text-white bg-emerald-500 shadow-sm">Primary</span>;
+    return <span className="text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide text-white bg-emerald-500 shadow-sm">{t("profiles_primary")}</span>;
   };
 
   // ── Reorder controls cluster (top-left of card) ──
@@ -216,8 +218,8 @@ export default function ProfilesHub({
     const profileUrl = publicProfileUrl(profile.username);
     const selected = isSelected(profile);
     const completion = profileCompletion(profile);
-    const profileType = titleCase(profile.profile_type, "Personal");
-    const layoutLabel = `${titleCase(profile.layout, "Classic")} Layout`;
+    const profileType = titleCase(profile.profile_type, t("profiles_personal"));
+    const layoutLabel = `${titleCase(profile.layout, t("profiles_classic"))} ${t("profiles_layout")}`;
     const viewCount = profile.view_count ?? profile.views ?? 0;
     const tapCount = profile.tap_count ?? profile.nfc_taps ?? 0;
 
@@ -290,7 +292,7 @@ export default function ProfilesHub({
             {profile.is_active && (
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-semibold text-emerald-500">Live</span>
+                <span className="text-xs font-semibold text-emerald-500">{t("profiles_live")}</span>
               </span>
             )}
             <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide"
@@ -320,7 +322,7 @@ export default function ProfilesHub({
 
           <div className="hidden sm:block mb-4">
             <div className="flex items-center justify-between text-xs mb-1.5">
-              <span className={subText}>Profile completion</span>
+              <span className={subText}>{t("profiles_completion")}</span>
               <span className="font-black text-orange-500">{completion}%</span>
             </div>
             <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-100"}`}>
@@ -330,14 +332,14 @@ export default function ProfilesHub({
 
           <div className="hidden sm:grid grid-cols-3 gap-2 mb-3">
             <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-base font-black ${headText}`}>{viewCount}</p><p className={`text-[10px] ${mutedText}`}>Views</p>
+              <p className={`text-base font-black ${headText}`}>{viewCount}</p><p className={`text-[10px] ${mutedText}`}>{t("profiles_views")}</p>
             </div>
             <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-base font-black ${headText}`}>{tapCount}</p><p className={`text-[10px] ${mutedText}`}>Taps</p>
+              <p className={`text-base font-black ${headText}`}>{tapCount}</p><p className={`text-[10px] ${mutedText}`}>{t("profiles_taps")}</p>
             </div>
             <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-sm font-black ${profile.is_active === false ? "text-slate-400" : "text-emerald-500"}`}>{profile.is_active === false ? "Hidden" : "Live"}</p>
-              <p className={`text-[10px] ${mutedText}`}>Status</p>
+              <p className={`text-sm font-black ${profile.is_active === false ? "text-slate-400" : "text-emerald-500"}`}>{profile.is_active === false ? t("profiles_hidden") : t("profiles_live")}</p>
+              <p className={`text-[10px] ${mutedText}`}>{t("profiles_status")}</p>
             </div>
           </div>
 
@@ -354,7 +356,7 @@ export default function ProfilesHub({
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 min-w-0"
               style={{ background: "#0b2149" }}>
-              <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">Edit</span>
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t("profiles_edit")}</span>
             </button>
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
@@ -406,7 +408,7 @@ export default function ProfilesHub({
             <div className={`mt-3 pt-3 border-t text-center ${isDark ? "border-white/8" : "border-slate-100"}`}
               onClick={(e) => e.stopPropagation()}>
               <img src={getQrUrl(profile)} alt="QR" className="w-28 h-28 mx-auto rounded-xl" />
-              <p className={`text-xs mt-1.5 ${mutedText}`}>Scan to open profile</p>
+              <p className={`text-xs mt-1.5 ${mutedText}`}>{t("profiles_scan_open")}</p>
             </div>
           )}
         </div>
@@ -423,16 +425,16 @@ export default function ProfilesHub({
         <Lock className="w-6 h-6 text-amber-500" />
       </div>
       <div>
-        <p className={`font-black text-base ${headText}`}>Create New Profile</p>
-        <p className={`text-sm mt-1.5 leading-relaxed ${mutedText}`}>Upgrade to Professional · 14-day free trial</p>
+        <p className={`font-black text-base ${headText}`}>{t("profiles_create_new")}</p>
+        <p className={`text-sm mt-1.5 leading-relaxed ${mutedText}`}>{t("profiles_upgrade_trial")}</p>
       </div>
       <div className="w-full space-y-2">
         <button onClick={startTrial} disabled={trialLoading}
           className="w-full py-2.5 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)", boxShadow: "0 4px 12px rgba(249,115,22,0.3)" }}>
-          {trialLoading ? "Loading…" : "Save card to unlock"}
+          {trialLoading ? t("profiles_loading") : t("profiles_save_unlock")}
         </button>
-        <p className={`text-xs ${mutedText}`}>Cancel anytime</p>
+        <p className={`text-xs ${mutedText}`}>{t("profiles_cancel_anytime")}</p>
       </div>
     </div>
   ) : (
@@ -446,8 +448,8 @@ export default function ProfilesHub({
         <Plus className="w-6 h-6" style={{ color: "#f97316" }} />
       </div>
       <div>
-        <p className={`font-black text-base ${headText}`}>Create New Profile</p>
-        <p className={`text-sm mt-1 ${mutedText}`}>Add another digital card</p>
+        <p className={`font-black text-base ${headText}`}>{t("profiles_create_new")}</p>
+        <p className={`text-sm mt-1 ${mutedText}`}>{t("profiles_add_another")}</p>
       </div>
     </button>
   );
@@ -457,9 +459,9 @@ export default function ProfilesHub({
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${headText}`}>My Profiles</h2>
+          <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${headText}`}>{t("profiles_my_profiles")}</h2>
           <p className={`text-sm mt-0.5 ${subText}`}>
-            {loading ? "Loading your profiles…" : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`}
+            {loading ? t("profiles_loading") : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -479,7 +481,7 @@ export default function ProfilesHub({
       </div>
 
       {reorderError && (
-        <div className="text-xs font-semibold text-red-500">Couldn't save order — reverted. Try again.</div>
+        <div className="text-xs font-semibold text-red-500">{t("profiles_order_error")}</div>
       )}
 
       {/* Loading skeleton */}
@@ -542,8 +544,8 @@ export default function ProfilesHub({
             style={{ background: isDark ? "rgba(11,33,73,0.3)" : "rgba(11,33,73,0.06)", border: "1px solid rgba(11,33,73,0.15)" }}>
             <Users className="w-8 h-8" style={{ color: "#0b2149" }} />
           </div>
-          <h3 className={`font-black text-lg mb-1 ${headText}`}>Create your first profile</h3>
-          <p className={`text-sm mb-5 ${mutedText}`}>Your digital business card, shareable via NFC, QR, or link.</p>
+          <h3 className={`font-black text-lg mb-1 ${headText}`}>{t("profiles_create_first")}</h3>
+          <p className={`text-sm mb-5 ${mutedText}`}>{t("profiles_first_copy")}</p>
           <div className="flex gap-3 justify-center flex-wrap">
             <button onClick={onLaunchAI}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
