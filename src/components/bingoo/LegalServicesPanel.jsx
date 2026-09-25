@@ -8,10 +8,13 @@ import { LEGAL_CATEGORIES } from "@/lib/legalData";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp } from "@/lib/dbDebug";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const CATEGORY_COLORS = { Immigration: "#0369a1", Civil: "#7c3aed", Criminal: "#dc2626" };
 
 export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -45,11 +48,11 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
       console.error("[LegalServicesPanel] Create error:", err);
-      toast.error(`Failed to create: ${err.message}`);
+      toast.error(`${t("legal_failed_add",language)}: ${err.message}`);
     },
   });
 
@@ -66,11 +69,11 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
       setForm({ name: "", description: "", legal_category: "Immigration" });
       setEditId(null);
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
       console.error("[LegalServicesPanel] Update error:", err);
-      toast.error(`Failed to update: ${err.message}`);
+      toast.error(`${t("legal_failed_update",language)}: ${err.message}`);
     },
   });
 
@@ -83,13 +86,13 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["legal-services", profileId], (old = []) => old.filter(s => s.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["legal-services", profileId] });
-      toast.success("Service deleted");
+      toast.success(t("legal_service_deleted",language));
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return toast.error("Name required");
+    if (!form.name.trim()) return toast.error(t("legal_name_required",language));
     if (editId) {
       updateMutation.mutate(form);
     } else {
@@ -117,13 +120,13 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-black ${head}`}>Legal Services</h2>
-          <p className={`text-xs mt-0.5 ${sub}`}>{services.length} services</p>
+          <h2 className={`text-lg font-black ${head}`}>{t("legal_services_title",language)}</h2>
+          <p className={`text-xs mt-0.5 ${sub}`}>{services.length} {t("legal_services_count",language)}</p>
         </div>
         {!showForm && (
           <Button onClick={() => { setEditId(null); setForm({ name: "", description: "", legal_category: "Immigration" }); setShowForm(true); }}
             className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold gap-2">
-            <Plus className="w-4 h-4" /> Add Service
+            <Plus className="w-4 h-4" /> {t("legal_services_add",language)}
           </Button>
         )}
       </div>
@@ -132,33 +135,33 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
         <div className={`rounded-2xl border p-4 ${card}`}>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Category</label>
+              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("legal_category",language)}</label>
               <MobileSelect
                 value={form.legal_category}
                 onValueChange={(v) => setForm(f => ({ ...f, legal_category: v }))}
-                options={LEGAL_CATEGORIES.map(c => ({ value: c, label: c }))}
-                ariaLabel="Legal category"
+                options={LEGAL_CATEGORIES.map(c => ({ value: c, label: t(`practice_${c.toLowerCase()}`,language) }))}
+                ariaLabel={t("legal_category",language)}
                 className={`w-full rounded-xl text-sm border outline-none transition-colors ${inp}`}
                 style={isDark ? { background: "#1a2235" } : {}}
               />
             </div>
             <div>
-              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Service Name *</label>
+              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("legal_service_name",language)}</label>
               <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="e.g., Green Card Application" className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("legal_service_name_ph",language)} className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
             </div>
             <div>
-              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Description</label>
+              <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("legal_description",language)}</label>
               <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Brief service description…" rows={2}
+                placeholder={t("legal_service_desc_ph",language)} rows={2}
                 className={`w-full px-3 py-2 rounded-xl border outline-none resize-none transition-colors text-sm ${inp}`} />
             </div>
             <div className="flex gap-2">
               <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold">
-                {editId ? "Update" : "Create"}
+                {editId ? t("legal_update",language) : t("legal_create",language)}
               </Button>
               <Button type="button" onClick={() => { setShowForm(false); setEditId(null); }}
-                variant="outline" className="flex-1 rounded-xl">Cancel</Button>
+                variant="outline" className="flex-1 rounded-xl">{t("legal_cancel",language)}</Button>
             </div>
           </form>
         </div>
@@ -166,7 +169,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
 
       {services.length === 0 && !showForm && (
         <div className={`rounded-2xl border p-8 text-center ${card}`}>
-          <p className={`font-semibold text-sm ${sub}`}>No services yet.</p>
+          <p className={`font-semibold text-sm ${sub}`}>{t("legal_services_none",language)}</p>
         </div>
       )}
 
@@ -178,7 +181,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
             <div key={cat}>
               <h3 className={`text-sm font-bold mb-2 flex items-center gap-2 ${head}`}>
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: CATEGORY_COLORS[cat] }} />
-                {cat}
+                {t(`practice_${cat.toLowerCase()}`,language)}
               </h3>
               <div className="space-y-2">
                 {catServices.map(service => (
@@ -190,11 +193,11 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
                     <div className="flex gap-1.5 flex-shrink-0">
                       <button onClick={() => startEdit(service)}
                         className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
-                        Edit
+                        {t("legal_edit",language)}
                       </button>
                       <button onClick={() => setDeleteTarget(service.id)}
                         className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
-                        Delete
+                        {t("legal_delete",language)}
                       </button>
                     </div>
                   </div>
@@ -207,8 +210,8 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title="Delete this service?"
-        description="This action cannot be undone."
+        title={t("legal_service_delete_title",language)}
+        description={t("team_remove_description",language)}
         onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
       />
     </div>
