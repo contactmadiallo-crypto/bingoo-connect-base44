@@ -4,8 +4,11 @@ import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
 import { Trash2, ExternalLink, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/I18nContext";
+import { t as tr } from "@/lib/i18n";
 
 export default function ConnectionsPanel({ isDark, profileId }) {
+  const { language } = useI18n();
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
 
@@ -37,7 +40,7 @@ export default function ConnectionsPanel({ isDark, profileId }) {
     badge: isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-500",
   };
 
-  const sourceLabel = { nfc_scan: "📡 NFC", qr_scan: "📷 QR", manual: "👆 Manual" };
+  const sourceLabel = { nfc_scan: "📡 NFC", qr_scan: "📷 QR", manual: `👆 ${tr("conn_manual",language)}` };
 
   if (isLoading) return (
     <div className="flex items-center justify-center py-16">
@@ -50,8 +53,8 @@ export default function ConnectionsPanel({ isDark, profileId }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-xl font-black ${t.text}`}>My Connections</h2>
-          <p className={`text-sm mt-0.5 ${t.sub}`}>{connections.length} saved profile{connections.length !== 1 ? "s" : ""}</p>
+          <h2 className={`text-xl font-black ${t.text}`}>{tr("conn_title",language)}</h2>
+          <p className={`text-sm mt-0.5 ${t.sub}`}>{connections.length} {tr(connections.length === 1 ? "conn_saved_profile" : "conn_saved_profiles",language)}</p>
         </div>
       </div>
 
@@ -61,7 +64,7 @@ export default function ConnectionsPanel({ isDark, profileId }) {
           <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 ${t.sub}`} />
           <input
             type="text"
-            placeholder="Search connections…"
+            placeholder={tr("conn_search",language)}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className={`w-full pl-10 pr-4 py-2.5 rounded-2xl text-sm font-medium outline-none border transition-all ${t.input}`}
@@ -73,8 +76,8 @@ export default function ConnectionsPanel({ isDark, profileId }) {
       {connections.length === 0 && (
         <div className="text-center py-16">
           <Users className={`w-14 h-14 mx-auto mb-3 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-          <p className={`font-bold text-lg ${t.text}`}>No connections yet</p>
-          <p className={`text-sm mt-1 ${t.sub}`}>Tap "Save Profile" on any Bingoo profile to connect</p>
+          <p className={`font-bold text-lg ${t.text}`}>{tr("conn_empty",language)}</p>
+          <p className={`text-sm mt-1 ${t.sub}`}>{tr("conn_empty_copy",language)}</p>
         </div>
       )}
 
@@ -111,14 +114,14 @@ export default function ConnectionsPanel({ isDark, profileId }) {
                 {conn.profile_job_title && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_job_title}</p>}
                 {conn.profile_company && <p className={`text-xs truncate ${t.sub}`}>{conn.profile_company}</p>}
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${t.badge}`}>
-                  {sourceLabel[conn.source] || "👆 Manual"}
+                  {sourceLabel[conn.source] || `👆 ${tr("conn_manual",language)}`}
                 </span>
               </div>
 
               {/* Actions */}
               <div className="flex items-center gap-1 flex-shrink-0" onClick={e => e.stopPropagation()}>
                 <span className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-colors ${isDark ? "bg-blue-500/15 text-blue-400 hover:bg-blue-500/25" : "bg-blue-50 text-blue-600 hover:bg-blue-100"}`}>
-                  <ExternalLink className="w-3 h-3" /> View
+                  <ExternalLink className="w-3 h-3" /> {tr("conn_view",language)}
                 </span>
                 <Button size="icon" variant="ghost" aria-label="Delete connection"
                   onClick={(e) => { e.preventDefault(); deleteMut.mutate(conn.id); }}
