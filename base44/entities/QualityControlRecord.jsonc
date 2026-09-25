@@ -1,0 +1,108 @@
+{
+  "name": "QualityControlRecord",
+  "type": "object",
+  "properties": {
+    "qc_number": {
+      "type": "string"
+    },
+    "production_job_id": {
+      "type": "string"
+    },
+    "shop_order_id": {
+      "type": "string"
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "device_code": {
+      "type": "string"
+    },
+    "batch_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "passed",
+        "failed",
+        "rework_required"
+      ],
+      "default": "pending"
+    },
+    "print_check": {
+      "type": "boolean"
+    },
+    "artwork_check": {
+      "type": "boolean"
+    },
+    "nfc_write_check": {
+      "type": "boolean"
+    },
+    "nfc_read_check": {
+      "type": "boolean"
+    },
+    "qr_scan_check": {
+      "type": "boolean"
+    },
+    "redirect_check": {
+      "type": "boolean"
+    },
+    "packaging_check": {
+      "type": "boolean"
+    },
+    "expected_url": {
+      "type": "string"
+    },
+    "observed_url": {
+      "type": "string"
+    },
+    "failure_reason": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "inspected_by": {
+      "type": "string"
+    },
+    "inspected_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  },
+  "required": [
+    "qc_number",
+    "production_job_id"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

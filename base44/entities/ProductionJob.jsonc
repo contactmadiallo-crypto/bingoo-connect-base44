@@ -1,0 +1,131 @@
+{
+  "name": "ProductionJob",
+  "type": "object",
+  "properties": {
+    "job_number": {
+      "type": "string"
+    },
+    "shop_order_id": {
+      "type": "string"
+    },
+    "shop_order_number": {
+      "type": "string"
+    },
+    "production_spec_id": {
+      "type": "string"
+    },
+    "partner_id": {
+      "type": "string"
+    },
+    "partner_code": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "assigned",
+        "accepted",
+        "artwork_review",
+        "in_production",
+        "encoding",
+        "quality_control",
+        "ready_to_ship",
+        "shipped",
+        "completed",
+        "on_hold",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "unit_cost": {
+      "type": "number"
+    },
+    "total_cost": {
+      "type": "number"
+    },
+    "purchase_order_number": {
+      "type": "string"
+    },
+    "batch_number": {
+      "type": "string"
+    },
+    "lot_number": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "rush"
+      ],
+      "default": "standard"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "accepted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "production_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "qc_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ready_to_ship_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "estimated_completion": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 3000
+    }
+  },
+  "required": [
+    "job_number",
+    "shop_order_id",
+    "production_spec_id",
+    "quantity"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

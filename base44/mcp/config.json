@@ -279,6 +279,26 @@
         ],
         "description": null
       },
+      "ManufacturingPartner": {
+        "operations": [],
+        "description": "Restricted manufacturing partner registry; admin application flows only."
+      },
+      "ProductionSpecification": {
+        "operations": [],
+        "description": "Restricted immutable production specifications; admin application flows only."
+      },
+      "ProductionJob": {
+        "operations": [],
+        "description": "Restricted factory production jobs; admin application flows only."
+      },
+      "QualityControlRecord": {
+        "operations": [],
+        "description": "Restricted manufacturing quality-control evidence; admin application flows only."
+      },
+      "Shipment": {
+        "operations": [],
+        "description": "Restricted international shipment and customs records; admin application flows only."
+      },
       "MenuItem": {
         "operations": [
           "read"

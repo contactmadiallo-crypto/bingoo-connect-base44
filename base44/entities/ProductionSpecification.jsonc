@@ -1,0 +1,123 @@
+{
+  "name": "ProductionSpecification",
+  "type": "object",
+  "properties": {
+    "spec_number": {
+      "type": "string"
+    },
+    "shop_order_id": {
+      "type": "string"
+    },
+    "shop_order_number": {
+      "type": "string"
+    },
+    "design_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "customer_approved",
+        "locked_for_production",
+        "superseded",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "product_sku": {
+      "type": "string"
+    },
+    "product_type": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "material": {
+      "type": "string"
+    },
+    "finish": {
+      "type": "string"
+    },
+    "artwork_front_url": {
+      "type": "string"
+    },
+    "artwork_back_url": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "design_snapshot": {
+      "type": "object"
+    },
+    "nfc_chip_type": {
+      "type": "string"
+    },
+    "nfc_destination_policy": {
+      "type": "string",
+      "default": "bingoo_device_redirect"
+    },
+    "qr_url_pattern": {
+      "type": "string",
+      "default": "https://bingooconnect.com/d/{device_code}"
+    },
+    "encoding_instructions": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "packaging_instructions": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "customs_description": {
+      "type": "string"
+    },
+    "country_of_origin": {
+      "type": "string"
+    },
+    "locked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "locked_by": {
+      "type": "string"
+    },
+    "checksum": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "spec_number",
+    "shop_order_id",
+    "product_type",
+    "quantity"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
