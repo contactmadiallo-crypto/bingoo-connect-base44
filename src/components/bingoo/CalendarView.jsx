@@ -4,14 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { ChevronLeft, ChevronRight, CalendarDays, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, isToday, addMonths, subMonths, parseISO } from "date-fns";
+import { enUS, fr } from "date-fns/locale";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const STATUS_STYLES = {
-  pending:   { icon: AlertCircle, color: "#f59e0b", bg: "rgba(245,158,11,0.12)",   label: "Pending" },
-  confirmed: { icon: CheckCircle, color: "#10b981", bg: "rgba(16,185,129,0.12)",   label: "Confirmed" },
-  cancelled: { icon: XCircle,     color: "#ef4444", bg: "rgba(239,68,68,0.12)",    label: "Cancelled" },
+  pending:   { icon: AlertCircle, color: "#f59e0b", bg: "rgba(245,158,11,0.12)",   labelKey: "appt_pending" },
+  confirmed: { icon: CheckCircle, color: "#10b981", bg: "rgba(16,185,129,0.12)",   labelKey: "appt_confirmed" },
+  cancelled: { icon: XCircle,     color: "#ef4444", bg: "rgba(239,68,68,0.12)",    labelKey: "appt_cancelled" },
 };
 
 export default function CalendarView({ profileId }) {
+  const { language } = useI18n();
+  const locale = language === "fr" ? fr : enUS;
   const { isDark } = useBingooTheme();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());
@@ -51,8 +56,8 @@ export default function CalendarView({ profileId }) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className={`text-2xl font-black ${headText}`}>Calendar</h2>
-        <p className={`text-sm mt-1 ${mutedText}`}>All upcoming appointments at a glance.</p>
+        <h2 className={`text-2xl font-black ${headText}`}>{t("cal_title",language)}</h2>
+        <p className={`text-sm mt-1 ${mutedText}`}>{t("cal_subtitle",language)}</p>
       </div>
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-5">
@@ -61,7 +66,7 @@ export default function CalendarView({ profileId }) {
           {/* Month nav */}
           <div className={`flex items-center justify-between px-5 py-4 border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
             <h3 className={`text-base font-black ${headText}`}>
-              {format(currentMonth, "MMMM yyyy")}
+              {format(currentMonth, "MMMM yyyy", { locale })}
             </h3>
             <div className="flex items-center gap-1">
               <button
@@ -74,7 +79,7 @@ export default function CalendarView({ profileId }) {
                 onClick={() => setCurrentMonth(new Date())}
                 className={`px-3 h-8 rounded-lg text-xs font-bold transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-slate-100 text-slate-500"}`}
               >
-                Today
+                {t("cal_today",language)}
               </button>
               <button
                 onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
@@ -87,8 +92,8 @@ export default function CalendarView({ profileId }) {
 
           {/* Day of week headers */}
           <div className="grid grid-cols-7 px-2 pt-3 pb-1">
-            {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
-              <div key={d} className={`text-center text-xs font-bold pb-2 ${mutedText}`}>{d}</div>
+            {["day_sun","day_mon","day_tue","day_wed","day_thu","day_fri","day_sat"].map(dayKey => (
+              <div key={dayKey} className={`text-center text-xs font-bold pb-2 ${mutedText}`}>{t(dayKey,language)}</div>
             ))}
           </div>
 
@@ -146,7 +151,7 @@ export default function CalendarView({ profileId }) {
           <div className={`rounded-2xl overflow-hidden ${cardBg}`} style={{ boxShadow: cardShadow }}>
             <div className={`px-4 py-3 border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
               <h3 className={`font-black text-sm ${headText}`}>
-                {isToday(selectedDay) ? "Today" : format(selectedDay, "EEEE, MMM d")}
+                {isToday(selectedDay) ? t("cal_today",language) : format(selectedDay, "EEEE, MMM d", { locale })}
               </h3>
               <p className={`text-xs mt-0.5 ${mutedText}`}>{selectedEvents.length} appointment{selectedEvents.length !== 1 ? "s" : ""}</p>
             </div>
@@ -154,12 +159,12 @@ export default function CalendarView({ profileId }) {
               {selectedEvents.length === 0 ? (
                 <div className="text-center py-8">
                   <CalendarDays className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-                  <p className={`text-xs ${mutedText}`}>No appointments</p>
+                  <p className={`text-xs ${mutedText}`}>{t("cal_no_appointments",language)}</p>
                 </div>
               ) : (
                 selectedEvents
                   .sort((a, b) => (a.time_slot || "").localeCompare(b.time_slot || ""))
-                  .map(appt => <AppointmentCard key={appt.id} appt={appt} isDark={isDark} headText={headText} mutedText={mutedText} />)
+                  .map(appt => <AppointmentCard key={appt.id} appt={appt} isDark={isDark} headText={headText} mutedText={mutedText} language={language} locale={locale} />)
               )}
             </div>
           </div>
@@ -167,8 +172,8 @@ export default function CalendarView({ profileId }) {
           {/* Upcoming */}
           <div className={`rounded-2xl overflow-hidden ${cardBg}`} style={{ boxShadow: cardShadow }}>
             <div className={`px-4 py-3 border-b ${isDark ? "border-white/8" : "border-slate-100"}`}>
-              <h3 className={`font-black text-sm ${headText}`}>Upcoming</h3>
-              <p className={`text-xs mt-0.5 ${mutedText}`}>Next 5 appointments</p>
+              <h3 className={`font-black text-sm ${headText}`}>{t("cal_upcoming",language)}</h3>
+              <p className={`text-xs mt-0.5 ${mutedText}`}>{t("cal_next_5",language)}</p>
             </div>
             <div className="p-3 space-y-2">
               {isLoading ? (
@@ -178,10 +183,10 @@ export default function CalendarView({ profileId }) {
               ) : upcoming.length === 0 ? (
                 <div className="text-center py-8">
                   <Clock className={`w-8 h-8 mx-auto mb-2 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-                  <p className={`text-xs ${mutedText}`}>No upcoming appointments</p>
+                  <p className={`text-xs ${mutedText}`}>{t("cal_no_upcoming",language)}</p>
                 </div>
               ) : (
-                upcoming.map(appt => <AppointmentCard key={appt.id} appt={appt} showDate isDark={isDark} headText={headText} mutedText={mutedText} />)
+                upcoming.map(appt => <AppointmentCard key={appt.id} appt={appt} showDate isDark={isDark} headText={headText} mutedText={mutedText} language={language} locale={locale} />)
               )}
             </div>
           </div>
@@ -191,7 +196,7 @@ export default function CalendarView({ profileId }) {
   );
 }
 
-function AppointmentCard({ appt, showDate = false, isDark, headText, mutedText }) {
+function AppointmentCard({ appt, showDate = false, isDark, headText, mutedText, language, locale }) {
   const st = STATUS_STYLES[appt.status] || STATUS_STYLES.pending;
   const Icon = st.icon;
   return (
@@ -212,14 +217,14 @@ function AppointmentCard({ appt, showDate = false, isDark, headText, mutedText }
           )}
           {showDate && appt.date && (
             <span className={`text-xs ${mutedText}`}>
-              {format(parseISO(appt.date), "MMM d")}
+              {format(parseISO(appt.date), "MMM d", { locale })}
             </span>
           )}
         </div>
         {appt.visitor_email && <p className={`text-xs truncate mt-0.5 ${mutedText}`}>{appt.visitor_email}</p>}
       </div>
       <span className="text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0" style={{ color: st.color, background: `${st.color}22` }}>
-        {st.label}
+        {t(st.labelKey,language)}
       </span>
     </div>
   );
