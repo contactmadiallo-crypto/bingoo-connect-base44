@@ -5,6 +5,8 @@ import { canAccess } from "@/lib/planPermissions";
 import { TYPE_BUSINESS, TYPE_SALON, TYPE_LAWFIRM, normalizeProfileType } from "@/lib/sidebarConfig";
 import { Scissors, Users, Clock, ChevronRight } from "lucide-react";
 import BingooEmptyState from "@/components/bingoo/ui/BingooEmptyState";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // Profile types that should see salon/service tools (NOT law firm)
 const SERVICE_PROFILE_TYPES = new Set([TYPE_SALON, TYPE_BUSINESS]);
@@ -12,6 +14,7 @@ const SERVICE_PROFILE_TYPES = new Set([TYPE_SALON, TYPE_BUSINESS]);
 const SERVICE_PROFILE_PLANS = new Set(["salon", "restaurant", "business"]);
 
 export default function BusinessToolsPanel({ profileId, isDark, userPlan, profile, onSaved }) {
+  const { language } = useI18n();
   const effectivePlan = userPlan || "free";
   const profileType = normalizeProfileType(profile);
   const headText = isDark ? "text-white" : "text-slate-900";
@@ -25,14 +28,14 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
     {
       id: "services",
       icon: Scissors,
-      title: profileType === TYPE_SALON ? "Salon Service Menu" : "Services & Products",
+      title: profileType === TYPE_SALON ? t("biz_salon_menu",language) : t("biz_services_products",language),
       show: showServices,
       render: () => <SalonServicesPanel profileId={profileId} isDark={isDark} onSaved={onSaved} mode={profileType === TYPE_SALON ? "salon" : "business"} />,
     },
     {
       id: "team",
       icon: Users,
-      title: profileType === TYPE_LAWFIRM ? "Staff & Attorneys" : "Team Members",
+      title: profileType === TYPE_LAWFIRM ? t("biz_staff_attorneys",language) : t("biz_team_members",language),
       show: showTeam,
       render: () => <TeamMembersPanel profileId={profileId} profileType={profileType} isDark={isDark} onSaved={onSaved} />,
     },
@@ -44,8 +47,8 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
     return (
       <BingooEmptyState
         icon={Scissors}
-        title="Business tools require a paid plan"
-        message="Upgrade to Business or higher to access services, team management, and more."
+        title={t("biz_paid_required",language)}
+        message={t("biz_upgrade_copy",language)}
         isDark={isDark}
       />
     );
@@ -62,9 +65,9 @@ export default function BusinessToolsPanel({ profileId, isDark, userPlan, profil
           <Clock className="w-5 h-5 text-emerald-500" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className={`text-sm font-black ${headText}`}>Business Hours & Booking Setup</p>
+          <p className={`text-sm font-black ${headText}`}>{t("biz_hours_booking",language)}</p>
           <p className={`text-xs mt-0.5 ${isDark ? "text-white/45" : "text-slate-500"}`}>
-            Set weekly availability (Mon–Sun, open/closed, hours) and appointment booking settings.
+            {t("biz_hours_booking_copy",language)}
           </p>
         </div>
         <ChevronRight className={`w-5 h-5 flex-shrink-0 ${isDark ? "text-white/30" : "text-slate-400"}`} />
