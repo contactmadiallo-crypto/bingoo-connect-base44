@@ -239,21 +239,21 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                   <p className="text-xs font-black text-blue-700 uppercase tracking-wider">{t("legal_immigration_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { k: "immigration_a_number", p: "A-Number (Alien Number)" },
-                      { k: "immigration_uscis_account", p: "USCIS Online Account #" },
-                      { k: "immigration_receipt_number", p: "Receipt Number" },
-                      { k: "immigration_case_number", p: "Case Number" },
-                      { k: "immigration_court_location", p: "Immigration Court Location" },
-                      { k: "immigration_current_status", p: "Current Immigration Status" },
-                      { k: "immigration_process_type", p: "Type of Immigration Process" },
-                      { k: "immigration_country_of_origin", p: "Country of Origin" },
-                      { k: "immigration_manner_of_entry", p: "Manner of Entry" },
-                      { k: "immigration_work_permit_status", p: "Work Permit Status" },
+                      { k: "immigration_a_number", p: t("intake_a_number",language) },
+                      { k: "immigration_uscis_account", p: t("intake_uscis_account",language) },
+                      { k: "immigration_receipt_number", p: t("intake_receipt_number",language) },
+                      { k: "immigration_case_number", p: t("intake_case_number",language) },
+                      { k: "immigration_court_location", p: t("intake_imm_court_location",language) },
+                      { k: "immigration_current_status", p: t("intake_current_status",language) },
+                      { k: "immigration_process_type", p: t("intake_process_type",language) },
+                      { k: "immigration_country_of_origin", p: t("intake_country_origin",language) },
+                      { k: "immigration_manner_of_entry", p: t("intake_manner_entry",language) },
+                      { k: "immigration_work_permit_status", p: t("intake_work_permit",language) },
                     ].map(({ k, p }) => (
                       <input key={k} className={inp} placeholder={p} value={form[k]} onChange={set(k)} />
                     ))}
-                    <input className={inp} placeholder="Date of Entry to U.S." type="date" value={form.immigration_date_of_entry} onChange={set("immigration_date_of_entry")} />
-                    <input className={inp} placeholder="Immigration Court Date" type="date" value={form.immigration_court_date} onChange={set("immigration_court_date")} />
+                    <input className={inp} placeholder={t("intake_date_entry",language)} type="date" value={form.immigration_date_of_entry} onChange={set("immigration_date_of_entry")} />
+                    <input className={inp} placeholder={t("intake_imm_court_date",language)} type="date" value={form.immigration_court_date} onChange={set("immigration_court_date")} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <YesNo language={language} label={t("intake_prior_asylum",language)} value={form.immigration_prior_asylum} onChange={v => setVal("immigration_prior_asylum", v)} />
@@ -261,8 +261,8 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                     <YesNo language={language} label={t("intake_prior_removal",language)} value={form.immigration_prior_removal} onChange={v => setVal("immigration_prior_removal", v)} />
                     <YesNo language={language} label={t("intake_family_petition",language)} value={form.immigration_family_petition} onChange={v => setVal("immigration_family_petition", v)} />
                   </div>
-                  <input className={inp} placeholder="Important Deadlines" value={form.immigration_deadlines} onChange={set("immigration_deadlines")} />
-                  <textarea className={inp + " resize-none"} placeholder="Additional notes for attorney…" rows={2} value={form.immigration_notes} onChange={set("immigration_notes")} />
+                  <input className={inp} placeholder={t("intake_deadlines",language)} value={form.immigration_deadlines} onChange={set("immigration_deadlines")} />
+                  <textarea className={inp + " resize-none"} placeholder={t("intake_notes_attorney",language)} rows={2} value={form.immigration_notes} onChange={set("immigration_notes")} />
                 </div>
               )}
 
@@ -272,18 +272,18 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                   <p className="text-xs font-black text-purple-700 uppercase tracking-wider">{t("legal_civil_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { k: "civil_matter_type", p: "Type of Civil Matter" },
-                      { k: "civil_opposing_party", p: "Opposing Party Name (if known)" },
-                      { k: "civil_case_number", p: "Court Case Number (if any)" },
-                      { k: "civil_insurance_claim", p: "Insurance Claim Number (if any)" },
-                      { k: "civil_incident_location", p: "Location of Incident" },
+                      { k: "civil_matter_type", p: t("intake_civil_type",language) },
+                      { k: "civil_opposing_party", p: t("intake_opposing_party",language) },
+                      { k: "civil_case_number", p: t("intake_civil_case",language) },
+                      { k: "civil_insurance_claim", p: t("intake_insurance_claim",language) },
+                      { k: "civil_incident_location", p: t("intake_incident_location",language) },
                     ].map(({ k, p }) => (
                       <input key={k} className={inp} placeholder={p} value={form[k]} onChange={set(k)} />
                     ))}
-                    <input className={inp} placeholder="Date of Incident" type="date" value={form.civil_incident_date} onChange={set("civil_incident_date")} />
-                    <input className={inp} placeholder="Court / Deadline Date" type="date" value={form.civil_court_date} onChange={set("civil_court_date")} />
+                    <input className={inp} placeholder={t("intake_incident_date",language)} type="date" value={form.civil_incident_date} onChange={set("civil_incident_date")} />
+                    <input className={inp} placeholder={t("intake_court_deadline",language)} type="date" value={form.civil_court_date} onChange={set("civil_court_date")} />
                   </div>
-                  <textarea className={inp + " resize-none"} placeholder="Describe injury or damages…" rows={2} value={form.civil_damages_description} onChange={set("civil_damages_description")} />
+                  <textarea className={inp + " resize-none"} placeholder={t("intake_damages",language)} rows={2} value={form.civil_damages_description} onChange={set("civil_damages_description")} />
                 </div>
               )}
 
@@ -293,16 +293,16 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                   <p className="text-xs font-black text-red-700 uppercase tracking-wider">{t("legal_criminal_details",language)}</p>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { k: "criminal_charge", p: "Charge or Accusation" },
-                      { k: "criminal_court_location", p: "Court Location" },
-                      { k: "criminal_docket_number", p: "Docket / Case Number" },
-                      { k: "criminal_precinct", p: "Police Precinct (if known)" },
-                      { k: "criminal_bail_status", p: "Bail Status" },
+                      { k: "criminal_charge", p: t("intake_charge",language) },
+                      { k: "criminal_court_location", p: t("intake_court_location",language) },
+                      { k: "criminal_docket_number", p: t("intake_docket",language) },
+                      { k: "criminal_precinct", p: t("intake_precinct",language) },
+                      { k: "criminal_bail_status", p: t("intake_bail",language) },
                     ].map(({ k, p }) => (
                       <input key={k} className={inp} placeholder={p} value={form[k]} onChange={set(k)} />
                     ))}
-                    <input className={inp} placeholder="Arrest Date" type="date" value={form.criminal_arrest_date} onChange={set("criminal_arrest_date")} />
-                    <input className={inp} placeholder="Court Date" type="date" value={form.criminal_court_date} onChange={set("criminal_court_date")} />
+                    <input className={inp} placeholder={t("intake_arrest_date",language)} type="date" value={form.criminal_arrest_date} onChange={set("criminal_arrest_date")} />
+                    <input className={inp} placeholder={t("intake_court_date",language)} type="date" value={form.criminal_court_date} onChange={set("criminal_court_date")} />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <YesNo language={language} label={t("intake_prior_history",language)} value={form.criminal_prior_history} onChange={v => setVal("criminal_prior_history", v)} />
@@ -323,7 +323,7 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
                   <div className="mt-2 space-y-1.5">
                     {form.document_urls.map((url, i) => (
                       <div key={i} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
-                        <span className="text-xs text-blue-700 truncate">📎 Document {i + 1}</span>
+                        <span className="text-xs text-blue-700 truncate">📎 {t("legal_document",language)} {i + 1}</span>
                         <button type="button" onClick={() => removeDoc(i)} aria-label={t("intake_remove_doc",language)} className="text-red-400 hover:text-red-600 ml-2 flex items-center justify-center"><X className="w-4 h-4" /></button>
                       </div>
                     ))}
