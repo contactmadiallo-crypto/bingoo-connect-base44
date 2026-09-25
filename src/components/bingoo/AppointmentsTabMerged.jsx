@@ -24,14 +24,14 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
     <div className="space-y-4">
       {/* Sub-tab bar */}
       <div className="flex gap-1.5">
-        {SUB_TABS.map(t => {
-          const isActive = sub === t.id;
-          const Icon = t.icon;
+        {SUB_TABS.map(tabItem => {
+          const isActive = sub === tabItem.id;
+          const Icon = tabItem.icon;
           return (
             <button
-              key={t.id}
-              onClick={() => setSub(t.id)}
-              aria-label={t(t.labelKey,language)}
+              key={tabItem.id}
+              onClick={() => setSub(tabItem.id)}
+              aria-label={t(tabItem.labelKey,language)}
               className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
               style={{
                 background: isActive
@@ -44,7 +44,7 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
               }}
             >
               <Icon style={{ width: 13, height: 13 }} />
-              {t(t.labelKey,language)}
+              {t(tabItem.labelKey,language)}
             </button>
           );
         })}
