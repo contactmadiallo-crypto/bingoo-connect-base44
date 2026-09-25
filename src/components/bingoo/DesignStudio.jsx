@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { addToCart } from '@/lib/cartStore';
 import { getDesignStudioProduct } from '@/lib/designStudioCatalog';
 import { saveDraft } from '@/lib/draftStore';
-import { PRODUCT_TYPES } from '@/components/bingoo/designStudio/ProductPreview';
 import StudioHeader from '@/components/bingoo/designStudio/StudioHeader';
 import DevicePicker from '@/components/bingoo/designStudio/DevicePicker';
 import TemplatePicker from '@/components/bingoo/designStudio/TemplatePicker';
