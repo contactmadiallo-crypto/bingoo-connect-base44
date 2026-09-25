@@ -161,52 +161,52 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete, language }) {
 
             {lead.legal_category === "Immigration" && <>
               <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-blue-300" : "text-blue-700"}`}>{t("legal_immigration_details",language)}</div>
-              <DetailRow label="A-Number" value={lead.immigration_a_number} />
-              <DetailRow label="USCIS Account #" value={lead.immigration_uscis_account} />
-              <DetailRow label="Receipt #" value={lead.immigration_receipt_number} />
-              <DetailRow label="Case #" value={lead.immigration_case_number} />
-              <DetailRow label="Court Date" value={lead.immigration_court_date} />
-              <DetailRow label="Court Location" value={lead.immigration_court_location} />
-              <DetailRow label="Current Status" value={lead.immigration_current_status} />
-              <DetailRow label="Process Type" value={lead.immigration_process_type} />
-              <DetailRow label="Country of Origin" value={lead.immigration_country_of_origin} />
-              <DetailRow label="Date of Entry" value={lead.immigration_date_of_entry} />
-              <DetailRow label="Manner of Entry" value={lead.immigration_manner_of_entry} />
-              <DetailRow label="Work Permit Status" value={lead.immigration_work_permit_status} />
-              <DetailRow label="Deadlines" value={lead.immigration_deadlines} />
+              <DetailRow label={t("legal_a_number",language)} value={lead.immigration_a_number} />
+              <DetailRow label={t("legal_uscis_account",language)} value={lead.immigration_uscis_account} />
+              <DetailRow label={t("legal_receipt",language)} value={lead.immigration_receipt_number} />
+              <DetailRow label={t("legal_case",language)} value={lead.immigration_case_number} />
+              <DetailRow label={t("legal_court_date",language)} value={lead.immigration_court_date} />
+              <DetailRow label={t("legal_court_location",language)} value={lead.immigration_court_location} />
+              <DetailRow label={t("legal_current_status",language)} value={lead.immigration_current_status} />
+              <DetailRow label={t("legal_process_type",language)} value={lead.immigration_process_type} />
+              <DetailRow label={t("legal_country_origin",language)} value={lead.immigration_country_of_origin} />
+              <DetailRow label={t("legal_date_entry",language)} value={lead.immigration_date_of_entry} />
+              <DetailRow label={t("legal_manner_entry",language)} value={lead.immigration_manner_of_entry} />
+              <DetailRow label={t("legal_work_permit",language)} value={lead.immigration_work_permit_status} />
+              <DetailRow label={t("legal_deadlines",language)} value={lead.immigration_deadlines} />
               <div className="flex flex-wrap gap-3 mt-1.5">
-                {lead.immigration_prior_asylum !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Prior Asylum: <YesNoBadge value={lead.immigration_prior_asylum} /></div>}
-                {lead.immigration_detained !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Detained: <YesNoBadge value={lead.immigration_detained} /></div>}
-                {lead.immigration_prior_removal !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Prior Removal: <YesNoBadge value={lead.immigration_prior_removal} /></div>}
-                {lead.immigration_family_petition !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Family Petition: <YesNoBadge value={lead.immigration_family_petition} /></div>}
+                {lead.immigration_prior_asylum !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_prior_asylum",language)}: <YesNoBadge value={lead.immigration_prior_asylum} language={language} /></div>}
+                {lead.immigration_detained !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_detained",language)}: <YesNoBadge value={lead.immigration_detained} language={language} /></div>}
+                {lead.immigration_prior_removal !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_prior_removal",language)}: <YesNoBadge value={lead.immigration_prior_removal} language={language} /></div>}
+                {lead.immigration_family_petition !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_family_petition",language)}: <YesNoBadge value={lead.immigration_family_petition} language={language} /></div>}
               </div>
-              <DetailRow label="Notes" value={lead.immigration_notes} />
+              <DetailRow label={t("legal_notes",language)} value={lead.immigration_notes} />
             </>}
 
             {lead.legal_category === "Civil" && <>
               <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-purple-300" : "text-purple-700"}`}>{t("legal_civil_details",language)}</div>
-              <DetailRow label="Matter Type" value={lead.civil_matter_type} />
-              <DetailRow label="Incident Date" value={lead.civil_incident_date} />
-              <DetailRow label="Incident Location" value={lead.civil_incident_location} />
-              <DetailRow label="Opposing Party" value={lead.civil_opposing_party} />
-              <DetailRow label="Case #" value={lead.civil_case_number} />
-              <DetailRow label="Insurance Claim" value={lead.civil_insurance_claim} />
-              <DetailRow label="Damages" value={lead.civil_damages_description} />
-              <DetailRow label="Court Date" value={lead.civil_court_date} />
+              <DetailRow label={t("legal_matter_type",language)} value={lead.civil_matter_type} />
+              <DetailRow label={t("legal_incident_date",language)} value={lead.civil_incident_date} />
+              <DetailRow label={t("legal_incident_location",language)} value={lead.civil_incident_location} />
+              <DetailRow label={t("legal_opposing_party",language)} value={lead.civil_opposing_party} />
+              <DetailRow label={t("legal_case",language)} value={lead.civil_case_number} />
+              <DetailRow label={t("legal_insurance_claim",language)} value={lead.civil_insurance_claim} />
+              <DetailRow label={t("legal_damages",language)} value={lead.civil_damages_description} />
+              <DetailRow label={t("legal_court_date",language)} value={lead.civil_court_date} />
             </>}
 
             {lead.legal_category === "Criminal" && <>
               <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-red-300" : "text-red-700"}`}>{t("legal_criminal_details",language)}</div>
-              <DetailRow label="Charge" value={lead.criminal_charge} />
-              <DetailRow label="Arrest Date" value={lead.criminal_arrest_date} />
-              <DetailRow label="Court Date" value={lead.criminal_court_date} />
-              <DetailRow label="Court Location" value={lead.criminal_court_location} />
-              <DetailRow label="Docket #" value={lead.criminal_docket_number} />
-              <DetailRow label="Precinct" value={lead.criminal_precinct} />
-              <DetailRow label="Bail Status" value={lead.criminal_bail_status} />
+              <DetailRow label={t("legal_charge",language)} value={lead.criminal_charge} />
+              <DetailRow label={t("legal_arrest_date",language)} value={lead.criminal_arrest_date} />
+              <DetailRow label={t("legal_court_date",language)} value={lead.criminal_court_date} />
+              <DetailRow label={t("legal_court_location",language)} value={lead.criminal_court_location} />
+              <DetailRow label={t("legal_docket",language)} value={lead.criminal_docket_number} />
+              <DetailRow label={t("legal_precinct",language)} value={lead.criminal_precinct} />
+              <DetailRow label={t("legal_bail_status",language)} value={lead.criminal_bail_status} />
               <div className="flex flex-wrap gap-3 mt-1.5">
-                {lead.criminal_prior_history !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Prior History: <YesNoBadge value={lead.criminal_prior_history} /></div>}
-                {lead.criminal_detained !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">Detained: <YesNoBadge value={lead.criminal_detained} /></div>}
+                {lead.criminal_prior_history !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_prior_history",language)}: <YesNoBadge value={lead.criminal_prior_history} language={language} /></div>}
+                {lead.criminal_detained !== "" && <div className="flex items-center gap-1.5 text-xs text-slate-500">{t("legal_detained",language)}: <YesNoBadge value={lead.criminal_detained} language={language} /></div>}
               </div>
             </>}
 
@@ -353,7 +353,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
           onValueChange={(v) => setFilterStage(v)}
           options={[
             { value: "all", label: t("legal_all_stages",language) },
-            ...LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: s.label }))
+            ...LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: t(s.key,language) }))
           ]}
           className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}
         />
