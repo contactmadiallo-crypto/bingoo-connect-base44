@@ -1,19 +1,15 @@
 import { useState } from 'react';
 import { PRODUCT_TYPES, ProductPreview } from './ProductPreview';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 // Primary 6 devices shown by default; extras (metal_card, wood_card) behind "View all"
 const PRIMARY_IDS = ['card', 'keychain', 'sticker', 'bracelet', 'tag', 'stand'];
 const EXTRA_IDS = ['metal_card', 'wood_card'];
 
-const DISPLAY_LABELS = {
-  card: 'NFC Card',
-  keychain: 'Key Fob',
-  sticker: 'Sticker',
-  bracelet: 'Bracelet',
-  tag: 'Tag',
-  stand: 'Table Stand',
-  metal_card: 'Metal Card',
-  wood_card: 'Wood Card',
+const DISPLAY_LABEL_KEYS = {
+  card: 'ds_device_card', keychain: 'ds_device_key_fob', sticker: 'ds_device_sticker', bracelet: 'ds_device_bracelet',
+  tag: 'ds_device_tag', stand: 'ds_device_table_stand', metal_card: 'ds_device_metal_card', wood_card: 'ds_device_wood_card',
 };
 
 const THUMB_PROPS = {
@@ -35,6 +31,7 @@ const THUMB_PROPS = {
 };
 
 export default function DevicePicker({ productType, setProductType }) {
+  const { language } = useI18n();
   const [expanded, setExpanded] = useState(false);
   const extras = EXTRA_IDS;
   const visible = expanded ? [...PRIMARY_IDS, ...extras] : PRIMARY_IDS;
@@ -42,10 +39,10 @@ export default function DevicePicker({ productType, setProductType }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-black text-sm text-[#0b2149]"><span className="mr-1 text-[#f97316]">1.</span>Choose Your Device</h3>
+        <h3 className="font-black text-sm text-[#0b2149]"><span className="mr-1 text-[#f97316]">1.</span>{t("ds_choose_device", language)}</h3>
         {extras.length > 0 && (
           <button onClick={() => setExpanded(v => !v)} className="text-[11px] font-bold text-[#f97316] hover:underline">
-            {expanded ? 'Show less' : 'View all'}
+            {expanded ? t("ds_show_less", language) : t("ds_view_all", language)}
           </button>
         )}
       </div>
@@ -66,7 +63,7 @@ export default function DevicePicker({ productType, setProductType }) {
                   <ProductPreview {...THUMB_PROPS} productType={p.id} side="front" />
                 </div>
               </div>
-              <span className={`text-[9px] font-black leading-tight mt-1 text-center ${active ? 'text-[#0b2149]' : 'text-slate-700'}`}>{DISPLAY_LABELS[p.id]}</span>
+              <span className={`text-[9px] font-black leading-tight mt-1 text-center ${active ? 'text-[#0b2149]' : 'text-slate-700'}`}>{t(DISPLAY_LABEL_KEYS[p.id], language)}</span>
               {active && <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">✓</span>}
             </button>
           );
