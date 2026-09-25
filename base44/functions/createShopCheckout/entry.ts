@@ -214,14 +214,15 @@ Deno.serve(async (req) => {
       });
     }
     // Shipping is computed server-side via shared config — never trusted from client.
-    const shippingCostCents = computeShipping(productSubtotalCents + studioFeesCents);
+    const shippingQuote = computeShipping(productSubtotalCents + studioFeesCents, country);
+    const shippingCostCents = shippingQuote.amountCents;
     const totalCents = productSubtotalCents + studioFeesCents + shippingCostCents;
 
     lineItems.push({
       price_data: {
         currency: 'usd',
         unit_amount: shippingCostCents,
-        product_data: { name: 'Shipping & Handling' },
+        product_data: { name: `${shippingQuote.service} Shipping` },
       },
       quantity: 1,
     });
@@ -306,6 +307,12 @@ Deno.serve(async (req) => {
       items: orderItems,
       subtotal: productSubtotalCents / 100,
       shipping_cost: shippingCostCents / 100,
+      shipping_zone: shippingQuote.zone,
+      shipping_service: shippingQuote.service,
+      shipping_currency: 'USD',
+      shipping_eta_min_days: shippingQuote.etaMinDays,
+      shipping_eta_max_days: shippingQuote.etaMaxDays,
+      duties_terms: shippingQuote.dutiesTerms,
       total: totalCents / 100,
       payment_status: 'unpaid',
       fulfillment_status: 'processing',
