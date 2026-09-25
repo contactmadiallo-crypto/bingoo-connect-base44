@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function ReportLostDialog({
   open,
@@ -10,6 +12,7 @@ export default function ReportLostDialog({
   isDark,
   isPending,
 }) {
+  const { language } = useI18n();
   return (
     <AnimatePresence>
       {open && device && (
@@ -35,7 +38,7 @@ export default function ReportLostDialog({
               </div>
 
               <h2 className={`text-center font-black text-lg mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>
-                Activate Lost Mode?
+                {t("lost_activate_title", language)}
               </h2>
               <p className={`text-center text-sm mb-4 ${isDark ? "text-white/50" : "text-slate-500"}`}>
                 Device <span className="font-mono font-bold">{device.device_code}</span>
@@ -45,19 +48,19 @@ export default function ReportLostDialog({
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                   <p className={isDark ? "text-white/70" : "text-slate-600"}>
-                    <strong>Scans will be disabled</strong> — anyone who taps this card will see a recovery page instead of your profile.
+                    <strong>{t("lost_scans_disabled_bold", language)}</strong> — {t("lost_scans_disabled_copy", language)}
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                   <p className={isDark ? "text-white/70" : "text-slate-600"}>
-                    Finders can submit their contact details and GPS location so you can recover your item.
+                    {t("lost_finder_submit_copy", language)}
                   </p>
                 </div>
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                   <p className={isDark ? "text-white/70" : "text-slate-600"}>
-                    You can <strong>reactivate anytime</strong> — no data is lost.
+                    {t("lost_reactivate_copy", language)}
                   </p>
                 </div>
               </div>
@@ -69,7 +72,7 @@ export default function ReportLostDialog({
                   disabled={isPending}
                   className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}
                 >
-                  Cancel
+                  {t("lost_cancel", language)}
                 </Button>
                 <Button
                   onClick={onConfirm}
@@ -78,9 +81,9 @@ export default function ReportLostDialog({
                   style={{ background: "#ef4444" }}
                 >
                   {isPending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Activating…</>
+                    <><Loader2 className="w-4 h-4 animate-spin mr-1" /> {t("lost_activating", language)}</>
                   ) : (
-                    <>🔒 Activate Lost Mode</>
+                    <>🔒 {t("lost_activate_action", language)}</>
                   )}
                 </Button>
               </div>
