@@ -3,14 +3,17 @@ import AppointmentsPanel from "@/components/bingoo/AppointmentsPanel";
 import CalendarView from "@/components/bingoo/CalendarView";
 import AppointmentSettings from "@/components/bingoo/AppointmentSettings";
 import { CalendarDays, Calendar, Settings } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const SUB_TABS = [
-  { id: "list",     label: "Appointments", icon: CalendarDays },
-  { id: "calendar", label: "Calendar",     icon: Calendar     },
-  { id: "settings", label: "Booking Setup", icon: Settings    },
+  { id: "list",     labelKey: "appt_title", icon: CalendarDays },
+  { id: "calendar", labelKey: "appt_calendar", icon: Calendar     },
+  { id: "settings", labelKey: "appt_booking_setup", icon: Settings    },
 ];
 
 export default function AppointmentsTabMerged({ profileId, userId, isDark, highlightId, onSaved }) {
+  const { language } = useI18n();
   // A deep-linked appointment should always land on the list view, even if the user
   // previously had the calendar/settings sub-tab open.
   const [sub, setSub] = useState(highlightId ? "list" : "list");
@@ -28,7 +31,7 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
             <button
               key={t.id}
               onClick={() => setSub(t.id)}
-              aria-label={t.label}
+              aria-label={t(t.labelKey,language)}
               className="flex-1 min-h-[44px] flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all"
               style={{
                 background: isActive
@@ -41,7 +44,7 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
               }}
             >
               <Icon style={{ width: 13, height: 13 }} />
-              {t.label}
+              {t(t.labelKey,language)}
             </button>
           );
         })}
