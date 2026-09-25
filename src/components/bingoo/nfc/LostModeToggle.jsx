@@ -1,5 +1,7 @@
 import { Switch } from "@/components/ui/switch";
 import { AlertTriangle } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * Lost Mode toggle for an NFC device card.
@@ -7,6 +9,7 @@ import { AlertTriangle } from "lucide-react";
  * - Toggle OFF → calls onTurnOff directly (with built-in confirmation if found reports exist)
  */
 export default function LostModeToggle({ device, reportCount, isDark, isPending, onTurnOn, onTurnOff }) {
+  const { language } = useI18n();
   const isLost = device.status === "lost";
   const isDisabled = device.status === "disabled" || device.status === "replaced";
   if (isDisabled) return null;
@@ -33,10 +36,10 @@ export default function LostModeToggle({ device, reportCount, isDark, isPending,
             🔒 Lost Mode
           </p>
           <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-            {isLost ? "Lost Mode is ON" : "Lost Mode is OFF"}
+            {isLost ? t("lost_mode_on", language) : t("lost_mode_off", language)}
           </p>
           <p className={`text-xs mt-0.5 ${isDark ? "text-white/50" : "text-slate-500"}`}>
-            {isLost ? "Scans show recovery page with finder form" : "Scans route normally to your profile or asset"}
+            {isLost ? t("lost_scan_recovery", language) : t("lost_scan_normal", language)}
           </p>
         </div>
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
@@ -49,7 +52,7 @@ export default function LostModeToggle({ device, reportCount, isDark, isPending,
       {isLost && reportCount > 0 && (
         <div className={`mt-3 flex items-center gap-2 p-2.5 rounded-lg text-xs font-medium ${isDark ? "bg-amber-500/10 text-amber-300 border border-amber-500/20" : "bg-amber-50 text-amber-700 border border-amber-100"}`}>
           <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
-          {reportCount} found report{reportCount > 1 ? "s" : ""} received — check below for finder details
+          {reportCount} {t("lost_reports_received", language)}
         </div>
       )}
     </div>
