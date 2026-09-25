@@ -297,7 +297,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
             style={{ background: ordered ? '#16a34a' : ORANGE }}>
             {ordered ? <><Check className="w-3.5 h-3.5" /> Added!</> : <><ShoppingCart className="w-3.5 h-3.5" /> Order Card</>}
           </button>
-          <p className="text-[9px] text-center mt-3" style={{ color: MUTED }}>7-10 business days · Free shipping</p>
+          <p className="text-[9px] text-center mt-3" style={{ color: MUTED }}>Shipping calculated by destination at checkout</p>
         </div>
       </div>
     </div>
