@@ -4,6 +4,8 @@ import { ArrowRightLeft, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { base44 } from "@/api/base44Client";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * ReassignDeviceDialog — user-facing flow to move an NFC device from one owned
@@ -12,6 +14,7 @@ import { base44 } from "@/api/base44Client";
  * function changes.
  */
 export default function ReassignDeviceDialog({ open, onClose, device, profiles, isDark, onSuccess }) {
+  const { language } = useI18n();
   const [targetId, setTargetId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,8 +34,8 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
   const eligible = (profiles || []).filter(p => p.id !== device?.profile_id);
 
   const handleReassign = async () => {
-    if (!targetId) { setError("Select a profile to reassign to."); return; }
-    if (!device) { setError("No device selected."); return; }
+    if (!targetId) { setError(t("reassign_select_error", language)); return; }
+    if (!device) { setError(t("reassign_none_error", language)); return; }
     setLoading(true); setError("");
     try {
       await base44.entities.NFCDevice.update(device.id, {
@@ -42,7 +45,7 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
       onSuccess?.();
       onClose?.();
     } catch (e) {
-      setError(e?.message || "Reassignment failed.");
+      setError(e?.message || t("reassign_failed", language));
     } finally {
       setLoading(false);
     }
@@ -70,24 +73,24 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
                   <ArrowRightLeft className="w-6 h-6 text-purple-500" />
                 </div>
                 <div>
-                  <h2 className={`font-black text-lg ${headText}`}>Reassign Device</h2>
-                  <p className={`text-xs ${mutedText}`}>Move <span className="font-mono font-bold">{device.device_code}</span> to another profile.</p>
+                  <h2 className={`font-black text-lg ${headText}`}>{t("reassign_title", language)}</h2>
+                  <p className={`text-xs ${mutedText}`}>{t("reassign_move_prefix", language)} <span className="font-mono font-bold">{device.device_code}</span> {t("reassign_move_suffix", language)}</p>
                 </div>
               </div>
 
               {eligible.length === 0 ? (
                 <div className={`rounded-xl p-4 text-sm ${isDark ? "bg-white/5 border border-white/10 text-white/60" : "bg-slate-50 border border-slate-200 text-slate-600"}`}>
-                  You need another profile to reassign this device. Create a new profile first, then come back here.
+                  {t("reassign_need_profile", language)}
                 </div>
               ) : (
                 <>
-                  <label className={`text-xs font-bold block mb-1 ${mutedText}`}>Target Profile</label>
+                  <label className={`text-xs font-bold block mb-1 ${mutedText}`}>{t("reassign_target", language)}</label>
                   <div className="mb-4">
                     <MobileSelect
                       value={targetId}
                       onValueChange={setTargetId}
-                      placeholder="— Select a profile —"
-                      ariaLabel="Reassign to profile"
+                      placeholder={t("reassign_select", language)}
+                      ariaLabel={t("reassign_target", language)}
                       options={eligible.map(p => ({ value: p.id, label: `${p.display_name} (@${p.username})` }))}
                       className="w-full rounded-xl text-sm"
                       style={isDark ? { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" } : {}}
@@ -103,10 +106,10 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
 
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={handleClose} disabled={loading}
-                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>Cancel</Button>
+                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
                     <Button onClick={handleReassign} disabled={loading || !targetId}
                       className="flex-1 font-bold rounded-xl text-white" style={{ background: "#a855f7" }}>
-                      {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> Moving…</> : <><ArrowRightLeft className="w-4 h-4 mr-1" /> Reassign</>}
+                      {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> {t("reassign_moving", language)}</> : <><ArrowRightLeft className="w-4 h-4 mr-1" /> {t("nfc_reassign", language)}</>}
                     </Button>
                   </div>
                 </>
