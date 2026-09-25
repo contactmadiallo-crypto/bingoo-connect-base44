@@ -7,14 +7,16 @@ import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import ConnectionEditModal from "@/components/bingoo/ConnectionEditModal";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // Full CRM pipeline statuses
 const CRM_STATUSES = [
-  { id: "new",       label: "New",       color: "#f59e0b", darkCls: "bg-amber-500/20 text-amber-300 border-amber-500/30",   lightCls: "bg-amber-50 text-amber-700 border-amber-200" },
-  { id: "contacted", label: "Contacted", color: "#3b82f6", darkCls: "bg-blue-500/20 text-blue-300 border-blue-500/30",     lightCls: "bg-blue-50 text-blue-700 border-blue-200" },
-  { id: "qualified", label: "Qualified", color: "#8b5cf6", darkCls: "bg-violet-500/20 text-violet-300 border-violet-500/30", lightCls: "bg-violet-50 text-violet-700 border-violet-200" },
-  { id: "won",       label: "Won",       color: "#10b981", darkCls: "bg-green-500/20 text-green-300 border-green-500/30",   lightCls: "bg-green-50 text-green-700 border-green-200" },
-  { id: "lost",      label: "Lost",      color: "#ef4444", darkCls: "bg-red-500/20 text-red-300 border-red-500/30",         lightCls: "bg-red-50 text-red-600 border-red-200" },
+  { id: "new",       labelKey: "crm_new",       color: "#f59e0b", darkCls: "bg-amber-500/20 text-amber-300 border-amber-500/30",   lightCls: "bg-amber-50 text-amber-700 border-amber-200" },
+  { id: "contacted", labelKey: "crm_contacted", color: "#3b82f6", darkCls: "bg-blue-500/20 text-blue-300 border-blue-500/30",     lightCls: "bg-blue-50 text-blue-700 border-blue-200" },
+  { id: "qualified", labelKey: "crm_qualified", color: "#8b5cf6", darkCls: "bg-violet-500/20 text-violet-300 border-violet-500/30", lightCls: "bg-violet-50 text-violet-700 border-violet-200" },
+  { id: "won",       labelKey: "crm_won",       color: "#10b981", darkCls: "bg-green-500/20 text-green-300 border-green-500/30",   lightCls: "bg-green-50 text-green-700 border-green-200" },
+  { id: "lost",      labelKey: "crm_lost",      color: "#ef4444", darkCls: "bg-red-500/20 text-red-300 border-red-500/30",         lightCls: "bg-red-50 text-red-600 border-red-200" },
 ];
 
 const ALL_STATUS_IDS = CRM_STATUSES.map(s => s.id);
@@ -26,6 +28,7 @@ function getStatusStyle(status, isDark) {
 }
 
 export default function LeadsPanel({ profileId, profileIds: propProfileIds, user, highlightId }) {
+  const { language } = useI18n();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [noteFor, setNoteFor] = useState(null);
@@ -64,7 +67,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     if (!highlightId || isLoading || leads.length === 0) return;
     if (!leads.some(l => l.id === highlightId)) {
       // Record no longer exists — stay on the list with a concise fallback message.
-      toast.info("This lead may have been moved or deleted.");
+      toast.info(t("crm_lead_moved",language));
       return;
     }
     setFlashId(highlightId);
@@ -92,11 +95,11 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
       if (context?.previousLeads) {
         qc.setQueryData(queryKey, context.previousLeads);
       }
-      toast.error("Failed to update lead");
+      toast.error(t("crm_update_failed",language));
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey });
-      toast.success("Lead updated");
+      toast.success(t("crm_updated",language));
       setNoteFor(null); setNoteText("");
     },
   });
@@ -113,7 +116,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "leads.csv"; a.click();
     URL.revokeObjectURL(url);
-    toast.success("Exported!");
+    toast.success(t("crm_exported",language));
   };
 
   // Conversion stats
@@ -138,7 +141,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
   if (!profileId) return (
     <div className="text-center py-20">
       <Inbox className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "opacity-30 text-slate-300"}`} />
-      <p className={`font-semibold ${subText}`}>Set up your profile first to collect leads.</p>
+      <p className={`font-semibold ${subText}`}>{t("crm_profile_first",language)}</p>
     </div>
   );
 
@@ -147,10 +150,10 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
       {/* KPI Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Total Leads", value: leads.length, color: "#f59e0b" },
-          { label: "Contacted", value: contacted, color: "#3b82f6" },
-          { label: "Won", value: won, color: "#10b981" },
-          { label: "Conversion", value: `${convRate}%`, color: "#8b5cf6" },
+          { label: t("crm_total_leads",language), value: leads.length, color: "#f59e0b" },
+          { label: t("crm_contacted",language), value: contacted, color: "#3b82f6" },
+          { label: t("crm_won",language), value: won, color: "#10b981" },
+          { label: t("crm_conversion",language), value: `${convRate}%`, color: "#8b5cf6" },
         ].map(k => (
           <div key={k.label} className="rounded-2xl p-4 border text-center" style={{ background: cardBg, borderColor: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)" }}>
             <p className="text-2xl font-black" style={{ color: k.color }}>{k.value}</p>
@@ -162,13 +165,13 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
       {/* Header + controls */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div>
-          <h2 className={`text-xl font-black ${headText}`}>Leads CRM</h2>
-          <p className={`text-sm mt-0.5 ${subText}`}>{leads.length} lead{leads.length !== 1 ? "s" : ""} collected</p>
+          <h2 className={`text-xl font-black ${headText}`}>{t("crm_title",language)}</h2>
+          <p className={`text-sm mt-0.5 ${subText}`}>{leads.length} {t("activity_leads",language).toLowerCase()} {t("crm_collected",language)}</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-none">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${mutedText}`} />
-            <input className={`pl-9 w-full sm:w-56 text-sm rounded-xl px-3 py-2 border outline-none ${inputClass}`} placeholder="Search leads..." value={search} onChange={e => setSearch(e.target.value)} />
+            <input className={`pl-9 w-full sm:w-56 text-sm rounded-xl px-3 py-2 border outline-none ${inputClass}`} placeholder={t("crm_search",language)} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <Button onClick={exportCSV} variant="outline" disabled={filtered.length === 0}
             className={`gap-2 flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:text-white bg-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
@@ -187,7 +190,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
             border: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"}`,
             color: statusFilter === "all" ? (isDark ? "#fff" : "#fff") : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)"),
           }}>
-          All ({leads.length})
+          {t("crm_all",language)} ({leads.length})
         </button>
         {CRM_STATUSES.map(s => {
           const count = leads.filter(l => (l.status || "new") === s.id).length;
@@ -200,7 +203,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
                 border: `1px solid ${isActive ? s.color + "60" : isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"}`,
                 color: isActive ? s.color : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)"),
               }}>
-              {s.label} {count > 0 && <span className="font-black ml-0.5">{count}</span>}
+              {t(s.labelKey,language)} {count > 0 && <span className="font-black ml-0.5">{count}</span>}
             </button>
           );
         })}
@@ -212,7 +215,7 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 rounded-2xl" style={{ background: cardBg, border: `1px solid ${cardBorder}` }}>
           <Inbox className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-          <p className={`font-bold ${headText}`}>{search ? "No results found" : "No leads yet"}</p>
+          <p className={`font-bold ${headText}`}>{search ? t("crm_no_results",language) : t("crm_no_leads",language)}</p>
           <p className={`text-sm mt-1 ${mutedText}`}>{search ? "Try a different search term." : "Visitors who submit the contact form will appear here."}</p>
         </div>
       ) : (
@@ -281,11 +284,11 @@ export default function LeadsPanel({ profileId, profileIds: propProfileIds, user
               {/* Internal note */}
               {noteFor === lead.id ? (
                 <div className="space-y-2">
-                  <textarea className={noteAreaClass} rows={2} placeholder="CRM notes..."
+                  <textarea className={noteAreaClass} rows={2} placeholder={t("crm_notes",language)}
                     value={noteText} onChange={e => setNoteText(e.target.value)} />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => updateLead.mutate({ id: lead.id, data: { description: noteText } })} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs">Save</Button>
-                    <Button size="sm" variant="outline" onClick={() => { setNoteFor(null); setNoteText(""); }} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>Cancel</Button>
+                    <Button size="sm" onClick={() => updateLead.mutate({ id: lead.id, data: { description: noteText } })} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs">{t("crm_save",language)}</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setNoteFor(null); setNoteText(""); }} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>{t("crm_cancel",language)}</Button>
                   </div>
                 </div>
               ) : (
