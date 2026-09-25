@@ -7,6 +7,19 @@
  *   const label = t("save_info", lang);
  */
 
+export const SUPPORTED_LANGUAGES = {
+  en: { name: 'English', nativeName: 'English', flag: '🇺🇸', dir: 'ltr' },
+  fr: { name: 'French', nativeName: 'Français', flag: '🇫🇷', dir: 'ltr' },
+  es: { name: 'Spanish', nativeName: 'Español', flag: '🇪🇸', dir: 'ltr' },
+  pt: { name: 'Portuguese', nativeName: 'Português', flag: '🇵🇹', dir: 'ltr' },
+  de: { name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
+  it: { name: 'Italian', nativeName: 'Italiano', flag: '🇮🇹', dir: 'ltr' },
+  ar: { name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', dir: 'rtl' },
+  zh: { name: 'Chinese', nativeName: '中文', flag: '🇨🇳', dir: 'ltr' },
+  ja: { name: 'Japanese', nativeName: '日本語', flag: '🇯🇵', dir: 'ltr' },
+  ko: { name: 'Korean', nativeName: '한국어', flag: '🇰🇷', dir: 'ltr' },
+};
+
 export const TRANSLATIONS = {
   // ── Sidebar / nav ──
   landing_page:     { en: "Landing Page",     fr: "Page d'accueil" },
@@ -139,7 +152,8 @@ export function getLang() {
 
 /** Persist language to localStorage and mark as user-set (prevents auto-override) */
 export function setLang(lang) {
-  localStorage.setItem("bingoo_lang", lang);
+  const normalized = SUPPORTED_LANGUAGES[lang] ? lang : "en";
+  localStorage.setItem("bingoo_lang", normalized);
   localStorage.setItem("bingoo_lang_user_set", "true");
 }
 
