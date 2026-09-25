@@ -1,10 +1,13 @@
 import { Phone, Mail, MapPin, Trash2, Clock } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * Displays found/finder reports for a device with action buttons.
  * Actions: Mark Contacted, Mark Found (recovered), Delete Report
  */
 export default function FoundReportsList({ reports, isDark, onMarkContacted, onMarkFound, onDeleteReport }) {
+  const { language } = useI18n();
   if (!reports || reports.length === 0) return null;
 
   const headText = isDark ? "text-white" : "text-slate-900";
@@ -13,20 +16,20 @@ export default function FoundReportsList({ reports, isDark, onMarkContacted, onM
   return (
     <div className="space-y-2">
       <p className={`text-xs font-bold uppercase tracking-wider ${subText} mb-2`}>
-        📍 Found Reports ({reports.length})
+        📍 {t("found_reports", language)} ({reports.length})
       </p>
       {reports.map((report) => (
         <div key={report.id} className={`p-3 rounded-xl ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className={`font-bold text-sm ${headText}`}>{report.finder_name || "Anonymous"}</p>
+                <p className={`font-bold text-sm ${headText}`}>{report.finder_name || t("found_anonymous", language)}</p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                   report.status === "recovered" ? "bg-emerald-100 text-emerald-700"
                   : report.status === "contacted" ? "bg-blue-100 text-blue-700"
                   : "bg-amber-100 text-amber-700"
                 }`}>
-                  {report.status === "recovered" ? "✓ Recovered" : report.status === "contacted" ? "Contacted" : "New"}
+                  {report.status === "recovered" ? `✓ ${t("found_recovered", language)}` : report.status === "contacted" ? t("found_contacted", language) : t("found_new", language)}
                 </span>
               </div>
               {report.finder_phone && (
@@ -50,11 +53,11 @@ export default function FoundReportsList({ reports, isDark, onMarkContacted, onM
               {report.latitude && report.longitude && (
                 <a href={`https://maps.google.com/?q=${report.latitude},${report.longitude}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-xs text-violet-500 font-semibold">
-                  <MapPin className="w-3 h-3" /> View GPS Location
+                  <MapPin className="w-3 h-3" /> {t("found_view_gps", language)}
                 </a>
               )}
               <p className={`flex items-center gap-1 text-[11px] ${subText}`}>
-                <Clock className="w-3 h-3" /> {report.scan_time ? new Date(report.scan_time).toLocaleString() : "Unknown time"}
+                <Clock className="w-3 h-3" /> {report.scan_time ? new Date(report.scan_time).toLocaleString(language === "fr" ? "fr-FR" : "en-US") : t("found_unknown_time", language)}
               </p>
             </div>
             <div className="flex flex-col gap-1 flex-shrink-0 items-end">
@@ -63,17 +66,17 @@ export default function FoundReportsList({ reports, isDark, onMarkContacted, onM
                   {report.status === "new" && (
                     <button onClick={() => onMarkContacted(report.id)}
                       className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-600 text-white hover:bg-blue-500">
-                      Contacted
+                      {t("found_contacted", language)}
                     </button>
                   )}
                   <button onClick={() => onMarkFound(report.id)}
                     className="text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500">
-                    Mark Found ✓
+                    {t("found_mark_found", language)} ✓
                   </button>
                 </>
               )}
               <button onClick={() => {
-                if (window.confirm("Delete this found report?")) onDeleteReport(report.id);
+                if (window.confirm(t("found_delete_confirm", language))) onDeleteReport(report.id);
               }} className="text-red-400 hover:text-red-600 p-1">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
