@@ -14,8 +14,11 @@ import TemplateLogoPreview from '@/components/bingoo/designStudio/TemplateLogoPr
 import SummarySidebar from '@/components/bingoo/designStudio/SummarySidebar';
 import { UNIT_PRICE, SETUP_FEE, REMOVE_BRANDING_FEE, SHIPPING, DEFAULT_PATTERN } from '@/components/bingoo/designStudio/studioConstants';
 import { validateUpload } from '@/lib/nativePlatform';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function DesignStudio({ isDark }) {
+  const { language } = useI18n();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -48,7 +51,8 @@ export default function DesignStudio({ isDark }) {
   const [ordered, setOrdered] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const productLabel = PRODUCT_TYPES.find(p => p.id === productType)?.label || 'Card';
+  const productKeys = { card: 'ds_device_card', keychain: 'ds_device_key_fob', sticker: 'ds_device_sticker', bracelet: 'ds_device_bracelet', tag: 'ds_device_tag', stand: 'ds_device_table_stand', metal_card: 'ds_device_metal_card', wood_card: 'ds_device_wood_card' };
+  const productLabel = t(productKeys[productType] || 'ds_device_card', language);
   const subtotal = UNIT_PRICE * quantity + SETUP_FEE + (removeBranding ? REMOVE_BRANDING_FEE : 0);
   const total = subtotal + SHIPPING;
 
@@ -69,7 +73,7 @@ export default function DesignStudio({ isDark }) {
       setLogoUrl(file_url);
     } catch (error) {
       console.error('Design Studio logo upload failed:', error);
-      window.alert(error?.message || 'Logo upload failed. Please try again.');
+      window.alert(error?.message || t('profile_upload_failed', language));
     } finally { setUploading(false); if (e.target) e.target.value = ''; }
   };
 
@@ -88,7 +92,7 @@ export default function DesignStudio({ isDark }) {
       productType, cardColor, accentColor, nameText, holderName, roleText, phone, email, website, tagline,
       showPhone, showEmail, showWebsite, finish, quantity, logoUrl, removeBranding, brandPattern,
       activeTemplate,
-      name: `${nameText || 'Untitled'} — ${productLabel}`,
+      name: `${nameText || t("ds_untitled", language)} — ${productLabel}`,
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 1400);
