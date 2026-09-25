@@ -6,8 +6,11 @@ import { Plus, MapPin, Phone, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { dbOp } from "@/lib/dbDebug";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -45,11 +48,11 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
       console.error("Create error:", err);
-      toast.error(`Failed to add: ${err.message}`);
+      toast.error(`${t("legal_failed_add",language)}: ${err.message}`);
     },
   });
 
@@ -66,11 +69,11 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
       setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false });
       setEditId(null);
       setShowForm(false);
-      toast.success("Saved Successfully");
+      toast.success(t("legal_saved",language));
     },
     onError: (err) => {
       console.error("[OfficeLocationsPanel] Update error:", err);
-      toast.error(`Failed to update: ${err.message}`);
+      toast.error(`${t("legal_failed_update",language)}: ${err.message}`);
     },
   });
 
@@ -83,13 +86,13 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
     onSuccess: (_, deletedId) => {
       qc.setQueryData(["office-locations", profileId], (old = []) => old.filter(l => l.id !== deletedId));
       qc.invalidateQueries({ queryKey: ["office-locations", profileId] });
-      toast.success("Location deleted");
+      toast.success(t("office_deleted",language));
     },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.address.trim()) return toast.error("Name and address required");
+    if (!form.name.trim() || !form.address.trim()) return toast.error(t("office_name_address_required",language));
     if (editId) {
       updateMutation.mutate(form);
     } else {
@@ -112,13 +115,13 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className={`text-lg font-black ${head}`}>Office Locations</h2>
-          <p className={`text-xs mt-0.5 ${sub}`}>{locations.length} locations</p>
+          <h2 className={`text-lg font-black ${head}`}>{t("office_title",language)}</h2>
+          <p className={`text-xs mt-0.5 ${sub}`}>{locations.length} {t("office_locations",language)}</p>
         </div>
         {!showForm && (
           <Button onClick={() => { setEditId(null); setForm({ name: "", address: "", city: "", state: "", zip_code: "", phone: "", email: "", hours: "", is_primary: false }); setShowForm(true); }}
             className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold gap-2">
-            <Plus className="w-4 h-4" /> Add Location
+            <Plus className="w-4 h-4" /> {t("office_add",language)}
           </Button>
         )}
       </div>
@@ -128,42 +131,42 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Office Name *</label>
+                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("office_name",language)}</label>
                 <input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                  placeholder="e.g., Main Office" className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                  placeholder={t("office_name_ph",language)} className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               </div>
               <div className="col-span-2">
-                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Street Address *</label>
+                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("office_address",language)}</label>
                 <input value={form.address} onChange={(e) => setForm(f => ({ ...f, address: e.target.value }))}
                   placeholder="123 Main Street" className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               </div>
               <input value={form.city} onChange={(e) => setForm(f => ({ ...f, city: e.target.value }))}
-                placeholder="City" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("office_city",language)} className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               <input value={form.state} onChange={(e) => setForm(f => ({ ...f, state: e.target.value }))}
-                placeholder="State" maxLength="2" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("office_state",language)} maxLength="2" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               <input value={form.zip_code} onChange={(e) => setForm(f => ({ ...f, zip_code: e.target.value }))}
-                placeholder="ZIP" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("office_zip",language)} className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               <input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))}
-                placeholder="Phone" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("office_phone",language)} className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               <input value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="Email" type="email" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                placeholder={t("office_email",language)} type="email" className={`px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               <div className="col-span-2">
-                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>Hours</label>
+                <label className={`text-xs font-bold block mb-1.5 ${sub}`}>{t("office_hours",language)}</label>
                 <input value={form.hours} onChange={(e) => setForm(f => ({ ...f, hours: e.target.value }))}
-                  placeholder="e.g., Mon-Fri 9AM-5PM" className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
+                  placeholder={t("office_hours_ph",language)} className={`w-full px-3 py-2.5 rounded-xl border outline-none transition-colors text-sm ${inp}`} />
               </div>
               <label className={`col-span-2 flex items-center gap-2 cursor-pointer ${sub}`}>
                 <input type="checkbox" checked={form.is_primary} onChange={(e) => setForm(f => ({ ...f, is_primary: e.target.checked }))}
                   className="rounded" />
-                <span className="text-xs font-semibold">Mark as primary location</span>
+                <span className="text-xs font-semibold">{t("office_primary_mark",language)}</span>
               </label>
             </div>
             <div className="flex gap-2">
               <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold">
-                {editId ? "Update" : "Create"}
+                {editId ? t("legal_update",language) : t("legal_create",language)}
               </Button>
               <Button type="button" onClick={() => { setShowForm(false); setEditId(null); }}
-                variant="outline" className={`flex-1 rounded-xl ${isDark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>Cancel</Button>
+                variant="outline" className={`flex-1 rounded-xl ${isDark ? "border-white/15 text-white/60 hover:bg-white/10" : ""}`}>{t("legal_cancel",language)}</Button>
             </div>
           </form>
         </div>
@@ -171,7 +174,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
 
       {locations.length === 0 && !showForm && (
         <div className={`rounded-2xl border p-8 text-center ${card}`}>
-          <p className={`font-semibold text-sm ${sub}`}>No office locations yet.</p>
+          <p className={`font-semibold text-sm ${sub}`}>{t("office_none",language)}</p>
         </div>
       )}
 
@@ -183,7 +186,7 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`font-bold text-sm ${head}`}>{loc.name}</p>
-                  {loc.is_primary && <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"}`}>Primary</span>}
+                  {loc.is_primary && <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-blue-500/20 text-blue-300" : "bg-blue-100 text-blue-700"}`}>{t("office_primary",language)}</span>}
                 </div>
                 <p className={`text-xs mt-0.5 ${sub}`}>{loc.address}</p>
                 {(loc.city || loc.state) && <p className={`text-xs ${sub}`}>{loc.city}, {loc.state} {loc.zip_code}</p>}
@@ -191,16 +194,16 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
                   {loc.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {loc.phone}</span>}
                   {loc.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {loc.email}</span>}
                 </div>
-                {loc.hours && <p className={`text-xs mt-1 ${sub}`}>Hours: {loc.hours}</p>}
+                {loc.hours && <p className={`text-xs mt-1 ${sub}`}>{t("office_hours",language)}: {loc.hours}</p>}
               </div>
               <div className="flex gap-1.5 flex-shrink-0">
                 <button onClick={() => startEdit(loc)}
                   className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-blue-500/30 text-blue-400 hover:bg-blue-500/10" : "border-blue-200 text-blue-600 hover:bg-blue-50"}`}>
-                  Edit
+                  {t("legal_edit",language)}
                 </button>
                 <button onClick={() => setDeleteTarget(loc.id)}
                   className={`px-2.5 py-1 rounded text-xs font-bold border transition-colors ${isDark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
-                  Delete
+                  {t("legal_delete",language)}
                 </button>
               </div>
             </div>
@@ -210,8 +213,8 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title="Delete this location?"
-        description="This action cannot be undone."
+        title={t("office_delete_title",language)}
+        description={t("team_remove_description",language)}
         onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
       />
     </div>
