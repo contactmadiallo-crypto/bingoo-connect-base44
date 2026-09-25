@@ -97,7 +97,7 @@ export default function AdminManufacturingTab() {
                     <div className="flex flex-wrap items-center gap-2 mb-1"><span className="font-mono text-orange-300 font-black">{order.order_number || 'Legacy order'}</span><Badge className="bg-emerald-500/15 text-emerald-300 border border-emerald-400/20">{order.payment_status}</Badge><Badge className="bg-white/10 text-white border border-white/10">{order.fulfillment_status}</Badge></div>
                     <h3 className="font-black text-lg">{order.customer_name || 'Customer'}</h3>
                     <p className="text-sm text-white/45">{order.customer_email}</p>
-                    <p className="text-xs text-white/35 mt-1">{order.shipping_address}{order.city ? `, ${order.city}` : ''}{order.state ? `, ${order.state}` : ''} {order.zip_code || ''}</p>
+                    <p className="text-xs text-white/35 mt-1">{order.shipping_address}{order.city ? `, ${order.city}` : ''}{order.state ? `, ${order.state}` : ''} {order.zip_code || ''}{order.country ? ` · ${order.country}` : ''}</p>{order.shipping_zone&&<p className="text-[11px] text-orange-200/70 mt-1">{order.shipping_zone.replaceAll('_',' ')} · {order.shipping_service} · ${Number(order.shipping_cost||0).toFixed(2)} · {order.shipping_eta_min_days}-{order.shipping_eta_max_days} days{order.duties_terms==='DAP'?' · duties/taxes on delivery':''}</p>}
                   </div>
                   <div className="lg:text-right"><p className="text-2xl font-black">${Number(order.total || 0).toFixed(2)}</p><p className="text-xs text-white/35">{order.created_date ? new Date(order.created_date).toLocaleString() : ''}</p></div>
                 </div>
