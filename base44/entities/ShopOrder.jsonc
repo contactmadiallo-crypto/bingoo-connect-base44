@@ -316,6 +316,28 @@
     "production_backbone_generated_at": {
       "type": "string",
       "format": "date-time"
+    },
+    "shipping_zone": {
+      "type": "string",
+      "description": "Server-resolved fulfillment shipping zone."
+    },
+    "shipping_service": {
+      "type": "string",
+      "description": "Server-resolved shipping service level."
+    },
+    "shipping_currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "shipping_eta_min_days": {
+      "type": "number"
+    },
+    "shipping_eta_max_days": {
+      "type": "number"
+    },
+    "duties_terms": {
+      "type": "string",
+      "description": "Customs duty/tax treatment, e.g. domestic or DAP."
     }
   },
   "required": [
