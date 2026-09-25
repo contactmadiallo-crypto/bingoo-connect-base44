@@ -9,15 +9,17 @@ import { dbOp, logInvalidate } from "@/lib/dbDebug";
 import { URGENCY_LABELS, CATEGORY_COLORS, LEGAL_CATEGORIES } from "@/lib/legalData";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const LEGAL_CRM_STAGES = [
-  { id: "new",                    label: "New Lead",              color: "#6366f1" },
-  { id: "contacted",              label: "Contacted",             color: "#f59e0b" },
-  { id: "consultation_scheduled", label: "Consult Scheduled",     color: "#3b82f6" },
-  { id: "documents_requested",    label: "Docs Requested",        color: "#06b6d4" },
-  { id: "retained",               label: "Retained",              color: "#10b981" },
-  { id: "declined",               label: "Declined",              color: "#ef4444" },
-  { id: "closed",                 label: "Closed",                color: "#94a3b8" },
+  { id: "new",                    key: "legal_stage_new",          color: "#6366f1" },
+  { id: "contacted",              key: "legal_stage_contacted",    color: "#f59e0b" },
+  { id: "consultation_scheduled", key: "legal_stage_consultation", color: "#3b82f6" },
+  { id: "documents_requested",    key: "legal_stage_documents",    color: "#06b6d4" },
+  { id: "retained",               key: "legal_stage_retained",     color: "#10b981" },
+  { id: "declined",               key: "legal_stage_declined",     color: "#ef4444" },
+  { id: "closed",                 key: "legal_stage_closed",       color: "#94a3b8" },
 ];
 
 function DetailRow({ label, value }) {
@@ -30,16 +32,16 @@ function DetailRow({ label, value }) {
   );
 }
 
-function YesNoBadge({ value }) {
+function YesNoBadge({ value, language }) {
   if (!value) return null;
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${value === "yes" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-500"}`}>
-      {value === "yes" ? "Yes" : "No"}
+      {value === "yes" ? t("legal_yes",language) : t("legal_no",language)}
     </span>
   );
 }
 
-function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
+function LeadCard({ lead, dark, attorneys, onUpdate, onDelete, language }) {
   const [expanded, setExpanded] = useState(false);
   const [editStatus, setEditStatus] = useState(lead.status || "new");
   const [editAtty, setEditAtty] = useState(lead.assigned_attorney_id || "");
@@ -78,11 +80,11 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <p className={`font-bold text-sm ${head}`}>{lead.name || "Anonymous"}</p>
+              <p className={`font-bold text-sm ${head}`}>{lead.name || t("legal_anonymous",language)}</p>
               {lead.legal_category && (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: catColor }}>{lead.legal_category}</span>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: catColor }}>{t(`practice_${lead.legal_category.toLowerCase()}`,language)}</span>
               )}
-              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: stage.color }}>{stage.label}</span>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: stage.color }}>{t(stage.key,language)}</span>
               {urgency && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{ background: urgency.color }}>{urgency.label}</span>
               )}
@@ -98,7 +100,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </div>
           </div>
 
-          <button onClick={() => setExpanded(e => !e)} aria-label={expanded ? "Collapse lead details" : "Expand lead details"} className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
+          <button onClick={() => setExpanded(e => !e)} aria-label={expanded ? t("legal_collapse",language) : t("legal_expand",language)} className={`min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center transition-colors flex-shrink-0 ${dark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
@@ -110,30 +112,30 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
           {/* Admin controls */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Status</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>{t("legal_status",language)}</p>
               <MobileSelect
                 value={editStatus}
                 onValueChange={(v) => setEditStatus(v)}
-                options={LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: s.label }))}
+                options={LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: t(s.key,language) }))}
                 className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}
               />
             </div>
             <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Assign Attorney</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>{t("legal_assign_attorney",language)}</p>
               <MobileSelect
                 value={editAtty || "none"}
                 onValueChange={(v) => setEditAtty(v === "none" ? "" : v)}
                 options={[
-                  { value: "none", label: "Unassigned" },
+                  { value: "none", label: t("legal_unassigned",language) },
                   ...attorneys.map(a => ({ value: a.id, label: `${a.name}${a.role ? ` – ${a.role}` : ""}` }))
                 ]}
                 className={`w-full rounded-xl px-3 py-2.5 text-sm border outline-none transition-colors ${inp}`}
               />
             </div>
             <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>Internal Notes</p>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1.5 ${sub}`}>{t("legal_internal_notes",language)}</p>
               <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2}
-                placeholder="Add notes…"
+                placeholder={t("legal_add_notes",language)}
                 className={`w-full rounded-xl px-3 py-2 text-sm border outline-none resize-none transition-colors ${inp}`} />
             </div>
           </div>
@@ -141,24 +143,24 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving}
               className="rounded-xl font-bold text-white" style={{ background: "#0b2149" }}>
-              {saving ? "Saving…" : "Save Changes"}
+              {saving ? t("legal_saving",language) : t("legal_save_changes",language)}
             </Button>
             <button onClick={() => onDelete(lead.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${dark ? "border-red-500/30 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-500 hover:bg-red-50"}`}>
-              Delete
+              {t("legal_delete",language)}
             </button>
           </div>
 
           {/* All intake details */}
           <div className={`rounded-xl border p-3 space-y-1.5 ${dark ? "border-white/8 bg-white/3" : "border-slate-100 bg-slate-50"}`}>
-            <p className={`text-xs font-black uppercase tracking-wider mb-2 ${sub}`}>Client Intake Details</p>
-            <DetailRow label="Preferred Language" value={lead.preferred_language} />
-            <DetailRow label="Preferred Contact" value={lead.preferred_contact_method} />
-            <DetailRow label="Consult Date" value={lead.preferred_consult_date} />
-            <DetailRow label="Message" value={lead.message} />
+            <p className={`text-xs font-black uppercase tracking-wider mb-2 ${sub}`}>{t("legal_client_intake",language)}</p>
+            <DetailRow label={t("legal_pref_language",language)} value={lead.preferred_language} />
+            <DetailRow label={t("legal_pref_contact",language)} value={lead.preferred_contact_method} />
+            <DetailRow label={t("legal_consult_date",language)} value={lead.preferred_consult_date} />
+            <DetailRow label={t("legal_message",language)} value={lead.message} />
 
             {lead.legal_category === "Immigration" && <>
-              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-blue-300" : "text-blue-700"}`}>Immigration Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-blue-300" : "text-blue-700"}`}>{t("legal_immigration_details",language)}</div>
               <DetailRow label="A-Number" value={lead.immigration_a_number} />
               <DetailRow label="USCIS Account #" value={lead.immigration_uscis_account} />
               <DetailRow label="Receipt #" value={lead.immigration_receipt_number} />
@@ -182,7 +184,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </>}
 
             {lead.legal_category === "Civil" && <>
-              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-purple-300" : "text-purple-700"}`}>Civil Matter Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-purple-300" : "text-purple-700"}`}>{t("legal_civil_details",language)}</div>
               <DetailRow label="Matter Type" value={lead.civil_matter_type} />
               <DetailRow label="Incident Date" value={lead.civil_incident_date} />
               <DetailRow label="Incident Location" value={lead.civil_incident_location} />
@@ -194,7 +196,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
             </>}
 
             {lead.legal_category === "Criminal" && <>
-              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-red-300" : "text-red-700"}`}>Criminal Matter Details</div>
+              <div className={`text-xs font-black uppercase tracking-wider mt-3 mb-1 ${dark ? "text-red-300" : "text-red-700"}`}>{t("legal_criminal_details",language)}</div>
               <DetailRow label="Charge" value={lead.criminal_charge} />
               <DetailRow label="Arrest Date" value={lead.criminal_arrest_date} />
               <DetailRow label="Court Date" value={lead.criminal_court_date} />
@@ -210,12 +212,12 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 
             {lead.document_urls?.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">Uploaded Documents</p>
+                <p className="text-xs font-black uppercase tracking-wider text-slate-400 mb-1.5">{t("legal_uploaded_documents",language)}</p>
                 <div className="flex flex-wrap gap-2">
                   {lead.document_urls.map((url, i) => (
                     <a key={i} href={url} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-xs text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5 hover:bg-blue-100 transition-colors">
-                      <FileText className="w-3 h-3" /> Document {i + 1}
+                      <FileText className="w-3 h-3" /> {t("legal_document",language)} {i + 1}
                     </a>
                   ))}
                 </div>
@@ -229,6 +231,7 @@ function LeadCard({ lead, dark, attorneys, onUpdate, onDelete }) {
 }
 
 export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSaved }) {
+  const { language } = useI18n();
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
@@ -252,7 +255,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => dbOp("Lead[LegalCRM]", "update", profileId,
       () => base44.entities.Lead.update(id, data)),
-    onSuccess: () => { logInvalidate(["legal-leads", profileId]); qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); toast.success("Saved Successfully"); onSaved?.(); },
+    onSuccess: () => { logInvalidate(["legal-leads", profileId]); qc.invalidateQueries({ queryKey: ["legal-leads", profileId] }); toast.success(t("legal_saved",language)); onSaved?.(); },
   });
 
   const deleteMutation = useMutation({
@@ -296,19 +299,19 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
   const sub = dark ? "text-white/50" : "text-slate-500";
   const inp = dark ? "bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-white/30" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-400";
 
-  if (!profileId) return <div className={`text-center py-12 ${sub}`}>Select a profile first.</div>;
+  if (!profileId) return <div className={`text-center py-12 ${sub}`}>{t("legal_select_profile",language)}</div>;
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className={`text-lg font-black ${head}`}>Legal Leads &amp; CRM</h2>
-          <p className={`text-xs mt-0.5 ${sub}`}>{leads.length} total leads · {attorneys.length} attorneys</p>
+          <h2 className={`text-lg font-black ${head}`}>{t("legal_crm_title",language)}</h2>
+          <p className={`text-xs mt-0.5 ${sub}`}>{leads.length} {t("legal_total_leads",language)} · {attorneys.length} {t("legal_attorneys",language)}</p>
         </div>
         <button onClick={handleExportCSV}
           className={`flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl border transition-colors ${dark ? "border-white/15 text-white/60 hover:bg-white/10" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-          <Download className="w-3.5 h-3.5" /> Export CSV
+          <Download className="w-3.5 h-3.5" /> {t("legal_export_csv",language)}
         </button>
       </div>
 
@@ -317,7 +320,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
         <div className="flex gap-0.5 h-2.5 rounded-full overflow-hidden mb-3">
           {LEGAL_CRM_STAGES.map(s => {
             const pct = leads.length ? (stageCounts[s.id] / leads.length) * 100 : 0;
-            return pct > 0 ? <div key={s.id} style={{ width: `${pct}%`, background: s.color }} title={`${s.label}: ${stageCounts[s.id]}`} /> : null;
+            return pct > 0 ? <div key={s.id} style={{ width: `${pct}%`, background: s.color }} title={`${t(s.key,language)}: ${stageCounts[s.id]}`} /> : null;
           })}
           {leads.length === 0 && <div className={`w-full rounded-full ${dark ? "bg-white/10" : "bg-slate-100"}`} />}
         </div>
@@ -325,7 +328,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
           {LEGAL_CRM_STAGES.filter(s => stageCounts[s.id] > 0).map(s => (
             <div key={s.id} className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-              <span className={`text-xs font-semibold ${sub}`}>{s.label}: <span className={`font-black ${head}`}>{stageCounts[s.id]}</span></span>
+              <span className={`text-xs font-semibold ${sub}`}>{t(s.key,language)}: <span className={`font-black ${head}`}>{stageCounts[s.id]}</span></span>
             </div>
           ))}
         </div>
@@ -334,14 +337,14 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <input value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Search leads…"
+          placeholder={t("legal_search_leads",language)}
           className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors flex-1 min-w-[160px] ${inp}`} />
         <MobileSelect
           value={filterCat}
           onValueChange={(v) => setFilterCat(v)}
           options={[
-            { value: "all", label: "All Categories" },
-            ...LEGAL_CATEGORIES.map(c => ({ value: c, label: c }))
+            { value: "all", label: t("legal_all_categories",language) },
+            ...LEGAL_CATEGORIES.map(c => ({ value: c, label: t(`practice_${c.toLowerCase()}`,language) }))
           ]}
           className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}
         />
@@ -349,7 +352,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
           value={filterStage}
           onValueChange={(v) => setFilterStage(v)}
           options={[
-            { value: "all", label: "All Stages" },
+            { value: "all", label: t("legal_all_stages",language) },
             ...LEGAL_CRM_STAGES.map(s => ({ value: s.id, label: s.label }))
           ]}
           className={`rounded-xl px-3 py-2 text-sm border outline-none transition-colors ${inp}`}
@@ -358,15 +361,15 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
 
       {/* Leads */}
       {isLoading ? (
-        <div className={`text-center py-10 text-sm ${sub}`}>Loading…</div>
+        <div className={`text-center py-10 text-sm ${sub}`}>{t("legal_loading",language)}</div>
       ) : filtered.length === 0 ? (
         <div className={`rounded-2xl border p-10 text-center ${card}`}>
-          <p className={`font-semibold text-sm ${sub}`}>{leads.length === 0 ? "No legal leads yet." : "No leads match filters."}</p>
+          <p className={`font-semibold text-sm ${sub}`}>{leads.length === 0 ? t("legal_no_leads",language) : t("legal_no_match",language)}</p>
         </div>
       ) : (
         <div className="space-y-2.5">
           {filtered.map(l => (
-            <LeadCard key={l.id} lead={l} dark={dark} attorneys={attorneys}
+            <LeadCard key={l.id} lead={l} dark={dark} attorneys={attorneys} language={language}
               onUpdate={(id, data) => updateMutation.mutateAsync({ id, data })}
               onDelete={(id) => setDeleteTarget(id)} />
           ))}
@@ -375,8 +378,8 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
       <ConfirmDialog
         open={!!deleteTarget}
         onOpenChange={(o) => !o && setDeleteTarget(null)}
-        title="Delete this lead?"
-        description="This action cannot be undone."
+        title={t("legal_delete_lead_title",language)}
+        description={t("legal_delete_description",language)}
         onConfirm={() => { deleteMutation.mutate(deleteTarget); setDeleteTarget(null); }}
       />
     </div>
