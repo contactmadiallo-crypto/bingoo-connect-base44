@@ -716,7 +716,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
 }
 
 // ── LOST MODE PANEL ───────────────────────────────────────────────────────
-function LostModePanel({ profileId, user, isDark, effectivePlan }) {
+function LostModePanel({ profileId, user, isDark, effectivePlan, lang }) {
   const [trialLoading, setTrialLoading] = useState(false);
   const isPaid = effectivePlan && effectivePlan !== "free";
 
@@ -741,18 +741,18 @@ function LostModePanel({ profileId, user, isDark, effectivePlan }) {
           <Lock className="w-7 h-7 text-amber-500" />
         </div>
         <div>
-          <p className={`font-black text-base ${isDark ? "text-white" : "text-slate-900"}`}>Lost Mode — Professional Feature</p>
+          <p className={`font-black text-base ${isDark ? "text-white" : "text-slate-900"}`}>{t("studio_lost_pro", lang)}</p>
           <p className={`text-sm mt-2 leading-relaxed max-w-xs ${isDark ? "text-white/50" : "text-slate-500"}`}>
-            Enable Lost Mode on your NFC devices so finders can contact you and help recover your items.
+            {t("studio_lost_pro_copy", lang)}
           </p>
         </div>
         <button onClick={startTrial} disabled={trialLoading}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
           style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           <Star className="w-4 h-4" />
-          {trialLoading ? "Loading…" : "Try Professional free for 14 days"}
+          {trialLoading ? t("profiles_loading", lang) : t("studio_try_pro", lang)}
         </button>
-        <p className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>$4.99/mo after 14 days · cancel anytime before trial ends</p>
+        <p className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>{t("studio_trial_terms", lang)}</p>
       </div>
     );
   }
@@ -762,8 +762,8 @@ function LostModePanel({ profileId, user, isDark, effectivePlan }) {
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
         <div>
-          <p className="font-bold text-sm text-amber-800">Lost Mode</p>
-          <p className="text-xs text-amber-700 mt-0.5">Enable Lost Mode on your NFC device so finders can contact you.</p>
+          <p className="font-bold text-sm text-amber-800">{t("lost_mode", lang)}</p>
+          <p className="text-xs text-amber-700 mt-0.5">{t("studio_lost_mode_copy", lang)}</p>
         </div>
       </div>
       <LostDeviceManager profileId={profileId} userId={user?.id} isDark={isDark} tr={(k) => k} onSaved={() => {}} />
@@ -796,8 +796,8 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
         <p className={`font-bold text-sm ${headText}`}>{t("visibility", lang)}</p>
         {[
-          { key: "is_active",     label: t("profile_is_live", lang), desc: "Publicly accessible at your profile URL" },
-          { key: "show_location", label: t("show_location", lang),   desc: "Display your city/address on the profile" },
+          { key: "is_active",     label: t("profile_is_live", lang), desc: t("studio_public_profile_desc", lang) },
+          { key: "show_location", label: t("show_location", lang),   desc: t("studio_show_location_desc", lang) },
         ].map(({ key, label, desc }) => (
           <div key={key} className="flex items-center justify-between">
             <div>
@@ -828,24 +828,24 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
 
       {/* Phone Alerts — account/device-level push notifications (not profile-specific) */}
       <div>
-        <p className={`text-xs ${mutedText} mb-2 px-1`}>Account-level · applies to your device, not this profile specifically.</p>
+        <p className={`text-xs ${mutedText} mb-2 px-1`}>{t("studio_account_level", lang)}</p>
         <PhoneAlertsSection user={user} />
       </div>
 
       <div className={`rounded-2xl border border-red-200 ${isDark ? "bg-red-900/10" : "bg-red-50"} p-5 space-y-3`}>
         <div className="flex items-center gap-2">
           <Shield className="w-4 h-4 text-red-500" />
-          <p className="font-bold text-sm text-red-600">Danger Zone</p>
+          <p className="font-bold text-sm text-red-600">{t("studio_danger_zone", lang)}</p>
         </div>
-        <p className={`text-xs ${isDark ? "text-red-300" : "text-red-500"}`}>Disabling your profile hides it from public access instantly.</p>
+        <p className={`text-xs ${isDark ? "text-red-300" : "text-red-500"}`}>{t("studio_danger_copy", lang)}</p>
         <div className="flex flex-col gap-2">
           <button type="button" onClick={() => setVal("is_active", false)}
             className="text-xs font-bold text-red-600 border border-red-300 px-4 py-2 rounded-xl hover:bg-red-100 transition-all">
-            Deactivate Profile
+            {t("studio_deactivate_profile", lang)}
           </button>
           <button type="button" onClick={() => setShowDeleteModal(true)}
             className="flex items-center gap-1.5 text-xs font-bold text-white px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 transition-all">
-            <Trash2 className="w-3.5 h-3.5" /> Delete Profile Permanently
+            <Trash2 className="w-3.5 h-3.5" /> {t("studio_delete_profile", lang)}
           </button>
         </div>
       </div>
@@ -1128,7 +1128,7 @@ export default function ProfileWorkspace({
           <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Preview public profile"
             className={`h-[34px] px-2.5 sm:px-3 rounded-lg border flex items-center justify-center gap-1.5 flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
             <Eye className="w-[14px] h-[14px]" />
-            <span className="hidden sm:inline text-[11px] font-bold">Public Profile</span>
+            <span className="hidden sm:inline text-[11px] font-bold">{t("studio_public_profile", lang)}</span>
           </button>
         )}
 
@@ -1136,7 +1136,7 @@ export default function ProfileWorkspace({
           className="flex items-center justify-center gap-1.5 w-[42px] sm:w-auto px-0 sm:px-5 py-2 rounded-xl text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
           style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.30)" }}>
           {saveMutation.isPending && <Save className="w-[13px] h-[13px] animate-pulse" />}
-          <span className="hidden sm:inline">Save</span>
+          <span className="hidden sm:inline">{t("save", lang)}</span>
           <Save className="sm:hidden w-4 h-4" />
         </button>
       </div>
@@ -1241,7 +1241,7 @@ export default function ProfileWorkspace({
               />
             )}
             {innerTab === "lostmode" && (
-              <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={userPlan || "free"} />
+              <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={userPlan || "free"} lang={lang} />
             )}
             {innerTab === "settings" && (
               <SettingsPanel {...makeSaveProps("settings")} liveForm={liveForm} setVal={setVal} set={set}
@@ -1258,7 +1258,7 @@ export default function ProfileWorkspace({
               className="fixed z-30 flex items-center justify-center w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-full shadow-xl text-white text-sm font-bold"
               style={{ background: "#0b2149", boxShadow: "0 8px 28px rgba(11,33,73,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
             >
-              <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Preview</span>
+              <Eye className="w-4 h-4" /> <span className="hidden sm:inline">{t("preview", lang)}</span>
             </button>
 
             {/* Full-screen overlay */}
@@ -1280,7 +1280,7 @@ export default function ProfileWorkspace({
                     aria-label="Back to editor">
                     <ChevronLeft className="w-4 h-4" /> Back
                   </button>
-                  <p className={`font-black text-sm flex-1 text-center ${isDark ? "text-white" : "text-slate-900"}`}>Live Preview</p>
+                  <p className={`font-black text-sm flex-1 text-center ${isDark ? "text-white" : "text-slate-900"}`}>{t("studio_live_preview", lang)}</p>
                   {profileUrl ? (
                     <a href={profileUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
                       className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}
@@ -1352,7 +1352,7 @@ export default function ProfileWorkspace({
           {/* Live preview — desktop only, inline phone frame */}
           <div className={`hidden xl:block flex-shrink-0 border-l overflow-y-auto ${isDark ? "bg-[#0f1220] border-white/10" : "bg-[#F7F9FC] border-[#E5EAF2]"}`} style={{ width: 250, padding: "18px 14px" }}>
             <div style={{ position: "sticky", top: 18 }}>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Live Preview</p>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("studio_live_preview", lang)}</p>
               {/* Phone shell */}
               <div style={{ background: "#0f172a", borderRadius: 32, padding: "10px 12px", boxShadow: "0 20px 40px rgba(0,0,0,0.35), inset 0 0 0 1.5px rgba(255,255,255,0.07)", width: "fit-content" }}>
                 {/* Notch */}
@@ -1374,7 +1374,7 @@ export default function ProfileWorkspace({
                   <div style={{ width: 60, height: 3, borderRadius: 999, background: "#334155" }} />
                 </div>
               </div>
-              <p className={`text-xs text-center mt-2 ${mutedText}`}>Updates as you type</p>
+              <p className={`text-xs text-center mt-2 ${mutedText}`}>{t("studio_updates_typing", lang)}</p>
             </div>
           </div>
         </div>
