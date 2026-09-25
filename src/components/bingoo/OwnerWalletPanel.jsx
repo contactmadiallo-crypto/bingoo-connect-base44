@@ -1,7 +1,10 @@
 import WalletPassButtons from "@/components/bingoo/WalletPassButtons";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg, headText, mutedText }) {
+  const { language } = useI18n();
   const profileUrl = publicProfileUrl(profile?.username || "profile");
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(profileUrl)}&color=0b2149&bgcolor=ffffff`;
   const coverColor = profile?.cover_color || "#0b2149";
@@ -9,8 +12,8 @@ export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg
   return (
     <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
       <div>
-        <p className={`font-black text-lg ${headText}`}>Digital Wallet Card</p>
-        <p className={`text-xs ${mutedText}`}>Always in their pocket, ready to tap.</p>
+        <p className={`font-black text-lg ${headText}`}>{t("wallet_card_title", language)}</p>
+        <p className={`text-xs ${mutedText}`}>{t("wallet_card_subtitle", language)}</p>
       </div>
 
       <div className="relative overflow-hidden rounded-[24px] min-h-[300px] p-6 text-white shadow-xl"
@@ -33,14 +36,14 @@ export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg
             </span>
           )}
           <div className="min-w-0">
-            <p className="font-black text-lg truncate">{profile?.display_name || "Bingoo Profile"}</p>
-            <p className="text-xs text-white/65 truncate">{profile?.job_title || profile?.company_name || "Digital Profile"}</p>
+            <p className="font-black text-lg truncate">{profile?.display_name || t("wallet_profile_default", language)}</p>
+            <p className="text-xs text-white/65 truncate">{profile?.job_title || profile?.company_name || t("wallet_digital_profile", language)}</p>
           </div>
         </div>
 
         <div className="relative z-10 mt-12 flex items-end justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-white/50">Profile</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-white/50">{t("wallet_profile_label", language)}</p>
             <p className="text-xs text-white/75 truncate">{profileUrl}</p>
           </div>
           <img src={qrUrl} alt="Wallet card QR code" className="w-12 h-12 rounded-lg bg-white p-1 flex-shrink-0" />
@@ -50,7 +53,7 @@ export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg
       <WalletPassButtons profile={profile} color={coverColor} isDark={isDark} stacked />
 
       <p className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-xs font-semibold text-orange-700">
-        Download your QR code for business cards, email signatures, and social profiles.
+        {t("wallet_qr_tip", language)}
       </p>
     </div>
   );
