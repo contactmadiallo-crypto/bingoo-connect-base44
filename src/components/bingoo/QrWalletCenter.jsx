@@ -7,8 +7,16 @@ import { toast } from "sonner";
 import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
 import DocumentWalletPanel from "@/components/bingoo/DocumentWalletPanel";
 import { publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
-const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
+const QR_LABELS = [
+  { value: "Scan Me", key: "qr_label_scan_me" },
+  { value: "Find Owner", key: "qr_label_find_owner" },
+  { value: "Return Me", key: "qr_label_return_me" },
+  { value: "Contact Owner", key: "qr_label_contact_owner" },
+  { value: "Help Me Get Home", key: "qr_label_help_home" },
+];
 const QR_COLORS = ["#1e293b", "#0b2149", "#f97316", "#7c3aed", "#059669", "#dc2626", "#0891b2", "#000000"];
 
 const Toggle = ({ value, onChange }) => (
@@ -28,6 +36,7 @@ const Toggle = ({ value, onChange }) => (
  */
 export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   const qc = useQueryClient();
+  const { language } = useI18n();
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
@@ -72,7 +81,8 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
 
   const isPro = effectivePlan && effectivePlan !== "free";
   const hasLogo = !!profile?.company_logo;
-  const displayLabel = customLabel.trim() || qrLabel;
+  const labelMeta = QR_LABELS.find(item => item.value === qrLabel);
+  const displayLabel = customLabel.trim() || (labelMeta ? t(labelMeta.key, language) : qrLabel);
 
   // Canvas-based live preview — matches the downloaded file exactly (QR + optional
   // logo watermark + label + "Powered by Bingoo Connect" footer).
@@ -91,7 +101,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       ctx.textAlign = "center"; ctx.fillText(displayLabel, 200, 455);
       ctx.fillStyle = "#0b2149"; ctx.fillRect(0, 468, 400, 32);
       ctx.fillStyle = "#ffffff"; ctx.font = "bold 11px system-ui,sans-serif";
-      ctx.fillText("Powered by Bingoo Connect", 200, 489);
+      ctx.fillText(t("asset_qr_powered", language), 200, 489);
     };
 
     const qrImg = new Image(); qrImg.crossOrigin = "anonymous";
@@ -115,7 +125,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
     qrImg.src = qrSrc;
     return () => { cancelled = true; };
      
-  }, [profileQrUrl, qrColor, displayLabel, logoWatermark, isPro, hasLogo, profile?.company_logo]);
+  }, [profileQrUrl, qrColor, displayLabel, logoWatermark, isPro, hasLogo, profile?.company_logo, language]);
 
   const handleDownloadQR = () => {
     if (!previewDataUrl || downloading) return;
@@ -151,10 +161,10 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       qc.invalidateQueries({ queryKey: ["profile-ws", profile.id] });
       setSaved(true);
-      toast.success("QR settings saved!");
+      toast.success(t("qr_settings_saved", language));
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      toast.error("Failed to save QR settings.");
+      toast.error(t("qr_settings_failed", language));
     } finally {
       setSaving(false);
     }
@@ -170,7 +180,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   if (!profile) {
     return (
       <div className="text-center py-20">
-        <p className={`text-sm ${mutedText}`}>Create a profile first to access the QR &amp; Wallet Center.</p>
+        <p className={`text-sm ${mutedText}`}>{t("qr_create_profile_first", language)}</p>
       </div>
     );
   }
@@ -178,7 +188,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   if (!profile.username) {
     return (
       <div className="text-center py-20">
-        <p className={`text-sm ${mutedText}`}>Set a username in your profile settings to generate a QR code.</p>
+        <p className={`text-sm ${mutedText}`}>{t("qr_set_username_first", language)}</p>
       </div>
     );
   }
@@ -187,13 +197,13 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
     <div ref={rootRef} className="space-y-5">
       {/* Header */}
       <div>
-        <h2 className={`text-2xl font-black ${headText}`}>QR Code &amp; Digital Wallet</h2>
-        <p className={`text-sm mt-0.5 ${mutedText}`}>Share your selected profile instantly — anyone who scans connects with you.</p>
+        <h2 className={`text-2xl font-black ${headText}`}>{t("qr_wallet_title", language)}</h2>
+        <p className={`text-sm mt-0.5 ${mutedText}`}>{t("qr_wallet_subtitle", language)}</p>
       </div>
 
       {/* Profile URL */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
-        <p className={`font-bold text-sm ${headText} mb-3`}>Profile Link</p>
+        <p className={`font-bold text-sm ${headText} mb-3`}>{t("qr_profile_link", language)}</p>
         <div className="flex gap-2">
           <input readOnly value={profileUrl || ""}
             className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
@@ -201,7 +211,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[44px]"
             style={{ background: copiedUrl ? "#059669" : "#0b2149" }}>
             {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedUrl ? "Copied" : "Copy"}
+            {copiedUrl ? t("qr_copied", language) : t("qr_copy", language)}
           </button>
           {profileUrl && (
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
@@ -216,8 +226,8 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       {/* QR Code Customization + Live Preview */}
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
         <div>
-          <p className={`font-black text-lg ${headText}`}>Your QR Code</p>
-          <p className={`text-xs ${mutedText}`}>Customize, then download or share</p>
+          <p className={`font-black text-lg ${headText}`}>{t("qr_your_code", language)}</p>
+          <p className={`text-xs ${mutedText}`}>{t("qr_customize_copy", language)}</p>
         </div>
 
         {/* Live preview — composed on canvas, matches the downloaded file exactly */}
@@ -227,16 +237,16 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
               <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 240, height: "auto" }} />
             ) : (
               <div className="w-[240px] h-[300px] flex items-center justify-center">
-                <span className={`text-xs ${mutedText}`}>Generating preview…</span>
+                <span className={`text-xs ${mutedText}`}>{t("studio_generating_preview", language)}</span>
               </div>
             )}
-            <p className={`text-xs mt-2 ${mutedText}`}>Live preview — toggling the watermark updates instantly.</p>
+            <p className={`text-xs mt-2 ${mutedText}`}>{t("qr_live_preview_copy", language)}</p>
           </div>
         </div>
 
         {/* QR Color */}
         <div>
-          <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>QR Color</p>
+          <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("qr_color", language)}</p>
           <div className="flex gap-2 flex-wrap">
             {QR_COLORS.map(c => (
               <button key={c} type="button" onClick={() => setQrColor(c)}
@@ -253,27 +263,27 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
 
         {/* Label */}
         <div>
-          <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Label</p>
+          <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("qr_label", language)}</p>
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {QR_LABELS.map(l => (
-              <button key={l} type="button" onClick={() => { setQrLabel(l); setCustomLabel(""); }}
+            {QR_LABELS.map(item => (
+              <button key={item.value} type="button" onClick={() => { setQrLabel(item.value); setCustomLabel(""); }}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                  qrLabel === l && !customLabel
+                  qrLabel === item.value && !customLabel
                     ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
                 }`}
-                style={qrLabel === l && !customLabel ? { background: "#f97316" } : {}}>
-                {l}
+                style={qrLabel === item.value && !customLabel ? { background: "#f97316" } : {}}>
+                {t(item.key, language)}
               </button>
             ))}
           </div>
           <input
             type="text"
-            placeholder="Custom label…"
+            placeholder={t("qr_custom_label", language)}
             value={customLabel}
             onChange={e => setCustomLabel(e.target.value)}
             className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
           />
-          <p className={`text-xs mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
+          <p className={`text-xs mt-1.5 ${mutedText}`}>{t("qr_powered_note", language)}</p>
         </div>
 
         {/* Logo Watermark — Pro feature */}
@@ -281,13 +291,13 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
+                <p className={`text-xs font-bold ${headText}`}>{t("qr_logo_watermark", language)}</p>
                 <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>Professional</span>
               </div>
               <p className={`text-xs mt-0.5 ${mutedText}`}>
-                {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
-                  : !hasLogo ? "Upload a company logo in the Info tab first."
-                  : "Your business logo will appear centered on the QR code — preview updates instantly."}
+                {!isPro ? t("qr_upgrade_logo", language)
+                  : !hasLogo ? t("qr_upload_logo_first", language)
+                  : t("qr_logo_centered", language)}
               </p>
             </div>
             {isPro && hasLogo ? (
@@ -299,7 +309,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
           {isPro && hasLogo && logoWatermark && (
             <div className="mt-2 flex items-center gap-2">
               <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
-              <p className={`text-xs ${mutedText}`}>This logo will be embedded in the downloaded QR code.</p>
+              <p className={`text-xs ${mutedText}`}>{t("qr_logo_embedded", language)}</p>
             </div>
           )}
         </div>
@@ -308,16 +318,16 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={handleDownloadQR} disabled={downloading}
             className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
-            <Download className="w-4 h-4" /> {downloading ? "Generating…" : "Download QR"}
+            <Download className="w-4 h-4" /> {downloading ? t("qr_generating", language) : t("qr_download", language)}
           </Button>
           <Button type="button" onClick={handleSave} disabled={saving}
             className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#f97316" }}>
-            {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving…</> : <><Save className="w-4 h-4" />Save QR Settings</>}
+            {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("qr_saving", language)}</> : <><Save className="w-4 h-4" />{t("qr_save_settings", language)}</>}
           </Button>
         </div>
         {saved && (
           <p className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <Check className="w-3.5 h-3.5" /> Saved!
+            <Check className="w-3.5 h-3.5" /> {t("qr_saved", language)}
           </p>
         )}
       </div>
@@ -330,10 +340,10 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
         <div className="flex items-center gap-2 mb-2">
           <Info className={`w-4 h-4 ${isDark ? "text-white/50" : "text-slate-400"}`} />
-          <p className={`font-bold text-sm ${headText}`}>Wallet Pass Design</p>
+          <p className={`font-bold text-sm ${headText}`}>{t("qr_wallet_design", language)}</p>
         </div>
         <p className={`text-xs leading-relaxed ${mutedText}`}>
-          Your wallet pass is generated from your live profile data — name, photo, and a scannable QR code linking to <span className="font-mono">/p/{profile.username}</span>. For the best result, ensure your profile photo and display name are set, and upload a square company logo (PNG) for a crisp pass icon. Pass accent color follows your profile's cover color.
+          {t("qr_wallet_design_copy", language)} <span className="font-mono">/p/{profile.username}</span>.
         </p>
       </div>
 
