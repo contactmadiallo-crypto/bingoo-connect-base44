@@ -4,8 +4,12 @@ import { CheckCircle2, Clock, XCircle, Package, ArrowRight, RefreshCw } from 'lu
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { clearCart } from '@/lib/cartStore';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
+import { localizeShopProduct } from '@/lib/shopI18n';
 
 export default function OrderConfirmation() {
+  const { language } = useI18n();
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
@@ -73,11 +77,11 @@ export default function OrderConfirmation() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-lg">
           <XCircle className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-slate-900 mb-2">No order found</h1>
-          <p className="text-slate-500 mb-6">We couldn't find your order. If you completed payment, check My Orders.</p>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">{t("order_no_order",language)}</h1>
+          <p className="text-slate-500 mb-6">{t("order_no_order_copy",language)}</p>
           <div className="flex flex-col gap-3">
-            <Link to="/my-orders"><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> My Orders</Button></Link>
-            <Link to="/shop"><Button variant="outline" className="w-full">Back to Shop</Button></Link>
+            <Link to="/my-orders"><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> {t("order_my_orders",language)}</Button></Link>
+            <Link to="/shop"><Button variant="outline" className="w-full">{t("order_back_shop",language)}</Button></Link>
           </div>
         </div>
       </div>
@@ -90,11 +94,11 @@ export default function OrderConfirmation() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-lg">
           <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-slate-900 mb-2">Order not found</h1>
-          <p className="text-slate-500 mb-6">We couldn't load your order details. If payment went through, it will appear in My Orders within a few minutes.</p>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">{t("order_not_found",language)}</h1>
+          <p className="text-slate-500 mb-6">{t("order_not_found_copy",language)}</p>
           <div className="flex flex-col gap-3">
-            <Link to="/my-orders"><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> Check My Orders</Button></Link>
-            <Link to="/shop"><Button variant="outline" className="w-full gap-2">Continue Shopping <ArrowRight className="w-4 h-4" /></Button></Link>
+            <Link to="/my-orders"><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> {t("order_check_orders",language)}</Button></Link>
+            <Link to="/shop"><Button variant="outline" className="w-full gap-2">{t("order_continue_shopping",language)} <ArrowRight className="w-4 h-4" /></Button></Link>
           </div>
         </div>
       </div>
@@ -109,27 +113,27 @@ export default function OrderConfirmation() {
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">{t("order_confirmed",language)}</h1>
           <p className="text-slate-500 mb-6">
-            Payment received. Your Bingoo is now entering preparation. A Bingoo order confirmation is being sent to <strong>{order.customer_email}</strong>.
+            {t("order_confirmed_copy",language)} <strong>{order.customer_email}</strong>.
           </p>
           <div className="bg-slate-50 rounded-xl p-4 text-left mb-6 text-sm space-y-2">
-            {order.order_number && <p className="font-semibold text-slate-800">Order #{order.order_number}</p>}
-            <p className="text-slate-500">Total paid: <span className="font-medium text-slate-700">${order.total?.toFixed(2)}</span></p>
+            {order.order_number && <p className="font-semibold text-slate-800">{t("order_number",language)} #{order.order_number}</p>}
+            <p className="text-slate-500">{t("order_total_paid",language)}: <span className="font-medium text-slate-700">${order.total?.toFixed(2)}</span></p>
             {order.shipping_address && (
-              <p className="text-slate-500">Shipping to: <span className="font-medium text-slate-700">{order.shipping_address}, {order.city}</span></p>
+              <p className="text-slate-500">{t("order_shipping_to",language)}: <span className="font-medium text-slate-700">{order.shipping_address}, {order.city}</span></p>
             )}
             {order.items?.length > 0 && (
               <div className="pt-1 border-t border-slate-200 space-y-1">
-                {order.items.map((item, i) => (
-                  <p key={i} className="text-slate-500">{item.product_name} × {item.quantity}</p>
-                ))}
+                {order.items.map((item, i) => { const displayItem = localizeShopProduct({ id: item.product_id, name: item.product_name }, language); return (
+                  <p key={i} className="text-slate-500">{displayItem.name} × {item.quantity}</p>
+                ); })}
               </div>
             )}
           </div>
           <div className="flex flex-col gap-3">
-            <Link to={`/my-orders?order=${encodeURIComponent(order.order_number || '')}&email=${encodeURIComponent(order.customer_email || '')}`}><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> Track My Order</Button></Link>
-            <Link to="/shop"><Button variant="outline" className="w-full gap-2">Continue Shopping <ArrowRight className="w-4 h-4" /></Button></Link>
+            <Link to={`/my-orders?order=${encodeURIComponent(order.order_number || '')}&email=${encodeURIComponent(order.customer_email || '')}`}><Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2"><Package className="w-4 h-4" /> {t("order_track",language)}</Button></Link>
+            <Link to="/shop"><Button variant="outline" className="w-full gap-2">{t("order_continue_shopping",language)} <ArrowRight className="w-4 h-4" /></Button></Link>
           </div>
         </div>
       </div>
@@ -143,19 +147,19 @@ export default function OrderConfirmation() {
         <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <Clock className="w-10 h-10 text-yellow-600" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Payment Processing</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t("order_payment_processing",language)}</h1>
         <p className="text-slate-500 mb-4">
-          Your payment is being verified. This usually takes less than a minute.
+          {t("order_payment_processing_copy",language)}
         </p>
-        <p className="text-xs text-slate-400 mb-6">Order ID: {orderId}</p>
+        <p className="text-xs text-slate-400 mb-6">{t("order_id",language)}: {orderId}</p>
         <div className="flex flex-col gap-3">
           <Button
             onClick={() => loadOrder(orderId)}
             className="w-full gap-2"
           >
-            <RefreshCw className="w-4 h-4" /> Check Payment Status
+            <RefreshCw className="w-4 h-4" /> {t("order_check_payment",language)}
           </Button>
-          <Link to="/my-orders"><Button variant="outline" className="w-full gap-2"><Package className="w-4 h-4" /> My Orders</Button></Link>
+          <Link to="/my-orders"><Button variant="outline" className="w-full gap-2"><Package className="w-4 h-4" /> {t("order_my_orders",language)}</Button></Link>
         </div>
       </div>
     </div>
