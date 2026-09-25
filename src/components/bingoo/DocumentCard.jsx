@@ -1,11 +1,14 @@
 import { Lock, AlertCircle, Layers } from "lucide-react";
 import { getFileIcon, getFileColor, isImageFile, getCatInfo, formatBytes } from "@/lib/docWalletUtils";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * DocumentCard — visual card with file thumbnail/preview, category badge,
  * front/back indicator, and expiration alert. Clickable to open detail modal.
  */
 export default function DocumentCard({ doc, isDark, onClick }) {
+  const { language } = useI18n();
   const Icon = getFileIcon(doc.file_name);
   const fileColor = getFileColor(doc.file_name);
   const cat = getCatInfo(doc.document_type);
@@ -39,7 +42,7 @@ export default function DocumentCard({ doc, isDark, onClick }) {
         )}
         {cat && (
           <span className="absolute top-1.5 left-1.5 text-[9px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: cat.color }}>
-            {cat.label}
+            {t(`doc_cat_${cat.value}`,language)}
           </span>
         )}
         {hasBack && (
@@ -51,7 +54,7 @@ export default function DocumentCard({ doc, isDark, onClick }) {
           <span className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
             style={{ background: isExpired ? "#ef4444" : "#f97316" }}>
             <AlertCircle className="w-2.5 h-2.5" />
-            {isExpired ? "Expired" : "Soon"}
+            {isExpired ? t("doc_expired",language) : t("doc_soon",language)}
           </span>
         )}
       </div>
