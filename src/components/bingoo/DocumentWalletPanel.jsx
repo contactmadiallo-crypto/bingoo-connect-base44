@@ -10,8 +10,11 @@ import {
 } from "@/lib/docWalletUtils";
 import DocumentCard from "@/components/bingoo/DocumentCard";
 import DocumentDetailModal from "@/components/bingoo/DocumentDetailModal";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function DocumentWalletPanel({ profile, isDark }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const fileInputRef = useRef(null);
   const backInputRef = useRef(null);
@@ -62,9 +65,9 @@ export default function DocumentWalletPanel({ profile, isDark }) {
         return { file_url, file_name: file.name, file_size: file.size, back_url: "", back_name: "", back_size: 0 };
       }));
       setPendingFiles(prev => [...prev, ...uploaded]);
-      toast.success(`${uploaded.length} file${uploaded.length > 1 ? "s" : ""} uploaded`);
+      toast.success(`${uploaded.length} ${uploaded.length > 1 ? t("doc_documents",language) : t("doc_document",language)} ${t("doc_uploaded",language)}`);
     } catch (err) {
-      toast.error("Upload failed: " + (err.message || "Unknown error"));
+      toast.error(`${t("doc_upload_failed",language)}: ${err.message || t("doc_unknown_error",language)}`);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -79,9 +82,9 @@ export default function DocumentWalletPanel({ profile, isDark }) {
       setPendingFiles(prev => prev.map((p, i) =>
         i === backTargetIndex ? { ...p, back_url: file_url, back_name: file.name, back_size: file.size } : p
       ));
-      toast.success("Back side added");
+      toast.success(t("doc_back_added",language));
     } catch (err) {
-      toast.error("Upload failed: " + (err.message || "Unknown error"));
+      toast.error(`${t("doc_upload_failed",language)}: ${err.message || t("doc_unknown_error",language)}`);
     } finally {
       setBackTargetIndex(null);
       if (backInputRef.current) backInputRef.current.value = "";
@@ -118,13 +121,13 @@ export default function DocumentWalletPanel({ profile, isDark }) {
           visibility: "private",
         })
       ));
-      toast.success(`${pendingFiles.length} document${pendingFiles.length > 1 ? "s" : ""} saved`);
+      toast.success(`${pendingFiles.length} ${pendingFiles.length > 1 ? t("doc_documents",language) : t("doc_document",language)} ${t("doc_saved",language)}`);
       setPendingFiles([]);
       setFormData({ document_type: "other", notes: "", expiration_date: "" });
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ["doc-wallet", user.id] });
     } catch (err) {
-      toast.error("Error: " + (err.message || "Unknown error"));
+      toast.error(`${t("doc_error",language)}: ${err.message || t("doc_unknown_error",language)}`);
     }
   };
 
@@ -154,7 +157,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
             <p className={`text-[10px] ${mutedText}`}>{formatBytes(p.file_size)}</p>
             {p.back_url && (
               <span className="flex items-center gap-0.5 text-[10px] text-blue-500 font-bold mt-0.5">
-                <Layers className="w-2.5 h-2.5" /> Has back side
+                <Layers className="w-2.5 h-2.5" /> {t("doc_has_back",language)}
               </span>
             )}
           </div>
@@ -166,16 +169,16 @@ export default function DocumentWalletPanel({ profile, isDark }) {
           <div className="px-2 pb-2">
             {p.back_url ? (
               <div className={`flex items-center justify-between gap-1 px-2 py-1 rounded-lg text-[10px] ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                <span className={`truncate ${headText}`}>Back: {p.back_name}</span>
+                <span className={`truncate ${headText}`}>{t("doc_back",language)}: {p.back_name}</span>
                 <div className="flex gap-1.5 flex-shrink-0">
-                  <button onClick={() => setBackTargetIndex(index)} className="text-blue-500 font-bold">Replace</button>
-                  <button onClick={() => removePendingBack(index)} className="text-red-500 font-bold">Remove</button>
+                  <button onClick={() => setBackTargetIndex(index)} className="text-blue-500 font-bold">{t("doc_replace",language)}</button>
+                  <button onClick={() => removePendingBack(index)} className="text-red-500 font-bold">{t("doc_remove",language)}</button>
                 </div>
               </div>
             ) : (
               <button onClick={() => setBackTargetIndex(index)}
                 className={`w-full flex items-center justify-center gap-1 py-1.5 rounded-lg border border-dashed text-[10px] font-bold ${mutedText} ${isDark ? "border-white/15" : "border-slate-300"}`}>
-                <Upload className="w-3 h-3" /> Add Back Side
+                <Upload className="w-3 h-3" /> {t("doc_add_back",language)}
               </button>
             )}
           </div>
@@ -192,10 +195,9 @@ export default function DocumentWalletPanel({ profile, isDark }) {
           style={{ background: isDark ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.1)" }}>
           <Lock className="w-7 h-7" style={{ color: "#f97316" }} />
         </div>
-        <p className={`font-black text-base ${headText}`}>Document Wallet — Coming Soon</p>
+        <p className={`font-black text-base ${headText}`}>{t("doc_wallet_coming",language)}</p>
         <p className={`text-xs mt-2 max-w-xs leading-relaxed ${mutedText}`}>
-          We're finalizing secure document storage ahead of launch. Your saved documents
-          stay private and safe. Check back shortly.
+          {t("doc_wallet_coming_copy",language)}
         </p>
       </div>
     );
@@ -211,14 +213,14 @@ export default function DocumentWalletPanel({ profile, isDark }) {
             <FileText className="w-5 h-5" style={{ color: "#f97316" }} />
           </div>
           <div>
-            <p className={`font-bold text-sm ${headText}`}>Document Wallet</p>
-            <p className={`text-xs ${mutedText}`}>Secure private document storage</p>
+            <p className={`font-bold text-sm ${headText}`}>{t("doc_wallet_title",language)}</p>
+            <p className={`text-xs ${mutedText}`}>{t("doc_wallet_subtitle",language)}</p>
           </div>
         </div>
         <button onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[40px] flex-shrink-0"
           style={{ background: "#f97316" }}>
-          <Plus className="w-4 h-4" /> Add Document
+          <Plus className="w-4 h-4" /> {t("doc_add",language)}
         </button>
       </div>
 
@@ -226,7 +228,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
       <div className={`flex items-center gap-2 rounded-xl p-3 ${isDark ? "bg-blue-500/10" : "bg-blue-50"}`}>
         <Lock className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-blue-300" : "text-blue-600"}`} />
         <p className={`text-xs leading-relaxed ${isDark ? "text-blue-200" : "text-blue-700"}`}>
-          Documents are <span className="font-bold">private by default</span>. Only you can view, download, or delete them. Supports PDF, Word, Excel, images — and front/back sides for IDs.
+          {t("doc_private_copy",language)} <span className="font-bold">{t("doc_private_bold",language)}</span>. {t("doc_private_suffix",language)}
         </p>
       </div>
 
@@ -235,7 +237,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
         <div className={`rounded-xl border ${panelBorder} p-4 space-y-3 ${isDark ? "bg-white/3" : "bg-slate-50"}`}>
           {/* Multi-file Upload Zone */}
           <div>
-            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Document File(s)</label>
+            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("doc_files",language)}</label>
             <label className={`flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-colors min-h-[120px] ${isDark ? "border-white/20 hover:border-white/40" : "border-slate-300 hover:border-slate-400"}`}>
               {uploading ? (
                 <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
@@ -243,10 +245,10 @@ export default function DocumentWalletPanel({ profile, isDark }) {
                 <Upload className={`w-6 h-6 ${mutedText}`} />
               )}
               <span className={`text-xs ${mutedText}`}>
-                {uploading ? "Uploading…" : "Click to upload — multiple files at once"}
+                {uploading ? t("doc_uploading",language) : t("doc_click_upload",language)}
               </span>
               <span className={`text-[10px] ${mutedText}`}>
-                PDF, Word, Excel, PowerPoint, Images, SSN, ID, Work Auth — all formats
+                {t("doc_formats",language)}
               </span>
               <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
             </label>
@@ -255,7 +257,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
           {/* Pending files list */}
           {pendingFiles.length > 0 && (
             <div className="space-y-2">
-              <p className={`text-xs font-bold ${headText}`}>{pendingFiles.length} file(s) ready to save</p>
+              <p className={`text-xs font-bold ${headText}`}>{pendingFiles.length} {t("doc_files_ready",language)}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {pendingFiles.map((p, i) => renderPendingCard(p, i))}
               </div>
@@ -265,18 +267,18 @@ export default function DocumentWalletPanel({ profile, isDark }) {
           {/* Category + Expiration */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Category (applies to all)</label>
+              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("doc_category_all",language)}</label>
               <select value={formData.document_type}
                 onChange={e => setFormData({ ...formData, document_type: e.target.value })}
                 className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${panelBg} text-sm ${headText} min-h-[40px]`}>
-                {DOC_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {DOC_CATEGORIES.map(c => <option key={c.value} value={c.value}>{t(`doc_cat_${c.value}`,language)}</option>)}
               </select>
               {isIdType && (
-                <p className={`text-[10px] mt-1 ${mutedText}`}>ID type — each file can have a front & back side</p>
+                <p className={`text-[10px] mt-1 ${mutedText}`}>{t("doc_id_front_back",language)}</p>
               )}
             </div>
             <div>
-              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Expiration Date (applies to all)</label>
+              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("doc_expiration_all",language)}</label>
               <input type="date" value={formData.expiration_date}
                 onChange={e => setFormData({ ...formData, expiration_date: e.target.value })}
                 className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${panelBg} text-sm ${headText} min-h-[40px]`} />
@@ -285,10 +287,10 @@ export default function DocumentWalletPanel({ profile, isDark }) {
 
           {/* Notes */}
           <div>
-            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Notes (optional, applies to all)</label>
+            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("doc_notes_all",language)}</label>
             <textarea value={formData.notes}
               onChange={e => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Add any notes about these documents…"
+              placeholder={t("doc_notes_ph",language)}
               rows={2}
               className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${panelBg} text-sm ${headText} resize-none`} />
           </div>
@@ -298,11 +300,11 @@ export default function DocumentWalletPanel({ profile, isDark }) {
             <button onClick={handleSaveAll} disabled={uploading || pendingFiles.length === 0}
               className="flex-1 px-4 py-2.5 rounded-lg text-white text-xs font-bold min-h-[40px] disabled:opacity-50"
               style={{ background: "#f97316" }}>
-              Save {pendingFiles.length > 0 ? `${pendingFiles.length} Document${pendingFiles.length > 1 ? "s" : ""}` : "Document"}
+              {t("doc_save",language)} {pendingFiles.length > 0 ? `${pendingFiles.length} ${pendingFiles.length > 1 ? t("doc_documents",language) : t("doc_document",language)}` : t("doc_document",language)}
             </button>
             <button onClick={resetForm}
               className={`px-4 py-2.5 rounded-lg border ${panelBorder} text-xs font-bold ${headText} min-h-[40px]`}>
-              Cancel
+              {t("doc_cancel",language)}
             </button>
           </div>
         </div>
@@ -320,7 +322,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
               activeCategory === "all" ? "text-white" : isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500"
             }`}
             style={activeCategory === "all" ? { background: "#0b2149" } : {}}>
-            All ({(documents || []).length})
+            {t("doc_all",language)} ({(documents || []).length})
           </button>
           {DOC_CATEGORIES.filter(c => categoryCounts[c.value]).map(c => (
             <button key={c.value} onClick={() => setActiveCategory(c.value)}
@@ -328,7 +330,7 @@ export default function DocumentWalletPanel({ profile, isDark }) {
                 activeCategory === c.value ? "text-white" : isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500"
               }`}
               style={activeCategory === c.value ? { background: c.color } : {}}>
-              {c.label} ({categoryCounts[c.value]})
+              {t(`doc_cat_${c.value}`,language)} ({categoryCounts[c.value]})
             </button>
           ))}
           </div>
@@ -343,14 +345,14 @@ export default function DocumentWalletPanel({ profile, isDark }) {
       ) : (documents || []).length === 0 ? (
         <div className={`text-center py-10 rounded-xl border ${panelBorder} ${isDark ? "bg-white/3" : "bg-slate-50"}`}>
           <FileText className={`w-8 h-8 mx-auto mb-2 ${mutedText}`} />
-          <p className={`text-sm font-bold ${headText}`}>No documents yet</p>
+          <p className={`text-sm font-bold ${headText}`}>{t("doc_none",language)}</p>
           <p className={`text-xs ${mutedText} mt-1`}>
-            Upload IDs, SSN cards, work authorizations, certifications, contracts, and more.
+            {t("doc_none_copy",language)}
           </p>
         </div>
       ) : filteredDocs.length === 0 ? (
         <div className={`text-center py-8 rounded-xl ${isDark ? "bg-white/3" : "bg-slate-50"}`}>
-          <p className={`text-xs ${mutedText}`}>No documents in this category.</p>
+          <p className={`text-xs ${mutedText}`}>{t("doc_none_category",language)}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
