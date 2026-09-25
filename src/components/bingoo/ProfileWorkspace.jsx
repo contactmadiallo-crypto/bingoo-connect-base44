@@ -231,13 +231,13 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
       {/* Figma Profile page toolbar */}
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
         <div className="min-w-0">
-          <h2 className={`text-[16px] font-extrabold ${headText}`}>Profile</h2>
+          <h2 className={`text-[16px] font-extrabold ${headText}`}>{t("studio_profile", lang)}</h2>
         </div>
         <button type="button" onClick={onSave} disabled={isPending}
           className="inline-flex items-center gap-1.5 px-[18px] py-[9px] rounded-[10px] text-[13px] font-bold text-white disabled:opacity-50 flex-shrink-0"
           style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.24)" }}>
           <Save className={`w-[14px] h-[14px] ${isPending ? "animate-pulse" : ""}`} />
-          {isPending ? "Saving…" : "Save Profile"}
+          {isPending ? t("saving", lang) : t("studio_save_profile", lang)}
         </button>
       </div>
 
@@ -245,7 +245,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
       <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-[18px]`}>
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
-            <p className={`text-[13px] font-black ${headText}`}>Profile photo</p>
+            <p className={`text-[13px] font-black ${headText}`}>{t("studio_profile_photo", lang)}</p>
           </div>
           {(() => {
             const ep = userPlan || "free";
@@ -286,8 +286,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
 
           {/* Business-only identity */}
           {isBusinessIdentity && <div className="mb-5 rounded-xl border border-slate-200/80 p-4">
-            <p className={`text-xs font-black mb-3 ${headText}`}>Business Identity</p>
-            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>Brand / Company Logo</Label>
+            <p className={`text-xs font-black mb-3 ${headText}`}>{t("studio_business_identity", lang)}</p>
+            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>{t("studio_brand_logo", lang)}</Label>
             <div className="flex items-center gap-3">
               {liveForm.company_logo ? (
                 <div className="relative flex-shrink-0">
@@ -303,7 +303,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               <div>
                 <label className={`cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${isDark ? "border-white/15 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
                   <Plus className="w-3.5 h-3.5" />
-                  {liveForm.company_logo ? "Change Logo" : "Upload Logo"}
+                  {liveForm.company_logo ? t("studio_change_logo", lang) : t("studio_upload_logo", lang)}
                   <input type="file" accept="image/*" className="hidden" onChange={async e => {
                     const file = e.target.files[0]; if (!file) return;
                     const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -316,24 +316,24 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           </div>}
 
           <div className="mb-3">
-            <p className={`text-xs font-black ${headText}`}>Basic Information</p>
+            <p className={`text-xs font-black ${headText}`}>{t("studio_basic_info", lang)}</p>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("display_name", lang)} *</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.display_name || ""} onChange={set("display_name")} placeholder="Your Name" />
+              <Input className={`mt-1 ${inputCls}`} value={liveForm.display_name || ""} onChange={set("display_name")} placeholder={t("studio_name_placeholder", lang)} />
             </div>
             <div>
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("job_title", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.job_title || ""} onChange={set("job_title")} placeholder="CEO / Consultant" />
+              <Input className={`mt-1 ${inputCls}`} value={liveForm.job_title || ""} onChange={set("job_title")} placeholder={t("studio_job_placeholder", lang)} />
             </div>
             {isBusinessIdentity && <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("company", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.company_name || ""} onChange={set("company_name")} placeholder="Company Name" />
+              <Input className={`mt-1 ${inputCls}`} value={liveForm.company_name || ""} onChange={set("company_name")} placeholder={t("studio_company_placeholder", lang)} />
             </div>}
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
-              <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder="Short bio or description..." />
+              <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder={t("studio_bio_placeholder", lang)} />
             </div>
           </div>
 
@@ -394,21 +394,21 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
       {/* Figma Make links toolbar */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className={`text-[16px] font-extrabold ${headText}`}>Links</h2>
-          <p className={`text-[12px] mt-0.5 ${mutedText}`}>Manage what appears on your public profile.</p>
+          <h2 className={`text-[16px] font-extrabold ${headText}`}>{t("links", lang)}</h2>
+          <p className={`text-[12px] mt-0.5 ${mutedText}`}>{t("studio_links_copy", lang)}</p>
         </div>
         <button type="button" onClick={() => setStoreOpen(true)}
           className="flex items-center justify-center gap-1.5 w-full xs:w-auto px-[18px] py-[10px] rounded-xl text-[13px] font-bold text-white flex-shrink-0"
           style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}>
-          <Plus className="w-[14px] h-[14px]" /> Add Link
+          <Plus className="w-[14px] h-[14px]" /> {t("studio_add_link", lang)}
         </button>
       </div>
 
       {totalCount === 0 ? (
         <div className={`text-center px-5 py-9 rounded-[14px] border border-dashed ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
           <div className="text-[30px] mb-2">🔗</div>
-          <div className={`text-[14px] font-bold mb-1 ${headText}`}>No links yet</div>
-          <div className={`text-[12px] ${mutedText}`}>Add social media, contact info, payments, and more.</div>
+          <div className={`text-[14px] font-bold mb-1 ${headText}`}>{t("studio_no_links", lang)}</div>
+          <div className={`text-[12px] ${mutedText}`}>{t("studio_no_links_copy", lang)}</div>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -424,7 +424,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                 </div>
                 <button type="button" onClick={() => { setEditingLinkId(r.key); setStoreOpen(true); }}
                   aria-label={`Edit ${r.label}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
-                  <span className="hidden xs:inline">Edit</span><span className="xs:hidden">•••</span>
+                  <span className="hidden xs:inline">{t("edit", lang)}</span><span className="xs:hidden">•••</span>
                 </button>
                 <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
               </div>
@@ -441,7 +441,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
               </div>
               <button type="button" onClick={() => { setEditingLinkId(link._catalog_id || null); setStoreOpen(true); }}
                 aria-label={`Edit ${link.label || "link"}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
-                <span className="hidden xs:inline">Edit</span><span className="xs:hidden">•••</span>
+                <span className="hidden xs:inline">{t("edit", lang)}</span><span className="xs:hidden">•••</span>
               </button>
               <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
             </div>
@@ -451,14 +451,14 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 
       <div className={`rounded-[14px] border ${panelBorder} ${panelBg} px-[14px] py-[13px] flex items-center gap-3`}>
         <div className="flex-1 min-w-0">
-          <p className={`text-[13px] font-bold ${headText}`}>Lead Capture</p>
-          <p className={`text-[11px] mt-0.5 ${mutedText}`}>Show the contact form on this public profile.</p>
+          <p className={`text-[13px] font-bold ${headText}`}>{t("studio_lead_capture", lang)}</p>
+          <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("studio_lead_capture_copy", lang)}</p>
         </div>
         <Toggle value={liveForm.lead_capture_enabled !== false} onChange={(v) => setVal("lead_capture_enabled", v)} />
       </div>
 
       <div className="pt-1 flex items-center gap-4" style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}>
-        <SaveBtn onSave={onSave} isPending={isPending} label="Save Links" />
+        <SaveBtn onSave={onSave} isPending={isPending} label={t("save_links", lang)} />
         <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
       </div>
 
