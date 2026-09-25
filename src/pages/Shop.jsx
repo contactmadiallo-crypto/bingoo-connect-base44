@@ -22,6 +22,9 @@ import { PRODUCTS, COLLECTIONS, isPurchasable } from '@/lib/shopProducts';
 import { addToCart, getCartCount } from '@/lib/cartStore';
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
+import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -43,20 +46,20 @@ const FEATURED_ORDER = [
 ];
 
 const CATEGORIES = [
-  { id: 'all', label: 'All Devices', icon: CreditCard, test: () => true },
-  { id: 'profile', label: 'Profile Devices', icon: CreditCard, test: (p) => p.flow !== 'asset_protection' && p.category !== 'stand' && !p.id?.includes('bundle') },
-  { id: 'premium', label: 'Premium', icon: ShieldCheck, test: (p) => p.collection === 'premium' },
-  { id: 'wearables', label: 'Wearables', icon: Watch, test: (p) => p.category === 'bracelet' || p.category === 'badge' },
-  { id: 'desk', label: 'Desk & Counter', icon: Store, test: (p) => p.category === 'stand' || p.collection === 'business' },
-  { id: 'keys', label: 'Key Accessories', icon: KeyRound, test: (p) => p.category === 'keychain' },
-  { id: 'assets', label: 'Asset Protection', icon: Tag, test: (p) => p.flow === 'asset_protection' },
-  { id: 'bundles', label: 'Bundles', icon: Package, test: (p) => p.id?.includes('bundle') || p.id?.includes('pack') },
+  { id: 'all', labelKey: 'shop_all_devices', icon: CreditCard, test: () => true },
+  { id: 'profile', labelKey: 'shop_profile_devices', icon: CreditCard, test: (p) => p.flow !== 'asset_protection' && p.category !== 'stand' && !p.id?.includes('bundle') },
+  { id: 'premium', labelKey: 'shop_premium', icon: ShieldCheck, test: (p) => p.collection === 'premium' },
+  { id: 'wearables', labelKey: 'shop_wearables', icon: Watch, test: (p) => p.category === 'bracelet' || p.category === 'badge' },
+  { id: 'desk', labelKey: 'shop_desk_counter', icon: Store, test: (p) => p.category === 'stand' || p.collection === 'business' },
+  { id: 'keys', labelKey: 'shop_key_accessories', icon: KeyRound, test: (p) => p.category === 'keychain' },
+  { id: 'assets', labelKey: 'shop_asset_protection', icon: Tag, test: (p) => p.flow === 'asset_protection' },
+  { id: 'bundles', labelKey: 'shop_bundles', icon: Package, test: (p) => p.id?.includes('bundle') || p.id?.includes('pack') },
 ];
 
 const TRUST = [
-  { icon: ShieldCheck, title: 'Secure checkout', copy: 'Stripe-hosted payment' },
-  { icon: CreditCard, title: 'Retail quantity 1+', copy: 'Buy a single device or more' },
-  { icon: Package, title: 'One product identity', copy: 'Same SKU from shelf to order' },
+  { icon: ShieldCheck, titleKey: 'shop_secure_checkout', copyKey: 'shop_stripe_payment' },
+  { icon: CreditCard, titleKey: 'shop_retail_qty', copyKey: 'shop_single_or_more' },
+  { icon: Package, titleKey: 'shop_one_identity', copyKey: 'shop_same_sku' },
 ];
 
 function Toggle({ on, value }) {
@@ -67,10 +70,11 @@ function Toggle({ on, value }) {
   );
 }
 
-function ProductCard({ product, added, onAdd, list }) {
+function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
+  const product = localizeShopProduct(rawProduct, language);
   const buy = isPurchasable(product);
-  const collection = COLLECTIONS.find((c) => c.id === product.collection);
-  const typeLabel = product.flow === 'asset_protection' ? 'Asset Device' : 'Profile Device';
+  const collection = localizeCollection(COLLECTIONS.find((c) => c.id === product.collection), language);
+  const typeLabel = product.flow === 'asset_protection' ? t('shop_asset_device', language) : t('shop_profile_device', language);
 
   return (
     <motion.article
@@ -105,15 +109,15 @@ function ProductCard({ product, added, onAdd, list }) {
         <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-400">{product.tagline}</p>
         <div className="mt-4 rounded-xl bg-white/5 px-3 py-2 text-xs font-bold text-slate-300">
           {product.flow === 'asset_protection'
-            ? 'Tap / Scan → Lost Mode → Finder → Owner'
-            : 'Tap → Profile → Contact → Lead / Booking'}
+            ? t('shop_asset_flow', language)
+            : t('shop_profile_flow', language)}
         </div>
 
         <div className="mt-6 flex items-end justify-between gap-3">
           {buy ? (
             <>
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Price</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t("shop_price", language)}</p>
                 <b className="text-[26px] leading-none text-white">${product.price.toFixed(2)}</b>
               </div>
               <div className="flex gap-2">
@@ -126,15 +130,15 @@ function ProductCard({ product, added, onAdd, list }) {
                   className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black text-white transition active:scale-95"
                   style={{ background: added ? '#16a34a' : ORANGE }}
                 >
-                  {added ? <><Check className="h-3.5 w-3.5" /> Added</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to Cart</>}
+                  {added ? <><Check className="h-3.5 w-3.5" /> {t("shop_added", language)}</> : <><ShoppingCart className="h-3.5 w-3.5" /> {t("shop_add_cart", language)}</>}
                 </button>
               </div>
             </>
           ) : (
             <>
-              <b className="text-sm text-slate-500">Coming Soon</b>
+              <b className="text-sm text-slate-500">{t("shop_coming_soon", language)}</b>
               <Link to={`/product/${product.id}`} className="flex items-center gap-1 rounded-xl px-4 py-2.5 text-xs font-black text-white" style={{ background: NAVY }}>
-                <Bell className="h-3.5 w-3.5" /> Notify Me
+                <Bell className="h-3.5 w-3.5" /> {t("shop_notify_me", language)}
               </Link>
             </>
           )}
@@ -145,6 +149,7 @@ function ProductCard({ product, added, onAdd, list }) {
 }
 
 export default function Shop() {
+  const { language } = useI18n();
   const [cart, setCart] = useState(getCartCount());
   const [added, setAdded] = useState(null);
   const [category, setCategory] = useState('all');
@@ -200,10 +205,10 @@ export default function Shop() {
             <b className="hidden text-lg tracking-wide text-white sm:block">BINGOO CONNECT</b>
           </Link>
           <nav className="hidden h-full items-center gap-9 text-sm font-bold text-white/70 md:flex">
-            <Link to="/#platform" className="hover:text-white">Platform</Link>
-            <Link to="/#solutions" className="hover:text-white">Solutions</Link>
-            <Link to="/#pricing" className="hover:text-white">Pricing</Link>
-            <Link to="/shop" className="relative flex h-full items-center text-white">Shop<span className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: ORANGE }} /></Link>
+            <Link to="/#platform" className="hover:text-white">{t("shop_platform", language)}</Link>
+            <Link to="/#solutions" className="hover:text-white">{t("shop_solutions", language)}</Link>
+            <Link to="/#pricing" className="hover:text-white">{t("shop_pricing", language)}</Link>
+            <Link to="/shop" className="relative flex h-full items-center text-white">{t("shop_shop", language)}<span className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: ORANGE }} /></Link>
           </nav>
           <Link to="/cart" className="relative p-3 text-white">
             <ShoppingCart className="h-5 w-5" />
@@ -216,19 +221,19 @@ export default function Shop() {
         <section className="mb-8 overflow-hidden rounded-[30px] border border-slate-200 bg-white">
           <div className="grid items-center gap-7 px-6 py-8 md:grid-cols-[1fr_auto] md:px-9 lg:px-10">
             <div>
-              <p className="mb-3 text-xs font-black uppercase tracking-[.18em]" style={{ color: ORANGE }}>Official Bingoo hardware store</p>
-              <h1 className="text-4xl font-black tracking-tight md:text-5xl" style={{ color: NAVY }}>Choose the device that fits how you connect.</h1>
+              <p className="mb-3 text-xs font-black uppercase tracking-[.18em]" style={{ color: ORANGE }}>{t("shop_official_store", language)}</p>
+              <h1 className="text-4xl font-black tracking-tight md:text-5xl" style={{ color: NAVY }}>{t("shop_hero_title", language)}</h1>
               <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-500 md:text-lg">
-                Professional NFC devices, business touchpoints and asset-recovery tags — all connected to the same Bingoo platform.
+                {t("shop_hero_copy", language)}
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               {TRUST.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.title} className="flex min-w-[190px] items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                  <div key={item.titleKey} className="flex min-w-[190px] items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
                     <Icon className="h-7 w-7 shrink-0" style={{ color: NAVY }} />
-                    <div><b className="block text-xs" style={{ color: NAVY }}>{item.title}</b><span className="text-[11px] text-slate-500">{item.copy}</span></div>
+                    <div><b className="block text-xs" style={{ color: NAVY }}>{t(item.titleKey, language)}</b><span className="text-[11px] text-slate-500">{t(item.copyKey, language)}</span></div>
                   </div>
                 );
               })}
@@ -242,7 +247,7 @@ export default function Shop() {
             const active = category === c.id;
             return (
               <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black" style={{ background: active ? '#fff0e6' : '#fff', borderColor: active ? `${ORANGE}55` : '#e2e8f0', color: active ? ORANGE : NAVY }}>
-                <Icon className="h-3.5 w-3.5" /> {c.label} <span className="text-slate-400">{counts[c.id]}</span>
+                <Icon className="h-3.5 w-3.5" /> {t(c.labelKey, language)} <span className="text-slate-400">{counts[c.id]}</span>
               </button>
             );
           })}
@@ -251,14 +256,14 @@ export default function Shop() {
         <section className="grid items-start gap-6 lg:grid-cols-[270px_1fr]">
           <aside className={`${filtersOpen ? 'block' : 'hidden'} space-y-4 lg:sticky lg:top-[92px] lg:block`}>
             <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <p className="mb-3 px-2 text-xs font-black uppercase tracking-wider text-slate-400">Device Categories</p>
+              <p className="mb-3 px-2 text-xs font-black uppercase tracking-wider text-slate-400">{t("shop_device_categories", language)}</p>
               {CATEGORIES.map((c) => {
                 const Icon = c.icon;
                 const active = category === c.id;
                 return (
                   <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold" style={{ background: active ? '#fff3eb' : 'transparent', color: NAVY }}>
                     <Icon className="h-4 w-4" style={{ color: active ? ORANGE : '#64748b' }} />
-                    <span className="flex-1 text-left">{c.label}</span>
+                    <span className="flex-1 text-left">{t(c.labelKey, language)}</span>
                     <span className="text-xs text-slate-400">{counts[c.id]}</span>
                   </button>
                 );
@@ -267,15 +272,15 @@ export default function Shop() {
 
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
               <div className="border-b p-4">
-                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">Filters</p>
+                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">{t("shop_filters", language)}</p>
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm font-semibold"><span>Best Sellers</span><Toggle value={best} on={() => setBest(!best)} /></div>
-                  <div className="flex justify-between text-sm font-semibold"><span>New / Coming</span><Toggle value={fresh} on={() => setFresh(!fresh)} /></div>
-                  <div className="flex justify-between text-sm font-semibold"><span>In Stock Only</span><Toggle value={stock} on={() => setStock(!stock)} /></div>
+                  <div className="flex justify-between text-sm font-semibold"><span>{t("shop_best_sellers", language)}</span><Toggle value={best} on={() => setBest(!best)} /></div>
+                  <div className="flex justify-between text-sm font-semibold"><span>{t("shop_new_coming", language)}</span><Toggle value={fresh} on={() => setFresh(!fresh)} /></div>
+                  <div className="flex justify-between text-sm font-semibold"><span>{t("shop_in_stock_only", language)}</span><Toggle value={stock} on={() => setStock(!stock)} /></div>
                 </div>
               </div>
               <div className="p-4">
-                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">Price Range</p>
+                <p className="mb-4 text-xs font-black uppercase tracking-wider text-slate-400">{t("shop_price_range", language)}</p>
                 <div className="mb-3 flex justify-between text-xs font-black"><span>$0</span><span>${price}+</span></div>
                 <input type="range" min="10" max="100" value={price} onChange={(e) => setPrice(+e.target.value)} className="w-full accent-orange-500" />
               </div>
@@ -285,16 +290,16 @@ export default function Shop() {
           <div>
             <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setFiltersOpen(!filtersOpen)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black lg:hidden" style={{ color: NAVY }}><SlidersHorizontal className="h-4 w-4" /> Filters</button>
-                <span className="text-sm text-slate-500"><b style={{ color: NAVY }}>{items.length}</b> {stock ? 'in-stock devices' : 'devices in this view'}</span>
+                <button type="button" onClick={() => setFiltersOpen(!filtersOpen)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black lg:hidden" style={{ color: NAVY }}><SlidersHorizontal className="h-4 w-4" /> {t("shop_filters", language)}</button>
+                <span className="text-sm text-slate-500"><b style={{ color: NAVY }}>{items.length}</b> {stock ? t("shop_in_stock_devices", language) : t("shop_devices_view", language)}</span>
               </div>
               <div className="flex gap-3">
                 <div className="relative">
                   <select value={sort} onChange={(e) => setSort(e.target.value)} className="appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pl-4 pr-10 text-sm font-semibold">
-                    <option value="featured">Featured</option>
-                    <option value="low">Price: Low to high</option>
-                    <option value="high">Price: High to low</option>
-                    <option value="name">Name: A–Z</option>
+                    <option value="featured">{t("shop_featured", language)}</option>
+                    <option value="low">{t("shop_price_low_high", language)}</option>
+                    <option value="high">{t("shop_price_high_low", language)}</option>
+                    <option value="name">{t("shop_name_az", language)}</option>
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
                 </div>
@@ -307,14 +312,14 @@ export default function Shop() {
 
             <motion.div layout className={view === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'grid gap-5'}>
               {items.map((product) => (
-                <ProductCard key={product.id} product={product} added={added === product.id} onAdd={add} list={view === 'list'} />
+                <ProductCard key={product.id} product={product} added={added === product.id} onAdd={add} list={view === 'list'} language={language} />
               ))}
             </motion.div>
 
             {!items.length && (
               <div className="mt-4 rounded-3xl border border-dashed bg-white p-12 text-center">
                 <PackageSearch className="mx-auto mb-3 text-slate-300" />
-                <b style={{ color: NAVY }}>No devices match these filters.</b>
+                <b style={{ color: NAVY }}>{t("shop_no_matches", language)}</b>
               </div>
             )}
           </div>
