@@ -1,17 +1,20 @@
 import React from 'react';
 import { WandSparkles, Eye, ShoppingCart } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function StudioHeader() {
+  const { language } = useI18n();
   const steps = [
-    { icon: WandSparkles, label: 'Design', active: true },
-    { icon: Eye, label: 'Preview', active: false },
-    { icon: ShoppingCart, label: 'Checkout', active: false },
+    { icon: WandSparkles, label: t('ds_step_design', language), active: true },
+    { icon: Eye, label: t('ds_step_preview', language), active: false },
+    { icon: ShoppingCart, label: t('ds_step_checkout', language), active: false },
   ];
   return (
     <div className="px-5 lg:px-7 py-5 bg-white border-b border-slate-200 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl xl:text-3xl font-black text-[#0b2149]">Design Studio</h1>
-        <p className="text-sm text-slate-500">Create your own NFC device. Your brand. Your way.</p>
+        <h1 className="text-2xl xl:text-3xl font-black text-[#0b2149]">{t("ds_title", language)}</h1>
+        <p className="text-sm text-slate-500">{t("ds_subtitle", language)}</p>
       </div>
       <div className="flex items-center gap-4 text-xs font-bold">
         {steps.map((s, i) => (
