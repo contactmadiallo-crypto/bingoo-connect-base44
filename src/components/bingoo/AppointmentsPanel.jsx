@@ -8,6 +8,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const STATUS_COLORS_DARK = {
   pending:     "bg-amber-500/20 text-amber-300 border-amber-500/30",
@@ -35,16 +37,17 @@ const STATUS_COLORS_LIGHT = {
 const DONE = ["cancelled", "canceled", "completed", "declined", "no_show"];
 
 const FILTER_TABS = [
-  { id: "all",      label: "All" },
-  { id: "today",    label: "Today" },
-  { id: "upcoming", label: "Upcoming" },
-  { id: "pending",  label: "Pending" },
-  { id: "confirmed", label: "Confirmed" },
-  { id: "completed", label: "Completed" },
-  { id: "cancelled", label: "Cancelled" },
+  { id: "all",      labelKey: "appt_all" },
+  { id: "today",    labelKey: "appt_today" },
+  { id: "upcoming", labelKey: "appt_upcoming" },
+  { id: "pending",  labelKey: "appt_pending" },
+  { id: "confirmed", labelKey: "appt_confirmed" },
+  { id: "completed", labelKey: "appt_completed" },
+  { id: "cancelled", labelKey: "appt_cancelled" },
 ];
 
 export default function AppointmentsPanel({ profileId, userId, highlightId }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
   const [filterTab, setFilterTab] = useState("all");
@@ -93,7 +96,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
     if (!highlightId || profileLoading || ownerLoading || all.length === 0) return;
     const match = all.find(a => a.id === highlightId);
     if (!match) {
-      toast.info("This appointment may have been moved or deleted.");
+      toast.info(t("appt_moved",language));
       return;
     }
     setFilterTab("all");
@@ -138,7 +141,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
         no_show: "Marked as no-show.",
       };
       if (vars.data.status) toast.success(msgs[vars.data.status] || "Updated");
-      if (vars.data.description !== undefined) toast.success("Note saved");
+      if (vars.data.description !== undefined) toast.success(t("appt_note_saved",language));
       setNoteFor(null); setNoteText(""); setRescheduleId(null);
     },
   });
@@ -171,7 +174,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     Object.assign(document.createElement("a"), { href: url, download: "appointments.csv" }).click();
     URL.revokeObjectURL(url);
-    toast.success("Exported!");
+    toast.success(t("appt_exported",language));
   };
 
   // Theme tokens
@@ -193,7 +196,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
   const confirmedCount = all.filter(a => ["confirmed", "accepted"].includes(a.status)).length;
 
   if (!profileId && !userId) return (
-    <div className={`text-center py-12 ${mutedText}`}>Create a profile first.</div>
+    <div className={`text-center py-12 ${mutedText}`}>{t("appt_profile_first",language)}</div>
   );
 
   const Card = ({ a }) => {
@@ -228,11 +231,11 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
         {/* Internal note */}
         {noteFor === a.id ? (
           <div className="space-y-2">
-            <textarea className={noteAreaClass} rows={2} placeholder="Add a private note..."
+            <textarea className={noteAreaClass} rows={2} placeholder={t("appt_private_note",language)}
               value={noteText} onChange={e => setNoteText(e.target.value)} />
             <div className="flex gap-2">
-              <Button size="sm" onClick={() => update.mutate({ id: a.id, data: { description: noteText } })} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs">Save Note</Button>
-              <Button size="sm" variant="outline" onClick={() => { setNoteFor(null); setNoteText(""); }} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>Cancel</Button>
+              <Button size="sm" onClick={() => update.mutate({ id: a.id, data: { description: noteText } })} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs">{t("appt_save_note",language)}</Button>
+              <Button size="sm" variant="outline" onClick={() => { setNoteFor(null); setNoteText(""); }} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>{t("appt_cancel",language)}</Button>
             </div>
           </div>
         ) : (
@@ -251,8 +254,8 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
             </div>
             <div className="flex gap-2">
               <Button size="sm" onClick={() => { if (!rescheduleDate || !rescheduleTime) return; update.mutate({ id: a.id, data: { status: "rescheduled", date: rescheduleDate, time_slot: rescheduleTime } }); setRescheduleDate(""); setRescheduleTime(""); }}
-                disabled={!rescheduleDate || !rescheduleTime} className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-xs">Confirm Reschedule</Button>
-              <Button size="sm" variant="outline" onClick={() => setRescheduleId(null)} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>Cancel</Button>
+                disabled={!rescheduleDate || !rescheduleTime} className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-xs">{t("appt_reschedule",language)}</Button>
+              <Button size="sm" variant="outline" onClick={() => setRescheduleId(null)} className={`text-xs ${isDark ? "border-white/10 text-white/50" : ""}`}>{t("appt_cancel",language)}</Button>
             </div>
           </div>
         )}
@@ -299,9 +302,9 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
       {/* Summary KPIs */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Pending", value: pendingCount, color: "#f59e0b" },
-          { label: "Today", value: todayCount, color: "#3b82f6" },
-          { label: "Confirmed", value: confirmedCount, color: "#10b981" },
+          { label: t("appt_pending",language), value: pendingCount, color: "#f59e0b" },
+          { label: t("appt_today",language), value: todayCount, color: "#3b82f6" },
+          { label: t("appt_confirmed",language), value: confirmedCount, color: "#10b981" },
         ].map(k => (
           <div key={k.label} className="rounded-2xl p-4 border text-center" style={{ background: cardBg, borderColor: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.07)" }}>
             <p className="text-2xl font-black" style={{ color: k.color }}>{k.value}</p>
@@ -312,12 +315,12 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
 
       {/* Header + controls */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h2 className={`text-xl font-black ${headText}`}>Appointments</h2>
+        <h2 className={`text-xl font-black ${headText}`}>{t("appt_title",language)}</h2>
         <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-none">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${mutedText}`} />
             <input className={`pl-9 w-full sm:w-52 text-sm rounded-xl px-3 py-2 outline-none border ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/25" : "bg-white border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
-              placeholder="Search appointments…" value={search} onChange={e => setSearch(e.target.value)} />
+              placeholder={t("appt_search",language)} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <button onClick={exportCSV} className={`flex items-center gap-1.5 border rounded-xl px-3 py-2 text-xs font-semibold transition-colors ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
             <Download className="w-3.5 h-3.5" /> CSV
@@ -337,7 +340,7 @@ export default function AppointmentsPanel({ profileId, userId, highlightId }) {
                 border: `1px solid ${filterTab === f.id ? "rgba(16,185,129,0.4)" : isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"}`,
                 color: filterTab === f.id ? "#10b981" : isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
               }}>
-              {f.label}
+              {t(f.labelKey,language)}
               {count !== null && count > 0 && <span className="ml-1 bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-[11px] font-black">{count}</span>}
             </button>
           );
