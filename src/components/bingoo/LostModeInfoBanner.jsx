@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, ChevronDown, ChevronUp, Phone, Bell, MapPin, EyeOff, Power } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function LostModeInfoBanner({ isDark }) {
   const [expanded, setExpanded] = useState(false);
+  const { language } = useI18n();
 
   const text = isDark ? "text-white/80" : "text-slate-700";
   const muted = isDark ? "text-white/50" : "text-slate-500";
@@ -11,11 +14,11 @@ export default function LostModeInfoBanner({ isDark }) {
   const border = isDark ? "border-white/10" : "border-amber-200";
 
   const steps = [
-    { icon: Power, color: "#ef4444", title: "Scans Are Disabled", desc: "Anyone who taps your lost NFC card will see a recovery page instead of your profile." },
-    { icon: Phone, color: "#22c55e", title: "Owner Contact Shown", desc: "If you enabled 'Show phone on lost page', finders can call you directly." },
-    { icon: Bell, color: "#3b82f6", title: "Finder Reports", desc: "Finders can submit their name, phone, email, location and a message — you get notified instantly." },
-    { icon: MapPin, color: "#a855f7", title: "GPS Location Captured", desc: "If the finder allows it, their approximate GPS coordinates are attached to the report." },
-    { icon: EyeOff, color: "#f59e0b", title: "Your Profile Is Protected", desc: "Your private links, payments, and contact details stay hidden until you reactivate." },
+    { icon: Power, color: "#ef4444", title: t("lost_step_scans_title", language), desc: t("lost_step_scans_desc", language) },
+    { icon: Phone, color: "#22c55e", title: t("lost_step_contact_title", language), desc: t("lost_step_contact_desc", language) },
+    { icon: Bell, color: "#3b82f6", title: t("lost_step_reports_title", language), desc: t("lost_step_reports_desc", language) },
+    { icon: MapPin, color: "#a855f7", title: t("lost_step_gps_title", language), desc: t("lost_step_gps_desc", language) },
+    { icon: EyeOff, color: "#f59e0b", title: t("lost_step_protected_title", language), desc: t("lost_step_protected_desc", language) },
   ];
 
   return (
@@ -30,10 +33,10 @@ export default function LostModeInfoBanner({ isDark }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-900"}`}>
-            What is Lost Mode?
+            {t("lost_what_is", language)}
           </p>
           <p className={`text-xs ${muted} mt-0.5`}>
-            Tap to learn how Lost Mode protects your device if it's lost or stolen.
+            {t("lost_info_intro", language)}
           </p>
         </div>
         {expanded
@@ -52,7 +55,7 @@ export default function LostModeInfoBanner({ isDark }) {
           >
             <div className="px-4 pb-5 pt-1 space-y-3">
               <div className={`rounded-xl p-3 text-xs font-medium ${isDark ? "bg-red-500/10 border border-red-500/20 text-red-300" : "bg-red-100 border border-red-200 text-red-700"}`}>
-                When you activate Lost Mode, the following protections take effect immediately:
+                {t("lost_protections_intro", language)}
               </div>
 
               {steps.map((step, i) => (
@@ -71,7 +74,7 @@ export default function LostModeInfoBanner({ isDark }) {
               ))}
 
               <div className={`rounded-xl p-3 text-xs ${isDark ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300" : "bg-emerald-50 border border-emerald-200 text-emerald-700"}`}>
-                ✅ <strong>Found your device?</strong> Simply tap <strong>Reactivate</strong> on the lost device card to restore normal scanning instantly. No data is lost.
+                ✅ <strong>{t("lost_found_device", language)}</strong> {t("lost_found_device_copy", language)}
               </div>
             </div>
           </motion.div>
