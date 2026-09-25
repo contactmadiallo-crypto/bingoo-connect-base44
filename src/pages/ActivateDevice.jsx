@@ -12,11 +12,14 @@ import { DEVICE_TYPES, getDeviceEmoji, getDeviceDisplayName } from "@/lib/device
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { ArrowRight, ArrowLeft, Check, Radio, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function ActivateDevice() {
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { language } = useI18n();
   const { profiles, selectProfile } = useProfileWorkspace();
 
   // State — pre-fill from ?code= URL param (e.g. /activate-device?code=BG-000007)
@@ -250,7 +253,7 @@ export default function ActivateDevice() {
 
         <button type="button" onClick={() => navigate("/my-nfc-devices")}
           className={`inline-flex items-center gap-2 min-h-[44px] px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-white"}`}>
-          <ArrowLeft className="w-4 h-4" /> Back to NFC Devices
+          <ArrowLeft className="w-4 h-4" /> {t("nfc_back_devices", language)}
         </button>
 
         {/* Header */}
@@ -262,8 +265,8 @@ export default function ActivateDevice() {
               <Smartphone className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className={`text-2xl font-black ${headText}`}>Activate Device</h1>
-              <p className={`text-sm mt-0.5 ${subText}`}>Connect your Bingoo NFC device to your profile</p>
+              <h1 className={`text-2xl font-black ${headText}`}>{t("nfc_activate_device", language)}</h1>
+              <p className={`text-sm mt-0.5 ${subText}`}>{t("nfc_activate_copy", language)}</p>
             </div>
           </div>
         </div>
@@ -271,7 +274,7 @@ export default function ActivateDevice() {
         {/* Three-step activation flow. Backend calls remain getDeviceByCode + activateNfcDevice. */}
         <div className="space-y-5">
           <div className="flex items-center justify-center gap-2 sm:gap-4" aria-label={`Activation step ${activationStep} of 3`}>
-            {["Enter Code", "Select Profile", "Confirm"].map((label, index) => {
+            {[t("nfc_enter_code", language), t("nfc_select_profile", language), t("nfc_confirm", language)].map((label, index) => {
               const number = index + 1;
               const complete = activationStep > number;
               const active = activationStep === number;
@@ -296,11 +299,11 @@ export default function ActivateDevice() {
                   <Radio className="w-7 h-7" />
                 </div>
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>Activate your NFC device</h2>
-                  <p className={`text-sm mt-1 ${subText}`}>Enter the activation code from the device packaging. It looks like BG-000041.</p>
+                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_activate_heading", language)}</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>{t("nfc_code_help", language)}</p>
                 </div>
                 <div>
-                  <label className={`text-xs font-black uppercase tracking-wider ${mutedText} block mb-2`}>Activation Code</label>
+                  <label className={`text-xs font-black uppercase tracking-wider ${mutedText} block mb-2`}>{t("nfc_activation_code", language)}</label>
                   <input className={`${inputCls} h-16 text-center font-mono text-xl sm:text-2xl font-black tracking-widest`}
                     placeholder="BG-XXXXXX" value={code}
                     onChange={e => { setCode(e.target.value.toUpperCase()); setActivateMsg(null); }}
@@ -308,27 +311,27 @@ export default function ActivateDevice() {
                 </div>
                 <Button onClick={validateActivationCode} disabled={activating || !code.trim()}
                   className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black gap-2">
-                  {activating ? "Checking code…" : <>Continue <ArrowRight className="w-4 h-4" /></>}
+                  {activating ? t("nfc_checking", language) : <>{t("nfc_continue", language)} <ArrowRight className="w-4 h-4" /></>}
                 </Button>
-                <p className={`text-center text-xs ${mutedText}`}>You can also scan the QR code on your device packaging.</p>
+                <p className={`text-center text-xs ${mutedText}`}>{t("nfc_scan_packaging", language)}</p>
               </div>
             )}
 
             {activationStep === 2 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>Choose where to activate</h2>
-                  <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — select one profile or one asset before continuing.</p>
+                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_choose_target", language)}</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — {t("nfc_choose_target_copy", language)}</p>
                 </div>
 
                 <div className={`grid grid-cols-2 gap-2 rounded-2xl p-1.5 ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
                   <button type="button" onClick={() => { setAssignTarget("profile"); setSelectedAsset(""); }}
                     className={`min-h-[46px] rounded-xl text-sm font-black transition-all ${assignTarget === "profile" ? "bg-white text-slate-900 shadow-sm" : subText}`}>
-                    Profile
+                    {t("nfc_profile", language)}
                   </button>
                   <button type="button" onClick={() => { setAssignTarget("asset"); setActivationProfileId(""); }}
                     className={`min-h-[46px] rounded-xl text-sm font-black transition-all ${assignTarget === "asset" ? "bg-white text-slate-900 shadow-sm" : subText}`}>
-                    Asset
+                    {t("nfc_asset", language)}
                   </button>
                 </div>
 
@@ -351,7 +354,7 @@ export default function ActivateDevice() {
                       </button>
                     );
                   })}
-                  {!profiles.length && <p className={`text-sm ${mutedText}`}>Create or request access to a profile before activating a device.</p>}
+                  {!profiles.length && <p className={`text-sm ${mutedText}`}>{t("nfc_no_profiles", language)}</p>}
                 </div>}
 
                 {assignTarget === "asset" && (
@@ -381,16 +384,16 @@ export default function ActivateDevice() {
                     {!myAssets.length && (
                       <div className={`sm:col-span-2 rounded-2xl border p-5 text-center ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
                         <Package className={`w-8 h-8 mx-auto mb-2 ${mutedText}`} />
-                        <p className={`text-sm font-bold ${headText}`}>No assets available</p>
-                        <p className={`text-xs mt-1 ${mutedText}`}>Create an asset in My Assets, then return here to assign this device.</p>
+                        <p className={`text-sm font-bold ${headText}`}>{t("nfc_no_assets", language)}</p>
+                        <p className={`text-xs mt-1 ${mutedText}`}>{t("nfc_no_assets_copy", language)}</p>
                       </div>
                     )}
                   </div>
                 )}
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setActivationStep(1)} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+                  <Button variant="outline" onClick={() => setActivationStep(1)} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> {t("nfc_back", language)}</Button>
                   <Button onClick={() => setActivationStep(3)} disabled={assignTarget === "profile" ? !activationProfileId : !selectedAsset}
-                    className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black gap-2">Review <ArrowRight className="w-4 h-4" /></Button>
+                    className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black gap-2">{t("nfc_review", language)} <ArrowRight className="w-4 h-4" /></Button>
                 </div>
               </div>
             )}
@@ -398,19 +401,19 @@ export default function ActivateDevice() {
             {activationStep === 3 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>Confirm activation</h2>
-                  <p className={`text-sm mt-1 ${subText}`}>Review the device and destination before making the connection.</p>
+                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_confirm_activation", language)}</h2>
+                  <p className={`text-sm mt-1 ${subText}`}>{t("nfc_confirm_copy", language)}</p>
                 </div>
                 <div className={`rounded-2xl border p-5 space-y-3 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
-                  <div className="flex justify-between gap-4"><span className={mutedText}>Device code</span><strong className={headText}>{code}</strong></div>
-                  <div className="flex justify-between gap-4"><span className={mutedText}>Assign to</span><strong className={`${headText} text-right`}>{assignTarget === "asset" ? myAssets.find(a => a.id === selectedAsset)?.name : profiles.find(p => p.id === activationProfileId)?.display_name}</strong></div>
-                  <div className="flex justify-between gap-4"><span className={mutedText}>Status</span><strong className="text-emerald-500">Ready to activate</strong></div>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>{t("nfc_device_code", language)}</span><strong className={headText}>{code}</strong></div>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>{t("nfc_assign_to", language)}</span><strong className={`${headText} text-right`}>{assignTarget === "asset" ? myAssets.find(a => a.id === selectedAsset)?.name : profiles.find(p => p.id === activationProfileId)?.display_name}</strong></div>
+                  <div className="flex justify-between gap-4"><span className={mutedText}>{t("nfc_status", language)}</span><strong className="text-emerald-500">{t("nfc_ready", language)}</strong></div>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setActivationStep(2)} disabled={activating} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> Back</Button>
+                  <Button variant="outline" onClick={() => setActivationStep(2)} disabled={activating} className="h-12 rounded-xl font-bold gap-2"><ArrowLeft className="w-4 h-4" /> {t("nfc_back", language)}</Button>
                   <Button onClick={handleActivate} disabled={activating}
                     className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black">
-                    {activating ? "Activating…" : "Activate Device"}
+                    {activating ? t("nfc_activating", language) : t("nfc_activate_device", language)}
                   </Button>
                 </div>
               </div>
