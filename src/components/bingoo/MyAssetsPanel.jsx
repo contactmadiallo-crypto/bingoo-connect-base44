@@ -6,6 +6,8 @@ import { Package, Plus, Trash2, Edit2, AlertTriangle, Link2, X, Wifi, Unlink, Re
 import AssetDeviceAssignModal from '@/components/bingoo/AssetDeviceAssignModal';
 import ReplaceDeviceDialog from '@/components/bingoo/ReplaceDeviceDialog';
 import AssetQrCard from '@/components/bingoo/AssetQrCard';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const ASSET_TYPES = [
   { value: 'pet', label: 'Pet', icon: '🐾' },
@@ -31,6 +33,7 @@ function AssetTypeBadge({ type }) {
 const ensureArray = (v) => Array.isArray(v) ? v : [];
 
 export default function MyAssetsPanel({ isDark }) {
+  const { language } = useI18n();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -237,8 +240,8 @@ export default function MyAssetsPanel({ isDark }) {
             <Package className="w-5 h-5 text-orange-500" />
           </div>
           <div>
-            <h2 className={`text-base font-black ${headText}`}>My Assets</h2>
-            <p className={`text-xs ${mutedText}`}>Protect and track your valuable items</p>
+            <h2 className={`text-base font-black ${headText}`}>{t("assets_title", language)}</h2>
+            <p className={`text-xs ${mutedText}`}>{t("assets_subtitle", language)}</p>
           </div>
         </div>
         <button
@@ -246,7 +249,7 @@ export default function MyAssetsPanel({ isDark }) {
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
           style={{ background: '#f97316' }}
         >
-          <Plus className="w-4 h-4" /> Add Asset
+          <Plus className="w-4 h-4" /> {t("assets_add", language)}
         </button>
       </div>
 
@@ -254,12 +257,12 @@ export default function MyAssetsPanel({ isDark }) {
       {hasQueryError && (
         <div className={`rounded-2xl border p-6 text-center ${isDark ? 'border-red-500/30 bg-red-500/5' : 'border-red-200 bg-red-50'}`}>
           <AlertTriangle className={`w-8 h-8 mx-auto mb-2 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
-          <p className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>Couldn’t load your assets</p>
+          <p className={`text-sm font-bold mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{t("assets_load_error", language)}</p>
           <p className={`text-xs mb-3 ${isDark ? 'text-white/50' : 'text-slate-500'}`}>{errMsg}</p>
           <button onClick={handleRetry}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white"
             style={{ background: '#f97316' }}>
-            <RefreshCw className="w-3.5 h-3.5" /> Retry
+            <RefreshCw className="w-3.5 h-3.5" /> {t("assets_retry", language)}
           </button>
         </div>
       )}
@@ -268,26 +271,26 @@ export default function MyAssetsPanel({ isDark }) {
       {showForm && !hasQueryError && (
         <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
           <div className="flex items-center justify-between">
-            <h3 className={`text-sm font-black ${headText}`}>{editingAsset ? 'Edit Asset' : 'New Asset'}</h3>
+            <h3 className={`text-sm font-black ${headText}`}>{editingAsset ? t("assets_edit", language) : t("assets_new", language)}</h3>
             <button onClick={resetForm}><X className={`w-4 h-4 ${mutedText}`} /></button>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Asset Type</label>
+              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("assets_type", language)}</label>
               <select value={formData.asset_type} onChange={e => setFormData({ ...formData, asset_type: e.target.value })} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`}>
                 {ASSET_TYPES.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
               </select>
             </div>
             <div>
-              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Asset Name</label>
-              <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. MacBook Pro" className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
+              <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("assets_name", language)}</label>
+              <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder={t("assets_name_placeholder", language)} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
             </div>
           </div>
 
           {/* Photo Upload */}
           <div>
-            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Photo</label>
+            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("assets_photo", language)}</label>
             {formData.photo_url ? (
               <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-slate-200">
                 <img src={formData.photo_url} alt="Asset" className="w-full h-full object-cover" />
@@ -296,15 +299,15 @@ export default function MyAssetsPanel({ isDark }) {
             ) : (
               <label className={`flex flex-col items-center justify-center gap-1 p-4 rounded-xl border-2 border-dashed cursor-pointer ${isDark ? 'border-white/20' : 'border-slate-300'}`}>
                 {uploading ? <div className="w-5 h-5 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" /> : <Plus className={`w-5 h-5 ${mutedText}`} />}
-                <span className={`text-xs ${mutedText}`}>Upload photo</span>
+                <span className={`text-xs ${mutedText}`}>{t("assets_upload_photo", language)}</span>
                 <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
               </label>
             )}
           </div>
 
           <div>
-            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>Description</label>
-            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Identifying details…" rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+            <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("assets_description", language)}</label>
+            <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder={t("assets_description_placeholder", language)} rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
           </div>
 
           {/* NFC device is assigned from the asset card after saving */}
@@ -313,41 +316,41 @@ export default function MyAssetsPanel({ isDark }) {
           <div className={`rounded-xl p-3 ${isDark ? 'bg-orange-500/10' : 'bg-orange-50'}`}>
             <label className="flex items-center gap-2 mb-2">
               <input type="checkbox" checked={formData.lost_mode_enabled} onChange={e => setFormData({ ...formData, lost_mode_enabled: e.target.checked })} className="w-4 h-4 accent-orange-500" />
-              <span className={`text-sm font-bold ${headText} flex items-center gap-1`}><AlertTriangle className="w-4 h-4 text-orange-500" /> Enable Lost Mode</span>
+              <span className={`text-sm font-bold ${headText} flex items-center gap-1`}><AlertTriangle className="w-4 h-4 text-orange-500" /> {t("assets_enable_lost", language)}</span>
             </label>
             {formData.lost_mode_enabled && (
               <div className="space-y-2">
                 <div>
-                  <label className={`text-xs font-bold ${headText} mb-1 block`}>Finder Message</label>
-                  <input value={formData.finder_message} onChange={e => setFormData({ ...formData, finder_message: e.target.value })} placeholder="Thank you for finding my item!" className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
+                  <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_finder_message", language)}</label>
+                  <input value={formData.finder_message} onChange={e => setFormData({ ...formData, finder_message: e.target.value })} placeholder={t("assets_finder_placeholder", language)} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
                 </div>
                 <div>
-                  <label className={`text-xs font-bold ${headText} mb-1 block`}>Recovery Instructions</label>
-                  <textarea value={formData.recovery_instructions} onChange={e => setFormData({ ...formData, recovery_instructions: e.target.value })} placeholder="How to return this item…" rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+                  <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_recovery_instructions", language)}</label>
+                  <textarea value={formData.recovery_instructions} onChange={e => setFormData({ ...formData, recovery_instructions: e.target.value })} placeholder={t("assets_recovery_placeholder", language)} rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
                 </div>
                 <div>
-                  <label className={`text-xs font-bold ${headText} mb-1 block`}>Safe Contact Preference</label>
+                  <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_contact_pref", language)}</label>
                   <select value={formData.safe_contact_preference} onChange={e => setFormData({ ...formData, safe_contact_preference: e.target.value })} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`}>
-                    <option value="phone">Phone</option>
-                    <option value="email">Email</option>
+                    <option value="phone">{t("assets_phone", language)}</option>
+                    <option value="email">{t("assets_email", language)}</option>
                     <option value="whatsapp">WhatsApp</option>
-                    <option value="none">None</option>
+                    <option value="none">{t("assets_none_option", language)}</option>
                   </select>
                 </div>
                 <div>
-                  <label className={`text-xs font-bold ${headText} mb-1 block`}>Reward Offered (optional)</label>
-                  <input value={formData.reward_offered} onChange={e => setFormData({ ...formData, reward_offered: e.target.value })} placeholder="e.g. $50 reward for safe return" className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
+                  <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_reward", language)}</label>
+                  <input value={formData.reward_offered} onChange={e => setFormData({ ...formData, reward_offered: e.target.value })} placeholder={t("assets_reward_placeholder", language)} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`} />
                 </div>
                 {formData.asset_type === 'pet' && (
                   <div>
-                    <label className={`text-xs font-bold ${headText} mb-1 block`}>Public Medical / Allergy Notes</label>
-                    <textarea value={formData.public_medical_notes} onChange={e => setFormData({ ...formData, public_medical_notes: e.target.value })} placeholder="Shown only if filled. e.g. Allergic to chicken, on daily medication." rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+                    <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_medical_notes", language)}</label>
+                    <textarea value={formData.public_medical_notes} onChange={e => setFormData({ ...formData, public_medical_notes: e.target.value })} placeholder={t("assets_medical_placeholder", language)} rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
                   </div>
                 )}
                 {['luggage', 'bag', 'keys', 'equipment', 'vehicle', 'other'].includes(formData.asset_type) && (
                   <div>
-                    <label className={`text-xs font-bold ${headText} mb-1 block`}>Public Last Known Context</label>
-                    <textarea value={formData.public_last_known_context} onChange={e => setFormData({ ...formData, public_last_known_context: e.target.value })} placeholder="Shown only if filled. e.g. Last seen at JFK baggage claim carousel 4." rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
+                    <label className={`text-xs font-bold ${headText} mb-1 block`}>{t("assets_last_known", language)}</label>
+                    <textarea value={formData.public_last_known_context} onChange={e => setFormData({ ...formData, public_last_known_context: e.target.value })} placeholder={t("assets_last_known_placeholder", language)} rows={2} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText} resize-none`} />
                   </div>
                 )}
               </div>
@@ -355,8 +358,8 @@ export default function MyAssetsPanel({ isDark }) {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleSave} className="px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ background: '#f97316' }}>{editingAsset ? 'Update' : 'Create'} Asset</button>
-            <button onClick={resetForm} className={`px-4 py-2 rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>Cancel</button>
+            <button onClick={handleSave} className="px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ background: '#f97316' }}>{editingAsset ? t("assets_update", language) : t("assets_create", language)}</button>
+            <button onClick={resetForm} className={`px-4 py-2 rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>{t("assets_cancel", language)}</button>
           </div>
         </div>
       )}
@@ -367,8 +370,8 @@ export default function MyAssetsPanel({ isDark }) {
       ) : !hasQueryError && assets.length === 0 ? (
         <div className={`text-center py-12 rounded-2xl border ${panelBorder} ${panelBg}`}>
           <Package className={`w-8 h-8 mx-auto mb-2 ${mutedText}`} />
-          <p className={`text-sm font-bold ${headText}`}>No assets yet</p>
-          <p className={`text-xs ${mutedText} mt-1`}>Add your first asset to protect it with NFC.</p>
+          <p className={`text-sm font-bold ${headText}`}>{t("assets_none", language)}</p>
+          <p className={`text-xs ${mutedText} mt-1`}>{t("assets_none_copy", language)}</p>
         </div>
       ) : !hasQueryError && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -404,12 +407,12 @@ export default function MyAssetsPanel({ isDark }) {
                   ) : asset.nfc_device_id ? (
                     <div className="flex items-center gap-1 mt-2">
                       <AlertTriangle className="w-3 h-3 text-amber-500" />
-                      <span className="text-xs text-amber-500">Linked device not found</span>
+                      <span className="text-xs text-amber-500">{t("assets_device_missing", language)}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 mt-2">
                       <Link2 className={`w-3 h-3 ${mutedText}`} />
-                      <span className={`text-xs ${mutedText}`}>No NFC device linked</span>
+                      <span className={`text-xs ${mutedText}`}>{t("assets_no_device", language)}</span>
                     </div>
                   )}
                 </div>
@@ -417,41 +420,41 @@ export default function MyAssetsPanel({ isDark }) {
               {asset.lost_mode_enabled && (
                 <div className="flex items-center gap-1.5 rounded-lg bg-orange-500/10 p-2 mb-2">
                   <AlertTriangle className="w-3.5 h-3.5 text-orange-500" />
-                  <span className="text-xs font-bold text-orange-600">Lost mode active</span>
+                  <span className="text-xs font-bold text-orange-600">{t("assets_lost_active", language)}</span>
                 </div>
               )}
               <div className="flex gap-2 flex-wrap">
                 {linkedDevice ? (
                   <>
                     <button onClick={() => setAssignModalAsset(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                      <Link2 className="w-3 h-3" /> Change
+                      <Link2 className="w-3 h-3" /> {t("assets_change", language)}
                     </button>
                     <button onClick={() => setReplaceAsset(asset)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#06b6d4' }}>
-                      <RefreshCw className="w-3 h-3" /> Replace
+                      <RefreshCw className="w-3 h-3" /> {t("assets_replace", language)}
                     </button>
                     <button onClick={() => handleUnlinkDevice(asset.id)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold border ${isDark ? 'border-white/10 text-white/60' : 'border-slate-200 text-slate-500'}`}>
-                      <Unlink className="w-3 h-3" /> Unlink
+                      <Unlink className="w-3 h-3" /> {t("assets_unlink", language)}
                     </button>
                   </>
                 ) : (
                   <button onClick={() => setAssignModalAsset(asset)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white" style={{ background: '#f97316' }}>
-                    <Wifi className="w-3 h-3" /> Assign NFC
+                    <Wifi className="w-3 h-3" /> {t("assets_assign_nfc", language)}
                   </button>
                 )}
                 <button onClick={() => setQrAsset(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
                   <QrCode className="w-3 h-3" /> QR
                 </button>
                 <button onClick={() => handleEdit(asset)} className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                  <Edit2 className="w-3 h-3" /> Edit
+                  <Edit2 className="w-3 h-3" /> {t("assets_edit_action", language)}
                 </button>
                 <button
                   onClick={() => handleToggleLostMode(asset)}
                   className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold ${asset.lost_mode_enabled ? 'bg-emerald-500 text-white' : 'bg-orange-500 text-white'}`}
                 >
-                  <AlertTriangle className="w-3 h-3" /> {asset.lost_mode_enabled ? 'Found' : 'Lost'}
+                  <AlertTriangle className="w-3 h-3" /> {asset.lost_mode_enabled ? t("assets_found", language) : t("assets_lost", language)}
                 </button>
                 <button onClick={() => handleDelete(asset.id)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-red-500 border border-red-200">
-                  <Trash2 className="w-3 h-3" /> Delete
+                  <Trash2 className="w-3 h-3" /> {t("assets_delete", language)}
                 </button>
               </div>
             </div>
