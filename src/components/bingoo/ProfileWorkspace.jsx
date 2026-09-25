@@ -489,7 +489,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 // DesignPanel is now imported from its own file (components/bingoo/DesignPanel.jsx)
 
 // ── SHARE PANEL with QR Customization ────────────────────────────────────
-const QR_LABELS = ["Scan Me", "Find Owner", "Return Me", "Contact Owner", "Help Me Get Home"];
+const QR_LABEL_KEYS = ["studio_scan_me", "studio_find_owner", "studio_return_me", "studio_contact_owner", "studio_help_home"];
 const QR_COLORS = ["#1e293b","#0b2149","#f97316","#7c3aed","#059669","#dc2626","#0891b2","#000000"];
 
 function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang, profile, effectivePlan, liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError }) {
@@ -500,7 +500,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
 
   // QR settings — loaded from persisted profile values
   const [qrColor, setQrColorLocal]   = useState(liveForm?.qr_color || profile?.qr_color || "#1e293b");
-  const [qrLabel, setQrLabelLocal]   = useState(liveForm?.qr_label || profile?.qr_label || "Scan Me");
+  const [qrLabel, setQrLabelLocal]   = useState(liveForm?.qr_label || profile?.qr_label || t("studio_scan_me", lang));
   const [customLabel, setCustomLabel] = useState("");
   const [downloading, setDownloading] = useState(false);
   const [logoWatermark, setLogoWatermark] = useState(!!(liveForm?.qr_watermark ?? profile?.qr_watermark));
@@ -613,16 +613,16 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                   <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 200, height: "auto" }} />
                 ) : (
                   <div className="w-[200px] h-[250px] flex items-center justify-center">
-                    <span className={`text-xs ${mutedText}`}>Generating preview…</span>
+                    <span className={`text-xs ${mutedText}`}>{t("studio_generating_preview", lang)}</span>
                   </div>
                 )}
-                <p className={`text-xs mt-2 ${mutedText}`}>Preview matches the downloaded QR exactly.</p>
+                <p className={`text-xs mt-2 ${mutedText}`}>{t("studio_preview_matches", lang)}</p>
               </div>
             </div>
 
             {/* QR Color */}
             <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>QR Color</p>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("studio_qr_color", lang)}</p>
               <div className="flex gap-2 flex-wrap">
                 {QR_COLORS.map(c => (
                   <button key={c} type="button" onClick={() => setQrColor(c)}
@@ -639,27 +639,30 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
 
             {/* Label */}
             <div>
-              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>Label</p>
+              <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("studio_label", lang)}</p>
               <div className="flex flex-wrap gap-1.5 mb-2">
-                {QR_LABELS.map(l => (
-                  <button key={l} type="button" onClick={() => { setQrLabel(l); setCustomLabel(""); }}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
-                      qrLabel === l && !customLabel
-                        ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
-                    }`}
-                    style={qrLabel === l && !customLabel ? { background: "#f97316" } : {}}>
-                    {l}
-                  </button>
-                ))}
+                {QR_LABEL_KEYS.map(key => {
+                  const l = t(key, lang);
+                  return (
+                    <button key={key} type="button" onClick={() => { setQrLabel(l); setCustomLabel(""); }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                        qrLabel === l && !customLabel
+                          ? "text-white border-orange-400" : isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"
+                      }`}
+                      style={qrLabel === l && !customLabel ? { background: "#f97316" } : {}}>
+                      {l}
+                    </button>
+                  );
+                })}
               </div>
               <input
                 type="text"
-                placeholder="Custom label…"
+                placeholder={t("studio_custom_label", lang)}
                 value={customLabel}
                 onChange={e => setCustomLabel(e.target.value)}
                 className={`w-full px-3 py-2 rounded-xl text-sm border outline-none ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400"}`}
               />
-              <p className={`text-xs mt-1.5 ${mutedText}`}>"Powered by Bingoo Connect" always appears on downloaded QR code.</p>
+              <p className={`text-xs mt-1.5 ${mutedText}`}>{t("studio_powered_note", lang)}</p>
             </div>
 
             {/* Logo Watermark — Pro feature */}
@@ -667,13 +670,13 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className={`text-xs font-bold ${headText}`}>Logo Watermark</p>
+                    <p className={`text-xs font-bold ${headText}`}>{t("studio_logo_watermark", lang)}</p>
                     <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>Professional</span>
                   </div>
                   <p className={`text-xs mt-0.5 ${mutedText}`}>
-                    {!isPro ? "Upgrade to Professional to embed your logo in the center of the QR code."
-                      : !hasLogo ? "Upload a company logo in the Info tab first."
-                      : "Your business logo will appear centered on the QR code."}
+                    {!isPro ? t("studio_upgrade_logo_qr", lang)
+                      : !hasLogo ? t("studio_upload_logo_first", lang)
+                      : t("studio_logo_centered", lang)}
                   </p>
                 </div>
                 {isPro && hasLogo ? (
@@ -685,7 +688,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
               {isPro && hasLogo && logoWatermark && (
                 <div className="mt-2 flex items-center gap-2">
                   <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
-                  <p className={`text-xs ${mutedText}`}>This logo will be embedded in the downloaded QR code.</p>
+                  <p className={`text-xs ${mutedText}`}>{t("studio_logo_embedded", lang)}</p>
                 </div>
               )}
             </div>
@@ -694,16 +697,16 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
             <div className="flex gap-2">
               <Button type="button" onClick={handleDownloadQR} disabled={downloading}
                 className="flex-1 rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
-                <Download className="w-4 h-4" /> {downloading ? "Generating…" : t("download_qr", lang)}
+                <Download className="w-4 h-4" /> {downloading ? t("studio_generating", lang) : t("download_qr", lang)}
               </Button>
             </div>
             <div className="flex items-center gap-3 pt-1">
-              <SaveBtn onSave={onSave} isPending={isPending} label="Save QR Settings" />
+              <SaveBtn onSave={onSave} isPending={isPending} label={t("studio_save_qr", lang)} />
               <SaveStatus status={saveStatus} time={saveTime} error={saveError} lang={lang} />
             </div>
           </>
         ) : (
-          <p className={`text-sm text-center py-4 ${mutedText}`}>Set a username to generate a QR code.</p>
+          <p className={`text-sm text-center py-4 ${mutedText}`}>{t("studio_set_username_qr", lang)}</p>
         )}
       </div>
 
