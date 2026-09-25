@@ -84,9 +84,9 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const sidebarBorder = "rgba(255,255,255,0.07)";
   const planLabel = PLAN_LABELS[accountPlan] || "FREE";
   const upgrade = accountPlan === "free"
-    ? { title: "Upgrade to Pro", copy: "Unlock My Assets, NFC Devices, Lost & Found, analytics and more." }
+    ? { title: t("core_upgrade_pro", lang), copy: t("core_upgrade_pro_copy", lang) }
     : accountPlan === "professional"
-      ? { title: "Upgrade to Business", copy: "Unlock Engage, Design Studio, services, team tools and more." }
+      ? { title: t("core_upgrade_business", lang), copy: t("core_upgrade_business_copy", lang) }
       : null;
 
   const isActive = (href) => {
@@ -164,10 +164,10 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
           )}
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-black text-white truncate">{selectedProfile?.display_name || user?.full_name || "My Profile"}</p>
+              <p className="text-sm font-black text-white truncate">{selectedProfile?.display_name || user?.full_name || t("core_my_profile", lang)}</p>
               <div className="mt-1 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span className="text-[10px] font-semibold text-white/50">Active Profile</span>
+                <span className="text-[10px] font-semibold text-white/50">{t("core_active_profile", lang)}</span>
               </div>
             </div>
           )}
@@ -209,13 +209,13 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         )}
         {!collapsed && (
           <div className="mb-2 flex items-center justify-between rounded-xl border border-white/10 px-3 py-2 text-xs text-white/55" style={{ background: "rgba(255,255,255,.05)" }}>
-            <span>Current plan</span><span className="font-black text-white">{planLabel}</span>
+            <span>{t("core_current_plan", lang)}</span><span className="font-black text-white">{planLabel}</span>
           </div>
         )}
         {!onNav && (
-          <button onClick={() => setSidebarCollapsed(value => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          <button onClick={() => setSidebarCollapsed(value => !value)} aria-label={collapsed ? t("core_expand_sidebar", lang) : t("core_collapse_sidebar", lang)}
             className={`mt-1 flex items-center w-full rounded-xl text-xs font-semibold text-white/55 hover:text-white hover:bg-white/8 transition-all ${collapsed ? "justify-center p-2.5" : "gap-2 px-3 py-2.5"}`}>
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <><ChevronLeft className="w-4 h-4" /> Collapse Sidebar</>}
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <><ChevronLeft className="w-4 h-4" /> {t("core_collapse_sidebar", lang)}</>}
           </button>
         )}
       </div>
@@ -228,11 +228,11 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         <div className="h-full px-8 flex items-center justify-between gap-8">
           <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bingoo Connect home"><BrandLockup badgeSize={34} /></Link>
           <nav className="hidden xl:flex items-center gap-9 text-sm font-semibold text-slate-500" aria-label="Main navigation">
-            <Link to="/#platform" className="hover:text-slate-900 transition-colors">Platform</Link>
-            <Link to="/#solutions" className="hover:text-slate-900 transition-colors">Solutions</Link>
-            <Link to="/#pricing" className="hover:text-slate-900 transition-colors">Pricing</Link>
-            <Link to="/shop" className="hover:text-slate-900 transition-colors">Shop</Link>
-            <Link to="/about" className="hover:text-slate-900 transition-colors">About</Link>
+            <Link to="/#platform" className="hover:text-slate-900 transition-colors">{t("core_platform", lang)}</Link>
+            <Link to="/#solutions" className="hover:text-slate-900 transition-colors">{t("core_solutions", lang)}</Link>
+            <Link to="/#pricing" className="hover:text-slate-900 transition-colors">{t("core_pricing", lang)}</Link>
+            <Link to="/shop" className="hover:text-slate-900 transition-colors">{t("core_shop", lang)}</Link>
+            <Link to="/about" className="hover:text-slate-900 transition-colors">{t("core_about", lang)}</Link>
           </nav>
           <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark={false} />
         </div>
