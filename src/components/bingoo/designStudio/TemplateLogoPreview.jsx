@@ -1,11 +1,14 @@
 import { TEMPLATES } from './studioConstants';
 import { ProductPreview } from './ProductPreview';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function TemplateLogoPreview({ previewProps, activeTemplate, onSelect }) {
+  const { language } = useI18n();
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-black text-sm text-[#0b2149]"><span className="mr-1 text-[#f97316]">5.</span>Template Preview with Your Logo</h3>
+        <h3 className="font-black text-sm text-[#0b2149]"><span className="mr-1 text-[#f97316]">5.</span>{t("ds_template_logo_preview", language)}</h3>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {TEMPLATES.map(t => {
@@ -18,7 +21,7 @@ export default function TemplateLogoPreview({ previewProps, activeTemplate, onSe
                   <ProductPreview {...previewProps} templateId={t.id} cardColor={t.cardColor} accentColor={t.accentColor} finish={t.finish} side="front" />
                 </div>
               </div>
-              <p className={`text-[11px] font-bold mt-2 ${active ? 'text-[#f97316]' : 'text-slate-700'}`}>{t.name}</p>
+              <p className={`text-[11px] font-bold mt-2 ${active ? 'text-[#f97316]' : 'text-slate-700'}`}>{t(`ds_template_${t.id}`, language)}</p>
             </button>
           );
         })}
