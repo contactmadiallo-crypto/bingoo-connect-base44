@@ -234,7 +234,7 @@ export default function PremiumHomeDashboard({
     }
   };
 
-  const firstName = user?.full_name?.trim()?.split(/\s+/)?.[0] || "there";
+  const firstName = user?.full_name?.trim()?.split(/\s+/)?.[0] || t("core_there");
   const greeting = getGreeting(clock, t);
   const dateLine = clock.toLocaleString(language, {
     weekday: "long",
@@ -265,32 +265,32 @@ export default function PremiumHomeDashboard({
 
   const actions = [
     {
-      label: copied ? "Copied!" : "Share Profile",
-      detail: "Copy the active public profile link",
+      label: copied ? t("core_copied") : t("core_share_profile"),
+      detail: t("core_copy_active_link"),
       icon: copied ? Check : Share2,
       color: copied ? "#16a34a" : "#2563eb",
       bg: copied ? "#dcfce7" : "#dbeafe",
       onClick: handleShare,
     },
     {
-      label: "QR Code & Wallet",
-      detail: "Open sharing and wallet tools",
+      label: t("core_qr_wallet"),
+      detail: t("core_open_wallet_tools"),
       icon: QrCode,
       color: "#16a34a",
       bg: "#dcfce7",
       onClick: () => onNavigate("qrwallet"),
     },
     {
-      label: "Activate NFC",
-      detail: "Assign and activate a device",
+      label: t("core_activate_nfc"),
+      detail: t("core_assign_activate_device"),
       icon: Zap,
       color: "#f97316",
       bg: "#ffedd5",
       href: "/activate-device",
     },
     {
-      label: "Profiles",
-      detail: "Create, switch or edit profiles",
+      label: t("profiles"),
+      detail: t("core_profiles_action_copy"),
       icon: Users,
       color: "#7c3aed",
       bg: "#ede9fe",
@@ -330,15 +330,15 @@ export default function PremiumHomeDashboard({
         <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${colors.pageText}`}>
           {greeting}, {firstName} <span aria-hidden="true">👋</span>
         </h1>
-        <p className={`mt-1 text-sm sm:text-base ${colors.subText}`}>Here&apos;s what&apos;s happening across your Bingoo Connect account.</p>
+        <p className={`mt-1 text-sm sm:text-base ${colors.subText}`}>{t("core_account_summary")}</p>
       </section>
 
       {/* Multi-profile selector from the approved dashboard concept. */}
       <section className={`rounded-2xl border p-4 sm:p-5 ${colors.card}`} style={cardShadow}>
         <div className="flex items-center justify-between gap-3 mb-3">
-          <p className={`text-sm font-black ${colors.pageText}`}>Active Profile</p>
+          <p className={`text-sm font-black ${colors.pageText}`}>{t("core_active_profile")}</p>
           <button type="button" onClick={() => onNavigate("hub")} className="text-xs sm:text-sm font-bold text-orange-500 flex items-center gap-1">
-            View all profiles <ArrowRight className="w-4 h-4" />
+            {t("core_view_all_profiles")} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
@@ -359,10 +359,10 @@ export default function PremiumHomeDashboard({
               <div className="flex items-center gap-2 min-w-0">
                 <p className={`font-black text-sm sm:text-base truncate ${colors.pageText}`}>{profile.display_name}</p>
                 {user?.default_profile_id === profile.id && (
-                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase text-slate-500 flex-shrink-0">Default</span>
+                  <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black uppercase text-slate-500 flex-shrink-0">{t("core_default")}</span>
                 )}
               </div>
-              <p className={`text-xs truncate mt-0.5 ${colors.subText}`}>{profile.job_title || profile.company_name || "Digital Business Profile"}</p>
+              <p className={`text-xs truncate mt-0.5 ${colors.subText}`}>{profile.job_title || profile.company_name || t("core_digital_business_profile")}</p>
             </div>
             <Pencil className={`w-4 h-4 flex-shrink-0 ${colors.subText}`} />
           </button>
@@ -390,7 +390,7 @@ export default function PremiumHomeDashboard({
               to="/bingoo?view=workspace&newprofile=1"
               className={`rounded-xl border border-dashed p-3 flex items-center justify-center gap-2 text-xs font-bold transition-colors ${isDark ? "border-white/15 text-white/55 hover:bg-white/5" : "border-slate-300 text-slate-600 hover:border-orange-300 hover:text-orange-600"}`}
             >
-              <Plus className="w-4 h-4" /> Add Profile
+              <Plus className="w-4 h-4" /> {t("core_add_profile")}
             </Link>
           </div>
         </div>
@@ -414,14 +414,14 @@ export default function PremiumHomeDashboard({
             </div>
             <p className={`text-xs sm:text-sm font-semibold ${colors.subText}`}>{metric.label}</p>
             <p className={`text-2xl sm:text-3xl font-black mt-1 ${colors.pageText}`}>{metric.value.toLocaleString()}</p>
-            <p className={`text-[10px] font-semibold mt-1 ${colors.subText}`}>Across all profiles</p>
+            <p className={`text-[10px] font-semibold mt-1 ${colors.subText}`}>{t("core_across_all_profiles")}</p>
           </button>
         ))}
       </section>
 
       {/* Four core jobs only. */}
       <section className={`rounded-2xl border p-4 sm:p-5 ${colors.card}`} style={cardShadow}>
-        <h2 className={`font-black text-base mb-4 ${colors.pageText}`}>Quick Actions</h2>
+        <h2 className={`font-black text-base mb-4 ${colors.pageText}`}>{t("core_quick_actions")}</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {actions.map((action) => {
             const body = (
@@ -450,16 +450,16 @@ export default function PremiumHomeDashboard({
       <section className={`rounded-2xl border overflow-hidden ${colors.card}`} style={cardShadow}>
         <div className="p-4 sm:p-5 flex items-center justify-between gap-3">
           <div>
-            <h2 className={`font-black text-base ${colors.pageText}`}>Recent Activity</h2>
-            <p className={`text-xs mt-0.5 ${colors.subText}`}>Live activity across every profile in this account</p>
+            <h2 className={`font-black text-base ${colors.pageText}`}>{t("core_recent_activity")}</h2>
+            <p className={`text-xs mt-0.5 ${colors.subText}`}>{t("core_live_activity_all_profiles")}</p>
           </div>
           <button type="button" onClick={() => onNavigate("analytics")} className="text-xs sm:text-sm font-bold text-orange-500 flex items-center gap-1">
-            View analytics <ArrowRight className="w-4 h-4" />
+            {t("core_view_analytics")} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
         {activity.length === 0 ? (
-          <div className={`px-5 pb-6 text-sm ${colors.subText}`}>Your latest profile views, NFC taps, leads, appointments and device activity will appear here.</div>
+          <div className={`px-5 pb-6 text-sm ${colors.subText}`}>{t("core_activity_empty")}</div>
         ) : (
           <div className={isDark ? "divide-y divide-white/8" : "divide-y divide-slate-100"}>
             {activity.map((item) => {
