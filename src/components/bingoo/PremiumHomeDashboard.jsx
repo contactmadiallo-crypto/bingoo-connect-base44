@@ -8,25 +8,27 @@ import {
   Check, QrCode, Zap, Pencil, ArrowRight, Plus,
 } from "lucide-react";
 import ProfileScoreShortcut from "@/components/bingoo/ProfileScoreShortcut";
+import { useI18n } from "@/lib/I18nContext";
 
-function getGreeting(date) {
+function getGreeting(date, t) {
   const hour = date.getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return t("core_good_morning");
+  if (hour < 17) return t("core_good_afternoon");
+  return t("core_good_evening");
 }
 
-function relativeTime(value) {
-  if (!value) return "Recently";
+function relativeTime(value, language, t) {
+  if (!value) return t("core_recently");
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recently";
-  const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
-  if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  if (Number.isNaN(date.getTime())) return t("core_recently");
+  const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+  if (Math.abs(seconds) < 60) return t("core_just_now");
+  const rtf = new Intl.RelativeTimeFormat(language, { numeric: "auto" });
+  const minutes = Math.round(seconds / 60);
+  if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
+  const hours = Math.round(minutes / 60);
+  if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
+  return rtf.format(Math.round(hours / 24), "day");
 }
 
 export default function PremiumHomeDashboard({
@@ -42,6 +44,7 @@ export default function PremiumHomeDashboard({
   isLoading,
 }) {
   const rootRef = useRef(null);
+  const { t, language } = useI18n();
   const qc = useQueryClient();
   const { profiles = [], selectProfile } = useProfileWorkspace();
   const [copied, setCopied] = useState(false);
@@ -165,14 +168,14 @@ export default function PremiumHomeDashboard({
 
   const activity = useMemo(() => {
     const items = [];
-    const profileLabel = (profileId) => profileById[profileId]?.display_name || "Bingoo profile";
+    const profileLabel = (profileId) => profileById[profileId]?.display_name || t("core_bingoo_profile");
 
     accountLeads.forEach((lead) => {
       items.push({
         id: `lead-${lead.id}`,
         type: "lead",
-        title: "New lead received",
-        detail: `${lead.name || lead.full_name || lead.email || "New contact"} · ${profileLabel(lead.profile_id)}`,
+        title: t("core_new_lead_received"),
+        detail: `${lead.name || lead.full_name || lead.email || t("core_new_contact")} · ${profileLabel(lead.profile_id)}`,
         at: lead.created_date,
         destination: "leads",
       });
@@ -182,8 +185,8 @@ export default function PremiumHomeDashboard({
       items.push({
         id: `appointment-${appointment.id}`,
         type: "appointment",
-        title: "New appointment booked",
-        detail: `${appointment.customer_name || appointment.name || appointment.service_name || "Booking received"} · ${profileLabel(appointment.profile_id)}`,
+        title: t("core_new_appointment_booked"),
+        detail: `${appointment.customer_name || appointment.name || appointment.service_name || t("core_booking_received")} · ${profileLabel(appointment.profile_id)}`,
         at: appointment.created_date || appointment.date,
         destination: "appointments",
       });
@@ -195,8 +198,8 @@ export default function PremiumHomeDashboard({
         items.push({
           id: `analytics-${event.id || index}`,
           type: event.event_type === "nfc_tap" ? "tap" : "view",
-          title: event.event_type === "nfc_tap" ? "NFC device tapped" : "Profile viewed",
-          detail: `${event.event_type === "nfc_tap" ? "A Bingoo device opened" : "Someone visited"} · ${profileLabel(event.profile_id)}`,
+          title: event.event_type === "nfc_tap" ? t("core_nfc_tapped") : t("core_profile_viewed"),
+          detail: `${event.event_type === "nfc_tap" ? t("core_device_opened") : t("core_someone_visited")} · ${profileLabel(event.profile_id)}`,
           at: event.created_date || event.timestamp,
           destination: "analytics",
         });
@@ -208,8 +211,8 @@ export default function PremiumHomeDashboard({
         items.push({
           id: `device-${device.id || index}`,
           type: "device",
-          title: "NFC device active",
-          detail: `${device.device_name || device.name || device.device_type || "Bingoo device"} · ${profileLabel(device.profile_id)}`,
+          title: t("core_nfc_device_active"),
+          detail: `${device.device_name || device.name || device.device_type || t("core_bingoo_device")} · ${profileLabel(device.profile_id)}`,
           at: device.updated_date || device.created_date,
           href: "/my-nfc-devices",
         });
@@ -218,7 +221,7 @@ export default function PremiumHomeDashboard({
     return items
       .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0))
       .slice(0, 5);
-  }, [accountLeads, accountAppointments, accountAnalytics, accountNfcDevices, profileById]);
+  }, [accountLeads, accountAppointments, accountAnalytics, accountNfcDevices, profileById, t]);
 
   const handleShare = async () => {
     if (!profileUrl) return;
@@ -232,8 +235,8 @@ export default function PremiumHomeDashboard({
   };
 
   const firstName = user?.full_name?.trim()?.split(/\s+/)?.[0] || "there";
-  const greeting = getGreeting(clock);
-  const dateLine = clock.toLocaleString(undefined, {
+  const greeting = getGreeting(clock, t);
+  const dateLine = clock.toLocaleString(language, {
     weekday: "long",
     month: "short",
     day: "numeric",
@@ -254,10 +257,10 @@ export default function PremiumHomeDashboard({
     : { boxShadow: "0 2px 6px rgba(15,23,42,.035), 0 16px 38px rgba(15,23,42,.045)" };
 
   const metrics = [
-    { label: "Profile Views", value: totalViews, icon: Eye, color: "#2563eb", bg: "#dbeafe", destination: "analytics" },
-    { label: "NFC Taps", value: totalNfcTaps, icon: Smartphone, color: "#16a34a", bg: "#dcfce7", destination: "analytics" },
-    { label: "New Leads", value: accountLeads.length, icon: Users, color: "#7c3aed", bg: "#ede9fe", destination: "leads" },
-    { label: "Appointments", value: accountAppointments.length, icon: CalendarDays, color: "#f97316", bg: "#ffedd5", destination: "appointments" },
+    { label: t("core_profile_views"), value: totalViews, icon: Eye, color: "#2563eb", bg: "#dbeafe", destination: "analytics" },
+    { label: t("core_nfc_taps"), value: totalNfcTaps, icon: Smartphone, color: "#16a34a", bg: "#dcfce7", destination: "analytics" },
+    { label: t("core_new_leads"), value: accountLeads.length, icon: Users, color: "#7c3aed", bg: "#ede9fe", destination: "leads" },
+    { label: t("appointments"), value: accountAppointments.length, icon: CalendarDays, color: "#f97316", bg: "#ffedd5", destination: "appointments" },
   ];
 
   const actions = [
@@ -471,7 +474,7 @@ export default function PremiumHomeDashboard({
                     <p className={`font-bold text-sm truncate ${colors.pageText}`}>{item.title}</p>
                     <p className={`text-xs mt-0.5 truncate ${colors.subText}`}>{item.detail}</p>
                   </div>
-                  <span className={`text-xs flex-shrink-0 ${colors.subText}`}>{relativeTime(item.at)}</span>
+                  <span className={`text-xs flex-shrink-0 ${colors.subText}`}>{relativeTime(item.at, language, t)}</span>
                   <ArrowRight className={`w-4 h-4 flex-shrink-0 ${colors.subText}`} />
                 </div>
               );
