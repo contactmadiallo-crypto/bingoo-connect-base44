@@ -6,25 +6,27 @@ import { Clock, Calendar, Save, CheckCircle, Plus, Trash2, Timer } from "lucide-
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import TimeWheelPicker from "@/components/ui/TimeWheelPicker";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const DAYS = [
-  { key: "monday",    label: "Mon" },
-  { key: "tuesday",   label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday",  label: "Thu" },
-  { key: "friday",    label: "Fri" },
-  { key: "saturday",  label: "Sat" },
-  { key: "sunday",    label: "Sun" },
+  { key: "monday",    labelKey: "day_mon" },
+  { key: "tuesday",   labelKey: "day_tue" },
+  { key: "wednesday", labelKey: "day_wed" },
+  { key: "thursday",  labelKey: "day_thu" },
+  { key: "friday",    labelKey: "day_fri" },
+  { key: "saturday",  labelKey: "day_sat" },
+  { key: "sunday",    labelKey: "day_sun" },
 ];
 
 const DURATIONS = [15, 30, 45, 60, 90, 120];
 const BUFFERS   = [0, 5, 10, 15, 30];
 
 const APPT_TYPES = [
-  { value: "in_person",  label: "In-Person",    emoji: "🤝" },
-  { value: "phone_call", label: "Phone Call",   emoji: "📞" },
-  { value: "whatsapp",   label: "WhatsApp",     emoji: "💬" },
-  { value: "video_call", label: "Video Call",   emoji: "📹" },
+  { value: "in_person",  labelKey: "booking_in_person", emoji: "🤝" },
+  { value: "phone_call", labelKey: "booking_phone_call", emoji: "📞" },
+  { value: "whatsapp",   label: "WhatsApp", emoji: "💬" },
+  { value: "video_call", labelKey: "booking_video_call", emoji: "📹" },
 ];
 
 const DEFAULT_HOURS = {
@@ -38,6 +40,7 @@ const DEFAULT_HOURS = {
 };
 
 export default function AppointmentSettings({ profileId }) {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const { isDark } = useBingooTheme();
   const [hours, setHours]               = useState(DEFAULT_HOURS);
@@ -96,10 +99,10 @@ export default function AppointmentSettings({ profileId }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profiles-appt-settings", profileId] });
       setSaved(true);
-      toast.success("Appointment settings saved!");
+      toast.success(t("booking_saved",language));
       setTimeout(() => setSaved(false), 3000);
     },
-    onError: () => toast.error("Failed to save settings. Please try again."),
+    onError: () => toast.error(t("booking_save_failed",language)),
   });
 
   const toggleDay    = (day) => setHours(h => ({ ...h, [day]: { ...h[day], enabled: !h[day].enabled } }));
@@ -107,29 +110,29 @@ export default function AppointmentSettings({ profileId }) {
   const addHoliday   = () => { if (!holidayInput) return; setHolidays(hs => [...new Set([...hs, holidayInput])]); setHolidayInput(""); };
   const removeHoliday = (d) => setHolidays(hs => hs.filter(h => h !== d));
 
-  if (!profileId) return <div className={`text-center py-8 ${mutedCls}`}>Select a profile first.</div>;
+  if (!profileId) return <div className={`text-center py-8 ${mutedCls}`}>{t("booking_select_profile",language)}</div>;
 
   return (
     <div className="space-y-5 pb-10">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className={`text-xl font-black ${isDark ? "text-white" : "text-slate-900"}`}>Booking Setup</h2>
+        <h2 className={`text-xl font-black ${isDark ? "text-white" : "text-slate-900"}`}>{t("appt_booking_setup",language)}</h2>
         <Button
           onClick={() => save.mutate()}
           disabled={save.isPending}
           className={`gap-2 font-bold ${saved ? "bg-green-600 hover:bg-green-600" : "bg-blue-600 hover:bg-blue-500"}`}
         >
           {saved
-            ? <><CheckCircle className="w-4 h-4" /> Saved!</>
-            : <><Save className="w-4 h-4" />{save.isPending ? "Saving…" : "Save Settings"}</>}
+            ? <><CheckCircle className="w-4 h-4" /> {t("booking_saved_button",language)}</>
+            : <><Save className="w-4 h-4" />{save.isPending ? t("booking_saving",language) : t("booking_save_settings",language)}</>}
         </Button>
       </div>
 
       {/* Enable Toggle */}
       <div className={cardCls + " flex items-center justify-between"}>
         <div>
-          <p className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Enable Appointment Booking</p>
-          <p className={`text-sm mt-0.5 ${mutedCls}`}>Allow visitors to book time from your public profile</p>
+          <p className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{t("booking_enable",language)}</p>
+          <p className={`text-sm mt-0.5 ${mutedCls}`}>{t("booking_enable_copy",language)}</p>
         </div>
         <button
           onClick={() => setBookingEnabled(v => !v)}
@@ -145,11 +148,11 @@ export default function AppointmentSettings({ profileId }) {
       <div className={cardCls}>
         <div className="flex items-center gap-2 mb-1">
           <Clock className="w-4 h-4 text-blue-500" />
-          <p className={labelCls.replace("mb-3", "mb-0")}>Business Hours · Weekly Availability</p>
+          <p className={labelCls.replace("mb-3", "mb-0")}>{t("booking_hours",language)}</p>
         </div>
-        <p className={`text-xs mb-4 ${mutedCls}`}>Set your weekly open/closed hours. These appear on your public profile and define booking slots.</p>
+        <p className={`text-xs mb-4 ${mutedCls}`}>{t("booking_hours_copy",language)}</p>
         <div className="space-y-3">
-          {DAYS.map(({ key, label }) => (
+          {DAYS.map(({ key, labelKey }) => (
             <div key={key} className="flex items-center gap-3">
               <button onClick={() => toggleDay(key)}
                 className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black border transition-all flex-shrink-0 ${
@@ -157,7 +160,7 @@ export default function AppointmentSettings({ profileId }) {
                     ? "bg-blue-600 text-white border-blue-600"
                     : isDark ? "bg-white/5 text-white/30 border-white/15" : "bg-slate-50 text-slate-400 border-slate-200"
                 }`}>
-                {label}
+                {t(labelKey,language)}
               </button>
               {hours[key]?.enabled ? (
                 <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
@@ -166,7 +169,7 @@ export default function AppointmentSettings({ profileId }) {
                     onChange={val => setDayTime(key, "start", val)}
                     isDark={isDark}
                   />
-                  <span className={`text-sm font-medium ${mutedCls}`}>to</span>
+                  <span className={`text-sm font-medium ${mutedCls}`}>{t("booking_to",language)}</span>
                   <TimeWheelPicker
                     value={hours[key]?.end || "17:00"}
                     onChange={val => setDayTime(key, "end", val)}
@@ -174,7 +177,7 @@ export default function AppointmentSettings({ profileId }) {
                   />
                 </div>
               ) : (
-                <span className={`text-sm ${mutedCls}`}>Closed</span>
+                <span className={`text-sm ${mutedCls}`}>{t("booking_closed",language)}</span>
               )}
             </div>
           ))}
@@ -185,7 +188,7 @@ export default function AppointmentSettings({ profileId }) {
         <>
           {/* Appointment Type */}
           <div className={cardCls}>
-            <p className={labelCls}><Calendar className="w-4 h-4 text-blue-500" /> Appointment Type</p>
+            <p className={labelCls}><Calendar className="w-4 h-4 text-blue-500" /> {t("booking_appointment_type",language)}</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {APPT_TYPES.map(t => (
                 <button key={t.value} onClick={() => setApptType(t.value)}
@@ -195,7 +198,7 @@ export default function AppointmentSettings({ profileId }) {
                       : isDark ? "border-white/15 text-white/50 hover:border-white/25" : "border-slate-200 text-slate-500 hover:border-slate-300"
                   }`}>
                   <span className="text-xl">{t.emoji}</span>
-                  <span>{t.label}</span>
+                  <span>{t.labelKey ? t(t.labelKey,language) : t.label}</span>
                 </button>
               ))}
             </div>
@@ -204,7 +207,7 @@ export default function AppointmentSettings({ profileId }) {
           {/* Slot Duration + Buffer */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div className={cardCls}>
-              <p className={labelCls}><Clock className="w-4 h-4 text-blue-500" /> Slot Duration</p>
+              <p className={labelCls}><Clock className="w-4 h-4 text-blue-500" /> {t("booking_slot_duration",language)}</p>
               <div className="flex gap-2 flex-wrap">
                 {DURATIONS.map(d => (
                   <button key={d} onClick={() => setDuration(d)}
@@ -220,7 +223,7 @@ export default function AppointmentSettings({ profileId }) {
             </div>
 
             <div className={cardCls}>
-              <p className={labelCls}><Timer className="w-4 h-4 text-teal-500" /> Buffer Between Slots</p>
+              <p className={labelCls}><Timer className="w-4 h-4 text-teal-500" /> {t("booking_buffer",language)}</p>
               <div className="flex gap-2 flex-wrap">
                 {BUFFERS.map(b => (
                   <button key={b} onClick={() => setBuffer(b)}
@@ -229,29 +232,29 @@ export default function AppointmentSettings({ profileId }) {
                         ? "border-teal-500 bg-teal-600 text-white shadow"
                         : isDark ? "border-white/15 text-white/60 hover:border-white/25" : "border-slate-200 text-slate-600 hover:border-slate-300"
                     }`}>
-                    {b === 0 ? "None" : `${b} min`}
+                    {b === 0 ? t("booking_none",language) : `${b} min`}
                   </button>
                 ))}
               </div>
-              <p className={`text-xs mt-2 ${mutedCls}`}>Break added after each appointment</p>
+              <p className={`text-xs mt-2 ${mutedCls}`}>{t("booking_break_copy",language)}</p>
             </div>
           </div>
 
           {/* Holidays / Closed Days */}
           <div className={cardCls}>
-            <p className={labelCls}>Holiday / Closed Days</p>
+            <p className={labelCls}>{t("booking_holidays",language)}</p>
             <div className="flex gap-2 mb-3">
               <input type="date" value={holidayInput} onChange={e => setHolidayInput(e.target.value)}
                 className={`flex-1 ${inputCls}`} style={inputStyle} />
               <Button onClick={addHoliday} disabled={!holidayInput} size="sm" className="bg-blue-600 hover:bg-blue-500 gap-1">
-                <Plus className="w-4 h-4" /> Add
+                <Plus className="w-4 h-4" /> {t("booking_add",language)}
               </Button>
             </div>
             {holidays.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {holidays.map(d => (
                   <div key={d} className="flex items-center gap-1.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-3 py-1.5 text-xs font-semibold">
-                    {new Date(d + "T00:00:00").toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric" })}
+                    {new Date(d + "T00:00:00").toLocaleDateString(language === "fr" ? "fr-FR" : "en-US", { month: "short", day: "numeric", year: "numeric" })}
                     <button onClick={() => removeHoliday(d)} className="hover:text-red-900 transition-colors">
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -259,7 +262,7 @@ export default function AppointmentSettings({ profileId }) {
                 ))}
               </div>
             ) : (
-              <p className={`text-sm ${mutedCls}`}>No closed days added.</p>
+              <p className={`text-sm ${mutedCls}`}>{t("booking_no_closed_days",language)}</p>
             )}
           </div>
         </>
