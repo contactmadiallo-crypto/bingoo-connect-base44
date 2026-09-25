@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Upload, Palette, Image as ImageIcon, MousePointer2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 
 
 const COVER_COLORS = [
@@ -63,9 +64,9 @@ const AVATAR_FOCAL = [
 ];
 
 const SECTIONS = [
-  { id: "theme", label: "Theme", icon: Palette },
-  { id: "media", label: "Profile", icon: ImageIcon },
-  { id: "buttons", label: "Buttons", icon: MousePointer2 },
+  { id: "theme", labelKey: "design_theme", icon: Palette },
+  { id: "media", labelKey: "design_profile", icon: ImageIcon },
+  { id: "buttons", labelKey: "design_buttons", icon: MousePointer2 },
 ];
 
 const FONT_STYLES = [
@@ -93,7 +94,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      toast.error("Failed to save. Please try again.");
+      toast.error(t("design_save_failed", lang));
     }
   };
 
@@ -125,15 +126,15 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
     <div className="space-y-4 sm:space-y-[18px] w-full max-w-[680px] mx-auto">
       <div className={`rounded-2xl border ${border} ${bg} px-4 sm:px-[18px] py-4 shadow-sm`}>
         <div className="min-w-0">
-          <p className={`text-lg font-extrabold ${headText}`}>Design</p>
-          <p className={`text-[12px] mt-1 leading-relaxed ${mutedText}`}>Customize the look of /p/{profile?.username || "your-handle"}.</p>
+          <p className={`text-lg font-extrabold ${headText}`}>{t("design_title", lang)}</p>
+          <p className={`text-[12px] mt-1 leading-relaxed ${mutedText}`}>{t("design_customize", lang)} /p/{profile?.username || "your-handle"}.</p>
         </div>
       </div>
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
       <div className={`grid grid-cols-3 gap-1 p-1 rounded-[14px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
         {SECTIONS.map(s => (
-          <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${s.label} section`}
+          <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${t(s.labelKey, lang)} ${t("design_section", lang)}`}
             className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
               section === s.id
                 ? "text-white shadow-sm"
@@ -141,7 +142,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             }`}
             style={section === s.id ? { background: "#0b2149" } : {}}>
             <s.icon className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{s.label}</span>
+            <span className="truncate">{t(s.labelKey, lang)}</span>
           </button>
         ))}
       </div>
@@ -151,8 +152,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         <div className="space-y-4">
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Profile color</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Used for your cover, accents and public-profile actions.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_profile_color", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_profile_color_copy", lang)}</p>
             </div>
             <div className="flex gap-2 flex-wrap">
               {COVER_COLORS.map(c => (
@@ -169,15 +170,15 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               ))}
               <div className="w-9 h-9 rounded-full border-2 border-slate-300 flex items-center justify-center overflow-hidden">
                 <input type="color" value={liveForm.cover_color || "#2563eb"} onChange={e => setVal("cover_color", e.target.value)}
-                  className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title="Custom" />
+                  className="w-10 h-10 rounded cursor-pointer border-0 outline-none" title={t("design_custom", lang)} />
               </div>
             </div>
           </div>
 
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Typography</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose the type style used by the public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_typography", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_typography_copy", lang)}</p>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {FONT_STYLES.map(o => {
@@ -196,8 +197,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Background</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Choose the atmosphere behind your public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_background", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_background_copy", lang)}</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {BG_STYLES.map(o => {
@@ -227,8 +228,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
           {/* Cover Photo */}
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Cover photo</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Optional image displayed at the top of your public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_cover_photo", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_cover_copy", lang)}</p>
             </div>
             {/* Large cover preview */}
             <div className={`w-full rounded-2xl overflow-hidden relative ${liveForm.cover_photo ? "" : (isDark ? "bg-white/5 border border-white/10" : "bg-slate-100 border border-slate-200")}`}
@@ -236,21 +237,21 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               {liveForm.cover_photo
                 ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${liveForm.cover_color || "#2563eb"}99 100%)` }}>
-                    <p className="text-xs font-bold text-white/60">No cover photo</p>
-                    <p className="text-xs text-white/40">Using accent color</p>
+                    <p className="text-xs font-bold text-white/60">{t("design_no_cover", lang)}</p>
+                    <p className="text-xs text-white/40">{t("design_using_accent", lang)}</p>
                   </div>
               }
             </div>
             <div className="flex items-center gap-2 mt-2">
               <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
                 <Upload className="w-4 h-4 flex-shrink-0" />
-                {uploading ? "Uploading…" : liveForm.cover_photo ? "Change Cover" : "Upload Cover"}
+                {uploading ? t("design_uploading", lang) : liveForm.cover_photo ? t("design_change_cover", lang) : t("design_upload_cover", lang)}
                 <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
               </label>
               {liveForm.cover_photo && (
                 <button type="button" onClick={() => setVal("cover_photo", "")}
                   className="px-3 py-2.5 rounded-xl border text-xs font-bold text-red-400 border-red-200 hover:bg-red-50 transition-all">
-                  Remove
+                  {t("design_remove", lang)}
                 </button>
               )}
             </div>
@@ -259,7 +260,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
           {/* Avatar Shape */}
           <div className={rowCls}>
-            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>Avatar Shape</p>
+            <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>{t("design_avatar_shape", lang)}</p>
             <div className="flex gap-2 flex-wrap">
               {AVATAR_SHAPES.map(o => {
                 const active = sel(o.v, liveForm.avatar_shape || "circle");
@@ -284,8 +285,8 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
         <div className="space-y-4">
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Link display style</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Figma architecture for how links appear on the public profile.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_link_display", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_link_display_copy", lang)}</p>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {LINK_DISPLAY_STYLES.map(o => {
@@ -300,13 +301,13 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
-                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>Icon shape</p>
+                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>{t("design_icon_shape", lang)}</p>
                 <div className="grid grid-cols-3 rounded-xl overflow-hidden border border-slate-200">
                   {LINK_ICON_SHAPES.map(o => <button type="button" key={o.v} onClick={() => setVal("link_icon_shape", o.v)} className={`min-w-0 px-1.5 py-2 text-[10px] font-bold truncate ${sel(o.v, liveForm.link_icon_shape || "rounded") ? "bg-blue-50 text-blue-600" : headText}`}>{o.label}</button>)}
                 </div>
               </div>
               <div>
-                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>Row style</p>
+                <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>{t("design_row_style", lang)}</p>
                 <div className="grid grid-cols-3 rounded-xl overflow-hidden border border-slate-200">
                   {LINK_ROW_STYLES.map(o => <button type="button" key={o.v} onClick={() => setVal("link_row_style", o.v)} className={`min-w-0 px-1.5 py-2 text-[10px] font-bold truncate ${sel(o.v, liveForm.link_row_style || "ios") ? "bg-blue-50 text-blue-600" : headText}`}>{o.label}</button>)}
                 </div>
@@ -316,16 +317,16 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>Save contact style</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>Use the iOS-style action treatment from the Figma design.</p>
+              <p className={`text-xs font-black ${headText}`}>{t("design_save_contact_style", lang)}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_save_contact_copy", lang)}</p>
             </div>
             <div className="mb-4">
-              <p className={`text-[11px] font-bold mb-2 ${mutedText}`}>Button color</p>
+              <p className={`text-[11px] font-bold mb-2 ${mutedText}`}>{t("design_button_color", lang)}</p>
               <div className="flex items-center gap-3">
                 <input type="color" value={liveForm.button_color || liveForm.cover_color || "#0b2149"}
                   onChange={e => setVal("button_color", e.target.value)} className="w-10 h-10 rounded-lg cursor-pointer border-0" />
                 <button type="button" onClick={() => setVal("button_color", liveForm.cover_color || "#0b2149")}
-                  className={`px-3 py-2 rounded-lg border text-xs font-bold ${isDark ? "border-white/10 text-white/60" : "border-slate-200 text-slate-600"}`}>Use profile color</button>
+                  className={`px-3 py-2 rounded-lg border text-xs font-bold ${isDark ? "border-white/10 text-white/60" : "border-slate-200 text-slate-600"}`}>{t("design_use_profile_color", lang)}</button>
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -350,7 +351,7 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
 
       {saved && (
         <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 px-1">
-          <Check className="w-3.5 h-3.5" /> Design saved
+          <Check className="w-3.5 h-3.5" /> {t("design_saved", lang)}
         </div>
       )}
     </div>
