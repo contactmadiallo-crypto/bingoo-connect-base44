@@ -5,13 +5,15 @@ import { Activity, Users, BarChart3, UserPlus, Lock, ChevronRight, CalendarDays 
 import ConnectionsPanel from "@/components/bingoo/ConnectionsPanel";
 import AnalyticsPanel from "@/components/bingoo/AnalyticsPanel";
 import LeadsPanel from "@/components/bingoo/LeadsPanel";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const TABS = [
-  { id: "overview", label: "Overview", icon: Activity },
-  { id: "connections", label: "Connections", icon: Users },
-  { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "leads", label: "Leads", icon: UserPlus },
-  { id: "appointments", label: "Appointments", icon: CalendarDays },
+  { id: "overview", labelKey: "activity_overview", icon: Activity },
+  { id: "connections", labelKey: "activity_connections", icon: Users },
+  { id: "analytics", labelKey: "activity_analytics", icon: BarChart3 },
+  { id: "leads", labelKey: "activity_leads", icon: UserPlus },
+  { id: "appointments", labelKey: "activity_appointments", icon: CalendarDays },
 ];
 
 export default function ActivityHub({
@@ -27,6 +29,7 @@ export default function ActivityHub({
   highlightLeadId,
   highlightAppointmentId,
 }) {
+  const { language } = useI18n();
   const allowedInitialTab = (initialTab === "analytics" && !canAnalytics) || (initialTab === "leads" && !canLeads) || (initialTab === "appointments" && !canAppointments) ? "overview" : (initialTab || "overview");
   const [tab, setTab] = useState(allowedInitialTab);
   const visibleTabs = TABS.filter((item) => (item.id !== "leads" || canLeads) && (item.id !== "appointments" || canAppointments));
@@ -73,8 +76,8 @@ export default function ActivityHub({
   return (
     <div className="space-y-4">
       <div className="px-1">
-        <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${head}`}>Activity</h1>
-        <p className={`text-sm mt-1 ${sub}`}>Connections, engagement, analytics and leads in one place.</p>
+        <h1 className={`text-2xl sm:text-3xl font-black tracking-tight ${head}`}>{t("activity_title",language)}</h1>
+        <p className={`text-sm mt-1 ${sub}`}>{t("activity_subtitle",language)}</p>
       </div>
 
       <div className={`grid gap-1 p-1 rounded-2xl border ${card}`} style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}>
@@ -92,7 +95,7 @@ export default function ActivityHub({
               style={active ? { background: "#0b2149" } : {}}
             >
               {blocked ? <Lock className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-              <span className="text-[10px] sm:text-xs font-bold truncate w-full text-center">{item.label}</span>
+              <span className="text-[10px] sm:text-xs font-bold truncate w-full text-center">{t(item.labelKey,language)}</span>
             </button>
           );
         })}
@@ -102,10 +105,10 @@ export default function ActivityHub({
         <div className="space-y-3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { label: "Connections", value: totalConnections, icon: Users, action: "connections", enabled: true },
-              { label: "Interactions", value: canAnalytics ? totalInteractions : "—", icon: BarChart3, action: "analytics", enabled: canAnalytics },
-              { label: "Leads", value: canLeads ? totalLeads : "—", icon: UserPlus, action: "leads", enabled: canLeads },
-              ...(canAppointments ? [{ label: "Appointments", value: appointments.length, icon: CalendarDays, action: "appointments", enabled: true }] : []),
+              { label: t("activity_connections",language), value: totalConnections, icon: Users, action: "connections", enabled: true },
+              { label: t("activity_interactions",language), value: canAnalytics ? totalInteractions : "—", icon: BarChart3, action: "analytics", enabled: canAnalytics },
+              { label: t("activity_leads",language), value: canLeads ? totalLeads : "—", icon: UserPlus, action: "leads", enabled: canLeads },
+              ...(canAppointments ? [{ label: t("activity_appointments",language), value: appointments.length, icon: CalendarDays, action: "appointments", enabled: true }] : []),
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -130,10 +133,10 @@ export default function ActivityHub({
           </div>
 
           <div className={`rounded-2xl border p-4 ${card}`}>
-            <p className={`font-black text-sm ${head}`}>Your activity center</p>
+            <p className={`font-black text-sm ${head}`}>{t("activity_center",language)}</p>
             <p className={`text-sm mt-1 leading-relaxed ${sub}`}>
-              Save people you meet under Connections and monitor profile/NFC engagement under Analytics.
-              {canLeads ? " Manage captured prospects under Leads." : ""}{canAppointments ? " Manage bookings under Appointments." : ""}
+              {t("activity_center_copy",language)}
+              {canLeads ? ` ${t("activity_manage_leads",language)}` : ""}{canAppointments ? ` ${t("activity_manage_appts",language)}` : ""}
             </p>
           </div>
         </div>
@@ -143,7 +146,7 @@ export default function ActivityHub({
       {tab === "analytics" && canAnalytics && <AnalyticsPanel profileId={profileId} />}
       {tab === "appointments" && canAppointments && (
         <button type="button" onClick={() => { window.location.href = `/bingoo?view=appointments${highlightAppointmentId ? `&appointmentId=${encodeURIComponent(highlightAppointmentId)}` : ""}`; }} className={`w-full rounded-2xl border p-4 text-left flex items-center justify-between ${card}`}>
-          <div><p className={`font-black ${head}`}>Manage appointments</p><p className={`text-sm mt-1 ${sub}`}>Open bookings, confirm, reschedule or complete appointments.</p></div><ChevronRight className={`w-5 h-5 ${sub}`} />
+          <div><p className={`font-black ${head}`}>{t("activity_manage_appts_title",language)}</p><p className={`text-sm mt-1 ${sub}`}>{t("activity_manage_appts_copy",language)}</p></div><ChevronRight className={`w-5 h-5 ${sub}`} />
         </button>
       )}
       {tab === "leads" && canLeads && (
