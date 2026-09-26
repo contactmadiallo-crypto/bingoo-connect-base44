@@ -3226,26 +3226,30 @@ export const TRANSLATIONS = {
 };
 
 /**
- * Get current language from localStorage.
- * Defaults to English on first visit — language only changes when the user
- * explicitly clicks the EN/FR toggle. No silent browser-locale auto-detection.
- *
- * Migration: if a previous version auto-detected French without explicit user
- * consent, reset to English so the user isn't stuck seeing French.
+ * Resolve Bingoo's language on first use from the phone/browser locale.
+ * An explicit Bingoo preference always wins and is never overwritten by
+ * location or device changes.
  */
 export function getLang() {
   const saved = localStorage.getItem("bingoo_lang");
   const userSet = localStorage.getItem("bingoo_lang_user_set");
-  // Honour explicitly user-set preference
-  if (saved && userSet === "true") return saved;
-  // Previously auto-detected (no explicit user consent) — reset to English
-  if (saved && userSet !== "true") {
-    localStorage.setItem("bingoo_lang", "en");
-    localStorage.removeItem("bingoo_lang_user_set");
-    return "en";
+  if (saved && userSet === "true" && SUPPORTED_LANGUAGES[saved]) return saved;
+
+  const locales = typeof navigator !== "undefined"
+    ? [...(navigator.languages || []), navigator.language].filter(Boolean)
+    : [];
+
+  for (const locale of locales) {
+    const code = String(locale).toLowerCase().split("-")[0];
+    if (SUPPORTED_LANGUAGES[code]) {
+      localStorage.setItem("bingoo_lang", code);
+      localStorage.setItem("bingoo_lang_source", "device");
+      return code;
+    }
   }
-  // First visit — default to English
+
   localStorage.setItem("bingoo_lang", "en");
+  localStorage.setItem("bingoo_lang_source", "fallback");
   return "en";
 }
 
