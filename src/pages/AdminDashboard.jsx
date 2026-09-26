@@ -25,17 +25,6 @@ import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
-const PLAN_COLORS = {
-  free: "bg-slate-100 text-slate-600",
-  professional: "bg-blue-100 text-blue-700",
-  pro: "bg-blue-100 text-blue-700",
-  salon: "bg-pink-100 text-pink-700",
-  restaurant: "bg-orange-100 text-orange-700",
-  lawfirm: "bg-sky-100 text-sky-700",
-  business: "bg-orange-100 text-orange-700",
-  corporate: "bg-violet-100 text-violet-700",
-};
-
 export default function AdminDashboard() {
   const { language } = useI18n();
   const [user, setUser] = useState(null);
@@ -127,7 +116,6 @@ export default function AdminDashboard() {
     available: devices.filter(d => d.status === "available").length,
     replaced: devices.filter(d => d.status === "replaced").length,
   };
-  const recentActivations = devices.filter(d => d.assigned_at).sort((a, b) => new Date(b.assigned_at) - new Date(a.assigned_at)).slice(0, 20);
 
   // ── Derived: analytics ──
   const recentEvents = [...analytics].sort((a, b) => new Date(b.created_at || b.created_date) - new Date(a.created_at || a.created_date)).slice(0, 25);
