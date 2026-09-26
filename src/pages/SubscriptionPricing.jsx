@@ -4,7 +4,6 @@ import { Check, ArrowLeft, ArrowRight, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
-import { useFeatures } from '@/hooks/useFeatures';
 import { useAuth } from '@/lib/AuthContext';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
 import { PLAN_HIERARCHY, PLAN_FEATURES, PLAN_CONFIG, CUSTOMER_PLAN_IDS } from '@/lib/planPermissions';
@@ -44,7 +43,6 @@ export default function SubscriptionPricing() {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
-  const { features, plan: featurePlan } = useFeatures();
   const { user } = useAuth();
 
   // Load admin-configured pricing — cached, non-blocking
