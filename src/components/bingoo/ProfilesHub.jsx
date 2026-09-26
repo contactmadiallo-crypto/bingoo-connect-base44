@@ -5,6 +5,7 @@ import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
 import { useI18n } from "@/lib/I18nContext";
+import { openExternalUrl } from "@/lib/nativePlatform";
 
 export default function ProfilesHub({
   profiles = [],
@@ -151,7 +152,7 @@ export default function ProfilesHub({
         success_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
         cancel_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
       });
-      if (resp?.data?.url) window.location.href = resp.data.url;
+      if (resp?.data?.url) await openExternalUrl(resp.data.url);
     } catch (e) {
       console.error("Trial checkout error:", e);
     } finally {
