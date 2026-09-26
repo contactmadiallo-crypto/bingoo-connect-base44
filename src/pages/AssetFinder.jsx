@@ -422,7 +422,7 @@ export default function AssetFinder() {
                   <a href={`tel:${owner.contact.phone}`} className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: '#f97316' }}>
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><Phone className="w-4 h-4" /></div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">Call</p>
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">{tr('Call', 'Appeler')}</p>
                       <p className="truncate">{owner.contact.phone}</p>
                     </div>
                   </a>
