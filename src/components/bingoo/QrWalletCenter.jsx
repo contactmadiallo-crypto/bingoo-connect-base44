@@ -163,7 +163,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       setSaved(true);
       toast.success(t("qr_settings_saved", language));
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
+    } catch {
       toast.error(t("qr_settings_failed", language));
     } finally {
       setSaving(false);
