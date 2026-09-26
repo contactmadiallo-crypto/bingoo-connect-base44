@@ -4,8 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, Users, DollarSign, AlertCircle, Download, ArrowRight } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function SubscriberMonitoring() {
+  const { language } = useI18n();
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [filterAction, setFilterAction] = useState('all');
@@ -93,8 +96,8 @@ export default function SubscriberMonitoring() {
         <div className="p-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-black text-white mb-2">Subscriber Monitoring</h1>
-            <p style={{ color: "rgba(255,255,255,0.5)" }} className="text-sm">Real-time subscription activity & metrics</p>
+            <h1 className="text-3xl font-black text-white mb-2">{t('subs_monitor_title',language)}</h1>
+            <p style={{ color: "rgba(255,255,255,0.5)" }} className="text-sm">{t('subs_monitor_subtitle',language)}</p>
           </div>
 
           {/* KPI Cards */}
@@ -102,7 +105,7 @@ export default function SubscriberMonitoring() {
             <div className="rounded-2xl p-5 border" style={{ background: "rgba(34, 197, 94, 0.1)", borderColor: "rgba(34, 197, 94, 0.2)" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/60 text-xs font-bold uppercase">Active Subscribers</p>
+                  <p className="text-white/60 text-xs font-bold uppercase">{t('subs_active',language)}</p>
                   <p className="text-3xl font-black text-white mt-1">{activeCount}</p>
                 </div>
                 <Users className="w-10 h-10 text-green-500 opacity-30" />
@@ -112,7 +115,7 @@ export default function SubscriberMonitoring() {
             <div className="rounded-2xl p-5 border" style={{ background: "rgba(59, 130, 246, 0.1)", borderColor: "rgba(59, 130, 246, 0.2)" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/60 text-xs font-bold uppercase">Monthly Revenue</p>
+                  <p className="text-white/60 text-xs font-bold uppercase">{t('subs_monthly_revenue',language)}</p>
                   <p className="text-3xl font-black text-white mt-1">${monthlyRevenue.toFixed(0)}</p>
                 </div>
                 <DollarSign className="w-10 h-10 text-blue-500 opacity-30" />
@@ -122,7 +125,7 @@ export default function SubscriberMonitoring() {
             <div className="rounded-2xl p-5 border" style={{ background: "rgba(34, 197, 94, 0.1)", borderColor: "rgba(34, 197, 94, 0.2)" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/60 text-xs font-bold uppercase">New Today</p>
+                  <p className="text-white/60 text-xs font-bold uppercase">{t('subs_new_today',language)}</p>
                   <p className="text-3xl font-black text-green-500 mt-1">+{createdToday}</p>
                 </div>
                 <TrendingUp className="w-10 h-10 text-green-500 opacity-30" />
@@ -132,7 +135,7 @@ export default function SubscriberMonitoring() {
             <div className="rounded-2xl p-5 border" style={{ background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)" }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/60 text-xs font-bold uppercase">Canceled Today</p>
+                  <p className="text-white/60 text-xs font-bold uppercase">{t('subs_canceled_today',language)}</p>
                   <p className="text-3xl font-black text-red-500 mt-1">-{canceledToday}</p>
                 </div>
                 <TrendingDown className="w-10 h-10 text-red-500 opacity-30" />
@@ -145,8 +148,8 @@ export default function SubscriberMonitoring() {
             <div className="p-6 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h2 className="text-xl font-black text-white">Activity Feed</h2>
-                  <p style={{ color: "rgba(255,255,255,0.4)" }} className="text-xs mt-1">Real-time subscription changes</p>
+                  <h2 className="text-xl font-black text-white">{t('subs_activity_feed',language)}</h2>
+                  <p style={{ color: "rgba(255,255,255,0.4)" }} className="text-xs mt-1">{t('subs_changes',language)}</p>
                 </div>
                 <div className="flex gap-2">
                   <select
@@ -155,15 +158,15 @@ export default function SubscriberMonitoring() {
                     className="px-4 py-2 rounded-xl text-sm font-bold"
                     style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
                   >
-                    <option value="all">All Actions</option>
-                    <option value="created">Created</option>
-                    <option value="upgraded">Upgraded</option>
-                    <option value="downgraded">Downgraded</option>
-                    <option value="canceled">Canceled</option>
-                    <option value="past_due">Past Due</option>
+                    <option value="all">{t("subs_all_actions",language)}</option>
+                    <option value="created">{t("subs_created",language)}</option>
+                    <option value="upgraded">{t("subs_upgraded",language)}</option>
+                    <option value="downgraded">{t("subs_downgraded",language)}</option>
+                    <option value="canceled">{t("subs_canceled",language)}</option>
+                    <option value="past_due">{t("subs_past_due",language)}</option>
                   </select>
                   <Button onClick={handleExport} className="gap-2" style={{ background: "rgba(249,115,22,0.2)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>
-                    <Download className="w-4 h-4" /> Export
+                    <Download className="w-4 h-4" /> {t("subs_export",language)}
                   </Button>
                 </div>
               </div>
@@ -173,17 +176,17 @@ export default function SubscriberMonitoring() {
               {filteredActivities.length === 0 ? (
                 <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
                   <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-20" />
-                  <p>No subscription activity yet</p>
+                  <p>{t('subs_no_activity',language)}</p>
                 </div>
               ) : (
                 filteredActivities.map(activity => {
                   const actionColors = {
-                    created: { bg: "rgba(34, 197, 94, 0.1)", text: "#22c55e", label: "✅ Created" },
-                    upgraded: { bg: "rgba(59, 130, 246, 0.1)", text: "#3B82F6", label: "📈 Upgraded" },
-                    downgraded: { bg: "rgba(249, 115, 22, 0.1)", text: "#F97316", label: "📉 Downgraded" },
-                    canceled: { bg: "rgba(239, 68, 68, 0.1)", text: "#EF4444", label: "❌ Canceled" },
-                    past_due: { bg: "rgba(244, 63, 94, 0.1)", text: "#F43F5E", label: "⚠️ Past Due" },
-                    renewed: { bg: "rgba(34, 197, 94, 0.1)", text: "#22c55e", label: "🔄 Renewed" }
+                    created: { bg: "rgba(34, 197, 94, 0.1)", text: "#22c55e", label: `✅ ${t("subs_created",language)}` },
+                    upgraded: { bg: "rgba(59, 130, 246, 0.1)", text: "#3B82F6", label: `📈 ${t("subs_upgraded",language)}` },
+                    downgraded: { bg: "rgba(249, 115, 22, 0.1)", text: "#F97316", label: `📉 ${t("subs_downgraded",language)}` },
+                    canceled: { bg: "rgba(239, 68, 68, 0.1)", text: "#EF4444", label: `❌ ${t("subs_canceled",language)}` },
+                    past_due: { bg: "rgba(244, 63, 94, 0.1)", text: "#F43F5E", label: `⚠️ ${t("subs_past_due",language)}` },
+                    renewed: { bg: "rgba(34, 197, 94, 0.1)", text: "#22c55e", label: `🔄 ${t("subs_renewed",language)}` }
                   };
 
                   const color = actionColors[activity.action] || actionColors.created;
@@ -202,12 +205,12 @@ export default function SubscriberMonitoring() {
                             </span>
                           </div>
                           <p style={{ color: "rgba(255,255,255,0.5)" }} className="text-sm">
-                            {activity.action === 'created' && `Signed up for ${activity.plan}`}
-                            {activity.action === 'upgraded' && `Upgraded to ${activity.plan} (from ${activity.old_plan})`}
-                            {activity.action === 'downgraded' && `Downgraded to ${activity.plan} (from ${activity.old_plan})`}
-                            {activity.action === 'canceled' && `Canceled ${activity.plan} subscription`}
-                            {activity.action === 'past_due' && `Payment failed - ${activity.plan}`}
-                            {activity.action === 'renewed' && `Renewed ${activity.plan} subscription`}
+                            {activity.action === 'created' && `${t("subs_signed_up_for",language)} ${activity.plan}`}
+                            {activity.action === 'upgraded' && `${t("subs_upgraded_to",language)} ${activity.plan} (${t("subs_from",language)} ${activity.old_plan})`}
+                            {activity.action === 'downgraded' && `${t("subs_downgraded_to",language)} ${activity.plan} (${t("subs_from",language)} ${activity.old_plan})`}
+                            {activity.action === 'canceled' && `${t("subs_canceled_plan",language)} · ${activity.plan}`}
+                            {activity.action === 'past_due' && `${t("subs_payment_failed",language)} · ${activity.plan}`}
+                            {activity.action === 'renewed' && `${t("subs_renewed_plan",language)} · ${activity.plan}`}
                           </p>
                           {activity.details && (
                             <p style={{ color: "rgba(255,255,255,0.35)" }} className="text-xs mt-1">{activity.details}</p>
