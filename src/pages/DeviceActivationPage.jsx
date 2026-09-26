@@ -14,6 +14,7 @@ import { PRODUCTS } from "@/lib/shopProducts";
 import FactoryProductMedia from "@/components/shop/FactoryProductMedia";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 // ── Status display config ──
 const STATUS_CONFIG = {
@@ -745,7 +746,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
               <div className="space-y-3">
                 {assignMode === "profile" && successProfile?.username && (
-                  <a href={`/p/${successProfile.username}`}>
+                  <a href={publicProfileUrl(successProfile.username)}>
                     <Button className="w-full font-bold rounded-2xl"
                       style={{ background: `linear-gradient(135deg, ${ORANGE}, #e86e00)`, color: "#fff" }}>
                       {t("activate_open_profile",language)} →
