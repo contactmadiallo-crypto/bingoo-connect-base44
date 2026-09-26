@@ -81,7 +81,7 @@ export default function MyNFCDevices() {
 
    // Debug logs removed — do not re-add (production data leak)
 
-   const { data: myDevices = [], refetch: refetchDevices, isLoading: devicesLoading } = useQuery({
+   const { data: myDevices = [], isLoading: devicesLoading } = useQuery({
      queryKey: ["my-nfc-devices-page", user?.id],
      queryFn: async () => {
        const res = await base44.functions.invoke("getMyNfcDevices", {});
@@ -332,7 +332,6 @@ export default function MyNFCDevices() {
     return acc;
   }, {});
   const activeCount = myDevices.filter(d => d.status === "active").length;
-  const lostCount = myDevices.filter(d => d.status === "lost").length;
   const totalCount = myDevices.length;
   const totalScans = nfcAnalytics.length;
   const unassignedCount = myDevices.filter(device => !device.profile_id && !device.assigned_asset_id).length;
