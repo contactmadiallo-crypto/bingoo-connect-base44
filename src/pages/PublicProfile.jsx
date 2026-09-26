@@ -13,6 +13,8 @@ import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon } from "@/components/bingoo/SocialIcons";
 import { isLayoutDark } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // ── Brand palette
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21", teal: "#0D9488" };
@@ -143,6 +145,7 @@ function buildStructuredData(profile) {
 
 // ── Main component
 export default function PublicProfile() {
+  const { language } = useI18n();
   const { username } = useParams();
   const mobile = useIsMobile();
   const isDemo = username === "demo";
@@ -305,9 +308,9 @@ export default function PublicProfile() {
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc", padding: 24 }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 64, marginBottom: 16 }}>😕</div>
-        <h1 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>Profile not found</h1>
-        <p style={{ color: "#64748b", fontSize: 14 }}>This link may be inactive or the username doesn't exist.</p>
-        <a href="/" style={{ display: "inline-block", marginTop: 20, padding: "12px 28px", borderRadius: 999, background: B.navy, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Go Home</a>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", margin: "0 0 8px" }}>{t("profile_not_found",language)}</h1>
+        <p style={{ color: "#64748b", fontSize: 14 }}>{t("profile_not_found_copy",language)}</p>
+        <a href="/" style={{ display: "inline-block", marginTop: 20, padding: "12px 28px", borderRadius: 999, background: B.navy, color: "#fff", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← {t("profile_go_home",language)}</a>
       </div>
     </div>
   );
@@ -338,10 +341,10 @@ export default function PublicProfile() {
 
   const profileCategory = profile.profile_category || (profile.profile_type === "business" ? "business" : "personal");
   const profileTypeCta = {
-    content_creator: { label: "Book a Collab", subject: "Collaboration inquiry" },
-    photographer: { label: "Book a Session", subject: "Session inquiry" },
-    model: { label: "Collab / Shooting", subject: "Collaboration / shooting inquiry" },
-    business: { label: "Business Inquiry", subject: "Business inquiry" },
+    content_creator: { label: t("profile_book_collab",language), subject: t("public_collab_subject",language) },
+    photographer: { label: t("profile_book_session",language), subject: t("public_session_subject",language) },
+    model: { label: t("profile_collab_shooting",language), subject: t("public_shooting_subject",language) },
+    business: { label: t("profile_business_inquiry",language), subject: t("profile_business_inquiry",language) },
   }[profileCategory] || null;
   const profileTypeCtaHref = profileTypeCta
     ? (profile.email
@@ -407,7 +410,7 @@ export default function PublicProfile() {
 
       {/* Figma/iOS public-profile navigation chrome */}
       <motion.button
-        aria-label="Go back"
+        aria-label={t("profile_go_back",language)}
         onClick={() => window.history.back()}
         initial={{ opacity: 0, scale: .9 }}
         animate={{ opacity: 1, scale: 1 }}
