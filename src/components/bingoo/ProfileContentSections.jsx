@@ -31,6 +31,8 @@ import {
   CalendarIcon as BICalendar, ShopIcon, PortfolioIcon, LocationIcon as BILocation,
 } from "@/components/bingoo/BrandIcons";
 import { getLinkCategory } from "@/lib/linkCategories";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // ── Helpers ──────────────────────────────────────────────────
 const hexRgb = (hex, alpha = 1) => {
@@ -284,6 +286,7 @@ function IconRow({ items, isDark, track, delay = 0.3, wrap = false, compact = fa
 
 // ════════════════════════════════════════════════════════════
 export default function ProfileContentSections({ profile, color, isDark, isDemo, deviceCodeParam, sourceParam, track, primaryContactDocked = false }) {
+  const { language } = useI18n();
   const [bookOpen, setBookOpen] = useState(false);
   const [bookService, setBookService] = useState(null);
   const [bookStylist, setBookStylist] = useState(null);
@@ -295,12 +298,12 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   const linkIconShape = profile.link_icon_shape || "rounded";
   const profileCategory = profile.profile_category || (profile.profile_type === "business" ? "business" : "personal");
   const profileCategoryMeta = {
-    personal: { label: "Personal", cta: null },
-    content_creator: { label: "Content Creator", cta: "Book a Collab" },
-    photographer: { label: "Photographer / Filmmaker", cta: "Book a Session" },
-    model: { label: "Model", cta: "Collab / Shooting" },
-    business: { label: "Business / Brand", cta: null },
-  }[profileCategory] || { label: "Personal", cta: null };
+    personal: { label: t("public_personal",language), cta: null },
+    content_creator: { label: t("public_content_creator",language), cta: t("public_book_collab",language) },
+    photographer: { label: t("public_photographer",language), cta: t("public_book_session",language) },
+    model: { label: t("public_model",language), cta: t("public_collab_shooting",language) },
+    business: { label: t("public_business_brand",language), cta: null },
+  }[profileCategory] || { label: t("public_personal",language), cta: null };
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const isBusinessProfile = ["business", "corporate"].includes(profile.plan) || profileCategory === "business";
   const supportsWhatsAppBooking = isSalonOrRestaurant || profile.plan === "business";
@@ -341,16 +344,16 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
   // Call / WhatsApp may be docked in the persistent bottom action bar. When they
   // are docked, never repeat them inside the scrollable content stack.
   const contactIcons = [
-    !primaryContactDocked && profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: "Call", ev: "phone_click" },
+    !primaryContactDocked && profile.phone && !hiddenLinks.has("phone") && { href: `tel:${profile.phone}`, icon: <BIPhone size={58} />, label: t("public_call",language), ev: "phone_click" },
     !primaryContactDocked && (supportsWhatsAppBooking && waBookingHref && profile.whatsapp_booking_message && !hiddenLinks.has("whatsapp_number")
-      ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: "Book WA", ev: "whatsapp_click" }
+      ? { href: waBookingHref, icon: <BIWhatsApp size={58} />, label: t("public_book_wa",language), ev: "whatsapp_click" }
       : profile.whatsapp_number && !hiddenLinks.has("whatsapp_number") && { href: `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}`, icon: <BIWhatsApp size={58} />, label: "WhatsApp", ev: "whatsapp_click" }),
-    profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: "Email", ev: "email_click" },
+    profile.email && !hiddenLinks.has("email") && { href: `mailto:${profile.email}`, icon: <BIEmail size={58} />, label: t("public_email",language), ev: "email_click" },
   ].filter(Boolean);
 
   const bookingItems = [
-    profileCategoryMeta.cta && profile.email && { href: `mailto:${profile.email}?subject=${encodeURIComponent(profileCategory === "content_creator" ? "Collaboration inquiry" : profileCategory === "photographer" ? "Session inquiry" : "Collaboration / shooting inquiry")}`, icon: <BICalendar size={58} />, label: profileCategoryMeta.cta, ev: null },
-    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: "Book Appointment", ev: null },
+    profileCategoryMeta.cta && profile.email && { href: `mailto:${profile.email}?subject=${encodeURIComponent(profileCategory === "content_creator" ? t("public_collab_subject",language) : profileCategory === "photographer" ? t("public_session_subject",language) : t("public_shooting_subject",language))}`, icon: <BICalendar size={58} />, label: profileCategoryMeta.cta, ev: null },
+    canBook && { onClick: () => setBookOpen(true), icon: <BICalendar size={58} />, label: t("public_book_appointment",language), ev: null },
     ...clBusiness.filter(l => l._catalog_id === "booking").map(l => ({
       href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
       icon: <BICalendar size={58} />, label: l.label, ev: null,
@@ -481,9 +484,9 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Public links are organized by purpose, not dumped into one stack ── */}
       {linkDisplayStyle === "icons" ? (
         <>
-          {bookingItems.length > 0 && <><SLabel isDark={isDark}>Booking</SLabel><IconRow items={bookingItems} isDark={isDark} track={track} delay={0.28} wrap compact /></>}
-          {contactIcons.length > 0 && <><SLabel isDark={isDark}>Contact</SLabel><IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} wrap compact /></>}
-          {socialIcons.length > 0 && <><SLabel isDark={isDark}>Social</SLabel><IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap compact /></>}
+          {bookingItems.length > 0 && <><SLabel isDark={isDark}>{t("public_booking",language)}</SLabel><IconRow items={bookingItems} isDark={isDark} track={track} delay={0.28} wrap compact /></>}
+          {contactIcons.length > 0 && <><SLabel isDark={isDark}>{t("public_contact",language)}</SLabel><IconRow items={contactIcons} isDark={isDark} track={track} delay={0.3} wrap compact /></>}
+          {socialIcons.length > 0 && <><SLabel isDark={isDark}>{t("public_social",language)}</SLabel><IconRow items={socialIcons} isDark={isDark} track={track} delay={0.33} wrap compact /></>}
         </>
       ) : (
         <>
@@ -498,7 +501,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {/* ── Content custom links (Spotify, Shop, Portfolio) as wrapping icon grid ── */}
       {linkDisplayStyle === "icons" && clContent.length > 0 && (
         <>
-        <SLabel isDark={isDark}>Content</SLabel>
+        <SLabel isDark={isDark}>{t("public_content",language)}</SLabel>
         <IconRow
           items={clContent.map(l => ({
             href: l.url.startsWith("http") ? l.url : `https://${l.url}`,
@@ -515,7 +518,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {linkDisplayStyle === "icons" && clGeneric.length > 0 && (
         <>
           <Div isDark={isDark} />
-          <SLabel isDark={isDark}>Links</SLabel>
+          <SLabel isDark={isDark}>{t("public_links",language)}</SLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 4 }}>
             {clGeneric.map((link, i) => (
               <motion.div key={link.id || i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
@@ -536,7 +539,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {(linkDisplayStyle === "icons" && (profile.website && !hiddenLinks.has("website") || (profile.location && profile.show_location !== false && !hiddenLinks.has("location")) || businessCustomLinks.length > 0) || profile.google_review_url) && (
         <>
           <Div isDark={isDark} />
-          <SLabel isDark={isDark}>Business Info</SLabel>
+          <SLabel isDark={isDark}>{t("public_business_info",language)}</SLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {linkDisplayStyle === "icons" && profile.website && !hiddenLinks.has("website") && (
               <RowLink href={profile.website} ev="website_click" track={track}
@@ -547,13 +550,13 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
             {linkDisplayStyle === "icons" && profile.location && profile.show_location !== false && !hiddenLinks.has("location") && (
               <RowLink href={`https://maps.google.com/?q=${encodeURIComponent(profile.location)}`} ev="location_click" track={track}
                 iconEl={<MapPinIcon size={20} color="#ef4444" />}
-                title={profile.location} subtitle="Get Directions →"
+                title={profile.location} subtitle={t("public_get_directions",language)}
                 isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
             {profile.google_review_url && (
               <RowLink href={profile.google_review_url} track={track}
                 iconEl={<span style={{ fontSize: 22 }}>⭐</span>}
-                title="Leave a Google Review" subtitle="Share your experience →"
+                title={t("public_google_review",language)} subtitle={t("public_share_experience",language)}
                 isDark={isDark} buttonDesign={buttonDesign} rowStyle={linkRowStyle} iconShape={linkIconShape} />
             )}
             {linkDisplayStyle === "icons" && businessCustomLinks.map((link, i) => (
@@ -572,7 +575,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {payments.length > 0 && (
         <>
           <Div isDark={isDark} />
-          <SLabel isDark={isDark}>Payments</SLabel>
+          <SLabel isDark={isDark}>{t("public_payments",language)}</SLabel>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(118px, 1fr))", gap: 10 }}>
             {payments.map((p) => <PaymentBtn key={p.l} p={p} color={color} isDark={isDark} buttonDesign={buttonDesign} />)}
           </div>
@@ -598,7 +601,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
           <>
             <Div isDark={isDark} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <SLabel isDark={isDark}>Hours</SLabel>
+              <SLabel isDark={isDark}>{t("public_hours",language)}</SLabel>
               <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 999,
                 background: isOpenNow ? (isDark ? "rgba(34,197,94,0.18)" : "#dcfce7") : (isDark ? "rgba(239,68,68,0.18)" : "#fee2e2"),
                 color: isOpenNow ? (isDark ? "#4ade80" : "#16a34a") : (isDark ? "#f87171" : "#dc2626") }}>
@@ -619,7 +622,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
                     </span>
                     {cfg.enabled
                       ? <span style={{ fontSize: 13, fontWeight: 600, color: isDark ? "rgba(255,255,255,0.8)" : "#1e293b" }}>{cfg.start} – {cfg.end}</span>
-                      : <span style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>Closed</span>}
+                      : <span style={{ fontSize: 12, color: "#94a3b8", fontStyle: "italic" }}>{t("public_closed",language)}</span>}
                   </div>
                 );
               })}
@@ -649,7 +652,7 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
       {isBusinessProfile && (
         <>
           <Div isDark={isDark} />
-          <SLabel isDark={isDark}>Careers</SLabel>
+          <SLabel isDark={isDark}>{t("public_careers",language)}</SLabel>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
             style={{
               display: "flex", alignItems: "center", gap: 14, padding: "16px",
