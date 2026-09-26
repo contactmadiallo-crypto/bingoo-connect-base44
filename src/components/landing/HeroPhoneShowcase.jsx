@@ -17,6 +17,9 @@ import {
   Wifi,
 } from "lucide-react";
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: "#0b2149",
   navyDark: "#050A14",
@@ -82,7 +85,7 @@ function ProfileScreen() {
           <p className="text-[11px] font-black text-white">Emma Carter</p>
           <BadgeCheck className="h-3 w-3" fill="#fff" stroke="#1d4ed8" strokeWidth={2} />
         </div>
-        <p className="relative text-[7px] text-white/70">Creative Director</p>
+        <p className="relative text-[7px] text-white/70">{t("landing_hero_creative_director",language)}</p>
         <p className="relative text-[7px] text-white/50">Northstar Studio</p>
         <div className="relative mt-1 flex items-center justify-center gap-1 text-white/60">
           <MapPin className="h-2.5 w-2.5" />
@@ -92,7 +95,7 @@ function ProfileScreen() {
 
       {/* Services */}
       <div className="px-3 pt-2">
-        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">Services</p>
+        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">{t("landing_services",language)}</p>
         <div className="flex flex-wrap gap-1">
           {["Branding", "Web Design", "Strategy"].map((s) => (
             <span key={s} className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[6px] font-bold text-slate-600">{s}</span>
@@ -102,7 +105,7 @@ function ProfileScreen() {
 
       {/* Portfolio thumbnails */}
       <div className="px-3 pt-2">
-        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">Portfolio</p>
+        <p className="mb-1 text-[6px] font-bold uppercase tracking-wide text-slate-400">{t("landing_portfolio",language)}</p>
         <div className="grid grid-cols-3 gap-1">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-8 rounded-md" style={{ background: `linear-gradient(135deg, ${[B.orange, B.gold, "#60a5fa"][i]}99, ${[B.navy, B.orange, B.gold][i]}99)` }} />
@@ -117,8 +120,8 @@ function ProfileScreen() {
           <Calendar className="h-3 w-3" /> Book Appointment
         </button>
         <div className="grid grid-cols-2 gap-1.5">
-          <button className="rounded-lg py-1.5 text-[7px] font-black text-white" style={{ background: B.navy }}>Save Contact</button>
-          <button className="rounded-lg border border-slate-200 bg-white py-1.5 text-[7px] font-black text-[#0b2149]">Share</button>
+          <button className="rounded-lg py-1.5 text-[7px] font-black text-white" style={{ background: B.navy }}>{t("landing_save_contact",language)}</button>
+          <button className="rounded-lg border border-slate-200 bg-white py-1.5 text-[7px] font-black text-[#0b2149]">{t("landing_share",language)}</button>
         </div>
         {/* Social row */}
         <div className="flex items-center justify-center gap-1.5 pt-0.5">
@@ -143,15 +146,15 @@ function LostModeScreen() {
         <div className="relative mb-1 inline-flex items-center gap-1 rounded-full bg-white/25 px-2 py-0.5 text-[8px] font-black tracking-widest text-white">
           <Bell className="h-2.5 w-2.5" /> LOST MODE
         </div>
-        <p className="relative text-[11px] font-black leading-tight text-white">This item is reported lost</p>
-        <p className="relative mt-0.5 text-[8px] text-white/80">If found, please help return it</p>
+        <p className="relative text-[11px] font-black leading-tight text-white">{t("landing_item_reported_lost",language)}</p>
+        <p className="relative mt-0.5 text-[8px] text-white/80">{t("landing_lost_help_return",language)}</p>
       </div>
 
       {/* Reward badge */}
       <div className="px-3 pt-2">
         <div className="flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1">
           <span className="text-[10px]">🎁</span>
-          <span className="text-[7px] font-black text-amber-700">REWARD $50</span>
+          <span className="text-[7px] font-black text-amber-700">{t("landing_reward_50",language)}</span>
         </div>
       </div>
 
@@ -160,18 +163,18 @@ function LostModeScreen() {
         <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg text-lg shadow-sm" style={{ background: `linear-gradient(135deg, ${B.navy}, ${B.navyLight})` }}>🧳</div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[9px] font-black text-slate-800">Travel Suitcase</p>
+            <p className="truncate text-[9px] font-black text-slate-800">{t("landing_travel_suitcase",language)}</p>
             <p className="text-[7px] text-slate-400">BG-DEMO-104 · Active</p>
           </div>
-          <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[6px] font-black text-red-600">LOST</span>
+          <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[6px] font-black text-red-600">{t("landing_lost",language)}</span>
         </div>
       </div>
 
       {/* Owner message */}
       <div className="px-3 pt-2">
-        <p className="mb-1 text-[7px] font-bold uppercase tracking-wide text-slate-500">Owner Message</p>
+        <p className="mb-1 text-[7px] font-bold uppercase tracking-wide text-slate-500">{t("landing_owner_message",language)}</p>
         <div className="rounded-lg bg-slate-100 p-2">
-          <p className="text-[8px] leading-snug text-slate-600">Thank you for finding this item. Please use a secure option below to contact me.</p>
+          <p className="text-[8px] leading-snug text-slate-600">{t("landing_owner_message_secure",language)}</p>
         </div>
       </div>
 
@@ -221,8 +224,8 @@ function AnalyticsScreen() {
     <div className="min-h-[258px]" style={{ background: `linear-gradient(160deg, ${B.navyMid} 0%, ${B.navyDark} 100%)` }}>
       <div className="flex items-center justify-between px-3 pb-2 pt-3">
         <div>
-          <p className="text-[10px] font-black text-white">Dashboard</p>
-          <p className="text-[7px] text-white/40">Last 7 days</p>
+          <p className="text-[10px] font-black text-white">{t("landing_dashboard",language)}</p>
+          <p className="text-[7px] text-white/40">{t("landing_last_7_days",language)}</p>
         </div>
         <div className="rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[7px] font-black text-emerald-300">+24%</div>
       </div>
@@ -246,7 +249,7 @@ function AnalyticsScreen() {
       <div className="px-2.5 pt-1.5">
         <div className="rounded-lg border border-white/8 bg-white/[.04] p-2">
           <div className="mb-1 flex items-center justify-between">
-            <span className="text-[7px] font-bold text-white/50">Profile Views</span>
+            <span className="text-[7px] font-bold text-white/50">{t("landing_profile_views",language)}</span>
             <BarChart3 className="h-2.5 w-2.5 text-orange-400" />
           </div>
           <div className="flex h-12 items-end justify-between gap-1">
@@ -413,7 +416,7 @@ function NfcCardAndStatus() {
         <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500">
           <Check className="h-2 w-2 text-white" />
         </span>
-        <span className="text-[7px] font-bold text-white/80">Profile opens instantly</span>
+        <span className="text-[7px] font-bold text-white/80">{t("landing_profile_opened",language)}</span>
       </motion.div>
     </div>
   );

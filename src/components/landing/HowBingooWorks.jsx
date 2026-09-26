@@ -2,6 +2,9 @@ import { motion } from 'framer-motion';
 import { UserPlus, Link2, Share2, BarChart3, ShieldCheck, Sparkles, ArrowRight, QrCode, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: '#0b2149',
   navyDark: '#071A3D',
@@ -65,6 +68,7 @@ const steps = [
 ];
 
 export default function HowBingooWorks() {
+  const { language } = useI18n();
   return (
     <section id="how-it-works" className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#f8fafc' }}>
       <div className="max-w-5xl mx-auto">
@@ -109,8 +113,8 @@ export default function HowBingooWorks() {
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
-                <p className="font-black text-sm">QR sharing is free for everyone</p>
-                <p className="text-white/60 text-xs">Print it anywhere — no NFC device needed.</p>
+                <p className="font-black text-sm">{t("landing_qr_free",language)}</p>
+                <p className="text-white/60 text-xs">{t("landing_qr_free_copy",language)}</p>
               </div>
             </div>
             <div className="hidden sm:block h-12 w-px bg-white/10" />
@@ -119,8 +123,8 @@ export default function HowBingooWorks() {
                 <Wifi className="w-5 h-5 text-orange-400" />
               </div>
               <div>
-                <p className="font-black text-sm">NFC makes it instant</p>
-                <p className="text-white/60 text-xs">One tap shares everything — add an NFC device from the shop.</p>
+                <p className="font-black text-sm">{t("landing_nfc_instant",language)}</p>
+                <p className="text-white/60 text-xs">{t("landing_nfc_instant_copy",language)}</p>
               </div>
             </div>
             <div className="sm:ml-auto flex-shrink-0">

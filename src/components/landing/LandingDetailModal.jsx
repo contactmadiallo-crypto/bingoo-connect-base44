@@ -3,6 +3,9 @@ import { X, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: "#0b2149",
   navyLight: "#13284f",
@@ -20,7 +23,8 @@ const B = {
  *  - why it matters note
  *  - CTA buttons (each navigates to an app route)
  */
-export default function LandingDetailModal({ open, onClose, item }) {
+export default function LandingDetailModal({
+  const { language } = useI18n(); open, onClose, item }) {
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
@@ -85,7 +89,7 @@ export default function LandingDetailModal({ open, onClose, item }) {
               </div>
               <button
                 onClick={onClose}
-                aria-label="Close"
+                aria-label={t("landing_close",language)}
                 className="shrink-0 p-2 rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
                 <X className="h-5 w-5" />
               </button>
@@ -147,7 +151,7 @@ export default function LandingDetailModal({ open, onClose, item }) {
 
               {item.whyItMatters && (
                 <div className="rounded-xl p-4 bg-slate-50 border border-slate-100">
-                  <p className="font-bold text-sm mb-1" style={{ color: B.navy }}>Why it matters</p>
+                  <p className="font-bold text-sm mb-1" style={{ color: B.navy }}>{t("landing_why_matters",language)}</p>
                   <p className="text-sm text-slate-600 leading-relaxed">{item.whyItMatters}</p>
                 </div>
               )}
