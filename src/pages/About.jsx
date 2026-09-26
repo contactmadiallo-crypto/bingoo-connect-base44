@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function About() {
+  const { language } = useI18n();
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -11,63 +14,49 @@ export default function About() {
         style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" /> {t("about_back",language)}
           </Link>
           <div className="h-5 w-px bg-white/10 mx-1" />
-          <span className="text-white font-bold">About Bingoo Connect</span>
+          <span className="text-white font-bold">{t("about_title",language)}</span>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h1 className="text-4xl md:text-5xl font-black mb-6" style={{ color: B.navy }}>
-          About Bingoo Connect
+          {t("about_title",language)}
         </h1>
 
         <div className="prose prose-lg max-w-none text-slate-600 space-y-6">
           <p>
-            Bingoo Connect is a modern digital identity platform that transforms the way professionals,
-            businesses, and entrepreneurs share their contact information and connect with the world.
-            By combining NFC (Near Field Communication) smart cards with beautiful, customizable digital
-            profiles, Bingoo Connect replaces outdated paper business cards with a smarter, more powerful solution.
+            {t("about_p1",language)}
           </p>
 
           <p>
-            Whether you're a freelancer, a salon owner, a restaurant operator, a law firm, or a corporate
-            team — Bingoo Connect offers tailored plans designed specifically for your industry. Our platform
-            enables you to create a stunning digital business card that can be shared instantly via a tap of
-            an NFC card, a QR code, or a personal link.
+            {t("about_p2",language)}
           </p>
 
           <p>
-            With Bingoo Connect, you get more than just a digital business card. You get a full suite of
-            business tools: appointment booking, a lead capture CRM, analytics dashboards, portfolio
-            showcases, payment links, and seamless integrations with WhatsApp, Instagram, and other
-            social platforms — all in one place.
+            {t("about_p3",language)}
           </p>
 
           <p>
-            Our platform is built for people who value their time and their professional image. We believe
-            first impressions matter, and a Bingoo Connect profile ensures yours is always up-to-date,
-            interactive, and memorable. From solo professionals to enterprise teams managing dozens of
-            employee profiles, Bingoo Connect scales with your needs.
+            {t("about_p4",language)}
           </p>
 
           <p>
-            Bingoo Connect is developed and maintained by a passionate team dedicated to bridging the gap
-            between the physical and digital worlds through innovative NFC technology. Our mission is to
-            help every professional make a lasting impression and turn every interaction into an opportunity.
+            {t("about_p5",language)}
           </p>
 
           <div className="flex gap-4 mt-10">
             <Link to="/plans"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-white"
               style={{ background: B.orange }}>
-              View Plans
+              {t("about_view_plans",language)}
             </Link>
             <Link to="/contact"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold border-2"
               style={{ color: B.navy, borderColor: B.navy }}>
-              Contact Us
+              {t("about_contact_us",language)}
             </Link>
           </div>
         </div>
@@ -76,12 +65,12 @@ export default function About() {
       {/* Footer links */}
       <footer className="border-t mt-16 py-8 text-center text-sm text-slate-400">
         <div className="flex justify-center gap-6">
-          <Link to="/" className="hover:text-slate-600 transition-colors">Home</Link>
-          <Link to="/about" className="hover:text-slate-600 transition-colors">About</Link>
-          <Link to="/contact" className="hover:text-slate-600 transition-colors">Contact</Link>
-          <Link to="/plans" className="hover:text-slate-600 transition-colors">Pricing</Link>
+          <Link to="/" className="hover:text-slate-600 transition-colors">{t("about_home",language)}</Link>
+          <Link to="/about" className="hover:text-slate-600 transition-colors">{t("about_about",language)}</Link>
+          <Link to="/contact" className="hover:text-slate-600 transition-colors">{t("about_contact",language)}</Link>
+          <Link to="/plans" className="hover:text-slate-600 transition-colors">{t("landing_pricing",language)}</Link>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. All rights reserved.</p>
+        <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. {t("about_rights",language)}</p>
       </footer>
     </div>
   );
