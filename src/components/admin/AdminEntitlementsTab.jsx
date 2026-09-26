@@ -3,10 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { KeyRound, Search, Crown, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const PLANS = ['free', 'professional', 'salon', 'restaurant', 'lawfirm', 'business', 'corporate'];
 
 export default function AdminEntitlementsTab() {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [editSub, setEditSub] = useState(null);
@@ -40,13 +43,13 @@ export default function AdminEntitlementsTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><KeyRound className="w-5 h-5" /> Manual Entitlements</h2>
-        <p className="text-xs text-slate-500">{subs.length} subscriptions · {subs.filter(s => s.plan_source === 'admin_override').length} admin overrides</p>
+        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><KeyRound className="w-5 h-5" /> {t("admin_manual_entitlements",language)}</h2>
+        <p className="text-xs text-slate-500">{subs.length} {t("admin_subscriptions_count",language)} · {subs.filter(s => s.plan_source === "admin_override").length} {t("admin_overrides_count",language)}</p>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input type="text" placeholder="Search by email, name, or plan..."
+        <input type="text" placeholder={t("admin_search_entitlements",language)}
           value={search} onChange={e => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border border-slate-200 outline-none focus:border-slate-400" />
       </div>
@@ -57,12 +60,12 @@ export default function AdminEntitlementsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead><tr className="border-b border-slate-200 text-slate-500">
-              <th className="text-left py-2 px-3 font-bold">Customer</th>
-              <th className="text-left py-2 px-3 font-bold">Email</th>
-              <th className="text-left py-2 px-3 font-bold">Plan</th>
-              <th className="text-left py-2 px-3 font-bold">Status</th>
-              <th className="text-left py-2 px-3 font-bold">Source</th>
-              <th className="text-left py-2 px-3 font-bold">Period End</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_customer",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_email",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_plan",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_status",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_source",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_period_end",language)}</th>
               <th className="text-left py-2 px-3 font-bold"></th>
             </tr></thead>
             <tbody>
@@ -76,12 +79,12 @@ export default function AdminEntitlementsTab() {
                   <td className="py-2.5 px-3 text-slate-600">{s.status}</td>
                   <td className="py-2.5 px-3">
                     {s.plan_source === 'admin_override'
-                      ? <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1"><Crown className="w-3 h-3" /> Override</span>
+                      ? <span className="text-[10px] font-bold text-orange-600 flex items-center gap-1"><Crown className="w-3 h-3" /> {t("admin_override",language)}</span>
                       : <span className="text-[10px] text-slate-400">Stripe</span>}
                   </td>
                   <td className="py-2.5 px-3 text-slate-400">{s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : '—'}</td>
                   <td className="py-2.5 px-3">
-                    <Button size="sm" variant="ghost" onClick={() => setEditSub(s)} className="h-7 text-xs">Edit</Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditSub(s)} className="h-7 text-xs">{t("admin_edit",language)}</Button>
                   </td>
                 </tr>
               ))}
@@ -94,27 +97,27 @@ export default function AdminEntitlementsTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setEditSub(null)}>
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="font-black text-slate-900">Edit Entitlement</h3>
+              <h3 className="font-black text-slate-900">{t("admin_edit_entitlement",language)}</h3>
               <button onClick={() => setEditSub(null)}><X className="w-5 h-5 text-slate-400" /></button>
             </div>
             <div>
               <p className="text-sm font-bold text-slate-900">{editSub.customer_email}</p>
-              <p className="text-xs text-slate-500">Current: {editSub.plan} ({editSub.status})</p>
+              <p className="text-xs text-slate-500">{t("admin_current",language)}: {editSub.plan} ({editSub.status})</p>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">Plan</label>
+              <label className="text-xs font-bold text-slate-600 block mb-1">{t("admin_plan",language)}</label>
               <select id="ent-plan-select" className="w-full h-9 rounded-md border border-slate-200 text-sm" defaultValue={editSub.plan}>
                 {PLANS.map(p => <option key={p} value={p}>{p}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-600 block mb-1">Status</label>
+              <label className="text-xs font-bold text-slate-600 block mb-1">{t("admin_status",language)}</label>
               <select id="ent-status-select" className="w-full h-9 rounded-md border border-slate-200 text-sm" defaultValue={editSub.status}>
-                <option value="free">Free</option>
-                <option value="active">Active</option>
-                <option value="trialing">Trialing</option>
-                <option value="past_due">Past Due</option>
-                <option value="canceled">Canceled</option>
+                <option value="free">{t("admin_free",language)}</option>
+                <option value="active">{t("admin_active",language)}</option>
+                <option value="trialing">{t("admin_trialing",language)}</option>
+                <option value="past_due">{t("admin_past_due",language)}</option>
+                <option value="canceled">{t("admin_canceled",language)}</option>
               </select>
             </div>
             <Button className="w-full bg-slate-900" onClick={() => {
@@ -122,9 +125,9 @@ export default function AdminEntitlementsTab() {
               const status = document.getElementById('ent-status-select').value;
               updateMut.mutate({ id: editSub.id, plan, status, plan_source: 'admin_override' });
             }}>
-              Save Override
+              {t("admin_save_override",language)}
             </Button>
-            <p className="text-[10px] text-slate-400 text-center">This will override Stripe billing. Use with caution.</p>
+            <p className="text-[10px] text-slate-400 text-center">{t("admin_override_warning",language)}</p>
           </div>
         </div>
       )}
