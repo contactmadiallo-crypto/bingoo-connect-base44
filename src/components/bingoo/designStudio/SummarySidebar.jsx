@@ -10,7 +10,7 @@ function Row({ a, b }) {
 
 export default function SummarySidebar({
   previewProps, productLabel, finish, setFinish, cardColor, accentColor, quantity, setQuantity,
-  removeBranding, subtotal, total, onAdd, onSave, ordered, saved,
+  subtotal, total, onAdd, onSave, ordered, saved,
 }) {
   const { language } = useI18n();
   const finishLabel = (f) => t(`ds_finish_${String(f).toLowerCase()}`, language);
