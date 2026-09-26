@@ -330,7 +330,7 @@ export default function AssetProtectionLostMode() {
               <Luggage className="h-4 w-4" style={{ color: B.orange }} />
               <div>
                 <p className="text-[10px] font-black text-white">{t("landing_travel_suitcase",language)}</p>
-                <p className="text-[8px] text-white/50">Lost Mode Active</p>
+                <p className="text-[8px] text-white/50">{t("landing_lost_active",language)}</p>
               </div>
             </div>
             <div className="mb-3 flex flex-wrap gap-1.5">

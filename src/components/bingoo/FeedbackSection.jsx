@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { base44 } from "@/api/base44Client";
 import { MessageSquare, Star, Send, CheckCircle2 } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const TYPES = [
-  { value: "suggestion", label: "💡 Suggestion" },
-  { value: "compliment", label: "❤️ Compliment" },
-  { value: "bug", label: "🐛 Bug Report" },
-  { value: "other", label: "💬 Other" },
+  { value: "suggestion", key: "feedback_suggestion" },
+  { value: "compliment", key: "feedback_compliment" },
+  { value: "bug", key: "feedback_bug" },
+  { value: "other", key: "feedback_other" },
 ];
 
 function StarRating({ value, onChange }) {
@@ -35,6 +37,7 @@ function StarRating({ value, onChange }) {
 }
 
 export default function FeedbackSection() {
+  const { language } = useI18n();
   const [form, setForm] = useState({ name: "", email: "", type: "suggestion", message: "", rating: 0 });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,10 +68,10 @@ export default function FeedbackSection() {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
           <Badge className="mb-4 bg-blue-50 text-blue-700 border-blue-100">
-            <MessageSquare className="w-3.5 h-3.5 mr-1" /> Your Voice
+            <MessageSquare className="w-3.5 h-3.5 mr-1" /> {t("feedback_voice",language)}
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">Share Your Thoughts</h2>
-          <p className="text-slate-500 text-base md:text-lg">We read every message. Your feedback shapes the future of Bingoo Connect.</p>
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">{t("feedback_share_thoughts",language)}</h2>
+          <p className="text-slate-500 text-base md:text-lg">{t("feedback_intro",language)}</p>
         </motion.div>
 
         <motion.div
@@ -95,14 +98,14 @@ export default function FeedbackSection() {
                 >
                   <CheckCircle2 className="w-8 h-8 text-green-600" />
                 </motion.div>
-                <h3 className="text-2xl font-black text-slate-900">Thank you! 🎉</h3>
-                <p className="text-slate-500 max-w-sm">Your feedback has been received. We truly appreciate you taking the time to share your thoughts.</p>
+                <h3 className="text-2xl font-black text-slate-900">{t("feedback_thank_you",language)}</h3>
+                <p className="text-slate-500 max-w-sm">{t("feedback_received",language)}</p>
                 <Button
                   variant="outline"
                   className="mt-2"
                   onClick={() => { setSubmitted(false); setForm({ name: "", email: "", type: "suggestion", message: "", rating: 0 }); }}
                 >
-                  Send Another
+                  {t("feedback_send_another",language)}
                 </Button>
               </motion.div>
             ) : (
@@ -116,7 +119,7 @@ export default function FeedbackSection() {
               >
                 {/* Type selector */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">What type of feedback?</label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_type_question",language)}</label>
                   <div className="flex flex-wrap gap-2">
                     {TYPES.map((t) => (
                       <button
@@ -129,7 +132,7 @@ export default function FeedbackSection() {
                             : "border-slate-200 text-slate-500 hover:border-slate-300"
                         }`}
                       >
-                        {t.label}
+                        {t(t.key,language)}
                       </button>
                     ))}
                   </div>
@@ -137,17 +140,17 @@ export default function FeedbackSection() {
 
                 {/* Star rating */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">How would you rate your experience? <span className="text-slate-400 font-normal">(optional)</span></label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_rate",language)} <span className="text-slate-400 font-normal">{t("feedback_optional",language)}</span></label>
                   <StarRating value={form.rating} onChange={(v) => setForm(f => ({ ...f, rating: v }))} />
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Your message <span className="text-red-400">*</span></label>
+                  <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_message",language)} <span className="text-red-400">*</span></label>
                   <textarea
                     value={form.message}
                     onChange={(e) => setForm(f => ({ ...f, message: e.target.value }))}
-                    placeholder="Tell us what you think, what you'd love to see, or what can be improved..."
+                    placeholder={t("feedback_message_placeholder",language)}
                     rows={4}
                     required
                     className="w-full rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none px-4 py-3 text-sm text-slate-800 placeholder-slate-400 resize-none transition-colors"
@@ -157,17 +160,17 @@ export default function FeedbackSection() {
                 {/* Name & Email */}
                 <div className="grid sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Name <span className="text-slate-400 font-normal">(optional)</span></label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_name",language)} <span className="text-slate-400 font-normal">{t("feedback_optional",language)}</span></label>
                     <input
                       type="text"
                       value={form.name}
                       onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                      placeholder="Your name"
+                      placeholder={t("feedback_name_placeholder",language)}
                       className="w-full rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Email <span className="text-slate-400 font-normal">(optional)</span></label>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_email",language)} <span className="text-slate-400 font-normal">{t("feedback_optional",language)}</span></label>
                     <input
                       type="email"
                       value={form.email}
@@ -184,7 +187,7 @@ export default function FeedbackSection() {
                     disabled={loading || !form.message.trim()}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-base gap-2 disabled:opacity-50"
                   >
-                    {loading ? "Sending..." : <><Send className="w-4 h-4" /> Send Feedback</>}
+                    {loading ? t("feedback_sending",language) : <><Send className="w-4 h-4" /> {t("feedback_send",language)}</>}
                   </Button>
                 </motion.div>
               </motion.form>

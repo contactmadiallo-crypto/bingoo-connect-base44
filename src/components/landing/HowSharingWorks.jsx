@@ -35,6 +35,7 @@ const reveal = {
 
 /* Realistic 3D Bingoo NFC card with beveled edges, matte finish, reflection */
 function NFC3DCard({ animate = true }) {
+  const { language } = useI18n();
   return (
     <motion.div
       className="relative"
@@ -68,11 +69,11 @@ function NFC3DCard({ animate = true }) {
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="text-[7px] font-bold text-white/40">CONNECT</span>
+              <span className="text-[7px] font-bold text-white/40">{t("landing_connect_upper",language)}</span>
               <span className="text-[7px] font-black" style={{ color: B.gold }}>•</span>
-              <span className="text-[7px] font-bold text-white/40">SHARE</span>
+              <span className="text-[7px] font-bold text-white/40">{t("landing_share_upper",language)}</span>
               <span className="text-[7px] font-black" style={{ color: B.gold }}>•</span>
-              <span className="text-[7px] font-bold text-white/40">GROW</span>
+              <span className="text-[7px] font-bold text-white/40">{t("landing_grow_upper",language)}</span>
             </div>
             <p className="mt-0.5 text-[6px] font-semibold text-white/30">bingoo.africa</p>
           </div>
