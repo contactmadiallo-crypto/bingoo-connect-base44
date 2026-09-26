@@ -206,7 +206,7 @@ Return ONLY the translation, nothing else.`;
         ...translatingMessages, 
         [msg.id]: translation 
       });
-    } catch (_error) {
+    } catch {
       toast.error("Erreur de traduction");
       setTranslatingMessages({ ...translatingMessages, [msg.id]: false });
     }

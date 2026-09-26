@@ -70,7 +70,7 @@ Return ONLY valid JSON with keys: bio, layout, layout_reason, ctas.`,
       });
       const data = typeof res === "string" ? JSON.parse(res) : res;
       setSuggestions(data);
-    } catch (_e) {
+    } catch {
       setError("Couldn't generate suggestions. Please try again.");
     }
     setLoading(false);

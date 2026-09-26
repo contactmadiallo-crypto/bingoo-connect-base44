@@ -36,7 +36,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia(constraints);
-      } catch (_e) {
+      } catch {
         // Fallback if exact environment camera fails
         constraints.video.facingMode = "environment";
         stream = await navigator.mediaDevices.getUserMedia(constraints);

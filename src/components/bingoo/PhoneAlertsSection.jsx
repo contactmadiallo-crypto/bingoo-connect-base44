@@ -152,7 +152,7 @@ export default function PhoneAlertsSection({ user }) {
       await base44.entities.PushSubscription.update(sub.id, { enabled: !sub.enabled });
       setSubs((prev) => prev.map((s) => (s.id === sub.id ? { ...s, enabled: !s.enabled } : s)));
       toast.success(sub.enabled ? "Alerts paused for this device" : "Alerts resumed for this device");
-    } catch (_e) {
+    } catch {
       toast.error("Could not update device");
     }
   };
@@ -165,14 +165,14 @@ export default function PhoneAlertsSection({ user }) {
       if (existing && existing.endpoint === sub.endpoint) {
         await existing.unsubscribe();
       }
-    } catch (_e) {
+    } catch {
       /* ignore */
     }
     try {
       await base44.entities.PushSubscription.delete(sub.id);
       setSubs((prev) => prev.filter((s) => s.id !== sub.id));
       toast.success("Device removed");
-    } catch (_e) {
+    } catch {
       toast.error("Could not remove device");
     }
   };

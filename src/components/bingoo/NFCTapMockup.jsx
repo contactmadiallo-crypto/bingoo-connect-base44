@@ -79,7 +79,7 @@ export default function NFCTapMockup() {
           cardCtrl.start({ x: 88, y: -28, rotateY: 32, rotateX: -8, rotateZ: -11, transition: { duration: 0.55, ease: "easeIn" } });
           await profileCtrl.start({ y: "100%", opacity: 0, transition: { duration: 0.3, ease: "easeIn" } });
           await new Promise(r => setTimeout(r, 600));
-        } catch (_e) {
+        } catch {
           // Animation cancelled or component unmounted
           break;
         }

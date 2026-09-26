@@ -46,7 +46,7 @@ export default function VerifiedBadgesPanel({ profile, isDark, _user }) {
       } else {
         setMessage(res?.data?.error ? `Couldn't submit: ${res.data.error}` : "Couldn't submit request. Please try again.");
       }
-    } catch (_e) {
+    } catch {
       setMessage("Couldn't submit request. Please try again.");
     }
     setRequesting(false);
@@ -61,7 +61,7 @@ export default function VerifiedBadgesPanel({ profile, isDark, _user }) {
       // privacy toggles working for all plans.
       await base44.entities.Profile.update(profile.id, { privacy_settings: newSettings });
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
-    } catch (_e) {
+    } catch {
       // revert on failure — UI will refetch
     }
     setSavingPrivacy(null);
