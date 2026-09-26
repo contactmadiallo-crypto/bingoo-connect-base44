@@ -47,6 +47,9 @@ const SHOP_NFC_PRODUCTS = {
 // ── Test Account Overrides ──────────────────────────────────────────────────
 // MUST stay in sync with src/lib/testAccounts.js and getUserFeatures/entry.ts
 // Protected test accounts never get downgraded by Stripe events.
+// SECURITY/MAINTENANCE: this is an explicit non-production entitlement exception for controlled QA accounts.
+// Keep the list minimal, never add credentials/secrets here, and migrate these overrides to admin-managed
+// entitlement data when the testing workflow no longer requires source-controlled account allowlisting.
 const TEST_ACCOUNT_OVERRIDES = {
   'contact.madiallo@gmail.com':              { protected: true },
   'mdiallo9225@gmail.com':                   { protected: true },
