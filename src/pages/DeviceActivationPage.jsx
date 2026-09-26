@@ -43,7 +43,6 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   const [selectedAssetId, setSelectedAssetId] = useState("");
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState("");
-  const [retryCount, setRetryCount] = useState(0);
 
   // Create new profile
   const [showCreateProfile, setShowCreateProfile] = useState(false);
@@ -228,7 +227,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
       setShowCreateProfile(false);
       setNewProfileName("");
       setNewProfileUsername("");
-    } catch (e) {
+    } catch {
       setError(t("activate_err_create_profile",language));
     } finally {
       setCreatingProfile(false);
@@ -261,7 +260,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
       setShowCreateAsset(false);
       setNewAssetName("");
       setNewAssetType("pet");
-    } catch (e) {
+    } catch {
       setError(t("activate_err_create_asset",language));
     } finally {
       setCreatingAsset(false);
