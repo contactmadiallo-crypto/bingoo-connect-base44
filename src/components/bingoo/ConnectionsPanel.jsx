@@ -6,6 +6,7 @@ import { Trash2, ExternalLink, Search, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/I18nContext";
 import { t as tr } from "@/lib/i18n";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 export default function ConnectionsPanel({ isDark, profileId }) {
   const { language } = useI18n();
@@ -91,7 +92,7 @@ export default function ConnectionsPanel({ isDark, profileId }) {
             transition={{ delay: i * 0.04 }}
           >
             <a
-              href={`/p/${conn.profile_username}`}
+              href={publicProfileUrl(conn.profile_username)}
               target="_blank"
               rel="noopener noreferrer"
               className={`rounded-2xl border p-4 flex items-center gap-3 group cursor-pointer transition-all hover:scale-[1.01] hover:shadow-md block ${t.card}`}
