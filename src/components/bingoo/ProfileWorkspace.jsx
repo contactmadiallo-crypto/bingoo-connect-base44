@@ -42,6 +42,7 @@ import { getProfileEditorTabs } from "@/lib/profileEditorTabs";
 import { isProtectedTestAccount, getOverridePlan } from "@/lib/testAccounts";
 import { toast } from "sonner";
 import { t, getLang } from "@/lib/i18n";
+import { openExternalUrl } from "@/lib/nativePlatform";
 
 // Resolve a brand icon from a custom_link by _catalog_id or URL domain
 function getLinkIcon(link, size = 14) {
@@ -724,7 +725,7 @@ function LostModePanel({ profileId, user, isDark, effectivePlan, lang }) {
           success_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
           cancel_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
         });
-        if (resp?.data?.url) window.location.href = resp.data.url;
+        if (resp?.data?.url) await openExternalUrl(resp.data.url);
       } catch(e) { console.error(e); } finally { setTrialLoading(false); }
     };
     return (
