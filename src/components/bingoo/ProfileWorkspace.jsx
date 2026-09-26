@@ -415,7 +415,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                   <p className={`text-[13px] font-bold ${headText} truncate`}>{r.label}</p>
                 </div>
                 <button type="button" onClick={() => { setEditingLinkId(r.key); setStoreOpen(true); }}
-                  aria-label={`Edit ${r.label}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                  aria-label={`Edit ${r.label}`} className={`min-w-[44px] min-h-[44px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
                   <span className="hidden xs:inline">{t("edit", lang)}</span><span className="xs:hidden">•••</span>
                 </button>
                 <Toggle value={!isHidden} onChange={() => toggleFieldLink(r.key)} />
@@ -432,7 +432,7 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
                 <p className={`text-[13px] font-bold ${headText} truncate`}>{link.label}</p>
               </div>
               <button type="button" onClick={() => { setEditingLinkId(link._catalog_id || null); setStoreOpen(true); }}
-                aria-label={`Edit ${link.label || "link"}`} className={`min-w-[44px] min-h-[36px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+                aria-label={`Edit ${link.label || "link"}`} className={`min-w-[44px] min-h-[44px] px-2 sm:px-[11px] py-[5px] rounded-[9px] border text-[11px] font-semibold ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
                 <span className="hidden xs:inline">{t("edit", lang)}</span><span className="xs:hidden">•••</span>
               </button>
               <Toggle value={!!link.enabled} onChange={() => toggleLink(idx)} />
