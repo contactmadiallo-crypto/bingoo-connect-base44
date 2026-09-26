@@ -3,6 +3,7 @@ import { appParams } from "@/lib/app-params";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
+import { useI18n } from '@/lib/I18nContext';
 
 // App-side OAuth consent page for the app's MCP server. The platform redirects
 // AI clients here (see base44/mcp/config.json `consent_path`) with an opaque
@@ -12,6 +13,8 @@ import AuthLayout from "@/components/AuthLayout";
 // Do not change the fetch calls, headers, or the `ctx` handle handling — styling
 // and copy are safe to edit.
 export default function OAuthConsent() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const ctx = new URLSearchParams(window.location.search).get("ctx");
   const [info, setInfo] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -25,7 +28,7 @@ export default function OAuthConsent() {
       let redirecting = false;
       try {
         if (!ctx) {
-          setError("This authorization link is invalid or has expired.");
+          setError(tr('This authorization link is invalid or has expired.', 'Ce lien d’autorisation est invalide ou a expiré.'));
           return;
         }
         // Resolve the handle first: a dead handle must never render
@@ -41,7 +44,7 @@ export default function OAuthConsent() {
           { credentials: "include", headers: infoHeaders },
         );
         if (!res.ok) {
-          setError("This authorization link is invalid or has expired.");
+          setError(tr('This authorization link is invalid or has expired.', 'Ce lien d’autorisation est invalide ou a expiré.'));
           return;
         }
         const data = await res.json();
@@ -72,7 +75,7 @@ export default function OAuthConsent() {
         }
         setInfo(data);
       } catch (e) {
-        setError("Could not load this authorization request. Please try again.");
+        setError(tr('Could not load this authorization request. Please try again.', 'Impossible de charger cette demande d’autorisation. Veuillez réessayer.'));
       } finally {
         if (!redirecting) setChecking(false);
       }
@@ -113,7 +116,7 @@ export default function OAuthConsent() {
         if ([400, 403, 404, 409].includes(res.status)) {
           let detail = "";
           try { detail = (await res.json()).detail; } catch (_) { /* keep default */ }
-          setReconnect(detail || "This authorization can no longer be completed. Reconnect from your AI client to try again.");
+          setReconnect(detail || tr('This authorization can no longer be completed. Reconnect from your AI client to try again.', 'Cette autorisation ne peut plus être terminée. Reconnectez-vous depuis votre client IA pour réessayer.'));
           setSubmitting(false);
           return;
         }
@@ -136,10 +139,10 @@ export default function OAuthConsent() {
 
   if (checking) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Authorize access">
+      <AuthLayout icon={ShieldCheck} title={tr('Authorize access', 'Autoriser l’accès')}>
         <div className="flex items-center justify-center py-6 text-muted-foreground">
           <Loader2 className="w-5 h-5 mr-2 animate-spin" aria-hidden="true" />
-          Loading…
+          {tr('Loading…', 'Chargement…')}
         </div>
       </AuthLayout>
     );
@@ -152,8 +155,8 @@ export default function OAuthConsent() {
     return (
       <AuthLayout
         icon={ShieldCheck}
-        title={decided === "approve" ? "Access granted" : "Access denied"}
-        subtitle={`You can return to ${client} and close this window.`}
+        title={decided === 'approve' ? tr('Access granted', 'Accès accordé') : tr('Access denied', 'Accès refusé')}
+        subtitle={`${tr('You can return to', 'Vous pouvez revenir à')} ${client} ${tr('and close this window.', 'et fermer cette fenêtre.')}`}
       />
     );
   }
@@ -163,7 +166,7 @@ export default function OAuthConsent() {
   // no approve/deny controls.
   if (reconnect) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Reconnect required">
+      <AuthLayout icon={ShieldCheck} title={tr('Reconnect required', 'Reconnexion requise')}>
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {reconnect}
         </div>
@@ -176,7 +179,7 @@ export default function OAuthConsent() {
   // the error alone, never the approve/deny controls.
   if (error && !info) {
     return (
-      <AuthLayout icon={ShieldCheck} title="Authorize access">
+      <AuthLayout icon={ShieldCheck} title={tr('Authorize access', 'Autoriser l’accès')}>
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           {error}
         </div>
@@ -189,8 +192,8 @@ export default function OAuthConsent() {
   return (
     <AuthLayout
       icon={ShieldCheck}
-      title="Authorize access"
-      subtitle={`${client} wants to access ${appName} on your behalf`}
+      title={tr('Authorize access', 'Autoriser l’accès')}
+      subtitle={`${client} ${tr('wants to access', 'souhaite accéder à')} ${appName} ${tr('on your behalf', 'en votre nom')}`}
     >
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
@@ -199,7 +202,7 @@ export default function OAuthConsent() {
       )}
 
       <p className="text-sm font-medium text-foreground mb-2">
-        {tools.length ? `It will be able to use these tools in ${appName}:` : "No tools requested"}
+        {tools.length ? `${tr('It will be able to use these tools in', 'Il pourra utiliser ces outils dans')} ${appName}:` : tr('No tools requested', 'Aucun outil demandé')}
       </p>
       {tools.length > 0 && (
         <ul className="space-y-2 text-sm mb-6">
@@ -223,7 +226,7 @@ export default function OAuthConsent() {
           disabled={submitting}
           onClick={() => respond("deny")}
         >
-          Deny
+          {tr('Deny', 'Refuser')}
         </Button>
         <Button
           className="flex-1 h-12 font-medium"
@@ -231,7 +234,7 @@ export default function OAuthConsent() {
           onClick={() => respond("approve")}
         >
           {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-          Approve
+          {tr('Approve', 'Autoriser')}
         </Button>
       </div>
     </AuthLayout>
