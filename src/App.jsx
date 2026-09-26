@@ -49,8 +49,6 @@ const ResetPassword = lazy(() => import('@/pages/ResetPassword'));
 const AuthCallback = lazy(() => import('@/pages/AuthCallback'));
 const OAuthConsent = lazy(() => import('@/pages/OAuthConsent'));
 const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
-const PlaystoreMockups = lazy(() => import('@/pages/PlaystoreMockups'));
-const Bingoo2Mockups = lazy(() => import('@/pages/Bingoo2Mockups'));
 const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 const PlaystoreCapture = lazy(() => import('@/pages/PlaystoreCapture'));
 
@@ -115,8 +113,6 @@ const AuthenticatedApp = () => {
         <Route path="/contact-support" element={<ContactSupport />} />
       </Route>
       <Route path="/about" element={<About />} />
-      <Route path="/playstore-mockups" element={<PlaystoreMockups />} />
-      <Route path="/bingoo-2-mockups" element={<Bingoo2Mockups />} />
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/a/:assetId" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
