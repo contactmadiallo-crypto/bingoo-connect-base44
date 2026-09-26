@@ -548,11 +548,6 @@ export default function ProfilesHub({
           <h3 className={`font-black text-lg mb-1 ${headText}`}>{t("profiles_create_first")}</h3>
           <p className={`text-sm mb-5 ${mutedText}`}>{t("profiles_first_copy")}</p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <button onClick={onLaunchAI}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
-              style={{ background: "linear-gradient(135deg, #0b2149, #13284f)" }}>
-              <Zap className="w-4 h-4" /> Build with AI
-            </button>
             <button onClick={onCreateNew}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold border transition-all ${isDark ? "border-white/15 text-white/70 hover:bg-white/8" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}>
               <Plus className="w-4 h-4" /> Manual Setup
