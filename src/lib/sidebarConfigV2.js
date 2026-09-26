@@ -36,7 +36,7 @@ const PLAN_ITEM_IDS = {
 };
 
 const SECTIONS = [
-  { id: "home",      label: "Home",          labelFr: "Accueil",      itemIds: ["landing"] },
+  { id: "home",      label: "Dashboard",     labelFr: "Tableau de bord", itemIds: ["landing"] },
   { id: "identity",  label: "Identity",      labelFr: "Identité",     itemIds: ["profiles", "qrwallet", "connections", "myassets"] },
   { id: "engage",    label: "Engage",        labelFr: "Engagement",   itemIds: ["appointments", "leads", "crm"] },
   { id: "growth",    label: "Growth",        labelFr: "Croissance",   itemIds: ["analytics"] },
