@@ -13,8 +13,6 @@ const RATE_LIMIT_KEY = "bingoo_legal_lead_last_submit";
 const RATE_LIMIT_MS = 60_000;
 
 const inp = "w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-blue-400 transition-colors";
-const sel = inp + " appearance-none";
-
 function YesNo({ label, value, onChange, language }) {
   return (
     <div>
@@ -31,7 +29,7 @@ function YesNo({ label, value, onChange, language }) {
   );
 }
 
-export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false, source = "profile", deviceCode = null }) {
+export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFirm = false, source = "profile" }) {
   const { language } = useI18n();
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
@@ -113,7 +111,6 @@ export default function LegalIntakeForm({ profileId, color = "#0b2149", isLawFir
   };
 
   const cat = form.legal_category;
-  const catColor = CATEGORY_COLORS[cat] || color;
   const services = LEGAL_SERVICES[cat] || [];
 
   if (!isLawFirm) return null;
