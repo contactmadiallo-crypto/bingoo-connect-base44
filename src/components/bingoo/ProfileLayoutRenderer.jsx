@@ -334,7 +334,6 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
   const ringW     = 4;
   const heroH     = mobile ? 320 : 420;
   const totalRing = size + ringW * 2;
-  const bg        = isDark ? "#0f172a" : "#f8fafc";
 
   // If no cover photo, fall back to a colour gradient hero
   const hasPhoto = !!profile?.cover_photo;
@@ -405,7 +404,7 @@ export function ImageHeroLayout({ profile, color, isDark, mobile, contentSection
 // ═══════════════════════════════════════════════════════════════
 // 5. GLASS — frosted glass header on vivid gradient background
 // ═══════════════════════════════════════════════════════════════
-export function GlassLayout({ profile, color, isDark, mobile, contentSections }) {
+export function GlassLayout({ profile, color, mobile, contentSections }) {
   const size   = mobile ? 96 : 116;
   const radius = getAvatarRadius(profile?.avatar_shape);
 
@@ -585,7 +584,6 @@ export function MagazineLayout({ profile, color, isDark, mobile, contentSections
   const radius  = getAvatarRadius(profile?.avatar_shape);
   const bg      = resolvePageBg(profile, isDark ? "#18181b" : "#fffbf0");
   const text    = isDark ? "#fff" : "#09090b";
-  const sub     = isDark ? "rgba(255,255,255,0.4)" : "#71717a";
   const border  = isDark ? "rgba(255,255,255,0.1)" : "#e4e4e7";
   const coverH  = mobile ? 220 : 300;
 
