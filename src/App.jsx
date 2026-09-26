@@ -57,6 +57,7 @@ import PWASplashScreen from '@/components/pwa/PWASplashScreen';
 import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 import RouteTransition from '@/components/mobile/RouteTransition';
 import NativeAndroidBridge from '@/components/mobile/NativeAndroidBridge';
+import OfflineBanner from '@/components/mobile/OfflineBanner';
 import { useThemeStatusBar } from '@/hooks/useThemeStatusBar';
 
 function SitemapRedirect() {
@@ -170,6 +171,7 @@ function App() {
             <NavigationTracker />
             <ScrollRestoration />
             <LegacyRedirects />
+            <OfflineBanner />
             <AuthenticatedApp />
             <PWAInstallBanner />
           </NavigationStackProvider>
