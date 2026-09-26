@@ -77,7 +77,7 @@ export default function ReportAbuseButton({ profileId, username }) {
                 <MobileSelect
                   value={reason}
                   onValueChange={setReason}
-                  options={REASONS}
+                  options={REASONS.map(r => ({ ...r, label: language === 'fr' ? ({ spam:'Spam', fake_profile:'Faux profil', harassment:'Harcèlement', impersonation:'Usurpation d’identité', inappropriate_content:'Contenu inapproprié', scam:'Arnaque / fraude', other:'Autre' }[r.value] || r.label) : r.label }))}
                   placeholder={tr('Select a reason…', 'Sélectionnez un motif…')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none bg-slate-50"
                 />
@@ -105,12 +105,12 @@ export default function ReportAbuseButton({ profileId, username }) {
               <div className="flex gap-2 pt-1">
                 <button type="button" onClick={() => setOpen(false)}
                   className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50">
-                  Cancel
+                  {tr('Cancel', 'Annuler')}
                 </button>
                 <button type="submit" disabled={loading || !reason}
                   className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: "#dc2626" }}>
-                  {loading ? "Submitting…" : "Submit Report"}
+                  {loading ? tr('Submitting…', 'Envoi…') : tr('Submit Report', 'Envoyer le signalement')}
                 </button>
               </div>
             </form>
