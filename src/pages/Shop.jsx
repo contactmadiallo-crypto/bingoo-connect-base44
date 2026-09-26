@@ -122,7 +122,7 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
               </div>
               <div className="flex gap-2">
                 <Link to={`/product/${product.id}`} className="rounded-xl border border-white/15 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:border-white/40">
-                  View
+                  {t("shop_view", language)}
                 </Link>
                 <button
                   type="button"
