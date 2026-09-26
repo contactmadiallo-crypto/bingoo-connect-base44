@@ -6,6 +6,8 @@ import { MobileSelect } from "@/components/ui/mobile-select";
 import { deviceUrl as buildDeviceUrl, activationUrl as buildActivationUrl } from "@/lib/nfcUrl";
 import { PRODUCTS } from "@/lib/shopProducts";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
   BarChart3, Wifi, AlertTriangle, Activity, Package, MapPin,
@@ -64,15 +66,15 @@ function StatusBadge({ status }) {
 }
 
 const SUB_TABS = [
-  { id: "overview",     label: "Dashboard",      icon: BarChart3 },
-  { id: "devices",      label: "All Devices",    icon: Layers },
-  { id: "generation",   label: "Generate",       icon: Plus },
-  { id: "assignment",   label: "Assignment",     icon: ArrowRightLeft },
-  { id: "replacement",  label: "Replacement",    icon: RefreshCw },
-  { id: "lost",         label: "Lost Mode",      icon: AlertTriangle },
-  { id: "analytics",    label: "Analytics",      icon: Activity },
-  { id: "audit",        label: "Audit Log",      icon: History },
-  { id: "mfg",          label: "Mfg. Export",    icon: Package },
+  { id: "overview", key: "nfc_admin_dashboard", icon: BarChart3 },
+  { id: "devices", key: "nfc_admin_all_devices", icon: Layers },
+  { id: "generation", key: "nfc_admin_generate", icon: Plus },
+  { id: "assignment", key: "nfc_admin_assignment", icon: ArrowRightLeft },
+  { id: "replacement", key: "nfc_admin_replacement", icon: RefreshCw },
+  { id: "lost", key: "nfc_admin_lost_mode", icon: AlertTriangle },
+  { id: "analytics", key: "nfc_admin_analytics", icon: Activity },
+  { id: "audit", key: "nfc_admin_audit", icon: History },
+  { id: "mfg", key: "nfc_admin_mfg_export", icon: Package },
 ];
 
 const inputSt = { background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" };
@@ -99,6 +101,7 @@ async function writeAuditLog(fields) {
 }
 
 export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], currentUser }) {
+  const { language } = useI18n();
   const queryClient = useQueryClient();
   const [subTab, setSubTab] = useState("overview");
   const [search, setSearch] = useState("");
@@ -178,14 +181,14 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
       setEditingDevice(null);
       setAssignDevice(null);
       setAssignProfileId("");
-      toast.success("Device updated!");
+      toast.success(t("nfc_admin_device_updated",language));
     },
     onError: (e) => toast.error(e.message),
   });
 
   const deleteDevice = useMutation({
     mutationFn: (id) => base44.entities.NFCDevice.delete(id),
-    onSuccess: () => { invalidate(); setDeleteConfirm(null); toast.success("Device deleted!"); },
+    onSuccess: () => { invalidate(); setDeleteConfirm(null); toast.success(t("nfc_admin_device_deleted",language)); },
     onError: (e) => toast.error(e.message),
   });
 
@@ -202,7 +205,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
     if (bulkGenerating) return;
     setBulkGenerating(true);
     const product = ADMIN_PRODUCTS.find(p => p.id === bulkProductId);
-    if (!product) { toast.error("Choose a Bingoo Shop product first."); setBulkGenerating(false); return; }
+    if (!product) { toast.error(t("nfc_admin_choose_product",language)); setBulkGenerating(false); return; }
     const freshDevices = await base44.entities.NFCDevice.list("-created_date", 500);
     const existingCodes = new Set((freshDevices || []).filter(d => d.status !== "retired").map(d => d.device_code?.toUpperCase()));
     const toCreate = [];
@@ -251,7 +254,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   const handleReplace = async () => {
     if (!replaceDevice || !replaceNewCode.trim()) return;
     const newCode = replaceNewCode.trim().toUpperCase();
-    if (devices.some(d => d.device_code === newCode)) { toast.error("Device code already exists!"); return; }
+    if (devices.some(d => d.device_code === newCode)) { toast.error(t("nfc_admin_code_exists",language)); return; }
     // Mark old as replaced
     await base44.entities.NFCDevice.update(replaceDevice.id, { status: "replaced", replaced_by_code: newCode });
     // Create new device with same profile
@@ -283,7 +286,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "bingoo-nfc-devices.csv"; a.click();
     URL.revokeObjectURL(url);
-    toast.success("CSV exported!");
+    toast.success(t("nfc_admin_csv_exported",language));
   };
 
   const handleExportMfg = () => {
@@ -298,7 +301,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "bingoo-manufacturer-export.csv"; a.click();
     URL.revokeObjectURL(url);
-    toast.success("Manufacturer export downloaded!");
+    toast.success(t("nfc_admin_mfg_downloaded",language));
   };
 
   const handlePrintQR = (devList = null) => {
@@ -348,7 +351,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <button key={st.id} onClick={() => setSubTab(st.id)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 transition-all"
                 style={{ background: subTab === st.id ? orange : "transparent", color: subTab === st.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
-                <st.icon className="w-3.5 h-3.5" />{st.label}
+                <st.icon className="w-3.5 h-3.5" />{t(st.key,language)}
               </button>
             ))}
           </div>
@@ -360,13 +363,13 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
         <div className="space-y-5">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
             {[
-              { label: "Total", value: stats.total, color: orange },
-              { label: "Available", value: stats.available, color: "rgba(255,255,255,0.4)" },
-              { label: "Assigned", value: stats.assigned, color: "#60a5fa" },
-              { label: "Active", value: stats.active, color: "#22c55e" },
-              { label: "Lost", value: stats.lost, color: "#ef4444" },
-              { label: "Disabled", value: stats.disabled, color: "#f97316" },
-              { label: "Replaced", value: stats.replaced, color: "#a78bfa" },
+              { label: t("nfc_admin_total",language), value: stats.total, color: orange },
+              { label: t("nfc_admin_available",language), value: stats.available, color: "rgba(255,255,255,0.4)" },
+              { label: t("nfc_admin_assigned",language), value: stats.assigned, color: "#60a5fa" },
+              { label: t("nfc_admin_active",language), value: stats.active, color: "#22c55e" },
+              { label: t("nfc_admin_lost",language), value: stats.lost, color: "#ef4444" },
+              { label: t("nfc_admin_disabled",language), value: stats.disabled, color: "#f97316" },
+              { label: t("nfc_admin_replaced",language), value: stats.replaced, color: "#a78bfa" },
             ].map(s => (
               <div key={s.label} className="rounded-2xl p-4 border" style={cardSt}>
                 <p className="text-2xl font-black" style={{ color: s.color }}>{s.value}</p>
@@ -379,10 +382,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="rounded-2xl border p-5" style={cardSt}>
               <div className="flex items-center gap-2 mb-4">
                 <Clock className="w-4 h-4 text-orange-400" />
-                <h3 className="font-black text-white">Recent Activations</h3>
+                <h3 className="font-black text-white">{t("nfc_admin_recent_activations",language)}</h3>
               </div>
               {recentActivity.length === 0 ? (
-                <p className="text-white/30 text-sm text-center py-8">No activations yet</p>
+                <p className="text-white/30 text-sm text-center py-8">{t("nfc_admin_no_activations",language)}</p>
               ) : (
                 <div className="space-y-2">
                   {recentActivity.map(d => {
@@ -392,7 +395,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <span className="text-lg">{DEVICE_EMOJIS[d.device_type] || "📱"}</span>
                         <div className="flex-1 min-w-0">
                           <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
-                          <p className="text-xs text-white/30 truncate">{profile?.display_name || "Unclaimed"}</p>
+                          <p className="text-xs text-white/30 truncate">{profile?.display_name || t("nfc_admin_unclaimed",language)}</p>
                         </div>
                         <StatusBadge status={d.status} />
                       </div>
@@ -403,7 +406,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             </div>
 
             <div className="rounded-2xl border p-5" style={cardSt}>
-              <h4 className="text-white/50 text-xs font-bold uppercase mb-3">Type Breakdown</h4>
+              <h4 className="text-white/50 text-xs font-bold uppercase mb-3">{t("nfc_admin_type_breakdown",language)}</h4>
               {DEVICE_TYPES.map(type => {
                 const count = devices.filter(d => d.device_type === type).length;
                 const pct = stats.total ? Math.round((count / stats.total) * 100) : 0;
@@ -430,7 +433,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
               <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none"
-                placeholder="Search code or owner…" value={search} onChange={e => setSearch(e.target.value)} style={inputSt} />
+                placeholder={t("nfc_admin_search",language)} value={search} onChange={e => setSearch(e.target.value)} style={inputSt} />
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {["all", ...ALL_STATUSES].map(s => (
@@ -459,7 +462,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 <Download className="w-3.5 h-3.5" /> CSV
               </button>
               <button onClick={() => handlePrintQR()} className="text-xs font-bold px-3 py-1.5 rounded-lg border border-white/15 text-white/50 hover:text-white hover:bg-white/8 transition-all flex items-center gap-1.5">
-                <Printer className="w-3.5 h-3.5" /> Print QR
+                <Printer className="w-3.5 h-3.5" /> {t("nfc_admin_print_qr",language)}
               </button>
             </div>
           </div>
@@ -486,7 +489,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                           <span className="font-mono font-black text-sm text-white">{d.device_code}</span>
                           <p className="font-mono text-[10px] text-orange-400/80 mt-1 break-all">{buildDeviceUrl(d.device_code)}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success("NFC URL copied"); }} className="text-[10px] font-bold text-white/40 hover:text-white inline-flex items-center gap-1"><Copy className="w-3 h-3" /> Copy</button>
+                            <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success(t("nfc_admin_url_copied",language)); }} className="text-[10px] font-bold text-white/40 hover:text-white inline-flex items-center gap-1"><Copy className="w-3 h-3" /> {t("nfc_admin_copy",language)}</button>
                             <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-white/40 hover:text-white inline-flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Test</a>
                           </div>
                           {d.replaced_by_code && <p className="text-xs text-purple-400 mt-0.5">→ {d.replaced_by_code}</p>}
@@ -571,7 +574,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   </div>
                   {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
                   <div className="flex gap-2">
-                    <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success("NFC URL copied"); }} className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
+                    <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success(t("nfc_admin_url_copied",language)); }} className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> {t("nfc_admin_copy_url",language)}</button>
                     <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Test</a>
                   </div>
                   <div className="flex items-center gap-1 flex-wrap pt-1">
@@ -639,7 +642,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   disabled={updateDevice.isPending} style={{ background: orange, color: "#fff" }} className="font-bold">
                   {updateDevice.isPending ? "Saving..." : "Save Changes"}
                 </Button>
-                <Button variant="outline" onClick={() => setEditingDevice(null)} className="border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">Cancel</Button>
+                <Button variant="outline" onClick={() => setEditingDevice(null)} className="border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">{t("nfc_admin_cancel",language)}</Button>
               </div>
             </div>
           )}
@@ -654,7 +657,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="rounded-2xl border p-6" style={cardSt}>
               <div className="flex items-center gap-2 mb-4">
                 <Plus className="w-5 h-5 text-orange-400" />
-                <h3 className="font-bold text-white">Generate Single Device</h3>
+                <h3 className="font-bold text-white">{t("nfc_admin_generate_single",language)}</h3>
               </div>
               <div className="space-y-3">
                 <div>
@@ -685,7 +688,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                       <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/35">Permanent NFC URL · write this to the physical tag</p><p className="font-mono text-xs text-orange-400 break-all mt-1">{url}</p></div>
                       <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/25">Activation URL · secondary</p><p className="font-mono text-[10px] text-white/40 break-all mt-1">{buildActivationUrl(code)}</p></div>
                       <div className="flex gap-2">
-                        <button type="button" onClick={() => { navigator.clipboard?.writeText(url); toast.success("NFC URL copied"); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
+                        <button type="button" onClick={() => { navigator.clipboard?.writeText(url); toast.success(t("nfc_admin_url_copied",language)); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> {t("nfc_admin_copy_url",language)}</button>
                         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Test URL</a>
                       </div>
                     </div>
@@ -696,7 +699,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   const code = (singleCode || padCode(nextBgNumber())).trim().toUpperCase();
                   if (!/^BG-\d{6}$/.test(code)) { toast.error("Device code must use BG-000000 format."); return; }
                   if (devices.some(d => d.device_code?.toUpperCase() === code)) { toast.error("Device code already exists."); return; }
-                  if (!product) { toast.error("Choose a Bingoo Shop product first."); return; }
+                  if (!product) { toast.error(t("nfc_admin_choose_product",language)); return; }
                   if (singleGenerating || createDevice.isPending) return;
                   setLastGeneratedDevice(null);
                   setSingleGenerating(true);
@@ -709,12 +712,12 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </Button>
                 {lastGeneratedDevice && (
                   <div className="rounded-xl p-3" style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.28)" }}>
-                    <p className="text-green-400 text-sm font-black">{lastGeneratedDevice.device_code} Created ✓</p>
+                    <p className="text-green-400 text-sm font-black">{lastGeneratedDevice.device_code} {t("nfc_admin_created",language)} ✓</p>
                     <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-white/35">Permanent NFC URL</p>
                     <p className="mt-1 font-mono text-xs text-orange-400 break-all">{buildDeviceUrl(lastGeneratedDevice.device_code)}</p>
                     <div className="flex gap-2 mt-3">
-                      <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(lastGeneratedDevice.device_code)); toast.success("NFC URL copied"); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> Copy URL</button>
-                      <a href={buildDeviceUrl(lastGeneratedDevice.device_code)} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> Open/Test</a>
+                      <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(lastGeneratedDevice.device_code)); toast.success(t("nfc_admin_url_copied",language)); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> {t("nfc_admin_copy_url",language)}</button>
+                      <a href={buildDeviceUrl(lastGeneratedDevice.device_code)} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {t("nfc_admin_open_test",language)}</a>
                     </div>
                   </div>
                 )}
@@ -725,7 +728,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="rounded-2xl border p-6" style={cardSt}>
               <div className="flex items-center gap-2 mb-4">
                 <Layers className="w-5 h-5 text-yellow-400" />
-                <h3 className="font-bold text-white">Bulk Generate (BG Format)</h3>
+                <h3 className="font-bold text-white">{t("nfc_admin_bulk_generate",language)}</h3>
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
@@ -753,7 +756,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <p className="text-white/25 text-xs mb-3">Leave Start Number blank to continue automatically from the next available canonical BG code.</p>
               <Button onClick={handleBulkGenerate} disabled={bulkGenerating}
                 style={{ background: gold, color: "#071A3D" }} className="w-full font-black">
-                {bulkGenerating ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating…</> : `Generate ${bulkCount} Devices`}
+                {bulkGenerating ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />{t("nfc_admin_generating",language)}</> : `${t("nfc_admin_generate_devices",language)} (${bulkCount})`}
               </Button>
             </div>
           </div>
@@ -766,7 +769,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 <h3 className="font-bold text-white">QR Code Preview</h3>
               </div>
               <Button onClick={() => handlePrintQR(devices)} style={{ background: "#7c3aed", color: "#fff" }} className="font-bold gap-2 text-xs">
-                <Printer className="w-3.5 h-3.5" /> Print All QR Codes
+                <Printer className="w-3.5 h-3.5" /> {t("nfc_admin_print_all_qr",language)}
               </Button>
             </div>
             <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
@@ -786,7 +789,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
       {subTab === "assignment" && (
         <div className="space-y-4">
           <div className="rounded-2xl border p-5" style={cardSt}>
-            <h3 className="font-bold text-white mb-4">Assign / Unassign Devices</h3>
+            <h3 className="font-bold text-white mb-4">{t("nfc_admin_assign_unassign",language)}</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <h4 className="text-white/50 text-xs font-bold uppercase mb-3">Assigned ({devices.filter(d => d.profile_id).length})</h4>
@@ -845,13 +848,13 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
           <div className="rounded-2xl border p-5" style={cardSt}>
             <div className="flex items-center gap-2 mb-2">
               <RefreshCw className="w-5 h-5 text-cyan-400" />
-              <h3 className="font-bold text-white">Device Replacement</h3>
+              <h3 className="font-bold text-white">{t("nfc_admin_device_replacement",language)}</h3>
             </div>
             <p className="text-white/40 text-sm mb-5">Mark a device as replaced and generate a new one. The old device's profile assignment transfers automatically.</p>
 
             <div className="space-y-3">
               <div>
-                <label className="text-white/50 text-xs font-bold block mb-1">Select Device to Replace</label>
+                <label className="text-white/50 text-xs font-bold block mb-1">{t("nfc_admin_select_replace",language)}</label>
                 <DarkSelect
                   value={replaceDevice?.id || ""}
                   onValueChange={(v) => {
@@ -910,10 +913,10 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   <div className="flex gap-3">
                     <Button onClick={handleReplace} disabled={updateDevice.isPending}
                       style={{ background: "#06b6d4", color: "#fff" }} className="font-bold gap-2">
-                      <RefreshCw className="w-4 h-4" /> Replace Device
+                      <RefreshCw className="w-4 h-4" /> {t("nfc_admin_replace_device",language)}
                     </Button>
                     <Button variant="outline" onClick={() => { setReplaceDevice(null); setReplaceNewCode(""); }}
-                      className="border-white/20 text-white hover:bg-white/10 bg-transparent">Cancel</Button>
+                      className="border-white/20 text-white hover:bg-white/10 bg-transparent">{t("nfc_admin_cancel",language)}</Button>
                   </div>
                 </>
               )}
@@ -922,7 +925,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
           {/* Replaced devices list */}
           <div className="rounded-2xl border p-5" style={cardSt}>
-            <h4 className="font-bold text-white mb-3">Replaced Devices ({devices.filter(d => d.status === "replaced").length})</h4>
+            <h4 className="font-bold text-white mb-3">{t("nfc_admin_replaced_devices",language)} ({devices.filter(d => d.status === "replaced").length})</h4>
             {devices.filter(d => d.status === "replaced").length === 0 ? (
               <p className="text-white/25 text-sm text-center py-6">No replaced devices yet</p>
             ) : (
@@ -964,7 +967,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
           <div className="rounded-2xl border p-5" style={cardSt}>
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="w-5 h-5 text-red-400" />
-              <h3 className="font-bold text-white">Lost Devices</h3>
+              <h3 className="font-bold text-white">{t("nfc_admin_lost_devices",language)}</h3>
             </div>
             <div className="space-y-2">
               {devices.filter(d => d.status === "lost").map(d => {
@@ -1116,7 +1119,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-blue-400" />
-                <h3 className="font-bold text-white">Device Audit Log</h3>
+                <h3 className="font-bold text-white">{t("nfc_admin_device_audit",language)}</h3>
               </div>
               <span className="text-white/30 text-xs">{auditLogs.length} entries</span>
             </div>
@@ -1210,7 +1213,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
           <div className="rounded-2xl p-6 max-w-sm w-full border" style={{ background: navyCard, borderColor: "rgba(255,255,255,0.15)" }}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="font-black text-white">Assign Device</h3>
+                <h3 className="font-black text-white">{t("nfc_admin_assign_device",language)}</h3>
                 <p className="text-xs text-white/40 font-mono mt-0.5">{assignDevice.device_code}</p>
               </div>
               <button onClick={() => setAssignDevice(null)} aria-label="Close assign dialog" className="min-h-[44px] min-w-[44px] flex items-center justify-center"><X className="w-5 h-5 text-white/40 hover:text-white" /></button>
@@ -1227,9 +1230,9 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <div className="flex gap-2">
               <Button onClick={handleAssign} disabled={!assignProfileId || updateDevice.isPending}
                 style={{ background: orange, color: "#fff" }} className="flex-1 font-bold">
-                {updateDevice.isPending ? "Assigning…" : "Assign"}
+                {updateDevice.isPending ? t("nfc_admin_assigning",language) : t("nfc_admin_assign",language)}
               </Button>
-              <Button variant="outline" onClick={() => setAssignDevice(null)} className="flex-1 border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">Cancel</Button>
+              <Button variant="outline" onClick={() => setAssignDevice(null)} className="flex-1 border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">{t("nfc_admin_cancel",language)}</Button>
             </div>
           </div>
         </div>
@@ -1254,7 +1257,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold">
                 {deleteDevice.isPending ? "Deleting..." : "Yes, Delete"}
               </Button>
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">Cancel</Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">{t("nfc_admin_cancel",language)}</Button>
             </div>
           </div>
         </div>
