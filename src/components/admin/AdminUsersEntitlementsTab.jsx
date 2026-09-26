@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { Search, KeyRound, Crown, User as UserIcon } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const PLAN_OPTIONS = [
   { value: 'free', label: 'Free', price: '$0' },
@@ -13,6 +15,7 @@ const PLAN_OPTIONS = [
 ];
 
 export default function AdminUsersEntitlementsTab({ activeTab }) {
+  const { language } = useI18n();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
@@ -73,12 +76,12 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
         notes: `Admin manually set plan to ${newPlan}`,
       });
 
-      toast({ title: 'Plan updated', description: `${userEmail} → ${newPlan}` });
+      toast({ title: t("admin_plan_updated_plain",language), description: `${userEmail} → ${newPlan}` });
       queryClient.invalidateQueries({ queryKey: ['admin-subs-all'] });
       queryClient.invalidateQueries({ queryKey: ['admin-subs'] });
       queryClient.invalidateQueries({ queryKey: ['admin-audit-ent'] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t("admin_error",language), description: err.message, variant: "destructive" });
     } finally {
       setOverrideLoading(null);
     }
@@ -99,7 +102,7 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         <input
           type="text"
-          placeholder="Search users by name or email…"
+          placeholder={t("admin_search_users",language)}
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300"
@@ -112,11 +115,11 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">User</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Role</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Current Plan</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Status</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Override</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_user",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_role",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_current_plan",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_status",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_override",language)}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -132,7 +135,7 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
                           {user.full_name?.charAt(0) || 'U'}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">{user.full_name || 'Unknown'}</p>
+                          <p className="font-semibold text-slate-800">{user.full_name || t("admin_unknown",language)}</p>
                           <p className="text-xs text-slate-400">{user.email}</p>
                         </div>
                       </div>
@@ -173,7 +176,7 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
           </table>
         </div>
         {filtered.length === 0 && (
-          <div className="text-center py-12 text-sm text-slate-400">No users found.</div>
+          <div className="text-center py-12 text-sm text-slate-400">{t("admin_no_users",language)}</div>
         )}
       </div>
 
@@ -181,7 +184,7 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
       {isEntitlementsTab && auditLogs && (
         <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
           <h3 className="text-sm font-black text-slate-800 mb-3 flex items-center gap-2">
-            <KeyRound className="w-4 h-4" /> Recent Override Actions
+            <KeyRound className="w-4 h-4" /> {t("admin_recent_override_actions",language)}
           </h3>
           <div className="space-y-2">
             {auditLogs.filter(l => l.action === 'plan_override').slice(0, 10).map(log => (
@@ -189,18 +192,18 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
                 <UserIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
                 <div className="flex-1">
                   <span className="font-bold text-slate-700">{log.performed_by_name}</span>
-                  <span className="text-slate-500"> changed </span>
+                  <span className="text-slate-500"> {t("admin_changed",language)} </span>
                   <span className="font-bold text-slate-700">{log.target_name}</span>
-                  <span className="text-slate-500"> from </span>
+                  <span className="text-slate-500"> {t("admin_from",language)} </span>
                   <span className="font-semibold text-slate-600">{log.old_value}</span>
-                  <span className="text-slate-500"> to </span>
+                  <span className="text-slate-500"> {t("admin_to",language)} </span>
                   <span className="font-semibold text-orange-600">{log.new_value}</span>
                 </div>
                 <span className="text-slate-400">{new Date(log.created_date).toLocaleDateString()}</span>
               </div>
             ))}
             {auditLogs.filter(l => l.action === 'plan_override').length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-4">No override actions yet.</p>
+              <p className="text-xs text-slate-400 text-center py-4">{t("admin_no_override_actions",language)}</p>
             )}
           </div>
         </div>
