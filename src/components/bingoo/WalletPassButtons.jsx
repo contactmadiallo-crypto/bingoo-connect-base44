@@ -22,40 +22,10 @@ const GoogleLogo = ({ size = 14 }) => (
   </svg>
 );
 
-export default function WalletPassButtons({ profile, color, isDark, stacked = false }) {
+export default function WalletPassButtons({ profile, stacked = false }) {
   const { language } = useI18n();
   const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
-
-  const handleApple = async () => {
-    setLoading("apple");
-    setError(null);
-    try {
-      const response = await fetch("/api/functions/generateAppleWalletPass", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile_id: profile.id, username: profile.username }),
-      });
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || "Failed to generate pass");
-      }
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${profile.username || "bingoo"}.pkpass`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Apple Wallet error:", err);
-      setError(t("wallet_apple_unavailable", language));
-    } finally {
-      setLoading(null);
-    }
-  };
 
   const handleGoogle = async () => {
     setLoading("google");
