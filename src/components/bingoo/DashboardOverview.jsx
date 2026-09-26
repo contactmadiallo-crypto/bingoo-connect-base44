@@ -8,10 +8,10 @@ import {
 } from "lucide-react";
 
 export default function DashboardOverview({
-  profile, user, isDark, analytics, leads, appointments, myNfcDevices,
-  salonServices, teamMembers, tr, setTab, copied, copyLink,
-  profileAbsoluteUrl, profileUrl, profileQrUrl, qrUrl, downloadBrandedQR,
-  launchAI, setShowLayoutPicker, totalViews, totalClicks, totalNfcTaps,
+  profile, isDark, analytics, leads, appointments, myNfcDevices,
+  salonServices, teamMembers, tr, setTab,
+  profileAbsoluteUrl, profileQrUrl, qrUrl, downloadBrandedQR,
+  launchAI, setShowLayoutPicker, totalViews, totalNfcTaps,
   totalQrScans, totalWhatsApp, leadsThisMonth, apptsThisMonth, monthLabel,
   isFreeIndividual,
 }) {
