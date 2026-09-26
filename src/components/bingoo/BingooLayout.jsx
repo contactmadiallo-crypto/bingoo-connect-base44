@@ -55,6 +55,9 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const effectiveUserId = userId || user?.id;
   const isAdmin = isAdminUser(user);
   const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan);
+  const mobileMenuSections = navSections
+    .map(section => ({ ...section, items: section.items.filter(item => !["landing", "profiles", "devices", "shop"].includes(item.id)) }))
+    .filter(section => section.items.length > 0);
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
   // Keep the selected item visible inside the sidebar itself after every route change.
@@ -175,7 +178,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
       </div>
 
       <nav ref={navRef} className={`flex-1 overflow-y-auto scroll-smooth ${collapsed ? "px-2 py-4" : "px-3 py-4"}`}>
-        {navSections.map(section => (
+        {(onNav ? mobileMenuSections : navSections).map(section => (
           <div key={section.id} className="mb-2">
             {!collapsed && <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">{section.label}</p>}
             {collapsed && section.id !== "home" && <div className="mx-2 my-2 h-px bg-white/7" />}
@@ -251,7 +254,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
       </header>
 
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-40 backdrop-blur-sm bg-black/60" onClick={() => setMobileOpen(false)} role="dialog" aria-label="Navigation menu">
+        <div className="md:hidden fixed inset-0 z-[100] backdrop-blur-sm bg-black/60" onClick={() => setMobileOpen(false)} role="dialog" aria-label="Navigation menu">
           <div className="flex flex-col w-72 h-full shadow-2xl" onClick={e => e.stopPropagation()} style={{ background: sidebarBg, paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}>
             <div className="flex justify-end px-4 pt-3 pb-1"><button onClick={() => setMobileOpen(false)} aria-label="Close navigation menu" className="min-h-[44px] min-w-[44px] p-2 rounded-xl hover:bg-white/10 text-white/60 flex items-center justify-center"><X className="w-5 h-5" /></button></div>
             {renderSidebarContent(() => setMobileOpen(false), false)}
