@@ -71,6 +71,7 @@ function PhoneFrame({ children, glow = false, label }) {
 
 // ── LEFT: Emma Carter fictional professional profile ──────────────────────
 function ProfileScreen() {
+  const { language } = useI18n();
   return (
     <div className="min-h-[258px] bg-[#f7f9fc]">
       {/* Header */}
@@ -138,6 +139,7 @@ function ProfileScreen() {
 
 // ── CENTER: Lost Mode ─────────────────────────────────────────────────────
 function LostModeScreen() {
+  const { language } = useI18n();
   return (
     <div className="min-h-[258px] bg-white">
       {/* Header — red gradient with texture */}

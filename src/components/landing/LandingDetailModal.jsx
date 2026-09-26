@@ -23,8 +23,8 @@ const B = {
  *  - why it matters note
  *  - CTA buttons (each navigates to an app route)
  */
-export default function LandingDetailModal({
-  const { language } = useI18n(); open, onClose, item }) {
+export default function LandingDetailModal({ open, onClose, item }) {
+  const { language } = useI18n();
   // Close on Escape key
   useEffect(() => {
     if (!open) return;
