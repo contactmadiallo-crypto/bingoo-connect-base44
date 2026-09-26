@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronUp } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = { orange: "#f97316", orangeLight: "#fb923c" };
 
 export default function BackToTop() {
+  const { language } = useI18n();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -30,7 +33,7 @@ export default function BackToTop() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.92 }}
           onClick={scrollToTop}
-          aria-label="Back to top"
+          aria-label={t("landing_back_top",language)}
           className="fixed bottom-5 right-5 z-40 flex h-11 w-11 items-center justify-center rounded-full text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           style={{
             background: `linear-gradient(135deg, ${B.orange} 0%, ${B.orangeLight} 100%)`,
