@@ -165,7 +165,7 @@ const recoverySteps = [
     titleKey: "landing_recovery_protect",
     textKey: "landing_recovery_protect_copy",
     color: B.green,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center justify-center gap-1.5 py-1">
         <div className="flex h-7 w-9 items-center justify-center rounded-md text-white" style={{ background: `linear-gradient(145deg, ${B.navyDark}, ${B.navyLight})` }}><span className="text-[8px] font-black">∞</span></div>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
@@ -179,7 +179,7 @@ const recoverySteps = [
     titleKey: "landing_lost_mode",
     textKey: "landing_recovery_lost_copy",
     color: B.red,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center justify-center gap-1.5 py-1">
         <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.green }}>{t("landing_protected",language)}</span>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
@@ -212,7 +212,7 @@ const recoverySteps = [
     titleKey: "landing_recovery_reconnect",
     textKey: "landing_recovery_reconnect_copy",
     color: B.gold,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center justify-center gap-1.5 py-1">
         <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.blue }}>{t("landing_finder",language)}</span>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
@@ -285,7 +285,7 @@ export default function AssetProtectionLostMode() {
                     </div>
                     <p className="mb-2 text-xs leading-snug text-white/60">{t(s.textKey,language)}</p>
                     <div className="rounded-lg border p-1.5" style={{ borderColor: "rgba(255,255,255,.06)", background: "rgba(255,255,255,.02)" }}>
-                      {s.visual}
+                      {typeof s.visual === "function" ? s.visual(language) : s.visual}
                     </div>
                   </div>
                 </motion.div>

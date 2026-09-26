@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { Factory, CreditCard, Palette, Check, X, Plus } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 function StatusBadge({ status }) {
   const colors = {
@@ -33,6 +35,7 @@ export default function AdminInventoryTab({ activeTab }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newProduct, setNewProduct] = useState(null);
+  const { language } = useI18n();
 
   // NFC Inventory
   const { data: devices, isLoading: devLoading } = useQuery({
@@ -212,7 +215,7 @@ export default function AdminInventoryTab({ activeTab }) {
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               <input placeholder={t("inv_name",language)} value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
               <select value={newProduct.product_type} onChange={e => setNewProduct({ ...newProduct, product_type: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm">
-                {['card', 'metal_card', 'keychain', 'bracelet', 'sticker', 'tag', 'stand', 'badge', 'bundle'].map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+                {['card', 'metal_card', 'keychain', 'bracelet', 'sticker', 'tag', 'stand', 'badge', 'bundle'].map(pt => <option key={pt} value={pt}>{pt.replace(/_/g, ' ')}</option>)}
               </select>
               <input placeholder={t("inv_price",language)} type="number" value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
               <input placeholder={t("inv_supplier_cost",language)} type="number" value={newProduct.supplier_cost} onChange={e => setNewProduct({ ...newProduct, supplier_cost: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />

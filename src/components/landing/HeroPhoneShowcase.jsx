@@ -207,6 +207,7 @@ function LostModeScreen() {
 
 // ── RIGHT: Analytics & Dashboard ──────────────────────────────────────────
 function AnalyticsScreen() {
+  const { language } = useI18n();
   const bars = [42, 68, 52, 84, 60, 96, 74];
   const stats = [
     [Wifi, "NFC Taps", "1,253", B.orange],
@@ -360,6 +361,7 @@ function NfcConnectionLines() {
 // Loop: card floats → moves to center phone → orange NFC rings → phone glows
 // → profile opens → card returns. Repeats forever.
 function NfcCardAndStatus() {
+  const { language } = useI18n();
   // 6-second cycle keyframes (times: 0, 0.25, 0.5, 0.72, 1)
   const cardY = [0, -10, -150, -150, 0];
   const cardScale = [1, 1.02, 1.1, 1.1, 1];

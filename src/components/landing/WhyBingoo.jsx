@@ -59,7 +59,7 @@ const steps = [
     titleKey: "landing_why_intro",
     textKey: "landing_why_intro_copy",
     color: B.navy,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex h-7 w-7 items-center justify-center rounded-full text-[8px] font-black text-white" style={{ background: B.navy }}>JC</div>
         <div className="text-left">
@@ -75,7 +75,7 @@ const steps = [
     titleKey: "landing_why_capture",
     textKey: "landing_why_capture_copy",
     color: B.orange,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-500"><Bell className="h-3 w-3" /></div>
         <div className="text-left">
@@ -106,7 +106,7 @@ const steps = [
     titleKey: "landing_why_book",
     textKey: "landing_why_book_copy",
     color: B.gold,
-    visual: (
+    visual: (language) => (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <Calendar className="h-3.5 w-3.5" style={{ color: B.gold }} />
         <div className="text-left">
@@ -182,8 +182,8 @@ const benefits = [
 
 export default function WhyBingoo() {
   const { language } = useI18n();
-  const localizedJourney = localizedJourney.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
-  const localizedReasons = localizedReasons.map((x) => ({ ...x, title: t(x.titleKey,language), desc: t(x.descKey,language) }));
+  const localizedSteps = steps.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
+  const localizedBenefits = benefits.map((x) => ({ ...x, title: t(x.titleKey,language), desc: t(x.descKey,language) }));
   return (
     <section className="relative overflow-hidden bg-white px-4 py-16 md:px-6 md:py-24">
       <div className="pointer-events-none absolute inset-0">
@@ -219,7 +219,7 @@ export default function WhyBingoo() {
             viewport={{ once: true, margin: "-60px" }}
             variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
           >
-            {steps.map((s) => (
+            {localizedSteps.map((s) => (
               <motion.div
                 key={s.n}
                 variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } }}
@@ -235,7 +235,7 @@ export default function WhyBingoo() {
                   <h3 className="mb-1 text-sm font-black" style={{ color: B.navy }}>{s.title}</h3>
                   <p className="mb-3 text-[11px] leading-snug" style={{ color: B.slate }}>{s.text}</p>
                   <div className="rounded-xl border p-2" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
-                    {s.visual}
+                    {typeof s.visual === "function" ? s.visual(language) : s.visual}
                   </div>
                 </div>
                 {/* Mobile vertical connector */}
@@ -255,7 +255,7 @@ export default function WhyBingoo() {
         </motion.div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-5">
-          {benefits.map((b, i) => (
+          {localizedBenefits.map((b, i) => (
             <motion.div
               key={b.title}
               {...reveal}

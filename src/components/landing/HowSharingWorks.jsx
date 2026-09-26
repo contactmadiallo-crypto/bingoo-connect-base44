@@ -175,7 +175,7 @@ const steps = [
     titleKey: "landing_how_opens",
     textKey: "landing_how_opens_copy",
     color: B.blue,
-    visual: (
+    visual: (language) => (
       <div className="rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full text-white" style={{ background: `linear-gradient(135deg, ${B.navy}, ${B.navyLight})` }}><span className="text-[8px] font-black">TM</span></div>
@@ -194,7 +194,7 @@ const steps = [
     titleKey: "landing_how_capture",
     textKey: "landing_how_capture_copy",
     color: B.gold,
-    visual: (
+    visual: (language) => (
       <div className="rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-500"><Bell className="h-3 w-3" /></div>
@@ -241,7 +241,7 @@ const shareFormats = ["NFC Card", "Keychain", "Bracelet", "Sticker", "Desk Stand
 
 export default function HowSharingWorks() {
   const { language } = useI18n();
-  const localizedSteps = localizedSteps.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
+  const localizedSteps = steps.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
   return (
     <section className="relative overflow-hidden bg-slate-50 px-4 py-16 md:px-6 md:py-24">
       <div className="pointer-events-none absolute inset-0">
@@ -291,7 +291,7 @@ export default function HowSharingWorks() {
                   <h3 className="mb-1 text-sm font-black" style={{ color: B.navy }}>{s.title}</h3>
                   <p className="mb-3 text-[11px] leading-snug" style={{ color: B.slate }}>{s.text}</p>
                   <div className="rounded-xl border p-2" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
-                    {s.visual}
+                    {typeof s.visual === "function" ? s.visual(language) : s.visual}
                   </div>
                 </div>
                 {/* Mobile vertical connector */}
