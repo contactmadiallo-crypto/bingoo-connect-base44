@@ -6,6 +6,18 @@ export const isNativeAndroid = () =>
 
 export const isNativeApp = () => Capacitor.isNativePlatform();
 
+export const isInstalledAppShell = () => {
+  if (Capacitor.isNativePlatform()) return true;
+  if (typeof window === "undefined") return false;
+
+  const standalone = window.matchMedia?.("(display-mode: standalone)")?.matches ||
+    window.matchMedia?.("(display-mode: fullscreen)")?.matches;
+  const twaReferrer = typeof document !== "undefined" &&
+    String(document.referrer || "").startsWith("android-app://");
+
+  return Boolean(standalone || twaReferrer);
+};
+
 export async function openExternalUrl(url) {
   if (!url) return;
   if (isNativeApp()) {
