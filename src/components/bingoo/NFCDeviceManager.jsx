@@ -578,25 +578,25 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {t("nfc_admin_test",language)}</a>
                   </div>
                   <div className="flex items-center gap-1 flex-wrap pt-1">
-                    <button aria-label="Edit device" onClick={() => setEditingDevice({ ...d })}
+                    <button aria-label={language === "fr" ? "Modifier l’appareil" : "Edit device" onClick={() => setEditingDevice({ ...d })}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <Edit className="w-4 h-4 text-blue-400" />
                     </button>
-                    <button aria-label="Assign device" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
+                    <button aria-label={language === "fr" ? "Attribuer l’appareil" : "Assign device" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <ArrowRightLeft className="w-4 h-4 text-purple-400" />
                     </button>
                     {d.profile_id && (
-                      <button aria-label="Unassign device" onClick={() => handleUnassign(d)}
+                      <button aria-label={language === "fr" ? "Désattribuer l’appareil" : "Unassign device" onClick={() => handleUnassign(d)}
                         className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                         <RotateCcw className="w-4 h-4 text-yellow-400" />
                       </button>
                     )}
-                    <button aria-label="Replace device" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
+                    <button aria-label={language === "fr" ? "Remplacer l’appareil" : "Replace device" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <RefreshCw className="w-4 h-4 text-cyan-400" />
                     </button>
-                    <button aria-label="Delete device" onClick={() => setDeleteConfirm(d)}
+                    <button aria-label={language === "fr" ? "Supprimer l’appareil" : "Delete device" onClick={() => setDeleteConfirm(d)}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </button>
@@ -708,7 +708,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 }}
                   disabled={singleGenerating || createDevice.isPending}
                   style={{ background: orange, color: "#fff" }} className="w-full font-bold">
-                  {(singleGenerating || createDevice.isPending) ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating {singleGeneratingCode || (singleCode || padCode(nextBgNumber())).trim().toUpperCase()}…</> : "Create Shop-Matched Device"}
+                  {(singleGenerating || createDevice.isPending) ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />{language === "fr" ? "Génération" : "Generating"} {singleGeneratingCode || (singleCode || padCode(nextBgNumber())).trim().toUpperCase()}…</> : (language === "fr" ? "Créer l’appareil correspondant au Shop" : "Create Shop-Matched Device")}
                 </Button>
                 {lastGeneratedDevice && (
                   <div className="rounded-xl p-3" style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.28)" }}>
@@ -751,7 +751,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
               </div>
               <p className="text-white/30 text-xs mb-1">
-                Range: <span className="font-mono text-orange-400">{padCode(parseInt(bulkStart) || nextBgNumber())} → {padCode((parseInt(bulkStart) || nextBgNumber()) + bulkCount - 1)}</span>
+                {language === "fr" ? "Plage" : "Range"}: <span className="font-mono text-orange-400">{padCode(parseInt(bulkStart) || nextBgNumber())} → {padCode((parseInt(bulkStart) || nextBgNumber()) + bulkCount - 1)}</span>
               </p>
               <p className="text-white/25 text-xs mb-3">{t("nfc_admin_auto_start",language)}</p>
               <Button onClick={handleBulkGenerate} disabled={bulkGenerating}
@@ -780,7 +780,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
               ))}
             </div>
-            {devices.length > 16 && <p className="text-white/25 text-xs mt-3">…and {devices.length - 16} more devices</p>}
+            {devices.length > 16 && <p className="text-white/25 text-xs mt-3">{language === "fr" ? `…et ${devices.length - 16} autres appareils` : `…and ${devices.length - 16} more devices`}</p>}
           </div>
         </div>
       )}
@@ -792,7 +792,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
             <h3 className="font-bold text-white mb-4">{t("nfc_admin_assign_unassign",language)}</h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <h4 className="text-white/50 text-xs font-bold uppercase mb-3">Assigned ({devices.filter(d => d.profile_id).length})</h4>
+                <h4 className="text-white/50 text-xs font-bold uppercase mb-3">{language === "fr" ? "Attribués" : "Assigned"} ({devices.filter(d => d.profile_id).length})</h4>
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                   {devices.filter(d => d.profile_id).map(d => {
                     const profile = profiles.find(p => p.id === d.profile_id);
@@ -801,14 +801,14 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <span>{DEVICE_EMOJIS[d.device_type]}</span>
                         <div className="flex-1 min-w-0">
                           <span className="font-mono font-bold text-sm text-white">{d.device_code}</span>
-                          <p className="text-xs text-white/40 truncate">{profile?.display_name || "Unknown"}</p>
+                          <p className="text-xs text-white/40 truncate">{profile?.display_name || (language === "fr" ? "Inconnu" : "Unknown")}</p>
                         </div>
                         <StatusBadge status={d.status} />
                         <button onClick={() => handleUnassign(d)}
                           aria-label={`Unassign device ${d.device_code}`}
                           className="text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
                           style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>
-                          Unassign
+                          {language === "fr" ? "Désattribuer" : "Unassign"}
                         </button>
                       </div>
                     );
@@ -817,7 +817,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                 </div>
               </div>
               <div>
-                <h4 className="text-white/50 text-xs font-bold uppercase mb-3">Available ({devices.filter(d => !d.profile_id && d.status === "available").length})</h4>
+                <h4 className="text-white/50 text-xs font-bold uppercase mb-3">{language === "fr" ? "Disponibles" : "Available"} ({devices.filter(d => !d.profile_id && d.status === "available").length})</h4>
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
                   {devices.filter(d => !d.profile_id && d.status === "available").map(d => (
                     <div key={d.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: "rgba(255,255,255,0.04)" }}>
@@ -830,7 +830,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         aria-label={`Assign device ${d.device_code}`}
                         className="text-xs font-bold px-2.5 py-1 rounded-lg flex-shrink-0"
                         style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", border: "1px solid rgba(34,197,94,0.3)" }}>
-                        Assign
+                        {language === "fr" ? "Attribuer" : "Assign"}
                       </button>
                     </div>
                   ))}
@@ -862,7 +862,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     setReplaceDevice(d || null);
                     if (d) { setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }
                   }}
-                  placeholder="— Select a device —"
+                  placeholder={language === "fr" ? "— Sélectionner un appareil —" : "— Select a device —"}
                   items={devices.filter(d => d.status !== "replaced" && d.status !== "disabled").map(d => {
                     const profile = profiles.find(p => p.id === d.profile_id);
                     return { value: d.id, label: `${d.device_code} — ${profile?.display_name || t("nfc_admin_unassigned",language)} (${d.device_type})` };
@@ -910,7 +910,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     </ul>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3">
                     <Button onClick={handleReplace} disabled={updateDevice.isPending}
                       style={{ background: "#06b6d4", color: "#fff" }} className="font-bold gap-2">
                       <RefreshCw className="w-4 h-4" /> {t("nfc_admin_replace_device",language)}
