@@ -11,7 +11,7 @@ const ROOT_DASHBOARD = "/bingoo";
 function isRootDashboard(location) {
   if (location.pathname !== ROOT_DASHBOARD) return false;
   const view = new URLSearchParams(location.search).get("view");
-  return !view || view === "home";
+  return !view || view === "hub" || view === "home";
 }
 
 /**
