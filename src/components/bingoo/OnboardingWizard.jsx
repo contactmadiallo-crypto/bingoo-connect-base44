@@ -10,6 +10,7 @@ import { base44 } from "@/api/base44Client";
 import LayoutPicker from "./LayoutPicker";
 import { LAYOUT_CATALOG } from "@/lib/profileLayouts";
 import { useI18n } from '@/lib/I18nContext';
+import { PUBLIC_APP_ORIGIN } from "@/lib/publicProfileUrl";
 
 const FR_ONBOARDING = {
   'Individual':'Individuel','Business':'Entreprise','Free':'Gratuit','Professional':'Professionnel','Salon / Service':'Salon / Service','Law Firm':'Cabinet juridique','Corporate':'Entreprise',
@@ -194,8 +195,8 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
         base44.functions.invoke("createSubscriptionSession", {
           plan: selectedPlan,
           billing_cycle: "monthly",
-          success_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=success`,
-          cancel_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=canceled`,
+          success_url: `${PUBLIC_APP_ORIGIN}/bingoo?onboarding=resume&subscription=success`,
+          cancel_url: `${PUBLIC_APP_ORIGIN}/bingoo?onboarding=resume&subscription=canceled`,
         }),
         new Promise((_, reject) => {
           window.setTimeout(() => reject(new Error(tr('Stripe checkout took too long to respond. Please try again.', 'Le paiement Stripe met trop de temps à répondre. Veuillez réessayer.'))), 20000);
@@ -246,24 +247,24 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.92, y: 24 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
-        className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[94vh] flex flex-col"
+        className="relative w-full sm:max-w-xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[94dvh] sm:max-h-[94vh] flex flex-col"
       >
         <div className="h-1.5 w-full" style={{ background: "linear-gradient(to right, #0b2149, #f97316)" }} />
-        <button onClick={handleDismiss} className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:bg-slate-100 z-10" aria-label={tr('Close onboarding', 'Fermer l’intégration')}>
+        <button onClick={handleDismiss} className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 z-10" aria-label={tr('Close onboarding', 'Fermer l’intégration')}>
           <X className="w-4 h-4" />
         </button>
 
-        <div className="flex items-center gap-2 px-6 pt-5">
+        <div className="flex items-center gap-2 px-4 sm:px-6 pt-4 sm:pt-5">
           <InfinityMark className="w-7 h-7" />
           <span className="text-sm font-black text-slate-900">Bingoo<span className="text-orange-500">Connect</span></span>
         </div>
 
-        <div className="flex items-center justify-center gap-1.5 px-6 pt-4 pb-2">
+        <div className="flex items-center justify-center gap-1 px-3 sm:px-6 pt-4 pb-2 overflow-x-auto scrollbar-hide">
           {STEPS.map((item, index) => (
             <div key={item.id} className="flex items-center gap-1.5">
               <div
