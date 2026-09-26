@@ -194,7 +194,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
   }
 
   return (
-    <div ref={rootRef} className="space-y-5">
+    <div ref={rootRef} className="space-y-5 min-w-0 overflow-x-hidden">
       {/* Header */}
       <div>
         <h2 className={`text-2xl font-black ${headText}`}>{t("qr_wallet_title", language)}</h2>
@@ -202,29 +202,29 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       </div>
 
       {/* Profile URL */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 min-w-0`}>
         <p className={`font-bold text-sm ${headText} mb-3`}>{t("qr_profile_link", language)}</p>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 min-w-0">
           <input readOnly value={profileUrl || ""}
-            className={`flex-1 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
+            className={`flex-1 min-w-0 px-3 py-2 rounded-xl border text-xs font-mono ${isDark ? "bg-white/5 border-white/10 text-white/70" : "bg-slate-50 border-slate-200 text-slate-600"}`} />
           <button type="button" onClick={copyUrl}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[44px]"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[44px] w-full sm:w-auto"
             style={{ background: copiedUrl ? "#059669" : "#0b2149" }}>
             {copiedUrl ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copiedUrl ? t("qr_copied", language) : t("qr_copy", language)}
           </button>
           {profileUrl && (
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-              className={`flex items-center justify-center w-11 h-11 rounded-xl border transition-all ${isDark ? "border-white/10 bg-white/6 text-blue-400" : "bg-blue-50 border-blue-200 text-blue-600"}`}>
+              className={`flex items-center justify-center w-full sm:w-11 h-11 rounded-xl border transition-all ${isDark ? "border-white/10 bg-white/6 text-blue-400" : "bg-blue-50 border-blue-200 text-blue-600"}`}>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           )}
         </div>
       </div>
 
-      <div className="grid xl:grid-cols-[1.05fr_.95fr] gap-5 items-start">
+      <div className="grid xl:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] gap-5 items-start min-w-0">
       {/* QR Code Customization + Live Preview */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 space-y-4 min-w-0`}>
         <div>
           <p className={`font-black text-lg ${headText}`}>{t("qr_your_code", language)}</p>
           <p className={`text-xs ${mutedText}`}>{t("qr_customize_copy", language)}</p>
@@ -234,9 +234,9 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         <div className="flex justify-center">
           <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
             {previewDataUrl ? (
-              <img src={previewDataUrl} alt={t("qr_alt_preview", language)} className="rounded-xl mx-auto" style={{ width: 240, height: "auto" }} />
+              <img src={previewDataUrl} alt={t("qr_alt_preview", language)} className="rounded-xl mx-auto w-full max-w-[240px] h-auto" />
             ) : (
-              <div className="w-[240px] h-[300px] flex items-center justify-center">
+              <div className="w-full max-w-[240px] h-[300px] flex items-center justify-center mx-auto">
                 <span className={`text-xs ${mutedText}`}>{t("studio_generating_preview", language)}</span>
               </div>
             )}
@@ -317,11 +317,11 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         {/* Download + Save */}
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={handleDownloadQR} disabled={downloading}
-            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
+            className="flex-1 min-w-0 sm:min-w-[140px] min-h-[44px] rounded-xl font-bold gap-2 text-white" style={{ background: "#0b2149" }}>
             <Download className="w-4 h-4" /> {downloading ? t("qr_generating", language) : t("qr_download", language)}
           </Button>
           <Button type="button" onClick={handleSave} disabled={saving}
-            className="flex-1 min-w-[140px] rounded-xl font-bold gap-2 text-white" style={{ background: "#f97316" }}>
+            className="flex-1 min-w-0 sm:min-w-[140px] min-h-[44px] rounded-xl font-bold gap-2 text-white" style={{ background: "#f97316" }}>
             {saving ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("qr_saving", language)}</> : <><Save className="w-4 h-4" />{t("qr_save_settings", language)}</>}
           </Button>
         </div>
@@ -337,7 +337,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
       </div>
 
       {/* Wallet design guidance — within existing wallet API limits */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 min-w-0`}>
         <div className="flex items-center gap-2 mb-2">
           <Info className={`w-4 h-4 ${isDark ? "text-white/50" : "text-slate-400"}`} />
           <p className={`font-bold text-sm ${headText}`}>{t("qr_wallet_design", language)}</p>
@@ -347,7 +347,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         </p>
       </div>
 
-      {/* Document Wallet — functional upload, categorize, and manage */}
+      {/* Document Wallet — consolidated inside QR & Wallet */}
       <DocumentWalletPanel profile={profile} isDark={isDark} />
     </div>
   );
