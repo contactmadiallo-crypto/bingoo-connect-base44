@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { MapPin, Star, BookOpen, Award, Languages, Scale } from "lucide-react";
 import { LEGAL_SERVICES, CATEGORY_COLORS } from "@/lib/legalData";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 function ContactBtn({ href, label, emoji, color }) {
   return (
@@ -27,6 +29,7 @@ function Section({ title, children, icon: Icon, color = "#0b2149" }) {
 }
 
 export default function AttorneyProfileSection({ member, coverColor = "#0b2149" }) {
+  const { language } = useI18n();
   const [activeTab, setActiveTab] = useState("about");
   if (!member) return null;
 
@@ -35,10 +38,10 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
     .split(",").map(s => s.trim()).filter(Boolean));
 
   const tabs = [
-    { id: "about", label: "About" },
-    { id: "services", label: "Services" },
-    ...(member.education || member.experience ? [{ id: "background", label: "Background" }] : []),
-    ...(member.awards ? [{ id: "awards", label: "Awards" }] : []),
+    { id: "about", labelKey: "attorney_tab_about" },
+    { id: "services", labelKey: "attorney_tab_services" },
+    ...(member.education || member.experience ? [{ id: "background", labelKey: "attorney_tab_background" }] : []),
+    ...(member.awards ? [{ id: "awards", labelKey: "attorney_tab_awards" }] : []),
   ];
 
   return (
@@ -73,7 +76,7 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
         {/* Meta row */}
         <div className="flex flex-wrap gap-3 text-xs text-slate-500 mb-4">
           {member.bar_states && (
-            <span className="flex items-center gap-1"><Scale className="w-3.5 h-3.5 text-blue-500" /> Bar: {member.bar_states}</span>
+            <span className="flex items-center gap-1"><Scale className="w-3.5 h-3.5 text-blue-500" /> {t("attorney_bar",language)}: {member.bar_states}</span>
           )}
           {member.languages && (
             <span className="flex items-center gap-1"><Languages className="w-3.5 h-3.5 text-blue-500" /> {member.languages}</span>
@@ -82,7 +85,7 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
             <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-blue-500" /> {member.office_address}</span>
           )}
           {member.consultation_fee && (
-            <span className="flex items-center gap-1">💰 Consultation: {member.consultation_fee}</span>
+            <span className="flex items-center gap-1">💰 {t("attorney_consultation",language)}: {member.consultation_fee}</span>
           )}
           {member.availability && (
             <span className="flex items-center gap-1">🕐 {member.availability}</span>
@@ -91,9 +94,9 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
 
         {/* Contact buttons */}
         <div className="flex gap-2 flex-wrap mb-4">
-          {member.phone && <ContactBtn href={`tel:${member.phone}`} label="Call" emoji="📞" color={coverColor} />}
+          {member.phone && <ContactBtn href={`tel:${member.phone}`} label={t("team_public_call",language)} emoji="📞" color={coverColor} />}
           {member.whatsapp && <ContactBtn href={`https://wa.me/${member.whatsapp.replace(/\D/g,'')}`} label="WhatsApp" emoji="💬" color="#25D366" />}
-          {member.email && <ContactBtn href={`mailto:${member.email}`} label="Email" emoji="📧" color="#6366f1" />}
+          {member.email && <ContactBtn href={`mailto:${member.email}`} label={t("team_public_email",language)} emoji="📧" color="#6366f1" />}
         </div>
 
         {/* Tabs */}
@@ -103,7 +106,7 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
             {tabs.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)}
                 className={`px-3 py-2 text-xs font-bold border-b-2 -mb-px whitespace-nowrap flex-shrink-0 transition-colors ${activeTab === t.id ? "border-blue-600 text-blue-700" : "border-transparent text-slate-400 hover:text-slate-600"}`}>
-                {t.label}
+                {t(t.labelKey,language)}
               </button>
             ))}
             </div>
@@ -148,13 +151,13 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
           <div className="space-y-4">
             {member.education && (
               <div>
-                <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> Education</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> {t("attorney_education",language)}</p>
                 <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{member.education}</p>
               </div>
             )}
             {member.experience && (
               <div>
-                <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> Experience</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> {t("attorney_experience",language)}</p>
                 <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{member.experience}</p>
               </div>
             )}
@@ -163,7 +166,7 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
 
         {activeTab === "awards" && member.awards && (
           <div>
-            <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> Awards & Memberships</p>
+            <p className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"><Award className="w-3.5 h-3.5" /> {t("attorney_awards_memberships",language)}</p>
             <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{member.awards}</p>
           </div>
         )}
