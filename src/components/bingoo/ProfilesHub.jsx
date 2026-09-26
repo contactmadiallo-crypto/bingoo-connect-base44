@@ -3,7 +3,7 @@ import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, GripV
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
+import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
 import { useI18n } from "@/lib/I18nContext";
 
 export default function ProfilesHub({
@@ -141,7 +141,7 @@ export default function ProfilesHub({
   const startTrial = async () => {
     if (trialLoading) return;
     if (window.self !== window.top) {
-      alert("Checkout is only available from the published app. Please open bingooconnect.com to subscribe.");
+      alert(tr("Checkout is only available from the published app. Please open bingooconnect.com to subscribe.", "Le paiement est disponible uniquement dans l’application publiée. Ouvrez bingooconnect.com pour vous abonner."));
       return;
     }
     setTrialLoading(true);
@@ -149,8 +149,8 @@ export default function ProfilesHub({
       const resp = await base44.functions.invoke("createSubscriptionSession", {
         plan: "professional",
         trial_days: 14,
-        success_url: `${window.location.origin}/bingoo`,
-        cancel_url: `${window.location.origin}/bingoo`,
+        success_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
+        cancel_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
       });
       if (resp?.data?.url) window.location.href = resp.data.url;
     } catch (e) {
