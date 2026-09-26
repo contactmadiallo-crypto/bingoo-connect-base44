@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const LEGAL_LINKS = [
-  ["Privacy Policy", "/privacy"],
-  ["Terms of Service", "/terms"],
-  ["Data Deletion", "/data-deletion"],
-  ["Contact", "/contact"],
+  ["legal_privacy", "/privacy"],
+  ["legal_terms", "/terms"],
+  ["legal_data_deletion", "/data-deletion"],
+  ["about_contact", "/contact"],
 ];
 
 /** A titled section with anchor for table-of-contents navigation */
@@ -23,9 +25,10 @@ export function LegalSection({ id, title, children }) {
 
 /** Scrollable table of contents — items: [number, label, anchorId] */
 export function LegalTOC({ items }) {
+  const { language } = useI18n();
   return (
     <div className="mb-8 p-4 md:p-5 bg-white rounded-2xl border border-slate-100 shadow-sm">
-      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Table of Contents</h3>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">{t("legal_toc",language)}</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0.5">
         {items.map(([num, label, anchor]) => (
           <a key={anchor} href={`#${anchor}`} className="text-sm text-blue-600 hover:text-blue-800 hover:underline py-1 no-underline">
@@ -39,6 +42,7 @@ export function LegalTOC({ items }) {
 
 /** Shared layout for all legal/compliance pages */
 export default function LegalPageLayout({ title, subtitle, lastUpdated, children, maxWidth = "max-w-3xl" }) {
+  const { language } = useI18n();
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -48,7 +52,7 @@ export default function LegalPageLayout({ title, subtitle, lastUpdated, children
         </Link>
         <h1 className="text-2xl md:text-3xl font-black text-white mb-1">{title}</h1>
         {subtitle && <p className="text-sm text-white/60">{subtitle}</p>}
-        {lastUpdated && <p className="text-xs text-white/50 mt-2">Last updated: {lastUpdated}</p>}
+        {lastUpdated && <p className="text-xs text-white/50 mt-2">{t("legal_last_updated",language)} {lastUpdated}</p>}
       </div>
 
       {/* Content */}
@@ -62,11 +66,11 @@ export default function LegalPageLayout({ title, subtitle, lastUpdated, children
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             {LEGAL_LINKS.map(([label, to]) => (
               <Link key={to} to={to} className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors no-underline">
-                {label}
+                {t(label,language)}
               </Link>
             ))}
           </div>
-          <p className="text-center text-[11px] text-slate-400 mt-3">© 2026 Bingoo Connect. All rights reserved.</p>
+          <p className="text-center text-[11px] text-slate-400 mt-3">© 2026 Bingoo Connect. {t("about_rights",language)}</p>
         </div>
       </div>
     </div>
