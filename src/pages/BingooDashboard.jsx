@@ -27,6 +27,7 @@ const LegalServicesPanel = React.lazy(() => import("@/components/bingoo/LegalSer
 const OfficeLocationsPanel = React.lazy(() => import("@/components/bingoo/OfficeLocationsPanel"));
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { getLang, setLang as persistLang } from "@/lib/i18n";
+import { useI18n } from '@/lib/I18nContext';
 const ProfilesHub = React.lazy(() => import("@/components/bingoo/ProfilesHub"));
 const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWorkspace"));
 import { usePlan } from "@/hooks/usePlan";
@@ -114,6 +115,8 @@ function resolveView(searchParams) {
 // Lightweight profile creation form — same modern style as ProfileWorkspace.
 // Creates the record then hands off to ProfileWorkspace for all editing.
 function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, planLabel, entitlementLoading, onBack, onCreated, onUpgrade }) {
+  const { language } = useI18n();
+  const tx = (en, fr) => language === 'fr' ? fr : en;
   const [form, setForm] = useState({
     display_name: prefillData?.display_name || user?.full_name || "",
     username: prefillData?.username || "",
@@ -189,36 +192,36 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
       <div className="flex items-center gap-3">
         <button onClick={onBack}
           className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-          <ChevronLeft className="w-4 h-4" /> Profiles
+          <ChevronLeft className="w-4 h-4" /> {tx('Profiles', 'Profils')}
         </button>
-        <p className={`font-bold text-sm ${headText}`}>New Profile</p>
+        <p className={`font-bold text-sm ${headText}`}>{tx('New Profile', 'Nouveau profil')}</p>
       </div>
 
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-4`}>
-        <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>Profile Info</p>
+        <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>{tx('Profile Info', 'Informations du profil')}</p>
 
         <div>
-          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Display Name *</label>
-          <input className={inputCls} value={form.display_name} onChange={setF("display_name")} placeholder="Your Name or Business" />
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>{tx('Display Name *', 'Nom affiché *')}</label>
+          <input className={inputCls} value={form.display_name} onChange={setF("display_name")} placeholder={tx('Your Name or Business', 'Votre nom ou entreprise')} />
         </div>
 
         <div>
-          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Username (Profile URL) *</label>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>{tx('Username (Profile URL) *', 'Nom d’utilisateur (URL du profil) *')}</label>
           <div className="flex items-center gap-2">
             <span className={`text-xs px-3 py-2 rounded-xl flex-shrink-0 ${isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-500"}`}>/p/</span>
             <input className={inputCls} value={form.username} onChange={setF("username")} placeholder="yourusername" />
           </div>
-          <p className={`text-[11px] mt-1 ${mutedText}`}>Lowercase letters, numbers, hyphens and underscores only.</p>
+          <p className={`text-[11px] mt-1 ${mutedText}`}>{tx('Lowercase letters, numbers, hyphens and underscores only.', 'Lettres minuscules, chiffres, tirets et traits de soulignement uniquement.')}</p>
         </div>
 
         <div>
-          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Job Title / Role</label>
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>{tx('Job Title / Role', 'Poste / Fonction')}</label>
           <input className={inputCls} value={form.job_title} onChange={setF("job_title")} placeholder="CEO · Consultant · Attorney" />
         </div>
 
         <div>
-          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>Bio</label>
-          <textarea className={inputCls} rows={3} value={form.bio} onChange={setF("bio")} placeholder="Short description about you or your business..." />
+          <label className={`text-xs font-semibold ${mutedText} block mb-1`}>{tx('Bio', 'Bio')}</label>
+          <textarea className={inputCls} rows={3} value={form.bio} onChange={setF("bio")} placeholder={tx('Short description about you or your business...', 'Courte description de vous ou de votre entreprise…')} />
         </div>
 
         {limitReached && (
@@ -232,37 +235,41 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
           <button type="button" onClick={onUpgrade}
             className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90"
             style={{ background: "linear-gradient(135deg, #0b2149, #f97316)" }}>
-            View Plan Options →
+            {tx('View Plan Options', 'Voir les options de forfait')} →
           </button>
         ) : (
           <button onClick={handleCreate} disabled={saving || entitlementLoading}
             className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 disabled:opacity-60"
             style={{ background: saving || entitlementLoading ? "#64748b" : "linear-gradient(135deg, #f97316, #FDBA21)" }}>
-            {saving ? "Creating…" : entitlementLoading ? "Checking plan…" : "Create Profile & Open Editor →"}
+            {saving ? tx('Creating…', 'Création…') : entitlementLoading ? tx('Checking plan…', 'Vérification du forfait…') : tx('Create Profile & Open Editor →', 'Créer le profil et ouvrir l’éditeur →')}
           </button>
         )}
-        <p className={`text-[11px] text-center ${mutedText}`}>You can add photos, links, and more after creation.</p>
+        <p className={`text-[11px] text-center ${mutedText}`}>{tx('You can add photos, links, and more after creation.', 'Vous pourrez ajouter des photos, des liens et plus encore après la création.')}</p>
       </div>
     </div>
   );
 }
 
 // "No profile selected" empty state
-const NoProfileState = ({ isDark, onGoToProfiles }) => (
+const NoProfileState = ({ isDark, onGoToProfiles }) => {
+  const { language } = useI18n();
+  const tx = (en, fr) => language === 'fr' ? fr : en;
+  return (
   <div className={`flex flex-col items-center justify-center py-24 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
       style={{ background: isDark ? "rgba(249,115,22,0.1)" : "rgba(249,115,22,0.08)" }}>
       <span className="text-3xl">👤</span>
     </div>
-    <p className={`font-bold text-base mb-1 ${isDark ? "text-white/60" : "text-slate-600"}`}>No profile selected</p>
-    <p className="text-sm mb-5">Select a profile first to access this section.</p>
+    <p className={`font-bold text-base mb-1 ${isDark ? "text-white/60" : "text-slate-600"}`}>{tx('No profile selected', 'Aucun profil sélectionné')}</p>
+    <p className="text-sm mb-5">{tx('Select a profile first to access this section.', 'Sélectionnez d’abord un profil pour accéder à cette section.')}</p>
     <button onClick={onGoToProfiles}
       className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
       style={{ background: "#f97316" }}>
-      Go to My Profiles
+      {tx('Go to My Profiles', 'Aller à Mes profils')}
     </button>
   </div>
-);
+  );
+};
 
 export default function BingooDashboard() {
   const qc = useQueryClient();
