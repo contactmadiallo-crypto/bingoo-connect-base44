@@ -2,8 +2,11 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { FileText, Mail, Phone, MapPin, Linkedin, Globe, Download } from "lucide-react";
+import { useI18n } from '@/lib/I18nContext';
 
 export default function PublicResume() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const { resumeId } = useParams();
 
   const { data: resume, isLoading, isError } = useQuery({
@@ -27,7 +30,7 @@ export default function PublicResume() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center">
         <FileText className="w-16 h-16 mx-auto text-slate-200 mb-4" />
-        <p className="text-slate-500 font-semibold">Resume not found</p>
+        <p className="text-slate-500 font-semibold">{tr('Resume not found', 'CV introuvable')}</p>
       </div>
     </div>
   );
@@ -39,7 +42,7 @@ export default function PublicResume() {
         <div className="flex justify-end mb-4 print:hidden">
           <button onClick={printPDF}
             className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors">
-            <Download className="w-4 h-4" /> Download / Print PDF
+            <Download className="w-4 h-4" /> {tr('Download / Print PDF', 'Télécharger / Imprimer le PDF')}
           </button>
         </div>
 
@@ -76,7 +79,7 @@ export default function PublicResume() {
               )}
               {resume.website && (
                 <a href={resume.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-slate-300 hover:text-white text-sm transition-colors">
-                  <Globe className="w-4 h-4" /> Website
+                  <Globe className="w-4 h-4" /> {tr('Website', 'Site web')}
                 </a>
               )}
             </div>
@@ -85,12 +88,12 @@ export default function PublicResume() {
           {/* Body */}
           <div className="p-8 print:p-6 space-y-6">
             {resume.bio && (
-              <Section title="Summary">
+              <Section title={tr('Summary', 'Résumé')}>
                 <p className="text-slate-600 leading-relaxed">{resume.bio}</p>
               </Section>
             )}
             {resume.skills && (
-              <Section title="Skills">
+              <Section title={tr('Skills', 'Compétences')}>
                 <div className="flex flex-wrap gap-2">
                   {resume.skills.split(/[,;|\n]+/).map(s => s.trim()).filter(Boolean).map(skill => (
                     <span key={skill} className="bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full text-sm font-semibold print:border-gray-300 print:text-gray-700">
@@ -101,12 +104,12 @@ export default function PublicResume() {
               </Section>
             )}
             {resume.experience && (
-              <Section title="Experience">
+              <Section title={tr('Experience', 'Expérience')}>
                 <p className="text-slate-600 leading-relaxed whitespace-pre-line">{resume.experience}</p>
               </Section>
             )}
             {resume.education && (
-              <Section title="Education">
+              <Section title={tr('Education', 'Formation')}>
                 <p className="text-slate-600 leading-relaxed whitespace-pre-line">{resume.education}</p>
               </Section>
             )}
@@ -115,7 +118,7 @@ export default function PublicResume() {
           {/* Footer */}
           <div className="border-t border-slate-100 px-8 py-4 print:hidden">
             <p className="text-xs text-slate-400 text-center">
-              Created with <span className="font-bold text-slate-500">Bingoo Connect</span> · bingooconnect.com
+              {tr('Created with', 'Créé avec')} <span className="font-bold text-slate-500">Bingoo Connect</span> · bingooconnect.com
             </p>
           </div>
         </div>
