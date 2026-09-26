@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Check, Upload, Palette, Image as ImageIcon, MousePointer2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
-import { toast } from "sonner";
 import { t } from "@/lib/i18n";
 
 
@@ -47,22 +46,6 @@ const AVATAR_SHAPES = [
   { v: "card",     label: "Card",     icon: "▬" },
 ];
 
-const AVATAR_PLACEMENTS = [
-  { v: "center_overlap", label: "Center Overlap", desc: "Avatar overlaps cover center" },
-  { v: "lower_center",   label: "Lower Center",   desc: "Avatar sits lower" },
-  { v: "right_overlap",  label: "Right Overlap",  desc: "Avatar floats right" },
-  { v: "left_overlap",   label: "Left Overlap",   desc: "Avatar floats left" },
-  { v: "floating_card",  label: "Floating Card",  desc: "Avatar inside content" },
-];
-
-const AVATAR_FOCAL = [
-  { v: "center top",    label: "Face (top)" },
-  { v: "center",        label: "Center" },
-  { v: "center bottom", label: "Bottom" },
-  { v: "left center",   label: "Left" },
-  { v: "right center",  label: "Right" },
-];
-
 const SECTIONS = [
   { id: "theme", labelKey: "design_theme", icon: Palette },
   { id: "media", labelKey: "design_profile", icon: ImageIcon },
@@ -75,12 +58,9 @@ const FONT_STYLES = [
   { v: "classic", label: "Classic", family: "Georgia, serif" },
 ];
 
-const BRAND = { navy: "#0b2149", orange: "#f97316", canvas: "#F7F9FC", border: "#E5EAF2" };
-
-export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, profile, user, lang, onLayoutChange, onPreview, onReset, hasChanges }) {
+export default function DesignPanel({ liveForm, setVal, isDark, profile, lang }) {
   const [section, setSection] = useState("theme");
   const [uploading, setUploading] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const headText  = isDark ? "text-white"    : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
@@ -88,33 +68,12 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
   const border    = isDark ? "border-white/8" : "border-slate-200";
   const rowCls    = `rounded-[14px] border ${border} ${bg} p-[18px] space-y-3`;
 
-  const handleSave = async () => {
-    try {
-      await onSave();
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      toast.error(t("design_save_failed", lang));
-    }
-  };
-
   const handleCoverUpload = async (e) => {
     const file = e.target.files?.[0]; if (!file) return;
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setVal("cover_photo", file_url);
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleAvatarUpload = async (e) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setVal("profile_photo", file_url);
     } finally {
       setUploading(false);
     }
@@ -346,12 +305,6 @@ export default function DesignPanel({ liveForm, setVal, onSave, isPending, saveS
               })}
             </div>
           </div>
-        </div>
-      )}
-
-      {saved && (
-        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 px-1">
-          <Check className="w-3.5 h-3.5" /> {t("design_saved", lang)}
         </div>
       )}
     </div>
