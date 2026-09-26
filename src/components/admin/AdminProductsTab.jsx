@@ -123,7 +123,7 @@ export default function AdminProductsTab() {
                   <td className="py-2.5 px-3 text-slate-400 text-[10px]">{p.stripe_product_id ? '✓' : '—'}</td>
                   <td className="py-2.5 px-3">
                     <button onClick={e => { e.stopPropagation(); toggleActiveMut.mutate({ id: p.id, is_active: !p.is_active }); }}
-                      className={`min-h-[36px] text-xs font-bold rounded-full px-2 py-1 ${p.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                      className={`min-h-[44px] text-xs font-bold rounded-full px-3 py-1 ${p.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                       {p.is_active ? t("admin_products_active",language) : t("admin_products_hidden",language)}
                     </button>
                   </td>
