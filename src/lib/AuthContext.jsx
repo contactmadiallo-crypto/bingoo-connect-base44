@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getCurrentAccount, logoutAccount } from '@/api/accountClient';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import { setRegion as persistRegion } from '@/lib/regionSettings';
 
 const AuthContext = createContext();
 
@@ -47,6 +48,7 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     try {
       const currentUser = await getCurrentAccount();
+      if (currentUser?.preferred_region) persistRegion(currentUser.preferred_region);
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
