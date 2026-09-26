@@ -94,7 +94,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setMenuForm({ ...menuForm, image_url: file_url });
       toast.success("Image uploadée!");
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de l'upload");
     } finally {
       setUploadingImage(false);
@@ -116,7 +116,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
       const response = await base44.integrations.Core.InvokeLLM({ prompt });
       setMenuForm({ ...menuForm, description: response });
       toast.success("Description générée!");
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de la génération");
     } finally {
       setGeneratingAI(false);
@@ -141,7 +141,7 @@ export default function MenuManagement({ restaurant, menuItems }) {
         setMenuForm({ ...menuForm, price: price.toString() });
         toast.success(`Prix suggéré: $${price}`);
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de la suggestion");
     } finally {
       setGeneratingAI(false);
