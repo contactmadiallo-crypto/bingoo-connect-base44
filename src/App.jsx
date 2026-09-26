@@ -28,7 +28,6 @@ const Billing = lazy(() => import('./pages/Billing'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
-const ShopAdmin = lazy(() => import('./pages/ShopAdmin'));
 import { AuthProvider } from '@/lib/AuthContext';
 import { ProfileWorkspaceProvider } from '@/lib/ProfileWorkspaceContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -135,7 +134,7 @@ const AuthenticatedApp = () => {
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/advanced-admin" element={<Navigate to="/admin" replace />} />
         </Route>
-        <Route path="/shop-admin" element={<AdminAuthGuard><ShopAdmin /></AdminAuthGuard>} />
+        <Route path="/shop-admin" element={<Navigate to="/admin" replace />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/playstore-capture" element={<AdminAuthGuard><PlaystoreCapture /></AdminAuthGuard>} />
       </Route>
