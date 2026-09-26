@@ -128,7 +128,7 @@ export default function AdminProductsTab() {
                     </button>
                   </td>
                   <td className="py-2.5 px-3">
-                    <button onClick={e => { e.stopPropagation(); deleteMut.mutate(p.id); }} aria-label={language === "fr" ? `Supprimer ${p.name}` : `Delete ${p.name}`} className="min-w-[36px] min-h-[36px] flex items-center justify-center text-slate-300 hover:text-red-500"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={e => { e.stopPropagation(); if (window.confirm(language === "fr" ? `Supprimer définitivement ${p.name} ?` : `Permanently delete ${p.name}?`)) deleteMut.mutate(p.id); }} aria-label={language === "fr" ? `Supprimer ${p.name}` : `Delete ${p.name}`} className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
