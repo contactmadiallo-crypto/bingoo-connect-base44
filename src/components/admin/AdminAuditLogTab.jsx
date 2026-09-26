@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { ScrollText, Search } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 export default function AdminAuditLogTab() {
+  const { language } = useI18n();
   const [search, setSearch] = useState('');
 
   const { data: logs = [], isLoading } = useQuery({
@@ -23,13 +26,13 @@ export default function AdminAuditLogTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><ScrollText className="w-5 h-5" /> Audit Log</h2>
-        <p className="text-xs text-slate-500">{logs.length} admin actions recorded</p>
+        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><ScrollText className="w-5 h-5" /> {t('admin_audit_log_title',language)}</h2>
+        <p className="text-xs text-slate-500">{logs.length} {t('admin_actions_recorded',language)}</p>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-        <input type="text" placeholder="Search by action, target, or admin email..."
+        <input type="text" placeholder={t("admin_search_audit",language)}
           value={search} onChange={e => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border border-slate-200 outline-none focus:border-slate-400" />
       </div>
@@ -39,7 +42,7 @@ export default function AdminAuditLogTab() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
           <ScrollText className="w-12 h-12 mx-auto mb-2 text-slate-200" />
-          <p className="text-sm font-semibold">{search ? 'No matching logs' : 'No audit logs yet'}</p>
+          <p className="text-sm font-semibold">{search ? t('admin_no_matching_logs',language) : t('admin_no_audit_logs',language)}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -55,7 +58,7 @@ export default function AdminAuditLogTab() {
                 </div>
                 <p className="text-xs text-slate-600 mt-0.5">
                   {log.performed_by_name || log.performed_by_email || 'Admin'} → 
-                  <span className="font-semibold"> {log.target_type || 'unknown'}</span>
+                  <span className="font-semibold"> {log.target_type || t('admin_unknown_lower',language)}</span>
                   {log.target_name && `: ${log.target_name}`}
                 </p>
                 {log.old_value && log.new_value && (
