@@ -11,8 +11,11 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { base44 } from "@/api/base44Client";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function AuthCallback() {
+  const { language } = useI18n();
   const { isAuthenticated, isLoadingAuth } = useAuth();
   const navigate = useNavigate();
 
@@ -71,7 +74,7 @@ export default function AuthCallback() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-4"
       style={{ background: "linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%)" }}>
       <div className="w-12 h-12 border-4 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
-      <p className="text-blue-200 text-sm font-medium">Completing sign in…</p>
+      <p className="text-blue-200 text-sm font-medium">{t('auth_complete_signin',language)}</p>
     </div>
   );
 }
