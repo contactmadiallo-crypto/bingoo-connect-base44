@@ -138,7 +138,7 @@ export default function MyAssetsPanel({ isDark }) {
       resetForm();
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -167,7 +167,7 @@ export default function MyAssetsPanel({ isDark }) {
       toast({ title: language === 'fr' ? 'Objet supprimé' : 'Asset deleted' });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -177,7 +177,7 @@ export default function MyAssetsPanel({ isDark }) {
       toast({ title: language === 'fr' ? (asset.lost_mode_enabled ? 'Mode Perdu désactivé' : 'Mode Perdu activé') : (asset.lost_mode_enabled ? 'Lost mode disabled' : 'Lost mode enabled') });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -195,7 +195,7 @@ export default function MyAssetsPanel({ isDark }) {
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -211,7 +211,7 @@ export default function MyAssetsPanel({ isDark }) {
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     }
   };
 
@@ -229,7 +229,7 @@ export default function MyAssetsPanel({ isDark }) {
   // ── Error state ───────────────────────────────────────────────────────────
   // Visible error UI instead of a blank page. Retry refetches both queries.
   const hasQueryError = assetsIsError || devicesIsError;
-  const errMsg = (assetsError?.message || devicesError?.message || 'Failed to load assets or NFC devices.');
+  const errMsg = (assetsError?.message || devicesError?.message || (language === 'fr' ? 'Impossible de charger les objets ou les appareils NFC.' : 'Failed to load assets or NFC devices.'));
 
   return (
     <div className="space-y-4 min-w-0 overflow-x-hidden">
@@ -390,7 +390,7 @@ export default function MyAssetsPanel({ isDark }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <p className={`text-sm font-bold ${headText} truncate`}>{asset.name}</p>
-                    <AssetTypeBadge type={asset.asset_type} />
+                    <AssetTypeBadge type={asset.asset_type} language={language} />
                   </div>
                   {asset.description && <p className={`text-xs ${mutedText} line-clamp-2`}>{asset.description}</p>}
                   {/* NFC Device Link Status */}
