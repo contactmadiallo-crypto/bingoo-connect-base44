@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { QrCode, Download, Plus, Trash2, Printer } from "lucide-react";
 import { toast } from "sonner";
+import { PUBLIC_APP_ORIGIN } from "@/lib/publicProfileUrl";
 
 export default function QRCodeManager({ restaurant, tables = [] }) {
   const [addTableDialog, setAddTableDialog] = useState(false);
@@ -34,7 +35,7 @@ export default function QRCodeManager({ restaurant, tables = [] }) {
   });
 
   const generateQRCodeURL = (table) => {
-    const orderURL = `${window.location.origin}/order?restaurant=${restaurant.id}&table=${table.table_number}`;
+    const orderURL = `${PUBLIC_APP_ORIGIN}/order?restaurant=${restaurant.id}&table=${table.table_number}`;
     return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(orderURL)}`;
   };
 
