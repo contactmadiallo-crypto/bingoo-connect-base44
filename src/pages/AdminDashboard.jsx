@@ -308,7 +308,7 @@ export default function AdminDashboard() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                  <Input className="pl-9" placeholder="Search profiles..." value={search} onChange={e => setSearch(e.target.value)}
+                  <Input className="pl-9" placeholder={language === "fr" ? "Rechercher des profils..." : "Search profiles..."} value={search} onChange={e => setSearch(e.target.value)}
                     style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
                 </div>
                 <div className="flex gap-2 flex-wrap">
@@ -371,7 +371,7 @@ export default function AdminDashboard() {
                             <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{owner?.email || p.email || "—"}</td>
                             <td className="px-5 py-4">
                               <a href={`/p/${p.username}`} target="_blank" rel="noopener">
-                                <Button size="sm" className="text-xs h-7 px-3 font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>View</Button>
+                                <Button size="sm" className="text-xs min-h-[36px] px-3 font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>{language === "fr" ? "Voir" : "View"}</Button>
                               </a>
                             </td>
                           </tr>
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
                       })}
                     </tbody>
                   </table>
-                  {filteredProfiles.length === 0 && <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}><QrCode className="w-10 h-10 mx-auto mb-2 opacity-20" /><p>No profiles found</p></div>}
+                  {filteredProfiles.length === 0 && <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}><QrCode className="w-10 h-10 mx-auto mb-2 opacity-20" /><p>{language === "fr" ? "Aucun profil trouvé" : "No profiles found"}</p></div>}
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ export default function AdminDashboard() {
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-                  <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none" placeholder="Search by email..." value={subSearch} onChange={e => setSubSearch(e.target.value)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
+                  <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none" placeholder={language === "fr" ? "Rechercher par e-mail..." : "Search by email..."} value={subSearch} onChange={e => setSubSearch(e.target.value)} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {["all","active","past_due","canceled"].map(s => (
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
                       })}
                     </tbody>
                   </table>
-                  {filteredSubRows.length === 0 && <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}><CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" /><p>No records match your filters</p></div>}
+                  {filteredSubRows.length === 0 && <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}><CreditCard className="w-10 h-10 mx-auto mb-2 opacity-20" /><p>{language === "fr" ? "Aucun résultat ne correspond à vos filtres" : "No records match your filters"}</p></div>}
                 </div>
               </div>
             </div>
