@@ -541,7 +541,7 @@ export default function MyNFCDevices() {
                         <p className={`font-bold text-sm ${headText}`}>{profile?.display_name || t("nfc_unassigned", language)}</p>
                         <p className={`text-xs ${mutedText}`}>
                           {devices.length} {t(devices.length === 1 ? "nfc_device_singular" : "nfc_device_plural", language)}
-                          {activeCountInGroup > 0 && <> · <span className="text-emerald-500 font-semibold">{activeCountInGroup} active</span></>}
+                          {activeCountInGroup > 0 && <> · <span className="text-emerald-500 font-semibold">{activeCountInGroup} {t("nfc_active_lower", language)}</span></>}
                           {lostCount > 0 && <> · <span className="text-red-500 font-semibold">{lostCount} {t("nfc_lost_lower", language)}</span></>}
                         </p>
                       </div>
@@ -577,7 +577,7 @@ export default function MyNFCDevices() {
                       </div>
                       <p className={`text-xs mt-0.5 ${mutedText} flex items-center gap-1.5 flex-wrap`}>
                         <span className="font-semibold">{device.product_name || typeInfo.label}</span>
-                        {profile && <span>· <span className={`font-semibold ${profile.orphaned ? "text-amber-500" : ""}`}>{profile.display_name}{profile.orphaned ? " (removed)" : ""}</span></span>}
+                        {profile && <span>· <span className={`font-semibold ${profile.orphaned ? "text-amber-500" : ""}`}>{profile.display_name}{profile.orphaned ? ` (${t("nfc_removed", language)})` : ""}</span></span>}
                         {device.assigned_at && <span>· {t("nfc_activated_date", language)} {device.assigned_at.slice(0, 10)}</span>}
                         <span className="flex items-center gap-0.5">· <Zap className="w-3 h-3" style={{ color: "#FDBA21" }} /> {tapsByDevice[device.id] || 0} {t((tapsByDevice[device.id] || 0) === 1 ? "nfc_tap_singular" : "nfc_tap_plural", language)}</span>
                       </p>
