@@ -25,6 +25,9 @@ export default function AccountSettings() {
   const handleRegionChange = (nextRegion) => {
     persistRegion(nextRegion);
     setRegion(nextRegion);
+    base44.auth.updateMe({ preferred_region: nextRegion }).catch(() => {
+      toast.error(language === "fr" ? "Impossible de synchroniser la région." : "Could not sync region preference.");
+    });
   };
 
   useEffect(() => {
@@ -36,6 +39,10 @@ export default function AccountSettings() {
 
   useEffect(() => {
     base44.auth.me().then(u => {
+      if (u?.preferred_region) {
+        persistRegion(u.preferred_region);
+        setRegion(u.preferred_region);
+      }
       setUser(u);
       setLoading(false);
     }).catch(() => base44.auth.redirectToLogin());
