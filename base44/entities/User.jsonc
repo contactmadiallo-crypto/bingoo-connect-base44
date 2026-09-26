@@ -55,8 +55,28 @@
         "type": "string"
       },
       "description": "Owner-defined display order of profile IDs in the My Profiles dashboard. Profiles not listed are appended by created date."
+    },
+    "preferred_language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "fr"
+      ],
+      "description": "User-selected Bingoo interface language. Synced across web and mobile."
+    },
+    "preferred_region": {
+      "type": "string",
+      "description": "ISO 3166-1 alpha-2 country/region code used for regional defaults, shipping, and currency presentation."
     }
   },
+  "required": [
+    "owned_profile_ids",
+    "assigned_business_id",
+    "account_type",
+    "business_type",
+    "default_profile_id",
+    "profile_order_ids"
+  ],
   "rls": {
     "create": null,
     "read": null,
