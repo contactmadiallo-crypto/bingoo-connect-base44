@@ -438,7 +438,7 @@ export default function AdminDashboard() {
                               <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{s.customer_email}</p>
                             </td>
                             <td className="px-4 py-4">
-                              {s.username ? <a href={`/p/${s.username}`} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{s.username}</a> : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
+                              {s.username ? <a href={publicProfileUrl(s.username)} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{s.username}</a> : <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>}
                             </td>
                             <td className="px-4 py-4"><span className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: "rgba(253,186,33,0.15)", color: gold, border: "1px solid rgba(253,186,33,0.25)" }}>{PLAN_LABELS[s.plan] || s.plan || "—"}</span></td>
                             <td className="px-4 py-4"><span className="flex items-center gap-1.5 text-xs font-bold" style={{ color: statusColors[s.status] || "rgba(255,255,255,0.4)" }}>{s.status === "active" ? <CheckCircle2 className="w-3.5 h-3.5" /> : s.status === "canceled" ? <XCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}{s.status?.charAt(0).toUpperCase() + s.status?.replace("_"," ").slice(1)}</span></td>
