@@ -21,6 +21,8 @@ import AdminLostReportsTab from "@/components/admin/AdminLostReportsTab";
 import AdminTicketsTab from "@/components/admin/AdminTicketsTab";
 import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
 import { PLAN_LABELS } from "@/lib/planPermissions";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const PLAN_COLORS = {
   free: "bg-slate-100 text-slate-600",
@@ -34,6 +36,7 @@ const PLAN_COLORS = {
 };
 
 export default function AdminDashboard() {
+  const { language } = useI18n();
   const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [tab, setTab] = useState("accounts");
@@ -69,7 +72,7 @@ export default function AdminDashboard() {
     mutationFn: async ({ profile, plan }) => {
       const owner = allUsers.find(u => u.id === profile.created_by_id || (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(profile.id)));
       const email = profile.email || owner?.email;
-      if (!email) throw new Error("No email found for this profile — cannot grant entitlement.");
+      if (!email) throw new Error(t("admin_no_email", language));
       const existingSubs = await base44.entities.Subscription.filter({ customer_email: email });
       const existing = existingSubs?.[0];
       if (existing?.stripe_subscription_id) {
@@ -87,9 +90,9 @@ export default function AdminDashboard() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-profiles"] });
       queryClient.invalidateQueries({ queryKey: ["admin-subscriptions"] });
-      toast.success("Plan updated!");
+      toast.success(t("admin_plan_updated", language));
     },
-    onError: (err) => toast.error(err.message || "Failed to update plan"),
+    onError: (err) => toast.error(err.message || t("admin_plan_failed", language)),
   });
 
   if (!authChecked) return <div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" /></div>;
@@ -144,16 +147,16 @@ export default function AdminDashboard() {
 
   // ── Tabs ──
   const TABS = [
-    { id: "overview", label: "Overview", short: "Home", icon: LayoutDashboard },
-    { id: "accounts", label: "Accounts", short: "Users", icon: Users, count: allUsers.length },
-    { id: "profiles", label: "Profiles", short: "Profiles", icon: QrCode, count: profiles.length },
-    { id: "subscriptions", label: "Subscriptions", short: "Subs", icon: CreditCard, count: allSubRows.length },
-    { id: "nfc_inventory", label: "NFC Inventory", short: "NFC", icon: Smartphone, count: devices.length },
-    { id: "manufacturing", label: "Orders / Mfg", short: "Orders", icon: Factory },
-    { id: "asset_recovery", label: "Asset Recovery", short: "Recovery", icon: MapPin },
-    { id: "support", label: "Support", short: "Support", icon: Headphones },
-    { id: "audit", label: "Audit Logs", short: "Audit", icon: ScrollText },
-    { id: "settings", label: "Settings", short: "Settings", icon: Settings },
+    { id: "overview", label: t("admin_overview",language), short: t("admin_home",language), icon: LayoutDashboard },
+    { id: "accounts", label: t("admin_accounts",language), short: t("admin_users",language), icon: Users, count: allUsers.length },
+    { id: "profiles", label: t("admin_profiles",language), short: t("admin_profiles",language), icon: QrCode, count: profiles.length },
+    { id: "subscriptions", label: t("admin_subscriptions",language), short: t("admin_subs",language), icon: CreditCard, count: allSubRows.length },
+    { id: "nfc_inventory", label: t("admin_nfc_inventory",language), short: "NFC", icon: Smartphone, count: devices.length },
+    { id: "manufacturing", label: t("admin_orders_mfg",language), short: t("admin_orders",language), icon: Factory },
+    { id: "asset_recovery", label: t("admin_asset_recovery",language), short: t("admin_recovery",language), icon: MapPin },
+    { id: "support", label: t("admin_support",language), short: t("admin_support",language), icon: Headphones },
+    { id: "audit", label: t("admin_audit_logs",language), short: t("admin_audit",language), icon: ScrollText },
+    { id: "settings", label: t("admin_settings",language), short: t("admin_settings",language), icon: Settings },
   ];
 
   const orange = "#f97316";
@@ -167,8 +170,8 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4 mb-6 pt-2">
             <div className="h-8 w-px bg-white/10" />
             <div>
-              <h1 className="text-2xl font-black text-white">Admin Dashboard</h1>
-              <p className="text-white/40 text-sm">Unified Control Panel</p>
+              <h1 className="text-2xl font-black text-white">{t("admin_dashboard",language)}</h1>
+              <p className="text-white/40 text-sm">{t("admin_control_panel",language)}</p>
             </div>
             <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
               <Shield className="w-4 h-4" style={{ color: gold }} />
@@ -181,9 +184,9 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
               <AlertTriangle className="w-5 h-5 flex-shrink-0" style={{ color: "#ef4444" }} />
               <p className="text-sm" style={{ color: "rgba(239,68,68,0.9)" }}>
-                <strong>{deviceStats.lost} device{deviceStats.lost > 1 ? "s" : ""} reported lost.</strong> Review in Asset Recovery tab.
+                <strong>{deviceStats.lost} {t(deviceStats.lost > 1 ? "admin_lost_many" : "admin_lost_one",language)}</strong> {t("admin_review_recovery",language)}
               </p>
-              <button onClick={() => setTab("asset_recovery")} className="ml-auto text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>Review →</button>
+              <button onClick={() => setTab("asset_recovery")} className="ml-auto text-xs font-bold px-3 py-1.5 rounded-xl flex-shrink-0" style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>{t("admin_review",language)} →</button>
             </div>
           )}
 
@@ -214,14 +217,14 @@ export default function AdminDashboard() {
               {/* Summary cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Users", value: allUsers.length, icon: Users, accent: orange },
-                  { label: "Total Profiles", value: profiles.length, icon: QrCode, accent: gold },
-                  { label: "Paid Access", value: totalPaidAccess, icon: Star, accent: "#22c55e" },
-                  { label: "Analytics Events", value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
-                  { label: "NFC Devices", value: devices.length, icon: Smartphone, accent: "#8b5cf6" },
-                  { label: "Active Devices", value: deviceStats.active, icon: CheckCircle2, accent: "#22c55e" },
-                  { label: "Lost Devices", value: deviceStats.lost, icon: AlertTriangle, accent: "#ef4444" },
-                  { label: "Available", value: deviceStats.available, icon: RotateCcw, accent: "#06b6d4" },
+                  { label: t("admin_total_users",language), value: allUsers.length, icon: Users, accent: orange },
+                  { label: t("admin_total_profiles",language), value: profiles.length, icon: QrCode, accent: gold },
+                  { label: t("admin_paid_access",language), value: totalPaidAccess, icon: Star, accent: "#22c55e" },
+                  { label: t("admin_analytics_events",language), value: analytics.length, icon: BarChart3, accent: "#06b6d4" },
+                  { label: t("nfc_devices",language), value: devices.length, icon: Smartphone, accent: "#8b5cf6" },
+                  { label: t("admin_active_devices",language), value: deviceStats.active, icon: CheckCircle2, accent: "#22c55e" },
+                  { label: t("admin_lost_devices",language), value: deviceStats.lost, icon: AlertTriangle, accent: "#ef4444" },
+                  { label: t("nfc_available",language), value: deviceStats.available, icon: RotateCcw, accent: "#06b6d4" },
                 ].map(s => (
                   <div key={s.label} className="rounded-2xl p-5 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
                     <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: s.accent + "20" }}>
@@ -238,12 +241,12 @@ export default function AdminDashboard() {
                 <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                     <h3 className="text-sm font-black text-white flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Live Activity Feed
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> {t("admin_live_activity",language)}
                     </h3>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {recentEvents.length === 0 ? (
-                      <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}><BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-20" /><p className="text-sm">No events yet</p></div>
+                      <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}><BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-20" /><p className="text-sm">{t("admin_no_events",language)}</p></div>
                     ) : recentEvents.map(e => {
                       const linkedProfile = profiles.find(p => p.id === e.profile_id);
                       return (
@@ -263,11 +266,11 @@ export default function AdminDashboard() {
                 </div>
                 <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                   <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                    <h3 className="text-sm font-black text-white">🏆 Top Profiles by Activity</h3>
+                    <h3 className="text-sm font-black text-white">🏆 {t("admin_top_profiles",language)}</h3>
                   </div>
                   <div>
                     {topProfiles.length === 0 ? (
-                      <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}><Star className="w-8 h-8 mx-auto mb-2 opacity-20" /><p className="text-sm">No activity yet</p></div>
+                      <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}><Star className="w-8 h-8 mx-auto mb-2 opacity-20" /><p className="text-sm">{t("admin_no_activity",language)}</p></div>
                     ) : topProfiles.map((t, i) => (
                       <div key={t.profile.id} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                         <span className="text-lg font-black flex-shrink-0" style={{ color: i === 0 ? gold : "rgba(255,255,255,0.3)" }}>#{i + 1}</span>
@@ -278,7 +281,7 @@ export default function AdminDashboard() {
                           <p className="text-sm font-bold text-white truncate">{t.profile.display_name}</p>
                           <a href={`/p/${t.profile.username}`} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{t.profile.username}</a>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>{t.count} events</span>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>{t.count} {t("admin_events",language)}</span>
                       </div>
                     ))}
                   </div>
