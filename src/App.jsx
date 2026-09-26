@@ -54,7 +54,6 @@ const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 const PlaystoreCapture = lazy(() => import('@/pages/PlaystoreCapture'));
 
 import PWASplashScreen from '@/components/pwa/PWASplashScreen';
-import PWAInstallBanner from '@/components/pwa/PWAInstallBanner';
 import RouteTransition from '@/components/mobile/RouteTransition';
 import NativeAndroidBridge from '@/components/mobile/NativeAndroidBridge';
 import OfflineBanner from '@/components/mobile/OfflineBanner';
@@ -173,7 +172,6 @@ function App() {
             <LegacyRedirects />
             <OfflineBanner />
             <AuthenticatedApp />
-            <PWAInstallBanner />
           </NavigationStackProvider>
         </Router>
         <Toaster />
