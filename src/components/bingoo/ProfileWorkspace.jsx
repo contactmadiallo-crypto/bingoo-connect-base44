@@ -970,29 +970,6 @@ export default function ProfileWorkspace({
     setTimeout(() => setCopiedUrl(false), 2000);
   }, [profileUrl]);
 
-  const downloadQR = useCallback(async () => {
-    if (!profileQrUrl) return;
-    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(profileQrUrl)}&color=1e293b&bgcolor=ffffff`;
-    const img = new Image(); img.crossOrigin = "anonymous";
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 400; canvas.height = 460;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, 400, 460);
-      ctx.drawImage(img, 0, 0, 400, 400);
-      ctx.fillStyle = "#0b2149"; ctx.fillRect(0, 400, 400, 60);
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 16px system-ui,sans-serif";
-      ctx.textAlign = "center"; ctx.fillText("bingooconnect.com", 200, 433);
-      ctx.fillStyle = "#f97316"; ctx.font = "bold 13px system-ui,sans-serif";
-      ctx.fillText("Scan to connect", 200, 452);
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = `bingoo-qr-${profile?.username}.png`;
-      a.click();
-    };
-    img.src = qrSrc;
-  }, [profileQrUrl, profile?.username]);
-
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!profileId || !liveForm) throw new Error("No profile loaded");
