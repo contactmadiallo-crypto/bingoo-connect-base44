@@ -10,6 +10,7 @@ import { toast } from "@/components/ui/use-toast";
 import AuthTopNav from "@/components/auth/AuthTopNav";
 import RegisterBenefitsPanel from "@/components/auth/RegisterBenefitsPanel";
 import { safeReturnTo } from "@/lib/authReturnTo";
+import { useI18n } from '@/lib/I18nContext';
 
 const NAVY = "#0b2149";
 const ORANGE = "#f97316";
@@ -21,6 +22,8 @@ const getNextUrl = () => {
 };
 
 export default function Register() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,10 +34,10 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
 
   const validatePassword = (pw) => {
-    if (pw.length < 8) return "Password must be at least 8 characters";
-    if (!/[A-Z]/.test(pw)) return "Password must contain at least one uppercase letter";
-    if (!/[0-9]/.test(pw)) return "Password must contain at least one number";
-    if (!/[^A-Za-z0-9]/.test(pw)) return "Password must contain at least one special character";
+    if (pw.length < 8) return tr('Password must be at least 8 characters', 'Le mot de passe doit contenir au moins 8 caractères');
+    if (!/[A-Z]/.test(pw)) return tr('Password must contain at least one uppercase letter', 'Le mot de passe doit contenir au moins une lettre majuscule');
+    if (!/[0-9]/.test(pw)) return tr('Password must contain at least one number', 'Le mot de passe doit contenir au moins un chiffre');
+    if (!/[^A-Za-z0-9]/.test(pw)) return tr('Password must contain at least one special character', 'Le mot de passe doit contenir au moins un caractère spécial');
     return null;
   };
 
@@ -51,7 +54,7 @@ export default function Register() {
       await base44.auth.register({ email, password });
       setShowOtp(true);
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err.message || tr('Registration failed', 'Échec de l’inscription'));
     } finally {
       setLoading(false);
     }
@@ -71,7 +74,7 @@ export default function Register() {
         .catch(() => {});
       window.location.href = getNextUrl();
     } catch (err) {
-      setError(err.message || "Invalid verification code");
+      setError(err.message || tr('Invalid verification code', 'Code de vérification invalide'));
     } finally {
       setLoading(false);
     }
@@ -81,9 +84,9 @@ export default function Register() {
     setError("");
     try {
       await base44.auth.resendOtp(email);
-      toast({ title: "Code sent", description: "Check your email for the new code." });
+      toast({ title: tr('Code sent', 'Code envoyé'), description: tr('Check your email for the new code.', 'Consultez votre e-mail pour le nouveau code.') });
     } catch (err) {
-      setError(err.message || "Failed to resend code");
+      setError(err.message || tr('Failed to resend code', 'Impossible de renvoyer le code'));
     }
   };
 
@@ -94,9 +97,9 @@ export default function Register() {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: NAVY }}>
-          Verify your email
+          {tr('Verify your email', 'Vérifiez votre e-mail')}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">We sent a 6-digit code to {email}</p>
+        <p className="mt-2 text-sm text-slate-500">{tr('We sent a 6-digit code to', 'Nous avons envoyé un code à 6 chiffres à')} {email}</p>
       </div>
 
       {error && (
@@ -132,21 +135,21 @@ export default function Register() {
       >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Verifying...
+            <Loader2 className="w-4 h-4 animate-spin" /> {tr('Verifying...', 'Vérification…')}
           </>
         ) : (
-          "Verify Email"
+          tr('Verify Email', 'Vérifier l’e-mail')
         )}
       </Button>
 
       <p className="text-center text-sm text-slate-500 mt-4">
-        Didn't receive the code?{" "}
+        {tr("Didn't receive the code?", 'Vous n’avez pas reçu le code ?')}{" "}
         <button
           onClick={handleResend}
           className="font-semibold hover:underline"
           style={{ color: ORANGE }}
         >
-          Resend
+          {tr('Resend', 'Renvoyer')}
         </button>
       </p>
     </div>
@@ -156,9 +159,9 @@ export default function Register() {
     <div className="w-full max-w-md mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight" style={{ color: NAVY }}>
-          Create your account
+          {tr('Create your account', 'Créez votre compte')}
         </h1>
-        <p className="mt-2 text-sm text-slate-500">Free forever. No credit card required.</p>
+        <p className="mt-2 text-sm text-slate-500">{tr('Free forever. No credit card required.', 'Gratuit pour toujours. Aucune carte bancaire requise.')}</p>
       </div>
 
       {error && (
@@ -170,7 +173,7 @@ export default function Register() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="fullname" className="text-slate-700 font-medium">
-            Full Name
+            {tr('Full Name', 'Nom complet')}
           </Label>
           <div className="relative">
             <User
@@ -192,7 +195,7 @@ export default function Register() {
 
         <div className="space-y-2">
           <Label htmlFor="email" className="text-slate-700 font-medium">
-            Email
+            {tr('Email', 'E-mail')}
           </Label>
           <div className="relative">
             <Mail
@@ -214,7 +217,7 @@ export default function Register() {
 
         <div className="space-y-2">
           <Label htmlFor="password" className="text-slate-700 font-medium">
-            Password
+            {tr('Password', 'Mot de passe')}
           </Label>
           <div className="relative">
             <Lock
@@ -225,7 +228,7 @@ export default function Register() {
               id="password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
-              placeholder="Min. 8 characters"
+              placeholder={tr('Min. 8 characters', '8 caractères min.')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="pl-10 pr-10 h-12 rounded-lg bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-orange-400 focus-visible:border-orange-400"
@@ -235,14 +238,14 @@ export default function Register() {
               type="button"
               onClick={() => setShowPassword((s) => !s)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? tr('Hide password', 'Masquer le mot de passe') : tr('Show password', 'Afficher le mot de passe')}
               tabIndex={-1}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           <p className="text-xs text-slate-400">
-            Min 8 chars · 1 uppercase · 1 number · 1 special character
+            {tr('Min 8 chars · 1 uppercase · 1 number · 1 special character', '8 caractères min. · 1 majuscule · 1 chiffre · 1 caractère spécial')}
           </p>
         </div>
 
@@ -254,24 +257,24 @@ export default function Register() {
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Creating account...
+              <Loader2 className="w-4 h-4 animate-spin" /> {tr('Creating account...', 'Création du compte…')}
             </>
           ) : (
             <>
-              Create Free Account <ArrowRight className="w-4 h-4" />
+              {tr('Create Free Account', 'Créer un compte gratuit')} <ArrowRight className="w-4 h-4" />
             </>
           )}
         </Button>
       </form>
 
       <p className="text-center text-xs text-slate-500 mt-5">
-        By signing up you agree to our{" "}
+        {tr('By signing up you agree to our', 'En vous inscrivant, vous acceptez nos')}{" "}
         <Link to="/terms" className="font-medium hover:underline" style={{ color: ORANGE }}>
-          Terms
+          {tr('Terms', 'Conditions')}
         </Link>{" "}
-        and{" "}
+        {tr('and', 'et notre')}{" "}
         <Link to="/privacy" className="font-medium hover:underline" style={{ color: ORANGE }}>
-          Privacy Policy
+          {tr('Privacy Policy', 'Politique de confidentialité')}
         </Link>
         .
       </p>
