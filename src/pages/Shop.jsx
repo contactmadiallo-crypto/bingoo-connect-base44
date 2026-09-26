@@ -25,6 +25,7 @@ import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
+import { isNativeApp } from '@/lib/nativePlatform';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -150,6 +151,7 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
 
 export default function Shop() {
   const { language } = useI18n();
+  const nativeApp = isNativeApp();
   const [cart, setCart] = useState(getCartCount());
   const [added, setAdded] = useState(null);
   const [category, setCategory] = useState('all');
@@ -198,7 +200,7 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb]">
-      <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}>
+      {!nativeApp && <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}>
         <div className="mx-auto flex h-[72px] max-w-[1500px] items-center justify-between px-4 md:px-6">
           <Link to="/" className="flex items-center gap-3">
             <InfinityMark size={38} color={ORANGE} strokeWidth={3.4} glow />
@@ -215,9 +217,9 @@ export default function Shop() {
             {cart > 0 && <span className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cart}</span>}
           </Link>
         </div>
-      </header>
+      </header>}
 
-      <main className="mx-auto max-w-[1500px] px-4 py-8 md:px-6 md:py-10">
+      <main className="mx-auto max-w-[1500px] px-4 py-5 sm:py-8 md:px-6 md:py-10">
         <section className="mb-8 overflow-hidden rounded-[30px] border border-slate-200 bg-white">
           <div className="grid items-center gap-7 px-6 py-8 md:grid-cols-[1fr_auto] md:px-9 lg:px-10">
             <div>
