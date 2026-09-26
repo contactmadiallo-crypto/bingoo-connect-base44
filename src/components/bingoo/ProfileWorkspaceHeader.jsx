@@ -3,7 +3,7 @@ import { ChevronLeft, Eye, Copy, Check } from "lucide-react";
 import { usePlan } from "@/hooks/usePlan";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
-export default function ProfileWorkspaceHeader({ profile, isDark, onBack, lang }) {
+export default function ProfileWorkspaceHeader({ profile, onBack }) {
   const [copied, setCopied] = useState(false);
   const { plan: effectivePlan } = usePlan();
 
