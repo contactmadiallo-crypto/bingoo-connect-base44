@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Palette, Check, X } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const STATUS_LABELS = {
   draft: { label: 'Draft', color: 'bg-slate-100 text-slate-600' },
@@ -12,6 +14,7 @@ const STATUS_LABELS = {
 };
 
 export default function AdminDesignApprovalsTab() {
+  const { language } = useI18n();
   const qc = useQueryClient();
 
   const { data: designs = [], isLoading } = useQuery({
@@ -32,8 +35,8 @@ export default function AdminDesignApprovalsTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><Palette className="w-5 h-5" /> Design Approvals</h2>
-        <p className="text-xs text-slate-500">{designs.length} pending approval · {allDesigns.length} total designs</p>
+        <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><Palette className="w-5 h-5" /> {t('design_approvals',language)}</h2>
+        <p className="text-xs text-slate-500">{designs.length} {t('design_pending_approval',language)} · {allDesigns.length} {t('design_total_designs',language)}</p>
       </div>
 
       {isLoading ? (
@@ -41,7 +44,7 @@ export default function AdminDesignApprovalsTab() {
       ) : designs.length === 0 ? (
         <div className="text-center py-12 text-slate-400">
           <Palette className="w-12 h-12 mx-auto mb-2 text-slate-200" />
-          <p className="text-sm font-semibold">No designs pending approval</p>
+          <p className="text-sm font-semibold">{t('inv_no_designs',language)}</p>
         </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -50,22 +53,22 @@ export default function AdminDesignApprovalsTab() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-bold text-sm text-slate-900">{d.product_type}</p>
-                  <p className="text-xs text-slate-500">{d.color || 'No color'} · {d.finish || 'matte'}</p>
+                  <p className="text-xs text-slate-500">{d.color || t('design_no_color',language)} · {d.finish || 'matte'}</p>
                 </div>
-                <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${STATUS_LABELS[d.status]?.color}`}>{STATUS_LABELS[d.status]?.label}</span>
+                <span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${STATUS_LABELS[d.status]?.color}`}>{t(`design_${d.status}`,language)}</span>
               </div>
-              {d.logo_url && <img src={d.logo_url} alt="Design logo" className="w-full h-24 object-contain rounded-lg bg-slate-50" />}
-              {d.custom_text && <p className="text-xs text-slate-600">Text: "{d.custom_text}"</p>}
-              <p className="text-xs text-slate-500">Qty: {d.quantity || 1}</p>
+              {d.logo_url && <img src={d.logo_url} alt={t("design_approvals",language)} className="w-full h-24 object-contain rounded-lg bg-slate-50" />}
+              {d.custom_text && <p className="text-xs text-slate-600">{t("inv_text",language)}: "{d.custom_text}"</p>}
+              <p className="text-xs text-slate-500">{t("inv_qty",language)}: {d.quantity || 1}</p>
               {d.notes && <p className="text-xs text-slate-400 italic">"{d.notes}"</p>}
               <div className="flex gap-2 pt-2">
                 <button onClick={() => updateMut.mutate({ id: d.id, status: 'approved' })}
                   className="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-2 rounded-lg bg-green-600 text-white hover:bg-green-700">
-                  <Check className="w-3.5 h-3.5" /> Approve
+                  <Check className="w-3.5 h-3.5" /> {t("inv_approve",language)}
                 </button>
                 <button onClick={() => updateMut.mutate({ id: d.id, status: 'rejected' })}
                   className="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200">
-                  <X className="w-3.5 h-3.5" /> Reject
+                  <X className="w-3.5 h-3.5" /> {t("inv_reject",language)}
                 </button>
               </div>
             </div>
@@ -75,15 +78,15 @@ export default function AdminDesignApprovalsTab() {
 
       {allDesigns.length > 0 && (
         <div className="pt-4">
-          <h3 className="text-sm font-bold text-slate-700 mb-2">All Designs</h3>
+          <h3 className="text-sm font-bold text-slate-700 mb-2">{t('design_all',language)}</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead><tr className="border-b border-slate-200 text-slate-500">
-                <th className="text-left py-2 px-3 font-bold">Product</th>
-                <th className="text-left py-2 px-3 font-bold">Color</th>
-                <th className="text-left py-2 px-3 font-bold">Finish</th>
-                <th className="text-left py-2 px-3 font-bold">Qty</th>
-                <th className="text-left py-2 px-3 font-bold">Status</th>
+                <th className="text-left py-2 px-3 font-bold">{t('inv_product',language)}</th>
+                <th className="text-left py-2 px-3 font-bold">{t('inv_color',language)}</th>
+                <th className="text-left py-2 px-3 font-bold">{t('design_finish',language)}</th>
+                <th className="text-left py-2 px-3 font-bold">{t('inv_qty',language)}</th>
+                <th className="text-left py-2 px-3 font-bold">{t('inv_status',language)}</th>
               </tr></thead>
               <tbody>
                 {allDesigns.map(d => (
@@ -92,7 +95,7 @@ export default function AdminDesignApprovalsTab() {
                     <td className="py-2 px-3 text-slate-600">{d.color || '—'}</td>
                     <td className="py-2 px-3 text-slate-600">{d.finish || '—'}</td>
                     <td className="py-2 px-3 text-slate-600">{d.quantity || 1}</td>
-                    <td className="py-2 px-3"><span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${STATUS_LABELS[d.status]?.color}`}>{STATUS_LABELS[d.status]?.label || d.status}</span></td>
+                    <td className="py-2 px-3"><span className={`text-[10px] font-bold rounded-full px-2 py-0.5 ${STATUS_LABELS[d.status]?.color}`}>{t(`design_${d.status}`,language)}</span></td>
                   </tr>
                 ))}
               </tbody>
