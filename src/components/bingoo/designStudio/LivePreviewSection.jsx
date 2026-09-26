@@ -33,15 +33,15 @@ export default function LivePreviewSection({ previewProps, previewView, setPrevi
         </div>
       </div>
       <div className="grid grid-cols-4 gap-2 mt-4">
-        {THUMBS.map(t => (
-          <button key={t.id} onClick={() => setPreviewView(t.id)}
-            className={`rounded-xl border-2 p-2 transition-colors ${previewView === t.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 hover:border-slate-300'}`}>
+        {THUMBS.map(thumb => (
+          <button key={thumb.id} onClick={() => setPreviewView(thumb.id)}
+            className={`rounded-xl border-2 p-2 transition-colors ${previewView === thumb.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 hover:border-slate-300'}`}>
             <div className="h-20 flex items-center justify-center overflow-hidden">
               <div style={{ transform: 'scale(0.42)', transformOrigin: 'center' }}>
-                <ProductPreview {...previewProps} side={t.id === 'back' ? 'back' : 'front'} />
+                <ProductPreview {...previewProps} side={thumb.id === 'back' ? 'back' : 'front'} />
               </div>
             </div>
-            <p className={`text-[10px] font-bold text-center mt-1 ${previewView === t.id ? 'text-[#f97316]' : 'text-slate-600'}`}>{t(t.key, language)}</p>
+            <p className={`text-[10px] font-bold text-center mt-1 ${previewView === thumb.id ? 'text-[#f97316]' : 'text-slate-600'}`}>{t(thumb.key, language)}</p>
           </button>
         ))}
       </div>
