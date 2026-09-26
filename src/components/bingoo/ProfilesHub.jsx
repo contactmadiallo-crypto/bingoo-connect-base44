@@ -24,7 +24,8 @@ export default function ProfilesHub({
   // Persist a new ordered array of profile IDs for the user.
   onReorder,
 }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [copiedId, setCopiedId] = useState(null);
   const [expandedQR, setExpandedQR] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
@@ -174,8 +175,8 @@ export default function ProfilesHub({
         <button
           type="button"
           {...(dragHandleProps || {})}
-          aria-label="Drag to reorder profile"
-          title="Drag to reorder"
+          aria-label={tr('Drag to reorder profile', 'Faire glisser pour réorganiser le profil')}
+          title={tr('Drag to reorder', 'Faire glisser pour réorganiser')}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
           className={`hidden sm:flex items-center justify-center w-7 h-7 rounded-lg border transition-all cursor-grab active:cursor-grabbing ${
@@ -191,7 +192,7 @@ export default function ProfilesHub({
           style={{ background: isDark ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.9)", border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)"}` }}>
           <button
             type="button"
-            aria-label="Move profile up"
+            aria-label={tr('Move profile up', 'Déplacer le profil vers le haut')}
             disabled={index === 0}
             onClick={(e) => { e.stopPropagation(); moveBy(index, -1); }}
             className="w-9 h-9 flex items-center justify-center disabled:opacity-30 transition-colors"
@@ -201,7 +202,7 @@ export default function ProfilesHub({
           <div style={{ width: 1, height: 24, background: isDark ? "rgba(255,255,255,0.1)" : "rgba(148,163,184,0.3)" }} />
           <button
             type="button"
-            aria-label="Move profile down"
+            aria-label={tr('Move profile down', 'Déplacer le profil vers le bas')}
             disabled={index === items.length - 1}
             onClick={(e) => { e.stopPropagation(); moveBy(index, 1); }}
             className="w-9 h-9 flex items-center justify-center disabled:opacity-30 transition-colors"
@@ -360,7 +361,7 @@ export default function ProfilesHub({
             </button>
             <a href={profileUrl} target="_blank" rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
-              aria-label="View public profile"
+              aria-label={tr('View public profile', 'Voir le profil public')}
               className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.07)",
@@ -371,7 +372,7 @@ export default function ProfilesHub({
             </a>
             <button
               onClick={(e) => { e.stopPropagation(); setExpandedQR(expandedQR === profile.id ? null : profile.id); }}
-              aria-label="Show QR code"
+              aria-label={tr('Show QR code', 'Afficher le code QR')}
               className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(255,255,255,0.06)" : "rgba(99,102,241,0.07)",
