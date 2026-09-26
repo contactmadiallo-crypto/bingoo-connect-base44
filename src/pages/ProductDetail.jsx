@@ -9,6 +9,7 @@ import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
+import { isNativeApp } from '@/lib/nativePlatform';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -16,6 +17,7 @@ const ORANGE = '#f97316';
 
 export default function ProductDetail() {
   const { language } = useI18n();
+  const nativeApp = isNativeApp();
   const { productId } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -57,7 +59,7 @@ export default function ProductDetail() {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] overflow-x-hidden">
-      <header className="sticky top-0 z-30 border-b border-white/10" style={{ background: NAVY_DEEP }}><div className="mx-auto flex h-[64px] sm:h-[72px] max-w-[1400px] items-center justify-between px-3 sm:px-4 md:px-6 min-w-0"><Link to="/" className="flex items-center gap-3"><InfinityMark size={36} color={ORANGE} strokeWidth={3.4} glow /><b className="hidden text-white sm:block">BINGOO CONNECT</b></Link><div className="flex items-center gap-1 sm:gap-2"><Link to="/shop" aria-label={t("shop_shop",language)} className="flex items-center gap-1.5 rounded-full px-3 sm:px-4 py-2 min-h-[44px] text-sm font-bold text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4" /> {t("shop_shop",language)}</Link><Link to="/cart" className="relative flex items-center gap-2 rounded-full border border-white/15 px-3 sm:px-4 py-2 min-h-[44px] text-sm font-bold text-white"><ShoppingCart className="h-4 w-4" /> {t("shop_cart",language)}{cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cartCount}</span>}</Link></div></div></header>
+      <header className={`z-30 border-b border-white/10 ${nativeApp ? "relative" : "sticky top-0"}`} style={{ background: NAVY_DEEP }}><div className="mx-auto flex h-[60px] sm:h-[72px] max-w-[1400px] items-center justify-between px-3 sm:px-4 md:px-6 min-w-0">{!nativeApp && <Link to="/" className="flex items-center gap-3"><InfinityMark size={36} color={ORANGE} strokeWidth={3.4} glow /><b className="hidden text-white sm:block">BINGOO CONNECT</b></Link>}<div className={`flex items-center gap-1 sm:gap-2 ${nativeApp ? "w-full justify-between" : ""}`}><Link to="/shop" aria-label={t("shop_shop",language)} className="flex items-center gap-1.5 rounded-full px-3 sm:px-4 py-2 min-h-[44px] text-sm font-bold text-white/80 hover:text-white"><ArrowLeft className="h-4 w-4" /> {t("shop_shop",language)}</Link><Link to="/cart" className="relative flex items-center gap-2 rounded-full border border-white/15 px-3 sm:px-4 py-2 min-h-[44px] text-sm font-bold text-white"><ShoppingCart className="h-4 w-4" /> {t("shop_cart",language)}{cartCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black" style={{ background: ORANGE }}>{cartCount}</span>}</Link></div></div></header>
 
       <main className="mx-auto max-w-[1280px] px-3 sm:px-4 py-6 sm:py-8 md:px-6 md:py-12 min-w-0">
         <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-[.12em]"><Link to="/shop" className="text-slate-400 hover:text-slate-600">{t("shop_shop",language)}</Link><span className="text-slate-300">/</span><span style={{ color: collection?.accent || ORANGE }}>{collection?.label}</span><span className="text-slate-300">/</span><span style={{ color: NAVY }}>{product.name}</span></div>
