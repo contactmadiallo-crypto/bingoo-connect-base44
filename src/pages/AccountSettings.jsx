@@ -76,7 +76,7 @@ export default function AccountSettings() {
     a.download = `bingoo-data-${user.email}-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Your data has been exported successfully.");
+    toast.success(t("account_export_success",language));
     setExporting(false);
   };
 
@@ -98,11 +98,11 @@ export default function AccountSettings() {
         description: `Authenticated account deletion request ${response?.data?.request_id || ""}`.trim(),
         timestamp: new Date().toISOString(),
       }).catch(() => {});
-      toast.success("Deletion request verified and submitted. We'll process it within 30 days.");
+      toast.success(t("account_delete_success",language));
       setDeleteConfirm("");
     } catch (error) {
       console.error("Account deletion request failed:", error);
-      toast.error(error?.message || "Unable to submit deletion request. Please try again.");
+      toast.error(error?.message || t("account_delete_failed",language));
     } finally {
       setDeleting(false);
     }
@@ -122,12 +122,12 @@ export default function AccountSettings() {
       <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
         style={{ background: "rgba(11,33,73,0.97)", borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button type="button" onClick={() => navigate("/bingoo?view=hub")} aria-label="Back to profiles" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
-            <ArrowLeft className="w-4 h-4" /> Back
+          <button type="button" onClick={() => navigate("/bingoo?view=hub")} aria-label={t("account_back_profiles",language)} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm min-h-[44px] px-2">
+            <ArrowLeft className="w-4 h-4" /> {t("account_back",language)}
           </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
           <Shield className="w-4 h-4 text-white/70" />
-          <span className="text-white font-bold">Account Settings</span>
+          <span className="text-white font-bold">{t("account_settings_title",language)}</span>
         </div>
       </div>
 
@@ -136,16 +136,16 @@ export default function AccountSettings() {
         {/* Account info */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-blue-600" /> Your Account
+            <Shield className="w-5 h-5 text-blue-600" /> {t("account_your_account",language)}
           </h2>
-          <p className="text-slate-500 text-sm mb-4">Your sign-in identity and account preferences.</p>
+          <p className="text-slate-500 text-sm mb-4">{t("account_identity_copy",language)}</p>
           <div className="grid sm:grid-cols-2 gap-3 text-sm">
             <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Full Name</p>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">{t("account_full_name",language)}</p>
               <p className="font-bold text-slate-900">{user?.full_name || "—"}</p>
             </div>
             <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">Email</p>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1">{t("account_email",language)}</p>
               <p className="font-bold text-slate-900">{user?.email}</p>
             </div>
           </div>
@@ -169,31 +169,31 @@ export default function AccountSettings() {
         {/* Export data */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-2 flex items-center gap-2">
-            <Download className="w-5 h-5 text-blue-600" /> Export My Data
+            <Download className="w-5 h-5 text-blue-600" /> {t("account_export_title",language)}
           </h2>
           <p className="text-slate-500 text-sm mb-4">
-            Download a copy of your Bingoo account data in JSON format.
+            {t("account_export_copy",language)}
           </p>
           <Button onClick={handleExport} disabled={exporting} variant="outline"
             className="gap-2 font-bold border-blue-200 text-blue-700 hover:bg-blue-50">
             {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            {exporting ? "Preparing export…" : "Export My Data"}
+            {exporting ? t("account_preparing_export",language) : t("account_export_title",language)}
           </Button>
         </div>
 
         {/* Delete account */}
         <div className="bg-white rounded-2xl border border-red-100 p-6 shadow-sm">
           <h2 className="font-black text-slate-900 text-lg mb-2 flex items-center gap-2">
-            <Trash2 className="w-5 h-5 text-red-600" /> Delete Account
+            <Trash2 className="w-5 h-5 text-red-600" /> {t("account_delete_title",language)}
           </h2>
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-5 flex gap-3">
             <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-red-700">
-              <strong>This action is irreversible.</strong> Deleting your account will permanently remove your profiles, devices, leads, and all associated data. Billing records are retained as required by law.
+              <strong>{t("account_irreversible",language)}</strong> {t("account_delete_warning",language)}
             </div>
           </div>
           <p className="text-sm text-slate-600 mb-3">
-            To confirm, type your email address: <strong>{user?.email}</strong>
+            {t("account_confirm_email",language)} <strong>{user?.email}</strong>
           </p>
           <input
             type="email"
@@ -208,10 +208,10 @@ export default function AccountSettings() {
             className="gap-2 font-bold bg-red-600 hover:bg-red-500 text-white disabled:opacity-40"
           >
             {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-            {deleting ? "Submitting request…" : "Delete My Account"}
+            {deleting ? t("account_submitting",language) : t("account_delete_me",language)}
           </Button>
           <p className="text-xs text-slate-400 mt-3">
-            Submitting this form sends a deletion request to our team. We will process it within 30 days.
+            {t("account_delete_note",language)}
           </p>
         </div>
 
