@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ const STATUS_COLORS = {
   lost: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
-const navyCard = "#0b2149";
 const orange = "#f97316";
 const gold = "#FDBA21";
 
@@ -33,8 +32,6 @@ function QRCodeCell({ deviceCode }) {
 
 export default function AdminNFCManager({ profiles = [] }) {
   const queryClient = useQueryClient();
-  const printRef = useRef(null);
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showBulkForm, setShowBulkForm] = useState(false);
@@ -48,7 +45,7 @@ export default function AdminNFCManager({ profiles = [] }) {
   const [bulkType, setBulkType] = useState("card");
   const [bulkGenerating, setBulkGenerating] = useState(false);
 
-  const { data: devices = [], refetch } = useQuery({
+  const { data: devices = [] } = useQuery({
     queryKey: ["nfc-manager-devices"],
     queryFn: () => base44.entities.NFCDevice.list("-created_date", 500),
   });
