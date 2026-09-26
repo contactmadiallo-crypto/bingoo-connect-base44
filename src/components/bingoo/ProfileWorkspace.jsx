@@ -1,4 +1,4 @@
-import { publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
+import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -724,13 +724,13 @@ function LostModePanel({ profileId, user, isDark, effectivePlan, lang }) {
     // Locked gate for Free accounts
     const startTrial = async () => {
       if (trialLoading) return;
-      if (window.self !== window.top) { alert("Open bingooconnect.com to subscribe."); return; }
+      if (window.self !== window.top) { alert(lang === "fr" ? "Ouvrez bingooconnect.com pour vous abonner." : "Open bingooconnect.com to subscribe."); return; }
       setTrialLoading(true);
       try {
         const resp = await base44.functions.invoke("createSubscriptionSession", {
           plan: "professional", trial_days: 14,
-          success_url: `${window.location.origin}/bingoo`,
-          cancel_url: `${window.location.origin}/bingoo`,
+          success_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
+          cancel_url: `${PUBLIC_APP_ORIGIN}/bingoo`,
         });
         if (resp?.data?.url) window.location.href = resp.data.url;
       } catch(e) { console.error(e); } finally { setTrialLoading(false); }
