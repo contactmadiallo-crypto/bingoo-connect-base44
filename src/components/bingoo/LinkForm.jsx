@@ -43,8 +43,8 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
             <MobileSelect
               value={form.type}
               onValueChange={v => setForm({ ...form, type: v })}
-              options={linkTypes.map(t => ({ value: t.value, label: t.icon + ' ' + t.label }))}
-              ariaLabel="Link type"
+              options={linkTypes.map(item => ({ value: item.value, label: item.icon + ' ' + (language === 'fr' ? ({ website:'Site web', whatsapp:'WhatsApp', instagram:'Instagram', tiktok:'TikTok', youtube:'YouTube', twitter:'Twitter / X', linkedin:'LinkedIn', email:'E-mail', phone:'Téléphone', other:'Autre' }[item.value] || item.label) : item.label) }))}
+              ariaLabel={tr('Link type', 'Type de lien')}
               className="mt-1"
             />
           </div>
