@@ -307,7 +307,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                           {report.status === "recovered" ? "✓ Recovered" : report.status === "contacted" ? "Contacted" : "New"}
                         </span>
                         <button
-                          onClick={() => { if (confirm("Delete this report?")) deleteReport.mutate(report.id); }}
+                          onClick={() => { if (confirm(tx('Delete this report?', 'Supprimer ce signalement ?'))) deleteReport.mutate(report.id); }}
                           className="text-red-400 hover:text-red-600 p-0.5"
                         >
                           <Trash2 className="w-3 h-3" />
@@ -441,7 +441,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-bold text-red-700 text-sm">{totalLost} item{totalLost > 1 ? "s" : ""} in Lost Mode</p>
+            <p className="font-bold text-red-700 text-sm">{totalLost} {tx(totalLost > 1 ? 'items in Lost Mode' : 'item in Lost Mode', totalLost > 1 ? 'objets en Mode perdu' : 'objet en Mode perdu')}</p>
             <p className="text-red-500 text-xs mt-0.5">{tx('Anyone who taps these devices will see a recovery form instead of your profile.', 'Toute personne qui touche ces appareils verra un formulaire de récupération à la place de votre profil.')}</p>
           </div>
         </div>
@@ -560,11 +560,11 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                     <div className="shrink-0 flex flex-col gap-1">
                       {report.status !== "recovered" && (
                         <>
-                          {report.status === "new" && <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success(tx('Marked as contacted', 'Marqué comme contacté')); }} className="rounded-lg text-xs bg-blue-600 text-white h-7 px-2">Contacted</Button>}
-                          <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success(tx('Recovered!', 'Récupéré !')); }} className="rounded-lg text-xs bg-emerald-600 text-white h-7 px-2">Recovered ✓</Button>
+                          {report.status === "new" && <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success(tx('Marked as contacted', 'Marqué comme contacté')); }} className="rounded-lg text-xs bg-blue-600 text-white h-7 px-2">{tx('Contacted', 'Contacté')}</Button>}
+                          <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success(tx('Recovered!', 'Récupéré !')); }} className="rounded-lg text-xs bg-emerald-600 text-white h-7 px-2">{tx('Recovered', 'Récupéré')} ✓</Button>
                         </>
                       )}
-                      <button onClick={() => { if (confirm("Delete this report?")) deleteReport.mutate(report.id); }} className="text-red-400 hover:text-red-600 p-1 self-end">
+                      <button onClick={() => { if (confirm(tx('Delete this report?', 'Supprimer ce signalement ?'))) deleteReport.mutate(report.id); }} className="text-red-400 hover:text-red-600 p-1 self-end">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
