@@ -8,6 +8,7 @@ import { PRODUCTS } from "@/lib/shopProducts";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 import {
   Plus, Download, Printer, Search, Edit, Trash2, QrCode, X, Loader2,
   BarChart3, Wifi, AlertTriangle, Activity, Package, MapPin,
@@ -498,7 +499,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                         <td className="px-4 py-3"><StatusBadge status={d.status} /></td>
                         <td className="px-4 py-3">
                           {profile ? (
-                            <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                            <a href={publicProfileUrl(profile.username)} target="_blank" rel="noopener noreferrer"
                               className="text-xs font-bold hover:underline" style={{ color: orange }}>{profile.display_name}</a>
                           ) : <span className="text-white/25 text-xs italic">{t("nfc_admin_unassigned",language)}</span>}
                         </td>
@@ -568,7 +569,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                   {d.replaced_by_code && <p className="text-xs text-purple-400">→ {d.replaced_by_code}</p>}
                   <div>
                     {profile ? (
-                      <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                      <a href={publicProfileUrl(profile.username)} target="_blank" rel="noopener noreferrer"
                         className="text-xs font-bold hover:underline" style={{ color: orange }}>{profile.display_name}</a>
                     ) : <span className="text-white/25 text-xs italic">{t("nfc_admin_unassigned",language)}</span>}
                   </div>
