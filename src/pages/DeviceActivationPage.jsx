@@ -12,22 +12,25 @@ import { getDeviceEmoji, getDeviceDisplayName, getDeviceDisplayImage } from "@/l
 import { InfinityMark } from "@/components/bingoo/ui/BingooBrand";
 import { PRODUCTS } from "@/lib/shopProducts";
 import FactoryProductMedia from "@/components/shop/FactoryProductMedia";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 // ── Status display config ──
 const STATUS_CONFIG = {
-  available:    { label: "Ready to Activate", color: "#22c55e", icon: CheckCircle },
-  active:       { label: "Already Activated", color: "#3b82f6", icon: Info },
-  assigned:     { label: "Already Activated", color: "#3b82f6", icon: Info },
-  replaced:     { label: "Replaced",           color: "#f59e0b", icon: AlertCircle },
-  disabled:     { label: "Disabled",            color: "#ef4444", icon: AlertCircle },
-  lost:          { label: "Reported Lost/Stolen", color: "#ef4444", icon: AlertCircle },
-  invalid:       { label: "Invalid Code",         color: "#ef4444", icon: AlertCircle },
-  pending_manufacturing: { label: "Pending Manufacturing", color: "#f59e0b", icon: AlertCircle },
+  available:    { labelKey: "activate_ready", color: "#22c55e", icon: CheckCircle },
+  active:       { labelKey: "activate_already", color: "#3b82f6", icon: Info },
+  assigned:     { labelKey: "activate_already", color: "#3b82f6", icon: Info },
+  replaced:     { labelKey: "activate_replaced", color: "#f59e0b", icon: AlertCircle },
+  disabled:     { labelKey: "activate_disabled", color: "#ef4444", icon: AlertCircle },
+  lost:          { labelKey: "activate_lost_stolen", color: "#ef4444", icon: AlertCircle },
+  invalid:       { labelKey: "activate_invalid_code", color: "#ef4444", icon: AlertCircle },
+  pending_manufacturing: { labelKey: "activate_pending_mfg", color: "#f59e0b", icon: AlertCircle },
 };
 
 const ORANGE = "#f97316";
 
 export default function DeviceActivationPage({ deviceCode, device }) {
+  const { language } = useI18n();
   const queryClient = useQueryClient();
   const [step, setStep] = useState("loading"); // loading | landing | profile_select | success | error_state
   const [user, setUser] = useState(null);
@@ -302,7 +305,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
             <span className="text-white font-black text-[42px] md:text-[52px] tracking-[-0.055em]">Bing</span>
             <InfinityMark size={56} color={ORANGE} strokeWidth={3.9} glow />
           </div>
-          <span className="mt-1 text-[9px] md:text-[10px] font-bold uppercase tracking-[.36em] text-white/65">Connect What Matters</span>
+          <span className="mt-1 text-[9px] md:text-[10px] font-bold uppercase tracking-[.36em] text-white/65">{t("activate_connect_matters",language)}</span>
         </div>
 
         <div className="w-full">
@@ -312,7 +315,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
           {step === "loading" && (
             <div className="text-center py-20">
               <Loader2 className="w-8 h-8 animate-spin text-orange-400 mx-auto mb-4" />
-              <p className="text-white/50 text-sm">Checking device...</p>
+              <p className="text-white/50 text-sm">{t("activate_checking",language)}</p>
             </div>
           )}
 
@@ -327,9 +330,9 @@ export default function DeviceActivationPage({ deviceCode, device }) {
               ) : (
                 <div className="text-5xl mb-4">{deviceEmoji}</div>
               )}
-              <h1 className="text-xl font-black text-white mb-2">{statusConfig.label}</h1>
+              <h1 className="text-xl font-black text-white mb-2">{t(statusConfig.labelKey,language)}</h1>
               <p className="text-white/50 text-sm mb-2">
-                Device code: <span className="font-mono font-bold text-orange-400">{deviceCode}</span>
+                {t("activate_device_code",language)}: <span className="font-mono font-bold text-orange-400">{deviceCode}</span>
               </p>
               <p className="text-white/40 text-xs mb-6">{deviceTypeLabel}</p>
 
@@ -389,7 +392,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 md:mb-5"
                   style={{ background: "rgba(16,185,129,.10)", border: "1px solid rgba(52,211,153,.75)", boxShadow: "0 0 24px rgba(16,185,129,.09)" }}>
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-emerald-300 text-sm font-black">Ready to Activate</span>
+                  <span className="text-emerald-300 text-sm font-black">{t("activate_ready",language)}</span>
                 </div>
 
                 <div className="mx-auto mb-2 flex h-[190px] w-[220px] md:h-[230px] md:w-[280px] items-center justify-center">
@@ -403,10 +406,10 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 </div>
 
                 <h1 className="text-[30px] md:text-[40px] leading-[1.02] font-black text-white tracking-[-0.04em] mb-3">
-                  Activate Your Bingoo Device
+                  {t("activate_title",language)}
                 </h1>
                 <p className="text-white/58 text-sm md:text-base mb-5">
-                  Turn your {deviceTypeLabel} into a powerful digital connection.
+                  {t("activate_turn_into",language)} {deviceTypeLabel} {t("activate_connection",language)}
                 </p>
 
                 <div className="mx-auto mb-5 flex items-stretch overflow-hidden rounded-2xl text-left"
@@ -415,7 +418,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                     <Link2 className="w-7 h-7 text-blue-300/80" />
                   </div>
                   <div className="min-w-0 flex-1 px-4 py-3.5">
-                    <p className="text-[11px] font-semibold text-white/50">Device code</p>
+                    <p className="text-[11px] font-semibold text-white/50">{t("activate_device_code",language)}</p>
                     <p className="font-mono text-xl md:text-2xl font-black text-orange-400 tracking-[-0.025em]">{deviceCode}</p>
                   </div>
                   <div className="flex items-center pr-3 md:pr-4">
@@ -430,12 +433,12 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   <Button onClick={handleLoginRedirect}
                     className="w-full h-[58px] md:h-[64px] text-base md:text-lg font-black gap-3 rounded-2xl border-0 shadow-[0_14px_34px_rgba(249,115,22,.22)]"
                     style={{ background: "linear-gradient(100deg,#ff9d19 0%,#ff6a13 55%,#ff4b1f 100%)", color: "#fff" }}>
-                    <LogIn className="w-5 h-5" /> Log In to Activate
+                    <LogIn className="w-5 h-5" /> {t("activate_login",language)}
                   </Button>
                   <Button onClick={handleRegisterRedirect} variant="outline"
                     className="w-full h-[56px] md:h-[60px] text-base font-black gap-3 rounded-2xl text-white bg-transparent hover:bg-white/[.04] hover:text-white"
                     style={{ border: "1px solid rgba(249,115,22,.78)" }}>
-                    <UserPlus className="w-5 h-5" /> Create Account
+                    <UserPlus className="w-5 h-5" /> {t("activate_create_account",language)}
                   </Button>
                 </div>
 
@@ -477,7 +480,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   <div className="text-3xl">{deviceEmoji}</div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-black text-sm">Device Ready to Activate</p>
+                  <p className="text-white font-black text-sm">{t("activate_device_ready",language)}</p>
                   <p className="text-white/50 text-xs font-mono truncate">{deviceCode} · {deviceTypeLabel}</p>
                 </div>
                 <Wifi className="w-5 h-5 text-orange-400 flex-shrink-0" />
@@ -520,8 +523,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 {/* ── PROFILE ASSIGNMENT ── */}
                 {assignMode === "profile" && (
                   <div>
-                    <h2 className="text-white font-black text-lg mb-1">Choose a Profile</h2>
-                    <p className="text-white/40 text-sm mb-5">Which profile should this device open when tapped?</p>
+                    <h2 className="text-white font-black text-lg mb-1">{t("activate_choose_profile",language)}</h2>
+                    <p className="text-white/40 text-sm mb-5">{t("activate_profile_question",language)}</p>
 
                     {profiles.length > 0 ? (
                       <div className="space-y-2 mb-4">
@@ -546,7 +549,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-white/40 text-sm mb-4">You don't have a profile yet. Create one below.</p>
+                      <p className="text-white/40 text-sm mb-4">{t("activate_no_profile",language)}</p>
                     )}
 
                     {/* Create new profile */}
@@ -554,14 +557,14 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                       <button onClick={() => setShowCreateProfile(true)}
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold text-orange-400 transition-all hover:bg-orange-500/10"
                         style={{ border: "1px dashed rgba(249,115,22,0.3)" }}>
-                        <Plus className="w-4 h-4" /> Create a new profile
+                        <Plus className="w-4 h-4" /> {t("activate_create_new_profile",language)}
                       </button>
                     ) : (
                       <div className="mt-4 p-4 rounded-2xl space-y-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                         <input
                           className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none"
                           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
-                          placeholder="Your name or business name"
+                          placeholder={t("activate_name_placeholder",language)}
                           value={newProfileName}
                           onChange={e => {
                             setNewProfileName(e.target.value);
@@ -571,7 +574,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                         <input
                           className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none font-mono"
                           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
-                          placeholder="username (e.g. johndoe)"
+                          placeholder={t("activate_username_placeholder",language)}
                           value={newProfileUsername}
                           onChange={e => setNewProfileUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
                         />
@@ -594,8 +597,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 {/* ── ASSET ASSIGNMENT ── */}
                 {assignMode === "asset" && (
                   <div>
-                    <h2 className="text-white font-black text-lg mb-1">Choose an Asset</h2>
-                    <p className="text-white/40 text-sm mb-5">Which asset should this device protect? Taps will open the recovery page.</p>
+                    <h2 className="text-white font-black text-lg mb-1">{t("activate_choose_asset",language)}</h2>
+                    <p className="text-white/40 text-sm mb-5">{t("activate_asset_question",language)}</p>
 
                     {profiles.length === 0 ? (
                       <div className="rounded-2xl p-4 mb-4" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)" }}>
@@ -628,7 +631,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-white/40 text-sm mb-4">You don't have any assets yet. Create one below.</p>
+                      <p className="text-white/40 text-sm mb-4">{t("activate_no_assets",language)}</p>
                     )}
 
                     {/* Create new asset */}
@@ -636,14 +639,14 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                       <button onClick={() => setShowCreateAsset(true)}
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold text-orange-400 transition-all hover:bg-orange-500/10"
                         style={{ border: "1px dashed rgba(249,115,22,0.3)" }}>
-                        <Plus className="w-4 h-4" /> Create a new asset
+                        <Plus className="w-4 h-4" /> {t("activate_create_new_asset",language)}
                       </button>
                     ) : (
                       <div className="mt-4 p-4 rounded-2xl space-y-3" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                         <input
                           className="w-full px-4 py-3 rounded-xl text-sm font-medium outline-none"
                           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
-                          placeholder="Asset name (e.g. Buddy, MacBook Pro)"
+                          placeholder={t("activate_asset_placeholder",language)}
                           value={newAssetName}
                           onChange={e => setNewAssetName(e.target.value)}
                         />
@@ -652,13 +655,13 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff" }}
                           value={newAssetType}
                           onChange={e => setNewAssetType(e.target.value)}>
-                          <option value="pet">Pet</option>
-                          <option value="luggage">Luggage</option>
-                          <option value="bag">Bag</option>
-                          <option value="keys">Keys</option>
-                          <option value="equipment">Equipment</option>
-                          <option value="vehicle">Vehicle</option>
-                          <option value="other">Other</option>
+                          <option value="pet">{t("activate_pet",language)}</option>
+                          <option value="luggage">{t("activate_luggage",language)}</option>
+                          <option value="bag">{t("activate_bag",language)}</option>
+                          <option value="keys">{t("activate_keys",language)}</option>
+                          <option value="equipment">{t("activate_equipment",language)}</option>
+                          <option value="vehicle">{t("activate_vehicle",language)}</option>
+                          <option value="other">{t("activate_other",language)}</option>
                         </select>
                         <div className="flex gap-2">
                           <Button onClick={handleCreateAsset} disabled={creatingAsset || !newAssetName.trim()}
@@ -725,7 +728,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 <CheckCircle className="w-10 h-10 text-green-400" />
               </motion.div>
 
-              <h1 className="text-2xl font-black text-white mb-2">Device Activated! 🎉</h1>
+              <h1 className="text-2xl font-black text-white mb-2">{t("activate_success",language)}</h1>
               <p className="text-white/50 text-sm mb-2">
                 <span className="font-mono font-bold text-orange-400">{deviceCode}</span> · {deviceTypeLabel} is now linked to
               </p>
@@ -759,7 +762,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 )}
                 <a href="/my-nfc-devices">
                   <Button variant="outline" className="w-full font-bold rounded-2xl border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">
-                    <Smartphone className="w-4 h-4 mr-2" /> Go to Device Center
+                    <Smartphone className="w-4 h-4 mr-2" /> {t("activate_device_center",language)}
                   </Button>
                 </a>
               </div>
