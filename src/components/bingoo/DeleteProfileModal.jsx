@@ -80,12 +80,12 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)" }}
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" style={{ background: "rgba(0,0,0,0.6)" }}
       onClick={onClose}>
-      <div className={`w-full max-w-lg rounded-3xl border ${panelBorder} ${panelBg} shadow-2xl max-h-[90vh] overflow-y-auto`}
+      <div className={`w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border ${panelBorder} ${panelBg} shadow-2xl max-h-[94dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain`}
         onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="p-5 border-b border-red-300/30 flex items-center gap-3">
+        <div className="p-4 sm:p-5 border-b border-red-300/30 flex items-center gap-3 sticky top-0 z-10 bg-inherit">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/15">
             <AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
@@ -93,7 +93,7 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
             <h3 className={`font-bold text-base ${headText}`}>{tr('Delete Profile', 'Supprimer le profil')}</h3>
             <p className={`text-xs ${mutedText}`}>{tr('This action cannot be undone.', 'Cette action est irréversible.')}</p>
           </div>
-          <button onClick={onClose} className={`ml-auto p-2 rounded-full ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
+          <button onClick={onClose} aria-label={tr("Close","Fermer")} className={`ml-auto w-11 h-11 flex items-center justify-center rounded-full ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
             <span className={`text-xl ${mutedText}`}>×</span>
           </button>
         </div>
@@ -109,31 +109,30 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
             <button onClick={onClose} className="mt-4 text-sm font-bold text-red-600">{tr('Close', 'Fermer')}</button>
           </div>
         ) : (
-          <div className="p-5 space-y-4">
+          <div className="p-4 sm:p-5 space-y-4">
             {/* What will happen */}
             <div className={`rounded-2xl p-4 border ${isDark ? "border-red-500/20 bg-red-500/5" : "border-red-200 bg-red-50"}`}>
               <p className={`text-sm font-bold mb-2 ${isDark ? "text-red-300" : "text-red-700"}`}>
-                "{profile.display_name}" will be permanently deleted.
+                {language === "fr" ? `"${profile.display_name}" sera supprimé définitivement.` : `"${profile.display_name}" will be permanently deleted.`}
               </p>
               <p className={`text-xs ${isDark ? "text-red-200/70" : "text-red-600"}`}>
-                The public URL <span className="font-mono">/p/{profile.username}</span> will stop resolving and show a
-                "profile unavailable" page. QR codes & wallet passes pointing here will show that page too.
+                {language === "fr" ? <>L’URL publique <span className="font-mono">/p/{profile.username}</span> ne fonctionnera plus et affichera une page « profil indisponible ». Les codes QR et passes Wallet associés afficheront aussi cette page.</> : <>The public URL <span className="font-mono">/p/{profile.username}</span> will stop resolving and show a "profile unavailable" page. QR codes & wallet passes pointing here will show that page too.</>}
               </p>
             </div>
 
             {/* Dependency summary */}
             <div className="space-y-2">
               <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>{tr('What gets removed', 'Ce qui sera supprimé')}</p>
-              <SummaryRow icon={Users} label="Leads / CRM contacts" count={summary?.lead_count || 0} isDark={isDark} />
-              <SummaryRow icon={Calendar} label="Appointments" count={summary?.appointment_count || 0} isDark={isDark} />
-              <SummaryRow icon={Nfc} label="NFC devices attached" count={summary?.device_count || 0} isDark={isDark} warn />
+              <SummaryRow icon={Users} label={tr("Leads / CRM contacts","Prospects / contacts CRM")} count={summary?.lead_count || 0} isDark={isDark} />
+              <SummaryRow icon={Calendar} label={tr("Appointments","Rendez-vous")} count={summary?.appointment_count || 0} isDark={isDark} />
+              <SummaryRow icon={Nfc} label={tr("NFC devices attached","Appareils NFC associés")} count={summary?.device_count || 0} isDark={isDark} warn />
             </div>
 
             {/* Device action — only if devices attached */}
             {hasDevices && (
               <div className={`rounded-2xl p-4 border ${panelBorder} ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
                 <p className={`text-sm font-bold mb-3 ${headText}`}>
-                  Choose what happens to {summary.device_count} NFC device{summary.device_count > 1 ? "s" : ""}:
+                  {language === "fr" ? `Choisissez ce qui arrive à ${summary.device_count} appareil${summary.device_count > 1 ? "s" : ""} NFC :` : `Choose what happens to ${summary.device_count} NFC device${summary.device_count > 1 ? "s" : ""}:`}
                 </p>
                 <div className="space-y-2">
                   {summary.other_profiles?.length > 0 && (
@@ -147,7 +146,7 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
                           onValueChange={setReassignTo}
                           options={summary.other_profiles.map(p => ({ value: p.id, label: p.display_name + ' — /p/' + p.username }))}
                           placeholder={tr('Select a profile', 'Sélectionner un profil')}
-                          ariaLabel="Reassign to profile"
+                          ariaLabel={tr("Reassign to profile","Réattribuer au profil")}
                           className={`w-full rounded-lg text-sm ${isDark ? "bg-[#1a2235] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"}`}
                         />
                       </div>
@@ -181,16 +180,16 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
             {error && <p className="text-xs text-red-500">{error}</p>}
 
             {/* Actions */}
-            <div className="flex gap-2 pt-1">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 pt-1">
               <button onClick={onClose} disabled={deleting}
-                className={`flex-1 py-3 rounded-xl text-sm font-bold border ${panelBorder} ${isDark ? "text-white/70 hover:bg-white/5" : "text-slate-600 hover:bg-slate-50"}`}>
-                Cancel
+                className={`flex-1 min-h-[44px] py-3 rounded-xl text-sm font-bold border ${panelBorder} ${isDark ? "text-white/70 hover:bg-white/5" : "text-slate-600 hover:bg-slate-50"}`}>
+                {tr("Cancel","Annuler")}
               </button>
               <button onClick={handleDelete} disabled={!canConfirm}
-                className="flex-1 py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 min-h-[44px] py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: "#dc2626" }}>
                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                {deleting ? "Deleting…" : "Delete Profile"}
+                {deleting ? tr("Deleting…","Suppression…") : tr("Delete Profile","Supprimer le profil")}
               </button>
             </div>
           </div>
