@@ -14,7 +14,7 @@ import LoyaltyCard from "./LoyaltyCard";
 import UserPreferences from "./UserPreferences";
 import NotificationPreferences from "./NotificationPreferences"; // New import
 
-export default function CustomerProfile({ user, onBack, onUserUpdate, language = "en" }) {
+export default function CustomerProfile({ user, onBack, onUserUpdate }) {
   const [personalInfo, setPersonalInfo] = useState({
     full_name: user?.full_name || "",
     phone: user?.phone || "",
