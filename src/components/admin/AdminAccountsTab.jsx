@@ -14,6 +14,8 @@ const SUMMARY_COLS = [
   { key: "leads", label: "Leads", icon: Star, color: "#22c55e" },
 ];
 import { PLAN_LABELS } from "@/lib/planPermissions";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 /**
  * AdminAccountsTab — Account-first admin view.
@@ -24,6 +26,7 @@ import { PLAN_LABELS } from "@/lib/planPermissions";
  * Props: users, profiles, devices, subscriptions, leads, appointments (from AdminDashboard)
  */
 export default function AdminAccountsTab({ users = [], profiles = [], devices = [], subscriptions = [], leads = [], appointments = [] }) {
+  const { language } = useI18n();
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [search, setSearch] = useState("");
 
@@ -76,7 +79,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
         <button onClick={() => setSelectedUserId(null)}
           className="flex items-center gap-2 text-sm font-bold transition-colors"
           style={{ color: "rgba(255,255,255,0.5)" }}>
-          <ChevronLeft className="w-4 h-4" /> Back to Accounts
+          <ChevronLeft className="w-4 h-4" /> {t("admin_back_accounts",language)}
         </button>
 
         {/* Account header */}
@@ -100,7 +103,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             </div>
             <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>{u.email}</p>
             <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.25)" }}>
-              Joined {u.created_date ? new Date(u.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
+              {t("admin_joined",language)} {u.created_date ? new Date(u.created_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
             </p>
           </div>
         </div>
@@ -108,12 +111,12 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
         {/* Summary stats grid */}
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
           {[
-            { label: "Profiles", value: selected.profiles.length, icon: QrCode, color: "#f97316" },
-            { label: "Devices", value: selected.devices.length, icon: Smartphone, color: "#8b5cf6" },
-            { label: "Assets", value: selected.assets.length, icon: Package, color: "#06b6d4" },
-            { label: "Leads", value: selected.leads.length, icon: Star, color: "#22c55e" },
-            { label: "Appts", value: selected.appointments.length, icon: CheckCircle2, color: "#FDBA21" },
-            { label: "Tickets", value: selected.tickets.length, icon: Headphones, color: "#ef4444" },
+            { label: t("admin_profiles",language), value: selected.profiles.length, icon: QrCode, color: "#f97316" },
+            { label: t("admin_devices",language), value: selected.devices.length, icon: Smartphone, color: "#8b5cf6" },
+            { label: t("admin_assets",language), value: selected.assets.length, icon: Package, color: "#06b6d4" },
+            { label: t("admin_leads",language), value: selected.leads.length, icon: Star, color: "#22c55e" },
+            { label: t("admin_appts",language), value: selected.appointments.length, icon: CheckCircle2, color: "#FDBA21" },
+            { label: t("admin_tickets",language), value: selected.tickets.length, icon: Headphones, color: "#ef4444" },
           ].map(s => (
             <div key={s.label} className="rounded-xl p-3 border text-center"
               style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.08)" }}>
@@ -131,11 +134,11 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {/* Profiles */}
             <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <h4 className="text-sm font-black text-white flex items-center gap-2"><QrCode className="w-4 h-4 text-orange-400" /> Profiles ({selected.profiles.length})</h4>
+                <h4 className="text-sm font-black text-white flex items-center gap-2"><QrCode className="w-4 h-4 text-orange-400" /> {t("admin_profiles",language)} ({selected.profiles.length})</h4>
               </div>
               <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
                 {selected.profiles.length === 0 ? (
-                  <p className="px-4 py-6 text-sm text-center" style={{ color: "rgba(255,255,255,0.2)" }}>No profiles</p>
+                  <p className="px-4 py-6 text-sm text-center" style={{ color: "rgba(255,255,255,0.2)" }}>{t("admin_no_profiles",language)}</p>
                 ) : selected.profiles.map(p => (
                   <div key={p.id} className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                     {p.profile_photo
@@ -146,7 +149,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
                       <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>/{p.username}</p>
                     </div>
                     <a href={`/p/${p.username}`} target="_blank" rel="noopener" className="text-xs font-bold flex items-center gap-1" style={{ color: "#f97316" }}>
-                      View <ExternalLink className="w-3 h-3" />
+                      {t("admin_view",language)} <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 ))}
@@ -156,11 +159,11 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {/* Devices */}
             <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <h4 className="text-sm font-black text-white flex items-center gap-2"><Smartphone className="w-4 h-4 text-violet-400" /> Devices ({selected.devices.length})</h4>
+                <h4 className="text-sm font-black text-white flex items-center gap-2"><Smartphone className="w-4 h-4 text-violet-400" /> {t("admin_devices",language)} ({selected.devices.length})</h4>
               </div>
               <div>
                 {selected.devices.length === 0 ? (
-                  <p className="px-4 py-6 text-sm text-center" style={{ color: "rgba(255,255,255,0.2)" }}>No devices</p>
+                  <p className="px-4 py-6 text-sm text-center" style={{ color: "rgba(255,255,255,0.2)" }}>{t("admin_no_devices",language)}</p>
                 ) : selected.devices.map(d => (
                   <div key={d.id} className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -184,7 +187,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {selected.assets.length > 0 && (
               <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                 <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Package className="w-4 h-4 text-cyan-400" /> Assets ({selected.assets.length})</h4>
+                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Package className="w-4 h-4 text-cyan-400" /> {t("admin_assets",language)} ({selected.assets.length})</h4>
                 </div>
                 <div>
                   {selected.assets.map(a => (
@@ -208,21 +211,21 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {/* Subscription */}
             <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
               <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <h4 className="text-sm font-black text-white flex items-center gap-2"><CreditCard className="w-4 h-4 text-emerald-400" /> Subscription</h4>
+                <h4 className="text-sm font-black text-white flex items-center gap-2"><CreditCard className="w-4 h-4 text-emerald-400" /> {t("admin_subscription",language)}</h4>
               </div>
               <div className="p-4 space-y-2">
                 {selected.sub ? (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span style={{ color: "rgba(255,255,255,0.4)" }}>Plan</span>
+                      <span style={{ color: "rgba(255,255,255,0.4)" }}>{t("admin_plan",language)}</span>
                       <span className="font-bold text-white">{PLAN_LABELS[selected.sub.plan] || selected.sub.plan}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span style={{ color: "rgba(255,255,255,0.4)" }}>Status</span>
+                      <span style={{ color: "rgba(255,255,255,0.4)" }}>{t("admin_status",language)}</span>
                       <span className="font-bold capitalize" style={{ color: selected.sub.status === "active" ? "#22c55e" : "rgba(255,255,255,0.6)" }}>{selected.sub.status}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span style={{ color: "rgba(255,255,255,0.4)" }}>Source</span>
+                      <span style={{ color: "rgba(255,255,255,0.4)" }}>{t("admin_source",language)}</span>
                       <span className="font-bold text-white">{selected.sub.plan_source || (selected.sub.stripe_subscription_id ? "stripe" : "manual")}</span>
                     </div>
                     {selected.sub.stripe_subscription_id && (
@@ -233,7 +236,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
                     )}
                   </>
                 ) : (
-                  <p className="text-sm text-center py-3" style={{ color: "rgba(255,255,255,0.2)" }}>No subscription record</p>
+                  <p className="text-sm text-center py-3" style={{ color: "rgba(255,255,255,0.2)" }}>{t("admin_no_subscription",language)}</p>
                 )}
               </div>
             </div>
@@ -242,14 +245,14 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {selected.leads.length > 0 && (
               <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                 <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Star className="w-4 h-4 text-green-400" /> Recent Leads ({selected.leads.length})</h4>
+                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Star className="w-4 h-4 text-green-400" /> {t("admin_recent_leads",language)} ({selected.leads.length})</h4>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {selected.leads.slice(0, 5).map(l => (
                     <div key={l.id} className="px-4 py-2.5 flex items-center gap-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                       <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: "#f97316" }}>{l.name?.charAt(0) || "?"}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white truncate">{l.name || "Anonymous"}</p>
+                        <p className="text-sm font-bold text-white truncate">{l.name || t("admin_anonymous",language)}</p>
                         <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>{l.created_date?.slice(0, 10)}</p>
                       </div>
                     </div>
@@ -262,7 +265,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {selected.appointments.length > 0 && (
               <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                 <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <h4 className="text-sm font-black text-white flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400" /> Appointments ({selected.appointments.length})</h4>
+                  <h4 className="text-sm font-black text-white flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-yellow-400" /> {t("admin_appointments",language)} ({selected.appointments.length})</h4>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {selected.appointments.slice(0, 5).map(a => (
@@ -283,7 +286,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
             {selected.tickets.length > 0 && (
               <div className="rounded-2xl border overflow-hidden" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
                 <div className="px-4 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Headphones className="w-4 h-4 text-red-400" /> Support ({selected.tickets.length})</h4>
+                  <h4 className="text-sm font-black text-white flex items-center gap-2"><Headphones className="w-4 h-4 text-red-400" /> {t("admin_support",language)} ({selected.tickets.length})</h4>
                 </div>
                 <div className="max-h-48 overflow-y-auto">
                   {selected.tickets.slice(0, 5).map(t => (
@@ -307,7 +310,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
         <input className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm font-medium outline-none"
-          placeholder="Search by name or email..."
+          placeholder={t("admin_search_accounts",language)}
           value={search} onChange={e => setSearch(e.target.value)}
           style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }} />
       </div>
@@ -317,7 +320,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
         <div className="hidden sm:flex items-center gap-3 px-5 py-2.5 flex-shrink-0"
           style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>Account</p>
+            <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{t("admin_account",language)}</p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             {SUMMARY_COLS.map(c => (
@@ -335,7 +338,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
           {filtered.length === 0 ? (
             <div className="text-center py-12" style={{ color: "rgba(255,255,255,0.2)" }}>
               <User className="w-10 h-10 mx-auto mb-2 opacity-20" />
-              <p>No accounts found</p>
+              <p>{t("admin_no_accounts",language)}</p>
             </div>
           ) : filtered.map(({ user: u, profiles: up, devices: ud, assets: ua, leads: ul, appointments: ua2, tickets: ut, sub }) => {
             const plan = sub?.plan || up[0]?.plan || "free";
