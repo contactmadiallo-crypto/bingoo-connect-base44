@@ -172,14 +172,14 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md max-h-[94dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain animate-in slide-in-from-bottom" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {/* Mobile drag handle */}
         <div className="sm:hidden flex justify-center pt-2 pb-0">
           <div className="w-10 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
         </div>
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between sticky top-0 z-10 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: color + "20" }}>
               <CalendarDays className="w-5 h-5" style={{ color }} />
@@ -196,19 +196,19 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* STEP 1 — Pick date & time */}
           {step === 1 && (
             <div className="space-y-5">
               <div className="flex items-center justify-between mb-2">
-                <button onClick={() => setWeekOffset(w => Math.max(0, w - 1))} disabled={weekOffset === 0}
-                  className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors">
+                <button aria-label={language === "fr" ? "Semaine précédente" : "Previous week"} onClick={() => setWeekOffset(w => Math.max(0, w - 1))} disabled={weekOffset === 0}
+                  className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   {weekStart.toLocaleDateString(locale, { month: "short", day: "numeric" })} – {addDays(weekStart, 6).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}
                 </p>
-                <button onClick={() => setWeekOffset(w => w + 1)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <button aria-label={language === "fr" ? "Semaine suivante" : "Next week"} onClick={() => setWeekOffset(w => w + 1)} className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors">
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -240,7 +240,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                   {slots.length === 0 ? (
                     <p className="text-slate-400 text-sm text-center py-4">{t("book_no_slots",language)}</p>
                   ) : (
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {slots.map(s => (
                         <button key={s} onClick={() => setSelectedSlot(s)}
                           className={`py-2 rounded-xl text-sm font-semibold transition-all border ${selectedSlot === s ? "text-white border-transparent shadow" : "border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:border-blue-300 bg-white dark:bg-slate-800"}`}
@@ -367,9 +367,9 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
 
               {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-xl">{error}</p>}
 
-              <div className="flex gap-3 pt-1">
-                <Button variant="outline" onClick={() => setStep(1)} className="flex-1">← {t("book_back",language)}</Button>
-                <Button disabled={saving} onClick={handleBook} className="flex-1 font-bold" style={{ background: color }}>
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-1">
+                <Button variant="outline" onClick={() => setStep(1)} className="flex-1 min-h-[44px]">← {t("book_back",language)}</Button>
+                <Button disabled={saving} onClick={handleBook} className="flex-1 min-h-[44px] font-bold" style={{ background: color }}>
                   {saving ? t("book_booking",language) : t(profileType === "restaurant" ? "book_reserve_table" : "book_confirm",language)}
                 </Button>
               </div>
