@@ -175,7 +175,7 @@ export default function FeedbackSection() {
                       type="email"
                       value={form.email}
                       onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                      placeholder="your@email.com"
+                      placeholder="email@example.com"
                       className="w-full rounded-xl border-2 border-slate-200 focus:border-blue-400 focus:outline-none px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 transition-colors"
                     />
                   </div>
