@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { motion } from "framer-motion";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
@@ -22,6 +24,7 @@ function Section({ title, children, color }) {
 }
 
 export default function ProfileResumeSection({ profileId, color, isDark, showDivider }) {
+  const { language } = useI18n();
   const { data: attachedResume, isLoading: loading } = useQuery({
     queryKey: ["attached-resume", profileId],
     queryFn: async () => {
@@ -51,7 +54,7 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
     {showDivider && (
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
         <span style={{ fontSize: 18 }}>📄</span>
-        <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>Experience & Resume</span>
+        <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>{t("resume_public_section",language)}</span>
       </div>
     )}
     <motion.div
@@ -74,7 +77,7 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
           <div>
             <p style={{ margin: 0, fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "rgba(255,255,255,0.7)", marginBottom: 4 }}>
-              📄 Resume / Experience
+              📄 {t("resume_public_header",language)}
             </p>
             <h3 style={{ margin: 0, fontSize: 20, fontWeight: 900, color: "#fff" }}>{r.display_name}</h3>
             {(r.job_title || r.company_name) && (
@@ -96,7 +99,7 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
               textDecoration: "none", whiteSpace: "nowrap",
             }}
           >
-            Full Resume ↗
+            {t("resume_full",language)} ↗
           </a>
         </div>
 
@@ -128,13 +131,13 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
       {/* Body */}
       <div style={{ padding: "20px 22px" }}>
         {r.bio && (
-          <Section title="Summary" color={c}>
+          <Section title={t("resume_section_summary",language)} color={c}>
             <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.75, color: mutedColor, fontWeight: 500 }}>{r.bio}</p>
           </Section>
         )}
 
         {skills.length > 0 && (
-          <Section title="Skills" color={c}>
+          <Section title={t("resume_section_skills",language)} color={c}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
               {skills.map(skill => (
                 <span key={skill} style={{
@@ -150,13 +153,13 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
         )}
 
         {r.experience && (
-          <Section title="Experience" color={c}>
+          <Section title={t("resume_section_experience",language)} color={c}>
             <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.75, color: mutedColor, whiteSpace: "pre-line", fontWeight: 500 }}>{r.experience}</p>
           </Section>
         )}
 
         {r.education && (
-          <Section title="Education" color={c}>
+          <Section title={t("resume_section_education",language)} color={c}>
             <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.75, color: mutedColor, whiteSpace: "pre-line", fontWeight: 500 }}>{r.education}</p>
           </Section>
         )}
