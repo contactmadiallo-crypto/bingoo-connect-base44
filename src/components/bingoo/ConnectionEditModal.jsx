@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useI18n } from '@/lib/I18nContext';
 
 const RELATIONSHIP_TYPES = [
   { value: 'client', label: 'Client' },
@@ -29,6 +30,8 @@ const SOURCES = [
 ];
 
 export default function ConnectionEditModal({ lead, isDark, onClose }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const qc = useQueryClient();
   const [form, setForm] = useState({});
 
@@ -83,7 +86,7 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10 bg-inherit rounded-t-2xl">
           <div>
-            <h3 className={`font-black text-base ${t.text}`}>Edit Connection</h3>
+            <h3 className={`font-black text-base ${t.text}`}>{tr('Edit Connection', 'Modifier la connexion')}</h3>
             <p className={`text-xs ${t.sub}`}>{lead.name || lead.email || 'Connection details'}</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
@@ -95,49 +98,49 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
         <div className="p-4 space-y-3">
           {/* Basic info */}
           <div className="grid grid-cols-2 gap-3">
-            <div><Label className={`text-xs ${t.label}`}>Name</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={t.input} /></div>
-            <div><Label className={`text-xs ${t.label}`}>Phone</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={t.input} /></div>
-            <div className="col-span-2"><Label className={`text-xs ${t.label}`}>Email</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={t.input} /></div>
+            <div><Label className={`text-xs ${t.label}`}>{tr('Name', 'Nom')}</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={t.input} /></div>
+            <div><Label className={`text-xs ${t.label}`}>{tr('Phone', 'Téléphone')}</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={t.input} /></div>
+            <div className="col-span-2"><Label className={`text-xs ${t.label}`}>{tr('Email', 'E-mail')}</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={t.input} /></div>
           </div>
 
           {/* Connection context */}
           <div className={`pt-2 border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
-            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>Connection Context</p>
+            <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>{tr('Connection Context', 'Contexte de la connexion')}</p>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className={`text-xs ${t.label}`}>Where First Met</Label><Input value={form.where_first_met} onChange={e => setForm({ ...form, where_first_met: e.target.value })} placeholder="Conference, cafe..." className={t.input} /></div>
-              <div><Label className={`text-xs ${t.label}`}>When First Met</Label><Input type="date" value={form.when_first_met} onChange={e => setForm({ ...form, when_first_met: e.target.value })} className={t.input} /></div>
-              <div><Label className={`text-xs ${t.label}`}>Event Name</Label><Input value={form.event_name} onChange={e => setForm({ ...form, event_name: e.target.value })} placeholder="Event or context" className={t.input} /></div>
+              <div><Label className={`text-xs ${t.label}`}>{tr('Where First Met', 'Lieu de la première rencontre')}</Label><Input value={form.where_first_met} onChange={e => setForm({ ...form, where_first_met: e.target.value })} placeholder={tr('Conference, cafe...', 'Conférence, café…')} className={t.input} /></div>
+              <div><Label className={`text-xs ${t.label}`}>{tr('When First Met', 'Date de la première rencontre')}</Label><Input type="date" value={form.when_first_met} onChange={e => setForm({ ...form, when_first_met: e.target.value })} className={t.input} /></div>
+              <div><Label className={`text-xs ${t.label}`}>{tr('Event Name', 'Nom de l’événement')}</Label><Input value={form.event_name} onChange={e => setForm({ ...form, event_name: e.target.value })} placeholder={tr('Event or context', 'Événement ou contexte')} className={t.input} /></div>
               <div>
-                <Label className={`text-xs ${t.label}`}>Relationship Type</Label>
+                <Label className={`text-xs ${t.label}`}>{tr('Relationship Type', 'Type de relation')}</Label>
                 <select value={form.relationship_type} onChange={e => setForm({ ...form, relationship_type: e.target.value })}
                   className={`w-full h-9 rounded-md border text-sm ${t.input}`}>
                   {RELATIONSHIP_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
               </div>
               <div>
-                <Label className={`text-xs ${t.label}`}>Source</Label>
+                <Label className={`text-xs ${t.label}`}>{tr('Source', 'Source')}</Label>
                 <select value={form.source} onChange={e => setForm({ ...form, source: e.target.value })}
                   className={`w-full h-9 rounded-md border text-sm ${t.input}`}>
                   {SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
               </div>
-              <div><Label className={`text-xs ${t.label}`}>Follow-up Date</Label><Input type="date" value={form.follow_up_date} onChange={e => setForm({ ...form, follow_up_date: e.target.value })} className={t.input} /></div>
+              <div><Label className={`text-xs ${t.label}`}>{tr('Follow-up Date', 'Date de suivi')}</Label><Input type="date" value={form.follow_up_date} onChange={e => setForm({ ...form, follow_up_date: e.target.value })} className={t.input} /></div>
             </div>
             <div className="mt-3">
-              <Label className={`text-xs ${t.label}`}>Category Tags (comma-separated)</Label>
-              <Input value={form.category_tags} onChange={e => setForm({ ...form, category_tags: e.target.value })} placeholder="VIP, hot-lead, follow-up..." className={t.input} />
+              <Label className={`text-xs ${t.label}`}>{tr('Category Tags (comma-separated)', 'Étiquettes de catégorie (séparées par des virgules)')}</Label>
+              <Input value={form.category_tags} onChange={e => setForm({ ...form, category_tags: e.target.value })} placeholder={tr('VIP, hot-lead, follow-up...', 'VIP, prospect prioritaire, suivi…')} className={t.input} />
             </div>
             <div className="mt-3">
-              <Label className={`text-xs ${t.label}`}>Meeting Context</Label>
-              <Textarea value={form.meeting_context} onChange={e => setForm({ ...form, meeting_context: e.target.value })} placeholder="What was the meeting about?" className={t.input} rows={2} />
+              <Label className={`text-xs ${t.label}`}>{tr('Meeting Context', 'Contexte de la rencontre')}</Label>
+              <Textarea value={form.meeting_context} onChange={e => setForm({ ...form, meeting_context: e.target.value })} placeholder={tr('What was the meeting about?', 'Quel était l’objet de la rencontre ?')} className={t.input} rows={2} />
             </div>
             <div className="mt-3">
-              <Label className={`text-xs ${t.label}`}>Latest Interaction</Label>
-              <Textarea value={form.latest_interaction} onChange={e => setForm({ ...form, latest_interaction: e.target.value })} placeholder="Summary of last contact" className={t.input} rows={2} />
+              <Label className={`text-xs ${t.label}`}>{tr('Latest Interaction', 'Dernière interaction')}</Label>
+              <Textarea value={form.latest_interaction} onChange={e => setForm({ ...form, latest_interaction: e.target.value })} placeholder={tr('Summary of last contact', 'Résumé du dernier contact')} className={t.input} rows={2} />
             </div>
             <div className="mt-3">
-              <Label className={`text-xs ${t.label}`}>Internal CRM Notes</Label>
-              <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder="Private notes..." className={t.input} rows={3} />
+              <Label className={`text-xs ${t.label}`}>{tr('Internal CRM Notes', 'Notes CRM internes')}</Label>
+              <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} placeholder={tr('Private notes...', 'Notes privées…')} className={t.input} rows={3} />
             </div>
           </div>
 
