@@ -298,8 +298,8 @@ export function UnsavedProfileSwitchModal({ profile, onCancel, onConfirm, isDark
   const { language } = useI18n();
   const tr = (en, fr) => language === 'fr' ? fr : en;
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="unsaved-profile-title">
-      <div className={`w-full max-w-md rounded-3xl border shadow-2xl p-6 ${isDark ? "bg-[#111827] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"}`}>
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="unsaved-profile-title">
+      <div className={`w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border shadow-2xl p-5 sm:p-6 max-h-[92dvh] overflow-y-auto overscroll-contain ${isDark ? "bg-[#111827] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"}`}>
         <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
           <UserRound className="w-6 h-6" />
         </div>
