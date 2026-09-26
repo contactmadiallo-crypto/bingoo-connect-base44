@@ -578,25 +578,25 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {t("nfc_admin_test",language)}</a>
                   </div>
                   <div className="flex items-center gap-1 flex-wrap pt-1">
-                    <button aria-label={language === "fr" ? "Modifier l’appareil" : "Edit device" onClick={() => setEditingDevice({ ...d })}
+                    <button aria-label={language === "fr" ? "Modifier l’appareil" : "Edit device"} onClick={() => setEditingDevice({ ...d })}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <Edit className="w-4 h-4 text-blue-400" />
                     </button>
-                    <button aria-label={language === "fr" ? "Attribuer l’appareil" : "Assign device" onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
+                    <button aria-label={language === "fr" ? "Attribuer l’appareil" : "Assign device"} onClick={() => { setAssignDevice(d); setAssignProfileId(d.profile_id || ""); }}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <ArrowRightLeft className="w-4 h-4 text-purple-400" />
                     </button>
                     {d.profile_id && (
-                      <button aria-label={language === "fr" ? "Désattribuer l’appareil" : "Unassign device" onClick={() => handleUnassign(d)}
+                      <button aria-label={language === "fr" ? "Désattribuer l’appareil" : "Unassign device"} onClick={() => handleUnassign(d)}
                         className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                         <RotateCcw className="w-4 h-4 text-yellow-400" />
                       </button>
                     )}
-                    <button aria-label={language === "fr" ? "Remplacer l’appareil" : "Replace device" onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
+                    <button aria-label={language === "fr" ? "Remplacer l’appareil" : "Replace device"} onClick={() => { setReplaceDevice(d); setReplaceNewCode(padCode(nextBgNumber())); setReplaceType(d.device_type); }}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <RefreshCw className="w-4 h-4 text-cyan-400" />
                     </button>
-                    <button aria-label={language === "fr" ? "Supprimer l’appareil" : "Delete device" onClick={() => setDeleteConfirm(d)}
+                    <button aria-label={language === "fr" ? "Supprimer l’appareil" : "Delete device"} onClick={() => setDeleteConfirm(d)}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10">
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </button>
