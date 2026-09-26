@@ -11,6 +11,7 @@ import {
   Smartphone,
   UserRound,
 } from "lucide-react";
+import { useI18n } from '@/lib/I18nContext';
 
 const STATUS_STYLES = {
   Live: "bg-emerald-100 text-emerald-700",
