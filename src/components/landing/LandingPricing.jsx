@@ -144,6 +144,8 @@ export default function LandingPricing() {
             const planName = localized?.name || p.name;
             const planDesc = localized?.tagline || p.desc;
             const planFeatures = localized?.features || p.features;
+            const planPrice = p.contactSales ? t("landing_custom",language) : p.price;
+            const planPeriod = p.period ? t("landing_per_month",language) : "";
             const planCta = p.id === "free" ? t("landing_get_started_free",language) : p.contactSales ? t("landing_contact_sales",language) : `${t("landing_get_plan",language)} ${planName}`;
             return (
             <motion.div key={p.id} variants={fadeUp}
@@ -164,8 +166,8 @@ export default function LandingPricing() {
                 <p className="text-sm font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{planDesc}</p>
                 <h3 className="font-black text-xl mb-3" style={{ color: p.highlight ? "#fff" : B.navy }}>{planName}</h3>
                 <div>
-                  <span className="text-4xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{p.price}</span>
-                  <span className="text-sm ml-1" style={{ color: p.highlight ? "rgba(255,255,255,0.4)" : B.slate }}>{p.period}</span>
+                  <span className="text-4xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{planPrice}</span>
+                  <span className="text-sm ml-1" style={{ color: p.highlight ? "rgba(255,255,255,0.4)" : B.slate }}>{planPeriod}</span>
                 </div>
               </div>
               <div className="h-px my-4" style={{ background: p.highlight ? "rgba(255,255,255,0.1)" : "#f1f5f9" }} />
