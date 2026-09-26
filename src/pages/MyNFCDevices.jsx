@@ -383,7 +383,7 @@ export default function MyNFCDevices() {
 
   return (
     <BingooLayout selectedProfile={firstProfile} accountPlan={accountPlan}>
-      <div className="px-4 pb-10 pt-2 md:px-6 max-w-5xl mx-auto space-y-6">
+      <div className="px-3 sm:px-4 pb-10 pt-2 md:px-6 max-w-5xl mx-auto space-y-5 sm:space-y-6 min-w-0 overflow-x-hidden">
         <ScreenPullToRefresh onRefresh={() => qc.invalidateQueries()} disabled={showActivate || !!lostDialogDevice || !!replaceDialogDevice || !!reassignDialogDevice} />
 
         {/* Header */}
@@ -394,7 +394,7 @@ export default function MyNFCDevices() {
           </div>
             <Button
               onClick={() => navigate("/activate-device")}
-              className="h-12 px-6 rounded-xl font-black gap-2 flex-shrink-0"
+              className="h-12 px-5 sm:px-6 rounded-xl font-black gap-2 flex-shrink-0 w-full sm:w-auto"
               style={{ background: "#f97316", color: "#fff" }}
             >
               <Plus className="w-5 h-5" /> {t("nfc_activate_device", language)}
@@ -408,7 +408,7 @@ export default function MyNFCDevices() {
             { label: t("nfc_unassigned", language), value: unassignedCount, icon: X, color: "#64748b", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f8fafc" },
             { label: t("nfc_total_taps", language), value: totalScans, icon: Zap, color: "#f97316", iconBg: isDark ? "rgba(249,115,22,.12)" : "#fff7ed" },
           ].map(stat => (
-            <div key={stat.label} className="rounded-2xl border p-4 sm:p-5 min-h-[150px] flex flex-col justify-between" style={{ background: bg, borderColor: border }}>
+            <div key={stat.label} className="rounded-2xl border p-3.5 sm:p-5 min-h-[132px] sm:min-h-[150px] flex flex-col justify-between min-w-0" style={{ background: bg, borderColor: border }}>
               <span className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: stat.iconBg }}>
                 <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
               </span>
@@ -427,7 +427,7 @@ export default function MyNFCDevices() {
               initial={{ opacity: 0, y: -12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="rounded-2xl p-6 space-y-4"
+              className="rounded-2xl p-4 sm:p-6 space-y-4 min-w-0"
               style={{ background: bg, border: `1px solid ${border}` }}
             >
               <div className="flex items-center justify-between">
@@ -445,7 +445,7 @@ export default function MyNFCDevices() {
                 <span>{t("nfc_code_hint", language)}</span>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   className={`${inputCls} flex-1 font-mono`}
                   placeholder="BG-000001"
@@ -454,7 +454,7 @@ export default function MyNFCDevices() {
                   onKeyDown={e => e.key === "Enter" && handleActivateCode()}
                 />
                 <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
-                  className="font-bold px-6"
+                  className="font-bold px-6 min-h-[44px] w-full sm:w-auto"
                   style={{ background: "#22c55e", color: "#fff" }}>
                   {activating ? t("nfc_checking_short", language) : t("nfc_activate_short", language)}
                 </Button>
@@ -562,7 +562,7 @@ export default function MyNFCDevices() {
                   style={{ background: bg, border: `1px solid ${isLost ? "rgba(239,68,68,0.3)" : border}` }}>
 
                   {/* Card Header */}
-                  <div className="p-4 flex items-center gap-3">
+                  <div className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden ${isLost ? "bg-red-500/15" : isDisabled ? "bg-slate-500/15" : "bg-gradient-to-br from-orange-500/20 to-amber-500/20"}`}>
                       {device.product_image ? (
                         <img src={device.product_image} alt={device.product_name || typeInfo.label} className="w-full h-full object-cover" />
@@ -592,12 +592,12 @@ export default function MyNFCDevices() {
                     <div className="flex items-center gap-1 flex-shrink-0">
                       {!isDisabled && (
                         <a href={deviceUrl} target="_blank" rel="noopener noreferrer"
-                          className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-blue-400" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
+                          className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-blue-400" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
                           <ExternalLink className="w-4 h-4" />
                         </a>
                       )}
                       <button onClick={() => setExpandedId(isExpanded ? null : device.id)}
-                        className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
+                        className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
                         {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                     </div>
