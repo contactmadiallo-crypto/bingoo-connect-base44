@@ -10,6 +10,8 @@ import { isAdminSwitcher, isProtectedTestAccount } from '@/lib/testAccounts';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import BingooLayout from '@/components/bingoo/BingooLayout';
+import { useI18n } from '@/lib/I18nContext';
+import { localizePlanText } from '@/lib/planI18n';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -30,15 +32,17 @@ const PRICING = Object.fromEntries(
 );
 
 const STATUS_CONFIG = {
-  active:   { label: 'Active',    icon: CheckCircle2,  color: '#16a34a', bg: '#dcfce7' },
-  free:     { label: 'Free',      icon: Zap,           color: '#64748b', bg: '#f1f5f9' },
-  past_due: { label: 'Past Due',  icon: AlertTriangle, color: '#d97706', bg: '#fef9c3' },
-  canceled: { label: 'Canceled',  icon: XCircle,       color: '#dc2626', bg: '#fee2e2' },
-  trialing: { label: 'Trial',     icon: Star,          color: '#2563eb', bg: '#eff6ff' },
+  active:   { label: ['Active','Actif'],       icon: CheckCircle2,  color: '#16a34a', bg: '#dcfce7' },
+  free:     { label: ['Free','Gratuit'],       icon: Zap,           color: '#64748b', bg: '#f1f5f9' },
+  past_due: { label: ['Past Due','En retard'], icon: AlertTriangle, color: '#d97706', bg: '#fef9c3' },
+  canceled: { label: ['Canceled','Annulé'],    icon: XCircle,       color: '#dc2626', bg: '#fee2e2' },
+  trialing: { label: ['Trial','Essai'],        icon: Star,          color: '#2563eb', bg: '#eff6ff' },
 };
 
 export default function Billing() {
   const { toast } = useToast();
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');
@@ -67,16 +71,16 @@ export default function Billing() {
 
   const handleUpgrade = async (planId) => {
     if (window.self !== window.top) {
-      toast({ title: 'Info', description: 'Checkout is only available from the published app.', variant: 'destructive' });
+      toast({ title: 'Info', description: tr('Checkout is only available from the published app.', 'Le paiement est disponible uniquement depuis l’application publiée.'), variant: 'destructive' });
       return;
     }
     setCheckoutLoading(planId);
     try {
       const res = await base44.functions.invoke('createSubscriptionSession', { plan: planId, billing_cycle: billingCycle });
       if (res.data?.url) window.location.href = res.data.url;
-      else if (res.data?.updated) toast({ title: 'Plan Updated', description: res.data.message });
+      else if (res.data?.updated) toast({ title: tr('Plan Updated', 'Forfait mis à jour'), description: res.data.message });
     } catch (err) {
-      toast({ title: 'Checkout Failed', description: err.message, variant: 'destructive' });
+      toast({ title: tr('Checkout Failed', 'Échec du paiement'), description: err.message, variant: 'destructive' });
     } finally {
       setCheckoutLoading(null);
     }
@@ -84,7 +88,7 @@ export default function Billing() {
 
   const handleManageBilling = async () => {
     if (window.self !== window.top) {
-      toast({ title: 'Info', description: 'Billing management is only available from the published app.', variant: 'destructive' });
+      toast({ title: 'Info', description: tr('Billing management is only available from the published app.', 'La gestion de la facturation est disponible uniquement depuis l’application publiée.'), variant: 'destructive' });
       return;
     }
     setPortalLoading(true);
@@ -92,7 +96,7 @@ export default function Billing() {
       const res = await base44.functions.invoke('createBillingPortalSession', {});
       if (res.data?.url) window.location.href = res.data.url;
     } catch (err) {
-      toast({ title: 'Portal Error', description: err.message, variant: 'destructive' });
+      toast({ title: tr('Portal Error', 'Erreur du portail'), description: err.message, variant: 'destructive' });
     } finally {
       setPortalLoading(false);
     }
@@ -105,13 +109,13 @@ export default function Billing() {
     try {
       const res = await base44.functions.invoke('cancelSubscription', {});
       if (res.data?.success) {
-        toast({ title: 'Subscription Canceled', description: 'Your plan will remain active until the end of the current billing period.' });
+        toast({ title: tr('Subscription Canceled', 'Abonnement annulé'), description: tr('Your plan will remain active until the end of the current billing period.', 'Votre forfait restera actif jusqu’à la fin de la période de facturation en cours.') });
         setTimeout(() => window.location.reload(), 1200);
       } else {
-        toast({ title: 'Cancellation Failed', description: res.data?.error || 'Please try again.', variant: 'destructive' });
+        toast({ title: tr('Cancellation Failed', 'Échec de l’annulation'), description: res.data?.error || tr('Please try again.', 'Veuillez réessayer.'), variant: 'destructive' });
       }
     } catch (err) {
-      toast({ title: 'Cancellation Failed', description: err.message, variant: 'destructive' });
+      toast({ title: tr('Cancellation Failed', 'Échec de l’annulation'), description: err.message, variant: 'destructive' });
     } finally {
       setCancelLoading(false);
       setShowCancelConfirm(false);
@@ -138,10 +142,10 @@ export default function Billing() {
           plan_source: 'admin_override',
         });
       }
-      toast({ title: 'Plan Switched', description: `Now testing: ${PLAN_LABELS[planId]}` });
+      toast({ title: tr('Plan Switched', 'Forfait changé'), description: `${tr('Now testing:', 'Test en cours :')} ${localizePlanText(PLAN_LABELS[planId], language)}` });
       setTimeout(() => window.location.reload(), 800);
     } catch (err) {
-      toast({ title: 'Switch Failed', description: err.message, variant: 'destructive' });
+      toast({ title: tr('Switch Failed', 'Échec du changement'), description: err.message, variant: 'destructive' });
     } finally {
       setAdminSwitching(null);
     }
@@ -163,15 +167,15 @@ export default function Billing() {
         ) : (
         <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
           <div>
-            <h1 className="text-3xl font-black mb-1" style={{ color: B.navy }}>Billing</h1>
-            <p className="text-slate-500">Manage your plan and payment details.</p>
+            <h1 className="text-3xl font-black mb-1" style={{ color: B.navy }}>{tr('Billing', 'Facturation')}</h1>
+            <p className="text-slate-500">{tr('Manage your plan and payment details.', 'Gérez votre forfait et vos informations de paiement.')}</p>
           </div>
 
           {/* Admin Test Switcher */}
           {adminSwitcher && (
             <div className="rounded-2xl border-2 p-6" style={{ background: '#fffbeb', borderColor: '#fbbf24' }}>
-              <h2 className="font-bold text-sm uppercase tracking-wider mb-2" style={{ color: '#92400e' }}>Admin Test Switcher</h2>
-              <p className="text-xs text-amber-700 mb-4">Switch between plans for testing. No payment required.</p>
+              <h2 className="font-bold text-sm uppercase tracking-wider mb-2" style={{ color: '#92400e' }}>{tr('Admin Test Switcher', 'Sélecteur de test admin')}</h2>
+              <p className="text-xs text-amber-700 mb-4">{tr('Switch between plans for testing. No payment required.', 'Changez de forfait pour les tests. Aucun paiement requis.')}</p>
               <div className="flex flex-wrap gap-2">
                 {['free', 'professional', 'business', 'salon', 'lawfirm', 'corporate'].map(p => (
                   <Button key={p} onClick={() => handleAdminSwitch(p)} disabled={adminSwitching === p}
@@ -186,7 +190,7 @@ export default function Billing() {
 
           {/* Current Plan */}
           <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
-            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>Current Plan</h2>
+            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>{tr('Current Plan', 'Forfait actuel')}</h2>
             <div className="flex items-center gap-4 flex-wrap">
               <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: `${B.navy}15`, color: B.navy }}>
@@ -195,19 +199,19 @@ export default function Billing() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
                   <h3 className="text-2xl font-black" style={{ color: B.navy }}>
-                    {PLAN_LABELS[effectivePlan] || 'Free'} Plan
+                    {localizePlanText(PLAN_LABELS[effectivePlan] || 'Free', language)} {tr('Plan', 'Forfait')}
                   </h3>
                   <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
                     style={{ background: status.bg, color: status.color }}>
                     <StatusIcon className="w-3.5 h-3.5" />
-                    {status.label}
+                    {status.label[language === 'fr' ? 1 : 0]}
                   </span>
                 </div>
                 {subscription?.current_period_end && (
                   <p className="text-sm text-slate-500 mt-0.5">
                     {subscription.cancel_at_period_end
-                      ? `Cancels on ${format(new Date(subscription.current_period_end), 'MMM d, yyyy')}`
-                      : `Renews on ${format(new Date(subscription.current_period_end), 'MMM d, yyyy')}`}
+                      ? `${tr('Cancels on', 'Se termine le')} ${format(new Date(subscription.current_period_end), 'MMM d, yyyy')}`
+                      : `${tr('Renews on', 'Renouvellement le')} ${format(new Date(subscription.current_period_end), 'MMM d, yyyy')}`}
                   </p>
                 )}
                 {subscription?.customer_email && (
@@ -221,13 +225,13 @@ export default function Billing() {
                 <Button variant="outline" onClick={handleManageBilling} disabled={portalLoading}
                   className="font-semibold flex items-center gap-2">
                   <CreditCard className="w-4 h-4" />
-                  {portalLoading ? 'Opening...' : 'Manage Payment'}
+                  {portalLoading ? tr('Opening...', 'Ouverture…') : tr('Manage Payment', 'Gérer le paiement')}
                 </Button>
                 {statusKey === 'active' && !subscription?.cancel_at_period_end && (
                   <Button variant="outline" onClick={handleCancelSubscription} disabled={cancelLoading}
                     className="font-semibold flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
                     <XCircle className="w-4 h-4" />
-                    {cancelLoading ? 'Canceling...' : 'Cancel Subscription'}
+                    {cancelLoading ? tr('Canceling...', 'Annulation…') : tr('Cancel Subscription', 'Annuler l’abonnement')}
                   </Button>
                 )}
               </div>
@@ -236,12 +240,12 @@ export default function Billing() {
 
           {/* Plan features */}
           <div className="rounded-2xl border p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
-            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>Your Plan Includes</h2>
+            <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>{tr('Your Plan Includes', 'Votre forfait comprend')}</h2>
             <ul className="space-y-2">
               {planFeatures.map((f, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-slate-600">
                   <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: B.orange }} />
-                  {f}
+                  {localizePlanText(f, language)}
                 </li>
               ))}
             </ul>
@@ -252,7 +256,7 @@ export default function Billing() {
             <div className="rounded-2xl border-2 p-6" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
               <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                 <h2 className="font-bold text-sm uppercase tracking-wider" style={{ color: '#94a3b8' }}>
-                  {effectivePlan === 'free' ? 'Upgrade Your Plan' : 'Upgrade to a Higher Plan'}
+                  {effectivePlan === 'free' ? tr('Upgrade Your Plan', 'Améliorez votre forfait') : tr('Upgrade to a Higher Plan', 'Passer à un forfait supérieur')}
                 </h2>
                 {/* Monthly/Annual toggle */}
                 <div className="flex items-center gap-1 p-1 rounded-xl" style={{ background: '#f1f5f9' }}>
@@ -287,7 +291,7 @@ export default function Billing() {
                     <Button onClick={() => handleUpgrade(p.id)} disabled={checkoutLoading === p.id}
                       className="font-bold flex-shrink-0 flex items-center gap-1 text-xs px-3"
                       style={{ background: p.id === 'professional' ? B.orange : B.navy, color: '#fff', border: 'none' }}>
-                      {checkoutLoading === p.id ? '...' : <><span>Upgrade</span><ArrowRight className="w-3 h-3" /></>}
+                      {checkoutLoading === p.id ? '...' : <><span>{tr('Upgrade', 'Améliorer')}</span><ArrowRight className="w-3 h-3" /></>}
                     </Button>
                   </div>
                 ))}
@@ -298,7 +302,7 @@ export default function Billing() {
           {/* Coming soon plans */}
           {comingSoonPlans.length > 0 && (
             <div className="rounded-2xl border p-6" style={{ background: '#fafafa', borderColor: '#e2e8f0' }}>
-              <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>Coming Soon</h2>
+              <h2 className="font-bold text-sm uppercase tracking-wider mb-4" style={{ color: '#94a3b8' }}>{tr('Coming Soon', 'Bientôt disponible')}</h2>
               <div className="space-y-3">
                 {comingSoonPlans.map(p => (
                   <div key={p.id} className="flex items-center gap-3 p-4 rounded-xl border opacity-60"
@@ -308,13 +312,13 @@ export default function Billing() {
                       {PLAN_ICONS[p.id] || <Zap className="w-4 h-4" />}
                     </div>
                     <div className="flex-1">
-                      <span className="font-black text-sm text-slate-500">{p.name}</span>
-                      <span className="text-xs text-slate-400 ml-2">Coming soon</span>
+                      <span className="font-black text-sm text-slate-500">{localizePlanText(p.name, language)}</span>
+                      <span className="text-xs text-slate-400 ml-2">{tr('Coming soon', 'Bientôt disponible')}</span>
                     </div>
                     <Button disabled
                       className="font-bold flex-shrink-0 flex items-center gap-1 text-xs px-3 opacity-50"
                       style={{ background: '#94a3b8', color: '#fff', border: 'none' }}>
-                      <Lock className="w-3 h-3" /><span>Soon</span>
+                      <Lock className="w-3 h-3" /><span>{tr('Soon', 'Bientôt')}</span>
                     </Button>
                   </div>
                 ))}
@@ -335,10 +339,10 @@ export default function Billing() {
               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
               <div>
                 <p className="font-bold text-sm" style={{ color: '#92400e' }}>
-                  Your subscription is {statusKey === 'past_due' ? 'past due' : 'canceled'}
+                  {tr('Your subscription is', 'Votre abonnement est')} {statusKey === 'past_due' ? tr('past due', 'en retard') : tr('canceled', 'annulé')}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: '#78350f' }}>
-                  Your paid plan has changed under the current billing policy. Your data is safe. Resubscribe anytime to restore the plan's full feature set.
+                  {tr("Your paid plan has changed under the current billing policy. Your data is safe. Resubscribe anytime to restore the plan's full feature set.", 'Votre forfait payant a changé selon la politique de facturation actuelle. Vos données sont conservées. Réabonnez-vous à tout moment pour restaurer toutes les fonctionnalités du forfait.')}
                 </p>
               </div>
             </div>
@@ -348,9 +352,9 @@ export default function Billing() {
         <ConfirmDialog
           open={showCancelConfirm}
           onOpenChange={setShowCancelConfirm}
-          title="Cancel your subscription?"
-          description="You will keep access until the end of your current billing period."
-          confirmLabel="Cancel Subscription"
+          title={tr('Cancel your subscription?', 'Annuler votre abonnement ?')}
+          description={tr('You will keep access until the end of your current billing period.', 'Vous conserverez l’accès jusqu’à la fin de votre période de facturation en cours.')}
+          confirmLabel={tr('Cancel Subscription', 'Annuler l’abonnement')}
           onConfirm={doCancelSubscription}
         />
       </div>
