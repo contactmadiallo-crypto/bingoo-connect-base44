@@ -1,9 +1,12 @@
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const NAVY = '#0b2149';
 const ORANGE = '#f97316';
 
 export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, selectedColor = null }) {
+  const { language } = useI18n();
   const active = product?.availability === 'active';
   const hasProductImage = Boolean(product?.image);
 
@@ -45,8 +48,8 @@ export default function FactoryProductMedia({ product, className = '', compact =
         </div>
         {showLabel && (
           <>
-            <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">Production media pending</p>
-            <p className="text-[10px] text-slate-400 mt-1">This device is not presented as a finished product yet.</p>
+            <p className="text-xs font-black uppercase tracking-[.14em] text-slate-500">{t("product_media_pending",language)}</p>
+            <p className="text-[10px] text-slate-400 mt-1">{t("product_media_pending_copy",language)}</p>
           </>
         )}
       </div>
