@@ -7,12 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X, CalendarDays, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
 
 const LAW_CASE_TYPES = [
-  "Immigration", "Criminal Defense", "Civil Litigation", "Family Law",
-  "Personal Injury", "Business Law", "Real Estate Law", "Other"
+  { value: "Immigration", key: "case_immigration" }, { value: "Criminal Defense", key: "case_criminal_defense" },
+  { value: "Civil Litigation", key: "case_civil_litigation" }, { value: "Family Law", key: "case_family_law" },
+  { value: "Personal Injury", key: "case_personal_injury" }, { value: "Business Law", key: "case_business_law" },
+  { value: "Real Estate Law", key: "case_real_estate_law" }, { value: "Other", key: "case_other" },
 ];
 
 const RATE_LIMIT_KEY = "bingoo_appt_last_submit";
@@ -52,6 +56,8 @@ function getProfileType(profile) {
 }
 
 export default function AppointmentBooking({ profile, onClose, prefilledService, prefilledStylist, analyticsDeviceCode = null }) {
+  const { language } = useI18n();
+  const locale = language === "fr" ? "fr-FR" : "en-US";
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -114,11 +120,11 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
   })() : [];
 
   const handleBook = async () => {
-    if (!form.name || !form.email) { setError("Name and email are required."); return; }
+    if (!form.name || !form.email) { setError(t("book_name_email_required",language)); return; }
     const last = localStorage.getItem(RATE_LIMIT_KEY);
     if (last && Date.now() - parseInt(last) < RATE_LIMIT_MS) {
       const rem = Math.ceil((RATE_LIMIT_MS - (Date.now() - parseInt(last))) / 1000);
-      setError(`Please wait ${rem}s before submitting another booking.`);
+      setError(`${t("book_wait_prefix",language)} ${rem}${t("book_wait_suffix",language)}`);
       return;
     }
     localStorage.setItem(RATE_LIMIT_KEY, Date.now().toString());
@@ -180,12 +186,12 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
             </div>
             <div>
               <h2 className="font-black text-slate-900 dark:text-white">
-                {profileType === "restaurant" ? "Make a Reservation" : "Book an Appointment"}
+                {t(profileType === "restaurant" ? "book_reservation" : "book_appointment",language)}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">with {profile.display_name}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t("book_with",language)} {profile.display_name}</p>
             </div>
           </div>
-          <button onClick={onClose} aria-label="Close" className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} aria-label={t("book_close",language)} className="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
             <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
@@ -200,7 +206,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  {weekStart.toLocaleDateString("en", { month: "short", day: "numeric" })} – {addDays(weekStart, 6).toLocaleDateString("en", { month: "short", day: "numeric", year: "numeric" })}
+                  {weekStart.toLocaleDateString(locale, { month: "short", day: "numeric" })} – {addDays(weekStart, 6).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}
                 </p>
                 <button onClick={() => setWeekOffset(w => w + 1)} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
                   <ChevronRight className="w-4 h-4" />
@@ -219,7 +225,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
                       onClick={() => { setSelectedDate(ds); setSelectedSlot(null); }}
                       className={`flex flex-col items-center py-2 rounded-xl text-xs font-semibold transition-all ${selected ? "text-white shadow-md" : available && !isPast ? "bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" : "bg-slate-50 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"}`}
                       style={selected ? { background: color } : {}}>
-                      <span className="text-xs font-bold uppercase opacity-60">{d.toLocaleDateString("en", { weekday: "short" })}</span>
+                      <span className="text-xs font-bold uppercase opacity-60">{d.toLocaleDateString(locale, { weekday: "short" })}</span>
                       <span>{d.getDate()}</span>
                     </button>
                   );
@@ -229,10 +235,10 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {selectedDate && (
                 <div>
                   <p className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
-                    <Clock className="w-4 h-4" />Available slots
+                    <Clock className="w-4 h-4" />{t("book_available_slots",language)}
                   </p>
                   {slots.length === 0 ? (
-                    <p className="text-slate-400 text-sm text-center py-4">No slots available this day.</p>
+                    <p className="text-slate-400 text-sm text-center py-4">{t("book_no_slots",language)}</p>
                   ) : (
                     <div className="grid grid-cols-4 gap-2">
                       {slots.map(s => (
@@ -249,7 +255,7 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
 
               <Button disabled={!selectedDate || !selectedSlot} onClick={() => setStep(2)}
                 className="w-full h-12 text-base font-bold mt-2" style={{ background: color, borderColor: color }}>
-                Continue →
+                {t("book_continue",language)} →
               </Button>
             </div>
           )}
@@ -260,21 +266,21 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 text-sm flex items-center gap-3 mb-2">
                 <CalendarDays className="w-4 h-4 flex-shrink-0" style={{ color }} />
                 <span className="font-semibold text-slate-700 dark:text-slate-200">
-                  {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
+                  {parseLocalDate(selectedDate).toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })} {t("book_at",language)} {selectedSlot}
                 </span>
               </div>
 
               {/* Common fields */}
               <div>
-                <Label>Your Name *</Label>
-                <Input className="mt-1" placeholder="Full name" value={form.name} onChange={set("name")} />
+                <Label>{t("book_your_name",language)}</Label>
+                <Input className="mt-1" placeholder={t("book_full_name",language)} value={form.name} onChange={set("name")} />
               </div>
               <div>
-                <Label>Email *</Label>
+                <Label>{t("book_email",language)}</Label>
                 <Input className="mt-1" type="email" placeholder="you@example.com" value={form.email} onChange={set("email")} />
               </div>
               <div>
-                <Label>Phone (optional)</Label>
+                <Label>{t("book_phone_optional",language)}</Label>
                 <Input className="mt-1" placeholder="+1 234 567 8900" value={form.phone} onChange={set("phone")} />
               </div>
 
@@ -282,25 +288,25 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {profileType === "salon" && (
                 <>
                   <div>
-                    <Label>Service *</Label>
-                    <Input className="mt-1" placeholder="e.g. Haircut, Color, Nails…" value={form.service_name} onChange={set("service_name")} />
+                    <Label>{t("book_service",language)}</Label>
+                    <Input className="mt-1" placeholder={t("book_service_ph",language)} value={form.service_name} onChange={set("service_name")} />
                   </div>
                   <div>
-                    <Label>Preferred Stylist (optional)</Label>
+                    <Label>{t("book_stylist_optional",language)}</Label>
                     {teamMembers.length > 0 ? (
                       <MobileSelect
                         value={form.stylist_name || "none"}
                         onValueChange={(v) => setForm(f => ({ ...f, stylist_name: v === "none" ? "" : v }))}
                         options={[
-                          { value: "none", label: "No preference" },
+                          { value: "none", label: t("book_no_preference",language) },
                           ...teamMembers.map(m => ({ value: m.name, label: m.role ? `${m.name} — ${m.role}` : m.name }))
                         ]}
-                        placeholder="No preference"
-                        ariaLabel="Preferred stylist"
+                        placeholder={t("book_no_preference",language)}
+                        ariaLabel={t("book_stylist_optional",language)}
                         className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                       />
                     ) : (
-                      <Input className="mt-1" placeholder="Stylist name or 'No preference'" value={form.stylist_name} onChange={set("stylist_name")} />
+                      <Input className="mt-1" placeholder={t("book_stylist_ph",language)} value={form.stylist_name} onChange={set("stylist_name")} />
                     )}
                   </div>
                 </>
@@ -309,12 +315,12 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {/* Restaurant-specific */}
               {profileType === "restaurant" && (
                 <div>
-                  <Label>Number of Guests *</Label>
+                  <Label>{t("book_guests",language)}</Label>
                   <MobileSelect
                     value={String(form.guest_count)}
                     onValueChange={(v) => setForm(f => ({ ...f, guest_count: parseInt(v) }))}
-                    options={[1,2,3,4,5,6,7,8,10,12,15,20].map(n => ({ value: String(n), label: `${n} ${n === 1 ? "guest" : "guests"}` }))}
-                    ariaLabel="Number of guests"
+                    options={[1,2,3,4,5,6,7,8,10,12,15,20].map(n => ({ value: String(n), label: `${n} ${t(n === 1 ? "book_guest" : "book_guests_plural",language)}` }))}
+                    ariaLabel={t("book_guests",language)}
                     className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                   />
                 </div>
@@ -324,24 +330,24 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {profileType === "law_firm" && (
                 <>
                   <div>
-                    <Label>Case Type *</Label>
+                    <Label>{t("book_case_type",language)}</Label>
                     <MobileSelect
                       value={form.case_type}
                       onValueChange={(v) => setForm(f => ({ ...f, case_type: v }))}
-                      options={LAW_CASE_TYPES.map(t => ({ value: t, label: t }))}
-                      ariaLabel="Case type"
+                      options={LAW_CASE_TYPES.map(item => ({ value: item.value, label: t(item.key,language) }))}
+                      ariaLabel={t("book_case_type",language)}
                       className="mt-1 w-full border border-slate-200 rounded-xl px-3 py-2 text-sm dark:bg-slate-800 dark:border-slate-600 dark:text-white"
                     />
                   </div>
                   {form.case_type === "Immigration" && (
                     <div>
-                      <Label>A-Number (if applicable)</Label>
+                      <Label>{t("book_a_number",language)}</Label>
                       <Input className="mt-1" placeholder="A-000-000-000" value={form.a_number} onChange={set("a_number")} />
                     </div>
                   )}
                   <div>
-                    <Label>Case / Reference Number (optional)</Label>
-                    <Input className="mt-1" placeholder="Case number" value={form.case_number} onChange={set("case_number")} />
+                    <Label>{t("book_case_reference",language)}</Label>
+                    <Input className="mt-1" placeholder={t("book_case_number_ph",language)} value={form.case_number} onChange={set("case_number")} />
                   </div>
                 </>
               )}
@@ -349,22 +355,22 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
               {/* General service */}
               {profileType === "general" && (
                 <div>
-                  <Label>Service / Reason (optional)</Label>
-                  <Input className="mt-1" placeholder="What would you like to discuss?" value={form.service_name} onChange={set("service_name")} />
+                  <Label>{t("book_service_reason",language)}</Label>
+                  <Input className="mt-1" placeholder={t("book_service_reason_ph",language)} value={form.service_name} onChange={set("service_name")} />
                 </div>
               )}
 
               <div>
-                <Label>Notes (optional)</Label>
-                <Textarea className="mt-1" placeholder="Any additional information…" value={form.notes} onChange={set("notes")} rows={3} />
+                <Label>{t("book_notes_optional",language)}</Label>
+                <Textarea className="mt-1" placeholder={t("book_notes_ph",language)} value={form.notes} onChange={set("notes")} rows={3} />
               </div>
 
               {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-xl">{error}</p>}
 
               <div className="flex gap-3 pt-1">
-                <Button variant="outline" onClick={() => setStep(1)} className="flex-1">← Back</Button>
+                <Button variant="outline" onClick={() => setStep(1)} className="flex-1">← {t("book_back",language)}</Button>
                 <Button disabled={saving} onClick={handleBook} className="flex-1 font-bold" style={{ background: color }}>
-                  {saving ? "Booking..." : profileType === "restaurant" ? "Reserve Table" : "Confirm Booking"}
+                  {saving ? t("book_booking",language) : t(profileType === "restaurant" ? "book_reserve_table" : "book_confirm",language)}
                 </Button>
               </div>
             </div>
@@ -375,14 +381,14 @@ export default function AppointmentBooking({ profile, onClose, prefilledService,
             <div className="text-center py-6">
               <div className="text-5xl mb-4">{profileType === "restaurant" ? "🍽️" : "🎉"}</div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">
-                {profileType === "restaurant" ? "Reservation Requested!" : "Appointment Requested!"}
+                {t(profileType === "restaurant" ? "book_reservation_requested" : "book_appointment_requested",language)}
               </h3>
               <p className="text-slate-500 dark:text-slate-300 text-sm mb-1">
-                {parseLocalDate(selectedDate).toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })} at {selectedSlot}
-                {form.guest_count && profileType === "restaurant" ? ` · ${form.guest_count} guests` : ""}
+                {parseLocalDate(selectedDate).toLocaleDateString(locale, { weekday: "long", month: "long", day: "numeric" })} {t("book_at",language)} {selectedSlot}
+                {form.guest_count && profileType === "restaurant" ? ` · ${form.guest_count} ${t("book_guests_plural",language)}` : ""}
               </p>
-              <p className="text-slate-400 text-sm mb-6">You'll be notified once confirmed.</p>
-              <Button onClick={onClose} className="font-bold px-8" style={{ background: color }}>Done</Button>
+              <p className="text-slate-400 text-sm mb-6">{t("book_notify_confirmed",language)}</p>
+              <Button onClick={onClose} className="font-bold px-8" style={{ background: color }}>{t("book_done",language)}</Button>
             </div>
           )}
         </div>
