@@ -41,7 +41,7 @@ export default function ReportLostDialog({
                 {t("lost_activate_title", language)}
               </h2>
               <p className={`text-center text-sm mb-4 ${isDark ? "text-white/50" : "text-slate-500"}`}>
-                Device <span className="font-mono font-bold">{device.device_code}</span>
+                {t("nfc_device_singular", language)} <span className="font-mono font-bold">{device.device_code}</span>
               </p>
 
               <div className={`rounded-xl p-3 mb-4 space-y-2 text-xs ${isDark ? "bg-white/5 border border-white/10" : "bg-slate-50 border border-slate-200"}`}>
