@@ -8,7 +8,6 @@ import { ProfileSelectorDropdown, UnsavedProfileSwitchModal } from "@/components
 import ScreenPullToRefresh from "@/components/mobile/ScreenPullToRefresh";
 const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
 const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
-const OnboardingWizard = React.lazy(() => import("@/components/bingoo/OnboardingWizard"));
 const AppointmentsTabMerged = React.lazy(() => import("@/components/bingoo/AppointmentsTabMerged"));
 const ActivityHub = React.lazy(() => import("@/components/bingoo/ActivityHub"));
 const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
@@ -279,7 +278,6 @@ export default function BingooDashboard() {
   const [highlightLeadId, setHighlightLeadId] = useState(null);
   const [highlightAppointmentId, setHighlightAppointmentId] = useState(null);
 
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
@@ -326,18 +324,6 @@ export default function BingooDashboard() {
       throw e;
     }
   };
-
-  // Onboarding trigger
-  const onboardingParam = searchParams.get("onboarding");
-  useEffect(() => {
-    if (!user || profilesLoading) return;
-    const forceOnboarding = onboardingParam === "1" || onboardingParam === "resume";
-    const noProfile = profiles.length === 0;
-    const notDone = !localStorage.getItem(`bingoo_onboarding_done:${user.id}`);
-    if ((noProfile && notDone) || forceOnboarding) {
-      setShowOnboarding(true);
-    }
-  }, [user, profiles, profilesLoading, onboardingParam]);
 
   // Ownership repair
   const [ownershipReady, setOwnershipReady] = useState(false);
@@ -514,11 +500,6 @@ export default function BingooDashboard() {
     navigate(`/bingoo?view=${v}`, { replace: false });
   };
 
-  const launchAI = () => {
-    if (user?.id) localStorage.removeItem(`bingoo_onboarding_done:${user.id}`);
-    setShowOnboarding(true);
-  };
-
   // Language
   const [lang, setLangState] = useState(() => getLang());
   const toggleLang = () => {
@@ -562,7 +543,7 @@ export default function BingooDashboard() {
 
   // Pull-to-refresh: only on safe list/data views, never inside forms/modals.
   const PTR_SAFE_VIEWS = ["home", "hub", "leads", "appointments", "myassets"];
-  const ptrDisabled = !PTR_SAFE_VIEWS.includes(view) || !!liveFormOverride || showOnboarding;
+  const ptrDisabled = !PTR_SAFE_VIEWS.includes(view) || !!liveFormOverride;
   const handlePullRefresh = async () => {
     await qc.invalidateQueries();
     refetchUser();
@@ -581,25 +562,6 @@ export default function BingooDashboard() {
             setPendingProfileId(null);
           }}
         />
-      )}
-
-      {showOnboarding && user && (
-        <React.Suspense fallback={null}>
-        <OnboardingWizard
-          userName={user.full_name}
-          userId={user.id}
-          currentPlan={userPlan}
-          onCreateProfile={() => {
-            setShowOnboarding(false);
-            openNewProfile();
-          }}
-          onDismiss={() => {
-            setShowOnboarding(false);
-            if (profiles.length > 0) openHub();
-            else openNewProfile();
-          }}
-        />
-        </React.Suspense>
       )}
 
       <div className={`min-h-screen ${isDark ? "bg-[#0a0c14]" : "bg-[#f5f7fb]"}`}>
@@ -683,7 +645,6 @@ export default function BingooDashboard() {
               onReorder={saveProfileOrder}
               onSelectProfile={openWorkspace}
               onCreateNew={openNewProfile}
-              onLaunchAI={launchAI}
             />
           )}
 
