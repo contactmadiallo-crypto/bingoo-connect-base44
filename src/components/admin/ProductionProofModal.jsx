@@ -2,6 +2,8 @@ import { useMemo, useRef, useState } from 'react';
 import { X, Download, FileArchive, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProductPreview } from '@/components/bingoo/designStudio/ProductPreview';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const DIMENSIONS = {
   card: '85.60 × 53.98 mm',
@@ -21,6 +23,7 @@ function getDesign(order) {
 function csvEscape(v) { return `"${String(v ?? '').replaceAll('"', '""')}"`; }
 
 export default function ProductionProofModal({ order, onClose }) {
+  const { language } = useI18n();
   const proofRef = useRef(null);
   const [exporting, setExporting] = useState('');
   const { item, manufacturing, design } = useMemo(() => getDesign(order), [order]);
@@ -102,27 +105,27 @@ export default function ProductionProofModal({ order, onClose }) {
     <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-sm overflow-y-auto p-4 md:p-8">
       <div className="max-w-6xl mx-auto rounded-3xl bg-[#081b3d] border border-white/15 shadow-2xl overflow-hidden">
         <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 px-5 py-4 bg-[#081b3d]/95 backdrop-blur border-b border-white/10">
-          <div><p className="text-[10px] tracking-[.22em] font-black text-orange-400">DESIGN STUDIO · MANUFACTURING</p><h2 className="text-xl font-black text-white">Production Proof · {order.order_number}</h2></div>
-          <div className="flex flex-wrap gap-2"><Button onClick={downloadProof} disabled={!!exporting} variant="outline" className="bg-white/5 border-white/15 text-white"><Download className="w-4 h-4 mr-2" />{exporting === 'pdf' ? 'Generating…' : 'Proof PDF'}</Button><Button onClick={downloadPackage} disabled={!!exporting} className="bg-orange-500 hover:bg-orange-600"><FileArchive className="w-4 h-4 mr-2" />{exporting === 'zip' ? 'Packaging…' : 'Manufacturer Package'}</Button><button onClick={onClose} className="p-2 text-white/60 hover:text-white"><X /></button></div>
+          <div><p className="text-[10px] tracking-[.22em] font-black text-orange-400">{t("proof_header",language)}</p><h2 className="text-xl font-black text-white">{t("proof_title",language)} · {order.order_number}</h2></div>
+          <div className="flex flex-wrap gap-2"><Button onClick={downloadProof} disabled={!!exporting} variant="outline" className="bg-white/5 border-white/15 text-white"><Download className="w-4 h-4 mr-2" />{exporting === "pdf" ? t("proof_generating",language) : t("proof_pdf",language)}</Button><Button onClick={downloadPackage} disabled={!!exporting} className="bg-orange-500 hover:bg-orange-600"><FileArchive className="w-4 h-4 mr-2" />{exporting === "zip" ? t("proof_packaging",language) : t("proof_package",language)}</Button><button onClick={onClose} className="p-2 text-white/60 hover:text-white"><X /></button></div>
         </div>
 
         <div ref={proofRef} className="bg-white text-[#0b2149] p-6 md:p-10">
-          <div className="flex justify-between gap-6 border-b border-slate-200 pb-5 mb-7"><div><p className="text-xs font-black tracking-[.2em] text-orange-600">BINGOO CONNECT</p><h1 className="text-3xl font-black mt-1">Production Proof</h1><p className="text-sm text-slate-500 mt-1">Frozen manufacturing reference for paid Design Studio order.</p></div><div className="text-right text-sm"><p className="font-mono font-black">{order.order_number}</p><p className="text-slate-500">{order.customer_name}</p><p className="text-slate-500">Qty {item.quantity || manufacturing.quantity || 1}</p></div></div>
+          <div className="flex justify-between gap-6 border-b border-slate-200 pb-5 mb-7"><div><p className="text-xs font-black tracking-[.2em] text-orange-600">BINGOO CONNECT</p><h1 className="text-3xl font-black mt-1">{t("proof_title",language)}</h1><p className="text-sm text-slate-500 mt-1">{t("proof_reference",language)}</p></div><div className="text-right text-sm"><p className="font-mono font-black">{order.order_number}</p><p className="text-slate-500">{order.customer_name}</p><p className="text-slate-500">{t("proof_qty",language)} {item.quantity || manufacturing.quantity || 1}</p></div></div>
 
           <div className="grid lg:grid-cols-2 gap-8 items-start">
-            <div><p className="text-xs font-black tracking-widest text-slate-400 mb-3">FRONT ARTWORK</p><div className="rounded-3xl bg-slate-50 border border-slate-200 min-h-[330px] flex items-center justify-center overflow-hidden"><ProductPreview {...previewProps} side="front" /></div></div>
-            <div><p className="text-xs font-black tracking-widest text-slate-400 mb-3">BACK ARTWORK</p><div className="rounded-3xl bg-slate-50 border border-slate-200 min-h-[330px] flex items-center justify-center overflow-hidden"><ProductPreview {...previewProps} side="back" /></div></div>
+            <div><p className="text-xs font-black tracking-widest text-slate-400 mb-3">{t("proof_front",language)}</p><div className="rounded-3xl bg-slate-50 border border-slate-200 min-h-[330px] flex items-center justify-center overflow-hidden"><ProductPreview {...previewProps} side="front" /></div></div>
+            <div><p className="text-xs font-black tracking-widest text-slate-400 mb-3">{t("proof_back",language)}</p><div className="rounded-3xl bg-slate-50 border border-slate-200 min-h-[330px] flex items-center justify-center overflow-hidden"><ProductPreview {...previewProps} side="back" /></div></div>
           </div>
 
           <div className="grid md:grid-cols-3 gap-4 mt-8">
-            {[['Product', item.product_name || manufacturing.product_name || `Custom NFC ${productType}`], ['Physical dimensions', DIMENSIONS[productType]], ['Finish', previewProps.finish], ['Base color', previewProps.cardColor], ['Accent color', previewProps.accentColor], ['Bingoo branding', previewProps.removeBranding ? 'Removed' : 'Included'], ['Company / design name', previewProps.nameText || '—'], ['Holder', previewProps.holderName || '—'], ['Role', previewProps.roleText || '—']].map(([label,value]) => <div key={label} className="rounded-xl border border-slate-200 p-3"><p className="text-[10px] uppercase tracking-widest font-black text-slate-400">{label}</p><p className="font-bold mt-1 break-words">{value}</p></div>)}
+            {[[t("proof_product",language), item.product_name || manufacturing.product_name || `${t("proof_custom_device",language)} ${productType}`], [t("proof_dimensions",language), DIMENSIONS[productType] || t("proof_manufacturer_template",language)], [t("proof_finish",language), previewProps.finish], [t("proof_base_color",language), previewProps.cardColor], [t("proof_accent_color",language), previewProps.accentColor], [t("proof_branding",language), previewProps.removeBranding ? t("proof_removed",language) : t("proof_included",language)], [t("proof_design_name",language), previewProps.nameText || "—"], [t("proof_holder",language), previewProps.holderName || "—"], [t("proof_role",language), previewProps.roleText || "—"]].map(([label,value]) => <div key={label} className="rounded-xl border border-slate-200 p-3"><p className="text-[10px] uppercase tracking-widest font-black text-slate-400">{label}</p><p className="font-bold mt-1 break-words">{value}</p></div>)}
           </div>
 
-          {previewProps.logoUrl && <div className="mt-6 rounded-2xl border border-slate-200 p-4 flex items-center gap-4"><img src={previewProps.logoUrl} alt="Customer logo" className="w-16 h-16 object-contain rounded-xl border border-slate-200" /><div><p className="text-[10px] tracking-widest font-black text-slate-400">ORIGINAL CUSTOMER LOGO</p><p className="text-xs text-slate-500 break-all mt-1">{previewProps.logoUrl}</p></div></div>}
+          {previewProps.logoUrl && <div className="mt-6 rounded-2xl border border-slate-200 p-4 flex items-center gap-4"><img src={previewProps.logoUrl} alt={t("proof_customer_logo",language)} className="w-16 h-16 object-contain rounded-xl border border-slate-200" /><div><p className="text-[10px] tracking-widest font-black text-slate-400">{t("proof_original_logo",language)}</p><p className="text-xs text-slate-500 break-all mt-1">{previewProps.logoUrl}</p></div></div>}
 
-          <div className="mt-7 rounded-2xl bg-[#0b2149] text-white p-5"><div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-orange-400" /><p className="font-black">Allocated NFC Programming</p></div><p className="text-xs text-white/60 mt-1">Program each physical chip with its permanent /d/ URL only.</p><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">{codes.length ? codes.map(code => <div key={code} className="rounded-lg bg-white/10 px-3 py-2 font-mono text-sm"><strong className="text-orange-300">{code}</strong><div className="text-[10px] text-white/55 break-all">bingooconnect.com/d/{code}</div></div>) : <p className="text-sm text-white/60">NFC codes allocate after successful payment.</p>}</div></div>
+          <div className="mt-7 rounded-2xl bg-[#0b2149] text-white p-5"><div className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-orange-400" /><p className="font-black">{t("proof_allocated_programming",language)}</p></div><p className="text-xs text-white/60 mt-1">{t("proof_program_copy",language)}</p><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-4">{codes.length ? codes.map(code => <div key={code} className="rounded-lg bg-white/10 px-3 py-2 font-mono text-sm"><strong className="text-orange-300">{code}</strong><div className="text-[10px] text-white/55 break-all">bingooconnect.com/d/{code}</div></div>) : <p className="text-sm text-white/60">{t("proof_codes_after_payment",language)}</p>}</div></div>
 
-          <div className="mt-5 text-[10px] text-slate-400">Generated from the frozen Design Studio configuration stored with this order. Production should not proceed if this proof does not match the customer's approved design.</div>
+          <div className="mt-5 text-[10px] text-slate-400">{t("proof_warning",language)}</div>
         </div>
       </div>
     </div>
