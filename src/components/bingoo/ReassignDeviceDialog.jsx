@@ -59,13 +59,13 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={handleClose} />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={`rounded-3xl p-6 max-w-sm w-full pointer-events-auto ${isDark ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"} shadow-2xl`}
+              className={`rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 sm:max-w-sm w-full max-h-[92dvh] overflow-y-auto overscroll-contain pointer-events-auto ${isDark ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"} shadow-2xl`}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -104,11 +104,11 @@ export default function ReassignDeviceDialog({ open, onClose, device, profiles, 
                     </div>
                   )}
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3">
                     <Button variant="outline" onClick={handleClose} disabled={loading}
-                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
+                      className={`flex-1 min-h-[44px] font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
                     <Button onClick={handleReassign} disabled={loading || !targetId}
-                      className="flex-1 font-bold rounded-xl text-white" style={{ background: "#a855f7" }}>
+                      className="flex-1 min-h-[44px] font-bold rounded-xl text-white" style={{ background: "#a855f7" }}>
                       {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> {t("reassign_moving", language)}</> : <><ArrowRightLeft className="w-4 h-4 mr-1" /> {t("nfc_reassign", language)}</>}
                     </Button>
                   </div>
