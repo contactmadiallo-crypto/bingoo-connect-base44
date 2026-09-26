@@ -5,10 +5,13 @@ import { CreditCard, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const PRODUCT_TYPES = ['card', 'metal_card', 'keychain', 'bracelet', 'sticker', 'tag', 'stand', 'badge', 'bundle'];
 
 export default function AdminProductsTab() {
+  const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -51,11 +54,11 @@ export default function AdminProductsTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><CreditCard className="w-5 h-5" /> Product Catalog</h2>
-          <p className="text-xs text-slate-500">{products.length} products · {products.filter(p => p.is_active).length} active</p>
+          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2"><CreditCard className="w-5 h-5" /> {t("admin_products_catalog",language)}</h2>
+          <p className="text-xs text-slate-500">{products.length} {t("admin_products_count",language)} · {products.filter(p => p.is_active).length} {t("admin_products_active_count",language)}</p>
         </div>
         <Button size="sm" onClick={() => { setEditId(null); setForm({ name: '', description: '', product_type: 'card', category: 'nfc_hardware', price: 0, supplier_cost: 0, stripe_product_id: '', is_active: true, is_coming_soon: false, stock_count: 0, sort_order: 0 }); setShowForm(true); }} className="bg-slate-900 hover:bg-slate-800">
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" /> {t("admin_products_add",language)}
         </Button>
       </div>
 
@@ -63,30 +66,30 @@ export default function AdminProductsTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowForm(false)}>
           <div className="bg-white rounded-2xl p-6 max-w-md w-full space-y-3 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h3 className="font-black text-slate-900">{editId ? 'Edit Product' : 'New Product'}</h3>
+              <h3 className="font-black text-slate-900">{editId ? t("admin_products_edit",language) : t("admin_products_new",language)}</h3>
               <button onClick={() => setShowForm(false)}><X className="w-5 h-5 text-slate-400" /></button>
             </div>
-            <div><Label className="text-xs">Name</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
-            <div><Label className="text-xs">Description</Label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
+            <div><Label className="text-xs">{t("admin_products_name",language)}</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></div>
+            <div><Label className="text-xs">{t("admin_products_description",language)}</Label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Product Type</Label>
+              <div><Label className="text-xs">{t("admin_products_type",language)}</Label>
                 <select className="w-full h-9 rounded-md border border-slate-200 text-sm" value={form.product_type} onChange={e => setForm({ ...form, product_type: e.target.value })}>
                   {PRODUCT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
-              <div><Label className="text-xs">Category</Label><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></div>
-              <div><Label className="text-xs">Price (cents)</Label><Input type="number" value={form.price} onChange={e => setForm({ ...form, price: parseInt(e.target.value) || 0 })} /></div>
-              <div><Label className="text-xs">Supplier Cost (cents)</Label><Input type="number" value={form.supplier_cost} onChange={e => setForm({ ...form, supplier_cost: parseInt(e.target.value) || 0 })} /></div>
-              <div><Label className="text-xs">Stripe Product ID</Label><Input value={form.stripe_product_id} onChange={e => setForm({ ...form, stripe_product_id: e.target.value })} /></div>
-              <div><Label className="text-xs">Stock Count</Label><Input type="number" value={form.stock_count} onChange={e => setForm({ ...form, stock_count: parseInt(e.target.value) || 0 })} /></div>
-              <div><Label className="text-xs">Sort Order</Label><Input type="number" value={form.sort_order} onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} /></div>
+              <div><Label className="text-xs">{t("admin_products_category",language)}</Label><Input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} /></div>
+              <div><Label className="text-xs">{t("admin_products_price",language)}</Label><Input type="number" value={form.price} onChange={e => setForm({ ...form, price: parseInt(e.target.value) || 0 })} /></div>
+              <div><Label className="text-xs">{t("admin_products_cost",language)}</Label><Input type="number" value={form.supplier_cost} onChange={e => setForm({ ...form, supplier_cost: parseInt(e.target.value) || 0 })} /></div>
+              <div><Label className="text-xs">{t("admin_products_stripe_id",language)}</Label><Input value={form.stripe_product_id} onChange={e => setForm({ ...form, stripe_product_id: e.target.value })} /></div>
+              <div><Label className="text-xs">{t("admin_products_stock_count",language)}</Label><Input type="number" value={form.stock_count} onChange={e => setForm({ ...form, stock_count: parseInt(e.target.value) || 0 })} /></div>
+              <div><Label className="text-xs">{t("admin_products_sort_order",language)}</Label><Input type="number" value={form.sort_order} onChange={e => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} /></div>
             </div>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} /> Active</label>
-              <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={form.is_coming_soon} onChange={e => setForm({ ...form, is_coming_soon: e.target.checked })} /> Coming Soon</label>
+              <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} /> {t("admin_products_active",language)}</label>
+              <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={form.is_coming_soon} onChange={e => setForm({ ...form, is_coming_soon: e.target.checked })} /> {t("admin_products_coming_soon",language)}</label>
             </div>
             <Button className="w-full bg-slate-900" onClick={() => saveMut.mutate(form)} disabled={!form.name}>
-              {editId ? 'Update Product' : 'Create Product'}
+              {editId ? t("admin_products_update",language) : t("admin_products_create",language)}
             </Button>
           </div>
         </div>
@@ -98,20 +101,20 @@ export default function AdminProductsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead><tr className="border-b border-slate-200 text-slate-500">
-              <th className="text-left py-2 px-3 font-bold">Name</th>
-              <th className="text-left py-2 px-3 font-bold">Type</th>
-              <th className="text-left py-2 px-3 font-bold">Price</th>
-              <th className="text-left py-2 px-3 font-bold">Cost</th>
-              <th className="text-left py-2 px-3 font-bold">Margin</th>
-              <th className="text-left py-2 px-3 font-bold">Stock</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_name",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_type_col",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_price_col",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_cost_col",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_margin",language)}</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_stock",language)}</th>
               <th className="text-left py-2 px-3 font-bold">Stripe</th>
-              <th className="text-left py-2 px-3 font-bold">Status</th>
+              <th className="text-left py-2 px-3 font-bold">{t("admin_products_status",language)}</th>
               <th className="text-left py-2 px-3 font-bold"></th>
             </tr></thead>
             <tbody>
               {products.map(p => (
                 <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer" onClick={() => openEdit(p)}>
-                  <td className="py-2.5 px-3 font-bold text-slate-900">{p.name}{p.is_coming_soon && <span className="ml-2 text-amber-600">(Soon)</span>}</td>
+                  <td className="py-2.5 px-3 font-bold text-slate-900">{p.name}{p.is_coming_soon && <span className="ml-2 text-amber-600">({t("admin_products_soon",language)})</span>}</td>
                   <td className="py-2.5 px-3 text-slate-600">{p.product_type}</td>
                   <td className="py-2.5 px-3 text-slate-600">{fmtMoney(p.price)}</td>
                   <td className="py-2.5 px-3 text-slate-600">{fmtMoney(p.supplier_cost)}</td>
@@ -121,7 +124,7 @@ export default function AdminProductsTab() {
                   <td className="py-2.5 px-3">
                     <button onClick={e => { e.stopPropagation(); toggleActiveMut.mutate({ id: p.id, is_active: !p.is_active }); }}
                       className={`text-xs font-bold rounded-full px-2 py-1 ${p.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {p.is_active ? 'Active' : 'Hidden'}
+                      {p.is_active ? t("admin_products_active",language) : t("admin_products_hidden",language)}
                     </button>
                   </td>
                   <td className="py-2.5 px-3">

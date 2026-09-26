@@ -4,8 +4,11 @@ import { base44 } from "@/api/base44Client";
 import { useEffect } from "react";
 import LostDevicePage from "./LostDevicePage";
 import DeviceActivationPage from "./DeviceActivationPage";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function NFCRedirect() {
+  const { language } = useI18n();
   const { deviceCode } = useParams();
   const normalizedCode = deviceCode?.toUpperCase().trim();
 
@@ -71,7 +74,7 @@ export default function NFCRedirect() {
             style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
             <span className="text-white font-black text-2xl">B</span>
           </div>
-          <p className="text-white/60 font-semibold">Checking device...</p>
+          <p className="text-white/60 font-semibold">{t("activate_checking",language)}</p>
         </div>
       </div>
     );
@@ -83,9 +86,9 @@ export default function NFCRedirect() {
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "linear-gradient(135deg, #071A3D 0%, #0b2149 100%)" }}>
         <div className="text-center max-w-sm">
           <div className="text-6xl mb-4">📵</div>
-          <h2 className="text-2xl font-bold text-white mb-2">Device Not Found</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{t("redirect_not_found",language)}</h2>
           <p className="text-white/50 text-sm mb-1">
-            Code <span className="font-mono font-bold text-orange-400">{normalizedCode}</span> is not registered.
+            {t("redirect_not_registered_prefix",language)} <span className="font-mono font-bold text-orange-400">{normalizedCode}</span> {t("redirect_not_registered_suffix",language)}
           </p>
           <p className="text-white/30 text-xs mb-6">
             Check the code printed on your device and try again, or activate manually.
@@ -94,9 +97,9 @@ export default function NFCRedirect() {
             <a href={`/activate-device?code=${normalizedCode}`}
               className="inline-block px-6 py-3 rounded-2xl font-bold text-sm transition-all"
               style={{ background: "linear-gradient(135deg, #f97316, #e86e00)", color: "#fff" }}>
-              Try Activate Manually →
+              {t("redirect_manual",language)} →
             </a>
-            <a href="https://bingooconnect.com" className="inline-block text-sm text-orange-400 hover:underline">Go to Bingoo →</a>
+            <a href="https://bingooconnect.com" className="inline-block text-sm text-orange-400 hover:underline">{t("activate_go_bingoo",language)} →</a>
           </div>
         </div>
       </div>
@@ -119,7 +122,7 @@ export default function NFCRedirect() {
             style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
             <span className="text-white font-black text-2xl">B</span>
           </div>
-          <p className="text-white/60 font-semibold">Opening asset recovery page...</p>
+          <p className="text-white/60 font-semibold">{t("redirect_opening_asset",language)}</p>
         </div>
       </div>
     );
@@ -143,7 +146,7 @@ export default function NFCRedirect() {
           style={{ background: "linear-gradient(135deg, #f97316, #FDBA21)" }}>
           <span className="text-white font-black text-2xl">B</span>
         </div>
-        <p className="text-white/60">Redirecting to profile...</p>
+        <p className="text-white/60">{t("redirect_profile",language)}</p>
       </div>
     </div>
   );
