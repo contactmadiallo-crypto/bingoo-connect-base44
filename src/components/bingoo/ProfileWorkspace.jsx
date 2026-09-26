@@ -1125,7 +1125,7 @@ export default function ProfileWorkspace({
       </div>
 
       {/* ── Main layout: exact Figma 3-column architecture ── */}
-      <div className="flex flex-1 min-h-0 max-w-full overflow-hidden">
+      <div className="flex flex-1 min-h-0 max-w-full overflow-visible md:overflow-hidden">
         {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
         <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
           {INNER_TABS.map(tab => (
@@ -1143,7 +1143,7 @@ export default function ProfileWorkspace({
 
         {/* Editing panel */}
         <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
-          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-y-auto px-4 sm:px-7 py-4 sm:py-6">
+          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-visible md:overflow-y-auto px-4 sm:px-7 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
