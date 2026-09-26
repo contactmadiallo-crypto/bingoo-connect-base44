@@ -139,7 +139,13 @@ export default function LandingPricing() {
         {/* ── Plan cards ── */}
         <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
           variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-          {plans.map((p) => {\n            const localized = language === "fr" ? PLAN_FR[p.id] : null;\n            const planName = localized?.name || p.name;\n            const planDesc = localized?.tagline || p.desc;\n            const planFeatures = localized?.features || p.features;\n            const planCta = p.id === "free" ? t("landing_get_started_free",language) : p.contactSales ? t("landing_contact_sales",language) : `${t("landing_get_plan",language)} ${planName}`;\n            return (
+          {plans.map((p) => {
+            const localized = language === "fr" ? PLAN_FR[p.id] : null;
+            const planName = localized?.name || p.name;
+            const planDesc = localized?.tagline || p.desc;
+            const planFeatures = localized?.features || p.features;
+            const planCta = p.id === "free" ? t("landing_get_started_free",language) : p.contactSales ? t("landing_contact_sales",language) : `${t("landing_get_plan",language)} ${planName}`;
+            return (
             <motion.div key={p.id} variants={fadeUp}
               whileHover={{ y: p.highlight ? -10 : -6 }}
               className="rounded-2xl p-7 border-2 transition-all relative flex flex-col"
