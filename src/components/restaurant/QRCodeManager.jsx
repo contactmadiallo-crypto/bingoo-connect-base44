@@ -13,7 +13,6 @@ import { PUBLIC_APP_ORIGIN } from "@/lib/publicProfileUrl";
 export default function QRCodeManager({ restaurant, tables = [] }) {
   const [addTableDialog, setAddTableDialog] = useState(false);
   const [tableNumber, setTableNumber] = useState("");
-  const [selectedTable, setSelectedTable] = useState(null);
   const queryClient = useQueryClient();
 
   const createTableMutation = useMutation({
