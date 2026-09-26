@@ -30,30 +30,10 @@ const trackEvent = (profileId, eventType, deviceCode = null) => {
   }).catch((err) => console.warn("[Analytics] track failed:", eventType, err?.message || err));
 };
 
-const btnRadius = (s) => s === "pill" ? "9999px" : s === "sharp" ? "10px" : "18px";
-
 const hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
   const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
-};
-
-const saveContact = (profile) => {
-  const lines = [
-    "BEGIN:VCARD", "VERSION:3.0",
-    `FN:${profile.display_name || ""}`,
-    profile.company_name ? `ORG:${profile.company_name}` : "",
-    profile.job_title ? `TITLE:${profile.job_title}` : "",
-    profile.phone ? `TEL;TYPE=VOICE:${profile.phone}` : "",
-    profile.whatsapp_number ? `TEL;TYPE=CELL:${profile.whatsapp_number}` : "",
-    profile.email ? `EMAIL:${profile.email}` : "",
-    profile.website ? `URL:${profile.website}` : "",
-    profile.location && profile.show_location !== false ? `ADR:;;${profile.location};;;;` : "",
-    "END:VCARD",
-  ].filter(Boolean).join("\n");
-  const url = URL.createObjectURL(new Blob([lines], { type: "text/vcard" }));
-  Object.assign(document.createElement("a"), { href: url, download: `${(profile.display_name || "contact").replace(/\s+/g, "_")}.vcf` }).click();
-  URL.revokeObjectURL(url);
 };
 
 // ── Demo profile
@@ -317,7 +297,6 @@ export default function PublicProfile() {
   );
 
   const color = profile.cover_color || B.navy;
-  const r = btnRadius(profile.button_style || "pill");
   const track = (ev) => !isDemo && trackEvent(profile.id, ev, deviceCodeParam);
 
   // ── Render championship full-page layouts — pass all content as children
