@@ -283,7 +283,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
         <div className="flex items-center justify-center gap-7 px-6 pb-2">
           {STEPS.map((item, index) => (
             <span key={item.id} className={`text-[10px] font-bold ${step === index ? "text-slate-900" : "text-slate-300"}`}>
-              {item.label}
+              {tr(item.label, ({ Account:'Compte', Plan:'Forfait', Layout:'Mise en page', Launch:'Lancer' }[item.label] || item.label))}
             </span>
           ))}
         </div>
@@ -292,7 +292,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
           <AnimatePresence custom={dir} mode="wait">
             {step === 0 && (
               <motion.div key="account" custom={dir} variants={slideVariants} initial="enter" animate="center" exit="exit" className="px-8 pt-5 pb-6">
-                <h2 className="text-2xl font-black text-slate-900 text-center">Welcome{userName ? `, ${userName.split(" ")[0]}` : ""}!</h2>
+                <h2 className="text-2xl font-black text-slate-900 text-center">{tr('Welcome', 'Bienvenue')}{userName ? `, ${userName.split(" ")[0]}` : ""}!</h2>
                 <p className="text-sm text-slate-500 text-center mt-1 mb-5">{tr('First, choose how you will use Bingoo Connect.', 'Choisissez d’abord comment vous utiliserez Bingoo Connect.')}</p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {ACCOUNT_TYPES.map((option) => (
@@ -302,10 +302,10 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
                         <option.icon className="w-5 h-5" />
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="font-black text-slate-900">{option.label}</p>
+                        <p className="font-black text-slate-900">{localizeOnboarding(option.label, language)}</p>
                         {accountType === option.id && <Check className="w-4 h-4 text-orange-500" />}
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{option.desc}</p>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{localizeOnboarding(option.desc, language)}</p>
                     </button>
                   ))}
                 </div>
@@ -316,7 +316,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
               <motion.div key="plan" custom={dir} variants={slideVariants} initial="enter" animate="center" exit="exit" className="px-8 pt-4 pb-6">
                 <h2 className="text-2xl font-black text-slate-900 text-center">{tr('Choose your plan', 'Choisissez votre forfait')}</h2>
                 <p className="text-sm text-slate-500 text-center mt-1 mb-4">
-                  {accountType === "individual" ? "Start free or unlock Professional features." : "Choose the plan built for your organization."}
+                  {accountType === 'individual' ? tr('Start free or unlock Professional features.', 'Commencez gratuitement ou débloquez les fonctionnalités Professionnel.') : tr('Choose the plan built for your organization.', 'Choisissez le forfait conçu pour votre organisation.')}
                 </p>
                 <div className="space-y-2.5">
                   {planOptions.map((option) => (
@@ -327,10 +327,10 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-black text-sm text-slate-900">{option.label}</p>
-                          {option.badge && <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">{option.badge}</span>}
+                          <p className="font-black text-sm text-slate-900">{localizeOnboarding(option.label, language)}</p>
+                          {option.badge && <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">{localizeOnboarding(option.badge, language)}</span>}
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">{option.desc}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{localizeOnboarding(option.desc, language)}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xs font-black text-slate-900">{option.price}</p>
@@ -342,7 +342,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
                 {selectedPlan !== "free" && (
                   <div className="mt-3 p-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-800 flex gap-2">
                     <Sparkles className="w-4 h-4 flex-shrink-0" />
-                    <span>{selectedPlan === "professional" ? "Your 14-day trial starts securely through Stripe before layout selection." : "Your subscription starts securely through Stripe before layout selection."}</span>
+                    <span>{selectedPlan === 'professional' ? tr('Your 14-day trial starts securely through Stripe before layout selection.', 'Votre essai de 14 jours démarre de façon sécurisée via Stripe avant le choix de la mise en page.') : tr('Your subscription starts securely through Stripe before layout selection.', 'Votre abonnement démarre de façon sécurisée via Stripe avant le choix de la mise en page.')}</span>
                   </div>
                 )}
                 {checkoutError && <p className="text-xs font-semibold text-red-600 mt-3">{checkoutError}</p>}
@@ -375,7 +375,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
                   </div>
                   <div className="flex justify-between p-3 rounded-xl bg-slate-50 text-xs">
                     <span className="font-semibold text-slate-500">{tr('Plan', 'Forfait')}</span>
-                    <span className="font-black text-slate-900">{selectedPlanInfo?.label}</span>
+                    <span className="font-black text-slate-900">{localizeOnboarding(selectedPlanInfo?.label, language)}</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-xl bg-slate-50 text-xs">
                     <span className="font-semibold text-slate-500">{tr('Layout', 'Mise en page')}</span>
