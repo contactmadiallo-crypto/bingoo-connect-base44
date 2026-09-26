@@ -10,9 +10,6 @@ import { t } from "@/lib/i18n";
 
 // Profile types that should see salon/service tools (NOT law firm)
 const SERVICE_PROFILE_TYPES = new Set([TYPE_SALON, TYPE_BUSINESS]);
-// Profile plans that show the Services section
-const SERVICE_PROFILE_PLANS = new Set(["salon", "restaurant", "business"]);
-
 export default function BusinessToolsPanel({ profileId, isDark, userPlan, profile, onSaved }) {
   const { language } = useI18n();
   const effectivePlan = userPlan || "free";
