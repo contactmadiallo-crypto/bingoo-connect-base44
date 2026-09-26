@@ -16,7 +16,6 @@ import { productionCallback } from "@/lib/nativePlatform";
 const HEADING = "#0f172a";
 const SUBTEXT = "#64748b";
 const BORDER = "#e2e8f0";
-const INPUT_BG = "#f9fafb";
 const ORANGE = "#f97316";
 
 const getNextUrl = () => {
