@@ -9,6 +9,7 @@ import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-r
 import { TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "./ProfileLayoutRenderer";
 import { isLayoutDark } from "@/lib/profileLayouts";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const PANEL_WIDTH = 272;
 const PANEL_HEIGHT = 580;
@@ -101,7 +102,7 @@ function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
 
 export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, isDark, previewMode, isLawFirm }) {
   const previewProfile = pendingProfile || profile;
-  const profileUrl = profile?.username ? `https://bingooconnect.com/p/${profile.username}` : null;
+  const profileUrl = publicProfileUrl(profile?.username);
   const label = PREVIEW_LABELS[previewMode] || "Live Preview";
 
   // Desktop: draggable panel state
