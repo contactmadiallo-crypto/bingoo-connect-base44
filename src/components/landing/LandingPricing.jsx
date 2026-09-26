@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Plus, Equal } from "lucide-react";
 import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD } from "@/lib/planPermissions";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
@@ -52,6 +54,7 @@ function ScrollReveal({ children, delay = 0, className = "" }) {
 }
 
 export default function LandingPricing() {
+  const { language } = useI18n();
   useLayoutEffect(() => {
     const legacyUseCasesSection = document.getElementById("use-cases");
     if (legacyUseCasesSection) legacyUseCasesSection.remove();
@@ -64,16 +67,16 @@ export default function LandingPricing() {
         <ScrollReveal className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + "20", color: "#b45309", border: `1px solid ${B.gold}40` }}>
-            Simple Pricing
+            {t("landing_simple_pricing",language)}
           </div>
           <h2 className="text-3xl md:text-4xl font-black mb-4" style={{ color: B.navy }}>
-            Start with the platform.
+            {t("landing_start_platform",language)}
           </h2>
           <p className="text-2xl md:text-3xl font-black mb-3" style={{ color: B.orange }}>
-            Add the device that fits your world.
+            {t("landing_add_device_world",language)}
           </p>
           <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Your Bingoo plan powers your software and business tools. Your Bingoo NFC device is the physical hardware people tap to connect with you.
+            {t("landing_pricing_intro",language)}
           </p>
         </ScrollReveal>
 
@@ -85,9 +88,9 @@ export default function LandingPricing() {
               <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: B.navy + "12" }}>
                 <span className="text-2xl">📱</span>
               </div>
-              <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>Bingoo Plan</h3>
-              <p className="text-slate-500 text-sm">Your software & business tools</p>
-              <p className="text-xs text-slate-400 mt-2">Profile features, leads, analytics, appointments</p>
+              <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>{t("landing_bingoo_plan",language)}</h3>
+              <p className="text-slate-500 text-sm">{t("landing_plan_tools",language)}</p>
+              <p className="text-xs text-slate-400 mt-2">{t("landing_plan_tools_copy",language)}</p>
             </div>
             {/* Plus */}
             <div className="flex items-center justify-center">
@@ -100,9 +103,9 @@ export default function LandingPricing() {
               <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: B.orange + "12" }}>
                 <span className="text-2xl">💳</span>
               </div>
-              <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>Bingoo Device</h3>
-              <p className="text-slate-500 text-sm">How people tap or find you</p>
-              <p className="text-xs text-slate-400 mt-2">NFC cards, tags, stands, asset protection</p>
+              <h3 className="font-black text-base mb-1" style={{ color: B.navy }}>{t("landing_bingoo_device",language)}</h3>
+              <p className="text-slate-500 text-sm">{t("landing_device_tap_find",language)}</p>
+              <p className="text-xs text-slate-400 mt-2">{t("landing_device_types",language)}</p>
             </div>
             {/* Equals */}
             <div className="flex items-center justify-center">
@@ -115,12 +118,12 @@ export default function LandingPricing() {
               <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
                 <span className="text-2xl">✨</span>
               </div>
-              <h3 className="font-black text-base mb-1 text-white">Complete Bingoo Experience</h3>
-              <p className="text-white/60 text-sm">Smart identity, always connected</p>
+              <h3 className="font-black text-base mb-1 text-white">{t("landing_complete_experience",language)}</h3>
+              <p className="text-white/60 text-sm">{t("landing_smart_connected",language)}</p>
             </div>
           </div>
           <p className="text-center text-slate-400 text-sm mt-4 max-w-lg mx-auto">
-            NFC hardware is optional — you can also share your profile via QR code without purchasing a device.
+            {t("landing_hardware_optional",language)}
           </p>
         </ScrollReveal>
 
@@ -139,7 +142,7 @@ export default function LandingPricing() {
               {p.highlight && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-black"
                   style={{ background: B.orange, color: "#fff" }}>
-                  Most Popular
+                  {t("landing_most_popular",language)}
                 </div>
               )}
               <div className="mb-4">
@@ -177,7 +180,7 @@ export default function LandingPricing() {
             <Button size="lg" onClick={() => (window.location.href = "/plans")}
               className="font-black text-base px-10 py-6 rounded-2xl"
               style={{ background: B.navy, color: "#fff", border: "none" }}>
-              Browse All Plans <ArrowRight className="ml-2 w-5 h-5" />
+              {t("landing_browse_plans",language)} <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </motion.div>
         </ScrollReveal>
