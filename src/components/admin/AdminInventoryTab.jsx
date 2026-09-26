@@ -124,11 +124,11 @@ export default function AdminInventoryTab({ activeTab }) {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Device Code</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Type</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Status</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Profile</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Created</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_device_code",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_type",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_status",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_profile",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_created",language)}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -137,7 +137,7 @@ export default function AdminInventoryTab({ activeTab }) {
                     <td className="px-4 py-3 font-mono font-semibold text-slate-700">{d.device_code}</td>
                     <td className="px-4 py-3 capitalize text-slate-600">{d.device_type}</td>
                     <td className="px-4 py-3"><StatusBadge status={d.status} /></td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">{d.profile_id ? 'Linked' : '—'}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{d.profile_id ? t('inv_linked',language) : '—'}</td>
                     <td className="px-4 py-3 text-slate-400 text-xs">{new Date(d.created_date).toLocaleDateString()}</td>
                   </tr>
                 ))}
@@ -157,13 +157,13 @@ export default function AdminInventoryTab({ activeTab }) {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Order #</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Product</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Qty</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Supplier</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Cost → Price</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Margin</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Status</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_order_number",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_product",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_qty",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_supplier",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_cost_price",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_margin",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_status",language)}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -186,7 +186,7 @@ export default function AdminInventoryTab({ activeTab }) {
         {(!mfgOrders || mfgOrders.length === 0) && (
           <div className="text-center py-12 text-sm text-slate-400">
             <Factory className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            No manufacturing orders yet.
+            {t("inv_no_mfg_orders",language)}
           </div>
         )}
       </div>
@@ -202,28 +202,28 @@ export default function AdminInventoryTab({ activeTab }) {
             onClick={() => setNewProduct({ name: '', product_type: 'card', price: '', supplier_cost: '', category: 'nfc_hardware', is_coming_soon: false })}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
           >
-            <Plus className="w-4 h-4" /> Add Product
+            <Plus className="w-4 h-4" /> {t("inv_add_product",language)}
           </button>
         </div>
 
         {newProduct && (
           <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
-            <h3 className="text-sm font-black text-slate-800">New Product</h3>
+            <h3 className="text-sm font-black text-slate-800">{t("inv_new_product",language)}</h3>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-              <input placeholder="Name" value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <input placeholder={t("inv_name",language)} value={newProduct.name} onChange={e => setNewProduct({ ...newProduct, name: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
               <select value={newProduct.product_type} onChange={e => setNewProduct({ ...newProduct, product_type: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm">
                 {['card', 'metal_card', 'keychain', 'bracelet', 'sticker', 'tag', 'stand', 'badge', 'bundle'].map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
               </select>
-              <input placeholder="Price ($)" type="number" value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-              <input placeholder="Supplier Cost ($)" type="number" value={newProduct.supplier_cost} onChange={e => setNewProduct({ ...newProduct, supplier_cost: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <input placeholder={t("inv_price",language)} type="number" value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <input placeholder={t("inv_supplier_cost",language)} type="number" value={newProduct.supplier_cost} onChange={e => setNewProduct({ ...newProduct, supplier_cost: e.target.value })} className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" checked={newProduct.is_coming_soon} onChange={e => setNewProduct({ ...newProduct, is_coming_soon: e.target.checked })} />
-                Coming Soon
+                {t("inv_coming_soon",language)}
               </label>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleSaveProduct} className="px-4 py-2 rounded-lg bg-orange-500 text-white text-xs font-bold">Save</button>
-              <button onClick={() => setNewProduct(null)} className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600">Cancel</button>
+              <button onClick={handleSaveProduct} className="px-4 py-2 rounded-lg bg-orange-500 text-white text-xs font-bold">{t("inv_save",language)}</button>
+              <button onClick={() => setNewProduct(null)} className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600">{t("inv_cancel",language)}</button>
             </div>
           </div>
         )}
@@ -233,13 +233,13 @@ export default function AdminInventoryTab({ activeTab }) {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Product</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Type</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Price</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Cost</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Margin</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Stock</th>
-                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Status</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_product",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_type",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_products_price_col",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_cost",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_margin",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_stock",language)}</th>
+                  <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("inv_status",language)}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -253,7 +253,7 @@ export default function AdminInventoryTab({ activeTab }) {
                     <td className="px-4 py-3 text-slate-600">{p.stock_count || 0}</td>
                     <td className="px-4 py-3">
                       {p.is_coming_soon
-                        ? <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 uppercase">Coming Soon</span>
+                        ? <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 uppercase">{t("inv_coming_soon",language)}</span>
                         : <StatusBadge status={p.is_active ? 'active' : 'cancelled'} />}
                     </td>
                   </tr>
@@ -264,7 +264,7 @@ export default function AdminInventoryTab({ activeTab }) {
           {(!products || products.length === 0) && (
             <div className="text-center py-12 text-sm text-slate-400">
               <CreditCard className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-              No products in catalog yet.
+              {t("inv_no_products",language)}
             </div>
           )}
         </div>
@@ -279,7 +279,7 @@ export default function AdminInventoryTab({ activeTab }) {
         {(designs || []).length === 0 && (
           <div className="text-center py-16 text-sm text-slate-400">
             <Palette className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            No designs pending approval.
+            {t("inv_no_designs",language)}
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -288,20 +288,20 @@ export default function AdminInventoryTab({ activeTab }) {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="font-bold text-slate-800 text-sm">{d.product_type?.replace(/_/g, ' ')}</p>
-                  <p className="text-xs text-slate-400">Qty: {d.quantity} • {d.finish}</p>
+                  <p className="text-xs text-slate-400">{t("inv_qty",language)}: {d.quantity} • {d.finish}</p>
                 </div>
                 <StatusBadge status={d.status} />
               </div>
-              {d.custom_text && <p className="text-xs text-slate-600 mb-2">Text: "{d.custom_text}"</p>}
-              {d.color && <div className="flex items-center gap-2 mb-2"><span className="text-xs text-slate-500">Color:</span><div className="w-4 h-4 rounded border border-slate-200" style={{ background: d.color }} /></div>}
+              {d.custom_text && <p className="text-xs text-slate-600 mb-2">{t("inv_text",language)}: "{d.custom_text}"</p>}
+              {d.color && <div className="flex items-center gap-2 mb-2"><span className="text-xs text-slate-500">{t("inv_color",language)}:</span><div className="w-4 h-4 rounded border border-slate-200" style={{ background: d.color }} /></div>}
               {d.logo_url && <img src={d.logo_url} alt="Logo" className="w-16 h-16 rounded-lg object-contain border border-slate-200 mb-2" />}
               {d.notes && <p className="text-xs text-slate-500 mb-3">{d.notes}</p>}
               <div className="flex gap-2">
                 <button onClick={() => handleDesignAction(d.id, 'approve')} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold">
-                  <Check className="w-3.5 h-3.5" /> Approve
+                  <Check className="w-3.5 h-3.5" /> {t("inv_approve",language)}
                 </button>
                 <button onClick={() => handleDesignAction(d.id, 'reject')} className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold">
-                  <X className="w-3.5 h-3.5" /> Reject
+                  <X className="w-3.5 h-3.5" /> {t("inv_reject",language)}
                 </button>
               </div>
             </div>
