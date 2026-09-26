@@ -108,9 +108,9 @@ function DashboardShowcase() {
               <span className="font-black" style={{ color: B.navy }}>Bingoo</span>
             </div>
             <div className="space-y-1">
-              {nav.map(([Icon, label, active]) => (
+              {nav.map(([Icon, label, active], i) => (
                 <div
-                  key={label}
+                  key={`nav-${i}`}
                   className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold"
                   style={active ? { background: `${B.orange}12`, color: B.orange } : { color: B.slate }}
                 >
@@ -189,8 +189,8 @@ function DashboardShowcase() {
               <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(160deg, ${B.navy}, ${B.navyDark})` }}>
                 <p className="mb-3 text-xs font-black"><Tx k="landing_quick_actions" /></p>
                 <div className="space-y-2">
-                  {quickActions.map((action) => (
-                    <div key={action} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5 text-[10px] font-bold">
+                  {quickActions.map((action, i) => (
+                    <div key={`quick-${i}`} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5 text-[10px] font-bold">
                       {action}<ChevronRight className="h-3 w-3 text-white/50" />
                     </div>
                   ))}
@@ -206,7 +206,7 @@ function DashboardShowcase() {
                 ["4", <Tx k="landing_follow_up" />, <Tx k="landing_book_message" />],
                 ["5", <Tx k="landing_grow" />, <Tx k="landing_measure_works" />],
               ].map(([n, title, text]) => (
-                <div key={title} className="rounded-xl border p-3" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
+                <div key={`flow-${n}`} className="rounded-xl border p-3" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
                   <span className="text-[10px] font-black text-orange-500">0{n}</span>
                   <p className="mt-1 text-xs font-black" style={{ color: B.navy }}>{title}</p>
                   <p className="mt-0.5 text-[9px] leading-snug" style={{ color: B.slate }}>{text}</p>
@@ -374,7 +374,7 @@ function AssetCard() {
   const steps = [[Wifi,"NFC Device",B.orange],[Briefcase,"Asset",B.navy],[Shield,"Lost Mode",B.red],[Phone,"Finder contacts owner",B.green]];
   return (
     <motion.div {...reveal} className="lg:col-span-3"><Shell><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500"><Shield className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}><Tx k="landing_asset_protection" /></h3><p className="text-sm" style={{ color:B.slate }}><Tx k="landing_asset_protection_copy" /></p></div></div>
-      <div className="grid grid-cols-4 gap-2 rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}>{steps.map(([Icon,label,color],i)=><div key={label} className="relative text-center"><div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full" style={{ background:`${color}14`, color }}><Icon className="h-4 w-4" /></div><p className="mt-2 text-[9px] font-black leading-tight" style={{ color:B.navy }}>{label}</p>{i<3&&<ChevronRight className="absolute -right-2 top-3 h-3 w-3 text-slate-300" />}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2"><Bell className="h-4 w-4 text-red-500" /><div><p className="text-[10px] font-black text-red-600"><Tx k="landing_lost_mode_activated" /></p><p className="text-[9px]" style={{ color:B.slate }}><Tx k="landing_finder_contact_safe" /></p></div></div></div></Shell></motion.div>
+      <div className="grid grid-cols-4 gap-2 rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}>{steps.map(([Icon,label,color],i)=><div key={`asset-step-${i}`} className="relative text-center"><div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full" style={{ background:`${color}14`, color }}><Icon className="h-4 w-4" /></div><p className="mt-2 text-[9px] font-black leading-tight" style={{ color:B.navy }}>{label}</p>{i<3&&<ChevronRight className="absolute -right-2 top-3 h-3 w-3 text-slate-300" />}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2"><Bell className="h-4 w-4 text-red-500" /><div><p className="text-[10px] font-black text-red-600"><Tx k="landing_lost_mode_activated" /></p><p className="text-[9px]" style={{ color:B.slate }}><Tx k="landing_finder_contact_safe" /></p></div></div></div></Shell></motion.div>
   );
 }
 
@@ -407,7 +407,7 @@ export default function EverythingInOnePlace() {
             [BarChart3,"Smart Insights","Know what works"],
             [Calendar,"More Bookings","Automate your schedule"],
             [Shield,"Protect Assets","Peace of mind"],
-          ].map(([Icon,title,text])=><div key={title} className="flex items-center gap-3 rounded-2xl px-3 py-2"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-500"><Icon className="h-4 w-4" /></div><div><p className="text-xs font-black" style={{ color:B.navy }}>{title}</p><p className="text-[9px]" style={{ color:B.slate }}>{text}</p></div></div>)}
+          ].map(([Icon,title,text],i)=><div key={`platform-${i}`} className="flex items-center gap-3 rounded-2xl px-3 py-2"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-500"><Icon className="h-4 w-4" /></div><div><p className="text-xs font-black" style={{ color:B.navy }}>{title}</p><p className="text-[9px]" style={{ color:B.slate }}>{text}</p></div></div>)}
         </motion.div>
       </div>
     </section>
