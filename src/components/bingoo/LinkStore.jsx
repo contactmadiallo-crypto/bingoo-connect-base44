@@ -8,6 +8,7 @@ import {
   PayPalIcon, VenmoIcon, CalendarIcon, SpotifyIcon, ShopIcon, PortfolioIcon,
   WaveIcon, OrangeMoneyIcon, ZelleIcon, CashAppIcon,
 } from "@/components/bingoo/BrandIcons";
+import { t } from "@/lib/i18n";
 
 // ── Link catalog with real brand icons ───────────────────────────────────────
 const LINK_CATALOG = [
@@ -45,29 +46,23 @@ const LINK_CATALOG = [
 ];
 
 const CATEGORIES = [
-  { id: "all",     label: "All" },
-  { id: "popular", label: "Popular" },
-  { id: "contact", label: "Contact" },
-  { id: "social",  label: "Social" },
-  { id: "business",label: "Business" },
-  { id: "content", label: "Content" },
-  { id: "payment", label: "Payment" },
+  { id: "all", labelKey: "links_all" }, { id: "popular", labelKey: "links_popular" },
+  { id: "contact", labelKey: "links_contact" }, { id: "social", labelKey: "links_social" },
+  { id: "business", labelKey: "links_business" }, { id: "content", labelKey: "links_content" },
+  { id: "payment", labelKey: "links_payment" },
 ];
 
 const POPULAR_IDS = new Set(["phone", "whatsapp_number", "instagram_url", "linkedin_url", "website", "payment_link", "email", "facebook_url"]);
 
 // Group catalog by category for sectioned display
 const CATEGORY_LABELS = {
-  contact: "Contact Info",
-  social: "Social Media",
-  payment: "Payment",
-  business: "Business",
-  content: "Content",
+  contact: "links_contact_info", social: "links_social_media", payment: "links_payment",
+  business: "links_business", content: "links_content",
 };
 
 // ── Focused form for editing a single link item ──────────────────────────────
 // Returns [formEl, saveCallback] so parent can render a sticky Save button
-function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark, saveRef }) {
+function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark, saveRef, lang }) {
   const [val, setVal]     = useState(currentValue || "");
   const [label, setLabel] = useState(currentLabel || item.label);
 
@@ -96,7 +91,7 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
 
       <div className="space-y-4">
         <div>
-          <label className={`block text-xs font-bold mb-1.5 ${isDark ? "text-white/50" : "text-slate-500"}`}>Label</label>
+          <label className={`block text-xs font-bold mb-1.5 ${isDark ? "text-white/50" : "text-slate-500"}`}>{t("links_label", lang)}</label>
           <input
             type="text" className={inputCls}
             value={label} onChange={e => setLabel(e.target.value)}
@@ -105,7 +100,7 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
         </div>
         <div>
           <label className={`block text-xs font-bold mb-1.5 ${isDark ? "text-white/50" : "text-slate-500"}`}>
-            {item.id === "phone" || item.id === "whatsapp_number" ? "Phone Number" : item.id === "email" ? "Email Address" : "URL / Link"}
+            {item.id === "phone" || item.id === "whatsapp_number" ? t("links_phone_number", lang) : item.id === "email" ? t("links_email_address", lang) : t("links_url", lang)}
           </label>
           <input
             type="text" className={inputCls}
@@ -227,10 +222,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
   if (cat === "all" && !search) {
     // Popular first
     const popularItems = filtered.filter(i => POPULAR_IDS.has(i.id));
-    if (popularItems.length) grouped["Popular"] = popularItems;
-    for (const [key, label] of Object.entries(CATEGORY_LABELS)) {
+    if (popularItems.length) grouped["links_popular"] = popularItems;
+    for (const [key, labelKey] of Object.entries(CATEGORY_LABELS)) {
       const items = filtered.filter(i => i.category === key);
-      if (items.length) grouped[label] = items;
+      if (items.length) grouped[labelKey] = items;
     }
   }
 
@@ -274,7 +269,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
     <div className="flex flex-col h-full min-h-0 overflow-hidden safe-top">
       {/* Header — exact Figma hierarchy */}
       <div className={`flex items-center justify-between px-[22px] py-[18px] border-b ${borderCls} flex-shrink-0`}>
-        <h2 className={`font-black text-[17px] ${headText}`}>Add Link</h2>
+        <h2 className={`font-black text-[17px] ${headText}`}>{t("links_add_link", lang)}</h2>
         <button onClick={onClose} className={`w-[30px] h-[30px] rounded-full border flex items-center justify-center transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/50" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"}`}>
           <X className="w-[14px] h-[14px]" />
         </button>
@@ -284,10 +279,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
       {webOpen && (
         <div className={`px-4 py-3 border-b ${borderCls} space-y-2 flex-shrink-0 ${isDark ? "bg-white/[0.03]" : "bg-slate-50"} max-h-24 overflow-y-auto`}>
           <div className="flex flex-col sm:flex-row gap-2">
-            <input type="text" className={inputCls + " flex-1 min-w-0"} placeholder="Label (e.g. Book Now)" value={webLabel} onChange={e => setWebLabel(e.target.value)} />
+            <input type="text" className={inputCls + " flex-1 min-w-0"} placeholder={t("links_label_ph", lang)} value={webLabel} onChange={e => setWebLabel(e.target.value)} />
             <input type="text" className={inputCls + " flex-1 min-w-0"} placeholder="https://..." value={webUrl} onChange={e => setWebUrl(e.target.value)} />
             <button onClick={handleAddWebLink} className="flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold text-white flex-shrink-0" style={{ background: "#f97316" }}>
-              <Plus className="w-3.5 h-3.5" />Add
+              <Plus className="w-3.5 h-3.5" />{t("links_add", lang)}
             </button>
           </div>
         </div>
@@ -299,11 +294,11 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
             onClick={() => setWebOpen(true)}
             className="flex items-center justify-center gap-1.5 w-full xs:w-auto px-4 py-2 rounded-full text-xs font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
             style={{ background: "#3b82f6" }}>
-            <Plus className="w-3 h-3" /> Web Link
+            <Plus className="w-3 h-3" /> {t("links_web_link", lang)}
           </button>
           <div className="relative flex-1">
             <Search className={`w-[13px] h-[13px] absolute left-[10px] top-1/2 -translate-y-1/2 ${mutedText}`} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t("links_search", lang)}
               className={`w-full h-9 pl-[30px] pr-3 rounded-[10px] border text-xs outline-none ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}`} />
           </div>
         </div>
@@ -322,6 +317,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               onBack={() => setEditing(null)}
               isDark={isDark}
               saveRef={editSaveRef}
+              lang={lang}
             />
           </div>
           {/* Save footer stays inside the modal so the edit form remains scrollable */}
@@ -332,7 +328,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               disabled={isPending}
               className="w-full py-3 rounded-xl text-sm font-black text-white transition-all hover:opacity-90 active:scale-[0.99] disabled:opacity-60"
               style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.24)" }}>
-              {isPending ? "Saving…" : "Save"}
+              {isPending ? t("links_saving", lang) : t("links_save", lang)}
             </button>
           </div>
         </>
@@ -346,7 +342,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                   className={`px-[13px] py-[5px] rounded-full border text-[11px] font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                     cat === c.id ? "text-white border-blue-500 bg-blue-500" : isDark ? "border-white/10 bg-transparent text-white/60" : "border-slate-200 bg-white text-slate-800"
                   }`}>
-                  {c.label}
+                  {t(c.labelKey, lang)}
                 </button>
               ))}
             </div>
@@ -355,7 +351,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
           {/* Catalog */}
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-[22px] pb-[22px]" style={{ WebkitOverflowScrolling: "touch" }}>
             {filtered.length === 0 && (
-              <p className={`text-center py-8 text-sm ${mutedText}`}>No links found</p>
+              <p className={`text-center py-8 text-sm ${mutedText}`}>{t("links_no_results", lang)}</p>
             )}
 
             {/* Grouped view (all + no search) */}
@@ -363,10 +359,10 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               <div className="space-y-4">
                 {Object.entries(grouped).map(([groupLabel, items]) => (
                   <div key={groupLabel}>
-                    <p className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{groupLabel}</p>
-                    {groupLabel === "Payment" && (
+                    <p className={`text-[11px] font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t(groupLabel, lang)}</p>
+                    {groupLabel === "links_payment" && (
                       <p className={`text-[10px] leading-relaxed mb-2 ${mutedText}`}>
-                        Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
+                        {t("links_payment_notice", lang)}
                       </p>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -383,7 +379,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {cat === "payment" && (
                   <p className={`text-[10px] leading-relaxed pb-1 ${mutedText}`}>
-                    Links open external payment services (PayPal, Cash App, Zelle, etc.). Bingoo does not process or hold payments.
+                    {t("links_payment_notice", lang)}
                   </p>
                 )}
                 {filtered.map(item => (
