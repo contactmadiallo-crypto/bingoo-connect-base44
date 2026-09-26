@@ -92,29 +92,29 @@ export default function ActivateDevice() {
       const device = result?.data?.device;
 
       if (!device) {
-        setActivateMsg({ type: "error", text: "Device code not found. Check the code on your device and try again." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_not_found", language) });
         return false;
       }
 
       if (device.status === "disabled") {
-        setActivateMsg({ type: "error", text: "This device has been disabled. Contact support." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_disabled", language) });
         return false;
       }
 
       if (device.status === "replaced") {
-        setActivateMsg({ type: "error", text: `This device was replaced. New code: ${device.replaced_by_code || "contact support"}.` });
+        setActivateMsg({ type: "error", text: `${t("nfc_msg_replaced", language)} ${device.replaced_by_code || t("nfc_msg_contact_support", language)}.` });
         return false;
       }
 
       // Already claimed by this user's profile
       if (device.profile_id && profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "info", text: "✅ This device is already linked to your profile." });
+        setActivateMsg({ type: "info", text: `✅ ${t("nfc_msg_already_linked", language)}` });
         return false;
       }
 
       // Claimed by someone else
       if (device.profile_id && !profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "error", text: "This device is already activated by another account. Contact support if this is yours." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_other_account", language) });
         return false;
       }
 
@@ -126,7 +126,7 @@ export default function ActivateDevice() {
       return true;
     } catch (e) {
       console.error("[ActivateDevice] code validation error:", e);
-      setActivateMsg({ type: "error", text: "Code verification failed: " + e.message });
+      setActivateMsg({ type: "error", text: `${t("nfc_msg_verification_failed", language)} ${e.message}` });
       return false;
     } finally {
       setActivating(false);
@@ -146,12 +146,12 @@ export default function ActivateDevice() {
       if (assignTarget === "asset") {
         const targetAsset = myAssets.find(a => a.id === selectedAsset);
         if (!targetAsset) {
-          setActivateMsg({ type: "error", text: "Please select an asset to assign the device to." });
+          setActivateMsg({ type: "error", text: t("nfc_msg_select_asset", language) });
           return;
         }
         const assetProfileId = targetAsset.profile_id || (profiles[0]?.id || null);
         if (!assetProfileId) {
-          setActivateMsg({ type: "error", text: "Please create a profile first before assigning a device to an asset." });
+          setActivateMsg({ type: "error", text: t("nfc_msg_create_profile_asset", language) });
           return;
         }
         const activateResult = await base44.functions.invoke("activateNfcDevice", {
@@ -163,16 +163,16 @@ export default function ActivateDevice() {
           old_status: device.status,
         });
         if (activateResult?.data?.error) {
-          setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+          setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${activateResult.data.error}` });
           return;
         }
         await base44.entities.AssetItem.update(targetAsset.id, { nfc_device_id: device.id });
         await base44.entities.NFCDevice.update(device.id, { assigned_asset_id: targetAsset.id });
-        setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to asset: ${targetAsset.name}` });
+        setActivateMsg({ type: "success", text: `🎉 ${t("nfc_panel_title", language).replace("My ","").replace("Mes ","")} ${trimmed} ${t("nfc_msg_activated_asset", language)} ${targetAsset.name}` });
       } else {
         const targetProfile = profiles.find(p => p.id === activationProfileId);
         if (!targetProfile) {
-          setActivateMsg({ type: "error", text: "Select a profile you can access before activating this device." });
+          setActivateMsg({ type: "error", text: t("nfc_msg_select_profile", language) });
           return;
         }
         const activateResult = await base44.functions.invoke("activateNfcDevice", {
@@ -184,10 +184,10 @@ export default function ActivateDevice() {
           old_status: device.status,
         });
         if (activateResult?.data?.error) {
-          setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+          setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${activateResult.data.error}` });
           return;
         }
-        setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated and linked to: ${targetProfile.display_name}` });
+        setActivateMsg({ type: "success", text: `🎉 ${t("nfc_panel_title", language).replace("My ","").replace("Mes ","")} ${trimmed} ${t("nfc_msg_activated_profile", language)} ${targetProfile.display_name}` });
       }
 
       setCode("");
@@ -201,7 +201,7 @@ export default function ActivateDevice() {
       queryClient.invalidateQueries({ queryKey: ["my-devices"] });
     } catch (e) {
       console.error("[ActivateDevice] handleActivate error:", e);
-      setActivateMsg({ type: "error", text: "Activation failed: " + e.message });
+      setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${e.message}` });
     } finally {
       setActivating(false);
     }
@@ -440,14 +440,14 @@ export default function ActivateDevice() {
 
         {/* My Devices */}
         <div className="rounded-2xl p-6" style={cardStyle}>
-          <h2 className={`font-black text-lg mb-1 ${headText}`}>My Devices</h2>
-          <p className={`text-sm mb-5 ${mutedText}`}>Manage your activated NFC devices</p>
+          <h2 className={`font-black text-lg mb-1 ${headText}`}>{t("nfc_activate_my_devices",language)}</h2>
+          <p className={`text-sm mb-5 ${mutedText}`}>{t("nfc_activate_manage",language)}</p>
 
           {myDevices.length === 0 ? (
             <div className="text-center py-10">
               <Smartphone className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-white/10" : "text-slate-200"}`} />
-              <p className={`font-semibold text-sm ${subText}`}>No devices yet</p>
-              <p className={`text-xs mt-1 ${mutedText}`}>Activate your first device above</p>
+              <p className={`font-semibold text-sm ${subText}`}>{t("nfc_activate_none",language)}</p>
+              <p className={`text-xs mt-1 ${mutedText}`}>{t("nfc_activate_first",language)}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -471,9 +471,9 @@ export default function ActivateDevice() {
                             onChange={e => setEditingDevice({ ...editingDevice, nickname: e.target.value })}
                             onKeyDown={e => e.key === "Enter" && handleSaveNickname()}
                             className={`${inputCls} h-8 text-sm py-1`}
-                            placeholder="Device nickname"
+                            placeholder={t("nfc_activate_nickname",language)}
                           />
-                          <Button size="sm" onClick={handleSaveNickname} className="bg-blue-600 hover:bg-blue-500 text-white h-8 px-3">Save</Button>
+                          <Button size="sm" onClick={handleSaveNickname} className="bg-blue-600 hover:bg-blue-500 text-white h-8 px-3">{t("nfc_activate_save",language)}</Button>
                           <button onClick={() => setEditingDevice(null)} className={`${mutedText} hover:text-red-400 transition-colors`}><X className="w-4 h-4" /></button>
                         </div>
                       ) : (
@@ -493,21 +493,21 @@ export default function ActivateDevice() {
                     </div>
                     {editingDevice?.id !== device.id && (
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <button onClick={() => setSetupDevice(device)} title="NFC Setup Guide"
+                        <button onClick={() => setSetupDevice(device)} title={t("nfc_activate_setup_guide",language)}
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-blue-400" : "hover:bg-blue-50 text-slate-400 hover:text-blue-600"}`}>
                           <Smartphone className="w-4 h-4" />
                         </button>
-                        <button onClick={() => setEditingDevice({ id: device.id, nickname: device.description || "" })} title="Rename"
+                        <button onClick={() => setEditingDevice({ id: device.id, nickname: device.description || "" })} title={t("nfc_activate_rename",language)}
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}>
                           <Pencil className="w-4 h-4" />
                         </button>
                         {profiles.length > 1 && (
-                          <button onClick={() => setReassignDevice({ device, newProfileId: device.profile_id })} title="Reassign Profile"
+                          <button onClick={() => setReassignDevice({ device, newProfileId: device.profile_id })} title={t("nfc_activate_reassign",language)}
                             className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40 hover:text-violet-400" : "hover:bg-violet-50 text-slate-400 hover:text-violet-600"}`}>
                             <RefreshCw className="w-4 h-4" />
                           </button>
                         )}
-                        <button onClick={() => handleDeactivate(device)} title="Deactivate"
+                        <button onClick={() => handleDeactivate(device)} title={t("nfc_activate_deactivate",language)}
                           className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-red-500/20 text-white/30 hover:text-red-400" : "hover:bg-red-50 text-slate-300 hover:text-red-500"}`}>
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -584,18 +584,18 @@ export default function ActivateDevice() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className={`w-full max-w-sm rounded-2xl p-6 shadow-2xl ${isDark ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"}`}
               >
-                <h3 className={`font-black text-lg mb-1 ${headText}`}>Reassign Device</h3>
-                <p className={`text-sm mb-4 ${mutedText}`}>Choose which profile to link this device to</p>
+                <h3 className={`font-black text-lg mb-1 ${headText}`}>{t("nfc_activate_reassign_title",language)}</h3>
+                <p className={`text-sm mb-4 ${mutedText}`}>{t("nfc_activate_reassign_copy",language)}</p>
                 <MobileSelect
                   value={reassignDevice.newProfileId || reassignDevice.device.profile_id || ""}
                   onValueChange={v => setReassignDevice({ ...reassignDevice, newProfileId: v })}
                   options={profiles.map(p => ({ value: p.id, label: p.display_name || p.username }))}
-                  placeholder="Select a profile"
+                  placeholder={t("nfc_activate_select_profile",language)}
                   className={isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}
                 />
                 <div className="flex gap-2 mt-4">
-                  <Button onClick={handleReassign} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold">Save</Button>
-                  <Button variant="outline" onClick={() => setReassignDevice(null)} className="flex-1">Cancel</Button>
+                  <Button onClick={handleReassign} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold">{t("nfc_activate_save",language)}</Button>
+                  <Button variant="outline" onClick={() => setReassignDevice(null)} className="flex-1">{t("nfc_activate_cancel",language)}</Button>
                 </div>
               </motion.div>
             </div>
