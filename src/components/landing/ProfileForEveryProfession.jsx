@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Briefcase, Camera, QrCode, Users, Calendar, Phone, Mail, Globe2 } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
@@ -13,7 +15,7 @@ const B = {
 const profiles = [
   {
     category: "Professional",
-    title: "Executive Premium",
+    titleKey: "landing_executive_premium",
     name: "James Carter",
     role: "Founder · Carter Enterprises",
     initials: "JC",
@@ -23,7 +25,7 @@ const profiles = [
   },
   {
     category: "Creative",
-    title: "Creative / Influencer",
+    titleKey: "landing_creative_influencer",
     name: "Sophia Kim",
     role: "Content Creator",
     initials: "SK",
@@ -33,7 +35,7 @@ const profiles = [
   },
   {
     category: "Creative",
-    title: "Rich Media",
+    titleKey: "landing_rich_media",
     name: "Maya Rivers",
     role: "Photographer · Filmmaker",
     initials: "MR",
@@ -43,7 +45,7 @@ const profiles = [
   },
   {
     category: "Professional",
-    title: "Minimal NFC Card",
+    titleKey: "landing_minimal_nfc",
     name: "Robert Jones",
     role: "Software Engineer",
     initials: "RJ",
@@ -53,7 +55,7 @@ const profiles = [
   },
   {
     category: "Business",
-    title: "Event Networking",
+    titleKey: "landing_event_networking",
     name: "Alex Kumar",
     role: "CTO · TechStart",
     initials: "AK",
@@ -63,7 +65,7 @@ const profiles = [
   },
   {
     category: "Business",
-    title: "Business Team",
+    titleKey: "landing_business_team",
     name: "Carter Enterprises",
     role: "Technology · Consulting",
     initials: "CE",
@@ -73,7 +75,7 @@ const profiles = [
   },
 ];
 
-function ProfilePreview({ profile }) {
+function ProfilePreview({ profile, language }) {
   const dark = profile.bg !== "#ffffff";
   const text = dark ? "#ffffff" : B.navy;
   const muted = dark ? "rgba(255,255,255,.62)" : "#64748b";
@@ -85,7 +87,7 @@ function ProfilePreview({ profile }) {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-sm font-black text-orange-500">{profile.initials}</div>
         <div><p className="text-sm font-black">{profile.name}</p><p className="text-[9px] opacity-75">{profile.role}</p></div>
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white"><QrCode className="h-16 w-16 text-[#0b2149]" /></div>
-        <button className="w-full rounded-xl bg-white py-2 text-[10px] font-black text-orange-500">Exchange Contact</button>
+        <button className="w-full rounded-xl bg-white py-2 text-[10px] font-black text-orange-500">{t("landing_exchange_contact",language)}</button>
       </div>
     );
   }
@@ -95,7 +97,7 @@ function ProfilePreview({ profile }) {
       <div className="flex h-full flex-col p-4" style={{ background: profile.bg, color: text }}>
         <div className="text-center"><p className="text-xs font-black">{profile.name}</p><p className="text-[8px] text-slate-400">{profile.role}</p></div>
         <div className="mt-4 grid grid-cols-2 gap-2">{["About","Services","Team","Portfolio","Contact","Careers"].map(x => <div key={x} className="rounded-lg border border-slate-200 py-2 text-center text-[8px] font-bold">{x}</div>)}</div>
-        <div className="mt-4"><p className="text-[8px] font-black uppercase tracking-wide text-slate-400">Our Team</p><div className="mt-2 flex gap-2">{["JC","MD","SL","RK"].map((x,i)=><div key={x} className="flex h-7 w-7 items-center justify-center rounded-full text-[8px] font-black text-white" style={{ background:[B.orange,"#ef4444","#0ea5e9","#22c55e"][i] }}>{x}</div>)}</div></div>
+        <div className="mt-4"><p className="text-[8px] font-black uppercase tracking-wide text-slate-400">{t("landing_our_team",language)}</p><div className="mt-2 flex gap-2">{["JC","MD","SL","RK"].map((x,i)=><div key={x} className="flex h-7 w-7 items-center justify-center rounded-full text-[8px] font-black text-white" style={{ background:[B.orange,"#ef4444","#0ea5e9","#22c55e"][i] }}>{x}</div>)}</div></div>
       </div>
     );
   }
@@ -127,33 +129,34 @@ function ProfilePreview({ profile }) {
 }
 
 export default function ProfileForEveryProfession() {
+  const { language } = useI18n();
   return (
     <section className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24" style={{ background: B.navyDark }}>
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 30% 30%, #3b82f6 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
       <div className="relative mx-auto max-w-7xl">
         <motion.div initial={{ opacity:0,y:24 }} whileInView={{ opacity:1,y:0 }} viewport={{ once:true }} className="mb-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-3 text-sm font-black uppercase tracking-[.18em] text-orange-400">Profile Templates</div>
-            <h2 className="text-3xl font-black tracking-tight text-white md:text-5xl">A profile for every profession.</h2>
-            <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">Choose a style that fits how you work. Every template keeps contact, booking, services and sharing easy to understand.</p>
+            <div className="mb-3 text-sm font-black uppercase tracking-[.18em] text-orange-400">{t("landing_templates",language)}</div>
+            <h2 className="text-3xl font-black tracking-tight text-white md:text-5xl">{t("landing_profile_every_prof",language)}</h2>
+            <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/60 md:text-lg">{t("landing_templates_copy",language)}</p>
           </div>
           <div className="flex flex-wrap gap-2">{["All","Professional","Business","Creative"].map((x,i)=><span key={x} className="rounded-full border px-4 py-2 text-xs font-black" style={{ background:i===0?B.orange:"transparent", borderColor:i===0?B.orange:"rgba(255,255,255,.16)", color:"#fff" }}>{x}</span>)}</div>
         </motion.div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {profiles.map((profile,index)=>(
-            <motion.div key={profile.title} initial={{ opacity:0,y:24 }} whileInView={{ opacity:1,y:0 }} viewport={{ once:true }} transition={{ delay:index*.06 }} whileHover={{ y:-8 }} className="group">
+            <motion.div key={t(profile.titleKey,language)} initial={{ opacity:0,y:24 }} whileInView={{ opacity:1,y:0 }} viewport={{ once:true }} transition={{ delay:index*.06 }} whileHover={{ y:-8 }} className="group">
               <div className="h-[360px] overflow-hidden rounded-[28px] border border-white/10 bg-white shadow-2xl transition-transform duration-300 group-hover:scale-[1.015]">
-                <ProfilePreview profile={profile} />
+                <ProfilePreview profile={profile} language={language} />
               </div>
-              <div className="mt-3 text-center"><p className="text-sm font-black text-white">{profile.title}</p><p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-white/35">{profile.category}</p></div>
+              <div className="mt-3 text-center"><p className="text-sm font-black text-white">{t(profile.titleKey,language)}</p><p className="mt-1 text-[10px] font-bold uppercase tracking-wide text-white/35">{profile.category}</p></div>
             </motion.div>
           ))}
         </div>
 
         <motion.div initial={{ opacity:0,y:20 }} whileInView={{ opacity:1,y:0 }} viewport={{ once:true }} className="mt-12 flex flex-col items-center justify-between gap-4 rounded-3xl border border-white/10 bg-white/[.05] p-5 backdrop-blur md:flex-row md:px-7">
-          <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white"><Users className="h-5 w-5" /></div><div><p className="font-black text-white">One profile. Your way.</p><p className="text-sm text-white/55">Switch templates without losing your links, leads or contact information.</p></div></div>
-          <div className="flex items-center gap-2 text-sm font-black text-orange-400"><Briefcase className="h-4 w-4" /> Professionals · Teams · Creators · Events</div>
+          <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white"><Users className="h-5 w-5" /></div><div><p className="font-black text-white">{t("landing_one_profile_way",language)}</p><p className="text-sm text-white/55">{t("landing_switch_templates",language)}</p></div></div>
+          <div className="flex items-center gap-2 text-sm font-black text-orange-400"><Briefcase className="h-4 w-4" /> {t("landing_prof_teams_creators_events",language)}</div>
         </motion.div>
       </div>
     </section>
