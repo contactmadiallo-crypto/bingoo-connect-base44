@@ -1,6 +1,8 @@
 import React from 'react';
 import { Nfc } from 'lucide-react';
 import { InfinityMark } from '@/components/mockups/brand/InfinityMark';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 // ── Brand constants ──────────────────────────────────────────────────────────
 const NAVY = '#0b2149';
@@ -231,6 +233,7 @@ const TEMPLATES = {
 // into the composition geometry — never a small floating tile. Text safe zones
 // are protected with overflow/truncation so content never collides with graphics.
 function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+  const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
   const subColor = tpl.isDark ? 'rgba(255,255,255,0.68)' : 'rgba(11,33,73,0.6)';
@@ -257,17 +260,17 @@ function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, ho
     <div className="flex items-stretch gap-1.5 overflow-hidden">
       <div style={{ width: 2, background: accentColor, borderRadius: 2, flexShrink: 0 }} />
       <p className="font-semibold tracking-[0.18em] leading-[1.2] truncate" style={{ color: subColor, fontSize: 7 }}>
-        {(tagline || 'CONNECT · SHARE · GROW').toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}
+        {(tagline || t('ds_preview_tagline', language)).toUpperCase().split('·').map((s, i) => <React.Fragment key={i}>{i > 0 && <br/>}{s.trim()}</React.Fragment>)}
       </p>
     </div>
   );
 
   const identity = (
     <>
-      <p className="font-black tracking-tight truncate" style={{ color: textColor, fontSize: 13 }}>{nameText || 'Your Company'}</p>
+      <p className="font-black tracking-tight truncate" style={{ color: textColor, fontSize: 13 }}>{nameText || t('ds_preview_your_company', language)}</p>
       <div className="mt-5">
-        <p className="font-black leading-none truncate" style={{ color: textColor, fontSize: 20 }}>{holderName || 'Your Name'}</p>
-        <p className="font-semibold mt-1 truncate" style={{ color: subColor, fontSize: 9 }}>{roleText || 'Your Role'}</p>
+        <p className="font-black leading-none truncate" style={{ color: textColor, fontSize: 20 }}>{holderName || t('ds_preview_your_name', language)}</p>
+        <p className="font-semibold mt-1 truncate" style={{ color: subColor, fontSize: 9 }}>{roleText || t('ds_preview_your_role', language)}</p>
       </div>
     </>
   );
@@ -357,6 +360,7 @@ function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, ho
 
 // ── Content for vertical devices (keychain, tag, stand) ──────────────────────
 function VerticalContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape, isSmall }) {
+  const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
   const subColor = tpl.isDark ? 'rgba(255,255,255,0.65)' : 'rgba(11,33,73,0.6)';
@@ -373,9 +377,9 @@ function VerticalContent({ templateId, cardColor, accentColor, logoUrl, nameText
   return (
     <div className="flex-1 flex flex-col items-center text-center relative z-10 px-2 pt-1">
       {logoBox(logoSize)}
-      <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 10 : 12 }}>{nameText || 'Your Company'}</p>
+      <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: isSmall ? 10 : 12 }}>{nameText || t('ds_preview_your_company', language)}</p>
       {holderName && <p className="font-bold leading-tight mt-0.5" style={{ color: textColor, fontSize: isSmall ? 8 : 9 }}>{holderName}</p>}
-      <p className="text-[8px] mt-0.5" style={{ color: subColor }}>{roleText || 'Your Role'}</p>
+      <p className="text-[8px] mt-0.5" style={{ color: subColor }}>{roleText || t('ds_preview_your_role', language)}</p>
       {(phone || email || website) && (
         <div className="mt-1.5 space-y-0.5">
           {phone && <p className="text-[7px] font-medium" style={{ color: subColor }}>☎ {phone}</p>}
@@ -392,6 +396,7 @@ function VerticalContent({ templateId, cardColor, accentColor, logoUrl, nameText
 
 // ── Content for horizontal devices (bracelet) ────────────────────────────────
 function HorizontalContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+  const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
   const subColor = tpl.isDark ? 'rgba(255,255,255,0.65)' : 'rgba(11,33,73,0.6)';
@@ -408,9 +413,9 @@ function HorizontalContent({ templateId, cardColor, accentColor, logoUrl, nameTe
     <div className="flex-1 flex items-center justify-center gap-3 relative z-10 px-4">
       {logoBox(36)}
       <div className="text-left min-w-0">
-        <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: 12 }}>{nameText || 'Your Company'}</p>
+        <p className="font-black leading-tight truncate" style={{ color: textColor, fontSize: 12 }}>{nameText || t('ds_preview_your_company', language)}</p>
         {holderName && <p className="font-bold leading-tight truncate" style={{ color: textColor, fontSize: 9 }}>{holderName}</p>}
-        <p className="text-[8px]" style={{ color: subColor }}>{roleText || 'Your Role'}</p>
+        <p className="text-[8px]" style={{ color: subColor }}>{roleText || t('ds_preview_your_role', language)}</p>
         {phone && <p className="text-[7px] font-medium truncate" style={{ color: subColor }}>☎ {phone}</p>}
       </div>
     </div>
@@ -419,6 +424,7 @@ function HorizontalContent({ templateId, cardColor, accentColor, logoUrl, nameTe
 
 // ── Content for centered devices (sticker) ───────────────────────────────────
 function CenteredContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+  const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
   const subColor = tpl.isDark ? 'rgba(255,255,255,0.65)' : 'rgba(11,33,73,0.6)';
@@ -434,9 +440,9 @@ function CenteredContent({ templateId, cardColor, accentColor, logoUrl, nameText
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center relative z-10">
       {logoBox(48)}
-      <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: 11 }}>{nameText || 'Your Company'}</p>
+      <p className="font-black leading-tight mt-2" style={{ color: textColor, fontSize: 11 }}>{nameText || t('ds_preview_your_company', language)}</p>
       {holderName && <p className="font-bold leading-tight mt-0.5" style={{ color: textColor, fontSize: 9 }}>{holderName}</p>}
-      <p className="text-[8px] mt-0.5" style={{ color: subColor }}>{roleText || 'Your Role'}</p>
+      <p className="text-[8px] mt-0.5" style={{ color: subColor }}>{roleText || t('ds_preview_your_role', language)}</p>
       {!removeBranding && (
         <span className="font-bold tracking-wider mt-1.5" style={{ color: tpl.isDark ? accentColor : NAVY, fontSize: 7 }}>BING∞</span>
       )}
@@ -446,16 +452,17 @@ function CenteredContent({ templateId, cardColor, accentColor, logoUrl, nameText
 
 // ── Back side content (QR + activation code) ──────────────────────────────────
 function BackContent({ activationCode, qrSize, removeBranding }) {
+  const { language } = useI18n();
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative w-full h-full px-2">
       <div className="rounded-lg p-1.5" style={{ background: '#fff', boxShadow: '0 4px 12px rgba(11,33,73,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <QrPattern size={qrSize} darkColor={NAVY} />
       </div>
       <p className="font-black tracking-widest mt-2" style={{ color: NAVY, fontSize: 11 }}>{activationCode || 'BG-000001'}</p>
-      <p className="text-[8px] font-bold mt-0.5" style={{ color: MUTED }}>Scan to activate</p>
+      <p className="text-[8px] font-bold mt-0.5" style={{ color: MUTED }}>{t('ds_preview_scan_activate', language)}</p>
       <div className="flex items-center gap-1 mt-1.5">
         <Nfc className="w-3 h-3" style={{ color: NAVY }} />
-        <span className="text-[7px] font-bold tracking-widest" style={{ color: MUTED }}>NFC CHIP</span>
+        <span className="text-[7px] font-bold tracking-widest" style={{ color: MUTED }}>{t('ds_preview_nfc_chip', language)}</span>
       </div>
       {!removeBranding && (
         <div className="absolute bottom-2 flex items-center gap-1 px-2">
