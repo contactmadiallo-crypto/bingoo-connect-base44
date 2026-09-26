@@ -114,7 +114,7 @@ function LinkEditForm({ item, currentValue, currentLabel, onSave, onBack, isDark
 }
 
 // ── Catalog row (single item) ─────────────────────────────────────────────────
-function CatalogRow({ item, added, valuePreview, onEdit, isDark }) {
+function CatalogRow({ item, added, onEdit, isDark }) {
   const headText = isDark ? "text-white" : "text-slate-900";
   return (
     <button onClick={onEdit}
@@ -133,7 +133,7 @@ function CatalogRow({ item, added, valuePreview, onEdit, isDark }) {
 }
 
 // ── Main LinkStore sheet ──────────────────────────────────────────────────────
-export default function LinkStore({ liveForm, setVal, set, onSave, isPending, isDark, lang, onClose, initialEditingId = null }) {
+export default function LinkStore({ liveForm, setVal, onSave, isPending, isDark, lang, onClose, initialEditingId = null }) {
   const [cat, setCat]           = useState("all");
   const [search, setSearch]     = useState("");
   const [editing, setEditing]   = useState(null);
@@ -263,8 +263,6 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
     setTimeout(() => onSave("links"), 0);
   };
 
-  const addedCount = LINK_CATALOG.filter(i => isCatalogItemActive(i)).length + (liveForm.custom_links?.filter(l => !l._catalog_id).length || 0);
-
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden safe-top">
       {/* Header — exact Figma hierarchy */}
@@ -368,7 +366,7 @@ export default function LinkStore({ liveForm, setVal, set, onSave, isPending, is
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       {items.map(item => (
                         <CatalogRow key={item.id} item={item} added={isAdded(item)}
-                          valuePreview={getValuePreview(item)} onEdit={() => setEditing(item)} isDark={isDark} />
+                          onEdit={() => setEditing(item)} isDark={isDark} />
                       ))}
                     </div>
                   </div>
