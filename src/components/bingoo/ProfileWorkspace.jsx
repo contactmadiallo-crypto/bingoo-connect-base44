@@ -764,7 +764,7 @@ function LostModePanel({ profileId, user, isDark, effectivePlan, lang }) {
 }
 
 // ── SETTINGS PANEL ────────────────────────────────────────────────────────
-function SettingsPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, onDeleted }) {
+function SettingsPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, user, onDeleted }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";

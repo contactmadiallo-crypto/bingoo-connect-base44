@@ -281,7 +281,6 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
   const handleRetry = () => {
     setError("");
-    setRetryCount(c => c + 1);
     handleActivate();
   };
 
