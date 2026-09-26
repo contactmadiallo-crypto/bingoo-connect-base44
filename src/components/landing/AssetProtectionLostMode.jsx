@@ -18,6 +18,9 @@ import {
   Wifi,
 } from "lucide-react";
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: "#0b2149",
   navyDark: "#071A3D",
@@ -40,6 +43,7 @@ const reveal = {
 
 /* Lost Mode phone mockup — Bingoo visual language */
 function LostModePhone() {
+  const { language } = useI18n();
   return (
     <div className="relative mx-auto" style={{ width: 260 }}>
       {/* Glow */}
@@ -77,8 +81,8 @@ function LostModePhone() {
               <Shield className="h-3 w-3 text-white" />
             </motion.div>
             <div>
-              <p className="text-[9px] font-black" style={{ color: B.orange }}>LOST MODE ACTIVE</p>
-              <p className="text-[8px]" style={{ color: B.slate }}>This item is reported lost</p>
+              <p className="text-[9px] font-black" style={{ color: B.orange }}>{t("landing_lost_active",language)}</p>
+              <p className="text-[8px]" style={{ color: B.slate }}>{t("landing_item_reported_lost",language)}</p>
             </div>
           </div>
 
@@ -89,18 +93,18 @@ function LostModePhone() {
                 <Luggage className="h-5 w-5" />
               </div>
               <div className="flex-1">
-                <p className="text-[10px] font-black" style={{ color: B.navy }}>Travel Suitcase</p>
+                <p className="text-[10px] font-black" style={{ color: B.navy }}>{t("landing_travel_suitcase",language)}</p>
                 <p className="text-[8px]" style={{ color: B.slate }}>BG-DEMO-104</p>
               </div>
-              <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.orange }}>LOST</span>
+              <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.orange }}>{t("landing_lost",language)}</span>
             </div>
           </div>
 
           {/* Owner message */}
           <div className="mx-3 mb-3 rounded-xl border p-2.5" style={{ borderColor: "#edf1f6" }}>
-            <p className="mb-1 text-[7px] font-black uppercase tracking-wide" style={{ color: B.slate }}>Owner message</p>
+            <p className="mb-1 text-[7px] font-black uppercase tracking-wide" style={{ color: B.slate }}>{t("landing_owner_message",language)}</p>
             <p className="text-[8px] leading-snug" style={{ color: B.navy }}>
-              “Hi! If you found this item, please reach out — I'd love to get it back. Thank you so much.”
+              “{t("landing_owner_message_copy",language)}”
             </p>
           </div>
 
@@ -108,7 +112,7 @@ function LostModePhone() {
           <div className="mx-3 mb-3 grid grid-cols-2 gap-1.5">
             <div className="flex items-center justify-center gap-1 rounded-lg py-1.5" style={{ background: `linear-gradient(135deg, ${B.green}, #16a34a)` }}>
               <MessageCircle className="h-2.5 w-2.5 text-white" />
-              <span className="text-[7px] font-black text-white">Contact Owner</span>
+              <span className="text-[7px] font-black text-white">{t("landing_contact_owner",language)}</span>
             </div>
             <div className="flex items-center justify-center gap-1 rounded-lg py-1.5 border" style={{ borderColor: B.green, color: B.green }}>
               <MessageCircle className="h-2.5 w-2.5" />
@@ -120,19 +124,19 @@ function LostModePhone() {
             </div>
             <div className="flex items-center justify-center gap-1 rounded-lg py-1.5 border" style={{ borderColor: B.orange, color: B.orange }}>
               <Check className="h-2.5 w-2.5" />
-              <span className="text-[7px] font-black">Report Found</span>
+              <span className="text-[7px] font-black">{t("landing_report_found",language)}</span>
             </div>
           </div>
 
           {/* Privacy indicator */}
           <div className="mx-3 mb-3 flex items-center gap-1.5 rounded-lg bg-slate-50 px-2 py-1.5">
             <ShieldCheck className="h-2.5 w-2.5" style={{ color: B.green }} />
-            <span className="text-[7px] font-bold" style={{ color: B.slate }}>Owner privacy protected</span>
+            <span className="text-[7px] font-bold" style={{ color: B.slate }}>{t("landing_owner_privacy",language)}</span>
           </div>
 
           {/* Footer line */}
           <div className="px-3 pb-3 text-center">
-            <p className="text-[7px] font-semibold" style={{ color: B.slate }}>Powered by Bingoo Connect</p>
+            <p className="text-[7px] font-semibold" style={{ color: B.slate }}>{t("landing_powered_by",language)}</p>
           </div>
         </div>
       </motion.div>
@@ -144,8 +148,8 @@ const recoverySteps = [
   {
     n: 1,
     icon: Tag,
-    title: "ATTACH",
-    text: "Attach a Bingoo NFC device to your asset.",
+    titleKey: "landing_recovery_attach",
+    textKey: "landing_recovery_attach_copy",
     color: B.orange,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
@@ -158,36 +162,36 @@ const recoverySteps = [
   {
     n: 2,
     icon: ShieldCheck,
-    title: "PROTECT",
-    text: "Assign the device to the asset in Bingoo.",
+    titleKey: "landing_recovery_protect",
+    textKey: "landing_recovery_protect_copy",
     color: B.green,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
         <div className="flex h-7 w-9 items-center justify-center rounded-md text-white" style={{ background: `linear-gradient(145deg, ${B.navyDark}, ${B.navyLight})` }}><span className="text-[8px] font-black">∞</span></div>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.green }}>Protected</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.green }}>{t("landing_protected",language)}</span>
       </div>
     ),
   },
   {
     n: 3,
     icon: Shield,
-    title: "LOST MODE",
-    text: "If the asset is lost, activate Lost Mode.",
+    titleKey: "landing_lost_mode",
+    textKey: "landing_recovery_lost_copy",
     color: B.red,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.green }}>Protected</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.green }}>{t("landing_protected",language)}</span>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.orange }}>Lost Mode Active</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-black text-white" style={{ background: B.orange }}>{t("landing_lost_active",language)}</span>
       </div>
     ),
   },
   {
     n: 4,
     icon: Wifi,
-    title: "FINDER TAPS",
-    text: "The finder taps or scans the Bingoo device.",
+    titleKey: "landing_recovery_finder",
+    textKey: "landing_recovery_finder_copy",
     color: B.blue,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
@@ -205,33 +209,34 @@ const recoverySteps = [
   {
     n: 5,
     icon: Check,
-    title: "RECONNECT",
-    text: "The Lost Mode page helps the finder safely contact the owner.",
+    titleKey: "landing_recovery_reconnect",
+    textKey: "landing_recovery_reconnect_copy",
     color: B.gold,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.blue }}>Finder</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.blue }}>{t("landing_finder",language)}</span>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.green }}>Contact</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.green }}>{t("landing_contact",language)}</span>
         <ChevronRight className="h-2.5 w-2.5 text-slate-300" />
-        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.navy }}>Returned</span>
+        <span className="rounded-full px-1.5 py-0.5 text-[7px] font-bold text-white" style={{ background: B.navy }}>{t("landing_returned",language)}</span>
       </div>
     ),
   },
 ];
 
 const assets = [
-  { icon: Luggage, label: "Luggage" },
-  { icon: Tag, label: "Keys" },
-  { icon: Package, label: "Backpack" },
-  { icon: Laptop, label: "Laptop" },
-  { icon: Camera, label: "Camera" },
-  { icon: Briefcase, label: "Work Equipment" },
-  { icon: Tag, label: "Pet Tag" },
-  { icon: Wallet, label: "Wallet" },
+  { icon: Luggage, labelKey: "landing_asset_luggage" },
+  { icon: Tag, labelKey: "landing_asset_keys" },
+  { icon: Package, labelKey: "landing_asset_backpack" },
+  { icon: Laptop, labelKey: "landing_asset_laptop" },
+  { icon: Camera, labelKey: "landing_asset_camera" },
+  { icon: Briefcase, labelKey: "landing_asset_work" },
+  { icon: Tag, labelKey: "landing_asset_pet" },
+  { icon: Wallet, labelKey: "landing_asset_wallet" },
 ];
 
 export default function AssetProtectionLostMode() {
+  const { language } = useI18n();
   return (
     <section className="relative overflow-hidden px-4 py-16 md:px-6 md:py-24" style={{ background: `linear-gradient(165deg, ${B.navyDark} 0%, ${B.navy} 45%, ${B.navyLight} 100%)` }}>
       {/* Background accents */}
@@ -245,13 +250,13 @@ export default function AssetProtectionLostMode() {
         {/* Headline */}
         <motion.div {...reveal} className="mb-12 text-center md:mb-16">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-black" style={{ borderColor: "rgba(255,127,39,.4)", color: B.orange, background: "rgba(255,127,39,.1)" }}>
-            <Shield className="h-3.5 w-3.5" /> PROTECT YOUR ASSETS
+            <Shield className="h-3.5 w-3.5" / > {t("landing_protect_assets",language)}
           </div>
           <h2 className="mx-auto max-w-3xl text-3xl font-black leading-tight tracking-tight text-white md:text-5xl">
-            Lost doesn’t have to mean <span style={{ color: B.orange }}>gone.</span>
+            {t("landing_lost_not_gone",language)} <span style={{ color: B.orange }}>{t("landing_gone",language)}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg text-white/60">
-            Attach a Bingoo NFC device to luggage, keys, equipment or other valuable items. If it is lost, Lost Mode gives the finder a safe way to contact the owner.
+            {t("landing_lost_intro",language)}
           </p>
         </motion.div>
 
@@ -276,9 +281,9 @@ export default function AssetProtectionLostMode() {
                   <div className="flex-1 rounded-2xl border p-3" style={{ borderColor: "rgba(255,255,255,.08)", background: "rgba(255,255,255,.03)" }}>
                     <div className="mb-1 flex items-center gap-2">
                       <span className="text-[10px] font-black" style={{ color: B.slate }}>{String(s.n).padStart(2, "0")}</span>
-                      <h3 className="text-sm font-black text-white">{s.title}</h3>
+                      <h3 className="text-sm font-black text-white">{t(s.titleKey,language)}</h3>
                     </div>
-                    <p className="mb-2 text-xs leading-snug text-white/60">{s.text}</p>
+                    <p className="mb-2 text-xs leading-snug text-white/60">{t(s.textKey,language)}</p>
                     <div className="rounded-lg border p-1.5" style={{ borderColor: "rgba(255,255,255,.06)", background: "rgba(255,255,255,.02)" }}>
                       {s.visual}
                     </div>
@@ -296,9 +301,9 @@ export default function AssetProtectionLostMode() {
           </p>
           <div className="flex flex-wrap justify-center gap-2.5">
             {assets.map((a) => (
-              <div key={a.label} className="inline-flex items-center gap-1.5 rounded-full border px-4 py-2" style={{ borderColor: "rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)" }}>
+              <div key={a.labelKey} className="inline-flex items-center gap-1.5 rounded-full border px-4 py-2" style={{ borderColor: "rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)" }}>
                 <a.icon className="h-3.5 w-3.5" style={{ color: B.orange }} />
-                <span className="text-xs font-bold text-white/80">{a.label}</span>
+                <span className="text-xs font-bold text-white/80">{t(a.labelKey,language)}</span>
               </div>
             ))}
           </div>
@@ -309,51 +314,51 @@ export default function AssetProtectionLostMode() {
           {/* Privacy */}
           <motion.div {...reveal} className="rounded-3xl border p-6" style={{ borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }}>
             <div className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-black" style={{ background: `${B.green}22`, color: B.green }}>
-              <ShieldCheck className="h-3 w-3" /> PRIVACY FIRST
+              <ShieldCheck className="h-3 w-3" / > {t("landing_privacy_first",language)}
             </div>
-            <h3 className="mb-2 text-base font-black text-white">Help people reach you without exposing everything.</h3>
+            <h3 className="mb-2 text-base font-black text-white">{t("landing_privacy_help",language)}</h3>
             <p className="text-sm leading-relaxed text-white/60">
-              Lost Mode can provide a safe contact path while keeping the owner’s private account and dashboard information protected.
+              {t("landing_privacy_copy",language)}
             </p>
           </motion.div>
 
           {/* Finder experience */}
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.05 }} className="rounded-3xl border p-6" style={{ borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }}>
-            <p className="mb-1 text-[10px] font-black uppercase tracking-wide text-white/40">What the finder sees</p>
-            <h3 className="mb-3 text-sm font-black text-white">Found a Bingoo-protected item?</h3>
+            <p className="mb-1 text-[10px] font-black uppercase tracking-wide text-white/40">{t("landing_finder_sees",language)}</p>
+            <h3 className="mb-3 text-sm font-black text-white">{t("landing_found_item",language)}</h3>
             <div className="mb-3 flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "rgba(255,255,255,.08)" }}>
               <Luggage className="h-4 w-4" style={{ color: B.orange }} />
               <div>
-                <p className="text-[10px] font-black text-white">Travel Suitcase</p>
+                <p className="text-[10px] font-black text-white">{t("landing_travel_suitcase",language)}</p>
                 <p className="text-[8px] text-white/50">Lost Mode Active</p>
               </div>
             </div>
             <div className="mb-3 flex flex-wrap gap-1.5">
-              <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.green }}>Contact Owner</span>
+              <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.green }}>{t("landing_contact_owner",language)}</span>
               <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.blue }}>WhatsApp</span>
               <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.orange }}>Email</span>
-              <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.navyLight }}>Report Found</span>
+              <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: B.navyLight }}>{t("landing_report_found",language)}</span>
             </div>
             <p className="text-[10px] font-semibold text-emerald-400">✓ Owner privacy protected</p>
-            <p className="mt-1 text-[10px] text-white/50">No Bingoo account required to help return the item.</p>
+            <p className="mt-1 text-[10px] text-white/50">{t("landing_no_account_return",language)}</p>
           </motion.div>
 
           {/* Owner experience */}
           <motion.div {...reveal} transition={{ ...reveal.transition, delay: 0.1 }} className="rounded-3xl border p-6" style={{ borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }}>
-            <p className="mb-1 text-[10px] font-black uppercase tracking-wide text-white/40">What the owner sees</p>
-            <h3 className="mb-3 text-sm font-black text-white">My Assets</h3>
+            <p className="mb-1 text-[10px] font-black uppercase tracking-wide text-white/40">{t("landing_owner_sees",language)}</p>
+            <h3 className="mb-3 text-sm font-black text-white">{t("landing_my_assets",language)}</h3>
             <div className="mb-3 flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "rgba(255,255,255,.08)" }}>
               <Luggage className="h-4 w-4 text-white/70" />
               <div className="flex-1">
-                <p className="text-[10px] font-black text-white">Travel Suitcase</p>
-                <p className="text-[8px] text-white/50">NFC Device Connected · Lost Mode: Active</p>
+                <p className="text-[10px] font-black text-white">{t("landing_travel_suitcase",language)}</p>
+                <p className="text-[8px] text-white/50">{t("landing_nfc_connected_lost",language)}</p>
               </div>
             </div>
-            <p className="mb-1.5 text-[10px] font-black uppercase tracking-wide text-white/40">Finder report</p>
+            <p className="mb-1.5 text-[10px] font-black uppercase tracking-wide text-white/40">{t("landing_finder_report",language)}</p>
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5"><Check className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">Item Found</span></div>
-              <div className="flex items-center gap-1.5"><MapPin className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">Location shared</span></div>
-              <div className="flex items-center gap-1.5"><MessageCircle className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">Message received</span></div>
+              <div className="flex items-center gap-1.5"><Check className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">{t("landing_item_found",language)}</span></div>
+              <div className="flex items-center gap-1.5"><MapPin className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">{t("landing_location_shared",language)}</span></div>
+              <div className="flex items-center gap-1.5"><MessageCircle className="h-2.5 w-2.5 text-emerald-400" /><span className="text-[10px] text-white/70">{t("landing_message_received",language)}</span></div>
             </div>
           </motion.div>
         </div>
@@ -361,17 +366,17 @@ export default function AssetProtectionLostMode() {
         {/* Value statement + CTA */}
         <motion.div {...reveal} className="mt-16 text-center md:mt-20">
           <h3 className="mx-auto max-w-2xl text-2xl font-black leading-tight text-white md:text-3xl">
-            ONE NFC DEVICE. <span style={{ color: B.orange }}>A BETTER CHANCE OF GETTING IT BACK.</span>
+            {t("landing_better_chance",language)} <span style={{ color: B.orange }}>{t("landing_getting_back",language)}</span>
           </h3>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/60">
-            From travel luggage to business equipment, Bingoo gives physical assets a digital identity that can help them find their way home.
+            {t("landing_assets_identity_copy",language)}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <motion.a href="/my-nfc-devices" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-black text-white" style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}>
-              <Shield className="h-4 w-4" /> Protect an Asset <ArrowRight className="h-4 w-4" />
+              <Shield className="h-4 w-4" /> {t("landing_protect_asset",language)} <ArrowRight className="h-4 w-4" />
             </motion.a>
             <motion.a href="/shop" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-black" style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.2)", color: "#fff" }}>
-              Get an NFC Device <ArrowRight className="h-4 w-4" />
+              {t("landing_get_nfc_device",language)} <ArrowRight className="h-4 w-4" />
             </motion.a>
           </div>
         </motion.div>
