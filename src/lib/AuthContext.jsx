@@ -49,17 +49,19 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     try {
       let currentUser = await getCurrentAccount();
-      if (currentUser?.preferred_region) {
-        persistRegion(currentUser.preferred_region);
-      } else {
+      if (currentUser?.preferred_region) persistRegion(currentUser.preferred_region);
+
+      const seed = {};
+      if (!currentUser?.preferred_region) {
         const detectedRegion = getRegion();
+        if (detectedRegion) seed.preferred_region = detectedRegion;
+      }
+      if (!currentUser?.preferred_language) {
         const detectedLanguage = getLang();
-        const seed = {};
-        if (!currentUser?.preferred_region && detectedRegion) seed.preferred_region = detectedRegion;
-        if (!currentUser?.preferred_language && detectedLanguage) seed.preferred_language = detectedLanguage;
-        if (Object.keys(seed).length) {
-          currentUser = await updateCurrentAccount(seed).catch(() => currentUser);
-        }
+        if (detectedLanguage) seed.preferred_language = detectedLanguage;
+      }
+      if (Object.keys(seed).length) {
+        currentUser = await updateCurrentAccount(seed).catch(() => currentUser);
       }
       setUser(currentUser);
       setIsAuthenticated(true);
