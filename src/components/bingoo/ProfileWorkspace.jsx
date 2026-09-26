@@ -1077,7 +1077,7 @@ export default function ProfileWorkspace({
       {/* ── Figma Make top bar ── */}
       <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-2.5 sm:py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
         <button type="button" onClick={onBack} aria-label={t("workspace_back_profiles", lang)}
-          className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+          className={`w-[44px] h-[44px] sm:w-[34px] sm:h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
           <ChevronLeft className="w-[15px] h-[15px]" />
         </button>
 
@@ -1092,14 +1092,14 @@ export default function ProfileWorkspace({
 
         {profileUrl && (
           <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label={t("workspace_preview_public", lang)}
-            className={`h-[34px] px-2.5 sm:px-3 rounded-lg border flex items-center justify-center gap-1.5 flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
+            className={`h-[44px] sm:h-[34px] px-2.5 sm:px-3 rounded-lg border flex items-center justify-center gap-1.5 flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
             <Eye className="w-[14px] h-[14px]" />
             <span className="hidden sm:inline text-[11px] font-bold">{t("studio_public_profile", lang)}</span>
           </button>
         )}
 
         <button type="button" onClick={() => handleSave(innerTab)} disabled={saveMutation.isPending || !hasUnsavedChanges}
-          className="flex items-center justify-center gap-1.5 w-[42px] sm:w-auto px-0 sm:px-5 py-2 rounded-xl text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 w-[44px] min-h-[44px] sm:w-auto sm:min-h-0 px-0 sm:px-5 py-2 rounded-xl text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
           style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.30)" }}>
           {saveMutation.isPending && <Save className="w-[13px] h-[13px] animate-pulse" />}
           <span className="hidden sm:inline">{t("save", lang)}</span>
@@ -1112,7 +1112,7 @@ export default function ProfileWorkspace({
         <div className="flex w-max min-w-full gap-1 px-2.5 py-2 whitespace-nowrap">
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
-              className={`flex items-center gap-1.5 min-h-[36px] px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 ${
+              className={`flex items-center gap-1.5 min-h-[44px] px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 ${
                 innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
               }`}
               style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
