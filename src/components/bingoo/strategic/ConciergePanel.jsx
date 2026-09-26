@@ -4,7 +4,7 @@ import { Phone, Mail, CheckCircle2, Loader2, Headphones, Sparkles } from "lucide
 
 const NAVY = "#0b2149", ORANGE = "#f97316";
 
-export default function ConciergePanel({ profile, isDark, user }) {
+export default function ConciergePanel({ profile, isDark }) {
   // Check completion state for onboarding plan
   const { data: teamMembers = [] } = useQuery({
     queryKey: ["concierge-team", profile?.id],
