@@ -50,7 +50,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
   const [accentColor, setAccentColor] = useState(ORANGE);
   const [nameText, setNameText] = useState(profile?.display_name || '');
   const [roleText, setRoleText] = useState(profile?.job_title || '');
-  const [nfcDestination, setNfcDestination] = useState(publicProfileUrl(profile?.username) || '');
+  const nfcDestination = publicProfileUrl(profile?.username) || '';
   const [finish, setFinish] = useState('Matte');
   const [quantity, setQuantity] = useState(1);
   const [ordered, setOrdered] = useState(false);
@@ -93,7 +93,6 @@ export default function DesignStudioProfessional({ isDark, profile }) {
     setAccentColor(d.accentColor || ORANGE);
     setNameText(d.nameText || '');
     setRoleText(d.roleText || '');
-    setNfcDestination(d.nfcDestination || '');
     setFinish(d.finish || 'Matte');
     setQuantity(d.quantity || 1);
     setLogoUrl(d.logoUrl || null);
@@ -213,8 +212,8 @@ export default function DesignStudioProfessional({ isDark, profile }) {
             </div>
             <div>
               <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>{t("ds_nfc_destination", language)}</p>
-              <input value={nfcDestination} onChange={(e) => setNfcDestination(e.target.value)} placeholder="/p/votreidentifiant" className={inputCls} />
-              <p className="text-[9px] mt-1" style={{ color: MUTED }}>{t("ds_nfc_destination_copy", language)}</p>
+              <div className={`${inputCls} font-mono text-[11px] break-all min-h-[40px] flex items-center`}>{nfcDestination || t("ds_nfc_destination_copy", language)}</div>
+              <p className="text-[9px] mt-1" style={{ color: MUTED }}>{language === "fr" ? "La destination du profil est affichée pour la conception. Le NFC physique sera encodé avec son lien permanent sécurisé /d/BG-###### lors de la production." : "The profile destination is shown for design context. The physical NFC will be encoded with its permanent secure /d/BG-###### link during production."}</p>
             </div>
           </div>
 
