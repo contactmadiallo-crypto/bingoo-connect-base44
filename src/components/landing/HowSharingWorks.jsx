@@ -10,6 +10,9 @@ import {
   Wifi,
 } from "lucide-react";
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: "#0b2149",
   navyDark: "#071A3D",
@@ -100,8 +103,8 @@ const steps = [
   {
     n: 1,
     icon: UserPlus,
-    title: "Create Profile",
-    text: "Create your professional profile.",
+    titleKey: "landing_how_create",
+    textKey: "landing_how_create_copy",
     color: B.orange,
     visual: (
       <div className="rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
@@ -123,8 +126,8 @@ const steps = [
   {
     n: 2,
     icon: CreditCard,
-    title: "Activate NFC / QR",
-    text: "Connect your Bingoo NFC card, keychain, bracelet, sticker or QR code.",
+    titleKey: "landing_how_activate",
+    textKey: "landing_how_activate_copy",
     color: B.navy,
     visual: (
       <div className="flex items-center justify-center gap-1.5 py-1">
@@ -137,8 +140,8 @@ const steps = [
   {
     n: 3,
     icon: Wifi,
-    title: "Tap or Scan",
-    text: "A physical Bingoo NFC card taps a phone.",
+    titleKey: "landing_how_tap",
+    textKey: "landing_how_tap_copy",
     color: B.orange,
     visual: (
       <div className="flex items-center justify-center gap-2 py-1">
@@ -168,8 +171,8 @@ const steps = [
   {
     n: 4,
     icon: Briefcase,
-    title: "Profile Opens",
-    text: "The fictional public profile opens instantly.",
+    titleKey: "landing_how_opens",
+    textKey: "landing_how_opens_copy",
     color: B.blue,
     visual: (
       <div className="rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
@@ -177,7 +180,7 @@ const steps = [
           <div className="flex h-7 w-7 items-center justify-center rounded-full text-white" style={{ background: `linear-gradient(135deg, ${B.navy}, ${B.navyLight})` }}><span className="text-[8px] font-black">TM</span></div>
           <div className="text-left">
             <p className="text-[9px] font-black" style={{ color: B.navy }}>Taylor Morgan</p>
-            <p className="text-[8px]" style={{ color: B.slate }}>Business Consultant</p>
+            <p className="text-[8px]" style={{ color: B.slate }}>{t("landing_business_consultant",language)}</p>
             <p className="text-[7px] font-semibold" style={{ color: B.orange }}>Morgan Advisory</p>
           </div>
         </div>
@@ -187,18 +190,18 @@ const steps = [
   {
     n: 5,
     icon: Bell,
-    title: "Capture Connection",
-    text: "The interaction becomes a managed lead.",
+    titleKey: "landing_how_capture",
+    textKey: "landing_how_capture_copy",
     color: B.gold,
     visual: (
       <div className="rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-500"><Bell className="h-3 w-3" /></div>
           <div className="text-left">
-            <p className="text-[8px] font-black" style={{ color: B.orange }}>New Connection</p>
+            <p className="text-[8px] font-black" style={{ color: B.orange }}>{t("landing_new_connection",language)}</p>
             <p className="text-[8px]" style={{ color: B.navy }}>Taylor Morgan</p>
-            <p className="text-[7px]" style={{ color: B.slate }}>Source: NFC Tap</p>
-            <p className="text-[7px] font-black text-emerald-600">Lead saved ✓</p>
+            <p className="text-[7px]" style={{ color: B.slate }}>{t("landing_source_nfc",language)}</p>
+            <p className="text-[7px] font-black text-emerald-600">{t("landing_lead_saved_check",language)}</p>
           </div>
         </div>
       </div>
@@ -207,8 +210,8 @@ const steps = [
   {
     n: 6,
     icon: BarChart3,
-    title: "Follow Up & Grow",
-    text: "Track the journey from lead to customer.",
+    titleKey: "landing_how_follow",
+    textKey: "landing_how_follow_copy",
     color: B.green,
     visual: (
       <div>
@@ -236,6 +239,8 @@ const steps = [
 const shareFormats = ["NFC Card", "Keychain", "Bracelet", "Sticker", "Desk Stand", "QR Code"];
 
 export default function HowSharingWorks() {
+  const { language } = useI18n();
+  const localizedSteps = localizedSteps.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
   return (
     <section className="relative overflow-hidden bg-slate-50 px-4 py-16 md:px-6 md:py-24">
       <div className="pointer-events-none absolute inset-0">
@@ -250,7 +255,7 @@ export default function HowSharingWorks() {
             <Wifi className="h-3.5 w-3.5" /> HOW SHARING WORKS
           </div>
           <h2 className="mx-auto max-w-3xl text-3xl font-black leading-tight tracking-tight md:text-5xl" style={{ color: B.navy }}>
-            Share your business in <span style={{ color: B.orange }}>seconds.</span>
+            {t("landing_share_business_seconds",language)} <span style={{ color: B.orange }}>{t("landing_seconds",language)}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: B.slate }}>
             Create your Bingoo profile once, then share it anywhere with NFC or QR. Every connection can become a lead, booking or future customer.
@@ -269,7 +274,7 @@ export default function HowSharingWorks() {
             viewport={{ once: true, margin: "-60px" }}
             variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
           >
-            {steps.map((s) => (
+            {localizedSteps.map((s) => (
               <motion.div
                 key={s.n}
                 variants={{ hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } }}
