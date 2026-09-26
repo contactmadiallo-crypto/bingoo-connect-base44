@@ -36,7 +36,6 @@ import { PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib
 import { ChevronLeft
 } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
 const MyAssetsPanel = React.lazy(() => import("@/components/bingoo/MyAssetsPanel"));
@@ -591,7 +590,6 @@ export default function BingooDashboard() {
                   compact
                 />
               )}
-              <NotificationCenter userId={user?.id} isDark={isDark} />
               <button onClick={toggleLang} aria-label="Toggle language"
                 className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
                 {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
