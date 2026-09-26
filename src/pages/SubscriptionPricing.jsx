@@ -10,6 +10,7 @@ import { PLAN_HIERARCHY, PLAN_FEATURES, PLAN_CONFIG, CUSTOMER_PLAN_IDS } from '@
 import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/lib/I18nContext';
 import { localizePlanText } from '@/lib/planI18n';
+import { openExternalUrl } from '@/lib/nativePlatform';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -127,7 +128,7 @@ export default function SubscriptionPricing() {
         billing_cycle: billingCycle,
       });
       if (res.data?.url) {
-        window.location.href = res.data.url;
+        await openExternalUrl(res.data.url);
       } else if (res.data?.updated) {
         toast({ title: tr('Plan Updated', 'Forfait mis à jour'), description: res.data.message || tr('Your plan has been updated.', 'Votre forfait a été mis à jour.') });
         window.location.href = '/billing';
