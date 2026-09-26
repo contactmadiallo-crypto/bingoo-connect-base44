@@ -10,6 +10,7 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { Globe2 } from "lucide-react";
+import { REGION_OPTIONS, getRegion, setRegion as persistRegion, getCurrency } from "@/lib/regionSettings";
 
 export default function AccountSettings() {
   const navigate = useNavigate();
@@ -19,6 +20,12 @@ export default function AccountSettings() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [region, setRegion] = useState(() => getRegion());
+
+  const handleRegionChange = (nextRegion) => {
+    persistRegion(nextRegion);
+    setRegion(nextRegion);
+  };
 
   useEffect(() => {
     let meta = document.querySelector('meta[name="robots"]');
@@ -157,8 +164,24 @@ export default function AccountSettings() {
             <Globe2 className="w-5 h-5 text-blue-600" /> {t("language_region", language)}
           </h2>
           <p className="text-slate-500 text-sm mb-4">{t("account_language_copy", language)}</p>
-          <div className="max-w-xs">
-            <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">{language === "fr" ? "Langue" : "Language"}</p>
+              <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">{language === "fr" ? "Région" : "Region"}</p>
+              <select value={region} onChange={(e) => handleRegionChange(e.target.value)}
+                className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800">
+                {!REGION_OPTIONS[region] && <option value={region}>{region}</option>}
+                {Object.entries(REGION_OPTIONS).map(([code, meta]) => (
+                  <option key={code} value={code}>{meta.name} · {meta.currency}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-400 mt-2">
+                {language === "fr" ? "Devise régionale" : "Regional currency"}: <strong>{getCurrency(region)}</strong>
+              </p>
+            </div>
           </div>
           <p className="text-xs text-slate-400 mt-3">{t("account_language_note", language)}</p>
         </div>
