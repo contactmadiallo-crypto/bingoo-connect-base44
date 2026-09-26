@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import BingooLayout from '@/components/bingoo/BingooLayout';
 import { useI18n } from '@/lib/I18nContext';
 import { localizePlanText } from '@/lib/planI18n';
+import { openExternalUrl } from '@/lib/nativePlatform';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -77,7 +78,7 @@ export default function Billing() {
     setCheckoutLoading(planId);
     try {
       const res = await base44.functions.invoke('createSubscriptionSession', { plan: planId, billing_cycle: billingCycle });
-      if (res.data?.url) window.location.href = res.data.url;
+      if (res.data?.url) await openExternalUrl(res.data.url);
       else if (res.data?.updated) toast({ title: tr('Plan Updated', 'Forfait mis à jour'), description: res.data.message });
     } catch (err) {
       toast({ title: tr('Checkout Failed', 'Échec du paiement'), description: err.message, variant: 'destructive' });
@@ -94,7 +95,7 @@ export default function Billing() {
     setPortalLoading(true);
     try {
       const res = await base44.functions.invoke('createBillingPortalSession', {});
-      if (res.data?.url) window.location.href = res.data.url;
+      if (res.data?.url) await openExternalUrl(res.data.url);
     } catch (err) {
       toast({ title: tr('Portal Error', 'Erreur du portail'), description: err.message, variant: 'destructive' });
     } finally {
