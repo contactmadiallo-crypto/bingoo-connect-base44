@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, Settings, QrCode, Plus, Zap, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Eye, Settings, QrCode, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -14,7 +14,6 @@ export default function ProfilesHub({
   maxProfiles = 1,
   onSelectProfile,
   onCreateNew,
-  onLaunchAI,
   defaultProfileId,
   onSetDefault,
   // The profile currently active in the dashboard (selectedProfileId ?? default ?? first).
