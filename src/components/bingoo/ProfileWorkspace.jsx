@@ -141,12 +141,6 @@ function buildChangedPayload(liveForm, persistedProfile) {
   return payload;
 }
 
-const COVER_COLORS = [
-  "#2563eb","#0b2149","#13284f","#7c3aed",
-  "#db2777","#059669","#d97706","#dc2626",
-  "#0891b2","#1e293b","#374151","#f97316"
-];
-
 const Toggle = ({ value, onChange }) => (
   <button type="button" onClick={() => onChange(!value)}
     className={`w-11 h-6 rounded-full relative transition-colors flex-shrink-0 ${value ? "bg-orange-500" : "bg-slate-300"}`}>
@@ -218,7 +212,7 @@ function SaveBtn({ onSave, isPending, label }) {
 }
 
 // ── INFO PANEL ────────────────────────────────────────────────────────────
-function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, profile, userPlan, lang }) {
+function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, lang }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const isBusinessIdentity = ["business", "lawfirm", "salon", "corporate"].includes(liveForm.profile_type) || liveForm.profile_category === "business";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
@@ -366,8 +360,6 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   };
 
   const toggleLink = (idx) => setVal("custom_links", links.map((l, i) => i === idx ? { ...l, enabled: !l.enabled } : l));
-  const removeLink = (idx) => setVal("custom_links", links.filter((_, i) => i !== idx));
-
   // All field-type links that have a value
   const FIELD_LINKS = [
     { key: "phone",           label: t("workspace_phone", lang),        Icon: BIPhone,        category: t("workspace_category_contact", lang) },
@@ -772,7 +764,7 @@ function LostModePanel({ profileId, user, isDark, effectivePlan, lang }) {
 }
 
 // ── SETTINGS PANEL ────────────────────────────────────────────────────────
-function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, user, onDeleted }) {
+function SettingsPanel({ liveForm, setVal, onSave, isPending, saveStatus, saveTime, saveError, isDark, lang, profile, onDeleted }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
@@ -874,8 +866,6 @@ export default function ProfileWorkspace({
   user,
   onBack,
   isDark,
-  isLawFirm,
-  isSalon,
   lang: langProp,
   profiles = [],
   onSelectProfile,
@@ -1084,7 +1074,6 @@ export default function ProfileWorkspace({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [mobilePreviewOpen]);
 
-  const headText  = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
 
   if (isLoading || !liveForm) {
