@@ -3,13 +3,13 @@
 ## Release identity
 - Existing Google Play app package: `com.bingooconnect.app`
 - This is an UPDATE of the existing listing, not a second Play Store app.
-- Proposed release name: `2.0.0`
-- Proposed versionCode: `1` for the first uploaded app bundle. Play Console currently shows no prior app bundles/releases for this listing.
+- Next update release name: `1.1.0`
+- Next update versionCode: `2` (the first `1.0.0` / code `1` bundle has already been submitted to Google Play and is under review).
 - Production domain: `https://bingooconnect.com`
 - Android target/compile SDK: 36
 
 ## Critical rule before upload
-Play Console currently shows **Latest app bundles: None**, so this listing has no previously uploaded bundle version code. Use `BINGOO_VERSION_CODE=1` for the first bundle. Every later upload must increment it.
+The first uploaded bundle used `versionCode=1`. The next Play upload must use a greater code; this release is configured as `BINGOO_VERSION_CODE=2` and `BINGOO_VERSION_NAME=1.1.0`. Before any later upload, compare against Play Console > App bundle explorer and increment again.
 
 Do not change the applicationId. Keeping `com.bingooconnect.app` is what makes this release update the existing Bingoo Connect app.
 
@@ -30,9 +30,12 @@ The release AAB must be signed with the upload key accepted by the existing Play
 - Public profile `/p/:username`
 - NFC `/d/BG-######`: unclaimed, profile, asset, lost/recovery
 - Device activation and assignment
-- Shop → Stripe → paid confirmation → My Orders
+- Shop → Stripe → verified HTTPS App Link return → paid confirmation → My Orders
+- Stripe cancel → verified HTTPS App Link return to cart
 - Design Studio → cart → checkout → frozen production design
-- Google Wallet
+- Google Wallet generation, Save to Google Wallet handoff, and canonical `bingooconnect.com/p/:username` QR/profile link
+- Camera QR scan permission grant, denial, retry, and successful scan
+- Voice recorder microphone permission grant/denial
 - File/image upload and download
 - Android back navigation and external links
 - App Links from `https://bingooconnect.com`
@@ -56,5 +59,10 @@ The release AAB must be signed with the upload key accepted by the existing Play
 - Android App Links are configured for `bingooconnect.com`.
 - The Base44 sandbox currently has no Java runtime, so it cannot compile the AAB here.
 - Production dependency audit still needs remediation/review before rollout.
-- Existing project-wide typecheck contains legacy errors and is not currently a clean release gate.
+- Production lint is clean (0 errors / 0 warnings in the shipping lint scope).
+- Project typecheck is clean.
+- Production smoke/security checks pass.
+- Capacitor Android sync passes.
+- Android release is configured as `1.1.0` / versionCode `2`.
+- CAMERA and RECORD_AUDIO permissions are declared for QR scanning and voice recording.
 - Existing web-push implementation must not be assumed to provide native Android push behavior.
