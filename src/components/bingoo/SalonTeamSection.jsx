@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { X, Phone, MessageCircle, Mail, ChevronRight } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const hexRgb = (hex, a = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${a})`;
@@ -19,7 +21,7 @@ function InfoChip({ label, isDark }) {
   );
 }
 
-function StylistModal({ member, color, isDark, onClose, onBook }) {
+function StylistModal({ member, color, isDark, onClose, onBook, language }) {
   const bg = isDark ? "#0f172a" : "#ffffff";
   const textPrimary = isDark ? "#fff" : "#0f172a";
   const textSecondary = isDark ? "rgba(255,255,255,0.55)" : "#64748b";
@@ -90,7 +92,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
           {/* Specialties */}
           {specialties.length > 0 && (
             <div style={{ marginBottom: 20 }}>
-              <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8" }}>Specialties</p>
+              <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8" }}>{t("team_public_specialties",language)}</p>
               <div>{specialties.map(s => <InfoChip key={s} label={s} isDark={isDark} />)}</div>
             </div>
           )}
@@ -98,7 +100,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
           {/* Languages */}
           {languages.length > 0 && (
             <div style={{ marginBottom: 20 }}>
-              <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8" }}>Languages</p>
+              <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8" }}>{t("team_public_languages",language)}</p>
               <div>{languages.map(l => <InfoChip key={l} label={l} isDark={isDark} />)}</div>
             </div>
           )}
@@ -128,7 +130,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
                 <div style={{ flex: 1, padding: "12px 14px", borderRadius: 12,
                   background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc",
                   border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
-                  <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Availability</p>
+                  <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>{t("team_public_availability",language)}</p>
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: textPrimary }}>{member.availability}</p>
                 </div>
               )}
@@ -136,7 +138,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
                 <div style={{ flex: 1, padding: "12px 14px", borderRadius: 12,
                   background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc",
                   border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0" }}>
-                  <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Rate / Fee</p>
+                  <p style={{ margin: "0 0 2px", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>{t("team_public_rate",language)}</p>
                   <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: color }}>{member.consultation_fee}</p>
                 </div>
               )}
@@ -154,7 +156,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
                   color: "#fff", fontWeight: 700, fontSize: 13,
                   boxShadow: `0 4px 14px ${hexRgb(color, 0.3)}`,
                 }}>
-                  <Phone size={15} /> Call
+                  <Phone size={15} /> {t("team_public_call",language)}
                 </a>
               )}
               {member.whatsapp && (
@@ -176,7 +178,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
                   color: isDark ? "#fff" : "#374151", fontWeight: 700, fontSize: 13,
                   border: isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid #e2e8f0",
                 }}>
-                  <Mail size={15} /> Email
+                  <Mail size={15} /> {t("team_public_email",language)}
                 </a>
               )}
             </div>
@@ -190,7 +192,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
               color: "#fff", fontWeight: 900, fontSize: 15,
               boxShadow: `0 6px 20px ${hexRgb(color, 0.35)}`,
             }}>
-              📅 Book Appointment with {member.name?.split(" ")[0]}
+              📅 {t("team_public_book_with",language)} {member.name?.split(" ")[0]}
             </button>
           )}
         </div>
@@ -200,6 +202,7 @@ function StylistModal({ member, color, isDark, onClose, onBook }) {
 }
 
 export default function SalonTeamSection({ profileId, color = "#0b2149", isDark, canBook, onBookWithStylist }) {
+  const { language } = useI18n();
   const [selected, setSelected] = useState(null);
 
   const { data: members = [], isLoading } = useQuery({
@@ -215,7 +218,7 @@ export default function SalonTeamSection({ profileId, color = "#0b2149", isDark,
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
           <span style={{ fontSize: 18 }}>👥</span>
-          <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>Our Team</span>
+          <span style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.12em", color: "#94a3b8" }}>{t("team_public_title",language)}</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -274,6 +277,7 @@ export default function SalonTeamSection({ profileId, color = "#0b2149", isDark,
           color={color}
           isDark={isDark}
           onClose={() => setSelected(null)}
+          language={language}
           onBook={canBook && onBookWithStylist ? () => { onBookWithStylist(selected.name); setSelected(null); } : undefined}
         />
       )}
