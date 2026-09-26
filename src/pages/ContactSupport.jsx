@@ -2,19 +2,13 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle2, Loader2, Mail, MessageSquare, FileText, Shield } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
-const TOPICS = [
-  "Account & Login",
-  "NFC Device Activation",
-  "Lost Mode / Recovery",
-  "Subscription & Billing",
-  "Profile Setup",
-  "Technical Issue / Bug",
-  "Data Privacy Request",
-  "Other",
-];
+const TOPICS = ["support_topic_account","support_topic_nfc","support_topic_lost","support_topic_billing","support_topic_profile","support_topic_bug","support_topic_privacy","support_topic_other"];
 
 export default function ContactSupport() {
+  const { language } = useI18n();
   const [form, setForm] = useState({ name: "", email: "", topic: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -37,8 +31,8 @@ export default function ContactSupport() {
         <Link to="/" style={{ display: "inline-flex", alignItems: "center", marginBottom: 20, textDecoration: "none", color: "rgba(255,255,255,0.7)", fontWeight: 700, fontSize: 14 }}>
           ← Bingoo Connect
         </Link>
-        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Contact Support</h1>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>We typically respond within 24 hours</p>
+        <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>{t("support_title",language)}</h1>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>{t("support_response_24",language)}</p>
       </div>
 
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "40px 24px 60px" }}>
@@ -46,10 +40,10 @@ export default function ContactSupport() {
         {/* Quick links */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 32 }}>
           {[
-            { icon: <Shield size={20} color="#2563eb" />, label: "Privacy Policy", desc: "How we handle your data", to: "/privacy" },
-            { icon: <FileText size={20} color="#7c3aed" />, label: "Terms of Service", desc: "Rules & agreements", to: "/terms" },
-            { icon: <Mail size={20} color="#dc2626" />, label: "Data Deletion", desc: "Delete your account & data", to: "/data-deletion" },
-            { icon: <MessageSquare size={20} color="#059669" />, label: "Email Us", desc: "info.contact@bingooconnect.com", href: "mailto:info.contact@bingooconnect.com" },
+            { icon: <Shield size={20} color="#2563eb" />, label: t("legal_privacy",language), desc: t("support_privacy_desc",language), to: "/privacy" },
+            { icon: <FileText size={20} color="#7c3aed" />, label: t("legal_terms",language), desc: t("support_terms_desc",language), to: "/terms" },
+            { icon: <Mail size={20} color="#dc2626" />, label: t("legal_data_deletion",language), desc: t("support_deletion_desc",language), to: "/data-deletion" },
+            { icon: <MessageSquare size={20} color="#059669" />, label: t("support_email_us",language), desc: "info.contact@bingooconnect.com", href: "mailto:info.contact@bingooconnect.com" },
           ].map(({ icon, label, desc, to, href }) => {
             const inner = (
               <div style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", border: "1px solid #e2e8f0", display: "flex", gap: 12, alignItems: "flex-start", cursor: "pointer", transition: "box-shadow 0.15s" }}
@@ -73,24 +67,24 @@ export default function ContactSupport() {
             <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#d1fae5", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <CheckCircle2 size={36} color="#059669" />
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", margin: "0 0 10px" }}>Message Sent!</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#0f172a", margin: "0 0 10px" }}>{t("support_message_sent",language)}</h2>
             <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7 }}>
-              Thanks for reaching out. We'll reply to <strong>{form.email}</strong> within 24 hours.
+              {t("support_thanks",language)} <strong>{form.email}</strong> {t("support_within",language)}
             </p>
             <button
               onClick={() => { setSubmitted(false); setForm({ name: "", email: "", topic: "", message: "" }); }}
               style={{ marginTop: 20, padding: "10px 24px", borderRadius: 999, background: "#0b2149", color: "#fff", fontWeight: 700, fontSize: 13, border: "none", cursor: "pointer" }}
             >
-              Send Another Message
+              {t("support_send_another",language)}
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 20, padding: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 20px" }}>Send a Message</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", margin: "0 0 20px" }}>{t("support_send_message",language)}</h2>
 
             {[
-              { label: "Your Name", key: "name", type: "text", placeholder: "Full name" },
-              { label: "Email Address", key: "email", type: "email", placeholder: "your@email.com" },
+              { label: t("support_your_name",language), key: "name", type: "text", placeholder: t("support_full_name",language) },
+              { label: t("support_email_address",language), key: "email", type: "email", placeholder: "your@email.com" },
             ].map(({ label, key, type, placeholder }) => (
               <div key={key} style={{ marginBottom: 16 }}>
                 <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</label>
@@ -104,20 +98,20 @@ export default function ContactSupport() {
             ))}
 
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Topic</label>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{t("support_topic",language)}</label>
               <select
                 value={form.topic} onChange={e => setForm(p => ({ ...p, topic: e.target.value }))} required
                 style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", background: "#f8fafc" }}
               >
-                <option value="">Select a topic…</option>
-                {TOPICS.map(t => <option key={t} value={t}>{t}</option>)}
+                <option value="">{t("support_select_topic",language)}</option>
+                {TOPICS.map(topicKey => <option key={topicKey} value={t(topicKey,"en")}>{t(topicKey,language)}</option>)}
               </select>
             </div>
 
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Message</label>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#374151", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>{t("contact_message",language)}</label>
               <textarea
-                placeholder="Describe your issue or question in detail…"
+                placeholder={t("support_message_detail",language)}
                 value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} required
                 rows={5}
                 style={{ width: "100%", padding: "12px 16px", borderRadius: 12, border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a", outline: "none", resize: "vertical", background: "#f8fafc", boxSizing: "border-box" }}
@@ -129,7 +123,7 @@ export default function ContactSupport() {
               disabled={submitting || !form.name || !form.email || !form.topic || !form.message}
               style={{ width: "100%", padding: "14px", borderRadius: 12, background: submitting || !form.name || !form.email || !form.topic || !form.message ? "#94a3b8" : "#0b2149", color: "#fff", fontWeight: 800, fontSize: 15, border: "none", cursor: submitting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
             >
-              {submitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> Sending…</> : <><Mail size={18} /> Send Message</>}
+              {submitting ? <><Loader2 size={18} style={{ animation: "spin 1s linear infinite" }} /> {t("support_sending",language)}</> : <><Mail size={18} /> {t("contact_send",language)}</>}
             </button>
           </form>
         )}
