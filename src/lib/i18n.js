@@ -10,6 +10,11 @@
 export const SUPPORTED_LANGUAGES = {
   en: { name: 'English', nativeName: 'English', flag: '🇺🇸', dir: 'ltr' },
   fr: { name: 'French', nativeName: 'Français', flag: '🇫🇷', dir: 'ltr' },
+};
+
+// Languages planned for future packs. Keep these separate from the selectable
+// UI list until their translation coverage is production-ready.
+export const PLANNED_LANGUAGES = {
   es: { name: 'Spanish', nativeName: 'Español', flag: '🇪🇸', dir: 'ltr' },
   pt: { name: 'Portuguese', nativeName: 'Português', flag: '🇵🇹', dir: 'ltr' },
   de: { name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
