@@ -67,8 +67,8 @@ export default function AssetDeviceAssignModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={handleClose}>
-      <div className={`w-full max-w-md max-h-[80vh] rounded-2xl border ${panelBorder} ${panelBg} flex flex-col`} onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50" onClick={handleClose}>
+      <div className={`w-full sm:max-w-md max-h-[92dvh] sm:max-h-[80vh] rounded-t-3xl sm:rounded-2xl border ${panelBorder} ${panelBg} flex flex-col overflow-hidden`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className={`flex items-center justify-between p-4 border-b ${panelBorder}`}>
           <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export default function AssetDeviceAssignModal({
             </div>
             <h3 className={`text-sm font-black ${headText}`}>{t("asset_select_nfc", language)}</h3>
           </div>
-          <button onClick={handleClose}><X className={`w-4 h-4 ${mutedText}`} /></button>
+          <button onClick={handleClose} aria-label={language === "fr" ? "Fermer" : "Close"} className="w-11 h-11 -mr-2 flex items-center justify-center rounded-xl"><X className={`w-4 h-4 ${mutedText}`} /></button>
         </div>
 
         {/* Search */}
@@ -102,7 +102,7 @@ export default function AssetDeviceAssignModal({
 
             return (
               <button key={d.id} onClick={() => setSelectedId(d.id)}
-                className={`w-full text-left p-3 rounded-xl border transition-all ${isSelected ? (isDark ? 'bg-orange-500/15 border-orange-500/40' : 'bg-orange-50 border-orange-300') : `${panelBorder} ${itemBg}`}`}>
+                className={`w-full text-left p-3 min-h-[56px] rounded-xl border transition-all ${isSelected ? (isDark ? 'bg-orange-500/15 border-orange-500/40' : 'bg-orange-50 border-orange-300') : `${panelBorder} ${itemBg}`}`}>
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-orange-500/20' : (isDark ? 'bg-white/5' : 'bg-slate-100')}`}>
                     <Wifi className={`w-4 h-4 ${isSelected ? 'text-orange-500' : mutedText}`} />
@@ -154,15 +154,15 @@ export default function AssetDeviceAssignModal({
                 )}
               </div>
             )}
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button onClick={handleConfirm}
-                className="flex-1 px-4 py-2.5 rounded-lg text-white text-xs font-bold"
+                className="flex-1 px-4 py-2.5 min-h-[44px] rounded-lg text-white text-xs font-bold"
                 style={{ background: '#f97316' }}>
                 {showWarning ? t("asset_confirm_assign", language) : t("asset_assign_device", language)}
               </button>
               <button onClick={handleClose}
-                className={`px-4 py-2.5 rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>
-                Cancel
+                className={`px-4 py-2.5 min-h-[44px] rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>
+                {language === "fr" ? "Annuler" : "Cancel"}
               </button>
             </div>
           </div>
