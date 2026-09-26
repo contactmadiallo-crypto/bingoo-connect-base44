@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -16,7 +18,7 @@ const PREMIUM_THEME_IDS = new Set([
   "animated_gradient", "video_bg", "parallax"
 ]);
 
-function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardBase, profileUrl, onSelect, isPremiumTheme }) {
+function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardBase, profileUrl, onSelect, isPremiumTheme, language }) {
   return (
     <div className={`relative rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${cardBase} ${
       isActive
@@ -25,12 +27,12 @@ function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardB
     }`} onClick={() => onSelect(layout.id)}>
       {isPremiumTheme && !isActive && (
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow">
-          <Sparkles className="w-2.5 h-2.5" /> Professional
+          <Sparkles className="w-2.5 h-2.5" /> {t("layouts_professional",language)}
         </div>
       )}
       {isActive && (
         <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 text-white text-xs font-black px-2.5 py-1 rounded-full shadow" style={{ background: "#f97316" }}>
-          <Check className="w-3 h-3" /> Active
+          <Check className="w-3 h-3" /> {t("team_active",language)}
         </div>
       )}
       {/* Real layout preview — same component as public profile */}
@@ -44,6 +46,7 @@ function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardB
 }
 
 export default function DesignTab({ profile, user, onSaved }) {
+  const { language } = useI18n();
   const { isDark } = useBingooTheme();
   const queryClient = useQueryClient();
   const [saving, setSaving] = useState(null);
@@ -98,12 +101,12 @@ export default function DesignTab({ profile, user, onSaved }) {
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
       setPendingChanges({});
       setSaving(null);
-      toast.success("Design saved!");
+      toast.success(t("layouts_saved",language));
       onSaved?.();
     } catch (err) {
       console.error("Save failed:", err);
       setSaving(null);
-      toast.error("Failed to save design. Your changes are preserved — try again.");
+      toast.error(t("layouts_save_failed",language));
     }
   };
 
@@ -120,7 +123,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   if (!profile) {
     return (
       <div className="text-center py-20">
-        <p className={`text-lg font-semibold ${subText}`}>Create a profile first to customize its design.</p>
+        <p className={`text-lg font-semibold ${subText}`}>{t("layouts_profile_first",language)}</p>
       </div>
     );
   }
@@ -132,12 +135,12 @@ export default function DesignTab({ profile, user, onSaved }) {
         <div>
           <div className="flex items-center gap-2">
             <LayoutGrid className="w-[18px] h-[18px] text-orange-500" />
-            <h2 className={`text-[18px] font-black ${headText}`}>Profile Layouts</h2>
+            <h2 className={`text-[18px] font-black ${headText}`}>{t("layouts_profile_layouts",language)}</h2>
           </div>
-          <p className={`text-[12px] mt-1 ${subText}`}>Choose the structure visitors see at <span className="font-bold">/p/{profile.username}</span>. Visual styling stays in Design.</p>
+          <p className={`text-[12px] mt-1 ${subText}`}>{t("layouts_intro_prefix",language)} <span className="font-bold">/p/{profile.username}</span>. {t("layouts_intro_suffix",language)}</p>
         </div>
         <a href={profileUrl} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] border text-[11px] font-bold ${isDark ? "border-white/10 bg-white/5 text-white/70" : "border-[#E5EAF2] bg-white text-slate-700"}`}>
-          View public profile <ExternalLink className="w-3.5 h-3.5" />
+          {t("layouts_view_public",language)} <ExternalLink className="w-3.5 h-3.5" />
         </a>
       </div>
 
@@ -146,18 +149,18 @@ export default function DesignTab({ profile, user, onSaved }) {
           <LayoutMiniPreview layoutId={selectedLayout} isSelected previewHeight={86} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className={`text-[10px] uppercase tracking-[.12em] font-black ${subText}`}>Current selection</p>
+          <p className={`text-[10px] uppercase tracking-[.12em] font-black ${subText}`}>{t("layouts_current",language)}</p>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <p className={`text-[14px] font-black ${headText}`}>{layouts.find(l => l.id === selectedLayout)?.name || "Classic"}</p>
-            {pendingChanges.layout && <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-orange-50 text-orange-600">Not applied</span>}
+            <p className={`text-[14px] font-black ${headText}`}>{layouts.find(l => l.id === selectedLayout)?.name || t("layouts_classic",language)}</p>
+            {pendingChanges.layout && <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-orange-50 text-orange-600">{t("layouts_not_applied",language)}</span>}
           </div>
-          <p className={`text-[10px] mt-1 ${subText}`}>The card previews below use the same layout renderer as the public profile.</p>
+          <p className={`text-[10px] mt-1 ${subText}`}>{t("layouts_preview_copy",language)}</p>
         </div>
       </div>
 
       <div className={`inline-flex p-1 rounded-[11px] border max-w-full overflow-x-auto ${isDark ? "border-white/10 bg-white/5" : "border-[#E5EAF2] bg-[#F1F5F9]"}`}>
-        {[["all","All"],["standard","Standard"],["premium","Premium"],["editions","Editions"]].map(([id,label]) => (
-          <button type="button" key={id} onClick={() => setLayoutFilter(id)} className={`px-4 py-2 rounded-[8px] text-[11px] font-bold whitespace-nowrap transition-all ${layoutFilter === id ? (isDark ? "bg-white/10 text-white shadow-sm" : "bg-white text-[#0F172A] shadow-sm") : subText}`}>{label}</button>
+        {[["all","layouts_all"],["standard","layouts_standard"],["premium","layouts_premium"],["editions","layouts_editions"]].map(([id,labelKey]) => (
+          <button type="button" key={id} onClick={() => setLayoutFilter(id)} className={`px-4 py-2 rounded-[8px] text-[11px] font-bold whitespace-nowrap transition-all ${layoutFilter === id ? (isDark ? "bg-white/10 text-white shadow-sm" : "bg-white text-[#0F172A] shadow-sm") : subText}`}>{t(labelKey,language)}</button>
         ))}
       </div>
 
@@ -171,8 +174,8 @@ export default function DesignTab({ profile, user, onSaved }) {
               <button type="button" disabled={locked} onClick={() => !locked && selectLayout(layout.id)} className="w-full text-left disabled:cursor-not-allowed">
                 <div className="relative">
                   <LayoutMiniPreview layoutId={layout.id} isSelected={active} previewHeight={230} />
-                  {active && <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-black shadow"><Check className="w-3 h-3" /> Selected</span>}
-                  {locked && <div className="absolute inset-0 z-10 bg-slate-950/30 backdrop-blur-[1px] flex items-center justify-center"><span className="px-3 py-1.5 rounded-full bg-white text-amber-700 text-[10px] font-black shadow">Professional</span></div>}
+                  {active && <span className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500 text-white text-[10px] font-black shadow"><Check className="w-3 h-3" /> {t("layouts_selected",language)}</span>}
+                  {locked && <div className="absolute inset-0 z-10 bg-slate-950/30 backdrop-blur-[1px] flex items-center justify-center"><span className="px-3 py-1.5 rounded-full bg-white text-amber-700 text-[10px] font-black shadow">{t("layouts_professional",language)}</span></div>}
                 </div>
                 <div className="px-3.5 py-3">
                   <div className="flex items-center justify-between gap-2"><p className={`text-[13px] font-black ${headText}`}>{layout.name}</p>{premium && <Sparkles className="w-3.5 h-3.5 text-amber-500" />}</div>
@@ -186,9 +189,9 @@ export default function DesignTab({ profile, user, onSaved }) {
 
       {hasChanges && (
         <div className={`sticky bottom-4 z-20 rounded-[14px] px-4 py-3 flex items-center justify-between gap-4 shadow-xl border ${isDark ? "bg-[#171a2d] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
-          <div><p className={`text-[12px] font-black ${headText}`}>Apply selected layout</p><p className={`text-[10px] mt-0.5 ${subText}`}>Only the profile layout will change.</p></div>
+          <div><p className={`text-[12px] font-black ${headText}`}>{t("layouts_apply_title",language)}</p><p className={`text-[10px] mt-0.5 ${subText}`}>{t("layouts_apply_copy",language)}</p></div>
           <Button onClick={handleSave} disabled={saving === "saving"} className="bg-orange-500 hover:bg-orange-600 text-white font-black gap-2 rounded-[10px] px-4">
-            {saving === "saving" ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> Applying…</> : <><CheckCircle className="w-4 h-4" /> Apply Layout</>}
+            {saving === "saving" ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> {t("layouts_applying",language)}</> : <><CheckCircle className="w-4 h-4" /> {t("layouts_apply",language)}</>}
           </Button>
         </div>
       )}
