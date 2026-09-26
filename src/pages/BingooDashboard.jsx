@@ -10,7 +10,6 @@ const LeadsPanel = React.lazy(() => import("@/components/bingoo/LeadsPanel"));
 const AnalyticsPanel = React.lazy(() => import("@/components/bingoo/AnalyticsPanel"));
 const OnboardingWizard = React.lazy(() => import("@/components/bingoo/OnboardingWizard"));
 const AppointmentsTabMerged = React.lazy(() => import("@/components/bingoo/AppointmentsTabMerged"));
-const ConnectionsPanel = React.lazy(() => import("@/components/bingoo/ConnectionsPanel"));
 const ActivityHub = React.lazy(() => import("@/components/bingoo/ActivityHub"));
 const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDeviceManager"));
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
@@ -284,7 +283,7 @@ export default function BingooDashboard() {
   const [aiGeneratedProfile, setAiGeneratedProfile] = useState(null);
   const [liveFormOverride, setLiveFormOverride] = useState(null);
   const { isDark } = useBingooTheme();
-  const { isSalon, isBusiness, isFree, plan: userPlan, isLawFirm, isCorporate, isLoading: planLoading, planSource, maxProfiles } = usePlan();
+  const { isSalon, plan: userPlan, isLawFirm, isLoading: planLoading, planSource, maxProfiles } = usePlan();
 
   const { user, refreshAccount: refetchUser } = useAuth();
   const {
@@ -368,11 +367,6 @@ export default function BingooDashboard() {
     if (planLoading) return true;
     return canAccessForPlan(activeProfilePlan, featureKey);
   };
-  const hasServiceMenu  = !planLoading && canAccessFeature("service_menu");
-  const hasTeam         = !planLoading && (canAccessFeature("staff_profiles") || canAccessFeature("attorney_profiles") || canAccessFeature("employee_profiles"));
-  const hasCRM          = !planLoading && canAccessFeature("crm_pipeline");
-  const hasAttendance   = !planLoading && canAccessFeature("attendance");
-
   // Mark a profile as the default (auto-selected on dashboard load). Only meaningful when the
   // user owns more than one profile.
   const setDefaultProfile = async (profileId) => {
@@ -461,17 +455,6 @@ export default function BingooDashboard() {
     refetchOnWindowFocus: false,
   });
   const myNfcDevices = activeProfile?.id ? allNfcDevices.filter(d => d.profile_id === activeProfile.id) : [];
-  const { data: salonServices = [] } = useQuery({
-    queryKey: ["salon-services-count", activeProfile?.id],
-    queryFn: () => base44.entities.SalonService.filter({ profile_id: activeProfile.id }),
-    enabled: !!activeProfile?.id && hasServiceMenu,
-  });
-  const { data: teamMembers = [] } = useQuery({
-    queryKey: ["team-count", activeProfile?.id],
-    queryFn: () => base44.entities.TeamMember.filter({ profile_id: activeProfile.id }),
-    enabled: !!activeProfile?.id && hasTeam,
-  });
-
   // Real-time subscriptions
   useEffect(() => {
     if (!activeProfile?.id) return;
@@ -489,11 +472,6 @@ export default function BingooDashboard() {
 
   // ── Navigation helpers ──
   // IMPORTANT: none of these change selectedProfileId unless explicitly navigating to a new profile
-  const openHome = () => {
-    setLiveFormOverride(null);
-    navigate(`/bingoo?view=${VIEW_HOME}`, { replace: false });
-  };
-
   const openHub = () => {
     setLiveFormOverride(null);
     navigate('/bingoo?view=hub', { replace: false });
