@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { getDeviceTypeLabel } from '@/lib/deviceTypes';
+import { useI18n } from '@/lib/I18nContext';
 
 const DEVICE_ICONS = {
   card: CreditCard, metal_card: CreditCard, keychain: Key, bracelet: Award,
@@ -19,6 +20,8 @@ const DEVICE_ICONS = {
 const isLost = (d) => d.status === "lost";
 
 export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }) {
+  const { language } = useI18n();
+  const tx = (en, fr) => language === 'fr' ? fr : en;
   const qc = useQueryClient();
   const [activeSection, setActiveSection] = useState("devices");
   const [expandedDeviceId, setExpandedDeviceId] = useState(null);
@@ -220,7 +223,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
             <div className="flex items-center gap-2 flex-wrap">
               <p className={`font-bold text-sm ${headText}`}>{device.device_code}</p>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border ${lost ? "bg-red-100 text-red-600 border-red-300" : "bg-emerald-100 text-emerald-700 border-emerald-200"}`}>
-                {lost ? <><AlertTriangle className="w-2.5 h-2.5" /> LOST</> : <><CheckCircle2 className="w-2.5 h-2.5" /> ACTIVE</>}
+                {lost ? <><AlertTriangle className="w-2.5 h-2.5" /> {tx('LOST', 'PERDU')}</> : <><CheckCircle2 className="w-2.5 h-2.5" /> {tx('ACTIVE', 'ACTIF')}</>}
               </span>
               {deviceReports.length > 0 && (
                 <span className="bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded-full text-[10px] font-bold">
@@ -247,15 +250,15 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
             {/* Info grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3">
               <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Type</p>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Type', 'Type')}</p>
                 <p className={`text-xs font-bold mt-0.5 ${headText}`}>{productLabel}</p>
               </div>
               <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Assigned To</p>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Assigned To', 'Attribué à')}</p>
                 <p className={`text-xs font-bold mt-0.5 ${headText} truncate`}>{assignedName}</p>
               </div>
               <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Destination</p>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Destination', 'Destination')}</p>
                 {destination ? (
                   <a href={destination} target="_blank" rel="noopener" className={`text-xs font-bold mt-0.5 text-blue-500 hover:underline flex items-center gap-1`}>
                     /p/{assignedProfile.username} <ExternalLink className="w-2.5 h-2.5" />
@@ -265,7 +268,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                 )}
               </div>
               <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Contact</p>
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Contact', 'Contact')}</p>
                 <p className={`text-xs font-bold mt-0.5 ${device.lost_show_phone ? "text-emerald-600" : "text-slate-400"}`}>{contactLabel}</p>
               </div>
             </div>
@@ -293,7 +296,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
             {deviceReports.length > 0 && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Finder Reports</p>
+                  <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Finder Reports', 'Signalements')}</p>
                 </div>
                 {deviceReports.map(report => (
                   <div key={report.id} className={`p-2.5 rounded-lg ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
@@ -317,8 +320,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                     {report.finder_message && <p className={`text-[11px] ${subText} italic mt-0.5`}>"{report.finder_message}"</p>}
                     {report.status !== "recovered" && (
                       <div className="flex gap-1 mt-1.5">
-                        {report.status === "new" && <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success("Marked as contacted"); }} className="text-[10px] font-bold px-2 py-1 rounded bg-blue-600 text-white">Contacted</button>}
-                        <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success("Item recovered!"); }} className="text-[10px] font-bold px-2 py-1 rounded bg-emerald-600 text-white">Recovered ✓</button>
+                        {report.status === "new" && <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success(tx('Marked as contacted', 'Marqué comme contacté')); }} className="text-[10px] font-bold px-2 py-1 rounded bg-blue-600 text-white">{tx('Contacted', 'Contacté')}</button>}
+                        <button onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success(tx('Item recovered!', 'Objet récupéré !')); }} className="text-[10px] font-bold px-2 py-1 rounded bg-emerald-600 text-white">{tx('Recovered', 'Récupéré')} ✓</button>
                       </div>
                     )}
                   </div>
@@ -353,7 +356,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
             <div className="flex items-center gap-2 flex-wrap">
               <p className={`font-bold text-sm ${headText}`}>{asset.name}</p>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black border ${lost ? "bg-orange-100 text-orange-600 border-orange-300" : "bg-emerald-100 text-emerald-700 border-emerald-200"}`}>
-                {lost ? <><AlertTriangle className="w-2.5 h-2.5" /> LOST</> : <><CheckCircle2 className="w-2.5 h-2.5" /> SAFE</>}
+                {lost ? <><AlertTriangle className="w-2.5 h-2.5" /> {tx('LOST', 'PERDU')}</> : <><CheckCircle2 className="w-2.5 h-2.5" /> {tx('SAFE', 'SÛR')}</>}
               </span>
             </div>
             <p className={`text-xs mt-0.5 ${subText}`}>
@@ -375,11 +378,11 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
         <div className={`px-4 pb-4 border-t ${isDark ? "border-white/10" : "border-slate-100"} space-y-2`}>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
             <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Type</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Type', 'Type')}</p>
               <p className={`text-xs font-bold mt-0.5 ${headText} capitalize`}>{asset.asset_type}</p>
             </div>
             <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Destination</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Destination', 'Destination')}</p>
               {destination ? (
                 <a href={destination} target="_blank" rel="noopener" className="text-xs font-bold mt-0.5 text-blue-500 hover:underline flex items-center gap-1">
                   /asset/{linkedDevice.device_code} <ExternalLink className="w-2.5 h-2.5" />
@@ -387,14 +390,14 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
               ) : <p className={`text-xs font-bold mt-0.5 ${subText}`}>—</p>}
             </div>
             <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Contact</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Contact', 'Contact')}</p>
               <p className={`text-xs font-bold mt-0.5 capitalize ${headText}`}>{asset.safe_contact_preference || "phone"}</p>
             </div>
           </div>
 
           {asset.finder_message && (
             <div className={`rounded-lg p-2 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>Finder Message</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${subText}`}>{tx('Finder Message', 'Message de la personne ayant trouvé')}</p>
               <p className={`text-xs mt-0.5 ${headText} italic`}>"{asset.finder_message}"</p>
             </div>
           )}
@@ -429,8 +432,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     <div className="space-y-5">
       {/* ── Header (no activation button) ── */}
       <div>
-        <h2 className={`text-xl font-black ${headText}`}>Lost & Found</h2>
-        <p className={`text-xs ${subText} mt-0.5`}>Devices and assets currently in Lost Mode, plus all found reports. Activate Lost Mode from My NFC Devices.</p>
+        <h2 className={`text-xl font-black ${headText}`}>{tx('Lost & Found', 'Objets perdus et retrouvés')}</h2>
+        <p className={`text-xs ${subText} mt-0.5`}>{tx('Devices and assets currently in Lost Mode, plus all found reports. Activate Lost Mode from My NFC Devices.', 'Appareils et objets actuellement en Mode perdu, ainsi que tous les signalements. Activez le Mode perdu depuis Mes appareils NFC.')}</p>
       </div>
 
       {/* ── Alert banner ── */}
@@ -439,7 +442,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
           <div>
             <p className="font-bold text-red-700 text-sm">{totalLost} item{totalLost > 1 ? "s" : ""} in Lost Mode</p>
-            <p className="text-red-500 text-xs mt-0.5">Anyone who taps these devices will see a recovery form instead of your profile.</p>
+            <p className="text-red-500 text-xs mt-0.5">{tx('Anyone who taps these devices will see a recovery form instead of your profile.', 'Toute personne qui touche ces appareils verra un formulaire de récupération à la place de votre profil.')}</p>
           </div>
         </div>
       )}
@@ -448,15 +451,15 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
       <div className="grid grid-cols-3 gap-2">
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
           <p className="text-2xl font-black text-red-500">{lostDevices.length}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Lost Devices</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>{tx('Lost Devices', 'Appareils perdus')}</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
           <p className="text-2xl font-black text-orange-500">{lostAssets.length}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Lost Assets</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>{tx('Lost Assets', 'Objets perdus')}</p>
         </div>
         <div className={`rounded-xl p-3 text-center ${cardCls}`}>
           <p className="text-2xl font-black text-amber-500">{reports.length}</p>
-          <p className={`text-[10px] font-bold uppercase ${subText}`}>Found Reports</p>
+          <p className={`text-[10px] font-bold uppercase ${subText}`}>{tx('Found Reports', 'Signalements reçus')}</p>
         </div>
       </div>
 
@@ -490,8 +493,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           {lostOrReportedDevices.length === 0 ? (
             <div className={`rounded-2xl p-10 text-center ${cardCls}`}>
               <Smartphone className={`w-10 h-10 mx-auto mb-3 ${subText}`} />
-              <p className={`font-semibold text-sm mb-1 ${subText}`}>No devices in Lost Mode.</p>
-              <p className={`text-xs ${subText}`}>Activate Lost Mode from My NFC Devices to protect your cards and accessories.</p>
+              <p className={`font-semibold text-sm mb-1 ${subText}`}>{tx('No devices in Lost Mode.', 'Aucun appareil en Mode perdu.')}</p>
+              <p className={`text-xs ${subText}`}>{tx('Activate Lost Mode from My NFC Devices to protect your cards and accessories.', 'Activez le Mode perdu depuis Mes appareils NFC pour protéger vos cartes et accessoires.')}</p>
             </div>
           ) : lostOrReportedDevices.map(renderDeviceCard)}
         </div>
@@ -505,8 +508,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           ) : lostAssets.length === 0 ? (
             <div className={`rounded-2xl p-10 text-center ${cardCls}`}>
               <Package className={`w-10 h-10 mx-auto mb-3 ${subText}`} />
-              <p className={`font-semibold text-sm mb-1 ${subText}`}>No assets in Lost Mode.</p>
-              <p className={`text-xs ${subText}`}>Enable Lost Mode on an asset from My Assets to track it here.</p>
+              <p className={`font-semibold text-sm mb-1 ${subText}`}>{tx('No assets in Lost Mode.', 'Aucun objet en Mode perdu.')}</p>
+              <p className={`text-xs ${subText}`}>{tx('Enable Lost Mode on an asset from My Assets to track it here.', 'Activez le Mode perdu sur un objet depuis Mes objets pour le suivre ici.')}</p>
             </div>
           ) : lostAssets.map(renderAssetCard)}
         </div>
@@ -520,8 +523,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
           ) : reports.length === 0 ? (
             <div className={`rounded-2xl p-10 text-center ${cardCls}`}>
               <MapPin className={`w-10 h-10 mx-auto mb-3 ${subText}`} />
-              <p className={`font-semibold text-sm ${subText}`}>No finder reports yet.</p>
-              <p className={`text-xs mt-1 ${subText}`}>When someone finds your lost device and fills the form, their contact info will appear here.</p>
+              <p className={`font-semibold text-sm ${subText}`}>{tx('No finder reports yet.', 'Aucun signalement pour le moment.')}</p>
+              <p className={`text-xs mt-1 ${subText}`}>{tx('When someone finds your lost device and fills the form, their contact info will appear here.', 'Lorsqu’une personne trouve votre appareil perdu et remplit le formulaire, ses coordonnées apparaîtront ici.')}</p>
             </div>
           ) : (
             reports.map(report => {
@@ -557,8 +560,8 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
                     <div className="shrink-0 flex flex-col gap-1">
                       {report.status !== "recovered" && (
                         <>
-                          {report.status === "new" && <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success("Marked as contacted"); }} className="rounded-lg text-xs bg-blue-600 text-white h-7 px-2">Contacted</Button>}
-                          <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success("Recovered!"); }} className="rounded-lg text-xs bg-emerald-600 text-white h-7 px-2">Recovered ✓</Button>
+                          {report.status === "new" && <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "contacted" } }); toast.success(tx('Marked as contacted', 'Marqué comme contacté')); }} className="rounded-lg text-xs bg-blue-600 text-white h-7 px-2">Contacted</Button>}
+                          <Button size="sm" onClick={() => { updateReport.mutate({ id: report.id, data: { status: "recovered" } }); toast.success(tx('Recovered!', 'Récupéré !')); }} className="rounded-lg text-xs bg-emerald-600 text-white h-7 px-2">Recovered ✓</Button>
                         </>
                       )}
                       <button onClick={() => { if (confirm("Delete this report?")) deleteReport.mutate(report.id); }} className="text-red-400 hover:text-red-600 p-1 self-end">
