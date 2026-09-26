@@ -12,6 +12,7 @@ import { BingooLogo as BingooWordmark } from "@/components/bingoo/ui/BingooBrand
 import { isAdminUser } from "@/lib/auth";
 import BrandLockup from "@/components/auth/BrandLockup";
 import { AccountDropdown } from "@/components/bingoo/WorkspaceSelectors";
+import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { usePlan } from "@/hooks/usePlan";
 
@@ -56,7 +57,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const isAdmin = isAdminUser(user);
   const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan);
   const mobileMenuSections = navSections
-    .map(section => ({ ...section, items: section.items.filter(item => !["landing", "profiles", "devices", "shop"].includes(item.id)) }))
+    .map(section => ({ ...section, items: section.items.filter(item => !["profiles", "devices", "shop"].includes(item.id)) }))
     .filter(section => section.items.length > 0);
   const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
@@ -237,7 +238,10 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
             <Link to="/shop" className="hover:text-slate-900 transition-colors">{t("core_shop", lang)}</Link>
             <Link to="/about" className="hover:text-slate-900 transition-colors">{t("core_about", lang)}</Link>
           </nav>
-          <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark={false} />
+          <div className="flex items-center gap-2">
+            <NotificationCenter userId={effectiveUserId} isDark={false} />
+            <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark={false} />
+          </div>
         </div>
       </header>
 
@@ -249,6 +253,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
         <div className="flex items-center gap-1.5">
           <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-2xl transition-all bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] text-white flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
+          <NotificationCenter userId={effectiveUserId} isDark />
           <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark />
         </div>
       </header>
