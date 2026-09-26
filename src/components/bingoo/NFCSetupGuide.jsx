@@ -21,16 +21,16 @@ export default function NFCSetupGuide({ device, onClose }) {
   const labelCls = isDark ? "text-white/40" : "text-slate-400";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 16 }}
-        className={`${cardBg} rounded-3xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto`}
+        className={`${cardBg} rounded-t-3xl sm:rounded-3xl shadow-2xl w-full sm:max-w-md overflow-hidden max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain`}
       >
         {/* Header — Bingoo branded */}
         <div className="bg-gradient-to-r from-[#0b2149] to-[#13284f] p-6 text-white relative">
-          <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
+          <button onClick={onClose} aria-label={language === "fr" ? "Fermer" : "Close"} className="absolute top-3 right-3 w-11 h-11 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors">
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-center gap-3 mb-1">
@@ -44,7 +44,7 @@ export default function NFCSetupGuide({ device, onClose }) {
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-5">
           {/* Pre-programmed notice */}
           <div className={`flex gap-3 p-4 rounded-xl ${isDark ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
             <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
@@ -78,7 +78,7 @@ export default function NFCSetupGuide({ device, onClose }) {
           <div className="text-center">
             <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>{t("nfc_setup_test",language)}</p>
             <div className="inline-block p-3 bg-white rounded-2xl border border-slate-200">
-              <img src={qrUrl} alt="QR Code" className="w-32 h-32 mx-auto rounded-lg" />
+              <img src={qrUrl} alt="QR Code" className="w-32 h-32 max-w-full mx-auto rounded-lg" />
             </div>
             <p className={`text-xs mt-2 ${mutedText}`}>{t("nfc_setup_scan_preview",language)}</p>
             <a href={deviceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-2 text-orange-500 text-xs font-bold hover:underline">
@@ -96,7 +96,7 @@ export default function NFCSetupGuide({ device, onClose }) {
             </div>
           </details>
 
-          <Button onClick={onClose} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold">
+          <Button onClick={onClose} className="w-full min-h-[44px] bg-orange-500 hover:bg-orange-600 text-white font-bold">
             {t("nfc_setup_done",language)}
           </Button>
         </div>
