@@ -1,6 +1,8 @@
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, TrendingDown, DollarSign, Users, CreditCard, AlertCircle, Package, ShoppingBag } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 function StatCard({ label, value, sublabel, icon: Icon, trend }) {
   return (
@@ -24,6 +26,7 @@ function StatCard({ label, value, sublabel, icon: Icon, trend }) {
 }
 
 export default function AdminOverviewTab() {
+  const { language } = useI18n();
   const { data: subscriptions, isLoading: subsLoading } = useQuery({
     queryKey: ['admin-subs'],
     queryFn: () => base44.entities.Subscription.list('-created_date', 500),
@@ -81,36 +84,36 @@ export default function AdminOverviewTab() {
     <div className="space-y-6">
       {/* Revenue Metrics */}
       <div>
-        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">Revenue</h2>
+        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">{t('admin_revenue',language)}</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Monthly Recurring Revenue" value={`$${mrr.toFixed(2)}`} sublabel={`${activeSubs.length} active subscriptions`} icon={DollarSign} />
-          <StatCard label="Annual Run Rate" value={`$${arr.toFixed(0)}`} sublabel="MRR × 12" icon={TrendingUp} />
-          <StatCard label="Churn Rate" value={`${churnRate}%`} sublabel={`${canceledSubs.length} canceled`} icon={TrendingDown} trend={-parseFloat(churnRate)} />
-          <StatCard label="Failed Payments" value={failedPayments} sublabel="Past due subscriptions" icon={AlertCircle} />
+          <StatCard label={t("admin_mrr",language)} value={`$${mrr.toFixed(2)}`} sublabel={`${activeSubs.length} ${t("admin_active_subscriptions",language)}`} icon={DollarSign} />
+          <StatCard label={t("admin_arr",language)} value={`$${arr.toFixed(0)}`} sublabel="MRR × 12" icon={TrendingUp} />
+          <StatCard label={t("admin_churn_rate",language)} value={`${churnRate}%`} sublabel={`${canceledSubs.length} ${t("admin_canceled_count",language)}`} icon={TrendingDown} trend={-parseFloat(churnRate)} />
+          <StatCard label={t("admin_failed_payments",language)} value={failedPayments} sublabel={t("admin_past_due_subs",language)} icon={AlertCircle} />
         </div>
       </div>
 
       {/* Subscription Mix */}
       <div>
-        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">Subscription Mix</h2>
+        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">{t('admin_subscription_mix',language)}</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Active Subscriptions" value={activeSubs.length} icon={CreditCard} />
-          <StatCard label="Trialing" value={trialSubs.length} icon={Users} />
-          <StatCard label="Monthly Plan" value={monthlyCount} sublabel="Billing monthly" icon={CreditCard} />
-          <StatCard label="Annual Plan" value={annualCount} sublabel="Billing yearly" icon={CreditCard} />
+          <StatCard label={t("admin_active_subscriptions",language)} value={activeSubs.length} icon={CreditCard} />
+          <StatCard label={t("admin_trialing",language)} value={trialSubs.length} icon={Users} />
+          <StatCard label={t("admin_monthly_plan",language)} value={monthlyCount} sublabel={t("admin_billing_monthly",language)} icon={CreditCard} />
+          <StatCard label={t("admin_annual_plan",language)} value={annualCount} sublabel={t("admin_billing_yearly",language)} icon={CreditCard} />
         </div>
       </div>
 
       {/* Plan Breakdown */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
-        <h3 className="text-sm font-black text-slate-800 mb-4">Active Subscriptions by Plan</h3>
+        <h3 className="text-sm font-black text-slate-800 mb-4">{t('admin_active_by_plan',language)}</h3>
         <div className="space-y-3">
           {['professional', 'salon', 'lawfirm', 'business', 'free'].map(plan => {
             const count = activeSubs.filter(s => s.plan === plan).length;
             const pct = activeSubs.length > 0 ? (count / activeSubs.length) * 100 : 0;
             return (
               <div key={plan} className="flex items-center gap-3">
-                <span className="text-xs font-bold text-slate-600 w-24 capitalize">{plan === 'lawfirm' ? 'Law Firm' : plan}</span>
+                <span className="text-xs font-bold text-slate-600 w-24 capitalize">{plan === 'lawfirm' ? t('admin_law_firm',language) : plan}</span>
                 <div className="flex-1 h-6 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
@@ -126,12 +129,12 @@ export default function AdminOverviewTab() {
 
       {/* Shop + Devices + Support */}
       <div>
-        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">Operations</h2>
+        <h2 className="text-sm font-black text-slate-800 mb-3 uppercase tracking-wider">{t('admin_operations',language)}</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Shop Orders (Paid)" value={paidOrders.length} sublabel={`$${(totalRevenue / 100).toFixed(2)} revenue`} icon={ShoppingBag} />
-          <StatCard label="Active NFC Devices" value={activeDevices} sublabel={`${availableDevices} available`} icon={Package} />
-          <StatCard label="Lost Devices" value={lostDevices} icon={AlertCircle} />
-          <StatCard label="Open Support Tickets" value={openTickets} icon={AlertCircle} />
+          <StatCard label={t("admin_shop_orders_paid",language)} value={paidOrders.length} sublabel={`$${(totalRevenue / 100).toFixed(2)} ${t("admin_revenue_lower",language)}`} icon={ShoppingBag} />
+          <StatCard label={t("admin_active_nfc_devices",language)} value={activeDevices} sublabel={`${availableDevices} ${t("admin_available_lower",language)}`} icon={Package} />
+          <StatCard label={t("admin_lost_devices",language)} value={lostDevices} icon={AlertCircle} />
+          <StatCard label={t("admin_open_support_tickets",language)} value={openTickets} icon={AlertCircle} />
         </div>
       </div>
     </div>
