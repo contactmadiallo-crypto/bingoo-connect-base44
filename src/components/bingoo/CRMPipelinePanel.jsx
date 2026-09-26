@@ -17,9 +17,7 @@ const STAGES = [
   { id: "closed",    label: "Closed",     color: "#94a3b8" },
 ];
 
-const MATTER_TYPES = ["Corporate", "Criminal", "Family", "Immigration", "IP", "Personal Injury", "Real Estate", "Tax", "Other"];
-
-export default function CRMPipelinePanel({ profileId, profileIds: propProfileIds, user, isDark: propDark, onSaved }) {
+export default function CRMPipelinePanel({ profileId, isDark: propDark, onSaved }) {
   const { isDark } = useBingooTheme();
   const dark = propDark ?? isDark;
   const qc = useQueryClient();
