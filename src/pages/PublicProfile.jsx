@@ -15,6 +15,7 @@ import { isLayoutDark } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { PUBLIC_APP_ORIGIN, publicProfileUrl } from "@/lib/publicProfileUrl";
 
 // ── Brand palette
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21", teal: "#0D9488" };
@@ -259,9 +260,9 @@ export default function PublicProfile() {
   // Use dynamic OG image — falls back to profile photo if available, but ogImage function
   // always renders branded card so social shares look great even without a profile photo
   const seoImage = profile
-    ? `https://bingooconnect.com/api/functions/ogImage?username=${encodeURIComponent(profile.username)}`
+    ? `${PUBLIC_APP_ORIGIN}/api/functions/ogImage?username=${encodeURIComponent(profile.username)}`
     : undefined;
-  const seoUrl = profile ? `https://bingooconnect.com/p/${profile.username}` : undefined;
+  const seoUrl = profile ? publicProfileUrl(profile.username) : undefined;
 
   useSEO({
     title: profile && !isDemo ? seoTitle : isNotFound ? "Profile Not Found | Bingoo Connect" : undefined,
