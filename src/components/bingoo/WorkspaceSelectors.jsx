@@ -67,6 +67,8 @@ export function ProfileSelectorDropdown({
   isDark = false,
   compact = false,
 }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef(null);
@@ -151,12 +153,12 @@ export function ProfileSelectorDropdown({
         <div
           id={menuId}
           role="listbox"
-          aria-label="Select profile workspace"
+          aria-label={tr('Select profile workspace', 'Sélectionner l’espace de profil')}
           className={`fixed sm:absolute top-[68px] sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 sm:w-[340px] max-h-[52dvh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[70] ${panel}`}
         >
           <div className="px-3 pt-2 pb-2">
-            <p className="text-xs font-black">Profile workspace</p>
-            <p className={`text-[11px] mt-0.5 ${secondary}`}>Account identity stays signed in while you switch.</p>
+            <p className="text-xs font-black">{tr('Profile workspace', 'Espace de profil')}</p>
+            <p className={`text-[11px] mt-0.5 ${secondary}`}>{tr('Account identity stays signed in while you switch.', 'Votre compte reste connecté lorsque vous changez de profil.')}</p>
           </div>
           {profiles.map((profile, index) => {
             const selected = profile.id === selectedProfile.id;
@@ -176,7 +178,7 @@ export function ProfileSelectorDropdown({
                   <span className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-sm font-black truncate">{profile.display_name || "Untitled profile"}</span>
                     {profile.is_primary && (
-                      <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase">Primary</span>
+                      <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-black uppercase">{tr('Primary', 'Principal')}</span>
                     )}
                     {profile.access_role && profile.access_role !== "owner" && (
                       <span className="px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[9px] font-black uppercase">{profile.access_role}</span>
@@ -198,6 +200,8 @@ export function ProfileSelectorDropdown({
 }
 
 export function AccountDropdown({ user, plan = "free", logout, isDark = false }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
   const menuId = useId();
@@ -273,7 +277,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
           <div className="pt-1 border-t border-current/10">
             <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] ${secondary}`}>
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Signed in as this account</span>
+              <span>{tr('Signed in as this account', 'Connecté avec ce compte')}</span>
             </div>
             <button
               type="button"
@@ -291,20 +295,22 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
 }
 
 export function UnsavedProfileSwitchModal({ profile, onCancel, onConfirm, isDark = false }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="unsaved-profile-title">
       <div className={`w-full max-w-md rounded-3xl border shadow-2xl p-6 ${isDark ? "bg-[#111827] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"}`}>
         <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
           <UserRound className="w-6 h-6" />
         </div>
-        <h2 id="unsaved-profile-title" className="text-xl font-black">Switch profile?</h2>
+        <h2 id="unsaved-profile-title" className="text-xl font-black">{tr('Switch profile?', 'Changer de profil ?')}</h2>
         <p className={`mt-2 text-sm leading-relaxed ${isDark ? "text-white/55" : "text-slate-600"}`}>
-          Your unsaved changes will be discarded before opening {profile?.display_name || "the selected profile"}.
-          Your signed-in account, email, plan, settings, and logout identity will not change.
+          {tr('Your unsaved changes will be discarded before opening', 'Vos modifications non enregistrées seront abandonnées avant d’ouvrir')} {profile?.display_name || tr('the selected profile', 'le profil sélectionné')}.
+          {' '}{tr('Your signed-in account, email, plan, settings, and logout identity will not change.', 'Votre compte connecté, votre e-mail, votre forfait, vos réglages et votre identité de connexion ne changeront pas.')}
         </p>
         <div className="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
-          <button type="button" onClick={onCancel} className={`min-h-[44px] px-4 rounded-xl font-bold ${isDark ? "bg-white/8 text-white" : "bg-slate-100 text-slate-700"}`}>Cancel</button>
-          <button type="button" onClick={onConfirm} className="min-h-[44px] px-4 rounded-xl font-black text-white bg-orange-500 hover:bg-orange-600">Switch Profile</button>
+          <button type="button" onClick={onCancel} className={`min-h-[44px] px-4 rounded-xl font-bold ${isDark ? "bg-white/8 text-white" : "bg-slate-100 text-slate-700"}`}>{tr('Cancel', 'Annuler')}</button>
+          <button type="button" onClick={onConfirm} className="min-h-[44px] px-4 rounded-xl font-black text-white bg-orange-500 hover:bg-orange-600">{tr('Switch Profile', 'Changer de profil')}</button>
         </div>
       </div>
     </div>
