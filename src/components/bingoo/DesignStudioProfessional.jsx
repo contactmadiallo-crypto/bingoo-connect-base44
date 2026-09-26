@@ -15,14 +15,14 @@ const NAVY = '#0b2149', ORANGE = '#f97316';
 const BG = '#F7F9FC', BORDER = '#E5EAF2', INK = '#0F172A', MUTED = '#64748B';
 
 const CARD_COLORS = [
-  { name: 'Navy', value: '#0b2149' },
-  { name: 'Black', value: '#0F172A' },
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Teal', value: '#0d9488' },
-  { name: 'Burgundy', value: '#7C1D3A' },
-  { name: 'Purple', value: '#8b5cf6' },
-  { name: 'Orange', value: '#f97316' },
-  { name: 'White', value: '#F1F5F9' },
+  { key: 'ds_color_navy', value: '#0b2149' },
+  { key: 'ds_color_black', value: '#0F172A' },
+  { key: 'ds_color_blue', value: '#3b82f6' },
+  { key: 'ds_color_teal', value: '#0d9488' },
+  { key: 'ds_color_burgundy', value: '#7C1D3A' },
+  { key: 'ds_color_purple', value: '#8b5cf6' },
+  { key: 'ds_color_orange', value: '#f97316' },
+  { key: 'ds_color_white', value: '#F1F5F9' },
 ];
 
 const ACCENT_COLORS = ['#f97316', '#FFD700', '#FFFFFF', '#22C55E', '#3b82f6', '#ec4899'];
@@ -161,7 +161,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
               style={{ borderColor: BORDER }}>
               {logoUrl ? (
                 <div className="flex items-center justify-center gap-2">
-                  <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+                  <img src={logoUrl} alt={t("qr_alt_logo", language)} className="w-8 h-8 rounded-lg object-cover" />
                   <p className="text-[9px] font-bold" style={{ color: '#16a34a' }}>✓ {t("ds_uploaded", language)}</p>
                 </div>
               ) : (
@@ -184,7 +184,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
               {CARD_COLORS.map((c) => (
                 <button key={c.value} onClick={() => setCardColor(c.value)}
                   className={`w-8 h-8 rounded-lg cursor-pointer border-2 transition-all ${cardColor === c.value ? 'scale-110 ring-2 ring-slate-300' : ''}`}
-                  style={{ background: c.value, borderColor: cardColor === c.value ? INK : '#fff' }} title={c.name} />
+                  style={{ background: c.value, borderColor: cardColor === c.value ? INK : '#fff' }} title={t(c.key, language)} />
               ))}
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function DesignStudioProfessional({ isDark, profile }) {
             </div>
             <div>
               <p className="text-xs font-black mb-1.5" style={{ color: labelColor }}>{t("ds_nfc_destination", language)}</p>
-              <input value={nfcDestination} onChange={(e) => setNfcDestination(e.target.value)} placeholder="/p/yourusername" className={inputCls} />
+              <input value={nfcDestination} onChange={(e) => setNfcDestination(e.target.value)} placeholder="/p/votreidentifiant" className={inputCls} />
               <p className="text-[9px] mt-1" style={{ color: MUTED }}>{t("ds_nfc_destination_copy", language)}</p>
             </div>
           </div>
