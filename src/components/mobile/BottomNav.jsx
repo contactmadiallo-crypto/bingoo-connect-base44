@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, UserRound, Radio, Activity, LayoutGrid } from 'lucide-react';
+import { UserRound, Radio, ShoppingBag, LayoutGrid } from 'lucide-react';
 import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
@@ -8,13 +8,6 @@ const TAB_KEY = 'bingoo_bottom_tab_';
 
 // Per-tab ownership matchers — determine which bottom tab "owns" the current
 // location so we can store the last visited path and restore it on tab switch.
-function ownsHome(loc) {
-  if (loc.pathname !== '/bingoo') return false;
-  const v = new URLSearchParams(loc.search).get('view');
-  // Home is deliberately strict: only the dashboard owns Home.
-  // Activity/analytics/etc. must never be remembered as a Home destination.
-  return !v || v === 'home';
-}
 function ownsProfiles(loc) {
   if (loc.pathname !== '/bingoo') return false;
   const v = new URLSearchParams(loc.search).get('view');
@@ -23,10 +16,10 @@ function ownsProfiles(loc) {
 function ownsNfc(loc) {
   return loc.pathname === '/my-nfc-devices' || loc.pathname === '/activate-device';
 }
-function ownsActivity(loc) {
-  if (loc.pathname !== '/bingoo') return false;
-  const v = new URLSearchParams(loc.search).get('view');
-  return ['connections', 'analytics', 'leads', 'appointments'].includes(v);
+function ownsShop(loc) {
+  return loc.pathname === '/shop' || loc.pathname.startsWith('/product/') ||
+    loc.pathname === '/cart' || loc.pathname === '/checkout' ||
+    loc.pathname === '/order-confirmation' || loc.pathname === '/my-orders';
 }
 
 /**
@@ -45,10 +38,9 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
   const { stacks, recordVisitForTab } = useNavigationStack();
 
   const tabs = [
-    { id: 'home', label: lang === 'fr' ? 'Accueil' : 'Home', icon: Home, path: '/bingoo?view=home', owns: ownsHome },
-    { id: 'profiles', label: lang === 'fr' ? 'Profils' : 'Profiles', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
+    { id: 'profiles', label: lang === 'fr' ? 'Profil' : 'Profile', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
-    { id: 'activity', label: lang === 'fr' ? 'Activité' : 'Activity', icon: Activity, path: '/bingoo?view=connections', owns: ownsActivity },
+    { id: 'shop', label: lang === 'fr' ? 'Boutique' : 'Shop', icon: ShoppingBag, path: '/shop', owns: ownsShop },
   ];
 
   // Track the current path in the owning tab's stack so we can restore it on
@@ -145,7 +137,7 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
       <button
         type="button"
         onClick={onMore}
-        aria-label={lang === 'fr' ? "Plus d'options" : 'More options'}
+        aria-label={lang === 'fr' ? 'Menu' : 'Menu'}
         className="relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
         style={{ touchAction: 'manipulation' }}
       >
@@ -162,7 +154,7 @@ export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
           )}
         </span>
         <span className="text-[10px] font-bold tracking-tight" style={{ color: 'rgba(255,255,255,0.48)' }}>
-          {lang === 'fr' ? 'Plus' : 'More'}
+          Menu
         </span>
       </button>
     </nav>
