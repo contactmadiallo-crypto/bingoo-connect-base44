@@ -62,8 +62,6 @@ const LABELS = {
   },
 };
 
-const DEFAULT_LABELS = LABELS[TYPE_BUSINESS];
-
 const EMPTY_FORM = {
   name: "", role_type: "", role: "", email: "", phone: "", whatsapp: "",
   bio: "", photo: "", status: "active",
@@ -164,7 +162,7 @@ export default function TeamMembersPanel({ profileId, profileType, isDark: propD
     onError: (_e, _id, ctx) => {
       if (ctx?.prev) qc.setQueryData(["team-members", profileId], ctx.prev);
     },
-    onSuccess: (_, id) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["team-members", profileId] });
     },
   });
