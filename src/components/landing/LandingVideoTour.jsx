@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
@@ -6,6 +8,7 @@ const B = {
 };
 
 export default function LandingVideoTour() {
+  const { language } = useI18n();
   return (
     <section className="bg-slate-100 px-4 py-16 md:px-6 md:py-20">
       <div className="mx-auto max-w-5xl">
@@ -19,13 +22,13 @@ export default function LandingVideoTour() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold"
             style={{ background: `${B.orange}15`, color: B.orange, borderColor: `${B.orange}30` }}
           >
-            Watch the Demo
+            {t("landing_watch_demo",language)}
           </div>
           <h2 className="mb-4 text-3xl font-black md:text-4xl" style={{ color: B.navy }}>
-            See Bingoo in action
+            {t("landing_see_action",language)}
           </h2>
           <p className="mx-auto max-w-xl text-base leading-relaxed text-slate-500 md:text-lg">
-            See how a Bingoo identity moves from a simple tap to a profile, connection and ongoing business relationship.
+            {t("landing_demo_copy",language)}
           </p>
         </motion.div>
 
@@ -51,10 +54,10 @@ export default function LandingVideoTour() {
               src="https://media.base44.com/videos/public/692bd9007b93ba81de543346/3fb381cbd_BingooConnect_TheProductDocumentaryCut_1080p_caption.mp4"
               type="video/mp4"
             />
-            Your browser does not support the video tag.
+            {t("landing_video_unsupported",language)}
           </video>
           <div className="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2">
-            <span className="rounded-full bg-black/40 px-3 py-1 text-xs font-bold text-white/70">🔊 Click to unmute</span>
+            <span className="rounded-full bg-black/40 px-3 py-1 text-xs font-bold text-white/70">{t("landing_click_unmute",language)}</span>
           </div>
         </motion.div>
       </div>
