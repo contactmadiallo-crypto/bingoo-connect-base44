@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { PUBLIC_APP_ORIGIN } from "@/lib/publicProfileUrl";
 
 const FIELD_LABELS = {
   display_name: "resume_full_name", job_title: "resume_job_title", company_name: "resume_company",
@@ -221,7 +222,7 @@ export default function ResumePanel({ user, profileId }) {
     enabled: !!user?.id,
   });
 
-  const origin = window.location.origin;
+  const origin = PUBLIC_APP_ORIGIN;
 
   const openNew = () => { setEditingResume(null); setShowEditor(true); };
   const openEdit = (r) => { setEditingResume(r); setShowEditor(true); };
