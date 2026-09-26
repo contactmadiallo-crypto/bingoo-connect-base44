@@ -1,5 +1,6 @@
 import { ChevronLeft, Grid3x3, Wand2, RotateCw, Plus, MoreHorizontal, Eye, Monitor, Maximize, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { publicProfileUrl } from '@/lib/publicProfileUrl';
 
 export default function DashboardTopBar({ 
   user, 
@@ -160,7 +161,7 @@ export default function DashboardTopBar({
             {profile && (
               <div className="flex items-center gap-2 mb-3">
                 <a 
-                  href={`https://bingooconnect.com/p/${profile.username}`}
+                  href={publicProfileUrl(profile.username)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 font-bold text-sm hover:underline flex items-center gap-1"
