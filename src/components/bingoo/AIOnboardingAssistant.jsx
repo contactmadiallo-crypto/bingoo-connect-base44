@@ -313,7 +313,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
         const profile = typeof result === "string" ? JSON.parse(result) : result;
         setEditedProfile(profile);
         setPhase("review");
-      } catch (e) {
+      } catch {
         addMessage("Hmm, something went wrong. Let me try again...");
         setPhase("chat");
       }
@@ -334,7 +334,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
       setEditedProfile(profile);
       setPhase("review");
       addMessage("Your profile has been generated from your resume! Review and edit it below.");
-    } catch (e) {
+    } catch {
       addMessage("Couldn't read the file. Please try a plain text or PDF file.");
       setPhase("chat");
     }
@@ -363,7 +363,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
           attached_to_profile: false,
           source: resumeText ? "resume_upload" : "ai_chat",
         });
-      } catch (e) {
+      } catch {
         // non-blocking
       }
     }
@@ -707,7 +707,7 @@ export default function AIOnboardingAssistant({ userName, onComplete, onDismiss 
                 // Save account_type (and optionally business_type) to the user record non-blockingly
                 const updates = { account_type: selectedAccountType };
                 if (selectedAccountType === "business" && selectedBusinessType) updates.business_type = selectedBusinessType;
-                try { await base44.auth.updateMe(updates); } catch (e) { /* non-blocking */ }
+                try { await base44.auth.updateMe(updates); } catch { /* non-blocking */ }
                 setPhase("type");
               }}
               style={{
