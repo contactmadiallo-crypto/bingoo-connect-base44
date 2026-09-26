@@ -29,7 +29,7 @@ const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import { isNativeApp } from '@/lib/nativePlatform';
+import { isInstalledAppShell } from '@/lib/nativePlatform';
 import { ProfileWorkspaceProvider } from '@/lib/ProfileWorkspaceContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminAuthGuard from '@/components/AdminAuthGuard';
@@ -84,7 +84,7 @@ function LegacyRedirects() {
 
 const EntryRoute = () => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  if (!isNativeApp()) return <Landing />;
+  if (!isInstalledAppShell()) return <Landing />;
   if (isLoadingAuth) {
     return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>;
   }
