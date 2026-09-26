@@ -16,7 +16,7 @@ export default function DeviceActionsBar({
   if (isDisabled) return null;
 
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const btnBase = "flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors";
+  const btnBase = "flex min-h-[44px] items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors";
 
   return (
     <div className={`rounded-xl p-4 ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
