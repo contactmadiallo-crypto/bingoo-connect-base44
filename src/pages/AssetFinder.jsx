@@ -11,11 +11,14 @@ import {
 import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import { useLostScanLogger } from '@/hooks/useLostScanLogger';
 import { getDeviceDisplayName } from '@/lib/deviceTypes';
+import { useI18n } from '@/lib/I18nContext';
 
 const PET_TYPES = ['pet'];
 const ITEM_TYPES = ['luggage', 'bag', 'keys', 'equipment', 'vehicle', 'other'];
 
 export default function AssetFinder() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const { nfcDeviceCode, assetId } = useParams();
   const normalizedCode = nfcDeviceCode?.toUpperCase().trim();
   const byAssetId = !!assetId;
@@ -35,7 +38,7 @@ export default function AssetFinder() {
           : await base44.functions.invoke('getAssetByNfcCode', { device_code: normalizedCode });
         setAsset(res.data);
       } catch (err) {
-        setError(err.response?.data?.error || 'Asset not found');
+        setError(err.response?.data?.error || tr('Asset not found', 'Objet introuvable'));
       } finally {
         setLoading(false);
       }
@@ -80,7 +83,7 @@ export default function AssetFinder() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-4"><span className="text-white font-black text-4xl tracking-[-0.055em]">Bing</span><InfinityMark size={48} color="#f97316" strokeWidth={3.8} glow /></div>
-          <p className="text-white/60 font-semibold text-sm">Checking device…</p>
+          <p className="text-white/60 font-semibold text-sm">{tr('Checking device…', 'Vérification de l’appareil…')}</p>
         </div>
       </div>
     );
@@ -91,10 +94,10 @@ export default function AssetFinder() {
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)' }}>
         <div className="text-center max-w-sm bg-white rounded-3xl shadow-2xl p-8">
           <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-          <h1 className="text-xl font-black text-slate-900 mb-2">No Asset Found</h1>
-          <p className="text-sm text-slate-500 mb-4">{error || 'This device is not linked to a registered Bingoo asset.'}</p>
+          <h1 className="text-xl font-black text-slate-900 mb-2">{tr('No Asset Found', 'Aucun objet trouvé')}</h1>
+          <p className="text-sm text-slate-500 mb-4">{error || tr('This device is not linked to a registered Bingoo asset.', 'Cet appareil n’est lié à aucun objet Bingoo enregistré.')}</p>
           <Link to="/" className="inline-flex items-center gap-2 text-sm font-bold text-white px-4 py-2 rounded-xl" style={{ background: '#f97316' }}>
-            <ArrowLeft className="w-4 h-4" /> Go Home
+            <ArrowLeft className="w-4 h-4" /> {tr('Go Home', 'Accueil')}
           </Link>
         </div>
       </div>
@@ -112,24 +115,24 @@ export default function AssetFinder() {
   const footerSignals = (() => {
     if (isLost) {
       return [
-        { Icon: AlertTriangle, title: 'Reported Lost', subtitle: isPet ? 'Help reunite this pet' : 'Help return this asset' },
-        { Icon: isPet ? PawPrint : ShieldCheck, title: isPet ? 'Help Reunite' : 'Return Ready', subtitle: assetData.recovery_instructions ? 'Return instructions available' : 'Safe recovery flow active' },
-        { Icon: hasContact ? Phone : Send, title: hasContact ? 'Contact Owner' : 'Finder Report', subtitle: hasContact ? 'Reach the registered owner' : 'Send a safe recovery report' },
+        { Icon: AlertTriangle, title: tr('Reported Lost', 'Signalé perdu'), subtitle: isPet ? tr('Help reunite this pet', 'Aidez à retrouver cet animal') : tr('Help return this asset', 'Aidez à rendre cet objet') },
+        { Icon: isPet ? PawPrint : ShieldCheck, title: isPet ? tr('Help Reunite', 'Aider à retrouver') : tr('Return Ready', 'Prêt à rendre'), subtitle: assetData.recovery_instructions ? tr('Return instructions available', 'Instructions de retour disponibles') : tr('Safe recovery flow active', 'Récupération sécurisée active') },
+        { Icon: hasContact ? Phone : Send, title: hasContact ? tr('Contact Owner', 'Contacter le propriétaire') : tr('Finder Report', 'Signalement'), subtitle: hasContact ? tr('Reach the registered owner', 'Joindre le propriétaire enregistré') : tr('Send a safe recovery report', 'Envoyer un signalement sécurisé') },
       ];
     }
 
     if (isPet) {
       return [
-        { Icon: ShieldCheck, title: 'Protected Pet', subtitle: 'Registered Bingoo identity' },
-        { Icon: device ? InfinityMark : PawPrint, title: device ? 'NFC Connected' : 'Registered', subtitle: device ? 'One tap to identify' : 'QR identity active', infinity: !!device },
-        { Icon: hasContact ? Phone : HeartPulse, title: hasContact ? 'Owner Reachable' : 'Care Details', subtitle: hasContact ? 'Contact options available' : (assetData.public_medical_notes ? 'Public care notes available' : 'Owner-managed asset') },
+        { Icon: ShieldCheck, title: tr('Protected Pet', 'Animal protégé'), subtitle: tr('Registered Bingoo identity', 'Identité Bingoo enregistrée') },
+        { Icon: device ? InfinityMark : PawPrint, title: device ? tr('NFC Connected', 'NFC connecté') : tr('Registered', 'Enregistré'), subtitle: device ? tr('One tap to identify', 'Une touche pour identifier') : tr('QR identity active', 'Identité QR active'), infinity: !!device },
+        { Icon: hasContact ? Phone : HeartPulse, title: hasContact ? tr('Owner Reachable', 'Propriétaire joignable') : tr('Care Details', 'Informations de soins'), subtitle: hasContact ? tr('Contact options available', 'Moyens de contact disponibles') : (assetData.public_medical_notes ? tr('Public care notes available', 'Notes de soins publiques disponibles') : tr('Owner-managed asset', 'Objet géré par le propriétaire')) },
       ];
     }
 
     return [
-      { Icon: ShieldCheck, title: 'Registered', subtitle: 'Verified Bingoo asset' },
-      { Icon: device ? InfinityMark : Package, title: device ? 'NFC Connected' : 'QR Connected', subtitle: device ? 'One tap to identify' : 'Scan to identify', infinity: !!device },
-      { Icon: hasContact ? Phone : MapPin, title: hasContact ? 'Return Ready' : 'Asset Details', subtitle: hasContact ? 'Owner contact available' : (assetData.public_last_known_context ? 'Context available' : 'Recovery profile active') },
+      { Icon: ShieldCheck, title: tr('Registered', 'Enregistré'), subtitle: tr('Verified Bingoo asset', 'Objet Bingoo vérifié') },
+      { Icon: device ? InfinityMark : Package, title: device ? tr('NFC Connected', 'NFC connecté') : tr('QR Connected', 'QR connecté'), subtitle: device ? tr('One tap to identify', 'Une touche pour identifier') : tr('Scan to identify', 'Scannez pour identifier'), infinity: !!device },
+      { Icon: hasContact ? Phone : MapPin, title: hasContact ? tr('Return Ready', 'Prêt à rendre') : tr('Asset Details', 'Détails de l’objet'), subtitle: hasContact ? tr('Owner contact available', 'Contact du propriétaire disponible') : (assetData.public_last_known_context ? tr('Context available', 'Contexte disponible') : tr('Recovery profile active', 'Profil de récupération actif')) },
     ];
   })();
 
@@ -140,11 +143,11 @@ export default function AssetFinder() {
           <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-2">Thank You! 🙏</h2>
+          <h2 className="text-2xl font-black text-slate-900 mb-2">{tr('Thank You! 🙏', 'Merci ! 🙏')}</h2>
           <p className="text-slate-500 text-sm leading-relaxed">
-            Your report has been sent to the owner of {assetData.name}. They will contact you soon.
+            {tr(`Your report has been sent to the owner of ${assetData.name}. They will contact you soon.`, `Votre signalement a été envoyé au propriétaire de ${assetData.name}. Il pourra vous contacter prochainement.`)}
           </p>
-          <p className="text-xs text-slate-400 mt-4">Powered by Bingoo Connect</p>
+          <p className="text-xs text-slate-400 mt-4">{tr('Powered by Bingoo Connect', 'Propulsé par Bingoo Connect')}</p>
         </div>
       </div>
     );
@@ -162,7 +165,7 @@ export default function AssetFinder() {
               <span className="text-white font-black text-[46px] tracking-[-0.06em]">Bing</span>
               <InfinityMark size={61} color="#f97316" strokeWidth={4} glow />
             </div>
-            <p className="mt-1 text-[9px] font-bold uppercase tracking-[.36em] text-white/65">Connect What Matters</p>
+            <p className="mt-1 text-[9px] font-bold uppercase tracking-[.36em] text-white/65">{tr('Connect What Matters', 'Connectez ce qui compte')}</p>
           </header>
 
           <section className="mb-4 flex items-center gap-3 rounded-[26px] px-5 py-4 backdrop-blur-xl" style={{ background: 'rgba(8,30,66,.76)', border: '1px solid rgba(96,165,250,.34)', boxShadow: '0 18px 50px rgba(0,0,0,.20)' }}>
@@ -170,8 +173,8 @@ export default function AssetFinder() {
               <Package className="h-6 w-6 text-orange-400" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-base font-black text-white">Asset Identified</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-white/58">This {device ? 'NFC tag' : 'QR code'} is linked to a registered Bingoo asset.</p>
+              <p className="text-base font-black text-white">{tr('Asset Identified', 'Objet identifié')}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-white/58">{tr('This', 'Ce')} {device ? tr('NFC tag', 'tag NFC') : tr('QR code', 'code QR')} {tr('is linked to a registered Bingoo asset.', 'est lié à un objet Bingoo enregistré.')}</p>
             </div>
             <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-black text-emerald-300" style={{ background: 'rgba(16,185,129,.10)', border: '1px solid rgba(52,211,153,.42)' }}>
               <span className="h-2 w-2 rounded-full bg-emerald-400" /> Active
@@ -207,10 +210,10 @@ export default function AssetFinder() {
                 <div className="flex items-center gap-3 rounded-[22px] px-4 py-4" style={{ background: 'rgba(12,42,86,.78)', border: '1px solid rgba(96,165,250,.25)' }}>
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: 'rgba(249,115,22,.16)' }}><Package className="h-5 w-5 text-orange-400" /></div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-blue-200/60">Linked NFC Device</p>
+                    <p className="text-[10px] font-black uppercase tracking-[.18em] text-blue-200/60">{tr('Linked NFC Device', 'Appareil NFC lié')}</p>
                     <p className="mt-0.5 truncate text-base font-black text-white">{productLabel}</p>
                   </div>
-                  <button type="button" onClick={() => normalizedCode && navigator.clipboard?.writeText(normalizedCode)} className="shrink-0 rounded-xl px-2 py-1.5 font-mono text-xs font-bold text-white/60 hover:bg-white/5" aria-label="Copy device code">{normalizedCode}</button>
+                  <button type="button" onClick={() => normalizedCode && navigator.clipboard?.writeText(normalizedCode)} className="shrink-0 rounded-xl px-2 py-1.5 font-mono text-xs font-bold text-white/60 hover:bg-white/5" aria-label={tr('Copy device code', 'Copier le code appareil')}>{normalizedCode}</button>
                 </div>
               )}
 
@@ -218,22 +221,22 @@ export default function AssetFinder() {
                 <div className="flex items-center gap-3 border-b border-white/[.06] px-4 py-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[.06]"><ShieldCheck className="h-5 w-5 text-blue-200/70" /></div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">Registered By</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">{tr('Registered By', 'Enregistré par')}</p>
                     <p className="truncate text-sm font-black text-white">{owner.display_name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 px-4 py-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/[.06]"><MapPin className="h-5 w-5 text-blue-200/70" /></div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">Asset Information</p>
-                    <p className="truncate text-sm font-semibold capitalize text-white/75">{assetData.public_last_known_context || `${assetData.asset_type} · Registered Bingoo asset`}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/40">{tr('Asset Information', 'Informations sur l’objet')}</p>
+                    <p className="truncate text-sm font-semibold capitalize text-white/75">{assetData.public_last_known_context || `${assetData.asset_type} · ${tr('Registered Bingoo asset', 'Objet Bingoo enregistré')}`}</p>
                   </div>
                 </div>
               </div>
 
               {isPet && assetData.public_medical_notes && (
                 <div className="rounded-[20px] p-4" style={{ background: 'rgba(239,68,68,.09)', border: '1px solid rgba(248,113,113,.28)' }}>
-                  <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[.16em] text-red-300"><HeartPulse className="h-3.5 w-3.5" /> Medical / Allergy Notes</p>
+                  <p className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[.16em] text-red-300"><HeartPulse className="h-3.5 w-3.5" /> {tr('Medical / Allergy Notes', 'Notes médicales / allergies')}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-white/75">{assetData.public_medical_notes}</p>
                 </div>
               )}
@@ -242,7 +245,7 @@ export default function AssetFinder() {
                 <a href={`tel:${owner.contact.phone}`} className="flex min-h-[76px] items-center gap-3 rounded-[22px] px-4 text-white transition-transform active:scale-[.99]" style={{ background: 'linear-gradient(100deg,#ff9b18 0%,#ff6b13 56%,#ff4a21 100%)', boxShadow: '0 14px 34px rgba(249,115,22,.18)' }}>
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15"><Phone className="h-5 w-5" /></div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/70">Call Owner</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[.18em] text-white/70">{tr('Call Owner', 'Appeler le propriétaire')}</p>
                     <p className="truncate text-lg font-black">{owner.contact.phone}</p>
                   </div>
                   <span className="text-2xl font-light text-white/75">›</span>
@@ -252,7 +255,7 @@ export default function AssetFinder() {
               {(owner.contact.email || owner.contact.whatsapp) && (
                 <a href={owner.contact.email ? `mailto:${owner.contact.email}` : `https://wa.me/${owner.contact.whatsapp.replace(/[^0-9]/g, '')}`} target={owner.contact.email ? undefined : '_blank'} rel={owner.contact.email ? undefined : 'noopener noreferrer'} className="flex min-h-[64px] items-center gap-3 rounded-[22px] px-4 text-white transition-colors hover:bg-white/[.04]" style={{ border: '1px solid rgba(249,115,22,.82)' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[.05]">{owner.contact.email ? <Mail className="h-5 w-5 text-white/70" /> : <MessageCircle className="h-5 w-5 text-white/70" />}</div>
-                  <span className="flex-1 text-sm font-black">Send a Message</span>
+                  <span className="flex-1 text-sm font-black">{tr('Send a Message', 'Envoyer un message')}</span>
                   <span className="text-2xl font-light text-white/60">›</span>
                 </a>
               )}
@@ -271,7 +274,7 @@ export default function AssetFinder() {
 
               <div className="pb-1 pt-3 text-center">
                 <div className="flex items-center justify-center gap-1 opacity-80"><span className="text-white font-black text-lg tracking-[-0.04em]">Bing</span><InfinityMark size={25} color="#f97316" strokeWidth={3.4} /></div>
-                <p className="mt-1 text-[8px] font-bold uppercase tracking-[.32em] text-white/30">Assets That Stay Closer</p>
+                <p className="mt-1 text-[8px] font-bold uppercase tracking-[.32em] text-white/30">{tr('Assets That Stay Closer', 'Des objets qui restent proches')}</p>
               </div>
             </div>
           </section>
