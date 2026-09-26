@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { getCart } from '@/lib/cartStore';
 import { cartLineTotal } from '@/lib/designStudioCatalog';
-import { openExternalUrl, isNativeApp } from '@/lib/nativePlatform';
+import { openExternalUrl, isInstalledAppShell } from '@/lib/nativePlatform';
 import { getRegion } from '@/lib/regionSettings';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
@@ -15,7 +15,7 @@ import { localizeShopProduct } from '@/lib/shopI18n';
 
 export default function Checkout() {
   const { language } = useI18n();
-  const nativeApp = isNativeApp();
+  const nativeApp = isInstalledAppShell();
   const cart = getCart();
   useEffect(() => { let meta=document.querySelector('meta[name="robots"]'); if(!meta){meta=document.createElement('meta');meta.setAttribute('name','robots');document.head.appendChild(meta)} meta.setAttribute('content','noindex, nofollow'); return()=>meta.setAttribute('content','index, follow'); }, []);
   const subtotal=cart.reduce((sum,item)=>sum+cartLineTotal(item),0), totalNfcUnits=cart.reduce((sum,item)=>sum+item.quantity,0);
