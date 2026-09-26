@@ -11,7 +11,7 @@ import { t } from "@/lib/i18n";
 
 const PRACTICE_AREA_EMOJIS = ["⚖️", "🌎", "🔒", "👨‍👩‍👧‍👦", "🏠", "💼", "💰", "📋", "🚗", "📄"];
 
-export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
+export default function PracticeAreasPanel({ profileId, isDark }) {
   const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -19,7 +19,7 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
   const [form, setForm] = useState({ name: "", description: "", icon: "⚖️" });
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const { data: areas = [], isFetching } = useQuery({
+  const { data: areas = [] } = useQuery({
     queryKey: ["practice-areas", profileId],
     queryFn: async () => {
       const result = await base44.entities.PracticeArea.filter({ profile_id: profileId }, "order");
@@ -29,8 +29,6 @@ export default function PracticeAreasPanel({ profileId, isDark, onSaved }) {
     staleTime: 0,
     gcTime: 0,
   });
-
-  const refetchAreas = () => qc.refetchQueries({ queryKey: ["practice-areas", profileId] });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
