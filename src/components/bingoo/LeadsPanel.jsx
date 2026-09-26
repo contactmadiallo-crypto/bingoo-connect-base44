@@ -19,15 +19,13 @@ const CRM_STATUSES = [
   { id: "lost",      labelKey: "crm_lost",      color: "#ef4444", darkCls: "bg-red-500/20 text-red-300 border-red-500/30",         lightCls: "bg-red-50 text-red-600 border-red-200" },
 ];
 
-const ALL_STATUS_IDS = CRM_STATUSES.map(s => s.id);
-
 function getStatusStyle(status, isDark) {
   const s = CRM_STATUSES.find(x => x.id === status);
   if (!s) return isDark ? "bg-white/10 text-white/40 border-white/10" : "bg-slate-100 text-slate-500 border-slate-200";
   return isDark ? s.darkCls : s.lightCls;
 }
 
-export default function LeadsPanel({ profileId, profileIds: propProfileIds, user, highlightId }) {
+export default function LeadsPanel({ profileId, highlightId }) {
   const { language } = useI18n();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
