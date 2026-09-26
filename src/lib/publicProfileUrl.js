@@ -14,3 +14,10 @@ export function publicProfileQrUrl(username) {
   const url = publicProfileUrl(username);
   return url ? `${url}?source=qr` : null;
 }
+
+export function publicAssetUrl(assetId, source = 'qr') {
+  const id = String(assetId || '').trim();
+  if (!id) return null;
+  const base = `${PUBLIC_APP_ORIGIN}/a/${encodeURIComponent(id)}`;
+  return source ? `${base}?source=${encodeURIComponent(source)}` : base;
+}
