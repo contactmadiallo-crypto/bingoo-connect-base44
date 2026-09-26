@@ -2,47 +2,50 @@ import { useState } from "react";
 import LegalPageLayout from "@/components/legal/LegalPageLayout";
 import { base44 } from "@/api/base44Client";
 import { CheckCircle2, Loader2, Trash2, Download, Pencil, FileX, AlertTriangle } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const REQUEST_TYPES = [
   {
     id: "account_deletion",
-    label: "Account Deletion",
+    labelKey: "data_type_account",
     icon: Trash2,
     color: "#dc2626",
-    description: "Permanently delete your account and all associated data.",
-    responseTime: "30 days",
+    descriptionKey: "data_type_account_desc",
+    responseTimeKey: "data_days_30",
     irreversible: true,
   },
   {
     id: "data_export",
-    label: "Data Export",
+    labelKey: "data_type_export",
     icon: Download,
     color: "#2563eb",
-    description: "Receive a copy of all your data in a structured format.",
-    responseTime: "14 days",
+    descriptionKey: "data_type_export_desc",
+    responseTimeKey: "data_days_14",
     irreversible: false,
   },
   {
     id: "data_correction",
-    label: "Data Correction",
+    labelKey: "data_type_correction",
     icon: Pencil,
     color: "#f59e0b",
-    description: "Request correction of inaccurate personal data you cannot edit yourself.",
-    responseTime: "14 days",
+    descriptionKey: "data_type_correction_desc",
+    responseTimeKey: "data_days_14",
     irreversible: false,
   },
   {
     id: "document_deletion",
-    label: "Document Deletion",
+    labelKey: "data_type_document",
     icon: FileX,
     color: "#7c3aed",
-    description: "Delete specific documents from your Document Wallet without deleting your account.",
-    responseTime: "7 days",
+    descriptionKey: "data_type_document_desc",
+    responseTimeKey: "data_days_7",
     irreversible: true,
   },
 ];
 
 export default function DataDeletion() {
+  const { language } = useI18n();
   const [requestType, setRequestType] = useState("account_deletion");
   const [form, setForm] = useState({ name: "", email: "", details: "" });
   const [confirmIdentity, setConfirmIdentity] = useState(false);
@@ -68,32 +71,30 @@ export default function DataDeletion() {
       setSubmitted(true);
     } catch (error) {
       console.error("Privacy request failed:", error);
-      setSubmitError(error?.message || "Unable to submit your request. Please try again.");
+      setSubmitError(error?.message || t("data_submit_error",language));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <LegalPageLayout title="Data Deletion & Privacy Requests" subtitle="Manage your personal data" lastUpdated="July 11, 2026" maxWidth="max-w-2xl">
+    <LegalPageLayout title={t("data_title",language)} subtitle={t("data_subtitle",language)} lastUpdated="July 11, 2026" maxWidth="max-w-2xl">
       {submitted ? (
         <div className="text-center py-12">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
             <CheckCircle2 size={32} color="#059669" />
           </div>
-          <h2 className="text-xl font-black text-slate-900 mb-3">Request Received</h2>
+          <h2 className="text-xl font-black text-slate-900 mb-3">{t("data_request_received",language)}</h2>
           <p className="text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
-            We've received your <strong>{activeType.label}</strong> request. We will verify your
-            identity and process it within <strong>{activeType.responseTime}</strong>. A
-            confirmation will be sent to <strong>{form.email}</strong>.
+            {t("data_received_prefix",language)} <strong>{t(activeType.labelKey,language)}</strong>{t("data_received_mid",language)} <strong>{t(activeType.responseTimeKey,language)}</strong>. {t("data_received_suffix",language)} <strong>{form.email}</strong>.
           </p>
           {activeType.irreversible && (
             <p className="text-xs text-red-500 mt-4 max-w-md mx-auto">
-              Reminder: This action is irreversible. Once processed, deleted data cannot be recovered.
+              {t("data_irreversible_reminder",language)}
             </p>
           )}
           <a href="/" className="inline-block mt-6 px-7 py-3 rounded-full bg-[#0b2149] text-white font-bold text-sm no-underline">
-            ← Back to Home
+            ← {t("data_back_home",language)}
           </a>
         </div>
       ) : (
@@ -101,32 +102,32 @@ export default function DataDeletion() {
           {/* What is deleted / retained */}
           <div className="mb-6 space-y-4">
             <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-2">What Gets Deleted</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-2">{t("data_deleted_title",language)}</h3>
               <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
-                <li>Your account and login credentials</li>
-                <li>Public profile(s) and all displayed information</li>
-                <li>Leads, appointments, and booking data</li>
-                <li>NFC device records and assignments</li>
-                <li>Document Wallet files and metadata</li>
-                <li>Analytics history and push notification subscriptions</li>
-                <li>Shop order history (personal data portions)</li>
+                <li>{t("data_del_account",language)}</li>
+                <li>{t("data_del_profiles",language)}</li>
+                <li>{t("data_del_leads",language)}</li>
+                <li>{t("data_del_nfc",language)}</li>
+                <li>{t("data_del_wallet",language)}</li>
+                <li>{t("data_del_analytics",language)}</li>
+                <li>{t("data_del_orders",language)}</li>
               </ul>
             </div>
 
             <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <h3 className="text-sm font-bold text-slate-900 mb-2">What May Be Retained</h3>
+              <h3 className="text-sm font-bold text-slate-900 mb-2">{t("data_retained_title",language)}</h3>
               <ul className="text-sm text-slate-600 list-disc pl-5 space-y-1">
-                <li>Stripe billing records (required by financial regulations)</li>
-                <li>Anonymized/aggregated analytics (no personally identifying data)</li>
-                <li>Admin audit logs (for security and compliance)</li>
-                <li>Records required to resolve disputes or comply with legal obligations</li>
+                <li>{t("data_keep_stripe",language)}</li>
+                <li>{t("data_keep_analytics",language)}</li>
+                <li>{t("data_keep_audit",language)}</li>
+                <li>{t("data_keep_legal",language)}</li>
               </ul>
             </div>
           </div>
 
           {/* Request type selector */}
           <div className="mb-6">
-            <h3 className="text-sm font-bold text-slate-900 mb-3">Select Request Type</h3>
+            <h3 className="text-sm font-bold text-slate-900 mb-3">{t("data_select_type",language)}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {REQUEST_TYPES.map(t => {
                 const Icon = t.icon;
@@ -143,11 +144,11 @@ export default function DataDeletion() {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <Icon size={18} style={{ color: t.color }} />
-                      <span className="text-sm font-bold text-slate-900">{t.label}</span>
+                      <span className="text-sm font-bold text-slate-900">{t(t.labelKey,language)}</span>
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">{t.description}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{t(t.descriptionKey,language)}</p>
                     <p className="text-xs font-semibold mt-2" style={{ color: t.color }}>
-                      Response time: {t.responseTime}
+                      {t("data_response_time",language)} {t(t.responseTimeKey,language)}
                     </p>
                   </button>
                 );
@@ -160,9 +161,7 @@ export default function DataDeletion() {
             <div className="flex gap-3 p-4 bg-orange-50 border border-orange-200 rounded-2xl mb-6">
               <AlertTriangle size={20} color="#ea580c" style={{ flexShrink: 0, marginTop: 2 }} />
               <div className="text-sm text-orange-900 leading-relaxed">
-                <strong>Warning:</strong> {activeType.label} is <strong>irreversible</strong>. Once
-                processed, your data cannot be recovered. Consider submitting a Data Export request
-                first if you want to keep a copy.
+                <strong>{t("data_warning",language)}</strong> {t(activeType.labelKey,language)} {t("data_warning_copy",language)}
               </div>
             </div>
           )}
@@ -174,13 +173,13 @@ export default function DataDeletion() {
                 {submitError}
               </div>
             )}
-            <h3 className="text-base font-bold text-slate-900 mb-5">Submit Your Request</h3>
+            <h3 className="text-base font-bold text-slate-900 mb-5">{t("data_submit_title",language)}</h3>
 
             <div className="mb-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Full Name</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">{t("data_full_name",language)}</label>
               <input
                 type="text"
-                placeholder="Your full name"
+                placeholder={t("data_full_name_ph",language)}
                 required
                 value={form.name}
                 onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
@@ -189,30 +188,30 @@ export default function DataDeletion() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Email Address</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">{t("data_email",language)}</label>
               <input
                 type="email"
-                placeholder="The email linked to your Bingoo account"
+                placeholder={t("data_email_ph",language)}
                 required
                 value={form.email}
                 onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-900 outline-none bg-slate-50 focus:border-blue-400 transition-colors"
               />
               <p className="text-xs text-slate-400 mt-1.5">
-                We will verify this email matches your account before processing.
+                {t("data_email_verify",language)}
               </p>
             </div>
 
             <div className="mb-4">
               <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">
-                Additional Details {requestType === "data_correction" && "(Required — describe what needs correcting)"}
-                {requestType === "document_deletion" && "(Required — list document names or types to delete)"}
+                {t("data_details",language)} {requestType === "data_correction" && t("data_details_correction",language)}
+                {requestType === "document_deletion" && t("data_details_document",language)}
               </label>
               <textarea
                 placeholder={
-                  requestType === "data_correction" ? "Describe the inaccurate data and what it should be…" :
-                  requestType === "document_deletion" ? "List the documents you want deleted…" :
-                  "Any additional information…"
+                  requestType === "data_correction" ? t("data_ph_correction",language) :
+                  requestType === "document_deletion" ? t("data_ph_document",language) :
+                  t("data_ph_other",language)
                 }
                 value={form.details}
                 onChange={e => setForm(p => ({ ...p, details: e.target.value }))}
@@ -231,9 +230,7 @@ export default function DataDeletion() {
                 className="mt-1 w-4 h-4 flex-shrink-0"
               />
               <span className="text-xs text-slate-600 leading-relaxed">
-                I confirm I am the owner of this account and the information above is accurate.
-                I understand that {activeType.label.toLowerCase()} will be processed after identity
-                verification{activeType.irreversible ? " and is irreversible" : ""}.
+                {t("data_identity_prefix",language)} {t(activeType.labelKey,language).toLowerCase()} {t("data_identity_suffix",language)}{activeType.irreversible ? ` ${t("data_and_irreversible",language)}` : ""}.
               </span>
             </label>
 
@@ -244,9 +241,9 @@ export default function DataDeletion() {
               style={{ background: activeType.irreversible ? "#dc2626" : activeType.color }}
             >
               {submitting ? (
-                <><Loader2 size={18} className="animate-spin" /> Submitting…</>
+                <><Loader2 size={18} className="animate-spin" /> {t("data_submitting",language)}</>
               ) : (
-                <>Submit {activeType.label} Request</>
+                <>{t("data_submit",language)} {t(activeType.labelKey,language)} {t("data_request",language)}</>
               )}
             </button>
           </form>
@@ -254,11 +251,11 @@ export default function DataDeletion() {
           {/* Support contact */}
           <div className="mt-6 p-4 bg-slate-100 rounded-2xl text-center">
             <p className="text-sm text-slate-600">
-              Need help with your request? Email us at{" "}
+              {t("data_help",language)}{" "}
               <a href="mailto:privacy@bingooconnect.com" className="text-blue-600 font-semibold">privacy@bingooconnect.com</a>
             </p>
             <p className="text-xs text-slate-400 mt-1">
-              Expected response time: {activeType.responseTime} after identity verification.
+              {t("data_expected",language)} {t(activeType.responseTimeKey,language)} {t("data_after_verification",language)}
             </p>
           </div>
         </>
