@@ -9,13 +9,11 @@ import { t } from '@/lib/i18n';
 
 export default function SubscriberMonitoring() {
   const { language } = useI18n();
-  const [user, setUser] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [filterAction, setFilterAction] = useState('all');
 
   useEffect(() => {
     base44.auth.me().then(u => {
-      setUser(u);
       setAuthChecked(true);
       if (u.role !== 'admin' && u.role !== 'super_admin') window.location.href = '/bingoo';
     }).catch(() => base44.auth.redirectToLogin());
