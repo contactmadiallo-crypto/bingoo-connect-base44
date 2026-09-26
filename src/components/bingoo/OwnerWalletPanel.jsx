@@ -46,7 +46,7 @@ export default function OwnerWalletPanel({ profile, isDark, panelBorder, panelBg
             <p className="text-[10px] uppercase tracking-[0.18em] text-white/50">{t("wallet_profile_label", language)}</p>
             <p className="text-xs text-white/75 truncate">{profileUrl}</p>
           </div>
-          <img src={qrUrl} alt="Wallet card QR code" className="w-12 h-12 rounded-lg bg-white p-1 flex-shrink-0" />
+          <img src={qrUrl} alt={t("qr_alt_wallet", language)} className="w-12 h-12 rounded-lg bg-white p-1 flex-shrink-0" />
         </div>
       </div>
 
