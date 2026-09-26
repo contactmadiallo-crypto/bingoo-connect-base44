@@ -17,6 +17,15 @@ const B = {
   slate: "#64748b",
 };
 
+const PLAN_FR = {
+  free: { name: "Gratuit", tagline: "Profil personnel de base et partage QR", features: ["1 profil","Lien de profil public","Liens de contact de base","Liens sociaux","QR code","Enregistrer le contact","Aperçu limité des analyses"] },
+  professional: { name: "Professional", tagline: "Profil premium, NFC, analyses, prospects et rendez-vous", features: ["Tout ce qui est inclus dans Gratuit","Plusieurs appareils NFC","Collecte de prospects","Tableau de bord analytique","Portfolio et galerie","Image de marque personnalisée","Téléchargement du QR code","Bouton Enregistrer le contact"] },
+  business: { name: "Business", tagline: "Profil d’entreprise, équipe, services, outils professionnels et multi-appareils", features: ["Tout ce qui est inclus dans Professional","Profil public d’entreprise","Studio de design","Gestion d’équipe","Présentation des services et produits","Réservation WhatsApp","Compatibilité support de comptoir NFC","Horaires d’ouverture"] },
+  salon: { name: "Salon", tagline: "Base Business avec services de salon, personnel, galerie, avis et réservations", features: ["Tout ce qui est inclus dans Business","Profil professionnel de salon","Profils du personnel","Menu des services","Galerie Instagram","Avis Google","Réservation WhatsApp","Support de comptoir NFC"] },
+  lawfirm: { name: "Cabinet juridique", tagline: "Base Business avec avocats, domaines de pratique, formulaires juridiques et bureaux", features: ["Tout ce qui est inclus dans Business","Profil de cabinet juridique","Domaines de pratique","Profils des avocats","Services juridiques","Emplacements des bureaux","Membres de l’équipe","Formulaires d’admission des prospects"] },
+  corporate: { name: "Entreprise / Volume", tagline: "Intégration sur mesure, équipes, API, commandes NFC en volume et assistance admin", features: ["Tout ce qui est inclus dans Business","Intégration personnalisée","Gestion d’équipe","Accès API","Commandes NFC en volume","Assistance administrateur","Profils des employés","Tableau de bord des présences"] },
+};
+
 const plans = CUSTOMER_PLAN_IDS.map((id) => {
   const c = PLAN_CONFIG[id];
   const price = PLAN_PRICES_USD[id];
@@ -130,8 +139,8 @@ export default function LandingPricing() {
         {/* ── Plan cards ── */}
         <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
           variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-          {plans.map((p) => (
-            <motion.div key={p.name} variants={fadeUp}
+          {plans.map((p) => {\n            const localized = language === "fr" ? PLAN_FR[p.id] : null;\n            const planName = localized?.name || p.name;\n            const planDesc = localized?.tagline || p.desc;\n            const planFeatures = localized?.features || p.features;\n            const planCta = p.id === "free" ? t("landing_get_started_free",language) : p.contactSales ? t("landing_contact_sales",language) : `${t("landing_get_plan",language)} ${planName}`;\n            return (
+            <motion.div key={p.id} variants={fadeUp}
               whileHover={{ y: p.highlight ? -10 : -6 }}
               className="rounded-2xl p-7 border-2 transition-all relative flex flex-col"
               style={{
@@ -146,8 +155,8 @@ export default function LandingPricing() {
                 </div>
               )}
               <div className="mb-4">
-                <p className="text-sm font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{p.desc}</p>
-                <h3 className="font-black text-xl mb-3" style={{ color: p.highlight ? "#fff" : B.navy }}>{p.name}</h3>
+                <p className="text-sm font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{planDesc}</p>
+                <h3 className="font-black text-xl mb-3" style={{ color: p.highlight ? "#fff" : B.navy }}>{planName}</h3>
                 <div>
                   <span className="text-4xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{p.price}</span>
                   <span className="text-sm ml-1" style={{ color: p.highlight ? "rgba(255,255,255,0.4)" : B.slate }}>{p.period}</span>
@@ -155,7 +164,7 @@ export default function LandingPricing() {
               </div>
               <div className="h-px my-4" style={{ background: p.highlight ? "rgba(255,255,255,0.1)" : "#f1f5f9" }} />
               <ul className="space-y-2.5 mb-6 flex-1">
-                {p.features.map((f) => (
+                {planFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm"
                     style={{ color: p.highlight ? "rgba(255,255,255,0.75)" : "#64748b" }}>
                     <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: p.highlight ? B.gold : B.orange }} />
@@ -167,11 +176,11 @@ export default function LandingPricing() {
                 <Button onClick={() => (window.location.href = p.id === "free" ? "/bingoo" : p.contactSales ? "/contact-support" : "/plans")}
                   className="w-full font-bold"
                   style={{ background: p.highlight ? B.orange : B.navy, color: "#fff", border: "none" }}>
-                  {p.cta}
+                  {planCta}
                 </Button>
               </motion.div>
             </motion.div>
-          ))}
+          );})}
         </motion.div>
 
         {/* ── Browse All Plans CTA ── */}
