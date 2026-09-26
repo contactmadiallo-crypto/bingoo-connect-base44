@@ -21,12 +21,12 @@ export default function BingooModal({ open, onClose, title, children, footer, si
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       style={{ background: 'rgba(11,33,73,0.55)', backdropFilter: 'blur(4px)' }}
       onClick={onClose}
     >
       <div
-        className={`w-full ${sizeMap[size]} bg-white rounded-2xl overflow-hidden shadow-2xl`}
+        className={`w-full ${sizeMap[size]} bg-white rounded-t-3xl sm:rounded-2xl overflow-hidden shadow-2xl max-h-[94dvh] sm:max-h-[90vh] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
@@ -34,15 +34,16 @@ export default function BingooModal({ open, onClose, title, children, footer, si
             <h2 className="text-lg font-black" style={{ color: NAVY }}>{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              aria-label="Close"
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-4 sm:px-5 py-4 overflow-y-auto overscroll-contain">{children}</div>
         {footer && (
-          <div className="px-5 py-4 border-t border-slate-100 flex gap-2 justify-end">{footer}</div>
+          <div className="px-4 sm:px-5 py-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row gap-2 justify-end">{footer}</div>
         )}
       </div>
     </div>
