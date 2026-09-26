@@ -121,18 +121,18 @@ export default function FeedbackSection() {
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">{t("feedback_type_question",language)}</label>
                   <div className="flex flex-wrap gap-2">
-                    {TYPES.map((t) => (
+                    {TYPES.map((item) => (
                       <button
-                        key={t.value}
+                        key={item.value}
                         type="button"
-                        onClick={() => setForm(f => ({ ...f, type: t.value }))}
+                        onClick={() => setForm(f => ({ ...f, type: item.value }))}
                         className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all ${
-                          form.type === t.value
+                          form.type === item.value
                             ? "border-blue-500 bg-blue-50 text-blue-700"
                             : "border-slate-200 text-slate-500 hover:border-slate-300"
                         }`}
                       >
-                        {t(t.key,language)}
+                        {t(item.key,language)}
                       </button>
                     ))}
                   </div>
