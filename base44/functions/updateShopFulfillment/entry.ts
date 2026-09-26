@@ -92,6 +92,59 @@ Deno.serve(async (req) => {
 
     const updated = await base44.asServiceRole.entities.ShopOrder.update(orderId, update);
 
+    // Keep the international manufacturing shipment ledger in sync with the customer order.
+    // Idempotent by order: repeated tracking updates update the same Shipment record.
+    if (trackingNumber) {
+      try {
+        const existingShipments = await base44.asServiceRole.entities.Shipment.filter({ shop_order_id: orderId }, '-created_date', 1);
+        const existingShipment = existingShipments?.[0];
+        const jobId = Array.isArray(order.production_job_ids) ? order.production_job_ids[0] || '' : '';
+        let job = null;
+        if (jobId) {
+          try { job = await base44.asServiceRole.entities.ProductionJob.get(jobId); } catch (_) { /* optional relation */ }
+        }
+        const shipmentPatch = {
+          shop_order_id: orderId,
+          production_job_id: jobId,
+          partner_id: job?.partner_id || '',
+          status: 'in_transit',
+          origin_country_code: '',
+          destination_country_code: String(order.country || '').trim().toUpperCase() === 'UNITED STATES' ? 'US' : String(order.country || 'US').trim().toUpperCase().slice(0, 2),
+          carrier,
+          service_level: order.shipping_service || 'standard',
+          tracking_number: trackingNumber,
+          tracking_url: update.tracking_url || order.tracking_url || '',
+          currency: order.shipping_currency || 'USD',
+          shipping_cost: Number(order.shipping_cost || 0),
+          declared_value: Number(order.subtotal || 0),
+          duties_paid_by: order.duties_terms === 'DAP' ? 'recipient' : 'sender',
+          incoterm: order.duties_terms || 'domestic',
+          estimated_delivery: update.estimated_delivery || order.estimated_delivery || null,
+          shipped_at: update.shipped_at || order.shipped_at || new Date().toISOString(),
+          last_event_at: new Date().toISOString(),
+        };
+        if (existingShipment) {
+          await base44.asServiceRole.entities.Shipment.update(existingShipment.id, shipmentPatch);
+        } else {
+          await base44.asServiceRole.entities.Shipment.create({
+            shipment_number: `SHP-${order.order_number || orderId}`,
+            ...shipmentPatch,
+          });
+        }
+      } catch (shipmentErr) {
+        console.error('Shipment ledger sync failed (non-blocking):', shipmentErr.message);
+      }
+    }
+
+    if (body.fulfillment_status === 'delivered') {
+      try {
+        const existingShipments = await base44.asServiceRole.entities.Shipment.filter({ shop_order_id: orderId }, '-created_date', 1);
+        if (existingShipments?.[0]) await base44.asServiceRole.entities.Shipment.update(existingShipments[0].id, { status: 'delivered', delivered_at: update.delivered_at || new Date().toISOString(), last_event_at: new Date().toISOString() });
+      } catch (shipmentErr) {
+        console.error('Shipment delivery sync failed (non-blocking):', shipmentErr.message);
+      }
+    }
+
     try {
       await base44.asServiceRole.entities.AdminAuditLog.create({
         action: 'shop_fulfillment_updated',
