@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Trash2, AlertTriangle, Loader2, Shield, Nfc, Calendar, Users } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { useI18n } from '@/lib/I18nContext';
 
 /**
  * DeleteProfileModal — safe confirmation flow before removing a profile.
@@ -18,6 +19,8 @@ import { MobileSelect } from "@/components/ui/mobile-select";
  * After deletion, calls onDeleted() so the parent returns to My Profiles.
  */
 export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
@@ -87,8 +90,8 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
             <AlertTriangle className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h3 className={`font-bold text-base ${headText}`}>Delete Profile</h3>
-            <p className={`text-xs ${mutedText}`}>This action cannot be undone.</p>
+            <h3 className={`font-bold text-base ${headText}`}>{tr('Delete Profile', 'Supprimer le profil')}</h3>
+            <p className={`text-xs ${mutedText}`}>{tr('This action cannot be undone.', 'Cette action est irréversible.')}</p>
           </div>
           <button onClick={onClose} className={`ml-auto p-2 rounded-full ${isDark ? "hover:bg-white/10" : "hover:bg-slate-100"}`}>
             <span className={`text-xl ${mutedText}`}>×</span>
@@ -98,12 +101,12 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
         {loading ? (
           <div className="p-10 flex flex-col items-center gap-3">
             <Loader2 className="w-6 h-6 animate-spin text-red-500" />
-            <p className={`text-sm ${mutedText}`}>Checking profile dependencies…</p>
+            <p className={`text-sm ${mutedText}`}>{tr('Checking profile dependencies…', 'Vérification des dépendances du profil…')}</p>
           </div>
         ) : error && !summary ? (
           <div className="p-6">
             <p className="text-sm text-red-500">{error}</p>
-            <button onClick={onClose} className="mt-4 text-sm font-bold text-red-600">Close</button>
+            <button onClick={onClose} className="mt-4 text-sm font-bold text-red-600">{tr('Close', 'Fermer')}</button>
           </div>
         ) : (
           <div className="p-5 space-y-4">
@@ -120,7 +123,7 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
 
             {/* Dependency summary */}
             <div className="space-y-2">
-              <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>What gets removed</p>
+              <p className={`text-xs font-bold uppercase tracking-widest ${mutedText}`}>{tr('What gets removed', 'Ce qui sera supprimé')}</p>
               <SummaryRow icon={Users} label="Leads / CRM contacts" count={summary?.lead_count || 0} isDark={isDark} />
               <SummaryRow icon={Calendar} label="Appointments" count={summary?.appointment_count || 0} isDark={isDark} />
               <SummaryRow icon={Nfc} label="NFC devices attached" count={summary?.device_count || 0} isDark={isDark} warn />
@@ -137,13 +140,13 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
                     <label className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${deviceAction === "reassign" ? "border-blue-500 bg-blue-50/50" : isDark ? "border-white/10" : "border-slate-200"}`}>
                       <input type="radio" name="deviceAction" checked={deviceAction === "reassign"} onChange={() => setDeviceAction("reassign")} className="mt-1" />
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold ${headText}`}>Reassign to another profile</p>
-                        <p className={`text-xs ${mutedText} mb-2`}>Devices keep working — they'll point to the selected profile.</p>
+                        <p className={`text-sm font-semibold ${headText}`}>{tr('Reassign to another profile', 'Réattribuer à un autre profil')}</p>
+                        <p className={`text-xs ${mutedText} mb-2`}>{tr("Devices keep working — they'll point to the selected profile.", 'Les appareils continueront de fonctionner et pointeront vers le profil sélectionné.')}</p>
                         <MobileSelect
                           value={reassignTo}
                           onValueChange={setReassignTo}
                           options={summary.other_profiles.map(p => ({ value: p.id, label: p.display_name + ' — /p/' + p.username }))}
-                          placeholder="Select a profile"
+                          placeholder={tr('Select a profile', 'Sélectionner un profil')}
                           ariaLabel="Reassign to profile"
                           className={`w-full rounded-lg text-sm ${isDark ? "bg-[#1a2235] border-white/10 text-white" : "bg-white border-slate-200 text-slate-800"}`}
                         />
@@ -153,8 +156,8 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
                   <label className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${deviceAction === "unassign" ? "border-amber-500 bg-amber-50/50" : isDark ? "border-white/10" : "border-slate-200"}`}>
                     <input type="radio" name="deviceAction" checked={deviceAction === "unassign"} onChange={() => setDeviceAction("unassign")} className="mt-1" />
                     <div className="flex-1">
-                      <p className={`text-sm font-semibold ${headText}`}>Unassign devices</p>
-                      <p className={`text-xs ${mutedText}`}>Devices are marked available but NOT deleted. Reassign them later from My NFC Devices.</p>
+                      <p className={`text-sm font-semibold ${headText}`}>{tr('Unassign devices', 'Retirer l’attribution des appareils')}</p>
+                      <p className={`text-xs ${mutedText}`}>{tr('Devices are marked available but NOT deleted. Reassign them later from My NFC Devices.', 'Les appareils sont marqués disponibles mais ne sont PAS supprimés. Vous pourrez les réattribuer plus tard depuis Mes appareils NFC.')}</p>
                     </div>
                   </label>
                 </div>
@@ -164,12 +167,12 @@ export default function DeleteProfileModal({ profile, isDark, onClose, onDeleted
             {/* Kept for audit */}
             <div className={`flex items-start gap-2 text-xs ${mutedText}`}>
               <Shield className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-              <p>Analytics history & device audit logs are kept for admin/support records. Wallet passes already on phones can't be auto-removed, but their QR will show "profile unavailable".</p>
+              <p>{tr("Analytics history & device audit logs are kept for admin/support records. Wallet passes already on phones can't be auto-removed, but their QR will show \"profile unavailable\".", 'L’historique des analyses et les journaux d’audit des appareils sont conservés pour l’administration et l’assistance. Les passes déjà enregistrés sur les téléphones ne peuvent pas être supprimés automatiquement, mais leur QR indiquera que le profil est indisponible.')}</p>
             </div>
 
             {/* Type to confirm */}
             <div>
-              <p className={`text-xs font-bold mb-1.5 ${headText}`}>Type <span className="text-red-500 font-mono">DELETE</span> to confirm:</p>
+              <p className={`text-xs font-bold mb-1.5 ${headText}`}>{tr('Type', 'Saisissez')} <span className="text-red-500 font-mono">DELETE</span> {tr('to confirm:', 'pour confirmer :')}</p>
               <input type="text" value={confirmText} onChange={(e) => setConfirmText(e.target.value)}
                 placeholder="DELETE"
                 className={`w-full px-3 py-2.5 rounded-xl text-sm font-mono border-2 ${confirmText === "DELETE" ? "border-red-500" : isDark ? "border-white/10 bg-[#1a2235] text-white" : "border-slate-200 bg-white text-slate-800"}`} />
