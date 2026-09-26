@@ -10,8 +10,6 @@ import { Badge } from "@/components/ui/badge";
 
 export default function Files() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [uploading, setUploading] = useState(false);
-
   const { data: workItems } = useQuery({
     queryKey: ['work'],
     queryFn: () => base44.entities.Work.list('-created_date'),
@@ -58,19 +56,6 @@ export default function Files() {
     } else {
       return <File className="w-8 h-8 text-slate-500" />;
     }
-  };
-
-  const handleFileUpload = async (event, workId) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    
-    // Here you would update the work item with the new attachment
-    // This is simplified - you'd need to get the current work item and update it
-    
-    setUploading(false);
   };
 
   const stats = {
