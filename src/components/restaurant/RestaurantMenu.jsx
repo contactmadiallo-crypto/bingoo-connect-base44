@@ -297,13 +297,6 @@ export default function RestaurantMenu({ restaurant, user, onBack, onShowProfile
     }).filter(Boolean));
   };
 
-  const removeFromCart = (itemId, cartId = null) => {
-    setCart(cart.filter(c => {
-      const isMatch = cartId ? c.cartId === cartId : (c.id === itemId && !c.cartId);
-      return !isMatch;
-    }));
-  };
-
   const subtotal = cart.reduce((sum, item) => {
     const itemPrice = item.customized_price || item.price;
     return sum + (itemPrice * item.quantity);
