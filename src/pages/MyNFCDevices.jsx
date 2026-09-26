@@ -134,31 +134,31 @@ export default function MyNFCDevices() {
       const device = result?.data?.device;
 
       if (!device) {
-        setActivateMsg({ type: "error", text: "Device code not found. Check the code on your card and try again." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_not_found_card", language) });
         setActivating(false);
         return;
       }
 
       if (device.status === "disabled") {
-        setActivateMsg({ type: "error", text: "This device has been disabled. Contact support." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_disabled", language) });
         setActivating(false);
         return;
       }
 
       if (device.status === "replaced") {
-        setActivateMsg({ type: "error", text: `This device has been replaced. New device code: ${device.replaced_by_code || "contact support"}.` });
+        setActivateMsg({ type: "error", text: `${t("nfc_msg_replaced_device_code", language)} ${device.replaced_by_code || t("nfc_msg_contact_support", language)}.` });
         setActivating(false);
         return;
       }
 
       if (device.profile_id && !profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "error", text: "This device is already activated by another account. Contact support if this is your device." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_other_account_device", language) });
         setActivating(false);
         return;
       }
 
       if (device.profile_id && profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "info", text: "✅ This device is already linked to your profile." });
+        setActivateMsg({ type: "info", text: `✅ ${t("nfc_msg_already_linked", language)}` });
         setActivating(false);
         return;
       }
@@ -166,7 +166,7 @@ export default function MyNFCDevices() {
       // Assign to first profile
       const firstProfile = profiles[0];
       if (!firstProfile) {
-        setActivateMsg({ type: "error", text: "Please create a profile first before activating a device." });
+        setActivateMsg({ type: "error", text: t("nfc_msg_create_profile_first", language) });
         setActivating(false);
         return;
       }
@@ -183,17 +183,17 @@ export default function MyNFCDevices() {
       });
 
       if (activateResult?.data?.error) {
-        setActivateMsg({ type: "error", text: "Activation failed: " + activateResult.data.error });
+        setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${activateResult.data.error}` });
         setActivating(false);
         return;
       }
 
-      setActivateMsg({ type: "success", text: `🎉 Device ${trimmed} activated! It now links to your profile: ${firstProfile.display_name}.` });
+      setActivateMsg({ type: "success", text: `🎉 ${t("nfc_device_singular", language)} ${trimmed} ${t("nfc_msg_activated_profile_full", language)} ${firstProfile.display_name}.` });
       setActivateCode("");
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
       qc.invalidateQueries({ queryKey: ["my-nfc-devices"] });
     } catch (e) {
-      setActivateMsg({ type: "error", text: "Activation failed: " + e.message });
+      setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${e.message}` });
     }
     setActivating(false);
   };
@@ -218,13 +218,13 @@ export default function MyNFCDevices() {
     },
     onMutate: async (device) => optimisticUpdate(device.id, { status: "lost" }),
     onSuccess: () => {
-      toast.success("🔒 Lost Mode activated. Scans are now disabled.");
+      toast.success(`🔒 ${t("nfc_toast_lost_on", language)}`);
       setLostDialogDevice(null);
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
     onError: (e, device, context) => {
       if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
-      toast.error(e.message || "Failed to activate Lost Mode");
+      toast.error(e.message || t("nfc_toast_lost_on_error", language));
     },
   });
 
@@ -236,12 +236,12 @@ export default function MyNFCDevices() {
     },
     onMutate: async (device) => optimisticUpdate(device.id, { status: "active" }),
     onSuccess: () => {
-      toast.success("Device reactivated!");
+      toast.success(t("nfc_toast_reactivated", language));
       qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
     },
     onError: (e, device, context) => {
       if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
-      toast.error(e.message || "Failed to turn off Lost Mode");
+      toast.error(e.message || t("nfc_toast_lost_off_error", language));
     },
   });
 
@@ -249,10 +249,10 @@ export default function MyNFCDevices() {
   const linkProfile = useMutation({
     mutationFn: async ({ deviceId, profileId }) => base44.entities.NFCDevice.update(deviceId, { profile_id: profileId }),
     onMutate: async ({ deviceId, profileId }) => optimisticUpdate(deviceId, { profile_id: profileId }),
-    onSuccess: () => { toast.success("Device linked to profile"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
+    onSuccess: () => { toast.success(t("nfc_toast_link_profile", language)); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
     onError: (e, vars, context) => {
       if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
-      toast.error(e.message || "Failed to link profile");
+      toast.error(e.message || t("nfc_toast_link_profile_error", language));
     },
   });
 
@@ -263,10 +263,10 @@ export default function MyNFCDevices() {
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
     },
     onMutate: async ({ deviceId, assetId }) => optimisticUpdate(deviceId, { assigned_asset_id: assetId }),
-    onSuccess: () => { toast.success("Device linked to asset"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
+    onSuccess: () => { toast.success(t("nfc_toast_link_asset", language)); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
     onError: (e, vars, context) => {
       if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
-      toast.error(e.message || "Failed to link asset");
+      toast.error(e.message || t("nfc_toast_link_asset_error", language));
     },
   });
 
@@ -282,35 +282,35 @@ export default function MyNFCDevices() {
       await base44.entities.NFCDevice.update(device.id, updates);
     },
     onMutate: async (device) => optimisticUpdate(device.id, { profile_id: "", assigned_asset_id: "" }),
-    onSuccess: () => { toast.success("Device unlinked"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
+    onSuccess: () => { toast.success(t("nfc_toast_unlinked", language)); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); qc.invalidateQueries({ queryKey: ["my-assets-nfc-page"] }); },
     onError: (e, device, context) => {
       if (context?.snapshot) qc.setQueryData(["my-nfc-devices-page", user?.id], context.snapshot);
-      toast.error(e.message || "Failed to unlink device");
+      toast.error(e.message || t("nfc_toast_unlink_error", language));
     },
   });
 
   // ── Delete device ──
   const deleteDevice = useMutation({
     mutationFn: async (device) => base44.entities.NFCDevice.delete(device.id),
-    onSuccess: () => { toast.success("Device deleted"); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
-    onError: (e) => toast.error(e.message || "Failed to delete device"),
+    onSuccess: () => { toast.success(t("nfc_toast_deleted", language)); qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] }); },
+    onError: (e) => toast.error(e.message || t("nfc_toast_delete_error", language)),
   });
 
   // ── Found report management ──
   const markReportFound = useMutation({
     mutationFn: async (reportId) => base44.entities.LostItemReport.update(reportId, { status: "recovered" }),
-    onSuccess: () => { toast.success("Marked as recovered"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
-    onError: (e) => toast.error(e.message || "Failed to update report"),
+    onSuccess: () => { toast.success(t("nfc_toast_recovered", language)); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || t("nfc_toast_report_update_error", language)),
   });
   const markReportContacted = useMutation({
     mutationFn: async (reportId) => base44.entities.LostItemReport.update(reportId, { status: "contacted" }),
-    onSuccess: () => { toast.success("Marked as contacted"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
-    onError: (e) => toast.error(e.message || "Failed to update report"),
+    onSuccess: () => { toast.success(t("nfc_toast_contacted", language)); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || t("nfc_toast_report_update_error", language)),
   });
   const deleteReport = useMutation({
     mutationFn: async (reportId) => base44.entities.LostItemReport.delete(reportId),
-    onSuccess: () => { toast.success("Report deleted"); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
-    onError: (e) => toast.error(e.message || "Failed to delete report"),
+    onSuccess: () => { toast.success(t("nfc_toast_report_deleted", language)); qc.invalidateQueries({ queryKey: ["device-found-reports"] }); },
+    onError: (e) => toast.error(e.message || t("nfc_toast_report_delete_error", language)),
   });
 
   const copyUrl = (url, id) => {
@@ -538,11 +538,11 @@ export default function MyNFCDevices() {
                         <Layers className={`w-4 h-4 ${isDark ? "text-white/50" : "text-slate-500"}`} />
                       </div>
                       <div className="flex-1">
-                        <p className={`font-bold text-sm ${headText}`}>{profile?.display_name || "Unassigned"}</p>
+                        <p className={`font-bold text-sm ${headText}`}>{profile?.display_name || t("nfc_unassigned", language)}</p>
                         <p className={`text-xs ${mutedText}`}>
-                          {devices.length} device{devices.length > 1 ? "s" : ""}
+                          {devices.length} {t(devices.length === 1 ? "nfc_device_singular" : "nfc_device_plural", language)}
                           {activeCountInGroup > 0 && <> · <span className="text-emerald-500 font-semibold">{activeCountInGroup} active</span></>}
-                          {lostCount > 0 && <> · <span className="text-red-500 font-semibold">{lostCount} lost</span></>}
+                          {lostCount > 0 && <> · <span className="text-red-500 font-semibold">{lostCount} {t("nfc_lost_lower", language)}</span></>}
                         </p>
                       </div>
                     </div>
@@ -578,8 +578,8 @@ export default function MyNFCDevices() {
                       <p className={`text-xs mt-0.5 ${mutedText} flex items-center gap-1.5 flex-wrap`}>
                         <span className="font-semibold">{device.product_name || typeInfo.label}</span>
                         {profile && <span>· <span className={`font-semibold ${profile.orphaned ? "text-amber-500" : ""}`}>{profile.display_name}{profile.orphaned ? " (removed)" : ""}</span></span>}
-                        {device.assigned_at && <span>· Activated {device.assigned_at.slice(0, 10)}</span>}
-                        <span className="flex items-center gap-0.5">· <Zap className="w-3 h-3" style={{ color: "#FDBA21" }} /> {tapsByDevice[device.id] || 0} taps</span>
+                        {device.assigned_at && <span>· {t("nfc_activated_date", language)} {device.assigned_at.slice(0, 10)}</span>}
+                        <span className="flex items-center gap-0.5">· <Zap className="w-3 h-3" style={{ color: "#FDBA21" }} /> {tapsByDevice[device.id] || 0} {t((tapsByDevice[device.id] || 0) === 1 ? "nfc_tap_singular" : "nfc_tap_plural", language)}</span>
                       </p>
                       <DeviceBadges
                         device={device}
@@ -715,12 +715,12 @@ export default function MyNFCDevices() {
                           {isDisabled && (
                             <div className={`rounded-xl p-4 ${isDark ? "bg-purple-500/10 border border-purple-500/20" : "bg-purple-50 border border-purple-200"}`}>
                               <p className={`font-bold text-sm ${isDark ? "text-purple-300" : "text-purple-700"}`}>
-                                {device.status === "replaced" ? "🔄 Device Replaced" : "🚫 Device Disabled"}
+                                {device.status === "replaced" ? `🔄 ${t("nfc_notice_replaced_title", language)}` : `🚫 ${t("nfc_notice_disabled_title", language)}`}
                               </p>
                               <p className={`text-xs mt-1 ${isDark ? "text-purple-400/60" : "text-purple-600"}`}>
                                 {device.status === "replaced"
-                                  ? `This device has been replaced. ${device.replaced_by_code ? `New code: ${device.replaced_by_code}` : "Contact support for your new device code."}`
-                                  : "This device has been disabled by an administrator. Contact support for help."}
+                                  ? `${t("nfc_notice_replaced_copy", language)} ${device.replaced_by_code ? `${t("nfc_notice_new_code", language)} ${device.replaced_by_code}` : t("nfc_notice_contact_new_code", language)}`
+                                  : t("nfc_notice_disabled_copy", language)}
                               </p>
                             </div>
                           )}
