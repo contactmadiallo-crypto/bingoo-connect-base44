@@ -41,7 +41,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import NotificationCenter from "@/components/bingoo/NotificationCenter";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
-const DocumentWalletPanel = React.lazy(() => import("@/components/bingoo/DocumentWalletPanel"));
 const MyAssetsPanel = React.lazy(() => import("@/components/bingoo/MyAssetsPanel"));
 import MyAssetsErrorBoundary from "@/components/bingoo/MyAssetsErrorBoundary";
 const ProfileQualityScore = React.lazy(() => import("@/components/bingoo/ProfileQualityScore"));
@@ -67,7 +66,6 @@ const VIEW_ATTENDANCE   = "attendance";
 const VIEW_HOME         = "home";
 const VIEW_QR           = "qrwallet";
 const VIEW_DESIGN       = "designstudio";
-const VIEW_DOCWALLET    = "docwallet";
 const VIEW_MYASSETS     = "myassets";
 const VIEW_QUALITY      = "quality";
 const VIEW_PLANJOURNEY  = "planjourney";
@@ -1024,20 +1022,6 @@ export default function BingooDashboard() {
                 <PlanGateScreen feature="attendance" isDark={isDark} />
               ) : (
                 <AttendancePanel profileId={activeProfile.id} isDark={isDark} onSaved={() => {}} />
-              )}
-            </div>
-          )}
-
-          {/* ════════════════════════════════════
-              DOCUMENT WALLET — Secure private document storage
-          ════════════════════════════════════ */}
-          {view === VIEW_DOCWALLET && (
-            <div>
-              <ProfileChip />
-              {!activeProfile ? (
-                <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
-              ) : (
-                <DocumentWalletPanel profile={activeProfile} isDark={isDark} />
               )}
             </div>
           )}
