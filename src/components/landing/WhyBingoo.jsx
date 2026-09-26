@@ -14,6 +14,9 @@ import {
   Wifi,
 } from "lucide-react";
 
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
+
 const B = {
   navy: "#0b2149",
   navyDark: "#071A3D",
@@ -38,8 +41,8 @@ const steps = [
   {
     n: 1,
     icon: Wifi,
-    title: "Share instantly",
-    text: "Tap an NFC device or scan your QR code.",
+    titleKey: "landing_why_share",
+    textKey: "landing_why_share_copy",
     color: B.orange,
     visual: (
       <div className="flex items-center justify-center gap-2 py-1">
@@ -53,15 +56,15 @@ const steps = [
   {
     n: 2,
     icon: Briefcase,
-    title: "Make the introduction",
-    text: "Your professional profile opens instantly.",
+    titleKey: "landing_why_intro",
+    textKey: "landing_why_intro_copy",
     color: B.navy,
     visual: (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex h-7 w-7 items-center justify-center rounded-full text-[8px] font-black text-white" style={{ background: B.navy }}>JC</div>
         <div className="text-left">
           <p className="text-[9px] font-black" style={{ color: B.navy }}>Jordan Carter</p>
-          <p className="text-[8px]" style={{ color: B.slate }}>Business Consultant</p>
+          <p className="text-[8px]" style={{ color: B.slate }}>{t("landing_business_consultant",language)}</p>
         </div>
       </div>
     ),
@@ -69,16 +72,16 @@ const steps = [
   {
     n: 3,
     icon: Users,
-    title: "Capture the opportunity",
-    text: "Turn the interaction into a lead you can manage.",
+    titleKey: "landing_why_capture",
+    textKey: "landing_why_capture_copy",
     color: B.orange,
     visual: (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-50 text-orange-500"><Bell className="h-3 w-3" /></div>
         <div className="text-left">
-          <p className="text-[8px] font-black" style={{ color: B.orange }}>New Lead</p>
+          <p className="text-[8px] font-black" style={{ color: B.orange }}>{t("landing_new_lead",language)}</p>
           <p className="text-[8px]" style={{ color: B.navy }}>Jordan Carter</p>
-          <p className="text-[7px]" style={{ color: B.slate }}>Source: NFC Tap</p>
+          <p className="text-[7px]" style={{ color: B.slate }}>{t("landing_source_nfc",language)}</p>
         </div>
       </div>
     ),
@@ -86,8 +89,8 @@ const steps = [
   {
     n: 4,
     icon: Bell,
-    title: "Stay connected",
-    text: "Organize leads and follow up from one place.",
+    titleKey: "landing_why_stay",
+    textKey: "landing_why_stay_copy",
     color: B.blue,
     visual: (
       <div className="flex flex-wrap justify-center gap-1">
@@ -100,16 +103,16 @@ const steps = [
   {
     n: 5,
     icon: Calendar,
-    title: "Book the next step",
-    text: "Let prospects schedule directly from your profile.",
+    titleKey: "landing_why_book",
+    textKey: "landing_why_book_copy",
     color: B.gold,
     visual: (
       <div className="flex items-center gap-2 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         <Calendar className="h-3.5 w-3.5" style={{ color: B.gold }} />
         <div className="text-left">
-          <p className="text-[8px] font-black" style={{ color: B.navy }}>Consultation</p>
-          <p className="text-[7px]" style={{ color: B.slate }}>Tuesday · 11:30 AM</p>
-          <p className="text-[7px] font-black text-emerald-600">Confirmed ✓</p>
+          <p className="text-[8px] font-black" style={{ color: B.navy }}>{t("landing_consultation",language)}</p>
+          <p className="text-[7px]" style={{ color: B.slate }}>{t("landing_tuesday_time",language)}</p>
+          <p className="text-[7px] font-black text-emerald-600">{t("landing_confirmed",language)}</p>
         </div>
       </div>
     ),
@@ -117,8 +120,8 @@ const steps = [
   {
     n: 6,
     icon: BarChart3,
-    title: "Understand what works",
-    text: "Track profile views, NFC taps, QR scans and conversions.",
+    titleKey: "landing_why_measure",
+    textKey: "landing_why_measure_copy",
     color: B.green,
     visual: (
       <div className="grid grid-cols-2 gap-1">
@@ -136,8 +139,8 @@ const steps = [
 const benefits = [
   {
     icon: Wifi,
-    title: "Share without friction",
-    desc: "No paper cards. No typing contact information. One tap or scan gives people access to your professional identity.",
+    titleKey: "landing_why_friction",
+    descKey: "landing_why_friction_copy",
     visual: (
       <div className="flex items-center justify-center gap-2">
         <div className="flex h-9 w-12 items-center justify-center rounded-md text-white" style={{ background: `linear-gradient(145deg, ${B.navyDark}, ${B.navyLight})` }}><span className="text-[9px] font-black">∞</span></div>
@@ -150,8 +153,8 @@ const benefits = [
   },
   {
     icon: TrendingUp,
-    title: "Never lose the connection",
-    desc: "Capture leads, understand where they came from and keep every professional opportunity organized.",
+    titleKey: "landing_why_never_lose",
+    descKey: "landing_why_never_lose_copy",
     visual: (
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         {["New", "Contacted", "Qualified", "Customer"].map((s, i) => (
@@ -165,8 +168,8 @@ const benefits = [
   },
   {
     icon: BarChart3,
-    title: "Turn engagement into growth",
-    desc: "Bookings and analytics help you understand which interactions are creating real business opportunities.",
+    titleKey: "landing_why_growth",
+    descKey: "landing_why_growth_copy",
     visual: (
       <div className="flex h-16 items-end gap-1.5 rounded-lg border p-2" style={{ borderColor: "#edf1f6" }}>
         {[40, 65, 50, 80, 60, 90, 72].map((h, i) => (
@@ -178,6 +181,9 @@ const benefits = [
 ];
 
 export default function WhyBingoo() {
+  const { language } = useI18n();
+  const localizedJourney = localizedJourney.map((x) => ({ ...x, title: t(x.titleKey,language), text: t(x.textKey,language) }));
+  const localizedReasons = localizedReasons.map((x) => ({ ...x, title: t(x.titleKey,language), desc: t(x.descKey,language) }));
   return (
     <section className="relative overflow-hidden bg-white px-4 py-16 md:px-6 md:py-24">
       <div className="pointer-events-none absolute inset-0">
@@ -194,7 +200,7 @@ export default function WhyBingoo() {
           <h2 className="mx-auto max-w-3xl text-3xl font-black leading-tight tracking-tight md:text-5xl" style={{ color: B.navy }}>
             One connection can become
             <br />
-            your <span style={{ color: B.orange }}>next customer.</span>
+            your <span style={{ color: B.orange }}>{t("landing_next_customer",language)}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: B.slate }}>
             Bingoo brings your professional profile, contact sharing, lead capture, appointments and engagement tools together — so every introduction has the potential to become a real business opportunity.
