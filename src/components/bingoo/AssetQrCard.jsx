@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import BingooLogo from '@/components/bingoo/BingooLogo';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
+import { publicAssetUrl } from '@/lib/publicProfileUrl';
 
 const ASSET_TYPES = [
   { value: 'pet', label: 'Pet', icon: '🐾' },
@@ -38,7 +39,7 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
   const [sharing, setSharing] = useState(false);
   const canvasRef = useRef(null);
 
-  const assetUrl = asset ? `${window.location.origin}/a/${asset.id}?source=qr` : null;
+  const assetUrl = asset ? publicAssetUrl(asset.id, 'qr') : null;
 
   // Build the QR preview on a canvas (QR + asset name label + Bingoo footer).
   useEffect(() => {
@@ -143,7 +144,7 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
             initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             onClick={(e) => e.stopPropagation()}
-            className={`w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden ${isDark ? 'bg-[#13162a]' : 'bg-white'}`}
+            className={`w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[92dvh] sm:max-h-[90vh] ${isDark ? 'bg-[#13162a]' : 'bg-white'}`}
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4" style={{ background: 'linear-gradient(135deg,#0b2149,#13284f)' }}>
@@ -159,7 +160,7 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[calc(92dvh-68px)] sm:max-h-[calc(90vh-68px)]">
               {/* Asset summary */}
               <div className={`flex items-center gap-3 rounded-2xl p-3 ${isDark ? 'bg-white/5' : 'bg-slate-50'}`}>
                 {asset.photo_url ? (
@@ -196,11 +197,11 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
               {/* Actions */}
               <div className="grid grid-cols-3 gap-2">
                 <button onClick={handleDownload} disabled={!preview || downloading}
-                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-bold text-white disabled:opacity-50" style={{ background: '#0b2149' }}>
+                  className="flex flex-col items-center justify-center gap-1 min-h-[52px] py-2.5 px-1 rounded-xl text-[11px] sm:text-xs font-bold text-white disabled:opacity-50" style={{ background: '#0b2149' }}>
                   <Download className="w-4 h-4" /> {t("asset_qr_download", language)}
                 </button>
                 <button onClick={handleShare} disabled={sharing}
-                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-bold text-white disabled:opacity-50" style={{ background: '#f97316' }}>
+                  className="flex flex-col items-center justify-center gap-1 min-h-[52px] py-2.5 px-1 rounded-xl text-[11px] sm:text-xs font-bold text-white disabled:opacity-50" style={{ background: '#f97316' }}>
                   <Share2 className="w-4 h-4" /> {t("asset_qr_share", language)}
                 </button>
                 <button onClick={handlePrint} disabled={!preview}
