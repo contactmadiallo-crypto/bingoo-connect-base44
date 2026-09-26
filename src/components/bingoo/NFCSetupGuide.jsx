@@ -3,9 +3,12 @@ import { Smartphone, X, CheckCircle, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function NFCSetupGuide({ device, onClose }) {
   const { isDark } = useBingooTheme();
+  const { language } = useI18n();
 
   const deviceUrl = buildDeviceUrl(device.device_code);
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(deviceUrl)}&color=1e293b&bgcolor=f8fafc`;
@@ -35,7 +38,7 @@ export default function NFCSetupGuide({ device, onClose }) {
               <Smartphone className="w-5 h-5 text-orange-400" />
             </div>
             <div>
-              <h2 className="font-black text-lg">Your Device is Ready</h2>
+              <h2 className="font-black text-lg">{t("nfc_setup_ready",language)}</h2>
               <p className="text-white/60 text-xs font-mono">{device.description || device.device_code}</p>
             </div>
           </div>
@@ -46,19 +49,19 @@ export default function NFCSetupGuide({ device, onClose }) {
           <div className={`flex gap-3 p-4 rounded-xl ${isDark ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-200"}`}>
             <CheckCircle className={`w-5 h-5 flex-shrink-0 mt-0.5 ${isDark ? "text-emerald-400" : "text-emerald-600"}`} />
             <div>
-              <p className={`font-bold text-sm ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>Pre-programmed at the factory</p>
-              <p className={`text-xs mt-1 ${isDark ? "text-emerald-400/70" : "text-emerald-600"}`}>Your Bingoo NFC device is already configured. No programming needed — just tap it with any NFC-enabled phone.</p>
+              <p className={`font-bold text-sm ${isDark ? "text-emerald-300" : "text-emerald-800"}`}>{t("nfc_setup_factory",language)}</p>
+              <p className={`text-xs mt-1 ${isDark ? "text-emerald-400/70" : "text-emerald-600"}`}>{t("nfc_setup_factory_copy",language)}</p>
             </div>
           </div>
 
           {/* How to use */}
           <div>
-            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>How to Share Your Profile</p>
+            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>{t("nfc_setup_share_title",language)}</p>
             <div className="space-y-3">
               {[
-                { n: 1, title: "Tap to Share", desc: "Hold the back of any NFC-enabled phone against your device. Your profile opens instantly." },
-                { n: 2, title: "No App Needed", desc: "Most phones wake up automatically on tap. iPhone XR+ and most Androids support background NFC." },
-                { n: 3, title: "Scan QR as Backup", desc: "If NFC isn't available, scan the QR code below with any camera app — same result." },
+                { n: 1, title: t("nfc_setup_tap",language), desc: t("nfc_setup_tap_copy",language) },
+                { n: 2, title: t("nfc_setup_no_app",language), desc: t("nfc_setup_no_app_copy",language) },
+                { n: 3, title: t("nfc_setup_qr_backup",language), desc: t("nfc_setup_qr_copy",language) },
               ].map(step => (
                 <div key={step.n} className={`flex items-start gap-3 p-3 rounded-xl ${stepBg}`}>
                   <span className="w-7 h-7 rounded-full bg-orange-500 text-white text-xs font-black flex items-center justify-center flex-shrink-0 mt-0.5">{step.n}</span>
@@ -73,28 +76,28 @@ export default function NFCSetupGuide({ device, onClose }) {
 
           {/* QR Code for testing */}
           <div className="text-center">
-            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>Test Your Device</p>
+            <p className={`text-xs font-bold uppercase tracking-wider mb-3 ${labelCls}`}>{t("nfc_setup_test",language)}</p>
             <div className="inline-block p-3 bg-white rounded-2xl border border-slate-200">
               <img src={qrUrl} alt="QR Code" className="w-32 h-32 mx-auto rounded-lg" />
             </div>
-            <p className={`text-xs mt-2 ${mutedText}`}>Scan to simulate a tap and preview what visitors see</p>
+            <p className={`text-xs mt-2 ${mutedText}`}>{t("nfc_setup_scan_preview",language)}</p>
             <a href={deviceUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-2 text-orange-500 text-xs font-bold hover:underline">
-              <QrCode className="w-3.5 h-3.5" /> Open Profile Preview
+              <QrCode className="w-3.5 h-3.5" /> {t("nfc_setup_open_preview",language)}
             </a>
           </div>
 
           {/* Troubleshooting */}
           <details className={`rounded-xl ${stepBg} p-3`}>
-            <summary className={`text-sm font-bold cursor-pointer select-none ${headText}`}>Troubleshooting</summary>
+            <summary className={`text-sm font-bold cursor-pointer select-none ${headText}`}>{t("nfc_setup_troubleshooting",language)}</summary>
             <div className="mt-3 space-y-2 text-xs">
-              <p className={stepText}><strong className={headText}>iPhone not responding?</strong> Ensure NFC is enabled. iPhone 7 and earlier require opening an NFC scanner app first.</p>
-              <p className={stepText}><strong className={headText}>Android not responding?</strong> Check Settings → Connections → NFC is turned on.</p>
-              <p className={stepText}><strong className={headText}>Need a replacement?</strong> Contact support — we'll transfer your profile to a new device.</p>
+              <p className={stepText}><strong className={headText}>{t("nfc_setup_iphone",language)}</strong> {t("nfc_setup_iphone_copy",language)}</p>
+              <p className={stepText}><strong className={headText}>{t("nfc_setup_android",language)}</strong> {t("nfc_setup_android_copy",language)}</p>
+              <p className={stepText}><strong className={headText}>{t("nfc_setup_replacement",language)}</strong> {t("nfc_setup_replacement_copy",language)}</p>
             </div>
           </details>
 
           <Button onClick={onClose} className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold">
-            Done
+            {t("nfc_setup_done",language)}
           </Button>
         </div>
       </motion.div>
