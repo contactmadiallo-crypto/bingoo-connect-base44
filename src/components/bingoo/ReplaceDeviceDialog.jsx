@@ -80,13 +80,13 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={handleClose} />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className={`rounded-3xl p-6 max-w-sm w-full pointer-events-auto ${isDark ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"} shadow-2xl`}
+              className={`rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 sm:max-w-sm w-full max-h-[92dvh] overflow-y-auto overscroll-contain pointer-events-auto ${isDark ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"} shadow-2xl`}
             >
               {done ? (
                 <div className="text-center space-y-3">
@@ -99,7 +99,7 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
                     <span className="font-mono font-bold">{device.device_code}</span> {t("replace_retired_label", language)}
                     {t("replace_new_active_prefix", language)} <span className="font-mono font-bold">{newCode.trim().toUpperCase()}</span> {t("replace_new_active_suffix", language)}
                   </p>
-                  <Button onClick={handleClose} className="w-full font-bold rounded-xl" style={{ background: "#f97316", color: "#fff" }}>{t("replace_done", language)}</Button>
+                  <Button onClick={handleClose} className="w-full min-h-[44px] font-bold rounded-xl" style={{ background: "#f97316", color: "#fff" }}>{t("replace_done", language)}</Button>
                 </div>
               ) : (
                 <>
@@ -127,7 +127,7 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
 
                   <label className={`text-xs font-bold block mb-1 ${mutedText}`}>{t("replace_new_code", language)}</label>
                   <input
-                    className={`w-full px-4 py-3 rounded-xl text-sm font-mono outline-none mb-3 ${
+                    className={`w-full min-h-[44px] px-4 py-3 rounded-xl text-sm font-mono outline-none mb-3 ${
                       isDark ? "bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:border-cyan-500/50"
                       : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-cyan-400"
                     }`}
@@ -145,11 +145,11 @@ export default function ReplaceDeviceDialog({ open, onClose, device, profile, us
                     </div>
                   )}
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3">
                     <Button variant="outline" onClick={handleClose} disabled={loading}
-                      className={`flex-1 font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
+                      className={`flex-1 min-h-[44px] font-bold rounded-xl ${isDark ? "border-white/20 text-white/70 hover:bg-white/10" : ""}`}>{t("lost_cancel", language)}</Button>
                     <Button onClick={handleReplace} disabled={loading}
-                      className="flex-1 font-bold rounded-xl text-white" style={{ background: "#06b6d4" }}>
+                      className="flex-1 min-h-[44px] font-bold rounded-xl text-white" style={{ background: "#06b6d4" }}>
                       {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-1" /> {t("replace_replacing", language)}</> : <><RefreshCw className="w-4 h-4 mr-1" /> {t("assets_replace", language)}</>}
                     </Button>
                   </div>
