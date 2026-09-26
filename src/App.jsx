@@ -28,7 +28,8 @@ const Billing = lazy(() => import('./pages/Billing'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
-import { AuthProvider } from '@/lib/AuthContext';
+import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { isNativeApp } from '@/lib/nativePlatform';
 import { ProfileWorkspaceProvider } from '@/lib/ProfileWorkspaceContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminAuthGuard from '@/components/AdminAuthGuard';
@@ -80,6 +81,15 @@ function LegacyRedirects() {
   return null;
 }
 
+const EntryRoute = () => {
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  if (!isNativeApp()) return <Landing />;
+  if (isLoadingAuth) {
+    return <div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>;
+  }
+  return <Navigate to={isAuthenticated ? "/bingoo?view=hub" : "/login"} replace />;
+};
+
 const AuthenticatedApp = () => {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full animate-spin" /></div>}>
@@ -92,7 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/auth" element={<AuthCallback />} />
       <Route path="/oauth/consent" element={<OAuthConsent />} />
 
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={<EntryRoute />} />
       <Route path="/bingoo-home" element={<Landing />} />
       <Route path="/LostDevicePage" element={<Navigate to="/my-nfc-devices" replace />} />
       <Route path="/Dashboard" element={<Navigate to="/bingoo" replace />} />
