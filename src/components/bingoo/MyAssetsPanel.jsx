@@ -10,20 +10,20 @@ import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 
 const ASSET_TYPES = [
-  { value: 'pet', label: 'Pet', icon: '🐾' },
-  { value: 'luggage', label: 'Luggage', icon: '🧳' },
-  { value: 'bag', label: 'Bag', icon: '👜' },
-  { value: 'keys', label: 'Keys', icon: '🔑' },
-  { value: 'equipment', label: 'Equipment', icon: '📷' },
-  { value: 'vehicle', label: 'Vehicle', icon: '🚗' },
-  { value: 'other', label: 'Other', icon: '📦' },
+  { value: 'pet', label: 'Pet', labelFr: 'Animal', icon: '🐾' },
+  { value: 'luggage', label: 'Luggage', labelFr: 'Bagage', icon: '🧳' },
+  { value: 'bag', label: 'Bag', labelFr: 'Sac', icon: '👜' },
+  { value: 'keys', label: 'Keys', labelFr: 'Clés', icon: '🔑' },
+  { value: 'equipment', label: 'Equipment', labelFr: 'Équipement', icon: '📷' },
+  { value: 'vehicle', label: 'Vehicle', labelFr: 'Véhicule', icon: '🚗' },
+  { value: 'other', label: 'Other', labelFr: 'Autre', icon: '📦' },
 ];
 
-function AssetTypeBadge({ type }) {
+function AssetTypeBadge({ type, language = 'en' }) {
   const item = ASSET_TYPES.find(t => t.value === type);
   return (
     <span className="text-[10px] font-black px-2 py-0.5 rounded-full uppercase bg-slate-100 text-slate-600">
-      {item?.icon} {item?.label || type}
+      {item?.icon} {(language === 'fr' ? item?.labelFr : item?.label) || type}
     </span>
   );
 }
@@ -99,9 +99,9 @@ export default function MyAssetsPanel({ isDark }) {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setFormData(prev => ({ ...prev, photo_url: file_url }));
-      toast({ title: 'Photo uploaded' });
+      toast({ title: language === 'fr' ? 'Photo importée' : 'Photo uploaded' });
     } catch (err) {
-      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+      toast({ title: language === 'fr' ? "Échec de l’importation" : 'Upload failed', description: err.message, variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -120,7 +120,7 @@ export default function MyAssetsPanel({ isDark }) {
 
   const handleSave = async () => {
     if (!formData.name) {
-      toast({ title: 'Please enter an asset name', variant: 'destructive' });
+      toast({ title: language === 'fr' ? 'Veuillez saisir un nom' : 'Please enter an asset name', variant: 'destructive' });
       return;
     }
     try {
@@ -130,10 +130,10 @@ export default function MyAssetsPanel({ isDark }) {
       };
       if (editingAsset) {
         await base44.entities.AssetItem.update(editingAsset.id, payload);
-        toast({ title: 'Asset updated' });
+        toast({ title: language === 'fr' ? 'Objet mis à jour' : 'Asset updated' });
       } else {
         await base44.entities.AssetItem.create(payload);
-        toast({ title: 'Asset created' });
+        toast({ title: language === 'fr' ? 'Objet créé' : 'Asset created' });
       }
       resetForm();
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
@@ -164,7 +164,7 @@ export default function MyAssetsPanel({ isDark }) {
   const handleDelete = async (assetId) => {
     try {
       await base44.entities.AssetItem.delete(assetId);
-      toast({ title: 'Asset deleted' });
+      toast({ title: language === 'fr' ? 'Objet supprimé' : 'Asset deleted' });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
     } catch (err) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -174,7 +174,7 @@ export default function MyAssetsPanel({ isDark }) {
   const handleToggleLostMode = async (asset) => {
     try {
       await base44.entities.AssetItem.update(asset.id, { lost_mode_enabled: !asset.lost_mode_enabled });
-      toast({ title: asset.lost_mode_enabled ? 'Lost mode disabled' : 'Lost mode enabled' });
+      toast({ title: language === 'fr' ? (asset.lost_mode_enabled ? 'Mode Perdu désactivé' : 'Mode Perdu activé') : (asset.lost_mode_enabled ? 'Lost mode disabled' : 'Lost mode enabled') });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
     } catch (err) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -190,7 +190,7 @@ export default function MyAssetsPanel({ isDark }) {
       }
       await base44.entities.AssetItem.update(assetId, { nfc_device_id: deviceId });
       await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: assetId });
-      toast({ title: 'NFC device assigned to asset' });
+      toast({ title: language === 'fr' ? 'Appareil NFC associé à l’objet' : 'NFC device assigned to asset' });
       setAssignModalAsset(null);
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
@@ -207,7 +207,7 @@ export default function MyAssetsPanel({ isDark }) {
       if (deviceId) {
         await base44.entities.NFCDevice.update(deviceId, { assigned_asset_id: '' });
       }
-      toast({ title: 'NFC device unlinked' });
+      toast({ title: language === 'fr' ? 'Appareil NFC dissocié' : 'NFC device unlinked' });
       queryClient.invalidateQueries({ queryKey: ['my-assets', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['my-nfc-devices-for-assets', user?.id] });
     } catch (err) {
@@ -232,7 +232,7 @@ export default function MyAssetsPanel({ isDark }) {
   const errMsg = (assetsError?.message || devicesError?.message || 'Failed to load assets or NFC devices.');
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -246,7 +246,7 @@ export default function MyAssetsPanel({ isDark }) {
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white"
+          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white min-h-[44px] shrink-0"
           style={{ background: '#f97316' }}
         >
           <Plus className="w-4 h-4" /> {t("assets_add", language)}
@@ -269,17 +269,17 @@ export default function MyAssetsPanel({ isDark }) {
 
       {/* Form Modal */}
       {showForm && !hasQueryError && (
-        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
+        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 space-y-3 min-w-0`}>
           <div className="flex items-center justify-between">
             <h3 className={`text-sm font-black ${headText}`}>{editingAsset ? t("assets_edit", language) : t("assets_new", language)}</h3>
             <button onClick={resetForm}><X className={`w-4 h-4 ${mutedText}`} /></button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className={`text-xs font-bold ${headText} mb-1.5 block`}>{t("assets_type", language)}</label>
               <select value={formData.asset_type} onChange={e => setFormData({ ...formData, asset_type: e.target.value })} className={`w-full px-3 py-2 rounded-lg border ${panelBorder} ${inputBg} text-sm ${headText}`}>
-                {ASSET_TYPES.map(t => <option key={t.value} value={t.value}>{t.icon} {t.label}</option>)}
+                {ASSET_TYPES.map(type => <option key={type.value} value={type.value}>{type.icon} {language === 'fr' ? type.labelFr : type.label}</option>)}
               </select>
             </div>
             <div>
@@ -357,9 +357,9 @@ export default function MyAssetsPanel({ isDark }) {
             )}
           </div>
 
-          <div className="flex gap-2">
-            <button onClick={handleSave} className="px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ background: '#f97316' }}>{editingAsset ? t("assets_update", language) : t("assets_create", language)}</button>
-            <button onClick={resetForm} className={`px-4 py-2 rounded-lg border ${panelBorder} text-xs font-bold ${headText}`}>{t("assets_cancel", language)}</button>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button onClick={handleSave} className="px-4 py-2 rounded-lg text-white text-xs font-bold min-h-[44px]" style={{ background: '#f97316' }}>{editingAsset ? t("assets_update", language) : t("assets_create", language)}</button>
+            <button onClick={resetForm} className={`px-4 py-2 rounded-lg border ${panelBorder} text-xs font-bold ${headText} min-h-[44px]`}>{t("assets_cancel", language)}</button>
           </div>
         </div>
       )}
