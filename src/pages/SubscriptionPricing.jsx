@@ -9,6 +9,8 @@ import { useAuth } from '@/lib/AuthContext';
 import { useCurrency, CURRENCY_CONFIG, SUPPORTED_CURRENCIES, formatPrice, convertPrice } from '@/hooks/useCurrency';
 import { PLAN_HIERARCHY, PLAN_FEATURES, PLAN_CONFIG, CUSTOMER_PLAN_IDS } from '@/lib/planPermissions';
 import { useQuery } from '@tanstack/react-query';
+import { useI18n } from '@/lib/I18nContext';
+import { localizePlanText } from '@/lib/planI18n';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -25,7 +27,7 @@ const PLAN_DEFS = CUSTOMER_PLAN_IDS.map(id => {
     icon: <Icon className="w-5 h-5" />,
     color: c.color.text,
     highlight: id === 'professional',
-    cta: c.status === 'contact_sales' ? 'Contact Sales' : `Get ${c.label}`,
+    ctaType: c.status === 'contact_sales' ? 'contact' : 'get',
     contactSales: c.status === 'contact_sales',
     comingSoon: c.status === 'coming_soon',
   };
@@ -33,6 +35,8 @@ const PLAN_DEFS = CUSTOMER_PLAN_IDS.map(id => {
 
 export default function SubscriptionPricing() {
   const { toast } = useToast();
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [loading, setLoading] = useState(null);
   const [currentPlan, setCurrentPlan] = useState('free');
   const [successMsg, setSuccessMsg] = useState('');
@@ -75,7 +79,7 @@ export default function SubscriptionPricing() {
     const params = new URLSearchParams(window.location.search);
     const isSuccess = params.get('success') === '1';
     if (isSuccess) {
-      setSuccessMsg('🎉 Payment received! Your plan is being activated — this can take up to a minute to reflect here.');
+      setSuccessMsg(tr('🎉 Payment received! Your plan is being activated — this can take up to a minute to reflect here.', '🎉 Paiement reçu ! Votre forfait est en cours d’activation — la mise à jour peut prendre jusqu’à une minute.'));
     }
     if (!user?.id) return;
     const profilePlan = profiles?.[0]?.plan || 'free';
@@ -113,7 +117,7 @@ export default function SubscriptionPricing() {
   const handleSubscribe = async (plan) => {
     if (plan.id === 'free') return;
     if (window.self !== window.top) {
-      toast({ title: 'Info', description: 'Checkout is only available from the published app.', variant: 'destructive' });
+      toast({ title: 'Info', description: tr('Checkout is only available from the published app.', 'Le paiement est disponible uniquement depuis l’application publiée.'), variant: 'destructive' });
       return;
     }
     setLoading(plan.id);
@@ -127,14 +131,14 @@ export default function SubscriptionPricing() {
       if (res.data?.url) {
         window.location.href = res.data.url;
       } else if (res.data?.updated) {
-        toast({ title: 'Plan Updated', description: res.data.message || 'Your plan has been updated.' });
+        toast({ title: tr('Plan Updated', 'Forfait mis à jour'), description: res.data.message || tr('Your plan has been updated.', 'Votre forfait a été mis à jour.') });
         window.location.href = '/billing';
       } else {
-        toast({ title: 'Checkout Failed', description: 'Could not start checkout. Please try again.', variant: 'destructive' });
+        toast({ title: tr('Checkout Failed', 'Échec du paiement'), description: tr('Could not start checkout. Please try again.', 'Impossible de démarrer le paiement. Veuillez réessayer.'), variant: 'destructive' });
         setLoading(null);
       }
     } catch (err) {
-      toast({ title: 'Checkout Failed', description: err.message || 'Unknown error', variant: 'destructive' });
+      toast({ title: tr('Checkout Failed', 'Échec du paiement'), description: err.message || tr('Unknown error', 'Erreur inconnue'), variant: 'destructive' });
       setLoading(null);
     }
   };
@@ -148,7 +152,7 @@ export default function SubscriptionPricing() {
         style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => window.history.back()} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" /> {tr('Back', 'Retour')}
           </button>
           <div className="h-5 w-px bg-white/10 mx-1" />
           <div className="ml-auto flex items-center gap-3">
@@ -161,7 +165,7 @@ export default function SubscriptionPricing() {
               >
                 <span>{cfg.flag}</span>
                 <span>{currency}</span>
-                {isManualOverride && <span className="text-xs text-yellow-300 font-black">MANUAL</span>}
+                {isManualOverride && <span className="text-xs text-yellow-300 font-black">{tr('MANUAL', 'MANUEL')}</span>}
                 <ChevronDown className="w-3.5 h-3.5 text-white/50" />
               </button>
               {showCurrencyPicker && (
@@ -191,7 +195,7 @@ export default function SubscriptionPricing() {
               )}
             </div>
             <Link to="/billing" className="text-white/60 hover:text-white text-sm font-semibold transition-colors">
-              Manage Billing →
+              {tr('Manage Billing', 'Gérer la facturation')} →
             </Link>
           </div>
         </div>
@@ -209,26 +213,26 @@ export default function SubscriptionPricing() {
         {currency === 'XOF' && (
           <div className="mb-6 p-4 rounded-2xl text-sm font-medium"
             style={{ background: 'rgba(253,186,33,0.12)', border: '1px solid rgba(253,186,33,0.3)', color: '#b45309' }}>
-            🌍 Prices shown in CFA Francs are an estimate only. Your card will be charged the equivalent amount in USD by Stripe — never the raw CFA number shown.
+            {tr('🌍 Prices shown in CFA Francs are an estimate only. Your card will be charged the equivalent amount in USD by Stripe — never the raw CFA number shown.', '🌍 Les prix affichés en francs CFA sont uniquement une estimation. Votre carte sera débitée par Stripe du montant équivalent en USD — jamais du montant CFA brut affiché.')}
           </div>
         )}
 
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + '20', color: '#b45309', border: `1px solid ${B.gold}40` }}>
-            Plans and Pricing
+            {tr('Plans and Pricing', 'Forfaits et tarifs')}
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-3" style={{ color: B.navy }}>
-            Choose Your Plan
+            {tr('Choose Your Plan', 'Choisissez votre forfait')}
           </h1>
           <p className="text-slate-500 max-w-lg mx-auto text-lg">
-            From personal profiles to full business solutions. Billed monthly. Cancel anytime.
+            {tr('From personal profiles to full business solutions. Billed monthly. Cancel anytime.', 'Du profil personnel aux solutions complètes pour entreprises. Facturation mensuelle. Annulation à tout moment.')}
           </p>
           {/* Currency pill */}
           <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm"
             style={{ background: 'rgba(11,33,73,0.06)', color: '#0b2149' }}>
             <span>{cfg.flag}</span>
-            <span>Showing prices in <strong>{cfg.name} ({currency})</strong></span>
+            <span>{tr('Showing prices in', 'Prix affichés en')} <strong>{cfg.name} ({currency})</strong></span>
           </div>
 
           {/* Billing cycle toggle */}
@@ -240,7 +244,7 @@ export default function SubscriptionPricing() {
                 background: billingCycle === 'monthly' ? B.navy : 'transparent',
                 color: billingCycle === 'monthly' ? '#fff' : B.navy,
               }}>
-              Monthly
+              {tr('Monthly', 'Mensuel')}
             </button>
             <button onClick={() => setBillingCycle('annual')}
               className="px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-1.5"
@@ -248,7 +252,7 @@ export default function SubscriptionPricing() {
                 background: billingCycle === 'annual' ? B.navy : 'transparent',
                 color: billingCycle === 'annual' ? '#fff' : B.navy,
               }}>
-              Annual
+              {tr('Annual', 'Annuel')}
               <span className="text-xs px-1.5 py-0.5 rounded-full font-black"
                 style={{ background: billingCycle === 'annual' ? B.gold : B.gold + '30', color: billingCycle === 'annual' ? '#fff' : '#b45309' }}>
                 -10%
@@ -278,19 +282,19 @@ export default function SubscriptionPricing() {
                 {isHighlight && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-xs font-black text-white"
                     style={{ background: B.orange }}>
-                    Most Popular
+                    {tr('Most Popular', 'Le plus populaire')}
                   </div>
                 )}
                 {plan.comingSoon && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-black text-white"
                     style={{ background: '#94a3b8' }}>
-                    Coming Soon
+                    {tr('Coming Soon', 'Bientôt disponible')}
                   </div>
                 )}
                 {current && !isHighlight && (
                   <div className="absolute -top-3.5 right-4 px-3 py-1 rounded-full text-xs font-black text-white"
                     style={{ background: plan.color }}>
-                    ✓ Current
+                    ✓ {tr('Current', 'Actuel')}
                   </div>
                 )}
 
@@ -301,19 +305,19 @@ export default function SubscriptionPricing() {
                     {plan.icon}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#64748b' }}>{plan.tagline}</p>
-                    <h3 className="font-black text-lg leading-tight" style={{ color: isHighlight ? '#fff' : B.navy }}>{plan.name}</h3>
+                    <p className="text-xs font-semibold" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#64748b' }}>{localizePlanText(plan.tagline, language)}</p>
+                    <h3 className="font-black text-lg leading-tight" style={{ color: isHighlight ? '#fff' : B.navy }}>{localizePlanText(plan.name, language)}</h3>
                   </div>
                 </div>
 
                 {/* Price */}
                 <div className="mb-5">
                   <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
-                    {plan.contactSales ? 'Custom' : plan.priceUSD === 0 ? 'Free' : plan.priceUSD == null ? 'TBD' : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
+                    {plan.contactSales ? tr('Custom', 'Sur mesure') : plan.priceUSD === 0 ? tr('Free', 'Gratuit') : plan.priceUSD == null ? tr('TBD', 'À définir') : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
                   </span>
                   {plan.priceUSD > 0 && (
                     <span className="text-sm ml-1" style={{ color: isHighlight ? 'rgba(255,255,255,0.4)' : '#94a3b8' }}>
-                      /{billingCycle === 'annual' ? 'yr' : 'mo'}
+                      /{billingCycle === 'annual' ? tr('yr', 'an') : tr('mo', 'mois')}
                     </span>
                   )}
                 </div>
@@ -324,7 +328,7 @@ export default function SubscriptionPricing() {
                 {planFeatures.length === 0 ? (
                   <div className="flex-1 flex items-center justify-center mb-7">
                     <p className="text-sm text-center py-6" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#94a3b8' }}>
-                      Features to be announced.<br />This plan is under development.
+                      {tr('Features to be announced.', 'Fonctionnalités à venir.')}<br />{tr('This plan is under development.', 'Ce forfait est en cours de développement.')}
                     </p>
                   </div>
                 ) : (
@@ -333,7 +337,7 @@ export default function SubscriptionPricing() {
                       <li key={fi} className="flex items-start gap-2 text-sm"
                         style={{ color: isHighlight ? 'rgba(255,255,255,0.78)' : '#475569' }}>
                         <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: isHighlight ? B.gold : plan.color }} />
-                        {f}
+                        {localizePlanText(f, language)}
                       </li>
                     ))}
                   </ul>
@@ -362,13 +366,13 @@ export default function SubscriptionPricing() {
                   }}
                 >
                   {plan.comingSoon ? (
-                    <><Lock className="w-3.5 h-3.5" /> Coming Soon</>
-                  ) : loading === plan.id ? 'Redirecting...' : current ? '✓ Current Plan' : (
-                    <>{plan.cta} <ArrowRight className="w-3.5 h-3.5" /></>
+                    <><Lock className="w-3.5 h-3.5" /> {tr('Coming Soon', 'Bientôt disponible')}</>
+                  ) : loading === plan.id ? tr('Redirecting...', 'Redirection…') : current ? `✓ ${tr('Current Plan', 'Forfait actuel')}` : (
+                    <>{plan.ctaType === 'contact' ? tr('Contact Sales', 'Contacter les ventes') : `${tr('Get', 'Choisir')} ${localizePlanText(plan.name, language)}`} <ArrowRight className="w-3.5 h-3.5" /></>
                   )}
                 </Button>
                 {plan.comingSoon && (
-                  <p className="text-center text-xs text-slate-400 mt-2">This plan is under construction</p>
+                  <p className="text-center text-xs text-slate-400 mt-2">{tr('This plan is under construction', 'Ce forfait est en cours de construction')}</p>
                 )}
               </div>
             );
@@ -377,8 +381,8 @@ export default function SubscriptionPricing() {
 
         {/* Trust footer */}
         <div className="text-center rounded-2xl p-6 border" style={{ background: '#fff', borderColor: '#e2e8f0' }}>
-          <p className="font-bold text-lg mb-1" style={{ color: B.navy }}>🔒 Secure payments powered by Stripe</p>
-          <p className="text-slate-500 text-sm">30-day money-back guarantee · Cancel anytime · No hidden fees</p>
+          <p className="font-bold text-lg mb-1" style={{ color: B.navy }}>🔒 {tr('Secure payments powered by Stripe', 'Paiements sécurisés propulsés par Stripe')}</p>
+          <p className="text-slate-500 text-sm">{tr('30-day money-back guarantee · Cancel anytime · No hidden fees', 'Garantie de remboursement de 30 jours · Annulation à tout moment · Aucun frais caché')}</p>
         </div>
       </div>
     </div>
