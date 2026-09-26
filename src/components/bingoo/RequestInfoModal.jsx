@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X, MessageSquarePlus, CheckCircle } from "lucide-react";
+import { useI18n } from '@/lib/I18nContext';
 
 export default function RequestInfoModal({ profileId, onClose }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -29,7 +32,7 @@ export default function RequestInfoModal({ profileId, onClose }) {
             <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
               <MessageSquarePlus className="w-5 h-5 text-blue-600" />
             </div>
-            <h2 className="text-lg font-black text-slate-900">Request Info</h2>
+            <h2 className="text-lg font-black text-slate-900">{tr('Request Info', 'Demander des informations')}</h2>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
             <X className="w-5 h-5 text-slate-400" />
@@ -39,27 +42,27 @@ export default function RequestInfoModal({ profileId, onClose }) {
         {done ? (
           <div className="text-center py-8">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-black text-slate-900">Message Sent!</h3>
-            <p className="text-slate-500 mt-2">We'll get back to you as soon as possible.</p>
-            <Button onClick={onClose} className="mt-6 bg-blue-600 hover:bg-blue-700 px-8">Close</Button>
+            <h3 className="text-xl font-black text-slate-900">{tr('Message Sent!', 'Message envoyé !')}</h3>
+            <p className="text-slate-500 mt-2">{tr("We'll get back to you as soon as possible.", 'Nous vous répondrons dès que possible.')}</p>
+            <Button onClick={onClose} className="mt-6 bg-blue-600 hover:bg-blue-700 px-8">{tr('Close', 'Fermer')}</Button>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
-              <Label>Your Name</Label>
+              <Label>{tr('Your Name', 'Votre nom')}</Label>
               <Input className="mt-1 border-slate-200" placeholder="Amadou Diallo" value={form.name} onChange={set("name")} />
             </div>
             <div>
-              <Label>Phone Number</Label>
+              <Label>{tr('Phone Number', 'Numéro de téléphone')}</Label>
               <Input className="mt-1 border-slate-200" placeholder="+221 77 000 0000" value={form.phone} onChange={set("phone")} />
             </div>
             <div>
-              <Label>Email</Label>
+              <Label>{tr('Email', 'E-mail')}</Label>
               <Input type="email" className="mt-1 border-slate-200" placeholder="you@email.com" value={form.email} onChange={set("email")} />
             </div>
             <div>
-              <Label>Message</Label>
-              <Textarea className="mt-1 border-slate-200" placeholder="What would you like to know?" value={form.message} onChange={set("message")} rows={3} />
+              <Label>{tr('Message', 'Message')}</Label>
+              <Textarea className="mt-1 border-slate-200" placeholder={tr('What would you like to know?', 'Que souhaitez-vous savoir ?')} value={form.message} onChange={set("message")} rows={3} />
             </div>
             <Button onClick={handleSubmit} disabled={loading || (!form.name && !form.phone && !form.email)} className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base">
               {loading ? "Sending..." : "Send Request"}
