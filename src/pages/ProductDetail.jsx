@@ -9,7 +9,7 @@ import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
-import { isNativeApp } from '@/lib/nativePlatform';
+import { isInstalledAppShell } from '@/lib/nativePlatform';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -17,7 +17,7 @@ const ORANGE = '#f97316';
 
 export default function ProductDetail() {
   const { language } = useI18n();
-  const nativeApp = isNativeApp();
+  const nativeApp = isInstalledAppShell();
   const { productId } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
