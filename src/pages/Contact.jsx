@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Mail, MessageSquare, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function Contact() {
+  const { language } = useI18n();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,19 +34,19 @@ export default function Contact() {
         style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" /> {t("about_back",language)}
           </Link>
           <div className="h-5 w-px bg-white/10 mx-1" />
-          <span className="text-white font-bold">Contact Us</span>
+          <span className="text-white font-bold">{t("contact_title",language)}</span>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-16">
         <h1 className="text-4xl md:text-5xl font-black mb-4" style={{ color: B.navy }}>
-          Contact Us
+          {t("contact_title",language)}
         </h1>
         <p className="text-slate-500 text-lg mb-12">
-          We'd love to hear from you. Reach out via email, social media, or send us a message below.
+          {t("contact_intro",language)}
         </p>
 
         <div className="grid md:grid-cols-2 gap-12">
@@ -86,7 +89,7 @@ export default function Contact() {
                 <p className="font-bold text-slate-800 mb-1">WhatsApp</p>
                 <a href="https://wa.me/message/bingooconnect" target="_blank" rel="noopener noreferrer"
                   className="text-sm hover:underline" style={{ color: B.orange }}>
-                  Chat with us on WhatsApp
+                  {t("contact_whatsapp",language)}
                 </a>
               </div>
             </div>
@@ -97,24 +100,24 @@ export default function Contact() {
             {submitted ? (
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">✅</div>
-                <p className="font-bold text-lg" style={{ color: B.navy }}>Message sent!</p>
-                <p className="text-slate-500 text-sm mt-1">We'll get back to you shortly.</p>
+                <p className="font-bold text-lg" style={{ color: B.navy }}>{t("contact_message_sent",language)}</p>
+                <p className="text-slate-500 text-sm mt-1">{t("contact_reply_shortly",language)}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Name</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">{t("contact_name",language)}</label>
                   <input
                     type="text"
                     required
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    placeholder="Your name"
+                    placeholder={t("contact_name_ph",language)}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Email</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">{t("workspace_email",language)}</label>
                   <input
                     type="email"
                     required
@@ -125,19 +128,19 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Message</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">{t("contact_message",language)}</label>
                   <textarea
                     required
                     rows={4}
                     value={form.message}
                     onChange={e => setForm({ ...form, message: e.target.value })}
                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none"
-                    placeholder="How can we help you?"
+                    placeholder={t("contact_message_ph",language)}
                   />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full font-bold"
                   style={{ background: B.orange, color: '#fff', border: 'none' }}>
-                  {loading ? 'Sending...' : 'Send Message'}
+                  {loading ? t("contact_sending",language) : t("contact_send",language)}
                 </Button>
               </form>
             )}
@@ -148,12 +151,12 @@ export default function Contact() {
       {/* Footer links */}
       <footer className="border-t mt-16 py-8 text-center text-sm text-slate-400">
         <div className="flex justify-center gap-6">
-          <Link to="/" className="hover:text-slate-600 transition-colors">Home</Link>
-          <Link to="/about" className="hover:text-slate-600 transition-colors">About</Link>
-          <Link to="/contact" className="hover:text-slate-600 transition-colors">Contact</Link>
-          <Link to="/plans" className="hover:text-slate-600 transition-colors">Pricing</Link>
+          <Link to="/" className="hover:text-slate-600 transition-colors">{t("about_home",language)}</Link>
+          <Link to="/about" className="hover:text-slate-600 transition-colors">{t("about_about",language)}</Link>
+          <Link to="/contact" className="hover:text-slate-600 transition-colors">{t("about_contact",language)}</Link>
+          <Link to="/plans" className="hover:text-slate-600 transition-colors">{t("landing_pricing",language)}</Link>
         </div>
-        <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. All rights reserved.</p>
+        <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. {t("about_rights",language)}</p>
       </footer>
     </div>
   );
