@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function ResetPassword() {
+  const { language } = useI18n();
   const [searchParams] = useSearchParams();
   const resetToken = searchParams.get("token");
 
@@ -20,7 +23,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError("");
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t("auth_password_mismatch",language));
       return;
     }
     setLoading(true);
@@ -28,7 +31,7 @@ export default function ResetPassword() {
       await base44.auth.resetPassword({ resetToken, newPassword });
       window.location.href = "/login";
     } catch (err) {
-      setError(err.message || "Failed to reset password");
+      setError(err.message || t("auth_reset_failed",language));
     } finally {
       setLoading(false);
     }
@@ -37,16 +40,16 @@ export default function ResetPassword() {
   if (!resetToken) {
     return (
       <AuthLayout
-        title="Invalid reset link"
-        subtitle="This link is missing or has expired"
+        title={t("auth_invalid_reset",language)}
+        subtitle={t("auth_invalid_reset_copy",language)}
         footer={
           <Link to="/forgot-password" className="text-blue-400 font-medium hover:underline">
-            Request a new link
+            {t("auth_request_new",language)}
           </Link>
         }
       >
         <p className="text-sm text-white/60 text-center py-2">
-          Please request a new password reset email.
+          {t("auth_request_new_copy",language)}
         </p>
       </AuthLayout>
     );
@@ -54,11 +57,11 @@ export default function ResetPassword() {
 
   return (
     <AuthLayout
-      title="Set new password"
-      subtitle="Enter your new password below"
+      title={t("auth_set_new_password",language)}
+      subtitle={t("auth_set_new_copy",language)}
       footer={
         <Link to="/login" className="text-blue-400 font-medium hover:underline">
-          Back to log in
+          {t("auth_back_login",language)}
         </Link>
       }
     >
@@ -69,7 +72,7 @@ export default function ResetPassword() {
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-white/80">New Password</Label>
+          <Label htmlFor="password" className="text-white/80">{t("auth_new_password",language)}</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" aria-hidden="true" />
             <Input
@@ -86,7 +89,7 @@ export default function ResetPassword() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirm" className="text-white/80">Confirm Password</Label>
+          <Label htmlFor="confirm" className="text-white/80">{t("auth_confirm_password",language)}</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" aria-hidden="true" />
             <Input
@@ -105,10 +108,10 @@ export default function ResetPassword() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Resetting...
+              {t("auth_resetting",language)}
             </>
           ) : (
-            "Reset password"
+            t("auth_reset_password",language)
           )}
         </Button>
       </form>
