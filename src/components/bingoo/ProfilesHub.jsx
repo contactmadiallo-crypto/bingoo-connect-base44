@@ -8,7 +8,6 @@ import { useI18n } from "@/lib/I18nContext";
 
 export default function ProfilesHub({
   profiles = [],
-  user,
   isDark,
   accountPlan,
   maxProfiles = 1,
