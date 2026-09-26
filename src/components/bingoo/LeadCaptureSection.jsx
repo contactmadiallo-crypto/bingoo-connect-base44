@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import LegalIntakeForm from "@/components/bingoo/LegalIntakeForm";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const hexRgb = (hex, a = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${a})`;
@@ -16,6 +18,7 @@ const RATE_LIMIT_KEY = "bingoo_lead_last_submit";
 const RATE_LIMIT_MS = 60_000; // 60 seconds
 
 export default function LeadCaptureSection({ profileId, color = "#0b2149", isLawFirm = false, source = "profile", deviceCode = null }) {
+  const { language } = useI18n();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", email: "", message: "", preferred_contact: "WhatsApp" });
   const [loading, setLoading] = useState(false);
@@ -29,14 +32,14 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name) { setError("Please enter your name."); return; }
-    if (!form.phone && !form.email) { setError("Please enter a phone number or email."); return; }
+    if (!form.name) { setError(t("lead_err_name",language)); return; }
+    if (!form.phone && !form.email) { setError(t("lead_err_contact",language)); return; }
 
     // Rate limiting check
     const lastSubmit = localStorage.getItem(RATE_LIMIT_KEY);
     if (lastSubmit && Date.now() - parseInt(lastSubmit) < RATE_LIMIT_MS) {
       const remaining = Math.ceil((RATE_LIMIT_MS - (Date.now() - parseInt(lastSubmit))) / 1000);
-      setError(`Please wait ${remaining}s before submitting again.`);
+      setError(`${t("lead_wait_prefix",language)} ${remaining}${t("lead_wait_suffix",language)}`);
       setRateLimited(true);
       setTimeout(() => setRateLimited(false), remaining * 1000);
       return;
@@ -61,7 +64,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
     }).catch(() => {});
     setLoading(false);
     setDone(true);
-    toast.success("Your request has been sent successfully!");
+    toast.success(t("lead_request_success",language));
   };
 
   return (
@@ -75,7 +78,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
           className="w-full py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
           style={{ background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, boxShadow: `0 10px 28px ${hexRgb(color, 0.35)}` }}
         >
-          🤝 Request Info
+          🤝 {t("lead_request_info",language)}
         </motion.button>
       )}
 
@@ -89,8 +92,8 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
             style={{ background: hexRgb(color, 0.06), border: `1.5px solid ${hexRgb(color, 0.15)}` }}
           >
             <div className="text-5xl mb-3">✅</div>
-            <h4 className="font-black text-slate-900 text-lg">Request Sent!</h4>
-            <p className="text-slate-500 text-sm mt-1">Your request has been sent successfully.</p>
+            <h4 className="font-black text-slate-900 text-lg">{t("lead_request_sent",language)}</h4>
+            <p className="text-slate-500 text-sm mt-1">{t("lead_request_success",language)}</p>
           </motion.div>
         )}
 
@@ -108,8 +111,8 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🤝</span>
                   <div>
-                    <h3 className="font-black text-slate-900 text-base">Request Info</h3>
-                    <p className="text-slate-500 text-xs">We'll get back to you soon</p>
+                    <h3 className="font-black text-slate-900 text-base">{t("lead_request_info",language)}</h3>
+                    <p className="text-slate-500 text-xs">{t("lead_get_back",language)}</p>
                   </div>
                 </div>
                 <button onClick={() => setOpen(false)} className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors text-sm">✕</button>
@@ -118,27 +121,27 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
               <form onSubmit={handleSubmit} className="space-y-3">
                 <input
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium bg-white focus:outline-none focus:border-blue-400 transition-colors"
-                  placeholder="Full Name *"
+                  placeholder={t("lead_full_name",language)}
                   value={form.name}
                   onChange={set("name")}
                 />
                 <input
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium bg-white focus:outline-none focus:border-blue-400 transition-colors"
-                  placeholder="Phone Number"
+                  placeholder={t("lead_phone",language)}
                   type="tel"
                   value={form.phone}
                   onChange={set("phone")}
                 />
                 <input
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium bg-white focus:outline-none focus:border-blue-400 transition-colors"
-                  placeholder="Email Address"
+                  placeholder={t("lead_email",language)}
                   type="email"
                   value={form.email}
                   onChange={set("email")}
                 />
                 <textarea
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium bg-white focus:outline-none focus:border-blue-400 transition-colors resize-none"
-                  placeholder="Message (optional)"
+                  placeholder={t("lead_message_optional",language)}
                   rows={3}
                   value={form.message}
                   onChange={set("message")}
@@ -146,7 +149,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
 
                 {/* Preferred Contact */}
                 <div>
-                  <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">Preferred Contact Method</p>
+                  <p className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wide">{t("lead_pref_contact",language)}</p>
                   <div className="flex gap-2">
                     {CONTACT_METHODS.map(m => (
                       <button
@@ -159,7 +162,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
                           : { background: "#fff", color: "#64748b", borderColor: "#e2e8f0" }
                         }
                       >
-                        {m === "WhatsApp" ? "💬" : m === "Phone" ? "📞" : "📧"} {m}
+                        {m === "WhatsApp" ? "💬" : m === "Phone" ? "📞" : "📧"} {m === "Phone" ? t("lead_phone_method",language) : m === "Email" ? t("lead_email_method",language) : m}
                       </button>
                     ))}
                   </div>
@@ -175,7 +178,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
                   className="w-full py-3.5 rounded-xl font-black text-white text-sm transition-all disabled:opacity-50"
                   style={{ background: `linear-gradient(135deg, ${color}, ${hexRgb(color, 0.8)})`, boxShadow: `0 8px 24px ${hexRgb(color, 0.35)}` }}
                 >
-                  {loading ? "Sending..." : "Send Request →"}
+                  {loading ? t("lead_sending",language) : `${t("lead_send_request",language)} →`}
                 </motion.button>
               </form>
             </div>
