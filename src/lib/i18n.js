@@ -436,6 +436,8 @@ export const TRANSLATIONS = {
   nfc_tap_plural: { en: "taps", fr: "contacts" },
   nfc_lost_lower: { en: "lost", fr: "perdu(s)" },
   nfc_activated_date: { en: "Activated", fr: "Activé" },
+  nfc_active_lower: { en: "active", fr: "actif(s)" },
+  nfc_removed: { en: "removed", fr: "supprimé" },
   nfc_badge_profile: { en: "Profile", fr: "Profil" },
   nfc_badge_asset: { en: "Asset", fr: "Bien" },
   nfc_badge_lost_mode: { en: "Lost Mode On", fr: "Mode Perdu activé" },
