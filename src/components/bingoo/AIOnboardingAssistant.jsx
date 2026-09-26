@@ -246,7 +246,7 @@ function Bubble({ msg, isAI }) {
 }
 
 // ── Main component
-export default function AIOnboardingAssistant({ userName, user, onComplete, onDismiss }) {
+export default function AIOnboardingAssistant({ userName, onComplete, onDismiss }) {
   const [phase, setPhase] = useState("welcome"); // welcome | account_type | type | chat | resume | generating | review | manual
   const [selectedAccountType, setSelectedAccountType] = useState(null);
   const [selectedBusinessType, setSelectedBusinessType] = useState(null);
@@ -256,9 +256,7 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
   const [answers, setAnswers] = useState({});
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [generatedProfile, setGeneratedProfile] = useState(null);
   const [editedProfile, setEditedProfile] = useState(null);
-  const [generating, setGenerating] = useState(false);
   const [resumeText, setResumeText] = useState("");
   const [resumeUploading, setResumeUploading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -309,19 +307,16 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
     } else {
       // All answered — generate
       addMessage("Amazing! I have everything I need. Let me generate your professional profile now... ✨");
-      setGenerating(true);
       setPhase("generating");
       try {
         const result = await generateProfileFromAnswers(userType, newAnswers);
         const profile = typeof result === "string" ? JSON.parse(result) : result;
-        setGeneratedProfile(profile);
         setEditedProfile(profile);
         setPhase("review");
       } catch (e) {
         addMessage("Hmm, something went wrong. Let me try again...");
         setPhase("chat");
       }
-      setGenerating(false);
     }
   };
 
@@ -336,7 +331,6 @@ export default function AIOnboardingAssistant({ userName, user, onComplete, onDi
       addMessage("Got it! Extracting your information from the resume... 🔍");
       const result = await extractFromResume(text);
       const profile = typeof result === "string" ? JSON.parse(result) : result;
-      setGeneratedProfile(profile);
       setEditedProfile(profile);
       setPhase("review");
       addMessage("Your profile has been generated from your resume! Review and edit it below.");
