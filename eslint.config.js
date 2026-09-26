@@ -5,7 +5,15 @@ import pluginReactHooks from "eslint-plugin-react-hooks";
 import pluginUnusedImports from "eslint-plugin-unused-imports";
 
 export default [
-  { ignores: ["legacy/**", "dist/**", "node_modules/**"] },
+  { ignores: [
+    "legacy/**",
+    "dist/**",
+    "node_modules/**",
+    "src/components/mockups/**",
+    "src/components/playstore/**",
+    "src/pages/Bingoo2Mockups.jsx",
+    "src/pages/PlaystoreMockups.jsx",
+  ] },
   {
     files: [
       "src/components/**/*.{js,mjs,cjs,jsx}",
