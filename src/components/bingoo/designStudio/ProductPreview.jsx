@@ -28,14 +28,6 @@ export const PRODUCT_TYPES = [
 ];
 
 // ── Color utilities ──────────────────────────────────────────────────────────
-function isLightHex(hex) {
-  const c = (hex || '#fff').replace('#', '');
-  const r = parseInt(c.substr(0, 2), 16);
-  const g = parseInt(c.substr(2, 2), 16);
-  const b = parseInt(c.substr(4, 2), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.62;
-}
-
 function hexToRgba(hex, a) {
   const c = (hex || '#000').replace('#', '');
   const r = parseInt(c.substr(0, 2), 16);
@@ -232,7 +224,7 @@ const TEMPLATES = {
 // Each system treats the customer logo as a major graphic design asset embedded
 // into the composition geometry — never a small floating tile. Text safe zones
 // are protected with overflow/truncation so content never collides with graphics.
-function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+function CardContent({ templateId, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding }) {
   const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
@@ -359,7 +351,7 @@ function CardContent({ templateId, cardColor, accentColor, logoUrl, nameText, ho
 }
 
 // ── Content for vertical devices (keychain, tag, stand) ──────────────────────
-function VerticalContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape, isSmall }) {
+function VerticalContent({ templateId, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, removeBranding, isSmall }) {
   const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
@@ -395,7 +387,7 @@ function VerticalContent({ templateId, cardColor, accentColor, logoUrl, nameText
 }
 
 // ── Content for horizontal devices (bracelet) ────────────────────────────────
-function HorizontalContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+function HorizontalContent({ templateId, accentColor, logoUrl, nameText, holderName, roleText, phone, removeBranding }) {
   const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
@@ -423,7 +415,7 @@ function HorizontalContent({ templateId, cardColor, accentColor, logoUrl, nameTe
 }
 
 // ── Content for centered devices (sticker) ───────────────────────────────────
-function CenteredContent({ templateId, cardColor, accentColor, logoUrl, nameText, holderName, roleText, phone, email, website, tagline, removeBranding, shape }) {
+function CenteredContent({ templateId, accentColor, logoUrl, nameText, holderName, roleText, removeBranding }) {
   const { language } = useI18n();
   const tpl = TEMPLATES[templateId] || TEMPLATES.modern;
   const textColor = tpl.isDark ? '#fff' : NAVY;
@@ -502,7 +494,7 @@ function FinishLayers({ finish, isFront }) {
 // and manufacturer export. All derive from this same design specification.
 export function ProductPreview({
   productType, cardColor, accentColor, logoUrl, nameText, roleText, removeBranding,
-  side, isDark, brandPattern, finish, holderName, activationCode, phone, email,
+  side, isDark, finish, holderName, activationCode, phone, email,
   website, tagline, templateId = 'modern',
 }) {
   const shape = PRODUCT_TYPES.find(p => p.id === productType) || PRODUCT_TYPES[0];

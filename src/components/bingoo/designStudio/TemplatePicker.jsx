@@ -11,15 +11,15 @@ export default function TemplatePicker({ activeTemplate, onSelect, previewProps 
         <h3 className="font-black text-sm text-[#0b2149]"><span className="mr-1 text-[#f97316]">2.</span>{t("ds_select_template", language)}</h3>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        {TEMPLATES.map(t => (
-          <button key={t.id} onClick={() => onSelect(t)}
-            className={`rounded-xl border-2 p-1.5 transition-all ${activeTemplate === t.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 hover:border-slate-300'}`}>
+        {TEMPLATES.map(tpl => (
+          <button key={tpl.id} onClick={() => onSelect(tpl)}
+            className={`rounded-xl border-2 p-1.5 transition-all ${activeTemplate === tpl.id ? 'border-orange-500 bg-orange-50' : 'border-slate-200 hover:border-slate-300'}`}>
             <div className="h-16 rounded-lg relative overflow-hidden bg-slate-50 flex items-center justify-center">
               <div style={{ transform: 'scale(.22)', transformOrigin: 'center' }}>
-                <ProductPreview {...previewProps} productType="card" templateId={t.id} cardColor={t.cardColor} accentColor={t.accentColor} finish={t.finish} brandPattern={t.pattern} side="front" />
+                <ProductPreview {...previewProps} productType="card" templateId={tpl.id} cardColor={tpl.cardColor} accentColor={tpl.accentColor} finish={tpl.finish} brandPattern={tpl.pattern} side="front" />
               </div>
             </div>
-            <p className={`text-[10px] font-bold mt-1 text-center ${activeTemplate === t.id ? 'text-[#f97316]' : 'text-slate-700'}`}>{t(`ds_template_${t.id}`, language)}</p>
+            <p className={`text-[10px] font-bold mt-1 text-center ${activeTemplate === tpl.id ? 'text-[#f97316]' : 'text-slate-700'}`}>{t(`ds_template_${tpl.id}`, language)}</p>
           </button>
         ))}
       </div>
