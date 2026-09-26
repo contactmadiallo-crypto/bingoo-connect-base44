@@ -16,6 +16,7 @@ const SUMMARY_COLS = [
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 /**
  * AdminAccountsTab — Account-first admin view.
@@ -148,7 +149,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
                       <p className="text-sm font-bold text-white truncate">{p.display_name}</p>
                       <p className="text-xs font-mono" style={{ color: "rgba(255,255,255,0.3)" }}>/{p.username}</p>
                     </div>
-                    <a href={`/p/${p.username}`} target="_blank" rel="noopener" className="text-xs font-bold flex items-center gap-1" style={{ color: "#f97316" }}>
+                    <a href={publicProfileUrl(p.username)} target="_blank" rel="noopener" className="text-xs font-bold flex items-center gap-1" style={{ color: "#f97316" }}>
                       {t("admin_view",language)} <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
