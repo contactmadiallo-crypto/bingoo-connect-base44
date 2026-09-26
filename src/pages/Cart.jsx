@@ -11,12 +11,12 @@ import { InfinityMark } from '@/components/bingoo/ui/BingooBrand';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct } from '@/lib/shopI18n';
-import { isNativeApp } from '@/lib/nativePlatform';
+import { isInstalledAppShell } from '@/lib/nativePlatform';
 
 const NAVY='#0b2149', NAVY_DEEP='#071A3D', ORANGE='#f97316';
 export default function Cart(){
  const { language }=useI18n();
- const nativeApp=isNativeApp();
+ const nativeApp=isInstalledAppShell();
  const navigate=useNavigate(); const [cart,setCart]=useState(getCart());
  useEffect(()=>{let meta=document.querySelector('meta[name="robots"]');if(!meta){meta=document.createElement('meta');meta.setAttribute('name','robots');document.head.appendChild(meta)}meta.setAttribute('content','noindex, nofollow');return()=>meta.setAttribute('content','index, follow')},[]);
  const subtotal=cart.reduce((s,i)=>s+cartLineTotal(i),0),units=cart.reduce((s,i)=>s+i.quantity,0);
