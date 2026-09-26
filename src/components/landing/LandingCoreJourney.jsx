@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BriefcaseBusiness, QrCode, ScanLine, ShieldCheck, Sparkles, Users, BarChart3, CalendarCheck2 } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
@@ -13,51 +15,52 @@ const steps = [
   {
     icon: ScanLine,
     number: "01",
-    title: "Tap or scan",
-    text: "Use a Bingoo NFC device or QR code to start the interaction.",
+    titleKey: "landing_step_tap",
+    textKey: "landing_step_tap_copy",
   },
   {
     icon: BriefcaseBusiness,
     number: "02",
-    title: "Bingoo opens",
-    text: "The right experience appears instantly — profile, business flow or asset recovery.",
+    titleKey: "landing_step_opens",
+    textKey: "landing_step_opens_copy",
   },
   {
     icon: Users,
     number: "03",
-    title: "The relationship continues",
-    text: "Save a contact, capture a lead, book an appointment, follow up or recover an item.",
+    titleKey: "landing_step_relationship",
+    textKey: "landing_step_relationship_copy",
   },
 ];
 
 const pillars = [
   {
     icon: QrCode,
-    title: "Share",
-    text: "NFC, QR and wallet-ready identity sharing.",
+    titleKey: "landing_pillar_share",
+    textKey: "landing_pillar_share_copy",
     accent: B.orange,
   },
   {
     icon: CalendarCheck2,
-    title: "Convert",
-    text: "Turn interest into contacts, leads and bookings.",
+    titleKey: "landing_pillar_convert",
+    textKey: "landing_pillar_convert_copy",
     accent: B.gold,
   },
   {
     icon: BriefcaseBusiness,
-    title: "Manage",
-    text: "Keep profiles, devices and relationships organized.",
+    titleKey: "landing_pillar_manage",
+    textKey: "landing_pillar_manage_copy",
     accent: B.navy,
   },
   {
     icon: BarChart3,
-    title: "Measure",
-    text: "Understand taps, scans, views and engagement.",
+    titleKey: "landing_pillar_measure",
+    textKey: "landing_pillar_measure_copy",
     accent: "#2563eb",
   },
 ];
 
 export default function LandingCoreJourney() {
+  const { language } = useI18n();
   return (
     <section className="relative overflow-hidden bg-white px-4 py-16 md:px-6 md:py-24">
       <div className="pointer-events-none absolute inset-0">
@@ -73,13 +76,13 @@ export default function LandingCoreJourney() {
           className="mx-auto mb-12 max-w-3xl text-center"
         >
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-sm font-black text-orange-500">
-            <Sparkles className="h-4 w-4" /> THE BINGOO CONNECTION LAYER
+            <Sparkles className="h-4 w-4" /> {t("landing_connection_layer",language)}
           </div>
           <h2 className="text-3xl font-black tracking-tight md:text-5xl" style={{ color: B.navy }}>
-            From a physical interaction to a digital relationship.
+            {t("landing_physical_to_digital",language)}
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: B.slate }}>
-            Bingoo connects people, businesses and physical things through one smart identity platform.
+            {t("landing_connects_copy",language)}
           </p>
         </motion.div>
 
@@ -100,8 +103,8 @@ export default function LandingCoreJourney() {
                 </div>
                 <span className="text-xs font-black tracking-[0.18em] text-slate-300">{step.number}</span>
               </div>
-              <h3 className="text-xl font-black" style={{ color: B.navy }}>{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: B.slate }}>{step.text}</p>
+              <h3 className="text-xl font-black" style={{ color: B.navy }}>{t(step.titleKey,language)}</h3>
+              <p className="mt-2 text-sm leading-relaxed" style={{ color: B.slate }}>{t(step.textKey,language)}</p>
               {index < steps.length - 1 && (
                 <ArrowRight className="absolute -right-3 top-1/2 hidden h-6 w-6 -translate-y-1/2 rounded-full bg-white p-1 text-orange-500 shadow lg:block" />
               )}
@@ -112,7 +115,7 @@ export default function LandingCoreJourney() {
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {pillars.map((pillar, index) => (
             <motion.div
-              key={pillar.title}
+              key={pillar.titleKey}
               initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -123,8 +126,8 @@ export default function LandingCoreJourney() {
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${pillar.accent}14`, color: pillar.accent }}>
                 <pillar.icon className="h-4 w-4" />
               </div>
-              <p className="font-black" style={{ color: B.navy }}>{pillar.title}</p>
-              <p className="mt-1 text-sm leading-relaxed" style={{ color: B.slate }}>{pillar.text}</p>
+              <p className="font-black" style={{ color: B.navy }}>{t(pillar.titleKey,language)}</p>
+              <p className="mt-1 text-sm leading-relaxed" style={{ color: B.slate }}>{t(pillar.textKey,language)}</p>
             </motion.div>
           ))}
         </div>
@@ -132,16 +135,16 @@ export default function LandingCoreJourney() {
         <div className="mt-8 grid gap-4 rounded-3xl border bg-[#071A3D] p-6 md:grid-cols-[1.3fr_.7fr] md:items-center md:p-8" style={{ borderColor: "rgba(255,255,255,.06)" }}>
           <div>
             <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-orange-400">
-              <ShieldCheck className="h-4 w-4" /> One ecosystem, different outcomes
+              <ShieldCheck className="h-4 w-4" /> {t("landing_ecosystem",language)}
             </div>
-            <h3 className="text-2xl font-black text-white">Profile devices connect people. Asset devices help reconnect owners with lost items.</h3>
+            <h3 className="text-2xl font-black text-white">{t("landing_ecosystem_title",language)}</h3>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
-              The same Bingoo platform can open a professional profile or a Lost Mode recovery experience depending on the device and context.
+              {t("landing_ecosystem_copy",language)}
             </p>
           </div>
           <div className="grid gap-2 text-sm font-bold text-white/80">
-            <div className="rounded-2xl bg-white/[.06] px-4 py-3">Profile → Contact → Lead → Booking</div>
-            <div className="rounded-2xl bg-white/[.06] px-4 py-3">Asset → Lost Mode → Finder → Owner</div>
+            <div className="rounded-2xl bg-white/[.06] px-4 py-3">{t("landing_profile_flow",language)}</div>
+            <div className="rounded-2xl bg-white/[.06] px-4 py-3">{t("landing_asset_flow",language)}</div>
           </div>
         </div>
       </div>
