@@ -165,15 +165,15 @@ export default function AdminDashboard() {
   return (
     <BingooLayout>
       <div className="min-h-screen" style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 50%, #0f3d8c 100%)" }}>
-        <div className="p-6 max-w-7xl mx-auto">
+        <div className="px-3 py-4 sm:p-6 max-w-7xl mx-auto min-w-0 overflow-x-hidden">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-6 pt-2">
+          <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6 pt-2 min-w-0">
             <div className="h-8 w-px bg-white/10" />
             <div>
-              <h1 className="text-2xl font-black text-white">{t("admin_dashboard",language)}</h1>
-              <p className="text-white/40 text-sm">{t("admin_control_panel",language)}</p>
+              <h1 className="text-xl sm:text-2xl font-black text-white">{t("admin_dashboard",language)}</h1>
+              <p className="text-white/40 text-xs sm:text-sm">{t("admin_control_panel",language)}</p>
             </div>
-            <div className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
+            <div className="ml-auto flex-shrink-0 items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full flex" style={{ background: "rgba(253,186,33,0.15)", border: "1px solid rgba(253,186,33,0.3)" }}>
               <Shield className="w-4 h-4" style={{ color: gold }} />
               <span className="text-xs font-black" style={{ color: gold }}>ADMIN</span>
             </div>
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
           {tab === "overview" && (
             <div className="space-y-6">
               {/* Summary cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
                 {[
                   { label: t("admin_total_users",language), value: allUsers.length, icon: Users, accent: orange },
                   { label: t("admin_total_profiles",language), value: profiles.length, icon: QrCode, accent: gold },
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
                   { label: t("admin_lost_devices",language), value: deviceStats.lost, icon: AlertTriangle, accent: "#ef4444" },
                   { label: t("nfc_available",language), value: deviceStats.available, icon: RotateCcw, accent: "#06b6d4" },
                 ].map(s => (
-                  <div key={s.label} className="rounded-2xl p-5 border" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
+                  <div key={s.label} className="rounded-2xl p-3.5 sm:p-5 border min-w-0" style={{ background: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.1)" }}>
                     <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: s.accent + "20" }}>
                       <s.icon className="w-5 h-5" style={{ color: s.accent }} />
                     </div>
@@ -322,8 +322,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                <div className="overflow-x-auto overscroll-x-contain">
+                  <table className="w-full min-w-[760px]">
                     <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                       {["Profile", "Username", "Plan", "Company", "Owner", "Actions"].map(h => (
                         <th key={h} className="text-left px-5 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
@@ -417,8 +417,8 @@ export default function AdminDashboard() {
                 </div>
               </div>
               <div className="rounded-2xl overflow-hidden border" style={{ background: "rgba(255,255,255,0.05)", borderColor: "rgba(255,255,255,0.1)" }}>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
+                <div className="overflow-x-auto overscroll-x-contain">
+                  <table className="w-full min-w-[760px]">
                     <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
                       {["Customer", "Profile", "Plan", "Status", "Source", "Stripe ID", "Since"].map(h => (
                         <th key={h} className="text-left px-4 py-4 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.3)" }}>{h}</th>
