@@ -98,10 +98,10 @@ function DarkSelect({ value, onValueChange, items, placeholder, ariaLabel }) {
 async function writeAuditLog(fields) {
   try {
     await base44.entities.DeviceAuditLog.create(fields);
-  } catch (_) {}
+  } catch {}
 }
 
-export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], currentUser }) {
+export default function NFCDeviceManager({ profiles = [], currentUser }) {
   const { language } = useI18n();
   const queryClient = useQueryClient();
   const [subTab, setSubTab] = useState("overview");
@@ -127,7 +127,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
   const [bulkProductId, setBulkProductId] = useState(DEFAULT_PRODUCT_ID);
   const [bulkGenerating, setBulkGenerating] = useState(false);
 
-  const { data: devices = [], refetch } = useQuery({
+  const { data: devices = [] } = useQuery({
     queryKey: ["nfc-manager-devices"],
     queryFn: () => base44.entities.NFCDevice.list("-created_date", 2000),
   });
