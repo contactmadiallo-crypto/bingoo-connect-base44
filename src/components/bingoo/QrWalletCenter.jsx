@@ -234,7 +234,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
         <div className="flex justify-center">
           <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
             {previewDataUrl ? (
-              <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 240, height: "auto" }} />
+              <img src={previewDataUrl} alt={t("qr_alt_preview", language)} className="rounded-xl mx-auto" style={{ width: 240, height: "auto" }} />
             ) : (
               <div className="w-[240px] h-[300px] flex items-center justify-center">
                 <span className={`text-xs ${mutedText}`}>{t("studio_generating_preview", language)}</span>
@@ -292,7 +292,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className={`text-xs font-bold ${headText}`}>{t("qr_logo_watermark", language)}</p>
-                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>Professional</span>
+                <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>{t("profile_type_professional_plan", language)}</span>
               </div>
               <p className={`text-xs mt-0.5 ${mutedText}`}>
                 {!isPro ? t("qr_upgrade_logo", language)
@@ -308,7 +308,7 @@ export default function QrWalletCenter({ profile, isDark, effectivePlan }) {
           </div>
           {isPro && hasLogo && logoWatermark && (
             <div className="mt-2 flex items-center gap-2">
-              <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
+              <img src={profile.company_logo} alt={t("qr_alt_logo", language)} className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
               <p className={`text-xs ${mutedText}`}>{t("qr_logo_embedded", language)}</p>
             </div>
           )}
