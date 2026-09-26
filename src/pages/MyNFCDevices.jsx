@@ -53,8 +53,6 @@ export default function MyNFCDevices() {
 
    const [showActivate, setShowActivate] = useState(false);
    const [activateCode, setActivateCode] = useState("");
-   const [activating, setActivating] = useState(false);
-   const [activateMsg, setActivateMsg] = useState(null);
    const [expandedId, setExpandedId] = useState(null);
    const [copied, setCopied] = useState(null);
    const [lostDialogDevice, setLostDialogDevice] = useState(null);
@@ -452,10 +450,10 @@ export default function MyNFCDevices() {
                   onChange={e => setActivateCode(e.target.value.toUpperCase())}
                   onKeyDown={e => e.key === "Enter" && handleActivateCode()}
                 />
-                <Button onClick={handleActivateCode} disabled={activating || !activateCode.trim()}
+                <Button onClick={handleActivateCode} disabled={!activateCode.trim()}
                   className="font-bold px-6 min-h-[44px] w-full sm:w-auto"
                   style={{ background: "#22c55e", color: "#fff" }}>
-                  {activating ? t("nfc_checking_short", language) : t("nfc_activate_short", language)}
+                  {t("nfc_activate_short", language)}
                 </Button>
               </div>
 
