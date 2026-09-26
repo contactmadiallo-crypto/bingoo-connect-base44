@@ -114,8 +114,12 @@ Deno.serve(async (req) => {
       }, { status: 404 });
     }
 
-    // ── Ownership check: only the profile owner (or an admin) may generate a pass ──
-    if (profile.created_by_id !== user.id && user.role !== 'admin') {
+    // ── Ownership check ──
+    // Bingoo supports both canonical creator ownership and the account-level
+    // owned_profile_ids mapping used by migrated/multi-profile accounts.
+    const ownedProfileIds = Array.isArray(user.owned_profile_ids) ? user.owned_profile_ids : [];
+    const ownsProfile = profile.created_by_id === user.id || ownedProfileIds.includes(profile.id);
+    if (!ownsProfile && user.role !== 'admin') {
       return Response.json({ error: 'Forbidden — you do not own this profile' }, { status: 403 });
     }
 
