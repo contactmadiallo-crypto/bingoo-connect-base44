@@ -81,15 +81,15 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <div className={`${t.bg} rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto`} onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className={`${t.bg} rounded-t-3xl sm:rounded-2xl shadow-2xl sm:max-w-lg w-full max-h-[92dvh] sm:max-h-[90vh] overflow-y-auto overscroll-contain`} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10 bg-inherit rounded-t-2xl">
           <div>
             <h3 className={`font-black text-base ${t.text}`}>{tr('Edit Connection', 'Modifier la connexion')}</h3>
             <p className={`text-xs ${t.sub}`}>{lead.name || lead.email || 'Connection details'}</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10">
+          <button onClick={onClose} aria-label={tr("Close","Fermer")} className="w-11 h-11 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-white/10">
             <X className={`w-4 h-4 ${t.sub}`} />
           </button>
         </div>
@@ -97,16 +97,16 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
         {/* Form */}
         <div className="p-4 space-y-3">
           {/* Basic info */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><Label className={`text-xs ${t.label}`}>{tr('Name', 'Nom')}</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={t.input} /></div>
             <div><Label className={`text-xs ${t.label}`}>{tr('Phone', 'Téléphone')}</Label><Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={t.input} /></div>
-            <div className="col-span-2"><Label className={`text-xs ${t.label}`}>{tr('Email', 'E-mail')}</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={t.input} /></div>
+            <div className="sm:col-span-2"><Label className={`text-xs ${t.label}`}>{tr('Email', 'E-mail')}</Label><Input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={t.input} /></div>
           </div>
 
           {/* Connection context */}
           <div className={`pt-2 border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
             <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>{tr('Connection Context', 'Contexte de la connexion')}</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label className={`text-xs ${t.label}`}>{tr('Where First Met', 'Lieu de la première rencontre')}</Label><Input value={form.where_first_met} onChange={e => setForm({ ...form, where_first_met: e.target.value })} placeholder={tr('Conference, cafe...', 'Conférence, café…')} className={t.input} /></div>
               <div><Label className={`text-xs ${t.label}`}>{tr('When First Met', 'Date de la première rencontre')}</Label><Input type="date" value={form.when_first_met} onChange={e => setForm({ ...form, when_first_met: e.target.value })} className={t.input} /></div>
               <div><Label className={`text-xs ${t.label}`}>{tr('Event Name', 'Nom de l’événement')}</Label><Input value={form.event_name} onChange={e => setForm({ ...form, event_name: e.target.value })} placeholder={tr('Event or context', 'Événement ou contexte')} className={t.input} /></div>
@@ -114,14 +114,14 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
                 <Label className={`text-xs ${t.label}`}>{tr('Relationship Type', 'Type de relation')}</Label>
                 <select value={form.relationship_type} onChange={e => setForm({ ...form, relationship_type: e.target.value })}
                   className={`w-full h-9 rounded-md border text-sm ${t.input}`}>
-                  {RELATIONSHIP_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  {RELATIONSHIP_TYPES.map(r => <option key={r.value} value={r.value}>{language === "fr" ? ({ client:"Client", prospect:"Prospect", colleague:"Collègue", business_networking:"Réseautage professionnel", vendor:"Fournisseur", friend:"Ami", partner:"Partenaire", other:"Autre" }[r.value] || r.label) : r.label}</option>)}
                 </select>
               </div>
               <div>
                 <Label className={`text-xs ${t.label}`}>{tr('Source', 'Source')}</Label>
                 <select value={form.source} onChange={e => setForm({ ...form, source: e.target.value })}
                   className={`w-full h-9 rounded-md border text-sm ${t.input}`}>
-                  {SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  {SOURCES.map(s => <option key={s.value} value={s.value}>{language === "fr" ? ({ profile:"Profil public", nfc:"Contact NFC", qr:"Scan QR", referral:"Recommandation", direct:"Direct", manual:"Manuel", imported:"Importé" }[s.value] || s.label) : s.label}</option>)}
                 </select>
               </div>
               <div><Label className={`text-xs ${t.label}`}>{tr('Follow-up Date', 'Date de suivi')}</Label><Input type="date" value={form.follow_up_date} onChange={e => setForm({ ...form, follow_up_date: e.target.value })} className={t.input} /></div>
@@ -147,7 +147,7 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
           {/* Timeline preview */}
           {lead.timeline_entries && lead.timeline_entries.length > 0 && (
             <div className={`pt-2 border-t ${isDark ? 'border-white/10' : 'border-slate-100'}`}>
-              <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>Timeline ({lead.timeline_entries.length})</p>
+              <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${t.sub}`}>{tr("Timeline","Historique")} ({lead.timeline_entries.length})</p>
               <div className="space-y-1.5">
                 {lead.timeline_entries.slice(-5).map((entry, i) => (
                   <div key={i} className={`text-xs p-2 rounded-lg ${isDark ? 'bg-white/5' : 'bg-slate-50'}`}>
@@ -160,8 +160,8 @@ export default function ConnectionEditModal({ lead, isDark, onClose }) {
           )}
 
           {/* Save */}
-          <Button className="w-full mt-2" style={{ background: '#0b2149' }} onClick={() => saveMut.mutate(form)} disabled={saveMut.isPending}>
-            <Save className="w-4 h-4" /> Save Connection
+          <Button className="w-full mt-2 min-h-[44px]" style={{ background: '#0b2149' }} onClick={() => saveMut.mutate(form)} disabled={saveMut.isPending}>
+            <Save className="w-4 h-4" /> {tr("Save Connection","Enregistrer la connexion")}
           </Button>
         </div>
       </div>
