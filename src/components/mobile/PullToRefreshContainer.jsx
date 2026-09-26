@@ -7,7 +7,7 @@ export function PullToRefreshContainer({ onRefresh, children }) {
   const progress = Math.min(pullDistance / 80, 1);
 
   return (
-    <div data-pull-refresh className="relative w-full overflow-y-auto" style={{ minHeight: '100vh' }}>
+    <div data-pull-refresh className="relative w-full overflow-y-auto" style={{ minHeight: '100dvh' }}>
       {/* Pull indicator */}
       {pullDistance > 0 && (
         <motion.div
