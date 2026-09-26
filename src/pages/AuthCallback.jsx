@@ -42,12 +42,6 @@ export default function AuthCallback() {
           console.warn("[AuthCallback] owned_profile_ids sync failed (non-critical):", e.message);
         }
 
-        // Scope completion to the authenticated user. account_type can already
-        // default to "free" before that user creates a first profile.
-        const onboardingDone = user?.id
-          ? localStorage.getItem(`bingoo_onboarding_done:${user.id}`)
-          : null;
-        const needsOnboarding = !!user?.id && profiles.length === 0 && !onboardingDone;
         const params = new URLSearchParams(window.location.search);
         const next = params.get("next");
         // A pending NFC activation is an explicit continuation and must win
@@ -58,9 +52,7 @@ export default function AuthCallback() {
         const isNfcContinuation = !!safeNext && (/^\/d\/BG-[A-Z0-9-]+(?:[/?#]|$)/i.test(safeNext) || /^\/activate-device(?:[?#]|$)/i.test(safeNext));
         const destination = isNfcContinuation
           ? safeNext
-          : needsOnboarding
-            ? "/bingoo?onboarding=1"
-            : safeNext || "/bingoo";
+          : safeNext || "/bingoo?view=hub";
         navigate(destination, { replace: true });
       };
 
