@@ -153,7 +153,7 @@ function ServiceForm({ form, setForm, editingId, onSave, onCancel, isSaving, isD
 }
 
 // ── Main panel
-export default function SalonServicesPanel({ profileId, isDark, onSaved, mode = "salon" }) {
+export default function SalonServicesPanel({ profileId, isDark, mode = "salon" }) {
   const { language } = useI18n();
   const businessMode = mode === "business";
   const qc = useQueryClient();
@@ -175,8 +175,6 @@ export default function SalonServicesPanel({ profileId, isDark, onSaved, mode = 
     staleTime: 0,
     gcTime: 0,
   });
-
-  const refetchServices = () => qc.refetchQueries({ queryKey: ["salon-services", profileId] });
 
   const createService = useMutation({
     mutationFn: async (data) => {
