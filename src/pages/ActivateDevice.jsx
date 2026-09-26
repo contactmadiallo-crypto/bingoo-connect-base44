@@ -20,6 +20,7 @@ export default function ActivateDevice() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const { profiles, selectProfile } = useProfileWorkspace();
 
   // State — pre-fill from ?code= URL param (e.g. /activate-device?code=BG-000007)
@@ -525,14 +526,14 @@ export default function ActivateDevice() {
           <div className="rounded-2xl p-6" style={{ ...cardStyle, borderColor: isDark ? "rgba(99,102,241,0.3)" : "rgba(99,102,241,0.2)" }}>
             <div className="flex items-center gap-2 mb-1">
               <Shield className="w-5 h-5 text-violet-500" />
-              <h2 className={`font-black text-lg ${headText}`}>Admin: Create Device Codes</h2>
+              <h2 className={`font-black text-lg ${headText}`}>{tr('Admin: Create Device Codes', 'Admin : créer des codes appareil')}</h2>
             </div>
-            <p className={`text-sm mb-5 ${mutedText}`}>Generate new NFC device codes to be shipped to customers</p>
+            <p className={`text-sm mb-5 ${mutedText}`}>{tr('Generate new NFC device codes to be shipped to customers', 'Générez de nouveaux codes d’appareils NFC à expédier aux clients')}</p>
 
             <div className="flex gap-3 mb-5">
               <input
                 className={`${inputCls} flex-1`}
-                placeholder="e.g. BG-10010"
+                placeholder={tr('e.g. BG-10010', 'ex. : BG-10010')}
                 value={newCode}
                 onChange={e => setNewCode(e.target.value.toUpperCase())}
               />
@@ -540,7 +541,7 @@ export default function ActivateDevice() {
                 value={newType}
                 onValueChange={setNewType}
                 options={DEVICE_TYPES.map(t => ({ value: t.value, label: `${t.emoji} ${t.label}` }))}
-                placeholder="Type"
+                placeholder={tr('Type', 'Type')}
                 className={`w-36 ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-800"} rounded-xl`}
               />
               <Button onClick={handleCreateCode} disabled={creatingCode || !newCode.trim()} className="bg-violet-600 hover:bg-violet-500 text-white font-bold gap-2 px-6">
