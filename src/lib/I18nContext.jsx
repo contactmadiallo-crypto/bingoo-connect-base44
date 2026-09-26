@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getLang, setLang as persistLang, t as translate, SUPPORTED_LANGUAGES } from '@/lib/i18n';
+import { base44 } from '@/api/base44Client';
 
 const I18nContext = createContext(null);
 
@@ -10,7 +11,18 @@ export function LanguageProvider({ children }) {
     const normalized = SUPPORTED_LANGUAGES[next] ? next : 'en';
     persistLang(normalized);
     setLanguageState(normalized);
+    base44.auth.updateMe({ preferred_language: normalized }).catch(() => {});
   };
+
+  useEffect(() => {
+    base44.auth.me().then((user) => {
+      const preferred = user?.preferred_language;
+      if (preferred && SUPPORTED_LANGUAGES[preferred] && preferred !== language) {
+        persistLang(preferred);
+        setLanguageState(preferred);
+      }
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const meta = SUPPORTED_LANGUAGES[language] || SUPPORTED_LANGUAGES.en;
