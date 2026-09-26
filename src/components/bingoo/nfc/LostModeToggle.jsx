@@ -20,7 +20,7 @@ export default function LostModeToggle({ device, reportCount, isDark, isPending,
     } else {
       if (reportCount > 0) {
         const ok = window.confirm(
-          `${reportCount} found report${reportCount > 1 ? "s" : ""} exist for this device.\n\nTurning off Lost Mode will return the device to normal scanning. Continue?`
+          `${reportCount} ${t(reportCount === 1 ? "lost_turn_off_confirm_one" : "lost_turn_off_confirm_many", language)}`
         );
         if (!ok) return;
       }
@@ -33,7 +33,7 @@ export default function LostModeToggle({ device, reportCount, isDark, isPending,
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${isLost ? "text-red-400" : (isDark ? "text-white/40" : "text-slate-400")}`}>
-            🔒 Lost Mode
+            🔒 {t("lost_mode", language)}
           </p>
           <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
             {isLost ? t("lost_mode_on", language) : t("lost_mode_off", language)}
@@ -44,7 +44,7 @@ export default function LostModeToggle({ device, reportCount, isDark, isPending,
         </div>
         <div className="flex flex-col items-center gap-1 flex-shrink-0">
           <span className={`text-[10px] font-bold uppercase ${isLost ? "text-red-500" : (isDark ? "text-white/40" : "text-slate-400")}`}>
-            Lost Mode
+            {t("lost_mode", language)}
           </span>
           <Switch checked={isLost} onCheckedChange={handleToggle} disabled={isPending} />
         </div>
