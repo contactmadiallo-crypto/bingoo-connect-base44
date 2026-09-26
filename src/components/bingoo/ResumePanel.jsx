@@ -48,13 +48,13 @@ function ResumeEditor({ resume, onClose, onSaved, profileId, language }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg max-h-[94dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 z-10 bg-white">
           <h3 className="font-black text-slate-900 text-lg">{t(resume?.id ? "resume_edit" : "resume_new",language)}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+          <button onClick={onClose} aria-label={t("resume_cancel",language)} className="w-11 h-11 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 text-xl font-bold">✕</button>
         </div>
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-4">
           {Object.entries(FIELD_LABELS).map(([key, labelKey]) => (
             <div key={key}>
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{t(labelKey,language)}</label>
@@ -74,7 +74,7 @@ function ResumeEditor({ resume, onClose, onSaved, profileId, language }) {
               )}
             </div>
           ))}
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-1">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.is_public} onChange={e => setForm(f => ({ ...f, is_public: e.target.checked }))} className="rounded" />
               <span className="text-sm font-semibold text-slate-600">{t("resume_public_link",language)}</span>
@@ -86,9 +86,9 @@ function ResumeEditor({ resume, onClose, onSaved, profileId, language }) {
             </label>
           </div>
         </div>
-        <div className="p-5 border-t border-slate-100 flex gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl font-bold">{t("resume_cancel",language)}</Button>
-          <Button onClick={save} disabled={saving} className="flex-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2">
+        <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row gap-3">
+          <Button variant="outline" onClick={onClose} className="flex-1 min-h-[44px] rounded-xl font-bold">{t("resume_cancel",language)}</Button>
+          <Button onClick={save} disabled={saving} className="flex-2 min-h-[44px] rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2">
             {saving ? t("resume_saving",language) : t("resume_save",language)}
           </Button>
         </div>
