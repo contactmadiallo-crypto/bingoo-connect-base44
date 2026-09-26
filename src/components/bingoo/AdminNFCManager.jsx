@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Download, Printer, Search, Edit, Trash2, QrCode, RefreshCw, X, Loader2 } from "lucide-react";
 import { MobileSelect } from "@/components/ui/mobile-select";
 import { deviceUrl as buildDeviceUrl } from "@/lib/nfcUrl";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const DEVICE_TYPES = ["card", "keychain", "bracelet", "stand", "badge", "sticker"];
 const DEVICE_EMOJIS = { card: "💳", keychain: "🔑", bracelet: "📿", stand: "🪧", badge: "🎫", sticker: "🏷️" };
@@ -334,7 +335,7 @@ export default function AdminNFCManager({ profiles = [] }) {
                     </td>
                     <td className="px-4 py-3 text-sm text-white/60">
                       {profile ? (
-                        <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                        <a href={publicProfileUrl(profile.username)} target="_blank" rel="noopener noreferrer"
                           className="hover:underline text-orange-400 font-bold">{profile.display_name}</a>
                       ) : <span className="text-white/25 italic">Unclaimed</span>}
                     </td>
@@ -401,7 +402,7 @@ export default function AdminNFCManager({ profiles = [] }) {
               </div>
               <div>
                 {profile ? (
-                  <a href={`/p/${profile.username}`} target="_blank" rel="noopener noreferrer"
+                  <a href={publicProfileUrl(profile.username)} target="_blank" rel="noopener noreferrer"
                     className="hover:underline text-orange-400 font-bold text-sm">{profile.display_name}</a>
                 ) : <span className="text-white/25 italic text-sm">Unclaimed</span>}
               </div>
