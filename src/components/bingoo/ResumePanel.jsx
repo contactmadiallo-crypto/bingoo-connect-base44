@@ -5,23 +5,16 @@ import { Button } from "@/components/ui/button";
 import { FileText, Edit2, Link2, Download, Trash2, Plus, Globe, EyeOff, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const FIELD_LABELS = {
-  display_name: "Full Name",
-  job_title: "Job Title",
-  company_name: "Company / Organization",
-  bio: "Professional Summary",
-  skills: "Skills",
-  experience: "Experience",
-  education: "Education",
-  email: "Email",
-  phone: "Phone",
-  location: "Location",
-  linkedin_url: "LinkedIn URL",
-  website: "Website",
+  display_name: "resume_full_name", job_title: "resume_job_title", company_name: "resume_company",
+  bio: "resume_summary", skills: "resume_skills", experience: "resume_experience", education: "resume_education",
+  email: "resume_email", phone: "resume_phone", location: "resume_location", linkedin_url: "resume_linkedin", website: "resume_website",
 };
 
-function ResumeEditor({ resume, onClose, onSaved, profileId }) {
+function ResumeEditor({ resume, onClose, onSaved, profileId, language }) {
   const [form, setForm] = useState(resume || {
     display_name: "", job_title: "", company_name: "", bio: "", skills: "",
     experience: "", education: "", email: "", phone: "", location: "",
@@ -31,7 +24,7 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
   const qc = useQueryClient();
 
   const save = async () => {
-    if (!form.display_name) return toast.error("Full name is required");
+    if (!form.display_name) return toast.error(t("resume_name_required",language));
     setSaving(true);
     try {
       const data = { ...form };
@@ -45,11 +38,11 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
         await base44.entities.Resume.create({ ...data, source: "manual" });
       }
       qc.invalidateQueries({ queryKey: ["my-resumes"] });
-      toast.success(resume?.id ? "Resume updated!" : "Resume created!");
+      toast.success(t(resume?.id ? "resume_updated" : "resume_created",language));
       onSaved?.();
       onClose();
     } catch (e) {
-      toast.error("Failed to save resume");
+      toast.error(t("resume_save_failed",language));
     }
     setSaving(false);
   };
@@ -58,13 +51,13 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-black text-slate-900 text-lg">{resume?.id ? "Edit Resume" : "New Resume"}</h3>
+          <h3 className="font-black text-slate-900 text-lg">{t(resume?.id ? "resume_edit" : "resume_new",language)}</h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
         </div>
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {Object.entries(FIELD_LABELS).map(([key, label]) => (
+          {Object.entries(FIELD_LABELS).map(([key, labelKey]) => (
             <div key={key}>
-              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{label}</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">{t(labelKey,language)}</label>
               {["bio", "skills", "experience", "education"].includes(key) ? (
                 <textarea
                   rows={3}
@@ -84,19 +77,19 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
           <div className="flex items-center gap-3 pt-1">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.is_public} onChange={e => setForm(f => ({ ...f, is_public: e.target.checked }))} className="rounded" />
-              <span className="text-sm font-semibold text-slate-600">Public resume link</span>
+              <span className="text-sm font-semibold text-slate-600">{t("resume_public_link",language)}</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={form.attached_to_profile} onChange={e => setForm(f => ({ ...f, attached_to_profile: e.target.checked, is_public: e.target.checked ? true : f.is_public }))} className="rounded" />
-              <span className="text-sm font-semibold text-slate-600">Show on profile</span>
-              {!profileId && form.attached_to_profile && <span className="text-xs text-amber-500">(select a profile first)</span>}
+              <span className="text-sm font-semibold text-slate-600">{t("resume_show_profile",language)}</span>
+              {!profileId && form.attached_to_profile && <span className="text-xs text-amber-500">({t("resume_select_profile_first",language)})</span>}
             </label>
           </div>
         </div>
         <div className="p-5 border-t border-slate-100 flex gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl font-bold">Cancel</Button>
+          <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl font-bold">{t("resume_cancel",language)}</Button>
           <Button onClick={save} disabled={saving} className="flex-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2">
-            {saving ? "Saving..." : "Save Resume"}
+            {saving ? t("resume_saving",language) : t("resume_save",language)}
           </Button>
         </div>
       </div>
@@ -104,7 +97,7 @@ function ResumeEditor({ resume, onClose, onSaved, profileId }) {
   );
 }
 
-function ResumeCard({ resume, onEdit, origin }) {
+function ResumeCard({ resume, onEdit, origin, language }) {
   const qc = useQueryClient();
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -114,20 +107,20 @@ function ResumeCard({ resume, onEdit, origin }) {
     setDeleting(true);
     await base44.entities.Resume.delete(resume.id);
     qc.invalidateQueries({ queryKey: ["my-resumes"] });
-    toast.success("Resume deleted");
+    toast.success(t("resume_deleted",language));
     setConfirmDelete(false);
   };
 
   const copyLink = () => {
     navigator.clipboard.writeText(publicUrl);
-    toast.success("Link copied!");
+    toast.success(t("resume_link_copied",language));
   };
 
   const downloadPDF = () => {
     // Open in new tab for printing/saving as PDF
     const win = window.open("", "_blank");
     win.document.write(`
-      <html><head><title>${resume.display_name} - Resume</title>
+      <html><head><title>${resume.display_name} - ${t("resume_new",language)}</title>
       <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #1e293b; }
         h1 { font-size: 28px; font-weight: 900; margin: 0 0 4px; }
@@ -146,10 +139,10 @@ function ResumeCard({ resume, onEdit, origin }) {
         ${resume.linkedin_url ? `<span>🔗 ${resume.linkedin_url}</span>` : ""}
         ${resume.website ? `<span>🌐 ${resume.website}</span>` : ""}
       </div>
-      ${resume.bio ? `<h2>Summary</h2><p>${resume.bio}</p>` : ""}
-      ${resume.skills ? `<h2>Skills</h2><p>${resume.skills}</p>` : ""}
-      ${resume.experience ? `<h2>Experience</h2><p>${resume.experience}</p>` : ""}
-      ${resume.education ? `<h2>Education</h2><p>${resume.education}</p>` : ""}
+      ${resume.bio ? `<h2>${t("resume_section_summary",language)}</h2><p>${resume.bio}</p>` : ""}
+      ${resume.skills ? `<h2>${t("resume_section_skills",language)}</h2><p>${resume.skills}</p>` : ""}
+      ${resume.experience ? `<h2>${t("resume_section_experience",language)}</h2><p>${resume.experience}</p>` : ""}
+      ${resume.education ? `<h2>${t("resume_section_education",language)}</h2><p>${resume.education}</p>` : ""}
       </body></html>
     `);
     win.document.close();
@@ -171,11 +164,11 @@ function ResumeCard({ resume, onEdit, origin }) {
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           {resume.is_public
-            ? <span className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold"><Globe className="w-3 h-3" /> Public</span>
-            : <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full font-semibold"><EyeOff className="w-3 h-3" /> Private</span>
+            ? <span className="flex items-center gap-1 text-xs text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-semibold"><Globe className="w-3 h-3" /> {t("resume_public",language)}</span>
+            : <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full font-semibold"><EyeOff className="w-3 h-3" /> {t("resume_private",language)}</span>
           }
           {resume.attached_to_profile && (
-            <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-semibold"><Link2 className="w-3 h-3" /> On Profile</span>
+            <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full font-semibold"><Link2 className="w-3 h-3" /> {t("resume_on_profile",language)}</span>
           )}
         </div>
       </div>
@@ -184,16 +177,16 @@ function ResumeCard({ resume, onEdit, origin }) {
 
       <div className="flex gap-2 flex-wrap pt-1">
         <Button size="sm" variant="outline" onClick={() => onEdit(resume)} className="gap-1.5 text-xs rounded-xl font-semibold">
-          <Edit2 className="w-3.5 h-3.5" /> Edit
+          <Edit2 className="w-3.5 h-3.5" /> {t("resume_edit_action",language)}
         </Button>
         {resume.is_public && (
           <>
             <Button size="sm" variant="outline" onClick={copyLink} className="gap-1.5 text-xs rounded-xl font-semibold">
-              <Link2 className="w-3.5 h-3.5" /> Copy Link
+              <Link2 className="w-3.5 h-3.5" /> {t("resume_copy_link",language)}
             </Button>
             <a href={publicUrl} target="_blank" rel="noopener noreferrer">
               <Button size="sm" variant="outline" className="gap-1.5 text-xs rounded-xl font-semibold">
-                <ExternalLink className="w-3.5 h-3.5" /> View
+                <ExternalLink className="w-3.5 h-3.5" /> {t("resume_view",language)}
               </Button>
             </a>
           </>
@@ -202,14 +195,14 @@ function ResumeCard({ resume, onEdit, origin }) {
           <Download className="w-3.5 h-3.5" /> PDF
         </Button>
         <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)} disabled={deleting} className="gap-1.5 text-xs rounded-xl font-semibold text-red-500 border-red-200 hover:bg-red-50 ml-auto">
-          <Trash2 className="w-3.5 h-3.5" /> Delete
+          <Trash2 className="w-3.5 h-3.5" /> {t("resume_delete",language)}
         </Button>
       </div>
       <ConfirmDialog
         open={confirmDelete}
         onOpenChange={setConfirmDelete}
-        title="Delete this resume?"
-        description="This action cannot be undone."
+        title={t("resume_delete_title",language)}
+        description={t("resume_delete_copy",language)}
         onConfirm={del}
       />
     </div>
@@ -217,6 +210,7 @@ function ResumeCard({ resume, onEdit, origin }) {
 }
 
 export default function ResumePanel({ user, profileId }) {
+  const { language } = useI18n();
   const [editingResume, setEditingResume] = useState(null);
   const [showEditor, setShowEditor] = useState(false);
   const qc = useQueryClient();
@@ -239,27 +233,27 @@ export default function ResumePanel({ user, profileId }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black text-slate-900">My Resumes</h2>
-          <p className="text-sm text-slate-400 mt-0.5">Created by AI or manually — view, edit, share, download as PDF</p>
+          <h2 className="text-xl font-black text-slate-900">{t("resume_my_resumes",language)}</h2>
+          <p className="text-sm text-slate-400 mt-0.5">{t("resume_my_resumes_copy",language)}</p>
         </div>
         <Button onClick={openNew} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2">
-          <Plus className="w-4 h-4" /> New Resume
+          <Plus className="w-4 h-4" /> {t("resume_new_action",language)}
         </Button>
       </div>
 
       {resumes.length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-slate-100">
           <FileText className="w-14 h-14 mx-auto text-slate-200 mb-4" />
-          <p className="font-semibold text-slate-600 text-lg">No resumes yet</p>
-          <p className="text-slate-400 text-sm mt-1 mb-4">Use the AI Builder to generate one, or create manually.</p>
+          <p className="font-semibold text-slate-600 text-lg">{t("resume_none",language)}</p>
+          <p className="text-slate-400 text-sm mt-1 mb-4">{t("resume_none_copy",language)}</p>
           <Button onClick={openNew} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2">
-            <Plus className="w-4 h-4" /> Create Resume
+            <Plus className="w-4 h-4" /> {t("resume_create",language)}
           </Button>
         </div>
       ) : (
         <div className="space-y-3">
           {resumes.map(r => (
-            <ResumeCard key={r.id} resume={r} onEdit={openEdit} origin={origin} />
+            <ResumeCard key={r.id} resume={r} onEdit={openEdit} origin={origin} language={language} />
           ))}
         </div>
       )}
@@ -270,6 +264,7 @@ export default function ResumePanel({ user, profileId }) {
           onClose={closeEditor}
           onSaved={() => qc.invalidateQueries({ queryKey: ["my-resumes"] })}
           profileId={profileId}
+          language={language}
         />
       )}
     </div>
