@@ -263,12 +263,12 @@ export default function Billing() {
                   <button onClick={() => setBillingCycle('monthly')}
                     className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
                     style={{ background: billingCycle === 'monthly' ? B.navy : 'transparent', color: billingCycle === 'monthly' ? '#fff' : '#64748b' }}>
-                    Monthly
+                    {tr('Monthly', 'Mensuel')}
                   </button>
                   <button onClick={() => setBillingCycle('annual')}
                     className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
                     style={{ background: billingCycle === 'annual' ? B.navy : 'transparent', color: billingCycle === 'annual' ? '#fff' : '#64748b' }}>
-                    Annual <span style={{ color: billingCycle === 'annual' ? B.orange : '#16a34a' }}>-10%</span>
+                    {tr('Annual', 'Annuel')} <span style={{ color: billingCycle === 'annual' ? B.orange : '#16a34a' }}>-10%</span>
                   </button>
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function Billing() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-black text-sm" style={{ color: B.navy }}>{p.name}</span>
+                        <span className="font-black text-sm" style={{ color: B.navy }}>{localizePlanText(p.name, language)}</span>
                         <span className="font-bold text-xs" style={{ color: p.id === 'professional' ? B.orange : '#64748b' }}>
                           {billingCycle === 'annual' ? p.annual : p.monthly}
                         </span>
@@ -329,7 +329,7 @@ export default function Billing() {
           {/* View all plans link */}
           <div className="text-center">
             <Link to="/plans" className="text-sm font-bold hover:underline" style={{ color: B.navy }}>
-              View all plans
+              {tr('View all plans', 'Voir tous les forfaits')}
             </Link>
           </div>
 
