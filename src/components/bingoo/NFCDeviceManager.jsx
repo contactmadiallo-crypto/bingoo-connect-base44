@@ -457,7 +457,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
           <div className="flex items-center justify-between">
             <p className="text-white/30 text-xs">{filteredDevices.length} of {devices.length} devices</p>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <button onClick={() => handleExportCSV()} className="text-xs font-bold px-3 py-1.5 rounded-lg border border-white/15 text-white/50 hover:text-white hover:bg-white/8 transition-all flex items-center gap-1.5">
                 <Download className="w-3.5 h-3.5" /> CSV
               </button>
@@ -573,7 +573,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     ) : <span className="text-white/25 text-xs italic">{t("nfc_admin_unassigned",language)}</span>}
                   </div>
                   {d.assigned_at && <p className="text-xs text-white/35">Assigned: {d.assigned_at.slice(0, 10)}</p>}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col-reverse sm:flex-row gap-2">
                     <button type="button" onClick={() => { navigator.clipboard?.writeText(buildDeviceUrl(d.device_code)); toast.success(t("nfc_admin_url_copied",language)); }} className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><Copy className="w-3.5 h-3.5" /> {t("nfc_admin_copy_url",language)}</button>
                     <a href={buildDeviceUrl(d.device_code)} target="_blank" rel="noopener noreferrer" className="min-h-[40px] px-3 rounded-lg border border-white/10 text-xs font-bold text-white/50 flex items-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {t("nfc_admin_test",language)}</a>
                   </div>
@@ -637,7 +637,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                     onChange={e => setEditingDevice(d => ({ ...d, description: e.target.value }))} />
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col-reverse sm:flex-row gap-2">
                 <Button onClick={() => updateDevice.mutate({ id: editingDevice.id, data: { device_type: editingDevice.device_type, status: editingDevice.status, description: editingDevice.description } })}
                   disabled={updateDevice.isPending} style={{ background: orange, color: "#fff" }} className="font-bold">
                   {updateDevice.isPending ? "Saving..." : "Save Changes"}
@@ -687,7 +687,7 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
                       </div>
                       <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/35">{t("nfc_admin_permanent_url_write",language)}</p><p className="font-mono text-xs text-orange-400 break-all mt-1">{url}</p></div>
                       <div><p className="text-[10px] uppercase tracking-wider font-bold text-white/25">{t("nfc_admin_activation_secondary",language)}</p><p className="font-mono text-[10px] text-white/40 break-all mt-1">{buildActivationUrl(code)}</p></div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col-reverse sm:flex-row gap-2">
                         <button type="button" onClick={() => { navigator.clipboard?.writeText(url); toast.success(t("nfc_admin_url_copied",language)); }} className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><Copy className="w-3.5 h-3.5" /> {t("nfc_admin_copy_url",language)}</button>
                         <a href={url} target="_blank" rel="noopener noreferrer" className="flex-1 min-h-10 rounded-lg border border-white/10 text-xs font-bold text-white/60 hover:text-white flex items-center justify-center gap-1.5"><ExternalLink className="w-3.5 h-3.5" /> {t("nfc_admin_test_url",language)}</a>
                       </div>
@@ -1209,8 +1209,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
       {/* ── ASSIGN MODAL ── */}
       {assignDevice && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="rounded-2xl p-6 max-w-sm w-full border" style={{ background: navyCard, borderColor: "rgba(255,255,255,0.15)" }}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 sm:max-w-sm w-full max-h-[92dvh] overflow-y-auto overscroll-contain border" style={{ background: navyCard, borderColor: "rgba(255,255,255,0.15)" }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-black text-white">{t("nfc_admin_assign_device",language)}</h3>
@@ -1223,16 +1223,16 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               <DarkSelect
                 value={assignProfileId}
                 onValueChange={setAssignProfileId}
-                placeholder="— Select a profile —"
+                placeholder={language === "fr" ? "— Sélectionner un profil —" : "— Select a profile —"}
                 items={profiles.map(p => ({ value: p.id, label: `${p.display_name} (@${p.username})` }))}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <Button onClick={handleAssign} disabled={!assignProfileId || updateDevice.isPending}
-                style={{ background: orange, color: "#fff" }} className="flex-1 font-bold">
+                style={{ background: orange, color: "#fff" }} className="flex-1 min-h-[44px] font-bold">
                 {updateDevice.isPending ? t("nfc_admin_assigning",language) : t("nfc_admin_assign",language)}
               </Button>
-              <Button variant="outline" onClick={() => setAssignDevice(null)} className="flex-1 border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">{t("nfc_admin_cancel",language)}</Button>
+              <Button variant="outline" onClick={() => setAssignDevice(null)} className="flex-1 min-h-[44px] border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">{t("nfc_admin_cancel",language)}</Button>
             </div>
           </div>
         </div>
@@ -1240,8 +1240,8 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
 
       {/* ── DELETE MODAL ── */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-red-100">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 sm:max-w-sm w-full max-h-[92dvh] overflow-y-auto overscroll-contain shadow-2xl border border-red-100">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
                 <Trash2 className="w-5 h-5 text-red-600" />
@@ -1252,12 +1252,12 @@ export default function NFCDeviceManager({ profiles = [], allNfcDevices = [], cu
               </div>
             </div>
             <p className="text-sm text-slate-600 mb-5">{t("nfc_admin_delete_warning",language)}</p>
-            <div className="flex gap-2">
+            <div className="flex flex-col-reverse sm:flex-row gap-2">
               <Button onClick={() => deleteDevice.mutate(deleteConfirm.id)} disabled={deleteDevice.isPending}
-                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold">
-                {deleteDevice.isPending ? "Deleting..." : "Yes, Delete"}
+                className="flex-1 min-h-[44px] bg-red-600 hover:bg-red-500 text-white font-bold">
+                {deleteDevice.isPending ? (language === "fr" ? "Suppression..." : "Deleting...") : (language === "fr" ? "Oui, supprimer" : "Yes, Delete")}
               </Button>
-              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">{t("nfc_admin_cancel",language)}</Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1 min-h-[44px]">{t("nfc_admin_cancel",language)}</Button>
             </div>
           </div>
         </div>
