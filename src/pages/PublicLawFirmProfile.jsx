@@ -3,8 +3,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Mail, Phone, MessageCircle, MapPin } from "lucide-react";
 import LegalIntakeForm from "@/components/bingoo/LegalIntakeForm";
+import { useI18n } from '@/lib/I18nContext';
 
 export default function PublicLawFirmProfile() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const { username } = useParams();
 
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -36,8 +39,8 @@ export default function PublicLawFirmProfile() {
     enabled: !!profile?.id && profile?.plan === "lawfirm",
   });
 
-  if (profileLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!profile || profile.plan !== "lawfirm") return <div className="min-h-screen flex items-center justify-center text-slate-500">Profile not found</div>;
+  if (profileLoading) return <div className="min-h-screen flex items-center justify-center">{tr('Loading...', 'Chargement…')}</div>;
+  if (!profile || profile.plan !== "lawfirm") return <div className="min-h-screen flex items-center justify-center text-slate-500">{tr('Profile not found', 'Profil introuvable')}</div>;
 
   const coverColor = profile.cover_color || "#0b2149";
 
