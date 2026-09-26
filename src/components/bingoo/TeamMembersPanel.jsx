@@ -31,37 +31,6 @@ const ROLE_OPTIONS = {
 };
 
 // ── UI labels by profile type ─────────────────────────────────────────────────
-const LABELS = {
-  [TYPE_LAWFIRM]: {
-    pageTitle: "Legal Team",
-    addButton: "Add Legal Professional",
-    memberSingular: "Legal Professional",
-    memberPlural: "Legal Professionals",
-    emptyBody: "Add your first legal professional to get started.",
-  },
-  [TYPE_SALON]: {
-    pageTitle: "Salon Team",
-    addButton: "Add Salon Staff",
-    memberSingular: "Staff Member",
-    memberPlural: "Staff Members",
-    emptyBody: "Add your first salon staff member to get started.",
-  },
-  [TYPE_CORPORATE]: {
-    pageTitle: "Team Members",
-    addButton: "Add Team Member",
-    memberSingular: "Team Member",
-    memberPlural: "Team Members",
-    emptyBody: "Add your first team member to get started.",
-  },
-  [TYPE_BUSINESS]: {
-    pageTitle: "Team Members",
-    addButton: "Add Team Member",
-    memberSingular: "Team Member",
-    memberPlural: "Team Members",
-    emptyBody: "Add your first team member to get started.",
-  },
-};
-
 const EMPTY_FORM = {
   name: "", role_type: "", role: "", email: "", phone: "", whatsapp: "",
   bio: "", photo: "", status: "active",
