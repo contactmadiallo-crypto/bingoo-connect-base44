@@ -2,8 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle, ScanLine } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/I18nContext";
 
 export default function QRScanner({ open, onOpenChange, onScan }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === "fr" ? fr : en;
   const [cameraActive, setCameraActive] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
   const videoRef = useRef(null);
@@ -61,13 +64,16 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         if ('BarcodeDetector' in window) {
           startBarcodeDetection();
         } else {
-          toast.error("Votre navigateur ne supporte pas le scan QR");
+          toast.error(tr("QR scanning is not supported on this device.", "Le scan QR n’est pas pris en charge sur cet appareil."));
           onOpenChange(false);
         }
       }
     } catch (err) {
       console.error("Camera error:", err);
-      toast.error("Impossible d'accéder à la caméra");
+      const denied = err?.name === "NotAllowedError" || err?.name === "PermissionDeniedError";
+      toast.error(denied
+        ? tr("Camera access is required to scan QR codes. Allow Camera permission in your device settings.", "L’accès à la caméra est requis pour scanner les codes QR. Autorisez la caméra dans les réglages de votre appareil.")
+        : tr("Unable to open the camera. Please try again.", "Impossible d’ouvrir la caméra. Veuillez réessayer."));
       onOpenChange(false);
     }
   };
@@ -124,7 +130,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
       detectQR();
     } catch (err) {
       console.error("BarcodeDetector error:", err);
-      toast.error("Erreur du scanner");
+      toast.error(tr("QR scanner error. Please try again.", "Erreur du scanner QR. Veuillez réessayer."));
       onOpenChange(false);
     }
   };
@@ -147,7 +153,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         scanningRef.current = false;
         stopCamera();
         
-        const message = tableNumber ? `✓ Table ${tableNumber} - ${restaurantId.substring(0, 8)}...` : '✓ Restaurant détecté!';
+        const message = tableNumber ? `✓ Table ${tableNumber} - ${restaurantId.substring(0, 8)}...` : tr("✓ Restaurant detected!", "✓ Restaurant détecté !");
         toast.success(message);
         
         setTimeout(() => {
@@ -156,11 +162,11 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
           setScanSuccess(false);
         }, 500);
       } else {
-        toast.error("QR invalide - pas de restaurant ID");
+        toast.error(tr("Invalid QR code — restaurant ID is missing.", "Code QR invalide — identifiant du restaurant manquant."));
       }
     } catch (err) {
       console.error("QR parse error:", err);
-      toast.error("QR invalide: " + data.substring(0, 40));
+      toast.error(tr("Invalid QR code: ", "Code QR invalide : ") + data.substring(0, 40));
     }
   };
 
@@ -170,7 +176,7 @@ export default function QRScanner({ open, onOpenChange, onScan }) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 justify-center">
             <ScanLine className="w-6 h-6 text-orange-600" />
-            Scanner le QR Code du Restaurant
+            {tr("Scan Restaurant QR Code", "Scanner le code QR du restaurant")}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
