@@ -23,6 +23,7 @@ import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const PLAN_COLORS = {
   free: "bg-slate-100 text-slate-600",
@@ -279,7 +280,7 @@ export default function AdminDashboard() {
                           : <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: t.profile.cover_color || "#334155" }}>{t.profile.display_name?.charAt(0) || "?"}</div>}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-white truncate">{t.profile.display_name}</p>
-                          <a href={`/p/${t.profile.username}`} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{t.profile.username}</a>
+                          <a href={publicProfileUrl(t.profile.username)} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{t.profile.username}</a>
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>{t.count} {t("admin_events",language)}</span>
                       </div>
@@ -347,7 +348,7 @@ export default function AdminDashboard() {
                               </div>
                             </td>
                             <td className="px-5 py-4">
-                              <a href={`/p/${p.username}`} target="_blank" rel="noopener" className="text-sm font-mono hover:underline" style={{ color: "#f97316" }}>/{p.username}</a>
+                              <a href={publicProfileUrl(p.username)} target="_blank" rel="noopener" className="text-sm font-mono hover:underline" style={{ color: "#f97316" }}>/{p.username}</a>
                             </td>
                             <td className="px-5 py-4">
                               <MobileSelect
@@ -370,7 +371,7 @@ export default function AdminDashboard() {
                             <td className="px-5 py-4 text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>{p.company_name || "—"}</td>
                             <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{owner?.email || p.email || "—"}</td>
                             <td className="px-5 py-4">
-                              <a href={`/p/${p.username}`} target="_blank" rel="noopener">
+                              <a href={publicProfileUrl(p.username)} target="_blank" rel="noopener">
                                 <Button size="sm" className="text-xs min-h-[36px] px-3 font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>{language === "fr" ? "Voir" : "View"}</Button>
                               </a>
                             </td>
