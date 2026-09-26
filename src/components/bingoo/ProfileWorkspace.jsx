@@ -370,21 +370,21 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
 
   // All field-type links that have a value
   const FIELD_LINKS = [
-    { key: "phone",           label: "Phone",        Icon: BIPhone,        category: "Contact" },
-    { key: "whatsapp_number", label: "WhatsApp",      Icon: BIWhatsApp,     category: "Contact" },
-    { key: "email",           label: "Email",         Icon: BIEmail,        category: "Contact" },
-    { key: "website",         label: "Website",       Icon: BIWebsite,      category: "Business" },
-    { key: "location",        label: "Location",      Icon: BILocation,     category: "Business" },
-    { key: "instagram_url",   label: "Instagram",     Icon: BIInstagram,    category: "Social" },
-    { key: "linkedin_url",    label: "LinkedIn",      Icon: BILinkedIn,     category: "Social" },
-    { key: "facebook_url",    label: "Facebook",      Icon: BIFacebook,     category: "Social" },
-    { key: "tiktok_url",      label: "TikTok",        Icon: BITikTok,       category: "Social" },
-    { key: "youtube_url",     label: "YouTube",       Icon: BIYouTube,      category: "Social" },
-    { key: "payment_link",    label: "PayPal",        Icon: BIPayPal,       category: "Payment" },
-    { key: "cashapp_link",    label: "Cash App",      Icon: BICashApp,      category: "Payment" },
-    { key: "zelle_link",      label: "Zelle",         Icon: BIZelle,        category: "Payment" },
-    { key: "wave_link",       label: "Wave",          Icon: BIWave,         category: "Payment" },
-    { key: "orangemoney_link",label: "Orange Money",  Icon: BIOrangeMoney,  category: "Payment" },
+    { key: "phone",           label: t("workspace_phone", lang),        Icon: BIPhone,        category: t("workspace_category_contact", lang) },
+    { key: "whatsapp_number", label: "WhatsApp",      Icon: BIWhatsApp,     category: t("workspace_category_contact", lang) },
+    { key: "email",           label: t("workspace_email", lang),         Icon: BIEmail,        category: t("workspace_category_contact", lang) },
+    { key: "website",         label: t("workspace_website", lang),       Icon: BIWebsite,      category: t("workspace_category_business", lang) },
+    { key: "location",        label: t("workspace_location", lang),      Icon: BILocation,     category: t("workspace_category_business", lang) },
+    { key: "instagram_url",   label: "Instagram",     Icon: BIInstagram,    category: t("workspace_category_social", lang) },
+    { key: "linkedin_url",    label: "LinkedIn",      Icon: BILinkedIn,     category: t("workspace_category_social", lang) },
+    { key: "facebook_url",    label: "Facebook",      Icon: BIFacebook,     category: t("workspace_category_social", lang) },
+    { key: "tiktok_url",      label: "TikTok",        Icon: BITikTok,       category: t("workspace_category_social", lang) },
+    { key: "youtube_url",     label: "YouTube",       Icon: BIYouTube,      category: t("workspace_category_social", lang) },
+    { key: "payment_link",    label: "PayPal",        Icon: BIPayPal,       category: t("workspace_category_payment", lang) },
+    { key: "cashapp_link",    label: "Cash App",      Icon: BICashApp,      category: t("workspace_category_payment", lang) },
+    { key: "zelle_link",      label: "Zelle",         Icon: BIZelle,        category: t("workspace_category_payment", lang) },
+    { key: "wave_link",       label: "Wave",          Icon: BIWave,         category: t("workspace_category_payment", lang) },
+    { key: "orangemoney_link",label: "Orange Money",  Icon: BIOrangeMoney,  category: t("workspace_category_payment", lang) },
   ].filter(r => liveForm[r.key]);
 
   const totalCount = FIELD_LINKS.length + links.length;
@@ -610,7 +610,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
             <div className="flex justify-center">
               <div className={`p-4 rounded-2xl text-center ${isDark ? "bg-slate-800" : "bg-slate-50"}`}>
                 {previewDataUrl ? (
-                  <img src={previewDataUrl} alt="QR Code preview" className="rounded-xl mx-auto" style={{ width: 200, height: "auto" }} />
+                  <img src={previewDataUrl} alt={t("qr_alt_preview", lang)} className="rounded-xl mx-auto" style={{ width: 200, height: "auto" }} />
                 ) : (
                   <div className="w-[200px] h-[250px] flex items-center justify-center">
                     <span className={`text-xs ${mutedText}`}>{t("studio_generating_preview", lang)}</span>
@@ -671,7 +671,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className={`text-xs font-bold ${headText}`}>{t("studio_logo_watermark", lang)}</p>
-                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>Professional</span>
+                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-full text-white" style={{ background: "#f97316" }}>{t("profile_type_professional_plan", lang)}</span>
                   </div>
                   <p className={`text-xs mt-0.5 ${mutedText}`}>
                     {!isPro ? t("studio_upgrade_logo_qr", lang)
@@ -687,7 +687,7 @@ function SharePanel({ profileUrl, profileQrUrl, isDark, copiedUrl, onCopy, lang,
               </div>
               {isPro && hasLogo && logoWatermark && (
                 <div className="mt-2 flex items-center gap-2">
-                  <img src={profile.company_logo} alt="Logo preview" className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
+                  <img src={profile.company_logo} alt={t("qr_alt_logo", lang)} className="w-8 h-8 rounded-lg object-contain border border-slate-200 bg-white" />
                   <p className={`text-xs ${mutedText}`}>{t("studio_logo_embedded", lang)}</p>
                 </div>
               )}
@@ -789,7 +789,7 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
           <Input className={inputCls}
             value={liveForm.username || ""}
             onChange={e => setVal("username", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
-            placeholder="yourusername" />
+            placeholder={t("workspace_username_ph", lang)} />
         </div>
       </div>
 
@@ -812,7 +812,7 @@ function SettingsPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, s
       <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5 space-y-3`}>
         <p className={`font-bold text-sm ${headText}`}>{t("language_region", lang)}</p>
         <div className="flex gap-2">
-          {[{ v: "en", label: "English" }, { v: "fr", label: "Français" }].map(o => {
+          {[{ v: "en", label: t("workspace_language_english", lang) }, { v: "fr", label: t("workspace_language_french", lang) }].map(o => {
             const sel = (liveForm.language || "en") === o.v;
             return (
               <button type="button" key={o.v}
@@ -1110,7 +1110,7 @@ export default function ProfileWorkspace({
     <div className="flex flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#0a0c14" : "#F7F9FC" }}>
       {/* ── Figma Make top bar ── */}
       <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-2.5 sm:py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
-        <button type="button" onClick={onBack} aria-label="Back to profiles"
+        <button type="button" onClick={onBack} aria-label={t("workspace_back_profiles", lang)}
           className={`w-[34px] h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
           <ChevronLeft className="w-[15px] h-[15px]" />
         </button>
@@ -1125,7 +1125,7 @@ export default function ProfileWorkspace({
         </div>
 
         {profileUrl && (
-          <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label="Preview public profile"
+          <button type="button" onClick={() => setMobilePreviewOpen(true)} aria-label={t("workspace_preview_public", lang)}
             className={`h-[34px] px-2.5 sm:px-3 rounded-lg border flex items-center justify-center gap-1.5 flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#64748B]"}`}>
             <Eye className="w-[14px] h-[14px]" />
             <span className="hidden sm:inline text-[11px] font-bold">{t("studio_public_profile", lang)}</span>
@@ -1277,14 +1277,14 @@ export default function ProfileWorkspace({
                 <div className="flex items-center gap-2 px-3 py-3 flex-shrink-0" style={{ background: isDark ? "#13162a" : "#fff", borderBottom: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e2e8f0", paddingTop: "calc(.75rem + env(safe-area-inset-top))" }}>
                   <button type="button" onClick={() => setMobilePreviewOpen(false)}
                     className={`h-10 px-3 rounded-xl flex items-center gap-1.5 flex-shrink-0 text-sm font-bold transition-colors ${isDark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-700"}`}
-                    aria-label="Back to editor">
+                    aria-label={t("workspace_back_editor", lang)}>
                     <ChevronLeft className="w-4 h-4" /> Back
                   </button>
                   <p className={`font-black text-sm flex-1 text-center ${isDark ? "text-white" : "text-slate-900"}`}>{t("studio_live_preview", lang)}</p>
                   {profileUrl ? (
                     <a href={profileUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}
                       className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-all ${isDark ? "border-white/10 text-white/70" : "border-slate-200 text-slate-600"}`}
-                      aria-label="Open public profile">
+                      aria-label={t("workspace_open_public", lang)}>
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   ) : <span className="w-10" />}
