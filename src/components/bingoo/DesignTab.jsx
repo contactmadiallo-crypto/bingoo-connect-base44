@@ -18,33 +18,6 @@ const PREMIUM_THEME_IDS = new Set([
   "animated_gradient", "video_bg", "parallax"
 ]);
 
-function LayoutCard({ layout, isActive, saving, isDark, headText, subText, cardBase, profileUrl, onSelect, isPremiumTheme, language }) {
-  return (
-    <div className={`relative rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${cardBase} ${
-      isActive
-        ? isDark ? "ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent" : "ring-2 ring-orange-500 ring-offset-2"
-        : ""
-    }`} onClick={() => onSelect(layout.id)}>
-      {isPremiumTheme && !isActive && (
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-amber-500 text-white text-[11px] font-black px-2 py-0.5 rounded-full shadow">
-          <Sparkles className="w-2.5 h-2.5" /> {t("layouts_professional",language)}
-        </div>
-      )}
-      {isActive && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 text-white text-xs font-black px-2.5 py-1 rounded-full shadow" style={{ background: "#f97316" }}>
-          <Check className="w-3 h-3" /> {t("team_active",language)}
-        </div>
-      )}
-      {/* Real layout preview — same component as public profile */}
-      <LayoutMiniPreview layoutId={layout.id} isSelected={isActive} previewHeight={220} />
-      <div className={`p-3 border-t ${isDark ? "border-white/10" : "border-slate-100"}`}>
-        <p className={`font-black text-sm ${headText}`}>{layout.name}</p>
-        <p className={`text-[11px] mt-0.5 ${subText}`}>{layout.desc}</p>
-      </div>
-    </div>
-  );
-}
-
 export default function DesignTab({ profile, user, onSaved }) {
   const { language } = useI18n();
   const { isDark } = useBingooTheme();
@@ -60,7 +33,6 @@ export default function DesignTab({ profile, user, onSaved }) {
   const { plan: subPlan } = usePlan();
   const isPro = isAdmin || (subPlan && subPlan !== 'free');
   const currentLayout = profile?.layout || "classic";
-  const color = profile?.cover_color ?? "#2563eb";
   const profileUrl = publicProfileUrl(profile?.username);
 
   const headText = isDark ? "text-white" : "text-slate-900";
