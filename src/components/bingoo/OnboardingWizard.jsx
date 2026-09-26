@@ -9,6 +9,21 @@ import { InfinityMark } from "@/components/mockups/brand/InfinityMark";
 import { base44 } from "@/api/base44Client";
 import LayoutPicker from "./LayoutPicker";
 import { LAYOUT_CATALOG } from "@/lib/profileLayouts";
+import { useI18n } from '@/lib/I18nContext';
+
+const FR_ONBOARDING = {
+  'Individual':'Individuel','Business':'Entreprise','Free':'Gratuit','Professional':'Professionnel','Salon / Service':'Salon / Service','Law Firm':'Cabinet juridique','Corporate':'Entreprise',
+  'A personal digital identity for networking and sharing.':'Une identité numérique personnelle pour le réseautage et le partage.',
+  'A company, salon, law firm, team, or organization.':'Une entreprise, un salon, un cabinet juridique, une équipe ou une organisation.',
+  'Basic profile, contact form, QR code, and up to 5 links.':'Profil de base, formulaire de contact, code QR et jusqu’à 5 liens.',
+  'Portfolio, media, analytics, appointments, premium layouts, and more.':'Portfolio, médias, analyses, rendez-vous, mises en page premium et plus encore.',
+  'Business profile, team tools, services, leads, and advanced analytics.':'Profil entreprise, outils d’équipe, services, prospects et analyses avancées.',
+  'Services, staff profiles, gallery, reviews, and booking.':'Services, profils du personnel, galerie, avis et réservation.',
+  'Attorneys, practice areas, legal intake, offices, and CRM.':'Avocats, domaines de pratique, accueil juridique, bureaux et CRM.',
+  'Employee profiles, team administration, attendance, and API access.':'Profils employés, administration d’équipe, présence et accès API.',
+  '14-day free trial':'Essai gratuit de 14 jours'
+};
+const localizeOnboarding = (value, language) => language === 'fr' ? (FR_ONBOARDING[value] || value) : value;
 
 const ACCOUNT_TYPES = [
   {
@@ -111,6 +126,8 @@ function readPending() {
 }
 
 export default function OnboardingWizard({ userName, userId, currentPlan = "free", onCreateProfile, onDismiss }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const pending = readPending();
   const returnedFromCheckout = new URLSearchParams(window.location.search).get("subscription") === "success";
   const [step, setStep] = useState(returnedFromCheckout ? 2 : 0);
@@ -165,7 +182,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
 
     if (window.self !== window.top) {
       persistPending();
-      setCheckoutError("Stripe checkout cannot open inside Base44 Preview. Open the published Bingoo app in a new browser tab, sign in, and select the plan there.");
+      setCheckoutError(tr('Stripe checkout cannot open inside Base44 Preview. Open the published Bingoo app in a new browser tab, sign in, and select the plan there.', 'Le paiement Stripe ne peut pas s’ouvrir dans l’aperçu Base44. Ouvrez l’application Bingoo publiée dans un nouvel onglet, connectez-vous puis choisissez le forfait.'));
       return;
     }
 
@@ -181,7 +198,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
           cancel_url: `${window.location.origin}/bingoo?onboarding=resume&subscription=canceled`,
         }),
         new Promise((_, reject) => {
-          window.setTimeout(() => reject(new Error("Stripe checkout took too long to respond. Please try again.")), 20000);
+          window.setTimeout(() => reject(new Error(tr('Stripe checkout took too long to respond. Please try again.', 'Le paiement Stripe met trop de temps à répondre. Veuillez réessayer.'))), 20000);
         }),
       ]);
       const data = result?.data || result;
@@ -191,14 +208,14 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
       } else if (data?.url) {
         window.location.assign(data.url);
       } else {
-        throw new Error("Checkout could not be started.");
+        throw new Error(tr('Checkout could not be started.', 'Le paiement n’a pas pu être démarré.'));
       }
     } catch (error) {
       setCheckoutError(
         error?.response?.data?.error ||
         error?.data?.error ||
         error?.message ||
-        "Checkout could not be started. Please try again."
+        tr('Checkout could not be started. Please try again.', 'Le paiement n’a pas pu être démarré. Veuillez réessayer.')
       );
       setCheckoutLoading(false);
     }
@@ -237,7 +254,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
         className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[94vh] flex flex-col"
       >
         <div className="h-1.5 w-full" style={{ background: "linear-gradient(to right, #0b2149, #f97316)" }} />
-        <button onClick={handleDismiss} className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:bg-slate-100 z-10" aria-label="Close onboarding">
+        <button onClick={handleDismiss} className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:bg-slate-100 z-10" aria-label={tr('Close onboarding', 'Fermer l’intégration')}>
           <X className="w-4 h-4" />
         </button>
 
@@ -276,7 +293,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
             {step === 0 && (
               <motion.div key="account" custom={dir} variants={slideVariants} initial="enter" animate="center" exit="exit" className="px-8 pt-5 pb-6">
                 <h2 className="text-2xl font-black text-slate-900 text-center">Welcome{userName ? `, ${userName.split(" ")[0]}` : ""}!</h2>
-                <p className="text-sm text-slate-500 text-center mt-1 mb-5">First, choose how you will use Bingoo Connect.</p>
+                <p className="text-sm text-slate-500 text-center mt-1 mb-5">{tr('First, choose how you will use Bingoo Connect.', 'Choisissez d’abord comment vous utiliserez Bingoo Connect.')}</p>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {ACCOUNT_TYPES.map((option) => (
                     <button key={option.id} onClick={() => selectAccountType(option.id)}
@@ -297,7 +314,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
 
             {step === 1 && (
               <motion.div key="plan" custom={dir} variants={slideVariants} initial="enter" animate="center" exit="exit" className="px-8 pt-4 pb-6">
-                <h2 className="text-2xl font-black text-slate-900 text-center">Choose your plan</h2>
+                <h2 className="text-2xl font-black text-slate-900 text-center">{tr('Choose your plan', 'Choisissez votre forfait')}</h2>
                 <p className="text-sm text-slate-500 text-center mt-1 mb-4">
                   {accountType === "individual" ? "Start free or unlock Professional features." : "Choose the plan built for your organization."}
                 </p>
@@ -334,8 +351,8 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
 
             {step === 2 && (
               <motion.div key="layout" custom={dir} variants={slideVariants} initial="enter" animate="center" exit="exit" className="px-6 pt-4 pb-6">
-                <h2 className="text-2xl font-black text-slate-900 text-center">Pick your official layout</h2>
-                <p className="text-sm text-slate-500 text-center mt-1 mb-4">The same layouts available in the profile editor—swipe left or right.</p>
+                <h2 className="text-2xl font-black text-slate-900 text-center">{tr('Pick your official layout', 'Choisissez votre mise en page officielle')}</h2>
+                <p className="text-sm text-slate-500 text-center mt-1 mb-4">{tr('The same layouts available in the profile editor—swipe left or right.', 'Les mêmes mises en page que dans l’éditeur de profil — balayez vers la gauche ou la droite.')}</p>
                 <LayoutPicker
                   value={layoutChoice}
                   onChange={setLayoutChoice}
@@ -349,19 +366,19 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 bg-[#0b2149]">
                   <Rocket className="w-7 h-7 text-white" />
                 </div>
-                <h2 className="text-2xl font-black text-slate-900">Ready to launch</h2>
-                <p className="text-sm text-slate-500 mt-1 mb-5">Create your profile now, then add its basic information.</p>
+                <h2 className="text-2xl font-black text-slate-900">{tr('Ready to launch', 'Prêt à démarrer')}</h2>
+                <p className="text-sm text-slate-500 mt-1 mb-5">{tr('Create your profile now, then add its basic information.', 'Créez votre profil maintenant, puis ajoutez ses informations de base.')}</p>
                 <div className="w-full space-y-2 mb-5">
                   <div className="flex justify-between p-3 rounded-xl bg-slate-50 text-xs">
-                    <span className="font-semibold text-slate-500">Account</span>
-                    <span className="font-black text-slate-900">{ACCOUNT_TYPES.find((item) => item.id === accountType)?.label}</span>
+                    <span className="font-semibold text-slate-500">{tr('Account', 'Compte')}</span>
+                    <span className="font-black text-slate-900">{localizeOnboarding(ACCOUNT_TYPES.find((item) => item.id === accountType)?.label, language)}</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-xl bg-slate-50 text-xs">
-                    <span className="font-semibold text-slate-500">Plan</span>
+                    <span className="font-semibold text-slate-500">{tr('Plan', 'Forfait')}</span>
                     <span className="font-black text-slate-900">{selectedPlanInfo?.label}</span>
                   </div>
                   <div className="flex justify-between p-3 rounded-xl bg-slate-50 text-xs">
-                    <span className="font-semibold text-slate-500">Layout</span>
+                    <span className="font-semibold text-slate-500">{tr('Layout', 'Mise en page')}</span>
                     <span className="font-black text-slate-900">{selectedLayout?.name}</span>
                   </div>
                 </div>
@@ -381,7 +398,7 @@ export default function OnboardingWizard({ userName, userId, currentPlan = "free
             </button>
             <Button onClick={handleContinue} disabled={checkoutLoading}
               className="text-white font-bold px-7 gap-2 bg-[#0b2149]">
-              {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Opening checkout</> : <>Continue <ArrowRight className="w-4 h-4" /></>}
+              {checkoutLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> {tr('Opening checkout', 'Ouverture du paiement')}</> : <>{tr('Continue', 'Continuer')} <ArrowRight className="w-4 h-4" /></>}
             </Button>
           </div>
         )}
