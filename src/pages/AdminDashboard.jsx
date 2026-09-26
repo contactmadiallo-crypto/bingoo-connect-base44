@@ -372,7 +372,7 @@ export default function AdminDashboard() {
                             <td className="px-5 py-4 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{owner?.email || p.email || "—"}</td>
                             <td className="px-5 py-4">
                               <a href={publicProfileUrl(p.username)} target="_blank" rel="noopener">
-                                <Button size="sm" className="text-xs min-h-[36px] px-3 font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>{language === "fr" ? "Voir" : "View"}</Button>
+                                <Button size="sm" className="text-xs min-h-[44px] px-3 font-bold" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316", border: "1px solid rgba(249,115,22,0.3)" }}>{language === "fr" ? "Voir" : "View"}</Button>
                               </a>
                             </td>
                           </tr>
