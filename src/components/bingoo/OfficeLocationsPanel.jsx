@@ -9,7 +9,7 @@ import { dbOp } from "@/lib/dbDebug";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 
-export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
+export default function OfficeLocationsPanel({ profileId, isDark }) {
   const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -31,8 +31,6 @@ export default function OfficeLocationsPanel({ profileId, isDark, onSaved }) {
     staleTime: 0,
     gcTime: 0,
   });
-
-  const refetchLocations = () => qc.refetchQueries({ queryKey: ["office-locations", profileId] });
 
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("OfficeLocation", "create", profileId,
