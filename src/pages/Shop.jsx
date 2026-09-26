@@ -25,7 +25,7 @@ import FactoryProductMedia from '@/components/shop/FactoryProductMedia';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
-import { isNativeApp } from '@/lib/nativePlatform';
+import { isInstalledAppShell } from '@/lib/nativePlatform';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -151,7 +151,7 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
 
 export default function Shop() {
   const { language } = useI18n();
-  const nativeApp = isNativeApp();
+  const nativeApp = isInstalledAppShell();
   const [cart, setCart] = useState(getCartCount());
   const [added, setAdded] = useState(null);
   const [category, setCategory] = useState('all');
