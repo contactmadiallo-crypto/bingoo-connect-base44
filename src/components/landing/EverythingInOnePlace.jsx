@@ -18,6 +18,8 @@ import {
   Wallet,
   Wifi,
 } from "lucide-react";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const B = {
   navy: "#0b2149",
@@ -31,6 +33,12 @@ const B = {
   red: "#ef4444",
   slate: "#64748b",
 };
+
+
+function Tx({ k }) {
+  const { language } = useI18n();
+  return <>{t(k, language)}</>;
+}
 
 const reveal = {
   initial: { opacity: 0, y: 24 },
@@ -67,17 +75,17 @@ function Stat({ icon: Icon, label, value, trend, color }) {
 
 function DashboardShowcase() {
   const nav = [
-    [Briefcase, "My Profile", true],
-    [Users, "Leads"],
-    [BarChart3, "Analytics"],
-    [Calendar, "Appointments"],
-    [Wifi, "NFC Devices"],
-    [QrCode, "QR Sharing"],
-    [Wallet, "Wallet"],
-    [Shield, "My Assets"],
+    [Briefcase, <Tx k="landing_my_profile" />, true],
+    [Users, <Tx k="landing_leads" />],
+    [BarChart3, <Tx k="landing_analytics" />],
+    [Calendar, <Tx k="landing_appointments" />],
+    [Wifi, <Tx k="landing_nfc_devices" />],
+    [QrCode, <Tx k="landing_qr_sharing" />],
+    [Wallet, <Tx k="landing_wallet" />],
+    [Shield, <Tx k="landing_my_assets" />],
   ];
 
-  const quickActions = ["Share My Profile", "Create QR Code", "Add NFC Device", "View Analytics"];
+  const quickActions = [<Tx k="landing_share_profile" />, <Tx k="landing_create_qr" />, <Tx k="landing_add_nfc" />, <Tx k="landing_view_analytics" />];
 
   return (
     <motion.div {...reveal} className="lg:col-span-6">
@@ -115,26 +123,26 @@ function DashboardShowcase() {
           <div className="min-w-0 flex-1 p-4 md:p-6">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs font-semibold" style={{ color: B.slate }}>Here is what is happening with your business</p>
-                <h3 className="mt-1 text-xl font-black md:text-2xl" style={{ color: B.navy }}>One dashboard. Your whole network.</h3>
+                <p className="text-xs font-semibold" style={{ color: B.slate }}><Tx k="landing_dash_happening" /></p>
+                <h3 className="mt-1 text-xl font-black md:text-2xl" style={{ color: B.navy }}><Tx k="landing_dash_network" /></h3>
               </div>
               <div className="inline-flex items-center gap-2 self-start rounded-xl border px-3 py-2 text-xs font-bold" style={{ borderColor: "#e7ecf3", color: B.navy }}>
-                <Sparkles className="h-4 w-4 text-amber-500" /> Live & connected
+                <Sparkles className="h-4 w-4 text-amber-500" / > <Tx k="landing_live_connected" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <Stat icon={TrendingUp} label="Profile Views" value="1,253" trend="+18%" color={B.blue} />
-              <Stat icon={Wifi} label="NFC Taps" value="486" trend="+12%" color={B.orange} />
-              <Stat icon={Users} label="Leads" value="94" trend="+24%" color={B.green} />
-              <Stat icon={Calendar} label="Appointments" value="37" trend="+9%" color="#7c3aed" />
+              <Stat icon={TrendingUp} label={<Tx k="landing_profile_views" />} value="1,253" trend="+18%" color={B.blue} />
+              <Stat icon={Wifi} label={<Tx k="landing_nfc_taps" />} value="486" trend="+12%" color={B.orange} />
+              <Stat icon={Users} label=<Tx k="landing_leads" /> value="94" trend="+24%" color={B.green} />
+              <Stat icon={Calendar} label=<Tx k="landing_appointments" /> value="37" trend="+9%" color="#7c3aed" />
             </div>
 
             <div className="mt-4 grid gap-3 lg:grid-cols-[1.2fr_1fr_.9fr]">
               <div className="rounded-2xl border p-4" style={{ borderColor: "#edf1f6" }}>
                 <div className="mb-3 flex items-center justify-between">
-                  <p className="text-xs font-black" style={{ color: B.navy }}>Engagement — 7 days</p>
-                  <span className="text-[10px] font-semibold" style={{ color: B.slate }}>Taps + Views</span>
+                  <p className="text-xs font-black" style={{ color: B.navy }}><Tx k="landing_engagement_7" /></p>
+                  <span className="text-[10px] font-semibold" style={{ color: B.slate }}><Tx k="landing_taps_views" /></span>
                 </div>
                 <div className="flex h-32 items-end gap-2">
                   {[42, 72, 55, 84, 62, 92, 76].map((height, i) => (
@@ -159,12 +167,12 @@ function DashboardShowcase() {
               </div>
 
               <div className="rounded-2xl border p-4" style={{ borderColor: "#edf1f6" }}>
-                <p className="mb-3 text-xs font-black" style={{ color: B.navy }}>Recent Leads</p>
+                <p className="mb-3 text-xs font-black" style={{ color: B.navy }}><Tx k="landing_recent_leads" /></p>
                 <div className="space-y-3">
                   {[
-                    ["Jordan Miles", "NFC", "New", B.orange],
-                    ["Sara Patel", "QR", "Contacted", B.blue],
-                    ["Leo Bennett", "Profile", "Qualified", B.green],
+                    ["Jordan Miles", "NFC", <Tx k="landing_new" />, B.orange],
+                    ["Sara Patel", "QR", <Tx k="landing_contacted" />, B.blue],
+                    ["Leo Bennett", <Tx k="landing_profile_source" />, <Tx k="landing_qualified" />, B.green],
                   ].map(([name, source, status, color]) => (
                     <div key={name} className="flex items-center gap-2">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-black text-white" style={{ background: B.navy }}>{name.split(" ").map(x => x[0]).join("")}</div>
@@ -179,7 +187,7 @@ function DashboardShowcase() {
               </div>
 
               <div className="rounded-2xl p-4 text-white" style={{ background: `linear-gradient(160deg, ${B.navy}, ${B.navyDark})` }}>
-                <p className="mb-3 text-xs font-black">Quick Actions</p>
+                <p className="mb-3 text-xs font-black"><Tx k="landing_quick_actions" /></p>
                 <div className="space-y-2">
                   {quickActions.map((action) => (
                     <div key={action} className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2.5 text-[10px] font-bold">
@@ -192,11 +200,11 @@ function DashboardShowcase() {
 
             <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-5">
               {[
-                ["1", "Share", "Tap NFC or scan QR"],
-                ["2", "Connect", "Profile opens instantly"],
-                ["3", "Capture", "Lead saved automatically"],
-                ["4", "Follow up", "Book or message"],
-                ["5", "Grow", "Measure what works"],
+                ["1", <Tx k="landing_share" />, <Tx k="landing_tap_qr_copy" />],
+                ["2", <Tx k="landing_connect" />, <Tx k="landing_profile_opens" />],
+                ["3", <Tx k="landing_capture" />, <Tx k="landing_lead_saved" />],
+                ["4", <Tx k="landing_follow_up" />, <Tx k="landing_book_message" />],
+                ["5", <Tx k="landing_grow" />, <Tx k="landing_measure_works" />],
               ].map(([n, title, text]) => (
                 <div key={title} className="rounded-xl border p-3" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
                   <span className="text-[10px] font-black text-orange-500">0{n}</span>
@@ -219,7 +227,7 @@ function ProfileCard() {
         <div className="p-5">
           <div className="mb-4 flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500"><Briefcase className="h-5 w-5" /></div>
-            <div><h3 className="font-black" style={{ color: B.navy }}>Professional Profile</h3><p className="text-sm" style={{ color: B.slate }}>Everything someone needs to connect with you.</p></div>
+            <div><h3 className="font-black" style={{ color: B.navy }}><Tx k="landing_prof_profile" /></h3><p className="text-sm" style={{ color: B.slate }}><Tx k="landing_prof_profile_copy" /></p></div>
           </div>
 
           <div className="overflow-visible rounded-2xl border bg-white" style={{ borderColor: "#e7ecf3" }}>
@@ -235,16 +243,16 @@ function ProfileCard() {
                   <p className="text-xs font-semibold" style={{ color: B.slate }}>Brand Strategist · Rivera Studio</p>
                   <p className="mt-1 flex items-center gap-1 text-[10px]" style={{ color: B.slate }}><MapPin className="h-3 w-3" /> Austin, TX</p>
                 </div>
-                <button className="rounded-xl bg-[#0b2149] px-3 py-2 text-[10px] font-black text-white">Save Contact</button>
+                <button className="rounded-xl bg-[#0b2149] px-3 py-2 text-[10px] font-black text-white"><Tx k="landing_save_contact" /></button>
               </div>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {["Branding", "Strategy", "Web Design"].map((x) => <span key={x} className="rounded-full bg-orange-50 px-2 py-1 text-[9px] font-black text-orange-500">{x}</span>)}
+                {[<Tx k="landing_branding" />, <Tx k="landing_strategy" />, <Tx k="landing_web_design" />].map((x) => <span key={x} className="rounded-full bg-orange-50 px-2 py-1 text-[9px] font-black text-orange-500">{x}</span>)}
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-2">
-                <button className="flex items-center justify-center gap-1 rounded-xl bg-orange-500 py-2.5 text-[10px] font-black text-white"><Calendar className="h-3 w-3" /> Book Appointment</button>
-                <button className="rounded-xl border py-2.5 text-[10px] font-black" style={{ borderColor: "#e7ecf3", color: B.navy }}>Share Profile</button>
+                <button className="flex items-center justify-center gap-1 rounded-xl bg-orange-500 py-2.5 text-[10px] font-black text-white"><Calendar className="h-3 w-3" /> <Tx k="landing_book_appointment" /></button>
+                <button className="rounded-xl border py-2.5 text-[10px] font-black" style={{ borderColor: "#e7ecf3", color: B.navy }}><Tx k="landing_share_profile_short" /></button>
               </div>
 
               <div className="mt-3 flex justify-center gap-2">
@@ -263,7 +271,7 @@ function NfcCard() {
     <motion.div {...reveal} className="lg:col-span-3">
       <Shell className="h-full">
         <div className="p-5">
-          <div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500"><Wifi className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color: B.navy }}>One-Tap NFC + QR</h3><p className="text-sm" style={{ color: B.slate }}>Share your business in seconds.</p></div></div>
+          <div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500"><Wifi className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color: B.navy }}><Tx k="landing_one_tap_nfc" /></h3><p className="text-sm" style={{ color: B.slate }}><Tx k="landing_share_seconds" /></p></div></div>
           <div className="flex min-h-[220px] items-center justify-around rounded-2xl border bg-[#fbfcfe] p-5" style={{ borderColor: "#e7ecf3" }}>
             <motion.div animate={{ y: [0, -5, 0], rotate: [-5, -2, -5] }} transition={{ duration: 3, repeat: Infinity }} className="relative h-24 w-36 rounded-xl p-3 text-white shadow-xl" style={{ background: `linear-gradient(145deg, ${B.navyDark}, ${B.navyLight})`, boxShadow: "0 18px 36px rgba(7,26,61,.25), inset 0 1px 0 rgba(255,255,255,.12)" }}>
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500 text-lg font-black">∞</div><p className="mt-2 text-xs font-black">Bingoo</p><Wifi className="absolute right-3 top-3 h-4 w-4 text-orange-400" />
@@ -271,7 +279,7 @@ function NfcCard() {
             <div className="flex gap-1">{[0,1,2].map(i => <motion.span key={i} animate={{ opacity: [.2,1,.2], scale: [.8,1.2,.8] }} transition={{ repeat: Infinity, duration: 1.4, delay: i*.18 }} className="h-2 w-2 rounded-full bg-orange-500" />)}</div>
             <div className="rounded-2xl border-2 bg-white p-2" style={{ borderColor: B.navy }}><QrCode className="h-20 w-20" style={{ color: B.navy }} /></div>
           </div>
-          <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2"><Check className="h-4 w-4 text-emerald-600" /><span className="text-xs font-black" style={{ color: B.navy }}>Profile opened instantly</span></div>
+          <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2"><Check className="h-4 w-4 text-emerald-600" /><span className="text-xs font-black" style={{ color: B.navy }}><Tx k="landing_profile_opened" /></span></div>
         </div>
       </Shell>
     </motion.div>
@@ -279,28 +287,28 @@ function NfcCard() {
 }
 
 function LeadCard() {
-  const leads = [["Jordan Miles","NFC","New",B.orange],["Sara Patel","QR","Contacted",B.blue],["Leo Bennett","Profile","Qualified",B.green]];
+  const leads = [["Jordan Miles","NFC",<Tx k="landing_new" />,B.orange],["Sara Patel","QR",<Tx k="landing_contacted" />,B.blue],["Leo Bennett",<Tx k="landing_profile_source" />,<Tx k="landing_qualified" />,B.green]];
   return (
     <motion.div {...reveal} className="lg:col-span-2">
-      <Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100"><Users className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}>Lead Management</h3><p className="text-sm" style={{ color:B.slate }}>Know who connected and what to do next.</p></div></div>
-      <div className="mb-3 flex items-center gap-2 rounded-xl bg-orange-50 px-3 py-2"><Bell className="h-4 w-4 text-orange-500" /><span className="text-[10px] font-black" style={{ color:B.navy }}>New lead captured automatically</span></div>
-      <div className="space-y-2">{leads.map(([name,source,status,color]) => <div key={name} className="rounded-xl border p-3" style={{ borderColor:"#edf1f6" }}><div className="flex items-center gap-2"><div className="flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-black text-white" style={{ background:B.navy }}>{name.split(" ").map(x=>x[0]).join("")}</div><div className="min-w-0 flex-1"><p className="text-xs font-black" style={{ color:B.navy }}>{name}</p><p className="text-[9px]" style={{ color:B.slate }}>{source} connection</p></div><span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background:color }}>{status}</span></div></div>)}</div></div></Shell>
+      <Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100"><Users className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}><Tx k="landing_lead_management" /></h3><p className="text-sm" style={{ color:B.slate }}><Tx k="landing_lead_management_copy" /></p></div></div>
+      <div className="mb-3 flex items-center gap-2 rounded-xl bg-orange-50 px-3 py-2"><Bell className="h-4 w-4 text-orange-500" /><span className="text-[10px] font-black" style={{ color:B.navy }}><Tx k="landing_new_lead_auto" /></span></div>
+      <div className="space-y-2">{leads.map(([name,source,status,color]) => <div key={name} className="rounded-xl border p-3" style={{ borderColor:"#edf1f6" }}><div className="flex items-center gap-2"><div className="flex h-8 w-8 items-center justify-center rounded-full text-[9px] font-black text-white" style={{ background:B.navy }}>{name.split(" ").map(x=>x[0]).join("")}</div><div className="min-w-0 flex-1"><p className="text-xs font-black" style={{ color:B.navy }}>{name}</p><p className="text-[9px]" style={{ color:B.slate }}>{source} <Tx k="landing_connection" /></p></div><span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background:color }}>{status}</span></div></div>)}</div></div></Shell>
     </motion.div>
   );
 }
 
 function AppointmentCard() {
   return (
-    <motion.div {...reveal} className="lg:col-span-2"><Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-500"><Calendar className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}>Appointments</h3><p className="text-sm" style={{ color:B.slate }}>Let prospects choose a time that works.</p></div></div>
-      <div className="rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}><div className="mb-3 flex items-center justify-between"><span className="text-xs font-black" style={{ color:B.navy }}>August 2026</span><span className="text-[10px]" style={{ color:B.slate }}>‹  ›</span></div><div className="grid grid-cols-7 gap-1 text-center">{["M","T","W","T","F","S","S"].map((d,i)=><span key={i} className="text-[8px] font-bold" style={{ color:B.slate }}>{d}</span>)}{Array.from({length:14}).map((_,i)=><span key={i} className={`rounded-md py-1 text-[9px] font-bold ${i===3?"bg-orange-500 text-white":""}`} style={i===3?{}:{color:B.navy}}>{i+4}</span>)}</div></div>
-      <p className="mb-2 mt-3 text-[9px] font-black uppercase tracking-wide" style={{ color:B.slate }}>Available Aug 7</p><div className="grid grid-cols-3 gap-2">{["9:00 AM","11:30 AM","2:00 PM"].map((t,i)=><div key={t} className="rounded-lg border py-2 text-center text-[9px] font-black" style={{ borderColor:i===1?B.orange:"#e7ecf3", color:i===1?B.orange:B.navy }}>{t}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-[10px] font-black text-emerald-700"><Check className="h-4 w-4" /> Booking confirmed</div></div></Shell></motion.div>
+    <motion.div {...reveal} className="lg:col-span-2"><Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-500"><Calendar className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}><Tx k="landing_appointments" /></h3><p className="text-sm" style={{ color:B.slate }}><Tx k="landing_appointments_copy" /></p></div></div>
+      <div className="rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}><div className="mb-3 flex items-center justify-between"><span className="text-xs font-black" style={{ color:B.navy }}><Tx k="landing_august_2026" /></span><span className="text-[10px]" style={{ color:B.slate }}>‹  ›</span></div><div className="grid grid-cols-7 gap-1 text-center">{["M","T","W","T","F","S","S"].map((d,i)=><span key={i} className="text-[8px] font-bold" style={{ color:B.slate }}>{d}</span>)}{Array.from({length:14}).map((_,i)=><span key={i} className={`rounded-md py-1 text-[9px] font-bold ${i===3?"bg-orange-500 text-white":""}`} style={i===3?{}:{color:B.navy}}>{i+4}</span>)}</div></div>
+      <p className="mb-2 mt-3 text-[9px] font-black uppercase tracking-wide" style={{ color:B.slate }}><Tx k="landing_available_aug7" /></p><div className="grid grid-cols-3 gap-2">{["9:00 AM","11:30 AM","2:00 PM"].map((t,i)=><div key={t} className="rounded-lg border py-2 text-center text-[9px] font-black" style={{ borderColor:i===1?B.orange:"#e7ecf3", color:i===1?B.orange:B.navy }}>{t}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-[10px] font-black text-emerald-700"><Check className="h-4 w-4" /> <Tx k="landing_booking_confirmed" /></div></div></Shell></motion.div>
   );
 }
 
 function AnalyticsCard() {
   return (
-    <motion.div {...reveal} className="lg:col-span-2"><Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500"><BarChart3 className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}>Analytics</h3><p className="text-sm" style={{ color:B.slate }}>See what people tap, scan and respond to.</p></div></div>
-      <div className="grid grid-cols-2 gap-2">{[["NFC Taps","486",B.orange],["QR Scans","312",B.blue],["Profile Views","1,253",B.navy],["Conversion","24%",B.green]].map(([l,v,c])=><div key={l} className="rounded-xl border p-3" style={{ borderColor:"#edf1f6" }}><p className="text-lg font-black" style={{ color:c }}>{v}</p><p className="text-[9px] font-semibold" style={{ color:B.slate }}>{l}</p></div>)}</div>
+    <motion.div {...reveal} className="lg:col-span-2"><Shell className="h-full"><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500"><BarChart3 className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}><Tx k="landing_analytics" /></h3><p className="text-sm" style={{ color:B.slate }}><Tx k="landing_analytics_copy" /></p></div></div>
+      <div className="grid grid-cols-2 gap-2">{[[<Tx k="landing_nfc_taps" />,"486",B.orange],[<Tx k="landing_qr_scans" />,"312",B.blue],[<Tx k="landing_profile_views" />,"1,253",B.navy],[<Tx k="landing_conversion" />,"24%",B.green]].map(([l,v,c])=><div key={l} className="rounded-xl border p-3" style={{ borderColor:"#edf1f6" }}><p className="text-lg font-black" style={{ color:c }}>{v}</p><p className="text-[9px] font-semibold" style={{ color:B.slate }}>{l}</p></div>)}</div>
       <div className="mt-3 flex h-24 items-end gap-2 rounded-xl border p-3" style={{ borderColor:"#edf1f6" }}>{[42,70,52,82,64,92,75].map((h,i)=><motion.div key={i} initial={{height:0}} whileInView={{height:`${h}%`}} viewport={{once:true}} transition={{delay:i*.05}} className="flex-1 rounded-t bg-orange-500" />)}</div></div></Shell></motion.div>
   );
 }
@@ -332,8 +340,8 @@ function WalletCard() {
           <div className="mb-4 flex items-start gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600"><Wallet className="h-5 w-5" /></div>
             <div>
-              <h3 className="font-black" style={{ color: B.navy }}>Digital Wallet</h3>
-              <p className="text-sm" style={{ color: B.slate }}>Your professional identity, always with you.</p>
+              <h3 className="font-black" style={{ color: B.navy }}><Tx k="landing_digital_wallet" /></h3>
+              <p className="text-sm" style={{ color: B.slate }}><Tx k="landing_wallet_copy" /></p>
             </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -341,8 +349,8 @@ function WalletCard() {
             <div className="flex items-center gap-3 rounded-2xl border bg-white p-4" style={{ borderColor: "#e7ecf3" }}>
               <GoogleMark size={22} />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-slate-900">Google Wallet</p>
-                <p className="text-[11px] font-medium" style={{ color: B.slate }}>Add to Google Wallet</p>
+                <p className="text-sm font-black text-slate-900"><Tx k="landing_google_wallet" /></p>
+                <p className="text-[11px] font-medium" style={{ color: B.slate }}><Tx k="landing_add_google_wallet" /></p>
               </div>
               <ChevronRight className="h-4 w-4 shrink-0" style={{ color: B.slate }} />
             </div>
@@ -350,8 +358,8 @@ function WalletCard() {
             <div className="flex items-center gap-3 rounded-2xl bg-[#111111] p-4 text-white">
               <AppleMark size={20} />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black text-white">Apple Wallet</p>
-                <span className="mt-0.5 inline-block rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-slate-700">Coming Soon</span>
+                <p className="text-sm font-black text-white"><Tx k="landing_apple_wallet" /></p>
+                <span className="mt-0.5 inline-block rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-slate-700"><Tx k="landing_coming_soon" /></span>
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-white/40" />
             </div>
@@ -365,8 +373,8 @@ function WalletCard() {
 function AssetCard() {
   const steps = [[Wifi,"NFC Device",B.orange],[Briefcase,"Asset",B.navy],[Shield,"Lost Mode",B.red],[Phone,"Finder contacts owner",B.green]];
   return (
-    <motion.div {...reveal} className="lg:col-span-3"><Shell><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500"><Shield className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}>Asset Protection</h3><p className="text-sm" style={{ color:B.slate }}>Attach Bingoo NFC to valuables and help them find their way home.</p></div></div>
-      <div className="grid grid-cols-4 gap-2 rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}>{steps.map(([Icon,label,color],i)=><div key={label} className="relative text-center"><div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full" style={{ background:`${color}14`, color }}><Icon className="h-4 w-4" /></div><p className="mt-2 text-[9px] font-black leading-tight" style={{ color:B.navy }}>{label}</p>{i<3&&<ChevronRight className="absolute -right-2 top-3 h-3 w-3 text-slate-300" />}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2"><Bell className="h-4 w-4 text-red-500" /><div><p className="text-[10px] font-black text-red-600">Lost Mode activated</p><p className="text-[9px]" style={{ color:B.slate }}>Finder can contact the owner safely.</p></div></div></div></Shell></motion.div>
+    <motion.div {...reveal} className="lg:col-span-3"><Shell><div className="p-5"><div className="mb-4 flex items-start gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500"><Shield className="h-5 w-5" /></div><div><h3 className="font-black" style={{ color:B.navy }}><Tx k="landing_asset_protection" /></h3><p className="text-sm" style={{ color:B.slate }}><Tx k="landing_asset_protection_copy" /></p></div></div>
+      <div className="grid grid-cols-4 gap-2 rounded-2xl border p-4" style={{ borderColor:"#edf1f6" }}>{steps.map(([Icon,label,color],i)=><div key={label} className="relative text-center"><div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full" style={{ background:`${color}14`, color }}><Icon className="h-4 w-4" /></div><p className="mt-2 text-[9px] font-black leading-tight" style={{ color:B.navy }}>{label}</p>{i<3&&<ChevronRight className="absolute -right-2 top-3 h-3 w-3 text-slate-300" />}</div>)}</div><div className="mt-3 flex items-center gap-2 rounded-xl bg-red-50 px-3 py-2"><Bell className="h-4 w-4 text-red-500" /><div><p className="text-[10px] font-black text-red-600"><Tx k="landing_lost_mode_activated" /></p><p className="text-[9px]" style={{ color:B.slate }}><Tx k="landing_finder_contact_safe" /></p></div></div></div></Shell></motion.div>
   );
 }
 
@@ -376,9 +384,9 @@ export default function EverythingInOnePlace() {
       <div className="pointer-events-none absolute inset-0"><div className="absolute -top-24 left-1/4 h-80 w-80 rounded-full bg-orange-100/40 blur-3xl" /><div className="absolute bottom-0 right-1/4 h-80 w-80 rounded-full bg-blue-100/40 blur-3xl" /></div>
       <div className="relative mx-auto max-w-7xl">
         <motion.div {...reveal} className="mb-10 text-center md:mb-12">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-sm font-black text-orange-500"><Sparkles className="h-4 w-4" /> One Connected Platform</div>
-          <h2 className="text-3xl font-black tracking-tight md:text-5xl" style={{ color:B.navy }}>Everything in One Place</h2>
-          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed md:text-lg" style={{ color:B.slate }}>Share your profile, capture leads, book appointments, understand engagement and protect valuable assets — without jumping between different tools.</p>
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-sm font-black text-orange-500"><Sparkles className="h-4 w-4" /> <Tx k="landing_one_platform" /></div>
+          <h2 className="text-3xl font-black tracking-tight md:text-5xl" style={{ color:B.navy }}><Tx k="landing_everything_one" /></h2>
+          <p className="mx-auto mt-4 max-w-3xl text-base leading-relaxed md:text-lg" style={{ color:B.slate }}><Tx k="landing_everything_copy" /></p>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6 md:gap-5">
