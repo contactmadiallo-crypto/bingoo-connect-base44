@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import BingooLayout from "@/components/bingoo/BingooLayout";
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD, CONTACT_SALES_PLANS } from "@/lib/planPermissions";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 const NAVY = '#0b2149', ORANGE = '#f97316';
 
@@ -33,6 +35,7 @@ const plans = CUSTOMER_PLAN_IDS.map(id => {
 
 export default function Pricing() {
   const { isDark } = useBingooTheme();
+  const { language } = useI18n();
 
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/50" : "text-slate-500";
@@ -46,10 +49,10 @@ export default function Pricing() {
         <div className="text-center mb-10 md:mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", color: ORANGE, border: `1px solid ${isDark ? "rgba(249,115,22,0.25)" : "rgba(249,115,22,0.2)"}` }}>
-            Simple Pricing
+            {t("pricing_simple",language)}
           </div>
-          <h1 className={`text-3xl md:text-4xl font-black mb-3 ${headText}`}>Plans for every professional</h1>
-          <p className={`text-base md:text-lg max-w-xl mx-auto ${mutedText}`}>Start free, upgrade when you're ready. No hidden fees, no surprises.</p>
+          <h1 className={`text-3xl md:text-4xl font-black mb-3 ${headText}`}>{t("pricing_for_every_pro",language)}</h1>
+          <p className={`text-base md:text-lg max-w-xl mx-auto ${mutedText}`}>{t("pricing_start_free_copy",language)}</p>
         </div>
 
         {/* Plans Grid — all 6 plans from PLAN_CONFIG */}
@@ -61,7 +64,7 @@ export default function Pricing() {
                 style={plan.highlight ? { borderColor: ORANGE, boxShadow: isDark ? "0 12px 40px rgba(249,115,22,0.15)" : "0 12px 40px rgba(249,115,22,0.12)" } : {}}>
                 {plan.highlight && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="text-white text-xs font-black px-4 py-1.5 rounded-full shadow-lg" style={{ background: ORANGE }}>Most Popular</span>
+                    <span className="text-white text-xs font-black px-4 py-1.5 rounded-full shadow-lg" style={{ background: ORANGE }}>{t("pricing_most_popular",language)}</span>
                   </div>
                 )}
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
@@ -98,7 +101,7 @@ export default function Pricing() {
         <div className="text-center mt-8 md:mt-10">
           <Link to="/plans">
             <Button className="h-11 font-bold text-sm text-white border-none" style={{ background: NAVY }}>
-              View All Plans <ArrowRight className="w-4 h-4 ml-1" />
+              {t("pricing_view_all",language)} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </Link>
         </div>
@@ -106,10 +109,10 @@ export default function Pricing() {
         {/* Trust footer */}
         <div className="mt-10 md:mt-12 text-center rounded-2xl md:rounded-3xl p-6 md:p-8"
           style={{ background: isDark ? "rgba(11,33,73,0.3)" : "rgba(11,33,73,0.04)", border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(11,33,73,0.1)"}` }}>
-          <h3 className={`text-lg md:text-xl font-black mb-2 ${headText}`}>Need a custom plan for your organization?</h3>
-          <p className={`mb-4 ${mutedText}`}>We offer custom pricing for large teams, agencies, and enterprises.</p>
+          <h3 className={`text-lg md:text-xl font-black mb-2 ${headText}`}>{t("pricing_custom_org",language)}</h3>
+          <p className={`mb-4 ${mutedText}`}>{t("pricing_custom_org_copy",language)}</p>
           <Link to="/contact-support">
-            <Button variant="outline" className={isDark ? "border-white/15 text-white/70 hover:bg-white/8" : "border-slate-200 text-slate-700 hover:bg-slate-50"}>Contact Sales</Button>
+            <Button variant="outline" className={isDark ? "border-white/15 text-white/70 hover:bg-white/8" : "border-slate-200 text-slate-700 hover:bg-slate-50"}>{t("pricing_contact_sales",language)}</Button>
           </Link>
         </div>
       </div>
