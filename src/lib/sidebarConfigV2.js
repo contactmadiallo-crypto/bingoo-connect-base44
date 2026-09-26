@@ -1,4 +1,4 @@
-import { ShoppingBag, Package, Settings, FileText, PackageCheck, Route } from "lucide-react";
+import { ShoppingBag, Package, Settings, PackageCheck, Route } from "lucide-react";
 import { SIDEBAR_NAV_MAP } from "./sidebarConfig";
 
 // Additional nav items not in the original sidebarConfig.
@@ -7,7 +7,6 @@ const EXTRA_NAV_ITEMS = {
   shop:        { id: "shop", label: "Shop", labelFr: "Boutique", icon: ShoppingBag, href: "/shop", iconColor: "#f97316", iconBg: "rgba(249,115,22,0.18)" },
   orders:      { id: "orders", label: "My Orders", labelFr: "Commandes", icon: Package, href: "/my-orders", iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)" },
   account:     { id: "account", label: "Account Settings", labelFr: "Compte", icon: Settings, href: "/account-settings", iconColor: "#64748b", iconBg: "rgba(100,116,139,0.18)" },
-  docwallet:   { id: "docwallet", label: "Document Wallet", labelFr: "Documents", icon: FileText, href: "/bingoo?view=docwallet", iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.18)" },
   myassets:    { id: "myassets", label: "My Assets", labelFr: "Mes Biens", icon: PackageCheck, href: "/bingoo?view=myassets", iconColor: "#10b981", iconBg: "rgba(16,185,129,0.18)" },
   planjourney: { id: "planjourney", label: "Plan Journeys", labelFr: "Parcours Plans", icon: Route, href: "/bingoo?view=planjourney", iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.18)" },
 };
