@@ -134,7 +134,7 @@ const AuthenticatedApp = () => {
           <Route path="/account-settings" element={<AccountSettings />} />
           <Route path="/advanced-admin" element={<Navigate to="/admin" replace />} />
         </Route>
-        <Route path="/shop-admin" element={<Navigate to="/admin" replace />} />
+        <Route path="/shop-admin" element={<AdminAuthGuard><Navigate to="/admin" replace /></AdminAuthGuard>} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/playstore-capture" element={<AdminAuthGuard><PlaystoreCapture /></AdminAuthGuard>} />
       </Route>
