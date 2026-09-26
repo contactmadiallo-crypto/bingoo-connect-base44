@@ -121,79 +121,10 @@ export default function MyNFCDevices() {
     enabled: !!user?.id,
     });
 
-    const handleActivateCode = async () => {
-    if (!activateCode.trim()) return;
-    setActivating(true);
-    setActivateMsg(null);
+    const handleActivateCode = () => {
     const trimmed = activateCode.trim().toUpperCase();
-    try {
-      // Admin fetches all devices; user queries may be RLS-gated, so use getDeviceByCode function
-      const result = await base44.functions.invoke("getDeviceByCode", { code: trimmed });
-      const device = result?.data?.device;
-
-      if (!device) {
-        setActivateMsg({ type: "error", text: t("nfc_msg_not_found_card", language) });
-        setActivating(false);
-        return;
-      }
-
-      if (device.status === "disabled") {
-        setActivateMsg({ type: "error", text: t("nfc_msg_disabled", language) });
-        setActivating(false);
-        return;
-      }
-
-      if (device.status === "replaced") {
-        setActivateMsg({ type: "error", text: `${t("nfc_msg_replaced_device_code", language)} ${device.replaced_by_code || t("nfc_msg_contact_support", language)}.` });
-        setActivating(false);
-        return;
-      }
-
-      if (device.profile_id && !profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "error", text: t("nfc_msg_other_account_device", language) });
-        setActivating(false);
-        return;
-      }
-
-      if (device.profile_id && profiles.some(p => p.id === device.profile_id)) {
-        setActivateMsg({ type: "info", text: `✅ ${t("nfc_msg_already_linked", language)}` });
-        setActivating(false);
-        return;
-      }
-
-      // Assign to first profile
-      const firstProfile = profiles[0];
-      if (!firstProfile) {
-        setActivateMsg({ type: "error", text: t("nfc_msg_create_profile_first", language) });
-        setActivating(false);
-        return;
-      }
-
-      // Route through activateNfcDevice backend function (uses service role to bypass RLS,
-      // enforces plan limits, and writes the audit log server-side).
-      const activateResult = await base44.functions.invoke("activateNfcDevice", {
-        device_id: device.id,
-        profile_id: firstProfile.id,
-        user_id: user.id,
-        user_name: user.full_name,
-        profile_name: firstProfile.display_name,
-        old_status: device.status,
-      });
-
-      if (activateResult?.data?.error) {
-        setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${activateResult.data.error}` });
-        setActivating(false);
-        return;
-      }
-
-      setActivateMsg({ type: "success", text: `🎉 ${t("nfc_device_singular", language)} ${trimmed} ${t("nfc_msg_activated_profile_full", language)} ${firstProfile.display_name}.` });
-      setActivateCode("");
-      qc.invalidateQueries({ queryKey: ["my-nfc-devices-page"] });
-      qc.invalidateQueries({ queryKey: ["my-nfc-devices"] });
-    } catch (e) {
-      setActivateMsg({ type: "error", text: `${t("nfc_msg_activation_failed", language)} ${e.message}` });
-    }
-    setActivating(false);
+    if (!trimmed) return;
+    navigate(`/activate-device?code=${encodeURIComponent(trimmed)}`);
   };
 
   // Optimistic cache helper — updates a device in the devices query cache and
@@ -457,19 +388,7 @@ export default function MyNFCDevices() {
                 </Button>
               </div>
 
-              {activateMsg && (
-                <div className={`flex items-start gap-3 p-4 rounded-xl ${
-                  activateMsg.type === "success" ? (isDark ? "bg-emerald-500/10 border border-emerald-500/30" : "bg-emerald-50 border border-emerald-200")
-                  : activateMsg.type === "error" ? (isDark ? "bg-red-500/10 border border-red-500/30" : "bg-red-50 border border-red-200")
-                  : (isDark ? "bg-blue-500/10 border border-blue-500/20" : "bg-blue-50 border border-blue-100")
-                }`}>
-                  {activateMsg.type === "success" ? <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-500" />
-                  : activateMsg.type === "error" ? <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
-                  : <Info className="w-5 h-5 flex-shrink-0 text-blue-500" />}
-                  <p className="text-sm font-semibold">{activateMsg.text}</p>
-                </div>
-              )}
-            </motion.div>
+           </motion.div>
           )}
         </AnimatePresence>
 
