@@ -24,6 +24,8 @@ for (const route of ['/admin', '/monitor', '/shop-admin', '/playstore-capture'])
   const line = app.split('\n').find(l => l.includes(`path="${route}"`)) || '';
   check(line.includes('AdminAuthGuard'), `${route} must remain wrapped in AdminAuthGuard`);
 }
+const adminGuard = read('src/components/AdminAuthGuard.jsx');
+check(adminGuard.includes("'super_admin'"), 'AdminAuthGuard must allow super_admin access');
 
 check(!/sk_(live|test)_[A-Za-z0-9]/.test(clientText), 'Stripe secret literal found in client/public source');
 check(!/STRIPE_SECRET_KEY/.test(clientText), 'STRIPE_SECRET_KEY must not be referenced in client/public source');
