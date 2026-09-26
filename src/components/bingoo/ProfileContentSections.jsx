@@ -32,6 +32,7 @@ import {
 } from "@/components/bingoo/BrandIcons";
 import { getLinkCategory } from "@/lib/linkCategories";
 import { useI18n } from "@/lib/I18nContext";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 import { t } from "@/lib/i18n";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -320,10 +321,11 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
     : null;
 
   const handleShare = async () => {
+    const shareUrl = publicProfileUrl(profile?.username) || window.location.href;
     if (navigator.share) {
-      await navigator.share({ title: profile.display_name, url: window.location.href }).catch(() => {});
+      await navigator.share({ title: profile.display_name, url: shareUrl }).catch(() => {});
     } else {
-      await navigator.clipboard.writeText(window.location.href).catch(() => {});
+      await navigator.clipboard.writeText(shareUrl).catch(() => {});
       setShared(true);
       setTimeout(() => setShared(false), 2000);
     }
