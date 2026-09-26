@@ -32,7 +32,7 @@ const createNumberedIcon = (number, color) => {
   });
 };
 
-const restaurantIcon = new L.Icon({
+const _restaurantIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0iI0VGNDQ0NCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LXNpemU9IjE4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+8J+NvTwvdGV4dD48L3N2Zz4=',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
@@ -62,7 +62,7 @@ function MapUpdater({ center, bounds }) {
   return null;
 }
 
-export default function DriverOrderMap({ order, orders, driver, optimizedRoute }) {
+export default function DriverOrderMap({ order, orders, driver, _optimizedRoute }) {
   const [mapCenter, setMapCenter] = useState([14.6928, -17.4467]);
   const [mapBounds, setMapBounds] = useState(null);
 

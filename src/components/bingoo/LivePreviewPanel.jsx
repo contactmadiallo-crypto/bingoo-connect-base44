@@ -27,9 +27,9 @@ const PREVIEW_LABELS = {
 
 // Lightweight content stub shown in preview (no backend calls needed)
 function PreviewContentStub({ color, isDark }) {
-  const btnBg = color || "#2563eb";
+  const _btnBg = color || "#2563eb";
   const cardBg = isDark ? "rgba(255,255,255,0.06)" : "#f8fafc";
-  const text   = isDark ? "rgba(255,255,255,0.5)" : "#94a3b8";
+  const _text   = isDark ? "rgba(255,255,255,0.5)" : "#94a3b8";
   const items  = ["📞 Phone", "💬 WhatsApp", "📧 Email", "🌐 Website", "📸 Instagram", "💼 LinkedIn"];
   return (
     <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: 8 }}>

@@ -341,7 +341,7 @@ export default function AdminAccountsTab({ users = [], profiles = [], devices = 
               <User className="w-10 h-10 mx-auto mb-2 opacity-20" />
               <p>{t("admin_no_accounts",language)}</p>
             </div>
-          ) : filtered.map(({ user: u, profiles: up, devices: ud, assets: ua, leads: ul, appointments: ua2, tickets: ut, sub }) => {
+          ) : filtered.map(({ user: u, profiles: up, devices: ud, assets: ua, leads: ul, appointments: _ua2, tickets: _ut, sub }) => {
             const plan = sub?.plan || up[0]?.plan || "free";
             const counts = { profiles: up.length, devices: ud.length, assets: ua.length, leads: ul.length };
             return (

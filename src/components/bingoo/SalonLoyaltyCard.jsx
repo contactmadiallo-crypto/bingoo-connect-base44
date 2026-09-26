@@ -10,7 +10,7 @@ export default function SalonLoyaltyCard({ profileId, color = "#0b2149", isDark 
     try { return parseInt(localStorage.getItem(key) || "0"); } catch { return 0; }
   });
   const [redeemed, setRedeemed] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+  const [_showHint, setShowHint] = useState(false);
 
   const addStamp = () => {
     if (stamps >= MAX) return;

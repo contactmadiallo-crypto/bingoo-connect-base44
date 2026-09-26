@@ -102,7 +102,7 @@ function GoldParticles() {
   );
 }
 
-export default function LionsOfTerangaLayout({ profile, color, children }) {
+export default function LionsOfTerangaLayout({ profile, _color, children }) {
   const mobile = useIsMobile();
 
   return (

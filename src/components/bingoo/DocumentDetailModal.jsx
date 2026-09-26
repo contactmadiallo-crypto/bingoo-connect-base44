@@ -37,8 +37,8 @@ export default function DocumentDetailModal({ doc, isDark, onClose, onUpdated, o
   const Icon = getFileIcon(doc.file_name);
   const fileColor = getFileColor(doc.file_name);
   const cat = getCatInfo(doc.document_type);
-  const isImg = isImageFile(doc.file_name);
-  const isBackImg = isImageFile(doc.file_name_back);
+  const _isImg = isImageFile(doc.file_name);
+  const _isBackImg = isImageFile(doc.file_name_back);
   const hasBack = !!doc.file_url_back;
   const isExpired = doc.expiration_date && new Date(doc.expiration_date) < new Date();
   const isExpiringSoon = doc.expiration_date && !isExpired &&

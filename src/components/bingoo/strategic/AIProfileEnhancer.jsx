@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { base44 } from "@/api/base44Client";
 import { Sparkles, Send, Check, X, Loader2, PenTool, Palette, Zap } from "lucide-react";
 
-const SUGGESTION_TYPES = [
+const _SUGGESTION_TYPES = [
   { key: "bio", label: "Bio", icon: PenTool },
   { key: "layout", label: "Layout", icon: Palette },
   { key: "ctas", label: "CTAs", icon: Zap },
@@ -70,7 +70,7 @@ Return ONLY valid JSON with keys: bio, layout, layout_reason, ctas.`,
       });
       const data = typeof res === "string" ? JSON.parse(res) : res;
       setSuggestions(data);
-    } catch (e) {
+    } catch (_e) {
       setError("Couldn't generate suggestions. Please try again.");
     }
     setLoading(false);
@@ -207,7 +207,7 @@ Return ONLY valid JSON with keys: bio, layout, layout_reason, ctas.`,
   );
 }
 
-function SuggestionCard({ type, icon: Icon, label, value, isApplied, onToggle, isDark }) {
+function SuggestionCard({ _type, icon: Icon, label, value, isApplied, onToggle, isDark }) {
   const cardBg = isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200";
   return (
     <div className={`rounded-xl p-4 border ${cardBg}`}>

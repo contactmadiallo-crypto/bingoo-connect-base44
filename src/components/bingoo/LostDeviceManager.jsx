@@ -19,7 +19,7 @@ const DEVICE_ICONS = {
 
 const isLost = (d) => d.status === "lost";
 
-export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }) {
+export default function LostDeviceManager({ profileId, userId, isDark, _tr = {} }) {
   const { language } = useI18n();
   const tx = (en, fr) => language === 'fr' ? fr : en;
   const qc = useQueryClient();
@@ -174,7 +174,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
     onError: (e) => toast.error(e.message || "Failed to delete asset"),
   });
 
-  const markLost = (d) => { updateDevice.mutate({ id: d.id, data: { status: "lost" } }); toast.error(`🔴 ${d.device_code} marked as Lost`); };
+  const _markLost = (d) => { updateDevice.mutate({ id: d.id, data: { status: "lost" } }); toast.error(`🔴 ${d.device_code} marked as Lost`); };
   const markActive = (d) => { updateDevice.mutate({ id: d.id, data: { status: "active" } }); toast.success(`✅ ${d.device_code} recovered`); };
 
   // ── Derived ──
@@ -528,7 +528,7 @@ export default function LostDeviceManager({ profileId, userId, isDark, tr = {} }
             </div>
           ) : (
             reports.map(report => {
-              const deviceReports = getReportsForDevice(report.device_code);
+              const _deviceReports = getReportsForDevice(report.device_code);
               const reportDevice = devices.find(d => d.device_code === report.device_code);
               return (
                 <div key={report.id} className={`rounded-2xl ${cardCls} p-4`}>

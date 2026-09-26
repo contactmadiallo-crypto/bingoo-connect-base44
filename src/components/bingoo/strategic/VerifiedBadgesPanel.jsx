@@ -12,7 +12,7 @@ const PRIVACY_OPTIONS = [
   { key: "require_nfc_tap", label: "Require NFC tap to view", desc: "Profile only accessible via NFC device tap" },
 ];
 
-export default function VerifiedBadgesPanel({ profile, isDark, user }) {
+export default function VerifiedBadgesPanel({ profile, isDark, _user }) {
   const queryClient = useQueryClient();
   const [requesting, setRequesting] = useState(false);
   const [savingPrivacy, setSavingPrivacy] = useState(null);
@@ -46,7 +46,7 @@ export default function VerifiedBadgesPanel({ profile, isDark, user }) {
       } else {
         setMessage(res?.data?.error ? `Couldn't submit: ${res.data.error}` : "Couldn't submit request. Please try again.");
       }
-    } catch (e) {
+    } catch (_e) {
       setMessage("Couldn't submit request. Please try again.");
     }
     setRequesting(false);
@@ -61,7 +61,7 @@ export default function VerifiedBadgesPanel({ profile, isDark, user }) {
       // privacy toggles working for all plans.
       await base44.entities.Profile.update(profile.id, { privacy_settings: newSettings });
       queryClient.invalidateQueries({ queryKey: ["profiles"] });
-    } catch (e) {
+    } catch (_e) {
       // revert on failure — UI will refetch
     }
     setSavingPrivacy(null);

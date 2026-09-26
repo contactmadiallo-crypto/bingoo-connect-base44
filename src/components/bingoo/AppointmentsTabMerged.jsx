@@ -18,7 +18,7 @@ export default function AppointmentsTabMerged({ profileId, userId, isDark, highl
   // previously had the calendar/settings sub-tab open.
   const [sub, setSub] = useState(highlightId ? "list" : "list");
 
-  const headText = isDark ? "text-white" : "text-slate-900";
+  const _headText = isDark ? "text-white" : "text-slate-900";
 
   return (
     <div className="space-y-4">

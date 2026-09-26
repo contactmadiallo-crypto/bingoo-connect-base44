@@ -180,7 +180,7 @@ export default function ChatWindow({ order, user, userType, open, onOpenChange }
         });
         toast.success("Position partagée!");
       },
-      (error) => {
+      (_error) => {
         toast.error("Impossible d'obtenir la position");
       }
     );
@@ -206,7 +206,7 @@ Return ONLY the translation, nothing else.`;
         ...translatingMessages, 
         [msg.id]: translation 
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error("Erreur de traduction");
       setTranslatingMessages({ ...translatingMessages, [msg.id]: false });
     }

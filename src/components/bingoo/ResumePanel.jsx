@@ -42,7 +42,7 @@ function ResumeEditor({ resume, onClose, onSaved, profileId, language }) {
       toast.success(t(resume?.id ? "resume_updated" : "resume_created",language));
       onSaved?.();
       onClose();
-    } catch (e) {
+    } catch (_e) {
       toast.error(t("resume_save_failed",language));
     }
     setSaving(false);

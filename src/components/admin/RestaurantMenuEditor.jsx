@@ -76,7 +76,7 @@ export default function RestaurantMenuEditor({ restaurant, open, onOpenChange })
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       setFormData({ ...formData, image_url: file_url });
       toast.success("Image uploadée");
-    } catch (error) {
+    } catch (_error) {
       toast.error("Erreur d'upload");
     } finally {
       setUploading(false);

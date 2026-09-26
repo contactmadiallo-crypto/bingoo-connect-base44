@@ -11,7 +11,7 @@ export function NavigationStackProvider({ children }) {
   const [stacks, setStacks] = useState({});
   const [activeTabId, setActiveTabId] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
+  const _location = useLocation();
 
   // Resolve which tab a path belongs to (first path segment)
   const resolveTabId = useCallback((path) => {

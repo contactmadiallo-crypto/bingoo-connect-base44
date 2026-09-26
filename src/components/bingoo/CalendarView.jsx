@@ -29,7 +29,7 @@ export default function CalendarView({ profileId }) {
 
   const headText = isDark ? "text-white" : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
-  const subText = isDark ? "text-white/60" : "text-slate-600";
+  const _subText = isDark ? "text-white/60" : "text-slate-600";
   const cardBg = isDark ? "bg-white/5" : "bg-white";
   const cardShadow = isDark ? "0 1px 0 rgba(255,255,255,0.05), 0 8px 24px rgba(0,0,0,0.25)" : "0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)";
   const cellHover = isDark ? "hover:bg-white/8" : "hover:bg-slate-50";

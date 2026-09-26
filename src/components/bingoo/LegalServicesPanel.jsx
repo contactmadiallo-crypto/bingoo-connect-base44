@@ -13,7 +13,7 @@ import { t } from "@/lib/i18n";
 
 const CATEGORY_COLORS = { Immigration: "#0369a1", Civil: "#7c3aed", Criminal: "#dc2626" };
 
-export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
+export default function LegalServicesPanel({ profileId, isDark, _onSaved }) {
   const { language } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -32,7 +32,7 @@ export default function LegalServicesPanel({ profileId, isDark, onSaved }) {
     gcTime: 0,
   });
 
-  const refetchServices = () => qc.refetchQueries({ queryKey: ["legal-services", profileId] });
+  const _refetchServices = () => qc.refetchQueries({ queryKey: ["legal-services", profileId] });
 
   const createMutation = useMutation({
     mutationFn: (data) => dbOp("LegalService", "create", profileId,

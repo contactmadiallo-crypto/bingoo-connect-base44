@@ -10,7 +10,7 @@ const NAVY = "#0b2149", ORANGE = "#f97316", GOLD = "#FDBA21";
 export function LayoutFamilyPreview({ familyId, isSelected }) {
   const accent = isSelected ? ORANGE : "#94a3b8";
   const bg = isSelected ? "rgba(249,115,22,0.06)" : "#f1f5f9";
-  const textCol = isSelected ? "#0b2149" : "#64748b";
+  const _textCol = isSelected ? "#0b2149" : "#64748b";
 
   // Common tiny avatar circle
   const Avatar = ({ size = 20, color = NAVY, style = {} }) => (

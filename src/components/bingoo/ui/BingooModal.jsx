@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const NAVY = '#0b2149', ORANGE = '#f97316';
+const NAVY = '#0b2149', _ORANGE = '#f97316';
 
 export default function BingooModal({ open, onClose, title, children, footer, size = 'md' }) {
   useEffect(() => {

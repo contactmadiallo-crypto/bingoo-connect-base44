@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const hexRgb = (hex, alpha = 1) => {
+const _hexRgb = (hex, alpha = 1) => {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
   const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
@@ -112,9 +112,9 @@ function SpotlightBeams() {
   );
 }
 
-export default function NewYorkChampionshipLayout({ profile, color, children }) {
+export default function NewYorkChampionshipLayout({ profile, _color, children }) {
   const mobile = useIsMobile();
-  const [tick, setTick] = useState(0);
+  const [_tick, setTick] = useState(0);
 
   useEffect(() => {
     const t = setInterval(() => setTick(n => n + 1), 50);

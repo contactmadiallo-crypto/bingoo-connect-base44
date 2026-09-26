@@ -310,7 +310,7 @@ function LayoutRenderer({ layoutId }) {
   }
 }
 
-export default function LayoutMiniPreview({ layoutId, isSelected = false, previewHeight = 260 }) {
+export default function LayoutMiniPreview({ layoutId, _isSelected = false, previewHeight = 260 }) {
   const cfg = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;
   const RENDER_WIDTH  = 375;
   const RENDER_HEIGHT = 680;

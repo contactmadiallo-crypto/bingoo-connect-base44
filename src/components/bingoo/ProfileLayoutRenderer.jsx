@@ -125,7 +125,7 @@ function AvatarRing({ profile, size, ringColor = "#fff", ringWidth = 4, shadow, 
 }
 
 // ── Cover helpers ──────────────────────────────────────────────
-function CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = {} }) {
+function _CoverBg({ profile, height, color, dimOpacity = 0.10, children, style = {} }) {
   return (
     <div style={{ height, position: "relative", flexShrink: 0, ...style }}>
       {profile?.cover_photo ? (

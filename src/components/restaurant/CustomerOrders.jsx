@@ -50,7 +50,7 @@ export default function CustomerOrders({ user, onBack, language = "en" }) {
   
   const { t } = useTranslation(language);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const { data: orders } = useQuery({
     queryKey: ['my-orders', user?.email],

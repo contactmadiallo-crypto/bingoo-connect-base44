@@ -1,7 +1,7 @@
 import { ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const NAVY = '#0b2149', ORANGE = '#f97316';
+const NAVY = '#0b2149', _ORANGE = '#f97316';
 
 export default function BingooPageHeader({ title, subtitle, actions, showBack = false, onBack }) {
   const navigate = useNavigate();

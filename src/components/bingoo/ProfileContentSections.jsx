@@ -141,7 +141,7 @@ const saveContact = (profile) => {
   URL.revokeObjectURL(url);
 };
 
-const FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
+const _FONT_DISPLAY = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const FONT_BODY    = "'Inter', system-ui, sans-serif";
 
 function SLabel({ children, isDark }) {
@@ -196,7 +196,7 @@ function IconGridItem({ href, onClick, icon, label, ev, track, isDark, tileSize 
   );
 }
 
-function PaymentBtn({ p, color, isDark, buttonDesign }) {
+function PaymentBtn({ p, _color, isDark, buttonDesign }) {
   const [open, setOpen] = useState(false);
   const iconEl = p.e === "wave" ? <WaveIconNew size={32} /> : p.e === "orangemoney" ? <OrangeMoneyIconNew size={32} /> : p.e === "zelle" ? <ZelleIcon size={32} /> : p.e === "cashapp" ? <CashAppIcon size={32} /> : <span style={{ fontSize: 26 }}>{p.e}</span>;
   return (

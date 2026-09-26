@@ -73,7 +73,7 @@ function MapUpdater({ center, bounds }) {
 
 export default function DeliveryMap({ order }) {
   const [driverLocation, setDriverLocation] = useState(null);
-  const [prevLocation, setPrevLocation] = useState(null);
+  const [_prevLocation, setPrevLocation] = useState(null);
   const [routePath, setRoutePath] = useState([]);
 
   useEffect(() => {

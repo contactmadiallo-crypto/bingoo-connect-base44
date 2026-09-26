@@ -24,7 +24,7 @@ export default function LeadCaptureSection({ profileId, color = "#0b2149", isLaw
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-  const [rateLimited, setRateLimited] = useState(false);
+  const [_rateLimited, setRateLimited] = useState(false);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 

@@ -21,7 +21,7 @@ export default function AdminAuthGuard({ children }) {
         return;
       }
       setUser(currentUser);
-    } catch (error) {
+    } catch (_error) {
       base44.auth.redirectToLogin();
     } finally {
       setLoading(false);

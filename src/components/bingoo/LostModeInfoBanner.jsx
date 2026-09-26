@@ -8,7 +8,7 @@ export default function LostModeInfoBanner({ isDark }) {
   const [expanded, setExpanded] = useState(false);
   const { language } = useI18n();
 
-  const text = isDark ? "text-white/80" : "text-slate-700";
+  const _text = isDark ? "text-white/80" : "text-slate-700";
   const muted = isDark ? "text-white/50" : "text-slate-500";
   const cardBg = isDark ? "bg-white/5" : "bg-amber-50";
   const border = isDark ? "border-white/10" : "border-amber-200";

@@ -14,7 +14,7 @@ function ContactBtn({ href, label, emoji, color }) {
   );
 }
 
-function Section({ title, children, icon: Icon, color = "#0b2149" }) {
+function _Section({ title, children, icon: Icon, color = "#0b2149" }) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
@@ -34,7 +34,7 @@ export default function AttorneyProfileSection({ member, coverColor = "#0b2149" 
   if (!member) return null;
 
   const cats = member.practice_categories || [];
-  const allServices = cats.flatMap(c => (member.practice_areas || "")
+  const _allServices = cats.flatMap(_c => (member.practice_areas || "")
     .split(",").map(s => s.trim()).filter(Boolean));
 
   const tabs = [

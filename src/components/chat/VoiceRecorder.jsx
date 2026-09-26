@@ -47,7 +47,7 @@ export default function VoiceRecorder({ onSend, onCancel }) {
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
-    } catch (error) {
+    } catch (_error) {
       alert("Impossible d'accéder au microphone");
     }
   };
@@ -85,7 +85,7 @@ export default function VoiceRecorder({ onSend, onCancel }) {
 
       setAudioBlob(null);
       setRecordingTime(0);
-    } catch (error) {
+    } catch (_error) {
       alert("Erreur lors de l'envoi du message vocal");
     } finally {
       setIsUploading(false);

@@ -39,7 +39,7 @@ export default function ProfileResumeSection({ profileId, color, isDark, showDiv
   const r = attachedResume;
   const Divider = () => <div style={{ height: 1, background: "rgba(0,0,0,0.05)", margin: "28px 0" }} />;
   const c = color || "#0b2149";
-  const textColor = isDark ? "rgba(255,255,255,0.85)" : "#1e293b";
+  const _textColor = isDark ? "rgba(255,255,255,0.85)" : "#1e293b";
   const mutedColor = isDark ? "rgba(255,255,255,0.5)" : "#64748b";
   const cardBg = isDark ? "rgba(255,255,255,0.06)" : "#fff";
   const cardBorder = isDark ? "rgba(255,255,255,0.1)" : "#e2e8f0";

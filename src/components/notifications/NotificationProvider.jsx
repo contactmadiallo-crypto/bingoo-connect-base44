@@ -64,7 +64,7 @@ export default function NotificationProvider({ children, user, userType = "custo
         const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYHGWm98OWhUgwMUKXh8LRkHQU2j9XyyH0vBSh+zPHajz4JFV612+ynWBUIRp7f8r1uIAUqgM3y2Ik2Bhlov/Ppo1MNDVCl4fG0ZRwENo/V88d9LQUof83y2JA+CBVfttvsp1gVB0ae3/K9byAEKoHN8tiJNgYZaL7z6aNSDQ1QpeLxtGUcBDaP1fPHfS0FKH/N8tiQPQgVX7bb7KdYFQdGnt/yvm8gBCqBzfLYiTYGGWi+8+mjUg0NUKXi8bRlHAQ2j9Xzx30tBSh/zfLYkD0IFV+22+ynWBUHRp7f8r5vIAQqgc3y2Ik2Bhlovu');
         audio.volume = 0.3;
         audio.play().catch(() => {});
-      } catch (e) {}
+      } catch (_e) {}
     }
 
     // Show toast notification

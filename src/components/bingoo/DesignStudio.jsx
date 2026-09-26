@@ -16,7 +16,7 @@ import { validateUpload } from '@/lib/nativePlatform';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 
-export default function DesignStudio({ isDark }) {
+export default function DesignStudio({ _isDark }) {
   const { language } = useI18n();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
