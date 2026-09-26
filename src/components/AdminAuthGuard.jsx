@@ -15,7 +15,7 @@ export default function AdminAuthGuard({ children }) {
   const checkAuth = async () => {
     try {
       const currentUser = await base44.auth.me();
-      if (currentUser.role !== 'admin') {
+      if (!['admin', 'super_admin'].includes(currentUser.role)) {
         alert("Admin access required");
         base44.auth.redirectToLogin();
         return;
