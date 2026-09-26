@@ -33,6 +33,7 @@ import { ProfileWorkspaceProvider } from '@/lib/ProfileWorkspaceContext';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AdminAuthGuard from '@/components/AdminAuthGuard';
 import BingooLayoutWrapper from '@/components/bingoo/BingooLayoutWrapper';
+import AdaptiveShopShell from '@/components/bingoo/AdaptiveShopShell';
 import { Navigate } from 'react-router-dom';
 const PublicResume = lazy(() => import('@/pages/PublicResume'));
 const PublicLawFirmProfile = lazy(() => import('@/pages/PublicLawFirmProfile'));
@@ -115,8 +116,8 @@ const AuthenticatedApp = () => {
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/a/:assetId" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/shop" element={<Shop />} />
-      <Route path="/product/:productId" element={<ProductDetail />} />
+      <Route path="/shop" element={<AdaptiveShopShell><Shop /></AdaptiveShopShell>} />
+      <Route path="/product/:productId" element={<AdaptiveShopShell><ProductDetail /></AdaptiveShopShell>} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/plans" element={<SubscriptionPricing />} />
 
@@ -126,9 +127,9 @@ const AuthenticatedApp = () => {
         <Route path="/monitor" element={<AdminAuthGuard><SubscriberMonitoring /></AdminAuthGuard>} />
         <Route path="/activate-device" element={<ActivateDevice />} />
         <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/order-confirmation" element={<OrderConfirmation />} />
+        <Route path="/cart" element={<AdaptiveShopShell><Cart /></AdaptiveShopShell>} />
+        <Route path="/checkout" element={<AdaptiveShopShell><Checkout /></AdaptiveShopShell>} />
+        <Route path="/order-confirmation" element={<AdaptiveShopShell><OrderConfirmation /></AdaptiveShopShell>} />
         <Route element={<BingooLayoutWrapper />}>
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/account-settings" element={<AccountSettings />} />
