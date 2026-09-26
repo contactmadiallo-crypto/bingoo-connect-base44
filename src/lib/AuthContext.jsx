@@ -1,9 +1,10 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
-import { getCurrentAccount, logoutAccount } from '@/api/accountClient';
+import { getCurrentAccount, updateCurrentAccount, logoutAccount } from '@/api/accountClient';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
-import { setRegion as persistRegion } from '@/lib/regionSettings';
+import { getRegion, setRegion as persistRegion } from '@/lib/regionSettings';
+import { getLang } from '@/lib/i18n';
 
 const AuthContext = createContext();
 
@@ -47,8 +48,19 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     try {
-      const currentUser = await getCurrentAccount();
-      if (currentUser?.preferred_region) persistRegion(currentUser.preferred_region);
+      let currentUser = await getCurrentAccount();
+      if (currentUser?.preferred_region) {
+        persistRegion(currentUser.preferred_region);
+      } else {
+        const detectedRegion = getRegion();
+        const detectedLanguage = getLang();
+        const seed = {};
+        if (!currentUser?.preferred_region && detectedRegion) seed.preferred_region = detectedRegion;
+        if (!currentUser?.preferred_language && detectedLanguage) seed.preferred_language = detectedLanguage;
+        if (Object.keys(seed).length) {
+          currentUser = await updateCurrentAccount(seed).catch(() => currentUser);
+        }
+      }
       setUser(currentUser);
       setIsAuthenticated(true);
     } catch (error) {
