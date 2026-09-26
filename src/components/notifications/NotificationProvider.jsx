@@ -3,6 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Bell, Package, Star, Gift, AlertCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { openExternalUrl } from "@/lib/nativePlatform";
 
 const NotificationContext = createContext();
 
@@ -15,6 +17,7 @@ export const useNotifications = () => {
 };
 
 export default function NotificationProvider({ children, user, userType = "customer" }) {
+  const navigate = useNavigate();
   const [lastNotificationId, setLastNotificationId] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -76,9 +79,9 @@ export default function NotificationProvider({ children, user, userType = "custo
         label: "Voir",
         onClick: () => {
           if (notification.action_url.startsWith('http')) {
-            window.open(notification.action_url, '_blank');
+            openExternalUrl(notification.action_url);
           } else {
-            window.location.href = notification.action_url;
+            navigate(notification.action_url);
           }
         }
       } : undefined,
