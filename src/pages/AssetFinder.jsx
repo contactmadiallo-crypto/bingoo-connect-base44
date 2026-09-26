@@ -295,7 +295,7 @@ export default function AssetFinder() {
             <span className="text-white font-black text-[42px] tracking-[-0.055em]">Bing</span>
             <InfinityMark size={55} color="#f97316" strokeWidth={3.9} glow />
           </div>
-          <span className="mt-1 text-[9px] font-bold uppercase tracking-[.34em] text-white/65">Connect What Matters</span>
+          <span className="mt-1 text-[9px] font-bold uppercase tracking-[.34em] text-white/65">{tr('Connect What Matters', 'Connectez ce qui compte')}</span>
         </div>
 
         {/* Lost banner */}
@@ -304,8 +304,8 @@ export default function AssetFinder() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
               <AlertTriangle className="w-9 h-9 text-white" />
             </div>
-            <h1 className="text-xl font-black text-white mb-1">{assetData.name} has been reported lost</h1>
-            <p className="text-white/85 text-sm">Please help return {assetData.name} to the owner.</p>
+            <h1 className="text-xl font-black text-white mb-1">{assetData.name} {tr('has been reported lost', 'a été signalé perdu')}</h1>
+            <p className="text-white/85 text-sm">{tr('Please help return', 'Aidez à rendre')} {assetData.name} {tr('to the owner.', 'à son propriétaire.')}</p>
             {normalizedCode && (
             <div className="inline-flex items-center gap-2 bg-white/15 rounded-xl px-3 py-1.5 mt-3">
               <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">Code</span>
@@ -319,8 +319,8 @@ export default function AssetFinder() {
               <Package className="w-5 h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-black text-white leading-tight">{assetData.name} identified</p>
-              <p className="text-xs text-white/60 mt-0.5">{device ? 'This NFC tag is linked to a registered Bingoo asset.' : 'This QR code is linked to a registered Bingoo asset.'}</p>
+              <p className="text-sm font-black text-white leading-tight">{assetData.name} {tr('identified', 'identifié')}</p>
+              <p className="text-xs text-white/60 mt-0.5">{device ? tr('This NFC tag is linked to a registered Bingoo asset.', 'Ce tag NFC est lié à un objet Bingoo enregistré.') : tr('This QR code is linked to a registered Bingoo asset.', 'Ce code QR est lié à un objet Bingoo enregistré.')}</p>
             </div>
           </div>
         )}
@@ -364,7 +364,7 @@ export default function AssetFinder() {
                 <Package className="w-4 h-4" style={{ color: '#f97316' }} />
               </div>
               <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Linked NFC Device</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{tr('Linked NFC Device', 'Appareil NFC lié')}</p>
                 <p className="text-xs font-black text-slate-900 mt-0.5 truncate">{productLabel}</p>
               </div>
               <span className="text-[10px] font-mono font-bold text-slate-500 ml-auto">{normalizedCode}</span>
@@ -374,7 +374,7 @@ export default function AssetFinder() {
             {/* Pet medical/allergy notes (only if owner enabled) */}
             {isPet && assetData.public_medical_notes && (
               <div className="rounded-xl p-4" style={{ background: '#FEF2F2', border: '1px solid #FECACA' }}>
-                <p className="text-[10px] font-black uppercase tracking-wide text-red-700 mb-1 flex items-center gap-1"><HeartPulse className="w-3 h-3" /> Medical / Allergy Notes</p>
+                <p className="text-[10px] font-black uppercase tracking-wide text-red-700 mb-1 flex items-center gap-1"><HeartPulse className="w-3 h-3" /> {tr('Medical / Allergy Notes', 'Notes médicales / allergies')}</p>
                 <p className="text-sm text-slate-700 leading-relaxed">{assetData.public_medical_notes}</p>
               </div>
             )}
@@ -382,7 +382,7 @@ export default function AssetFinder() {
             {/* Luggage/item last known context (only if owner enabled) */}
             {isItem && assetData.public_last_known_context && (
               <div className="rounded-xl p-4" style={{ background: '#EFF6FF', border: '1px solid #DBEAFE' }}>
-                <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Last Known Context</p>
+                <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> {tr('Last Known Context', 'Dernier contexte connu')}</p>
                 <p className="text-sm text-slate-700 leading-relaxed">{assetData.public_last_known_context}</p>
               </div>
             )}
@@ -392,7 +392,7 @@ export default function AssetFinder() {
               <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: '#FFFbeb', border: '1px solid #fde68a' }}>
                 <Gift className="w-5 h-5 text-amber-600 shrink-0" />
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-wide text-amber-700">Reward Offered</p>
+                  <p className="text-[10px] font-black uppercase tracking-wide text-amber-700">{tr('Reward Offered', 'Récompense proposée')}</p>
                   <p className="text-sm text-slate-700 font-semibold mt-0.5">{assetData.reward_offered}</p>
                 </div>
               </div>
@@ -401,7 +401,7 @@ export default function AssetFinder() {
             {/* Finder message from owner */}
             {assetData.finder_message && (
               <div className="rounded-xl p-4" style={{ background: '#EFF6FF', border: '1px solid #DBEAFE' }}>
-                <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1">Message from owner</p>
+                <p className="text-[10px] font-black uppercase tracking-wide text-blue-700 mb-1">{tr('Message from owner', 'Message du propriétaire')}</p>
                 <p className="text-sm text-slate-700 italic leading-relaxed">"{assetData.finder_message}"</p>
               </div>
             )}
@@ -409,7 +409,7 @@ export default function AssetFinder() {
             {/* Safe return / handoff instructions */}
             {assetData.recovery_instructions && (
               <div className="rounded-xl p-4" style={{ background: '#ECFDF5', border: '1px solid #D1FAE5' }}>
-                <p className="text-[10px] font-black uppercase tracking-wide text-emerald-700 mb-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Safe Return Instructions</p>
+                <p className="text-[10px] font-black uppercase tracking-wide text-emerald-700 mb-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> {tr('Safe Return Instructions', 'Instructions de retour sécurisé')}</p>
                 <p className="text-sm text-slate-700 leading-relaxed">{assetData.recovery_instructions}</p>
               </div>
             )}
@@ -432,7 +432,7 @@ export default function AssetFinder() {
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><MessageCircle className="w-4 h-4" /></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">WhatsApp</p>
-                      <p>Chat instantly</p>
+                      <p>{tr('Chat instantly', 'Discuter maintenant')}</p>
                     </div>
                   </a>
                 )}
@@ -441,14 +441,14 @@ export default function AssetFinder() {
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 shrink-0"><Mail className="w-4 h-4 text-slate-600" /></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Email</p>
-                      <p>Send a message</p>
+                      <p>{tr('Send a message', 'Envoyer un message')}</p>
                     </div>
                   </a>
                 )}
               </div>
             )}
             {!hasContact && (
-              <p className="text-xs text-slate-400 text-center py-2">No direct contact method available — please use the report form below.</p>
+              <p className="text-xs text-slate-400 text-center py-2">{tr('No direct contact method available — please use the report form below.', 'Aucun moyen de contact direct n’est disponible — utilisez le formulaire ci-dessous.')}</p>
             )}
           </div>
         </div>
@@ -461,75 +461,75 @@ export default function AssetFinder() {
                 <MapPinned className="w-5 h-5" style={{ color: '#f97316' }} />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-black text-slate-900">Share your location?</p>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Help the owner recover {assetData.name} by sharing your current location. Your browser will ask for permission — nothing is shared without your approval.</p>
+                <p className="text-sm font-black text-slate-900">{tr('Share your location?', 'Partager votre position ?')}</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{tr(`Help the owner recover ${assetData.name} by sharing your current location. Your browser will ask for permission — nothing is shared without your approval.`, `Aidez le propriétaire à retrouver ${assetData.name} en partageant votre position actuelle. Votre navigateur demandera votre autorisation — rien n’est partagé sans votre accord.`)}</p>
               </div>
             </div>
             <button onClick={requestLocation} className="w-full rounded-xl font-bold h-11 text-white flex items-center justify-center gap-2 text-sm" style={{ background: '#0b2149' }}>
-              <MapPin className="w-4 h-4" /> Share my location
+              <MapPin className="w-4 h-4" /> {tr('Share my location', 'Partager ma position')}
             </button>
           </div>
         )}
         {isLost && locationStatus === 'prompted' && (
           <div className="bg-white rounded-2xl shadow-lg p-4 flex items-center gap-3">
             <Loader2 className="w-4 h-4 animate-spin text-orange-500 shrink-0" />
-            <p className="text-xs font-semibold text-slate-600">Waiting for browser permission…</p>
+            <p className="text-xs font-semibold text-slate-600">{tr('Waiting for browser permission…', 'En attente de l’autorisation du navigateur…')}</p>
           </div>
         )}
         {isLost && locationStatus === 'granted' && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-emerald-800">Location shared — thank you!</p>
-              <p className="text-xs text-emerald-600 mt-0.5">Your approximate location will be sent to the owner with your report.</p>
+              <p className="text-sm font-bold text-emerald-800">{tr('Location shared — thank you!', 'Position partagée — merci !')}</p>
+              <p className="text-xs text-emerald-600 mt-0.5">{tr('Your approximate location will be sent to the owner with your report.', 'Votre position approximative sera envoyée au propriétaire avec votre signalement.')}</p>
             </div>
           </div>
         )}
         {isLost && (locationStatus === 'denied' || locationStatus === 'unsupported') && (
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
             <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-            <p className="text-xs text-slate-500">No problem — you can still submit a report without sharing location.</p>
+            <p className="text-xs text-slate-500">{tr('No problem — you can still submit a report without sharing location.', 'Aucun problème — vous pouvez envoyer un signalement sans partager votre position.')}</p>
           </div>
         )}
 
         {/* Found report form (lost only) */}
         {isLost && (
           <div className="bg-white rounded-3xl shadow-lg p-6">
-            <h2 className="font-black text-slate-900 text-base mb-1">{isPet ? 'I Found This Pet' : 'I Found This Item'}</h2>
-            <p className="text-slate-400 text-xs mb-4">Leave your details so the owner can contact you to arrange the return.</p>
+            <h2 className="font-black text-slate-900 text-base mb-1">{isPet ? tr('I Found This Pet', 'J’ai trouvé cet animal') : tr('I Found This Item', 'J’ai trouvé cet objet')}</h2>
+            <p className="text-slate-400 text-xs mb-4">{tr('Leave your details so the owner can contact you to arrange the return.', 'Laissez vos coordonnées afin que le propriétaire puisse organiser le retour avec vous.')}</p>
             <form onSubmit={handleSubmit} className="space-y-3 text-slate-900">
               <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1 block">Your Name</label>
-                <Input placeholder="Enter your name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">{tr('Your Name', 'Votre nom')}</label>
+                <Input placeholder={tr('Enter your name', 'Saisissez votre nom')} value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1 block">Phone Number</label>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">{tr('Phone Number', 'Numéro de téléphone')}</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" type="tel" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1 block">Email</label>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">{tr('Email', 'E-mail')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input placeholder="your@email.com" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" type="email" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1 block">Where did you find it?</label>
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">{tr('Where did you find it?', 'Où l’avez-vous trouvé ?')}</label>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input placeholder="e.g. Outside Starbucks on 5th Ave" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
+                  <Input placeholder={tr('e.g. Outside Starbucks on 5th Ave', 'ex. : devant un commerce sur la 5e Avenue')} value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" />
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-600 mb-1 block">Message to owner (optional)</label>
-                <Textarea placeholder="e.g. I found your pet near the park. They're safe with me." value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" rows={3} />
+                <label className="text-xs font-semibold text-slate-600 mb-1 block">{tr('Message to owner (optional)', 'Message au propriétaire (facultatif)')}</label>
+                <Textarea placeholder={tr("e.g. I found your pet near the park. They're safe with me.", 'ex. : Je l’ai trouvé près du parc. Il est en sécurité avec moi.')} value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none bg-white text-slate-900 placeholder:text-slate-400 border-slate-200 caret-slate-900 focus-visible:ring-orange-500/30 focus-visible:border-orange-400" rows={3} />
               </div>
               <Button type="submit" disabled={submitting || (!form.name && !form.phone && !form.email)} className="w-full rounded-xl font-bold gap-2 h-12" style={{ background: '#f97316' }}>
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                {submitting ? 'Sending…' : 'Send Report'}
+                {submitting ? tr('Sending…', 'Envoi…') : tr('Send Report', 'Envoyer le signalement')}
               </Button>
             </form>
           </div>
@@ -548,7 +548,7 @@ export default function AssetFinder() {
         </div>
         <div className="pt-5 pb-3 text-center">
           <div className="flex items-center justify-center gap-1 opacity-80"><span className="text-white font-black text-lg tracking-[-0.04em]">Bing</span><InfinityMark size={25} color="#f97316" strokeWidth={3.4} /></div>
-          <p className="mt-1 text-[9px] font-bold uppercase tracking-[.28em] text-white/35">Assets That Stay Closer</p>
+          <p className="mt-1 text-[9px] font-bold uppercase tracking-[.28em] text-white/35">{tr('Assets That Stay Closer', 'Des objets qui restent proches')}</p>
         </div>
       </div>
     </div>
