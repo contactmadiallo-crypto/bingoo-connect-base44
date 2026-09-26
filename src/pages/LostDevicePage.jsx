@@ -13,8 +13,11 @@ import BingooLogo from "@/components/bingoo/BingooLogo";
 import PublicFooter from "@/components/bingoo/PublicFooter";
 import { useLostScanLogger } from "@/hooks/useLostScanLogger";
 import { getDeviceDisplayName } from "@/lib/deviceTypes";
+import { useI18n } from "@/lib/I18nContext";
+import { t } from "@/lib/i18n";
 
 export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp } = {}) {
+  const { language } = useI18n();
   const params = useParams();
   const rawCode = deviceCodeProp || params.deviceCode;
   const normalizedCode = rawCode?.toUpperCase().trim();
@@ -43,7 +46,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
   const showWhatsapp = !!profile?.whatsapp_number;
   const showEmail = !!profile?.email;
   const hasContact = showPhone || showWhatsapp || showEmail;
-  const productLabel = device ? getDeviceDisplayName(device) : "Bingoo Device";
+  const productLabel = device ? getDeviceDisplayName(device) : t("lost_bingoo_device",language);
   const assignedName = profile?.display_name || profile?.company_name || null;
 
   const handleSubmit = async (e) => {
@@ -74,7 +77,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
       <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(160deg, #071A3D 0%, #0b2149 60%, #13284f 100%)" }}>
         <div className="text-center">
           <BingooLogo className="w-14 h-14 mx-auto mb-4" animated />
-          <p className="text-white/60 font-semibold text-sm">Checking device…</p>
+          <p className="text-white/60 font-semibold text-sm">{t("lost_checking",language)}</p>
         </div>
       </div>
     );
@@ -87,11 +90,11 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
           <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 mb-2">Thank You! 🙏</h2>
+          <h2 className="text-2xl font-black text-slate-900 mb-2">{t("lost_thank_you",language)} 🙏</h2>
           <p className="text-slate-500 text-sm leading-relaxed">
-            Your report has been sent to the owner. They will contact you soon. You're doing a great thing by helping return this item!
+            {t("lost_thanks_copy",language)}
           </p>
-          <p className="text-xs text-slate-400 mt-4">Powered by Bingoo Connect</p>
+          <p className="text-xs text-slate-400 mt-4">{t("lost_powered",language)}</p>
         </div>
       </div>
     );
@@ -106,7 +109,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
           <BingooLogo className="w-9 h-9" animated={false} />
           <div>
             <p className="text-white font-black text-sm leading-none">Bingoo Connect</p>
-            <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mt-0.5">Lost Item Recovery</p>
+            <p className="text-white/40 text-[10px] font-bold uppercase tracking-wider mt-0.5">{t("lost_recovery",language)}</p>
           </div>
         </div>
 
@@ -115,10 +118,10 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
           <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <AlertTriangle className="w-9 h-9 text-white" />
           </div>
-          <h1 className="text-xl font-black text-white mb-1">This item has been reported lost</h1>
-          <p className="text-white/85 text-sm">If you found this item, please help return it to its owner.</p>
+          <h1 className="text-xl font-black text-white mb-1">{t("lost_item_reported",language)}</h1>
+          <p className="text-white/85 text-sm">{t("lost_help_return",language)}</p>
           <div className="inline-flex items-center gap-2 bg-white/15 rounded-xl px-3 py-1.5 mt-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">Code</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-white/70">{t("lost_code",language)}</span>
             <span className="text-xs font-mono font-black text-white">{normalizedCode}</span>
           </div>
         </div>
@@ -130,17 +133,17 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
               <ShieldCheck className="w-5 h-5" style={{ color: "#f97316" }} />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Device</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t("lost_device",language)}</p>
               <p className="text-sm font-black text-slate-900 truncate">{productLabel}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Device Code</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t("lost_device_code",language)}</p>
               <p className="text-xs font-mono font-black text-slate-900 mt-0.5">{normalizedCode}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Assigned To</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{t("lost_assigned_to",language)}</p>
               <p className="text-xs font-black text-slate-900 mt-0.5 truncate">{assignedName || "—"}</p>
             </div>
           </div>
@@ -149,13 +152,13 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
         {/* Owner contact options */}
         {hasContact && (
           <div className="bg-white rounded-3xl shadow-lg p-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Contact the owner</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">{t("lost_contact_owner",language)}</p>
             <div className="space-y-2.5">
               {showPhone && (
                 <a href={`tel:${profile.phone}`} className="flex items-center gap-3 p-3.5 rounded-2xl text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]" style={{ background: "#f97316" }}>
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><Phone className="w-4 h-4" /></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">Call</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">{t("lost_call",language)}</p>
                     <p className="truncate">{profile.phone}</p>
                   </div>
                 </a>
@@ -165,7 +168,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/20 shrink-0"><MessageCircle className="w-4 h-4" /></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] font-bold uppercase tracking-wide text-white/60">WhatsApp</p>
-                    <p className="truncate">Chat instantly</p>
+                    <p className="truncate">{t("lost_chat_instantly",language)}</p>
                   </div>
                 </a>
               )}
@@ -173,7 +176,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
                 <a href={`mailto:${profile.email}`} className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-200 text-slate-700 font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] hover:border-slate-300">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 shrink-0"><Mail className="w-4 h-4 text-slate-600" /></div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Email</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{t("lost_email",language)}</p>
                     <p className="truncate">{profile.email}</p>
                   </div>
                 </a>
@@ -187,7 +190,7 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
           <div className="flex items-start gap-2.5">
             <ShieldCheck className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
             <p className="text-white/75 text-xs leading-relaxed">
-              You're helping return a lost item. Contact the owner using the options above, or leave a message below. Your details are shared only with the owner.
+              {t("lost_safe_copy",language)}
             </p>
           </div>
         </div>
@@ -200,85 +203,85 @@ export default function LostDevicePage({ deviceCodeProp, deviceProp, profileProp
                 <MapPinned className="w-5 h-5" style={{ color: "#f97316" }} />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-black text-slate-900">Share your location?</p>
-                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">Help the owner recover this item by sharing your current location. We'll ask your browser for permission — nothing is shared without your approval.</p>
+                <p className="text-sm font-black text-slate-900">{t("lost_share_location",language)}</p>
+                <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{t("lost_share_location_copy",language)}</p>
               </div>
             </div>
             <Button onClick={requestLocation} className="w-full rounded-xl font-bold h-11" style={{ background: "#0b2149" }}>
-              <MapPin className="w-4 h-4" /> Share my location
+              <MapPin className="w-4 h-4" /> {t("lost_share_my_location",language)}
             </Button>
           </div>
         )}
         {locationStatus === "prompted" && (
           <div className="bg-white rounded-2xl shadow-lg p-4 flex items-center gap-3">
             <Loader2 className="w-4 h-4 animate-spin text-orange-500 shrink-0" />
-            <p className="text-xs font-semibold text-slate-600">Waiting for browser permission…</p>
+            <p className="text-xs font-semibold text-slate-600">{t("lost_wait_permission",language)}</p>
           </div>
         )}
         {locationStatus === "granted" && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-bold text-emerald-800">Location shared — thank you!</p>
-              <p className="text-xs text-emerald-600 mt-0.5">Your approximate location will be sent to the owner with your report.</p>
+              <p className="text-sm font-bold text-emerald-800">{t("lost_location_shared",language)}</p>
+              <p className="text-xs text-emerald-600 mt-0.5">{t("lost_location_shared_copy",language)}</p>
             </div>
           </div>
         )}
         {locationStatus === "denied" && (
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
             <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-            <p className="text-xs text-slate-500">No problem — you can still submit a report without sharing location.</p>
+            <p className="text-xs text-slate-500">{t("lost_location_denied",language)}</p>
           </div>
         )}
         {locationStatus === "unsupported" && (
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center gap-3">
             <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-            <p className="text-xs text-slate-500">Location sharing isn't available on this device. You can still submit a report.</p>
+            <p className="text-xs text-slate-500">{t("lost_location_unsupported",language)}</p>
           </div>
         )}
 
         {/* Finder report form */}
         <div className="bg-white rounded-3xl shadow-lg p-6">
-          <h2 className="font-black text-slate-900 text-base mb-1">Report Found Item</h2>
-          <p className="text-slate-400 text-xs mb-4">Fill in your details to help the owner find their item.</p>
+          <h2 className="font-black text-slate-900 text-base mb-1">{t("lost_report_found",language)}</h2>
+          <p className="text-slate-400 text-xs mb-4">{t("lost_report_copy",language)}</p>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-slate-600 mb-1 block">Your Name</label>
-              <Input placeholder="Enter your name" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl" />
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">{t("lost_your_name",language)}</label>
+              <Input placeholder={t("lost_name_ph",language)} value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="rounded-xl" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 mb-1 block">Phone Number</label>
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">{t("lost_phone",language)}</label>
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="pl-9 rounded-xl" type="tel" />
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 mb-1 block">Email</label>
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">{t("lost_email",language)}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input placeholder="your@email.com" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="pl-9 rounded-xl" type="email" />
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 mb-1 block">Where did you find it?</label>
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">{t("lost_where",language)}</label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input placeholder="e.g. Central Park, NYC" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl" />
+                <Input placeholder={t("lost_where_ph",language)} value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} className="pl-9 rounded-xl" />
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 mb-1 block">Message to owner (optional)</label>
-              <Textarea placeholder="e.g. I found your card at the coffee shop. I'll hold it for you." value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none" rows={3} />
+              <label className="text-xs font-semibold text-slate-600 mb-1 block">{t("lost_message",language)}</label>
+              <Textarea placeholder={t("lost_message_ph",language)} value={form.message} onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))} className="rounded-xl resize-none" rows={3} />
             </div>
             <Button type="submit" disabled={submitting || (!form.name && !form.phone && !form.email)} className="w-full rounded-xl font-bold gap-2 h-12" style={{ background: "#f97316" }}>
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-              {submitting ? "Sending…" : "Send Recovery Message"}
+              {submitting ? t("lost_sending",language) : t("lost_send_recovery",language)}
             </Button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-white/40 pb-2">Powered by Bingoo Connect</p>
+        <p className="text-center text-xs text-white/40 pb-2">{t("lost_powered",language)}</p>
         <PublicFooter />
       </div>
     </div>
