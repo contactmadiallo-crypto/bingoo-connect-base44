@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Download, Share } from "lucide-react";
+import { useI18n } from '@/lib/I18nContext';
 
 /**
  * PWA Install Banner
@@ -8,6 +9,8 @@ import { X, Download, Share } from "lucide-react";
  * - Dismissible, remembers dismissal for 7 days
  */
 export default function PWAInstallBanner() {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -90,20 +93,20 @@ export default function PWAInstallBanner() {
               style={{ background: "rgba(255,255,255,0.1)" }}
             />
             <div className="flex-1 pr-4">
-              <p className="text-white font-black text-sm">Add to Home Screen</p>
+              <p className="text-white font-black text-sm">{tr('Add to Home Screen', 'Ajouter à l’écran d’accueil')}</p>
               <p className="text-white/60 text-xs mt-0.5 leading-relaxed">
-                Install Bingoo Connect for the best experience — works offline too!
+                {tr('Install Bingoo Connect for the best experience — works offline too!', 'Installez Bingoo Connect pour une expérience optimale — fonctionne aussi hors ligne !')}
               </p>
             </div>
           </div>
 
           <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-            <p className="text-white/50 text-xs mb-2 font-semibold uppercase tracking-wider">How to install on iOS</p>
+            <p className="text-white/50 text-xs mb-2 font-semibold uppercase tracking-wider">{tr('How to install on iOS', 'Comment installer sur iOS')}</p>
             <div className="space-y-1.5">
               {[
-                { step: "1", text: "Tap the Share button", icon: <Share className="w-3.5 h-3.5 text-blue-300" /> },
-                { step: "2", text: 'Scroll down and tap "Add to Home Screen"', icon: <Download className="w-3.5 h-3.5 text-blue-300" /> },
-                { step: "3", text: 'Tap "Add" — done! 🎉', icon: <span className="text-sm">✅</span> },
+                { step: "1", text: tr('Tap the Share button', 'Touchez le bouton Partager'), icon: <Share className="w-3.5 h-3.5 text-blue-300" /> },
+                { step: "2", text: tr('Scroll down and tap "Add to Home Screen"', 'Faites défiler puis touchez « Ajouter à l’écran d’accueil »'), icon: <Download className="w-3.5 h-3.5 text-blue-300" /> },
+                { step: "3", text: tr('Tap "Add" — done! 🎉', 'Touchez « Ajouter » — terminé ! 🎉'), icon: <span className="text-sm">✅</span> },
               ].map((s) => (
                 <div key={s.step} className="flex items-center gap-2">
                   <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
@@ -140,8 +143,8 @@ export default function PWAInstallBanner() {
           style={{ background: "rgba(255,255,255,0.1)" }}
         />
         <div className="flex-1 min-w-0">
-          <p className="text-white font-black text-sm">Install Bingoo Connect</p>
-          <p className="text-white/55 text-xs mt-0.5">Works offline • Instant access</p>
+          <p className="text-white font-black text-sm">{tr('Install Bingoo Connect', 'Installer Bingoo Connect')}</p>
+          <p className="text-white/55 text-xs mt-0.5">{tr('Works offline • Instant access', 'Fonctionne hors ligne • Accès instantané')}</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
@@ -149,7 +152,7 @@ export default function PWAInstallBanner() {
             className="px-3 py-2 rounded-xl text-xs font-black text-white"
             style={{ background: "#f97316" }}
           >
-            Install
+            {tr('Install', 'Installer')}
           </button>
           <button onClick={handleDismiss} className="p-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.08)" }}>
             <X className="w-3.5 h-3.5 text-white/40" />
