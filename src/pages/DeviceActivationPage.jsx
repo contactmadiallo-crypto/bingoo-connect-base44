@@ -110,20 +110,20 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
       if (assignMode === "asset") {
         if (!selectedAssetId) {
-          setError("You must choose an asset first.");
+          setError(t("activate_err_choose_asset",language));
           setActivating(false);
           return;
         }
         const targetAsset = myAssets.find(a => a.id === selectedAssetId);
         if (!targetAsset) {
-          setError("Selected asset not found. Please choose again.");
+          setError(t("activate_err_asset_missing",language));
           setActivating(false);
           return;
         }
         // Assets need a profile_id for the NFCDevice record
         const assetProfileId = targetAsset.profile_id || profiles[0]?.id || null;
         if (!assetProfileId) {
-          setError("Please create a profile first before assigning a device to an asset.");
+          setError(t("activate_err_profile_for_asset",language));
           setActivating(false);
           return;
         }
@@ -137,13 +137,13 @@ export default function DeviceActivationPage({ deviceCode, device }) {
         };
       } else {
         if (!selectedProfileId) {
-          setError("You must choose a profile first.");
+          setError(t("activate_err_choose_profile",language));
           setActivating(false);
           return;
         }
         const targetProfile = profiles.find(p => p.id === selectedProfileId);
         if (!targetProfile) {
-          setError("Selected profile not found. Please choose again.");
+          setError(t("activate_err_profile_missing",language));
           setActivating(false);
           return;
         }
@@ -163,11 +163,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
         // Map backend error to user-friendly message
         const backendError = result.data.error;
         if (backendError.includes("not found")) {
-          setError("Device code not found. Check the code on your device and try again.");
+          setError(t("activate_err_device_missing",language));
         } else if (backendError.includes("just claimed") || backendError.includes("another account")) {
-          setError("This device was just activated by another account. If this is yours, contact support.");
+          setError(t("activate_err_claimed",language));
         } else if (backendError.includes("do not own")) {
-          setError("You do not own the selected profile. Try creating a new profile.");
+          setError(t("activate_err_not_owner",language));
         } else if (backendError.includes("does not include") || backendError.includes("Upgrade")) {
           setError(backendError);
         } else if (backendError.includes("reached the device limit")) {
@@ -198,7 +198,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
       setStep("success");
     } catch (e) {
       console.error("[DeviceActivation] error:", e);
-      setError("Network error, please retry. Check your connection and try again.");
+      setError(t("activate_err_network",language));
     } finally {
       setActivating(false);
     }
@@ -207,7 +207,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   // ── Create new profile ──
   const handleCreateProfile = async () => {
     if (!newProfileName.trim() || !newProfileUsername.trim()) {
-      setError("Name and username are required to create a profile.");
+      setError(t("activate_err_name_username",language));
       return;
     }
     setCreatingProfile(true);
@@ -228,7 +228,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
       setNewProfileName("");
       setNewProfileUsername("");
     } catch (e) {
-      setError("Could not create profile. That username may be taken — try a different one.");
+      setError(t("activate_err_create_profile",language));
     } finally {
       setCreatingProfile(false);
     }
@@ -237,11 +237,11 @@ export default function DeviceActivationPage({ deviceCode, device }) {
   // ── Create new asset ──
   const handleCreateAsset = async () => {
     if (!newAssetName.trim()) {
-      setError("Asset name is required.");
+      setError(t("activate_err_asset_name",language));
       return;
     }
     if (profiles.length === 0) {
-      setError("Create a profile first before creating an asset.");
+      setError(t("activate_err_create_profile_first",language));
       return;
     }
     setCreatingAsset(true);
@@ -261,7 +261,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
       setNewAssetName("");
       setNewAssetType("pet");
     } catch (e) {
-      setError("Could not create asset. Please try again.");
+      setError(t("activate_err_create_asset",language));
     } finally {
       setCreatingAsset(false);
     }
@@ -445,21 +445,21 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                 <div className="grid grid-cols-3 gap-2 md:gap-4 mt-7 pt-6 border-t border-white/[.055]">
                   <div className="text-center">
                     <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><Link2 className="w-5 h-5 text-white" /></div>
-                    <p className="text-[11px] font-black text-white">One Tap</p><p className="text-[10px] text-white/45">Share Anything</p>
+                    <p className="text-[11px] font-black text-white">{t("activate_one_tap",language)}</p><p className="text-[10px] text-white/45">{t("activate_share_anything",language)}</p>
                   </div>
                   <div className="text-center">
                     <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><InfinityMark size={23} color="#fff" strokeWidth={2.3} /></div>
-                    <p className="text-[11px] font-black text-white">Endless</p><p className="text-[10px] text-white/45">Possibilities</p>
+                    <p className="text-[11px] font-black text-white">{t("activate_endless",language)}</p><p className="text-[10px] text-white/45">{t("activate_possibilities",language)}</p>
                   </div>
                   <div className="text-center">
                     <div className="w-11 h-11 rounded-full mx-auto mb-2 flex items-center justify-center border border-blue-400/30 bg-blue-400/[.07]"><ShieldCheck className="w-5 h-5 text-white" /></div>
-                    <p className="text-[11px] font-black text-white">Secure</p><p className="text-[10px] text-white/45">and Yours</p>
+                    <p className="text-[11px] font-black text-white">{t("activate_secure",language)}</p><p className="text-[10px] text-white/45">{t("activate_and_yours",language)}</p>
                   </div>
                 </div>
 
                 <div className="mt-7 text-center">
                   <p className="text-xs text-white/45">Bingoo Connect</p>
-                  <p className="mt-1 text-[8px] font-bold tracking-[.34em] uppercase text-white/35">Smart NFC Profiles</p>
+                  <p className="mt-1 text-[8px] font-bold tracking-[.34em] uppercase text-white/35">{t("activate_smart_profiles",language)}</p>
                 </div>
               </div>
             </motion.div>
@@ -582,7 +582,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                           <Button onClick={handleCreateProfile} disabled={creatingProfile || !newProfileName.trim()}
                             className="flex-1 rounded-xl font-bold"
                             style={{ background: ORANGE, color: "#fff" }}>
-                            {creatingProfile ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating...</> : "Create Profile"}
+                            {creatingProfile ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />{t("activate_creating",language)}</> : t("activate_create_profile",language)}
                           </Button>
                           <Button variant="outline" onClick={() => setShowCreateProfile(false)}
                             className="rounded-xl border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">
@@ -667,7 +667,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                           <Button onClick={handleCreateAsset} disabled={creatingAsset || !newAssetName.trim()}
                             className="flex-1 rounded-xl font-bold"
                             style={{ background: ORANGE, color: "#fff" }}>
-                            {creatingAsset ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating...</> : "Create Asset"}
+                            {creatingAsset ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />{t("activate_creating",language)}</> : t("activate_create_asset",language)}
                           </Button>
                           <Button variant="outline" onClick={() => setShowCreateAsset(false)}
                             className="rounded-xl border-white/20 text-white hover:bg-white/10 hover:text-white bg-transparent">
@@ -707,8 +707,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   className="w-full h-13 mt-5 text-base font-black rounded-2xl gap-2"
                   style={{ background: `linear-gradient(135deg, ${ORANGE}, #e86e00)`, color: "#fff" }}>
                   {activating
-                    ? <><Loader2 className="w-5 h-5 animate-spin" /> Activating...</>
-                    : <><Wifi className="w-5 h-5" /> Activate Device <ChevronRight className="w-5 h-5" /></>
+                    ? <><Loader2 className="w-5 h-5 animate-spin" /> {t("activate_activating",language)}</>
+                    : <><Wifi className="w-5 h-5" /> {t("activate_activate_device",language)} <ChevronRight className="w-5 h-5" /></>
                   }
                 </Button>
               </div>
