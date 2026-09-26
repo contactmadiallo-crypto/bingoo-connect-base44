@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Shield, Flag, Activity, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const STATUS_COLORS = {
   pending: { bg: "rgba(253,186,33,0.15)", color: "#FDBA21", border: "rgba(253,186,33,0.3)" },
@@ -180,7 +181,7 @@ export default function SecurityAuditTab() {
                         onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
                         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                         <td className="px-4 py-3">
-                          <a href={`/p/${r.reported_username}`} target="_blank" rel="noopener noreferrer"
+                          <a href={publicProfileUrl(r.reported_username)} target="_blank" rel="noopener noreferrer"
                             className="text-sm font-bold hover:underline" style={{ color: orange }}>
                             @{r.reported_username || r.reported_profile_id?.slice(0, 10)}
                           </a>
