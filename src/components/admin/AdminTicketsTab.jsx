@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { HeadphonesIcon, MapPin, ScrollText, Send } from 'lucide-react';
+import { useI18n } from '@/lib/I18nContext';
+import { t } from '@/lib/i18n';
 
 function PriorityBadge({ priority }) {
   const colors = { low: 'bg-slate-100 text-slate-600', medium: 'bg-blue-100 text-blue-700', high: 'bg-orange-100 text-orange-700', urgent: 'bg-red-100 text-red-700' };
@@ -15,6 +17,7 @@ function StatusBadge({ status }) {
 }
 
 export default function AdminTicketsTab({ activeTab }) {
+  const { language } = useI18n();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [responseText, setResponseText] = useState({});
@@ -57,21 +60,21 @@ export default function AdminTicketsTab({ activeTab }) {
         target_name: ticket?.subject,
         notes: `Response sent: ${responseText[ticketId].substring(0, 100)}`,
       });
-      toast({ title: 'Response sent', description: 'Ticket marked as resolved' });
+      toast({ title: t("admin_response_sent",language), description: t("admin_ticket_resolved",language) });
       setResponseText({ ...responseText, [ticketId]: '' });
       queryClient.invalidateQueries({ queryKey: ['admin-tickets-list'] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t("admin_error",language), description: err.message, variant: "destructive" });
     }
   };
 
   const handleUpdateReportStatus = async (reportId, status) => {
     try {
       await base44.entities.LostItemReport.update(reportId, { status });
-      toast({ title: `Report marked as ${status}` });
+      toast({ title: `${t("admin_report_marked",language)} ${status}` });
       queryClient.invalidateQueries({ queryKey: ['admin-lost-reports'] });
     } catch (err) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t("admin_error",language), description: err.message, variant: "destructive" });
     }
   };
 
@@ -86,7 +89,7 @@ export default function AdminTicketsTab({ activeTab }) {
         {(tickets || []).length === 0 && (
           <div className="text-center py-16 text-sm text-slate-400">
             <HeadphonesIcon className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            No support tickets.
+            {t("admin_no_support_tickets",language)}
           </div>
         )}
         {(tickets || []).map(t => (
@@ -105,7 +108,7 @@ export default function AdminTicketsTab({ activeTab }) {
             <p className="text-sm text-slate-600 mb-3">{t.message}</p>
             {t.response && (
               <div className="bg-emerald-50 rounded-lg p-3 mb-3">
-                <p className="text-xs font-bold text-emerald-700 mb-1">Admin Response:</p>
+                <p className="text-xs font-bold text-emerald-700 mb-1">{t("admin_response_label",language)}</p>
                 <p className="text-sm text-slate-700">{t.response}</p>
               </div>
             )}
@@ -113,7 +116,7 @@ export default function AdminTicketsTab({ activeTab }) {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Type a response…"
+                  placeholder={t("admin_response_ph",language)}
                   value={responseText[t.id] || ''}
                   onChange={e => setResponseText({ ...responseText, [t.id]: e.target.value })}
                   className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm"
@@ -123,7 +126,7 @@ export default function AdminTicketsTab({ activeTab }) {
                   disabled={!responseText[t.id]}
                   className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold disabled:opacity-50"
                 >
-                  <Send className="w-3.5 h-3.5" /> Send
+                  <Send className="w-3.5 h-3.5" /> {t("admin_send",language)}
                 </button>
               </div>
             )}
@@ -140,14 +143,14 @@ export default function AdminTicketsTab({ activeTab }) {
         {(lostReports || []).length === 0 && (
           <div className="text-center py-16 text-sm text-slate-400">
             <MapPin className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            No lost device reports.
+            {t("admin_no_lost_reports",language)}.
           </div>
         )}
         {(lostReports || []).map(r => (
           <div key={r.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-bold text-slate-800 text-sm">Device: {r.device_code}</p>
+                <p className="font-bold text-slate-800 text-sm">{t("admin_device",language)}: {r.device_code}</p>
                 <p className="text-xs text-slate-500">{r.finder_name} • {r.finder_phone || r.finder_email}</p>
               </div>
               <StatusBadge status={r.status} />
@@ -155,8 +158,8 @@ export default function AdminTicketsTab({ activeTab }) {
             {r.finder_message && <p className="text-sm text-slate-600 mb-2">"{r.finder_message}"</p>}
             {r.finder_location && <p className="text-xs text-slate-400 mb-2">📍 {r.finder_location}</p>}
             <div className="flex gap-2 mt-2">
-              <button onClick={() => handleUpdateReportStatus(r.id, 'contacted')} className="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-bold">Mark Contacted</button>
-              <button onClick={() => handleUpdateReportStatus(r.id, 'recovered')} className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold">Mark Recovered</button>
+              <button onClick={() => handleUpdateReportStatus(r.id, 'contacted')} className="px-3 py-1.5 rounded-lg bg-blue-500 text-white text-xs font-bold">{t("admin_mark_contacted",language)}</button>
+              <button onClick={() => handleUpdateReportStatus(r.id, 'recovered')} className="px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold">{t("admin_mark_recovered",language)}</button>
             </div>
           </div>
         ))}
@@ -172,11 +175,11 @@ export default function AdminTicketsTab({ activeTab }) {
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b border-slate-200">
               <tr>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Date</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_date",language)}</th>
                 <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Admin</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Action</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Target</th>
-                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">Details</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_action",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_target",language)}</th>
+                <th className="text-left px-4 py-3 font-bold text-slate-600 text-xs uppercase">{t("admin_details",language)}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -195,7 +198,7 @@ export default function AdminTicketsTab({ activeTab }) {
         {(!auditLogs || auditLogs.length === 0) && (
           <div className="text-center py-12 text-sm text-slate-400">
             <ScrollText className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            No audit log entries yet.
+            {t("admin_no_audit_entries",language)}
           </div>
         )}
       </div>
