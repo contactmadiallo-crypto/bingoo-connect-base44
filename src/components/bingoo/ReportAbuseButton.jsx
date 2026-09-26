@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Flag } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { MobileSelect } from "@/components/ui/mobile-select";
+import { useI18n } from '@/lib/I18nContext';
 
 const REASONS = [
   { value: "spam", label: "Spam" },
@@ -14,6 +15,8 @@ const REASONS = [
 ];
 
 export default function ReportAbuseButton({ profileId, username }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === 'fr' ? fr : en;
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
@@ -53,9 +56,9 @@ export default function ReportAbuseButton({ profileId, username }) {
         {submitted ? (
           <div className="text-center py-4">
             <div className="text-4xl mb-3">✅</div>
-            <h3 className="font-bold text-slate-900 mb-1">Report Submitted</h3>
-            <p className="text-slate-500 text-sm">Our team will review this report. Thank you for helping keep Bingoo Connect safe.</p>
-            <button onClick={() => setOpen(false)} className="mt-4 px-6 py-2 rounded-xl bg-slate-900 text-white font-bold text-sm">Close</button>
+            <h3 className="font-bold text-slate-900 mb-1">{tr('Report Submitted', 'Signalement envoyé')}</h3>
+            <p className="text-slate-500 text-sm">{tr('Our team will review this report. Thank you for helping keep Bingoo Connect safe.', 'Notre équipe examinera ce signalement. Merci de contribuer à la sécurité de Bingoo Connect.')}</p>
+            <button onClick={() => setOpen(false)} className="mt-4 px-6 py-2 rounded-xl bg-slate-900 text-white font-bold text-sm">{tr('Close', 'Fermer')}</button>
           </div>
         ) : (
           <>
@@ -64,38 +67,38 @@ export default function ReportAbuseButton({ profileId, username }) {
                 <Flag className="w-5 h-5 text-red-600" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Report Profile</h3>
+                <h3 className="font-bold text-slate-900">{tr('Report Profile', 'Signaler le profil')}</h3>
                 <p className="text-xs text-slate-400">@{username}</p>
               </div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Reason *</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">{tr('Reason *', 'Motif *')}</label>
                 <MobileSelect
                   value={reason}
                   onValueChange={setReason}
                   options={REASONS}
-                  placeholder="Select a reason…"
+                  placeholder={tr('Select a reason…', 'Sélectionnez un motif…')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none bg-slate-50"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Details (optional)</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">{tr('Details (optional)', 'Détails (facultatif)')}</label>
                 <textarea
                   value={details}
                   onChange={e => setDetails(e.target.value)}
                   rows={3}
-                  placeholder="Describe the issue…"
+                  placeholder={tr('Describe the issue…', 'Décrivez le problème…')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none resize-none bg-slate-50"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">Your Email (optional)</label>
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide block mb-1.5">{tr('Your Email (optional)', 'Votre e-mail (facultatif)')}</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="for follow-up if needed"
+                  placeholder={tr('for follow-up if needed', 'pour un suivi si nécessaire')}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm outline-none bg-slate-50"
                 />
               </div>
