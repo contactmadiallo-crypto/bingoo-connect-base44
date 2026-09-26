@@ -495,7 +495,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                     {user.full_name?.charAt(0) || "U"}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-white font-bold text-sm truncate">Welcome, {user.full_name?.split(" ")[0] || "there"}!</p>
+                    <p className="text-white font-bold text-sm truncate">{t("activate_welcome",language)}, {user.full_name?.split(" ")[0] || t("activate_there",language)}!</p>
                     <p className="text-white/40 text-xs truncate">{user.email}</p>
                   </div>
                 </div>
@@ -603,7 +603,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                     {profiles.length === 0 ? (
                       <div className="rounded-2xl p-4 mb-4" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)" }}>
                         <p className="text-amber-400 text-sm">
-                          You need a profile before creating an asset. Switch to Profile and create one first.
+                          {t("activate_need_profile_first",language)}
                         </p>
                       </div>
                     ) : myAssets.length > 0 ? (
@@ -688,13 +688,13 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                         <p className="text-red-400 text-sm font-semibold">{error}</p>
                         {error.toLowerCase().includes("upgrade") && (
                           <a href="/plans" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
-                            View Plans →
+                            {t("activate_view_plans",language)} →
                           </a>
                         )}
                         {error.toLowerCase().includes("network") && (
                           <button onClick={handleRetry} disabled={activating}
                             className="mt-2 inline-flex items-center gap-2 text-orange-400 text-sm font-bold hover:underline">
-                            <RefreshCw className="w-4 h-4" /> Retry
+                            <RefreshCw className="w-4 h-4" /> {t("activate_retry",language)}
                           </button>
                         )}
                       </div>
@@ -730,7 +730,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
 
               <h1 className="text-2xl font-black text-white mb-2">{t("activate_success",language)}</h1>
               <p className="text-white/50 text-sm mb-2">
-                <span className="font-mono font-bold text-orange-400">{deviceCode}</span> · {deviceTypeLabel} is now linked to
+                <span className="font-mono font-bold text-orange-400">{deviceCode}</span> · {deviceTypeLabel} {t("activate_now_linked",language)}
               </p>
               {assignMode === "asset" && successAsset ? (
                 <p className="text-white font-bold text-lg mb-1">{successAsset.name}</p>
@@ -739,8 +739,8 @@ export default function DeviceActivationPage({ deviceCode, device }) {
               ) : null}
               <p className="text-white/40 text-xs mb-6">
                 {assignMode === "asset"
-                  ? "Anyone who taps this device will see the asset recovery page."
-                  : "Anyone who taps your device will be redirected to your profile."}
+                  ? t("activate_asset_success_copy",language)
+                  : t("activate_profile_success_copy",language)}
               </p>
 
               <div className="space-y-3">
@@ -748,7 +748,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   <a href={`/p/${successProfile.username}`}>
                     <Button className="w-full font-bold rounded-2xl"
                       style={{ background: `linear-gradient(135deg, ${ORANGE}, #e86e00)`, color: "#fff" }}>
-                      Open Profile →
+                      {t("activate_open_profile",language)} →
                     </Button>
                   </a>
                 )}
@@ -756,7 +756,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                   <a href={`/asset/${deviceCode}`}>
                     <Button className="w-full font-bold rounded-2xl"
                       style={{ background: `linear-gradient(135deg, ${ORANGE}, #e86e00)`, color: "#fff" }}>
-                      Open Asset Page →
+                      {t("activate_open_asset",language)} →
                     </Button>
                   </a>
                 )}
@@ -772,7 +772,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
         </AnimatePresence>
       </div>
 
-        <p className="text-center text-white/20 text-xs mt-8">Bingoo Connect · Smart NFC Profiles</p>
+        <p className="text-center text-white/20 text-xs mt-8">Bingoo Connect · {t("activate_smart_profiles",language)}</p>
       </div>
     </div>
   );
