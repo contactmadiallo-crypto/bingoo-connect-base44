@@ -43,6 +43,7 @@ export default function SubscriptionPricing() {
   const [successMsg, setSuccessMsg] = useState('');
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [expandedPlans, setExpandedPlans] = useState(() => new Set());
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
   const { user } = useAuth();
@@ -223,15 +224,15 @@ export default function SubscriptionPricing() {
           </div>
         )}
 
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + '20', color: '#b45309', border: `1px solid ${B.gold}40` }}>
             {tr('Plans and Pricing', 'Forfaits et tarifs')}
           </div>
-          <h1 className="text-4xl md:text-5xl font-black mb-3" style={{ color: B.navy }}>
+          <h1 className="text-3xl md:text-4xl font-black mb-2" style={{ color: B.navy }}>
             {tr('Choose Your Plan', 'Choisissez votre forfait')}
           </h1>
-          <p className="text-slate-500 max-w-lg mx-auto text-lg">
+          <p className="text-slate-500 max-w-2xl mx-auto text-base">
             {tr('From personal profiles to full business solutions. Billed monthly. Cancel anytime.', 'Du profil personnel aux solutions complètes pour entreprises. Facturation mensuelle. Annulation à tout moment.')}
           </p>
           {/* Currency pill */}
@@ -242,7 +243,7 @@ export default function SubscriptionPricing() {
           </div>
 
           {/* Billing cycle toggle */}
-          <div className="mt-6 inline-flex items-center gap-1 p-1 rounded-2xl"
+          <div className="mt-4 inline-flex items-center gap-1 p-1 rounded-xl"
             style={{ background: 'rgba(11,33,73,0.06)' }}>
             <button onClick={() => setBillingCycle('monthly')}
               className="px-5 py-2 rounded-xl text-sm font-bold transition-all"
@@ -268,17 +269,20 @@ export default function SubscriptionPricing() {
         </div>
 
         {/* Plans grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-8 items-start">
           {PLAN_DEFS.map((plan) => {
             const current = isCurrent(plan.id);
             const isHighlight = plan.highlight || (highlightPlan && plan.id === highlightPlan.toLowerCase());
             const displayPrice = getPlanPrice(plan.id);
             const planFeatures = (PLAN_FEATURES || {})[plan.id] || (plan.comingSoon ? [] : (PLAN_FEATURES || {}).free || []);
+            const expanded = expandedPlans.has(plan.id);
+            const visibleFeatures = expanded ? planFeatures : planFeatures.slice(0, 7);
+            const hiddenFeatureCount = Math.max(0, planFeatures.length - visibleFeatures.length);
 
             return (
               <div
                 key={plan.id}
-                className="rounded-2xl border-2 p-7 flex flex-col relative transition-all hover:-translate-y-1"
+                className="rounded-2xl border-2 p-5 flex flex-col relative transition-all hover:-translate-y-0.5"
                 style={{
                   borderColor: isHighlight ? B.orange : current ? plan.color : '#e2e8f0',
                   background: isHighlight ? `linear-gradient(145deg, ${B.navy}, #13284f)` : '#fff',
@@ -305,20 +309,20 @@ export default function SubscriptionPricing() {
                 )}
 
                 {/* Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ background: isHighlight ? 'rgba(255,255,255,0.15)' : plan.color + '15', color: isHighlight ? '#fff' : plan.color }}>
                     {plan.icon}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#64748b' }}>{localizePlanText(plan.tagline, language)}</p>
-                    <h3 className="font-black text-lg leading-tight" style={{ color: isHighlight ? '#fff' : B.navy }}>{localizePlanText(plan.name, language)}</h3>
+                    <p className="text-[11px] leading-snug font-semibold" style={{ color: isHighlight ? 'rgba(255,255,255,0.5)' : '#64748b' }}>{localizePlanText(plan.tagline, language)}</p>
+                    <h3 className="font-black text-lg leading-tight mt-0.5" style={{ color: isHighlight ? '#fff' : B.navy }}>{localizePlanText(plan.name, language)}</h3>
                   </div>
                 </div>
 
                 {/* Price */}
-                <div className="mb-5">
-                  <span className="text-4xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
+                <div className="mb-3">
+                  <span className="text-3xl font-black" style={{ color: isHighlight ? B.gold : B.navy }}>
                     {plan.contactSales ? tr('Custom', 'Sur mesure') : plan.priceUSD === 0 ? tr('Free', 'Gratuit') : plan.priceUSD == null ? tr('TBD', 'À définir') : formatPrice(billingCycle === 'annual' ? getAnnualPrice(plan.id) : displayPrice, currency)}
                   </span>
                   {plan.priceUSD > 0 && (
@@ -328,7 +332,7 @@ export default function SubscriptionPricing() {
                   )}
                 </div>
 
-                <div className="h-px mb-5" style={{ background: isHighlight ? 'rgba(255,255,255,0.1)' : '#f1f5f9' }} />
+                <div className="h-px mb-3" style={{ background: isHighlight ? 'rgba(255,255,255,0.1)' : '#f1f5f9' }} />
 
                 {/* Features */}
                 {planFeatures.length === 0 ? (
@@ -338,22 +342,38 @@ export default function SubscriptionPricing() {
                     </p>
                   </div>
                 ) : (
-                  <ul className="space-y-2 mb-7 flex-1">
-                    {planFeatures.map((f, fi) => (
+                  <div className="mb-4 flex-1">
+                    <ul className="space-y-1.5">
+                    {visibleFeatures.map((f, fi) => (
                       <li key={fi} className="flex items-start gap-2 text-sm"
                         style={{ color: isHighlight ? 'rgba(255,255,255,0.78)' : '#475569' }}>
                         <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: isHighlight ? B.gold : plan.color }} />
                         {localizePlanText(f, language)}
                       </li>
                     ))}
-                  </ul>
+                    </ul>
+                    {(hiddenFeatureCount > 0 || expanded) && planFeatures.length > 7 && (
+                      <button
+                        type="button"
+                        onClick={() => setExpandedPlans(prev => {
+                          const next = new Set(prev);
+                          if (next.has(plan.id)) next.delete(plan.id); else next.add(plan.id);
+                          return next;
+                        })}
+                        className="mt-3 text-xs font-black hover:underline"
+                        style={{ color: isHighlight ? B.gold : plan.color }}
+                      >
+                        {expanded ? tr("Show less", "Voir moins") : `+ ${hiddenFeatureCount} ${tr("more included", "autres inclus")}`}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {/* CTA */}
                 <Button
                   onClick={() => plan.contactSales ? window.location.href = '/contact-support' : handleSubscribe(plan)}
                   disabled={plan.comingSoon || plan.id === 'free' || loading === plan.id || current}
-                  className="w-full font-bold flex items-center justify-center gap-1.5"
+                  className="w-full h-10 font-bold text-sm flex items-center justify-center gap-1.5"
                   style={{
                     background: plan.comingSoon
                       ? '#f1f5f9'
