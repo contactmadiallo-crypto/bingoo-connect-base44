@@ -63,8 +63,8 @@ export default function LandingV2() {
           <div className="hidden items-center gap-7 text-sm font-bold text-white/65 md:flex">
             <a href="#platform" className="transition-colors hover:text-white">{t("landing_platform",language)}</a>
             <a href="#solutions" className="transition-colors hover:text-white">{t("landing_solutions",language)}</a>
-            <a href="#pricing" className="transition-colors hover:text-white">{t("landing_pricing",language)}</a>
-            <a href="#shop" className="transition-colors hover:text-white">{t("landing_shop",language)}</a>
+            <Link to="/pricing" className="transition-colors hover:text-white">{t("landing_pricing",language)}</Link>
+            <Link to="/shop" className="transition-colors hover:text-white">{t("landing_shop",language)}</Link>
           </div>
           <div className="flex items-center gap-2">
             {authed && user ? (
