@@ -14,6 +14,7 @@ const LostDeviceManager = React.lazy(() => import("@/components/bingoo/LostDevic
 const QrWalletCenter = React.lazy(() => import("@/components/bingoo/QrWalletCenter"));
 const SalonServicesPanel = React.lazy(() => import("@/components/bingoo/SalonServicesPanel"));
 const DesignStudio = React.lazy(() => import("@/components/bingoo/DesignStudio"));
+const DesignStudioErrorBoundary = React.lazy(() => import("@/components/bingoo/DesignStudioErrorBoundary"));
 // AppointmentSettings lazy import removed — now rendered inside AppointmentsTabMerged only
 const PlanGateScreen = React.lazy(() => import("@/components/bingoo/PlanGateScreen"));
 const TeamMembersPanel = React.lazy(() => import("@/components/bingoo/TeamMembersPanel"));
@@ -835,7 +836,9 @@ export default function BingooDashboard() {
             ) : !planLoading && !canAccessFeature("design_studio") ? (
               <PlanGateScreen feature="design_studio" isDark={isDark} />
             ) : (
-              <DesignStudio isDark={isDark} />
+              <DesignStudioErrorBoundary>
+                <DesignStudio isDark={isDark} />
+              </DesignStudioErrorBoundary>
             )
           )}
 
