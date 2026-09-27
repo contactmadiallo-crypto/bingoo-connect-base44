@@ -742,7 +742,7 @@ export default function ProfileWorkspace({
   });
 
   return (
-    <div className="flex flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#0a0c14" : "#F7F9FC" }}>
+    <div className="block md:flex md:flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#0a0c14" : "#F7F9FC", touchAction: "pan-y" }}>
       {/* ── Figma Make top bar ── */}
       <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-2.5 sm:py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
         <button type="button" onClick={onBack} aria-label={t("workspace_back_profiles", lang)}
@@ -793,7 +793,7 @@ export default function ProfileWorkspace({
       </div>
 
       {/* ── Main layout: exact Figma 3-column architecture ── */}
-      <div className="flex flex-1 min-h-0 max-w-full overflow-visible md:overflow-hidden">
+      <div className="block md:flex md:flex-1 md:min-h-0 max-w-full overflow-visible md:overflow-hidden">
         {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
         <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
           {INNER_TABS.map(tab => (
@@ -810,8 +810,8 @@ export default function ProfileWorkspace({
         </div>
 
         {/* Editing panel */}
-        <div className="flex flex-1 min-w-0 min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
-          <div className="flex-1 min-w-0 min-h-0 pb-safe overflow-visible md:overflow-y-auto px-4 sm:px-7 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
+        <div className="block md:flex md:flex-1 min-w-0 md:min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
+          <div className="min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-4 sm:px-7 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
@@ -846,7 +846,8 @@ export default function ProfileWorkspace({
               />
             )}
             {innerTab === "layouts" && (
-              <DesignTab profile={{ ...(profile || {}), ...(liveForm || {}) }} user={user} onSaved={async () => {
+              <DesignTab profile={{ ...(profile || {}), ...(liveForm || {}) }} user={user} onSaved={async (savedUpdate) => {
+                if (savedUpdate) setLiveForm((current) => ({ ...(current || {}), ...savedUpdate }));
                 const refreshed = await refetchProfile();
                 if (refreshed?.data) setLiveForm({ ...refreshed.data });
               }} />
