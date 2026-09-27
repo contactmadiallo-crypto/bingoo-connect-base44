@@ -320,7 +320,7 @@ export default function ProfilesHub({
             {layoutLabel}
           </span>
 
-          <div className="hidden sm:block mb-4">
+          {completion < 100 && <div className="hidden sm:block mb-4">
             <div className="flex items-center justify-between text-xs mb-1.5">
               <span className={subText}>{t("profiles_completion")}</span>
               <span className="font-black text-orange-500">{completion}%</span>
@@ -328,7 +328,7 @@ export default function ProfilesHub({
             <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-100"}`}>
               <div className="h-full rounded-full bg-orange-500" style={{ width: `${completion}%` }} />
             </div>
-          </div>
+          </div>}
 
           <div className="hidden sm:grid grid-cols-3 gap-2 mb-3">
             <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
@@ -461,7 +461,9 @@ export default function ProfilesHub({
         <div className="min-w-0">
           <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${headText}`}>{t("profiles_my_profiles")}</h2>
           <p className={`text-sm mt-0.5 ${subText}`}>
-            {loading ? t("profiles_loading") : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`}
+            {loading ? t("profiles_loading") : (maxProfiles < 0
+              ? `${profiles.length} profile${profiles.length !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"} · Unlimited`
+              : `${profiles.length} of ${Math.max(maxProfiles, profiles.length)} profile${Math.max(maxProfiles, profiles.length) !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"}`)}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
