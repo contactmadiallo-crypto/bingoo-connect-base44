@@ -87,7 +87,7 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
     >
       <Link to={`/product/${product.id}`} className="block">
         <div className={`${list ? "h-[190px] md:h-full" : "aspect-[4/3]"} relative overflow-hidden bg-[#111]`}>
-          <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
+          <FactoryProductMedia product={product} fit="cover" className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
           <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
             <span className="rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[8px] font-black uppercase tracking-[.11em] text-slate-200 backdrop-blur-sm">
               {typeLabel}
