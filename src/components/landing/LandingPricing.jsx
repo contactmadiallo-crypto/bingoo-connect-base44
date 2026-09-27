@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Plus, Equal } from "lucide-react";
 import { PLAN_CONFIG, CUSTOMER_PLAN_IDS, PLAN_FEATURES, PLAN_PRICES_USD } from "@/lib/planPermissions";
+import { localizePlanText } from "@/lib/planI18n";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 
@@ -15,15 +16,6 @@ const B = {
   gold: "#FDBA21",
   goldLight: "#FFD060",
   slate: "#64748b",
-};
-
-const PLAN_FR = {
-  free: { name: "Gratuit", tagline: "Profil personnel de base et partage QR", features: ["1 profil","Lien de profil public","Liens de contact de base","Liens sociaux","QR code","Enregistrer le contact","Aperçu limité des analyses"] },
-  professional: { name: "Professional", tagline: "Profil premium, NFC, analyses, prospects et rendez-vous", features: ["Tout ce qui est inclus dans Gratuit","Plusieurs appareils NFC","Collecte de prospects","Tableau de bord analytique","Portfolio et galerie","Image de marque personnalisée","Téléchargement du QR code","Bouton Enregistrer le contact"] },
-  business: { name: "Business", tagline: "Profil d’entreprise, équipe, services, outils professionnels et multi-appareils", features: ["Tout ce qui est inclus dans Professional","Profil public d’entreprise","Studio de design","Gestion d’équipe","Présentation des services et produits","Réservation WhatsApp","Compatibilité support de comptoir NFC","Horaires d’ouverture"] },
-  salon: { name: "Salon", tagline: "Base Business avec services de salon, personnel, galerie, avis et réservations", features: ["Tout ce qui est inclus dans Business","Profil professionnel de salon","Profils du personnel","Menu des services","Galerie Instagram","Avis Google","Réservation WhatsApp","Support de comptoir NFC"] },
-  lawfirm: { name: "Cabinet juridique", tagline: "Base Business avec avocats, domaines de pratique, formulaires juridiques et bureaux", features: ["Tout ce qui est inclus dans Business","Profil de cabinet juridique","Domaines de pratique","Profils des avocats","Services juridiques","Emplacements des bureaux","Membres de l’équipe","Formulaires d’admission des prospects"] },
-  corporate: { name: "Entreprise / Volume", tagline: "Intégration sur mesure, équipes, API, commandes NFC en volume et assistance admin", features: ["Tout ce qui est inclus dans Business","Intégration personnalisée","Gestion d’équipe","Accès API","Commandes NFC en volume","Assistance administrateur","Profils des employés","Tableau de bord des présences"] },
 };
 
 const plans = CUSTOMER_PLAN_IDS.map((id) => {
@@ -140,10 +132,9 @@ export default function LandingPricing() {
         <motion.div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
           variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
           {plans.map((p) => {
-            const localized = language === "fr" ? PLAN_FR[p.id] : null;
-            const planName = localized?.name || p.name;
-            const planDesc = localized?.tagline || p.desc;
-            const planFeatures = localized?.features || p.features;
+            const planName = localizePlanText(p.name, language);
+            const planDesc = localizePlanText(p.desc, language);
+            const planFeatures = p.features.map(feature => localizePlanText(feature, language));
             const planPrice = p.contactSales ? t("landing_custom",language) : p.price;
             const planPeriod = p.period ? t("landing_per_month",language) : "";
             const planCta = p.id === "free" ? t("landing_get_started_free",language) : p.contactSales ? t("landing_contact_sales",language) : `${t("landing_get_plan",language)} ${planName}`;
