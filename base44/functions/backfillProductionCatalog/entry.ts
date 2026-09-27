@@ -33,8 +33,8 @@ const MIGRATION_VERSION = 'v2';
 
 // ── Catalog (7 records) — approved v2 ────────────────────────────────────────
 const FREE = ['profile','public_profile','qr_code','contact_sharing','social_links','whatsapp_button'];
-const PRO = [...FREE,'nfc_devices','lost_mode','lead_collection','analytics','appointment_booking','save_contact','portfolio','custom_branding','qr_download','instagram_integration','calendar','google_wallet_pass','apple_wallet_pass'];
-const BIZ = [...PRO,'business_hours','business_profile','design_studio','services','product_showcase','nfc_counter_stand','google_reviews','whatsapp_booking','team_members','staff_cards','customer_inquiry','multi_profile','business_qr_landing','advanced_analytics','lead_export'];
+const PRO = [...FREE,'nfc_devices','lost_mode','analytics','save_contact','portfolio','custom_branding','qr_download','calendar','google_wallet_pass'];
+const BIZ = [...PRO,'business_hours','business_profile','lead_collection','appointment_booking','design_studio','services','product_showcase','nfc_counter_stand','google_reviews','whatsapp_booking','team_members','staff_cards','customer_inquiry','multi_profile','business_qr_landing','advanced_analytics','lead_export'];
 const SALON = [...BIZ,'salon_profile','staff_profiles','instagram_gallery'];
 const REST = [...PRO,'business_hours','restaurant_profile','digital_menu','delivery_links','food_ordering','google_reviews','reservations','whatsapp_ordering','whatsapp_booking','nfc_table_stand','nfc_counter_stand','team_members','advanced_analytics','lead_export'];
 const LAW = [...BIZ,'law_firm_profile','practice_areas','attorney_profiles','staff_profiles','legal_services','office_locations','lead_intake_forms','crm_pipeline','case_dashboard','admin_roles','immigration_forms','criminal_forms','civil_forms','family_forms'];
@@ -44,7 +44,7 @@ const ALL_LAYOUTS = ['classic','minimal','card','image_hero','glassmorphic','dar
 
 const CATALOG = [
   { plan_name:'free', display_name:'Free', maximum_active_profiles:1, maximum_links:5, available_layout_ids:FREE_LAYOUTS, features:FREE, is_active:true },
-  { plan_name:'professional', display_name:'Professional', maximum_active_profiles:1, maximum_links:15, available_layout_ids:ALL_LAYOUTS, features:PRO, is_active:true },
+  { plan_name:'professional', display_name:'Professional', maximum_active_profiles:5, maximum_links:15, available_layout_ids:ALL_LAYOUTS, features:PRO, is_active:true },
   { plan_name:'business', display_name:'Business', maximum_active_profiles:3, maximum_links:30, available_layout_ids:ALL_LAYOUTS, features:BIZ, is_active:true },
   { plan_name:'salon', display_name:'Salon', maximum_active_profiles:3, maximum_links:30, available_layout_ids:ALL_LAYOUTS, features:SALON, is_active:true },
   { plan_name:'restaurant', display_name:'Restaurant', maximum_active_profiles:3, maximum_links:30, available_layout_ids:ALL_LAYOUTS, features:REST, is_active:true },
