@@ -121,13 +121,14 @@ Deno.serve(async (req) => {
 
     // ── Enforce maximum_active_profiles ───────────────────────────────────────
     const maxProfiles = typeof entitlement.maximum_active_profiles === 'number' ? entitlement.maximum_active_profiles : 1;
+    const unlimitedProfiles = maxProfiles < 0;
     const active = await loadValidActiveAccess(base44, user.id);
     const byProfile = new Map();
     for (const a of active) { byProfile.set(a.profile_id, (byProfile.get(a.profile_id) || 0) + 1); }
     for (const [, c] of byProfile) {
       if (c > 1) return Response.json({ error: 'ProfileAccess configuration conflict (duplicate active access)', plan }, { status: 409 });
     }
-    if (active.length >= maxProfiles) {
+    if (!unlimitedProfiles && active.length >= maxProfiles) {
       return Response.json({ error: `Profile limit reached (${maxProfiles})` }, { status: 403 });
     }
 
@@ -194,7 +195,7 @@ Deno.serve(async (req) => {
 
     // ── Concurrency guard: post-create limit verification ──────────────────────
     const activeAfter = await loadValidActiveAccess(base44, user.id);
-    if (activeAfter.length > maxProfiles) {
+    if (!unlimitedProfiles && activeAfter.length > maxProfiles) {
       try { await base44.asServiceRole.entities.ProfileAccess.delete(access.id); } catch {}
       try { await base44.asServiceRole.entities.Profile.delete(profile.id); } catch (de) { await auditFailure(base44, user, requestRecId, 'concurrency_rollback_failed', de.message); }
       await base44.asServiceRole.entities.ProfileCreationRequest.update(requestRecId, {
