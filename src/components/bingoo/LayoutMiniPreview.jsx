@@ -294,10 +294,13 @@ function LayoutRenderer({ layoutId }) {
     case "magazine":     return <MagazineLayout {...lp} />;
     case "aurora":       return <AuroraLayout {...lp} color={color} />;
     case "glassmorphic": return <GlassThumbnail profile={profile} />;
-    case "modern_saas":  return <ModernSaasLayout {...lp} />;
+    case "modern_saas":
+    case "corporate":
+    case "modern_law":    return <ModernSaasLayout {...lp} />;
     case "executive":    return <ExecutiveLayout {...lp} />;
     case "luxury_gold":  return <LuxuryGoldLayout profile={profile} mobile={true} contentSections={stub} />;
-    case "dark":         return <DarkPremiumLayout {...lp} />;
+    case "dark":
+    case "premium_salon": return <DarkPremiumLayout {...lp} />;
     case "neon":         return <NeonLayout {...lp} />;
     case "retro":        return <RetroLayout {...lp} />;
     case "bold":         return <ColorLayout {...lp} />;
