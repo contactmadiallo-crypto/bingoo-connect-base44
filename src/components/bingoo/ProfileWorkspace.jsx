@@ -1,10 +1,10 @@
-import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from '@/lib/publicProfileUrl';
+import { PUBLIC_APP_ORIGIN, publicProfileUrl } from '@/lib/publicProfileUrl';
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronLeft, Eye, Copy, Check, Download, ExternalLink, Plus, Trash2,
-  Save, Shield, AlertTriangle, Lock, Star
+  ChevronLeft, Eye, ExternalLink, Plus,
+  Save, AlertTriangle, Lock, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,6 @@ import ProfileTypeSelector from "@/components/bingoo/ProfileTypeSelector";
 import { ProfileSelectorDropdown } from "@/components/bingoo/WorkspaceSelectors";
 import PortfolioPanel from "@/components/bingoo/PortfolioPanel";
 import BusinessToolsPanel from "@/components/bingoo/BusinessToolsPanel";
-import OwnerWalletPanel from "@/components/bingoo/OwnerWalletPanel";
-import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
-import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 import {
   PhoneIcon as BIPhone, WhatsAppIcon as BIWhatsApp, EmailIcon as BIEmail, WebsiteIcon as BIWebsite,
   InstagramIcon as BIInstagram, LinkedInIcon as BILinkedIn, FacebookIcon as BIFacebook,
@@ -586,7 +583,6 @@ export default function ProfileWorkspace({
   // Track which tab triggered the current save (for post-save routing)
   const saveTabRef = useRef("info");
   const [liveForm, setLiveForm] = useState(null);
-  const [copiedUrl, setCopiedUrl] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null); // null | "pending" | "success" | "error"
   const [saveTime, setSaveTime] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -618,7 +614,6 @@ export default function ProfileWorkspace({
   }, [innerTab, qc]);
 
   const profileUrl    = publicProfileUrl(profile?.username);
-  const profileQrUrl  = publicProfileQrUrl(profile?.username);
 
   // Stable setters — won't cause child remounts
   const set    = useCallback((k) => (e) => setLiveForm(f => ({ ...f, [k]: e.target.value })), []);
@@ -643,13 +638,6 @@ export default function ProfileWorkspace({
       return next;
     });
   }, [profile]);
-
-  const copyUrl = useCallback(() => {
-    if (!profileUrl) return;
-    navigator.clipboard.writeText(profileUrl);
-    setCopiedUrl(true);
-    setTimeout(() => setCopiedUrl(false), 2000);
-  }, [profileUrl]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
