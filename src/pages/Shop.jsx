@@ -82,18 +82,18 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
     <motion.article
       layout
       whileHover={{ y: list ? 0 : -4 }}
-      className={`${list ? 'grid md:grid-cols-[300px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[26px] border border-white/10`}
+      className={`${list ? 'grid md:grid-cols-[220px_1fr]' : 'flex flex-col'} overflow-hidden rounded-[18px] border border-white/10`}
       style={{ background: '#0a0a0a', boxShadow: '0 12px 34px rgba(0,0,0,.28)' }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className="relative aspect-[246/284] overflow-hidden">
+        <div className={`${list ? "h-[190px] md:h-full" : "aspect-[4/3]"} relative overflow-hidden bg-[#111]`}>
           <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 hover:scale-[1.02]" />
-          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-slate-200 backdrop-blur-sm">
+          <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1.5">
+            <span className="rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[8px] font-black uppercase tracking-[.11em] text-slate-200 backdrop-blur-sm">
               {typeLabel}
             </span>
             {product.badge && (
-              <span className="rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[.13em] text-white" style={{ background: product.availability === 'coming_soon' ? '#475569' : ORANGE }}>
+              <span className="rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-[.11em] text-white" style={{ background: product.availability === 'coming_soon' ? '#475569' : ORANGE }}>
                 {product.badge}
               </span>
             )}
@@ -101,35 +101,35 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col border-t border-white/10 p-5 md:p-6">
-        <p className="mb-2 text-[10px] font-black uppercase tracking-[.14em]" style={{ color: ORANGE }}>
+      <div className="flex flex-1 flex-col border-t border-white/10 p-3.5">
+        <p className="mb-1 text-[8px] font-black uppercase tracking-[.12em] line-clamp-1" style={{ color: ORANGE }}>
           {collection?.label} · {product.bestFor}
         </p>
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-xl font-black tracking-tight text-white">{product.name}</h3>
+          <h3 className="text-base font-black tracking-tight text-white">{product.name}</h3>
         </Link>
-        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-400">{product.tagline}</p>
-        <div className="mt-4 rounded-xl bg-white/5 px-3 py-2 text-xs font-bold text-slate-300">
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-400">{product.tagline}</p>
+        <div className="mt-2.5 rounded-lg bg-white/5 px-2.5 py-1.5 text-[10px] font-bold leading-4 text-slate-300">
           {product.flow === 'asset_protection'
             ? t('shop_asset_flow', language)
             : t('shop_profile_flow', language)}
         </div>
 
-        <div className="mt-6 flex items-end justify-between gap-3">
+        <div className="mt-auto flex items-end justify-between gap-2 pt-3">
           {buy ? (
             <>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{t("shop_price", language)}</p>
-                <b className="text-[26px] leading-none text-white">${product.price.toFixed(2)}</b>
+                <b className="text-lg leading-none text-white">${product.price.toFixed(2)}</b>
               </div>
               <div className="flex gap-2">
-                <Link to={`/product/${product.id}`} className="rounded-xl border border-white/15 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:border-white/40">
+                <Link to={`/product/${product.id}`} className="rounded-lg border border-white/15 px-2.5 py-2 text-[10px] font-black text-slate-200 transition hover:border-white/40">
                   {t("shop_view", language)}
                 </Link>
                 <button
                   type="button"
                   onClick={() => onAdd(product)}
-                  className="flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black text-white transition active:scale-95"
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-2 text-[10px] font-black text-white transition active:scale-95"
                   style={{ background: added ? '#16a34a' : ORANGE }}
                 >
                   {added ? <><Check className="h-3.5 w-3.5" /> {t("shop_added", language)}</> : <><ShoppingCart className="h-3.5 w-3.5" /> {t("shop_add_cart", language)}</>}
@@ -319,7 +319,7 @@ export default function Shop() {
               </div>
             </div>
 
-            <motion.div layout className={view === 'grid' ? 'grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3' : 'grid gap-5'}>
+            <motion.div layout className={view === 'grid' ? 'grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' : 'grid gap-4'}>
               {items.map((product) => (
                 <ProductCard key={product.id} product={product} added={added === product.id} onAdd={add} list={view === 'list'} language={language} />
               ))}
