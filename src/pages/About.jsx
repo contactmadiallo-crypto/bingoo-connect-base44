@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { useSEO } from '@/hooks/useSEO';
+import LandingFooter from '@/components/landing/LandingFooter';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -69,16 +70,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* Footer links */}
-      <footer className="border-t mt-16 py-8 text-center text-sm text-slate-400">
-        <div className="flex justify-center gap-6">
-          <Link to="/" className="hover:text-slate-600 transition-colors">{t("about_home",language)}</Link>
-          <Link to="/about" className="hover:text-slate-600 transition-colors">{t("about_about",language)}</Link>
-          <Link to="/contact" className="hover:text-slate-600 transition-colors">{t("about_contact",language)}</Link>
-          <Link to="/pricing" className="hover:text-slate-600 transition-colors">{t("landing_pricing",language)}</Link>
-        </div>
-        <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. {t("about_rights",language)}</p>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
