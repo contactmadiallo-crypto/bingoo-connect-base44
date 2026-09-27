@@ -36,15 +36,14 @@ const FREE = [
 const PROFESSIONAL = [
   ...FREE,
   'nfc_devices', 'lost_mode',
-  'lead_collection', 'analytics', 'appointment_booking', 'save_contact',
-  'portfolio', 'custom_branding', 'qr_download',
-  'instagram_integration', 'calendar',
-  'google_wallet_pass', 'apple_wallet_pass',
+  'analytics', 'save_contact',
+  'portfolio', 'custom_branding', 'qr_download', 'calendar',
+  'google_wallet_pass',
 ];
 
 const BUSINESS = [
   ...PROFESSIONAL,
-  'business_hours', 'business_profile', 'design_studio', 'services', 'product_showcase',
+  'business_hours', 'business_profile', 'lead_collection', 'appointment_booking', 'design_studio', 'services', 'product_showcase',
   'nfc_counter_stand', 'google_reviews', 'whatsapp_booking', 'team_members', 'staff_cards',
   'customer_inquiry', 'multi_profile', 'business_qr_landing', 'advanced_analytics', 'lead_export',
 ];
@@ -117,7 +116,7 @@ export function resolveEffectivePlan(subscriptions, ownerEmail) {
   const sub = (subscriptions && subscriptions[0]) || null;
   if (!sub) return { plan: 'free', subscription: null, is_test_account: !!override };
   let p = 'free';
-  if (sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due') {
+  if (sub.status === 'active' || sub.status === 'trialing') {
     p = normalizePlan(sub.plan);
   } else if (override && override.protected) {
     p = normalizePlan(sub.plan);
