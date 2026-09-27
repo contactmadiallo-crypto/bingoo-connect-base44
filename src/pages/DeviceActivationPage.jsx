@@ -15,6 +15,7 @@ import FactoryProductMedia from "@/components/shop/FactoryProductMedia";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
+import { Link } from "react-router-dom";
 
 // ── Status display config ──
 const STATUS_CONFIG = {
@@ -686,9 +687,9 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                       <div className="flex-1">
                         <p className="text-red-400 text-sm font-semibold">{error}</p>
                         {error.toLowerCase().includes("upgrade") && (
-                          <a href="/pricing" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
+                          <Link to="/pricing" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
                             {t("activate_view_plans",language)} →
-                          </a>
+                          </Link>
                         )}
                         {error.toLowerCase().includes("network") && (
                           <button onClick={handleRetry} disabled={activating}
