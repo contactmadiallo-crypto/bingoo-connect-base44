@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
@@ -298,15 +299,15 @@ export default function WhyBingoo() {
                   <span key={t} className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}>{t}</span>
                 ))}
               </div>
-              <motion.a
-                href="/shop"
+              <motion.div
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-black text-white"
-                style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}
+                className="mt-6 inline-flex"
               >
-                Explore Asset Protection <ArrowRight className="h-4 w-4" />
-              </motion.a>
+                <Link to="/shop" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-black text-white" style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}>
+                  Explore Asset Protection <ArrowRight className="h-4 w-4" />
+                </Link>
+              </motion.div>
             </div>
 
             {/* Asset flow */}
