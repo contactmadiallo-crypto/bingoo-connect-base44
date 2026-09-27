@@ -52,9 +52,6 @@ Deno.serve(async (req) => {
     if (subscription) {
       if (subscription.status === 'active' || subscription.status === 'trialing') {
         subPlan = normalizePlan(subscription.plan);
-      } else if (subscription.status === 'past_due') {
-        // Grace period — keep current plan access
-        subPlan = normalizePlan(subscription.plan);
       } else {
         // 'canceled' or terminal status: apply tiered downgrade policy
         // BUT protected test accounts never downgrade
