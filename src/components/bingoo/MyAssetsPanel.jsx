@@ -132,7 +132,8 @@ export default function MyAssetsPanel({ isDark }) {
         await base44.entities.AssetItem.update(editingAsset.id, payload);
         toast({ title: language === 'fr' ? 'Objet mis à jour' : 'Asset updated' });
       } else {
-        await base44.entities.AssetItem.create(payload);
+        const result = await base44.functions.invoke('createAssetItemGated', { data: payload });
+        if (result?.data?.error) throw new Error(result.data.error);
         toast({ title: language === 'fr' ? 'Objet créé' : 'Asset created' });
       }
       resetForm();
