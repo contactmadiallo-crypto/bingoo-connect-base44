@@ -74,18 +74,20 @@ export default function NotificationCenter({ userId, isDark }) {
   }, [userId]);
 
   const markReadMutation = useMutation({
-    mutationFn: (id) => base44.entities.BingooNotification.update(id, { is_read: true }),
+    mutationFn: (id) => base44.functions.invoke("manageNotifications", { action: "mark_read", id }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] }),
   });
 
   const markAllRead = async () => {
-    const unread = notifications.filter(n => !n.is_read);
-    await Promise.all(unread.map(n => base44.entities.BingooNotification.update(n.id, { is_read: true })));
+    if (!notifications.some(n => !n.is_read)) return;
+    await base44.functions.invoke("manageNotifications", { action: "mark_all_read" });
+    qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.map(n => ({ ...n, is_read: true })));
     qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
   };
 
   const clearNotification = async (id) => {
-    await base44.entities.BingooNotification.delete(id);
+    await base44.functions.invoke("manageNotifications", { action: "clear_one", id });
+    qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.filter(n => n.id !== id));
     qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
   };
 
@@ -95,9 +97,11 @@ export default function NotificationCenter({ userId, isDark }) {
     setClearingAll(true);
     qc.setQueryData(["bingoo-notifications", userId], []);
     try {
-      const results = await Promise.allSettled(previous.map(n => base44.entities.BingooNotification.delete(n.id)));
-      const failed = previous.filter((_, i) => results[i].status === "rejected");
-      if (failed.length) qc.setQueryData(["bingoo-notifications", userId], failed);
+      const response = await base44.functions.invoke("manageNotifications", { action: "clear_all" });
+      if (response?.data?.ok === false) throw new Error("Some notifications could not be cleared");
+    } catch (error) {
+      qc.setQueryData(["bingoo-notifications", userId], previous);
+      console.error("[notifications] clear all failed", error);
     } finally {
       setClearingAll(false);
       qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
@@ -151,7 +155,7 @@ export default function NotificationCenter({ userId, isDark }) {
     <div className="relative">
       <button
         onClick={open ? handleClose : handleOpen}
-        className={`relative h-8 w-8 flex items-center justify-center rounded-full transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}
+        className={`relative h-10 w-10 md:h-9 md:w-9 flex items-center justify-center rounded-full transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
@@ -168,7 +172,7 @@ export default function NotificationCenter({ userId, isDark }) {
       {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-14 right-2 z-[60] w-[calc(100vw-16px)] max-w-[320px] rounded-xl shadow-xl overflow-hidden"
+          <div className="fixed top-[calc(58px+env(safe-area-inset-top))] md:top-16 right-2 md:right-5 z-[120] w-[calc(100vw-16px)] max-w-[320px] max-h-[min(72vh,520px)] rounded-xl shadow-xl overflow-hidden"
             style={{
               background: isDark ? "rgba(15,22,40,0.42)" : "rgba(255,255,255,0.45)",
               backdropFilter: "blur(24px) saturate(180%)",
@@ -204,7 +208,7 @@ export default function NotificationCenter({ userId, isDark }) {
             </div>
 
             {/* Notification list */}
-            <div className="max-h-72 overflow-y-auto">
+            <div className="max-h-[min(56vh,390px)] overflow-y-auto overscroll-contain">
               {isLoading && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin opacity-40" />
