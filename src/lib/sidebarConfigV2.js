@@ -13,14 +13,13 @@ const EXTRA_NAV_ITEMS = {
 
 const CORE = ["landing", "profiles", "qrwallet", "connections", "shop", "orders", "billing", "account", "support"];
 const PRO = [...CORE, "myassets", "analytics", "devices", "lostmode"];
-const BUSINESS = [...PRO, "appointments", "leads", "crm", "services", "team", "designstudio", "strategic", "planjourney"];
+const BUSINESS = [...PRO, "appointments", "leads", "services", "team", "designstudio"];
 const SALON = [...BUSINESS];
 const RESTAURANT = [...BUSINESS];
 const LAWFIRM = [
   ...PRO,
   "appointments", "leads", "crm", "team", "designstudio",
   "practiceareas", "legalservices", "offices",
-  "strategic", "planjourney",
 ];
 const CORPORATE = [...BUSINESS, "attendance"];
 
@@ -77,6 +76,10 @@ function planBadge(plan) {
 export function getVisibleNavSections(profile, isAdmin = false, lang = "en", effectivePlan = null) {
   const normalizedPlan = normalizeSidebarPlan(effectivePlan);
   const ids = new Set(PLAN_ITEM_IDS[normalizedPlan] || CORE);
+  // Strategic Tools and Plan Journeys are private owner/admin experiments.
+  // They are never exposed to customer plans; only the designated owner account may see them.
+  const isPrivateOwner = isAdmin && String(profile?.owner_email || profile?.created_by_email || "").toLowerCase() === "contact.madiallo@gmail.com";
+  if (isPrivateOwner) { ids.add("strategic"); ids.add("planjourney"); }
   const allItems = { ...SIDEBAR_NAV_MAP, ...EXTRA_NAV_ITEMS };
 
   return SECTIONS.map((section) => {
