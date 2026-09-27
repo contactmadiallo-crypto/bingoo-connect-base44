@@ -5,7 +5,7 @@ import { t } from '@/lib/i18n';
 const NAVY = '#0b2149';
 const ORANGE = '#f97316';
 
-export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, selectedColor = null }) {
+export default function FactoryProductMedia({ product, className = '', compact = false, showLabel = false, selectedColor = null, fit = 'contain' }) {
   const { language } = useI18n();
   const active = product?.availability === 'active';
   const hasProductImage = Boolean(product?.image);
@@ -27,8 +27,8 @@ export default function FactoryProductMedia({ product, className = '', compact =
           alt={product.name}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-contain"
-          style={compact ? { padding: 6 } : undefined}
+          className={`w-full h-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+          style={compact && fit !== 'cover' ? { padding: 6 } : undefined}
         />
       </div>
     );
