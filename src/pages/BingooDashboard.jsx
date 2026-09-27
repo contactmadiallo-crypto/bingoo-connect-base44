@@ -26,6 +26,7 @@ const OfficeLocationsPanel = React.lazy(() => import("@/components/bingoo/Office
 import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { getLang, setLang as persistLang } from "@/lib/i18n";
 import { useI18n } from '@/lib/I18nContext';
+import { isAdminUser } from '@/lib/auth';
 const ProfilesHub = React.lazy(() => import("@/components/bingoo/ProfilesHub"));
 const ProfileWorkspace = React.lazy(() => import("@/components/bingoo/ProfileWorkspace"));
 import { usePlan } from "@/hooks/usePlan";
@@ -1003,7 +1004,7 @@ export default function BingooDashboard() {
           {/* ════════════════════════════════════
               PLAN JOURNEYS — Full plan exploration
           ════════════════════════════════════ */}
-          {view === VIEW_PLANJOURNEY && (
+          {view === VIEW_PLANJOURNEY && isAdminUser(user) && String(user?.email || '').toLowerCase() === 'contact.madiallo@gmail.com' && (
             <div>
               <ProfileChip />
               <PlanJourneyPanel
@@ -1018,7 +1019,7 @@ export default function BingooDashboard() {
           {/* ════════════════════════════════════
               STRATEGIC TOOLS — AI Enhancer, ROI, Verified, Event, Concierge
           ════════════════════════════════════ */}
-          {view === VIEW_STRATEGIC && (
+          {view === VIEW_STRATEGIC && isAdminUser(user) && String(user?.email || '').toLowerCase() === 'contact.madiallo@gmail.com' && (
             <div>
               <ProfileChip />
               {!activeProfile ? (
