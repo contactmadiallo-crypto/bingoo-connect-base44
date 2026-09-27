@@ -99,7 +99,7 @@ export default function Pricing() {
 
         {/* View All Plans link */}
         <div className="text-center mt-8 md:mt-10">
-          <Link to="/pricing">
+          <Link to="/plans">
             <Button className="h-11 font-bold text-sm text-white border-none" style={{ background: NAVY }}>
               {t("pricing_view_all",language)} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
