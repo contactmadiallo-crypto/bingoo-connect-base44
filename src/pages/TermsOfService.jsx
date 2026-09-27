@@ -47,9 +47,7 @@ export default function TermsOfService() {
           By accessing or using Bingoo Connect ("the Service"), you agree to be bound by these Terms
           of Service. If you do not agree, please do not use the Service.
         </p>
-        <p className="text-xs text-slate-400 italic">
-          This is a product/compliance draft, not legal advice. A lawyer should review it before final adoption.
-        </p>
+        {/* Internal note: legal/compliance text should be reviewed by qualified counsel before material policy changes are adopted. */}
       </LegalSection>
 
       <LegalSection id="description" title="2. Description of Service">

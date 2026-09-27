@@ -8,8 +8,7 @@ const EN = {
   sections: [
     ["intro","Introduction",[
       "Bingoo Connect (\"we,\" \"our,\" or \"us\") operates the Bingoo Connect platform at bingooconnect.com, including our website, mobile applications, NFC-enabled digital business card services, appointment booking, lead management, document wallet, and shop.",
-      "This Privacy Policy explains how we collect, use, share, and protect your personal information. By using Bingoo Connect, you agree to the practices described here.",
-      "This is a product/compliance draft, not legal advice. A lawyer should review it before final adoption."
+      "This Privacy Policy explains how we collect, use, share, and protect your personal information. By using Bingoo Connect, you agree to the practices described here."
     ]],
     ["collect","Information We Collect",[
       "2.1 Account & Profile Data|Full name, email address, and password (hashed — never stored in plain text)|Phone number and WhatsApp number|Profile photo and cover photo|Job title, company name, and bio|Website URL and social media links|Physical or business location, if you choose to display it|Payment links|Language and theme preferences",
