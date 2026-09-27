@@ -39,10 +39,8 @@ const PROFESSIONAL_FEATURES = new Set([
   // NFC
   'nfc_devices',
   'lost_mode',
-  // CRM & Engagement
-  'lead_collection',
+  // Professional identity & insights (lead capture / appointments start at Business)
   'analytics',
-  'appointment_booking',
   'save_contact',
   // Profile customization
   'portfolio',
@@ -57,6 +55,8 @@ const BUSINESS_FEATURES = new Set([
   ...PROFESSIONAL_FEATURES,
   'business_hours',
   'business_profile',
+  'lead_collection',
+  'appointment_booking',
   'design_studio',
   'services',
   'product_showcase',
@@ -249,9 +249,9 @@ export const PLAN_STRIPE_PRODUCTS = {
 };
 
 export const PLAN_FEATURES = {
-  free:         ['1 profile', 'Public profile link', 'Basic contact links', 'Social links', 'QR code', 'Save contact', 'Limited analytics preview'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Calendar View', 'Google Wallet Pass'],
-  business:     ['Everything in Professional', 'Business Public Profile', 'Design Studio', 'Team Management', 'Services & Product Showcase', 'WhatsApp Booking', 'NFC Counter Stand Compatibility', 'Business Hours', 'Team Member Profiles', 'Lead Capture & Customer Inquiries', 'Multi-Profile Management', 'Business QR/NFC Landing', 'Advanced Analytics', 'Lead Export'],
+  free:         ['1 profile', '1 protected asset (QR only)', 'Public profile link', 'Basic contact links', 'Social links', 'QR code sharing', 'Save contact', 'Limited analytics preview', '14-day Professional trial to add profiles, assets, or activate NFC', 'After trial/payment ends, paid tools lock and the account returns to Free'],
+  professional: ['Everything in Free', 'Up to 5 profiles', 'NFC device activation', 'Unlimited protected assets', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Lost Mode for NFC', 'Calendar View', 'Google Wallet Pass'],
+  business:     ['Everything in Professional', 'Appointments & booking', 'Lead capture & management', 'Business Public Profile', 'Design Studio', 'Team Management', 'Services & Product Showcase', 'WhatsApp Booking', 'NFC Counter Stand Compatibility', 'Business Hours', 'Team Member Profiles', 'Customer Inquiries', 'Multi-Profile Management', 'Business QR/NFC Landing', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Business', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   lawfirm:      ['Everything in Business', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
   corporate:    ['Everything in Business', 'Custom Onboarding', 'Team Management', 'API Access', 'Bulk NFC Orders', 'Admin Support', 'Employee Profiles', 'Attendance Dashboard'],
@@ -277,8 +277,8 @@ export function getExpandedPlanFeatures(planId) {
 // Plain-language taglines explaining what each plan is for
 export const PLAN_TAGLINES = {
   free:         'Basic personal profile and QR sharing',
-  professional: 'Premium profile, NFC, analytics, leads, and appointments',
-  business:     'Company profile, team, services, business tools, and multi-device',
+  professional: 'Up to 5 profiles, NFC activation, unlimited protected assets, analytics, customization, QR and Google Wallet — no leads, appointments, or Design Studio',
+  business:     'Full business workspace with appointments, leads, Design Studio, team, services, analytics, profiles, assets, QR/Wallet and NFC tools',
   salon:        'Business foundation plus salon services, staff, gallery, reviews, and booking',
   lawfirm:      'Business foundation plus attorneys, practice areas, legal intake, and offices',
   corporate:    'Custom onboarding, teams, API, bulk NFC, and admin support',
@@ -358,15 +358,15 @@ function downgradedPlan(_plan) {
  * Resolves active plan from a subscription record.
  * - No subscription → free
  * - canceled / terminal → Free (data retained; paid mutations locked)
- * - past_due → keep current plan (grace period, Stripe retries)
+ * - past_due / unpaid → Free immediately (data retained; paid tools locked)
  * - active → use plan field
  */
 export function resolveActivePlan(subscription) {
   if (!subscription) return 'free';
   const { status, plan } = subscription;
   if (status === 'canceled') return downgradedPlan(normalizePlan(plan));
-  // past_due: keep access during grace period
-  if (status === 'past_due') return normalizePlan(plan);
+  // past_due/unpaid: return to Free; Stripe may continue retries but paid access is locked
+  if (status === 'past_due' || status === 'unpaid') return downgradedPlan(normalizePlan(plan));
   if (plan && plan !== 'free') return normalizePlan(plan);
   return 'free';
 }
@@ -382,8 +382,8 @@ export const FEATURE_DESCRIPTIONS = {
   // ── Professional tier ──
   nfc_devices:          { title: 'NFC Device Activation',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to activate NFC devices and tap-to-share your profile.' },
   analytics:            { title: 'Analytics Dashboard',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to view full analytics and track profile performance.' },
-  lead_collection:      { title: 'Lead Collection',            upgradeTarget: 'Professional', message: 'Upgrade to Professional to collect and manage leads from your profile.' },
-  appointment_booking:  { title: 'Appointment Booking',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to let clients book appointments directly.' },
+  lead_collection:      { title: 'Lead Collection',            upgradeTarget: 'Business', message: 'Upgrade to Business to collect and manage leads from your profile.' },
+  appointment_booking:  { title: 'Appointment Booking',        upgradeTarget: 'Business', message: 'Upgrade to Business to let clients book appointments directly.' },
   save_contact:         { title: 'Save Contact Button',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to let visitors save your contact to their phone.' },
   custom_branding:      { title: 'Custom Branding & Design',   upgradeTarget: 'Professional', message: 'Upgrade to Professional to fully customize your profile branding and colors.' },
   qr_download:          { title: 'QR Code Download',           upgradeTarget: 'Professional', message: 'Upgrade to Professional to download and print your profile QR code.' },
@@ -587,8 +587,8 @@ export const PLAN_CONFIG = {
     hierarchy: 1,
     status: 'purchasable',
     features: PLAN_FEATURES.professional,
-    dashboardPreview: ['Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Appointment Booking', 'Lost Mode', 'Google Wallet'],
-    includedTools: ['Profile Editor', 'QR Code & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode'],
+    dashboardPreview: ['Up to 5 Profiles', 'NFC Device Activation', 'Unlimited Protected Assets', 'Analytics Dashboard', 'Portfolio & Gallery', 'Lost Mode', 'Google Wallet'],
+    includedTools: ['Profile Editor', 'QR Code & Wallet', 'NFC Devices', 'My Assets', 'Analytics', 'Portfolio', 'Lost Mode'],
   },
   business: {
     id: 'business',
