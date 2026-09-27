@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/lib/I18nContext';
 import { localizePlanText } from '@/lib/planI18n';
 import { openExternalUrl } from '@/lib/nativePlatform';
+import { useSEO } from '@/hooks/useSEO';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
@@ -45,6 +46,12 @@ export default function SubscriptionPricing() {
   const highlightPlan = new URLSearchParams(window.location.search).get('highlight');
   const { currency, setCurrency, detectedCurrency, isManualOverride, stripeCheckoutCurrency } = useCurrency();
   const { user } = useAuth();
+  useSEO({
+    title: "Bingoo Connect Pricing | Digital Business Cards & NFC Plans",
+    description: "Compare Bingoo Connect plans for digital profiles, NFC identity, QR sharing, business tools, and organization features.",
+    url: "https://bingooconnect.com/pricing",
+    type: "website",
+  });
 
   // Load admin-configured pricing — cached, non-blocking
   const { data: pricingConfigs = [] } = useQuery({
