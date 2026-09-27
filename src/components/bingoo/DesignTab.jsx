@@ -79,7 +79,7 @@ export default function DesignTab({ profile, user, onSaved }) {
       setPendingChanges({});
       setSaving(null);
       toast.success(t("layouts_saved",language));
-      onSaved?.();
+      onSaved?.(update);
     } catch (err) {
       console.error("Save failed:", err);
       setSaving(null);
