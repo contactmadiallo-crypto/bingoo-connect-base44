@@ -646,6 +646,12 @@ export default function BingooDashboard() {
               onReorder={saveProfileOrder}
               onSelectProfile={openWorkspace}
               onCreateNew={openNewProfile}
+              onProfileDeleted={async (deletedId) => {
+                if (selectedProfileId === deletedId) setSelectedProfileId(null);
+                await refetchProfiles();
+                await refetchUser();
+                qc.invalidateQueries({ queryKey: ["profile-card-analytics"] });
+              }}
             />
           )}
 
