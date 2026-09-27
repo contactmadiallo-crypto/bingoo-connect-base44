@@ -612,7 +612,7 @@ export const PRODUCTS = [
     price: 18.99,
     image: 'https://base44.app/api/apps/692bd9007b93ba81de543346/files/mp/public/692bd9007b93ba81de543346/6bf4206d2_nfc-luggage-tag.webp',
     mediaFrame: { scale: 1.24, x: -4, y: -8 },
-    detailMediaFrame: { scale: 1.16, x: 0, y: -7 },
+    detailMediaFrame: { scale: 1.22, x: 0, y: -5, clipPath: 'inset(9% 0 0 0)' },
     category: 'tag',
     badge: 'Travel',
     availability: 'active',
