@@ -300,7 +300,9 @@ export default function PublicProfile() {
   const track = (ev) => !isDemo && trackEvent(profile.id, ev, deviceCodeParam);
 
   // ── Render championship full-page layouts — pass all content as children
-  const effectiveLayout = profile.layout || profile.profile_layout || "default";
+  const effectiveLayout = ["ny_championship", "lions_teranga"].includes(profile.profile_layout)
+    ? profile.profile_layout
+    : (profile.layout || "classic");
   const championContentSections = (
     <ProfileContentSections
       profile={profile} color={color} isDark={true}
@@ -334,8 +336,8 @@ export default function PublicProfile() {
           : null)
     : null;
 
-  const isDark = profile.bg_style === "night" || isLayoutDark(profile.layout);
-  const layoutType = profile.layout || "classic";
+  const isDark = profile.bg_style === "night" || isLayoutDark(effectiveLayout);
+  const layoutType = effectiveLayout;
 
   const layoutContentSections = (
     <ProfileContentSections
