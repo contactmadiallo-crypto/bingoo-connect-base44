@@ -126,7 +126,8 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
   const panelBg   = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
   const inputCls  = `w-full px-3 py-2 rounded-xl text-sm border outline-none focus:ring-2 focus:ring-orange-400/40 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : "bg-white border-slate-200 text-slate-800"}`;
-  const limitReached = !entitlementLoading && profileCount >= maxProfiles;
+  const unlimitedProfiles = maxProfiles < 0;
+  const limitReached = !entitlementLoading && !unlimitedProfiles && profileCount >= maxProfiles;
 
   const setF = (k) => (e) => {
     const v = k === "username"
@@ -221,7 +222,7 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
 
         {limitReached && (
           <div className={`rounded-xl border p-3 text-xs ${isDark ? "border-amber-400/30 bg-amber-400/10 text-amber-200" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
-            Your confirmed {planLabel} plan includes {maxProfiles} active profile{maxProfiles === 1 ? "" : "s"}. You currently have {profileCount}.
+            Your confirmed {planLabel} plan includes {unlimitedProfiles ? "unlimited profiles" : `${maxProfiles} active profile${maxProfiles === 1 ? "" : "s"}`}. You currently have {profileCount}.
           </div>
         )}
         {error && <p className="text-xs text-red-500 font-semibold">{error}</p>}
