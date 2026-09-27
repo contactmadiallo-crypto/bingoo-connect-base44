@@ -50,26 +50,32 @@ export default function DesignTab({ profile, user, onSaved }) {
     setSaving("saving");
 
     try {
-      // Build the update payload — keep layout and profile_layout in sync
-      // ny_championship and lions_teranga use profile_layout; everything else uses layout
+      // Keep both layout fields synchronized. The public renderer supports the normal
+      // layout catalog from `layout`, while championship editions also use
+      // `profile_layout`. Persist through the gated backend so the same validated
+      // entitlement path used by the rest of Profile Studio is authoritative.
       const PROFILE_LAYOUT_IDS = new Set(["ny_championship", "lions_teranga"]);
-      const update = { ...pendingChanges };
-      if (update.layout) {
-        if (PROFILE_LAYOUT_IDS.has(update.layout)) {
-          update.profile_layout = update.layout;
-        } else {
-          // Reset profile_layout back to "default" when switching away from championship layouts
-          if (PROFILE_LAYOUT_IDS.has(profile.profile_layout)) {
-            update.profile_layout = "default";
-          }
-        }
-      }
+      const chosenLayout = pendingChanges.layout;
+      const update = {
+        ...pendingChanges,
+        ...(chosenLayout ? {
+          layout: chosenLayout,
+          profile_layout: PROFILE_LAYOUT_IDS.has(chosenLayout) ? chosenLayout : "default",
+        } : {}),
+      };
 
-      await base44.entities.Profile.update(profile.id, update);
+      const response = await base44.functions.invoke("updateProfileGated", {
+        profile_id: profile.id,
+        data: update,
+      });
+      if (response?.data?.error) throw new Error(response.data.error);
       // Invalidate all possible query key forms used across the app
-      queryClient.invalidateQueries({ queryKey: ["my-profile"] });
-      queryClient.invalidateQueries({ queryKey: ["public-profile", profile.username] });
-      queryClient.invalidateQueries({ queryKey: ["current-user"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["my-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["public-profile", profile.username] }),
+        queryClient.invalidateQueries({ queryKey: ["my-profiles"] }),
+        queryClient.invalidateQueries({ queryKey: ["current-user"] }),
+      ]);
       setPendingChanges({});
       setSaving(null);
       toast.success(t("layouts_saved",language));
