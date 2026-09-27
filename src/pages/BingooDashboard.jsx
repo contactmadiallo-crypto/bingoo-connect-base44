@@ -828,7 +828,13 @@ export default function BingooDashboard() {
               DESIGN STUDIO — NFC product designer
           ════════════════════════════════════ */}
           {view === VIEW_DESIGN && (
-            <DesignStudio isDark={isDark} />
+            !activeProfile ? (
+              <NoProfileState isDark={isDark} onGoToProfiles={openHub} />
+            ) : !planLoading && !canAccessFeature("design_studio") ? (
+              <PlanGateScreen feature="design_studio" isDark={isDark} />
+            ) : (
+              <DesignStudio isDark={isDark} />
+            )
           )}
 
           {/* ════════════════════════════════════
