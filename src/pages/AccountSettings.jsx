@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { Shield, Download, Trash2, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
+import { Shield, Download, Trash2, AlertTriangle, Loader2, ArrowLeft, Share2, Copy, Mail, MessageCircle, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +11,7 @@ import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { Globe2 } from "lucide-react";
 import { REGION_OPTIONS, getRegion, setRegion as persistRegion, getCurrency } from "@/lib/regionSettings";
+import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 export default function AccountSettings() {
   const navigate = useNavigate();
@@ -21,6 +22,8 @@ export default function AccountSettings() {
   const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [region, setRegion] = useState(() => getRegion());
+  const [profiles, setProfiles] = useState([]);
+  const [shareProfileId, setShareProfileId] = useState("");
 
   const handleRegionChange = (nextRegion) => {
     persistRegion(nextRegion);
@@ -44,6 +47,11 @@ export default function AccountSettings() {
         setRegion(u.preferred_region);
       }
       setUser(u);
+      base44.entities.Profile.filter({ created_by_id: u.id }, "-created_date", 50).then(rows => {
+        const list = Array.isArray(rows) ? rows : [];
+        setProfiles(list);
+        setShareProfileId(list[0]?.id || "");
+      }).catch(() => {});
       setLoading(false);
     }).catch(() => base44.auth.redirectToLogin());
   }, []);
@@ -192,6 +200,41 @@ export default function AccountSettings() {
           </div>
           <p className="text-xs text-slate-400 mt-3">{t("account_language_note", language)}</p>
         </div>
+
+        {/* Share profile — sharing belongs in account settings, not the profile editor. */}
+        {profiles.length > 0 && (() => {
+          const selected = profiles.find(p => p.id === shareProfileId) || profiles[0];
+          const shareUrl = publicProfileUrl(selected?.username);
+          const shareTitle = selected?.display_name ? `${selected.display_name} · Bingoo Connect` : "Bingoo Connect profile";
+          const nativeShare = async () => {
+            if (navigator.share) {
+              try { await navigator.share({ title: shareTitle, text: shareTitle, url: shareUrl }); } catch {}
+            } else {
+              await navigator.clipboard.writeText(shareUrl);
+              toast.success(language === "fr" ? "Lien copié" : "Profile link copied");
+            }
+          };
+          return (
+            <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-6 shadow-sm">
+              <h2 className="font-black text-slate-900 text-lg mb-1 flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-blue-600" /> {language === "fr" ? "Partager mon profil" : "Share my profile"}
+              </h2>
+              <p className="text-slate-500 text-sm mb-4">{language === "fr" ? "Partagez le lien public de votre profil par message, e-mail, réseaux sociaux ou toute application installée." : "Share your public profile link by message, email, social media, or any installed app."}</p>
+              {profiles.length > 1 && (
+                <select value={selected?.id || ""} onChange={e => setShareProfileId(e.target.value)} className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-800 mb-3">
+                  {profiles.map(p => <option key={p.id} value={p.id}>{p.display_name || p.username || "Profile"}</option>)}
+                </select>
+              )}
+              <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-3 text-xs font-mono text-slate-600 break-all mb-3">{shareUrl}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <Button variant="outline" onClick={async () => { await navigator.clipboard.writeText(shareUrl); toast.success(language === "fr" ? "Lien copié" : "Profile link copied"); }} className="gap-2"><Copy className="w-4 h-4" /> {language === "fr" ? "Copier" : "Copy"}</Button>
+                <Button variant="outline" onClick={() => window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(shareUrl)}`} className="gap-2"><Mail className="w-4 h-4" /> Email</Button>
+                <Button variant="outline" onClick={() => window.location.href = `sms:?&body=${encodeURIComponent(shareTitle + " " + shareUrl)}`} className="gap-2"><MessageCircle className="w-4 h-4" /> {language === "fr" ? "Message" : "Message"}</Button>
+                <Button onClick={nativeShare} className="gap-2 bg-[#0b2149] hover:bg-[#13284f] text-white"><ExternalLink className="w-4 h-4" /> {language === "fr" ? "Partager" : "Share"}</Button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Notifications */}
         <PhoneAlertsSection user={user} />
