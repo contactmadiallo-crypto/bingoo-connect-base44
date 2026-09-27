@@ -45,38 +45,38 @@ function ProductCard({ product, language }) {
     <motion.article
       variants={fadeUp}
       whileHover={{ y: -5 }}
-      className="group overflow-hidden rounded-3xl border border-white/10"
+      className="group overflow-hidden rounded-[18px] border border-white/10"
       style={{ background: "#0a0a0a", boxShadow: "0 10px 34px rgba(0,0,0,.28)" }}
     >
       <Link to={`/product/${product.id}`} className="block">
-        <div className="relative aspect-[246/284] overflow-hidden">
-          <FactoryProductMedia product={product} className="h-full w-full transition-transform duration-300 group-hover:scale-[1.025]" />
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#111]">
+          <FactoryProductMedia product={product} fit="cover" className="h-full w-full transition-transform duration-300 group-hover:scale-[1.025]" />
           {product.badge && (
-            <span className="absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[.12em] text-white" style={{ background: buy ? B.orange : "#64748b" }}>
+            <span className="absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-[.11em] text-white" style={{ background: buy ? B.orange : "#64748b" }}>
               {product.badge}
             </span>
           )}
         </div>
       </Link>
-      <div className="border-t border-white/10 p-5">
-        <p className="mb-1 text-[10px] font-black uppercase tracking-[.14em]" style={{ color: B.orange }}>
+      <div className="border-t border-white/10 p-3.5">
+        <p className="mb-1 text-[8px] font-black uppercase tracking-[.12em] line-clamp-1" style={{ color: B.orange }}>
           {t(product.flow === "asset_protection" ? "landing_asset_device" : "landing_profile_device",language)} · {collection?.label}
         </p>
         <Link to={`/product/${product.id}`}>
-          <h3 className="text-lg font-black text-white">{localizedProduct.name}</h3>
+          <h3 className="text-base font-black text-white">{localizedProduct.name}</h3>
         </Link>
-        <p className="mt-1 min-h-[40px] text-sm leading-relaxed text-slate-400">{localizedProduct.tagline}</p>
-        <div className="mt-5 flex items-center justify-between gap-3">
+        <p className="mt-1 min-h-[36px] line-clamp-2 text-xs leading-5 text-slate-400">{localizedProduct.tagline}</p>
+        <div className="mt-3 flex items-end justify-between gap-2">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{localizedProduct.bestFor}</p>
-            <p className="text-2xl font-black text-white">{buy ? `$${product.price.toFixed(2)}` : t("landing_coming_soon",language)}</p>
+            <p className="max-w-[120px] truncate text-[9px] font-bold uppercase tracking-wider text-slate-500">{localizedProduct.bestFor}</p>
+            <p className="text-lg font-black text-white">{buy ? `$${product.price.toFixed(2)}` : t("landing_coming_soon",language)}</p>
           </div>
           <Link
             to={`/product/${product.id}`}
-            className="inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black text-white"
+            className="inline-flex items-center gap-1 rounded-lg px-2.5 py-2 text-[10px] font-black text-white"
             style={{ background: B.navy }}
           >
-            {t("landing_view_device",language)} <ArrowRight className="h-3.5 w-3.5" />
+            {t("landing_view_device",language)} <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>
@@ -108,31 +108,31 @@ export default function LandingShop() {
         </ScrollReveal>
 
         {metalCard && (
-          <ScrollReveal delay={0.08} className="mb-10">
-            <div className="overflow-hidden rounded-[32px] border border-white/10" style={{ background: "linear-gradient(145deg,#05070c,#071A3D 55%,#0b2149)" }}>
-              <div className="grid items-center gap-8 p-6 md:grid-cols-[.95fr_1.05fr] md:p-10 lg:p-12">
+          <ScrollReveal delay={0.08} className="mb-8">
+            <div className="overflow-hidden rounded-[24px] border border-white/10" style={{ background: "linear-gradient(145deg,#05070c,#071A3D 55%,#0b2149)" }}>
+              <div className="grid items-center gap-5 p-5 md:grid-cols-[1.1fr_.9fr] md:p-6 lg:p-7">
                 <div>
-                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-3 py-1 text-xs font-black uppercase tracking-[.14em] text-orange-300">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-orange-400/20 bg-orange-400/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] text-orange-300">
                     <Sparkles className="h-3.5 w-3.5" /> {t("landing_flagship_hardware",language)}
                   </div>
-                  <h3 className="text-3xl font-black text-white md:text-4xl">{localizeShopProduct(metalCard,language).name}</h3>
-                  <p className="mt-3 max-w-xl text-base leading-relaxed text-white/60">{localizeShopProduct(metalCard,language).description}</p>
-                  <div className="mt-5 grid gap-2 text-sm text-white/70 sm:grid-cols-2">
+                  <h3 className="text-2xl font-black text-white md:text-3xl">{localizeShopProduct(metalCard,language).name}</h3>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">{localizeShopProduct(metalCard,language).description}</p>
+                  <div className="mt-3 grid gap-1.5 text-xs text-white/70 sm:grid-cols-2">
                     {localizeShopProduct(metalCard,language).features.slice(0, 4).map((feature) => (
                       <span key={feature} className="flex items-start gap-2">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: B.gold }} /> {feature}
                       </span>
                     ))}
                   </div>
-                  <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button onClick={() => navigate(`/product/${metalCard.id}`)} className="h-12 rounded-xl bg-orange-500 px-6 font-black text-white hover:bg-orange-600">
+                  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <Button onClick={() => navigate(`/product/${metalCard.id}`)} className="h-10 rounded-lg bg-orange-500 px-4 text-sm font-black text-white hover:bg-orange-600">
                       {t("landing_view_device",language)} {localizeShopProduct(metalCard,language).name} <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                    <span className="text-xl font-black text-white">${metalCard.price.toFixed(2)}</span>
+                    <span className="text-lg font-black text-white">${metalCard.price.toFixed(2)}</span>
                   </div>
                 </div>
-                <div className="overflow-hidden rounded-3xl border border-white/10 bg-white">
-                  <FactoryProductMedia product={metalCard} className="h-[300px] w-full md:h-[360px]" />
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#111]">
+                  <FactoryProductMedia product={metalCard} fit="cover" className="h-[220px] w-full md:h-[240px]" />
                 </div>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function LandingShop() {
           </Button>
         </ScrollReveal>
 
-        <motion.div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
+        <motion.div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5" variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
           {flagshipProducts.map((product) => <ProductCard key={product.id} product={product} language={language} />)}
         </motion.div>
 
