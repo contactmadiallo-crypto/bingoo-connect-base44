@@ -23,23 +23,23 @@ const reveal = {
 
 const columns = [
   { titleKey: "footer_product", links: [
-    { key: "footer_profile", href: "/" }, { key: "footer_nfc_sharing", href: "/#features" },
-    { key: "footer_qr_sharing", href: "/#features" }, { key: "footer_leads", href: "/#features" },
-    { key: "footer_appointments", href: "/#features" }, { key: "footer_analytics", href: "/#features" },
-    { key: "footer_wallet", href: "/#features" },
+    { key: "footer_profile", href: "/#platform" }, { key: "footer_nfc_sharing", href: "/#platform" },
+    { key: "footer_qr_sharing", href: "/#platform" }, { key: "footer_leads", href: "/#platform" },
+    { key: "footer_appointments", href: "/#platform" }, { key: "footer_analytics", href: "/#platform" },
+    { key: "footer_wallet", href: "/#platform" },
   ]},
   { titleKey: "footer_solutions", links: [
-    { key: "footer_professionals", href: "/#use-cases" }, { key: "footer_business_teams", href: "/#use-cases" },
-    { key: "footer_law_firms", href: "/#use-cases" }, { key: "footer_real_estate", href: "/#use-cases" },
-    { key: "footer_creators", href: "/#use-cases" }, { key: "footer_events", href: "/#use-cases" },
+    { key: "footer_professionals", href: "/#solutions" }, { key: "footer_business_teams", href: "/#solutions" },
+    { key: "footer_law_firms", href: "/#solutions" }, { key: "footer_real_estate", href: "/#solutions" },
+    { key: "footer_creators", href: "/#solutions" }, { key: "footer_events", href: "/#solutions" },
   ]},
   { titleKey: "footer_resources", links: [
-    { key: "footer_pricing", href: "/plans" }, { key: "footer_shop", href: "/shop" },
+    { key: "footer_pricing", href: "/pricing" }, { key: "footer_shop", href: "/shop" },
     { key: "footer_contact_support_link", href: "/contact-support" }, { key: "footer_privacy", href: "/privacy" },
     { key: "footer_terms", href: "/terms" }, { key: "footer_data_deletion", href: "/data-deletion" },
   ]},
   { titleKey: "footer_company", links: [
-    { key: "footer_about_home", href: "/" }, { key: "footer_contact", href: "/contact" },
+    { key: "footer_about_home", href: "/about" }, { key: "footer_contact", href: "/contact" },
   ]},
 ];
 
