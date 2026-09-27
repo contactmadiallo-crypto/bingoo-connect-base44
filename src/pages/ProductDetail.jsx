@@ -10,6 +10,7 @@ import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
 import { isInstalledAppShell } from '@/lib/nativePlatform';
+import { useSEO } from '@/hooks/useSEO';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -26,6 +27,12 @@ export default function ProductDetail() {
   const [notified, setNotified] = useState(false);
   const rawProduct = PRODUCTS.find((p) => p.id === productId);
   const product = localizeShopProduct(rawProduct, language);
+  useSEO({
+    title: product ? `${product.name} | Bingoo Connect NFC Shop` : "Product | Bingoo Connect NFC Shop",
+    description: product?.description || "Explore Bingoo Connect NFC devices for digital profiles, sharing, and asset protection.",
+    url: `https://bingooconnect.com/product/${encodeURIComponent(productId || "")}`,
+    type: "website",
+  });
   const customizationConfig = useMemo(() => getProductCustomization(productId), [productId]);
   const defaults = useMemo(() => getDefaultProductCustomization(productId) || {}, [productId]);
   const [selectedColor, setSelectedColor] = useState(defaults.cardColor || '');
