@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
 import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle, CreditCard, ShieldAlert, RefreshCw, Trash2 } from "lucide-react";
 
 const EVENT_ICONS = {
@@ -59,6 +60,19 @@ export default function NotificationCenter({ userId, isDark }) {
     const unsub = base44.entities.BingooNotification.subscribe((event) => {
       if (event.data?.user_id === userId) {
         qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+        if (event.type === "create" && event.data?.title) {
+          toast(event.data.title, {
+            description: event.data.message || undefined,
+            action: event.data.action_url ? {
+              label: "Open",
+              onClick: () => {
+                const target = event.data.action_url;
+                if (/^https?:\/\//i.test(target)) window.location.assign(target);
+                else navigate(target);
+              },
+            } : undefined,
+          });
+        }
         // Subscription lifecycle events change the account's server-resolved entitlement,
         // so refetch the plan/features/subscription queries immediately — the sidebar
         // recomputes (upgrade, renewal, cancellation, failed-payment) without a refresh.
@@ -71,7 +85,7 @@ export default function NotificationCenter({ userId, isDark }) {
       }
     });
     return () => unsub();
-  }, [userId]);
+  }, [userId, qc, navigate]);
 
   const markReadMutation = useMutation({
     mutationFn: (id) => base44.functions.invoke("manageNotifications", { action: "mark_read", id }),
@@ -80,15 +94,32 @@ export default function NotificationCenter({ userId, isDark }) {
 
   const markAllRead = async () => {
     if (!notifications.some(n => !n.is_read)) return;
-    await base44.functions.invoke("manageNotifications", { action: "mark_all_read" });
-    qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.map(n => ({ ...n, is_read: true })));
-    qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    try {
+      const response = await base44.functions.invoke("manageNotifications", { action: "mark_all_read" });
+      if (response?.data?.ok === false) throw new Error("Mark all read failed");
+      qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.map(n => ({ ...n, is_read: true })));
+      toast.success("Notifications marked as read");
+    } catch (error) {
+      console.error("[notifications] mark all read failed", error);
+      toast.error("Could not mark notifications as read");
+    } finally {
+      qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    }
   };
 
   const clearNotification = async (id) => {
-    await base44.functions.invoke("manageNotifications", { action: "clear_one", id });
+    const previous = notifications;
     qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.filter(n => n.id !== id));
-    qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    try {
+      const response = await base44.functions.invoke("manageNotifications", { action: "clear_one", id });
+      if (response?.data?.ok === false) throw new Error("Clear notification failed");
+    } catch (error) {
+      qc.setQueryData(["bingoo-notifications", userId], previous);
+      console.error("[notifications] clear one failed", error);
+      toast.error("Could not clear notification");
+    } finally {
+      qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    }
   };
 
   const clearAll = async () => {
@@ -99,9 +130,11 @@ export default function NotificationCenter({ userId, isDark }) {
     try {
       const response = await base44.functions.invoke("manageNotifications", { action: "clear_all" });
       if (response?.data?.ok === false) throw new Error("Some notifications could not be cleared");
+      toast.success("Notifications cleared");
     } catch (error) {
       qc.setQueryData(["bingoo-notifications", userId], previous);
       console.error("[notifications] clear all failed", error);
+      toast.error("Could not clear notifications");
     } finally {
       setClearingAll(false);
       qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
@@ -172,7 +205,7 @@ export default function NotificationCenter({ userId, isDark }) {
       {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-[calc(58px+env(safe-area-inset-top))] md:top-16 right-2 md:right-5 z-[120] w-[calc(100vw-16px)] max-w-[320px] max-h-[min(72vh,520px)] rounded-xl shadow-xl overflow-hidden"
+          <div className="fixed top-[calc(58px+env(safe-area-inset-top))] md:top-16 right-2 md:right-5 z-[120] w-[calc(100vw-16px)] max-w-[292px] md:max-w-[310px] max-h-[min(68vh,480px)] rounded-xl shadow-xl overflow-hidden"
             style={{
               background: isDark ? "rgba(15,22,40,0.42)" : "rgba(255,255,255,0.45)",
               backdropFilter: "blur(24px) saturate(180%)",
@@ -197,7 +230,7 @@ export default function NotificationCenter({ userId, isDark }) {
                   </button>
                 )}
                 {unreadCount > 0 && (
-                  <button onClick={markAllRead} className={`text-xs font-semibold ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"}`}>
+                  <button onClick={markAllRead} className={`text-[11px] font-semibold ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"}`}>
                     Mark all read
                   </button>
                 )}
@@ -208,7 +241,7 @@ export default function NotificationCenter({ userId, isDark }) {
             </div>
 
             {/* Notification list */}
-            <div className="max-h-[min(56vh,390px)] overflow-y-auto overscroll-contain">
+            <div className="max-h-[min(52vh,350px)] overflow-y-auto overscroll-contain">
               {isLoading && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin opacity-40" />
