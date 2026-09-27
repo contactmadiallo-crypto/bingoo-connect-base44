@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/I18nContext";
 import { t as tr } from "@/lib/i18n";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
-export default function ConnectionsPanel({ isDark, profileId }) {
+export default function ConnectionsPanel({ isDark }) {
   const { language } = useI18n();
   const [search, setSearch] = useState("");
   const qc = useQueryClient();
