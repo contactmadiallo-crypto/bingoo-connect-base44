@@ -373,9 +373,11 @@ export default function AssetProtectionLostMode() {
             {t("landing_assets_identity_copy",language)}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <motion.a href="/my-nfc-devices" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-black text-white" style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}>
-              <Shield className="h-4 w-4" /> {t("landing_protect_asset",language)} <ArrowRight className="h-4 w-4" />
-            </motion.a>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Link to="/my-nfc-devices" className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-black text-white" style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}>
+                <Shield className="h-4 w-4" /> {t("landing_protect_asset",language)} <ArrowRight className="h-4 w-4" />
+              </Link>
+            </motion.div>
             <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
               <Link to="/shop" className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-black" style={{ background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.2)", color: "#fff" }}>
                 {t("landing_get_nfc_device",language)} <ArrowRight className="h-4 w-4" />
