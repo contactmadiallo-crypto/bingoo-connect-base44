@@ -6,6 +6,7 @@ import BingooLogo from '@/components/bingoo/BingooLogo';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { publicAssetUrl } from '@/lib/publicProfileUrl';
+import { Link } from 'react-router-dom';
 
 const ASSET_TYPES = [
   { value: 'pet', label: 'Pet', icon: '🐾' },
@@ -224,9 +225,9 @@ export default function AssetQrCard({ open, asset, onClose, isDark, hasNfcDevice
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-black text-slate-900">{t("asset_qr_add_nfc", language)}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">{t("asset_qr_add_nfc_copy", language)}</p>
-                    <a href="/shop" className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-white px-3 py-1.5 rounded-lg" style={{ background: '#f97316' }}>
+                    <Link to="/shop" className="inline-flex items-center gap-1 mt-2 text-xs font-bold text-white px-3 py-1.5 rounded-lg" style={{ background: '#f97316' }}>
                       {t("asset_qr_get_nfc", language)} <ArrowRight className="w-3 h-3" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
