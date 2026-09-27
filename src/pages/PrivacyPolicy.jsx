@@ -1,6 +1,7 @@
 import LegalPageLayout, { LegalSection, LegalTOC } from "@/components/legal/LegalPageLayout";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/I18nContext";
+import { useSEO } from "@/hooks/useSEO";
 
 const EN = {
   title: "Privacy Policy",
@@ -141,6 +142,12 @@ function renderBlock(text, key) {
 }
 
 export default function PrivacyPolicy() {
+  useSEO({
+    title: "Privacy Policy | Bingoo Connect",
+    description: "Learn how Bingoo Connect collects, uses, shares, and protects personal information.",
+    url: "https://bingooconnect.com/privacy",
+    type: "website",
+  });
   const { language } = useI18n();
   const copy = language === "fr" ? FR : EN;
   const toc = copy.sections.map(([id, title], index) => [String(index + 1), title, id]);

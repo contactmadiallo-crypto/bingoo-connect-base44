@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { CheckCircle2, Loader2, Trash2, Download, Pencil, FileX, AlertTriangle } from "lucide-react";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { useSEO } from "@/hooks/useSEO";
 
 const REQUEST_TYPES = [
   {
@@ -45,6 +46,12 @@ const REQUEST_TYPES = [
 ];
 
 export default function DataDeletion() {
+  useSEO({
+    title: "Data Requests & Account Deletion | Bingoo Connect",
+    description: "Request account deletion, data export, data correction, or document deletion from Bingoo Connect.",
+    url: "https://bingooconnect.com/data-deletion",
+    type: "website",
+  });
   const { language } = useI18n();
   const [requestType, setRequestType] = useState("account_deletion");
   const [form, setForm] = useState({ name: "", email: "", details: "" });

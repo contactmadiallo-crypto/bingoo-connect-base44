@@ -1,6 +1,7 @@
 import LegalPageLayout, { LegalSection, LegalTOC } from "@/components/legal/LegalPageLayout";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/I18nContext";
+import { useSEO } from "@/hooks/useSEO";
 
 const TOC = [
   ["1", "Acceptance of Terms", "acceptance"],
@@ -29,6 +30,12 @@ const TOC = [
 ];
 
 export default function TermsOfService() {
+  useSEO({
+    title: "Terms of Service | Bingoo Connect",
+    description: "Read the terms governing use of Bingoo Connect, subscriptions, NFC devices, shop orders, and related services.",
+    url: "https://bingooconnect.com/terms",
+    type: "website",
+  });
   const { language } = useI18n();
   if (language === "fr") return <FrenchTerms />;
   return (
