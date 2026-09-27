@@ -55,7 +55,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const accountPlan = normalizeSidebarPlan(accountPlanProp || resolvedAccountPlan || "free");
   const effectiveUserId = userId || user?.id;
   const isAdmin = isAdminUser(user);
-  const navSections = getVisibleNavSections(selectedProfile, isAdmin, lang, accountPlan);
+  const navSections = getVisibleNavSections({ ...(selectedProfile || {}), owner_email: user?.email }, isAdmin, lang, accountPlan);
   const mobileMenuSections = navSections
     .map(section => ({ ...section, items: section.items.filter(item => !["profiles", "devices", "shop"].includes(item.id)) }))
     .filter(section => section.items.length > 0);
