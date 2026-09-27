@@ -4,6 +4,7 @@ import {
   Check,
   ChevronDown,
   CreditCard,
+  LayoutDashboard,
   LogOut,
   Settings,
   ShieldCheck,
@@ -258,6 +259,9 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
           </div>
 
           <div className="py-1">
+            <Link role="menuitem" to="/bingoo?view=home" onClick={() => setOpen(false)} className={item}>
+              <LayoutDashboard className="w-4 h-4" /> {tr('Dashboard', 'Tableau de bord')}
+            </Link>
             <Link role="menuitem" to="/account-settings" onClick={() => setOpen(false)} className={item}>
               <Settings className="w-4 h-4" /> Account Settings
             </Link>
