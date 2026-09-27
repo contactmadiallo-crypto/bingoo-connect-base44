@@ -58,13 +58,13 @@ Deno.serve(async (req) => {
     // ── Plan-based device limit enforcement ──────────────────────────────────
     const DEVICE_LIMITS = {
       free:         0,
-      professional: 5,
-      pro:          5,
-      business:     10,
-      salon:        10,
-      restaurant:   10,
-      lawfirm:      25,
-      corporate:    50,
+      professional: Infinity,
+      pro:          Infinity,
+      business:     Infinity,
+      salon:        Infinity,
+      restaurant:   Infinity,
+      lawfirm:      Infinity,
+      corporate:    Infinity,
     };
 
     function normalizeDevicePlan(p) {
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     const existingDevices = await base44.asServiceRole.entities.NFCDevice.filter({ profile_id: profile_id });
     const activeCount = existingDevices.filter(d => d.status === 'active' || d.status === 'assigned').length;
 
-    if (activeCount >= limit) {
+    if (Number.isFinite(limit) && activeCount >= limit) {
       console.warn(`[activateNfcDevice] Blocked: profile ${profile_id} has ${activeCount}/${limit} devices (plan: ${plan})`);
       return Response.json({
         error: `You have reached the device limit for your ${plan} plan (${limit} device${limit !== 1 ? 's' : ''}). Upgrade your plan to activate more devices.`,
