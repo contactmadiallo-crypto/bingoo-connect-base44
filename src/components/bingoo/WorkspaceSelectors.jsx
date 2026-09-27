@@ -220,7 +220,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
     ? "bg-[#111827] border-white/10 text-white"
     : "bg-white border-slate-200 text-slate-900";
   const secondary = isDark ? "text-white/45" : "text-slate-500";
-  const item = `min-h-[40px] w-full flex items-center gap-3 px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "hover:bg-white/10 text-white/75" : "hover:bg-slate-50 text-slate-700"}`;
+  const item = `min-h-[36px] w-full flex items-center gap-2.5 px-2.5 rounded-lg text-[13px] font-bold transition-colors ${isDark ? "hover:bg-white/10 text-white/75" : "hover:bg-slate-50 text-slate-700"}`;
 
   return (
     <div ref={rootRef} className="relative">
@@ -230,49 +230,49 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((value) => !value)}
-        className={`min-h-[44px] flex items-center gap-2 rounded-full border pl-1.5 pr-3 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${isDark ? "bg-white/8 border-white/10 text-white hover:bg-white/12" : "bg-white border-slate-200 text-slate-900 shadow-sm hover:border-slate-300"}`}
+        className={`min-h-[40px] flex items-center gap-1.5 rounded-full border pl-1 pr-2.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${isDark ? "bg-white/8 border-white/10 text-white hover:bg-white/12" : "bg-white border-slate-200 text-slate-900 shadow-sm hover:border-slate-300"}`}
       >
         {user?.avatar_url ? (
-          <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+          <img src={user.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover" />
         ) : (
-          <span className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white bg-gradient-to-br from-orange-500 to-amber-400">
+          <span className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white bg-gradient-to-br from-orange-500 to-amber-400">
             {initials(name)}
           </span>
         )}
-        <span className="hidden sm:block max-w-[110px] truncate text-xs font-black">{name.split(" ")[0]}</span>
-        <ChevronDown className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""} ${secondary}`} />
+        <span className="hidden sm:block max-w-[90px] truncate text-[11px] font-black">{name.split(" ")[0]}</span>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${open ? "rotate-180" : ""} ${secondary}`} />
       </button>
 
       {open && (
-        <div id={menuId} role="menu" className={`fixed sm:absolute top-[68px] sm:top-auto right-3 sm:right-0 sm:mt-2 w-[260px] sm:w-[280px] max-h-[min(380px,calc(100dvh-120px))] overflow-y-auto overscroll-contain rounded-2xl border shadow-2xl p-1.5 z-[120] ${panel}`}> 
-          <div className="px-3 py-2 border-b border-current/10">
-            <div className="flex items-center gap-3">
-              <span className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-black text-white bg-gradient-to-br from-orange-500 to-amber-400 flex-shrink-0">
+        <div id={menuId} role="menu" className={`fixed sm:absolute top-[60px] sm:top-auto right-2 sm:right-0 sm:mt-1.5 w-[228px] sm:w-[244px] max-h-[min(330px,calc(100dvh-96px))] overflow-y-auto overscroll-contain rounded-xl border shadow-2xl p-1 z-[120] ${panel}`}> 
+          <div className="px-2.5 py-2 border-b border-current/10">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white bg-gradient-to-br from-orange-500 to-amber-400 flex-shrink-0">
                 {initials(name)}
               </span>
               <div className="min-w-0">
-                <p className="font-black truncate">{name}</p>
-                <p className={`text-xs truncate ${secondary}`}>{user?.email}</p>
-                <span className="inline-flex mt-1 px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[10px] font-black uppercase">{planLabel}</span>
+                <p className="text-sm font-black truncate">{name}</p>
+                <p className={`text-[11px] truncate ${secondary}`}>{user?.email}</p>
+                <span className="inline-flex mt-1 px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 text-[9px] font-black uppercase">{planLabel}</span>
               </div>
             </div>
           </div>
 
-          <div className="py-1">
+          <div className="py-0.5">
             <Link role="menuitem" to="/bingoo?view=home" onClick={() => setOpen(false)} className={item}>
-              <LayoutDashboard className="w-4 h-4" /> {tr('Dashboard', 'Tableau de bord')}
+              <LayoutDashboard className="w-3.5 h-3.5" /> {tr('Dashboard', 'Tableau de bord')}
             </Link>
             <Link role="menuitem" to="/account-settings" onClick={() => setOpen(false)} className={item}>
-              <Settings className="w-4 h-4" /> Account Settings
+              <Settings className="w-3.5 h-3.5" /> {tr('Account Settings', 'Paramètres du compte')}
             </Link>
             <Link role="menuitem" to="/billing" onClick={() => setOpen(false)} className={item}>
-              <CreditCard className="w-4 h-4" /> Plan & Billing
+              <CreditCard className="w-3.5 h-3.5" /> {tr('Plan & Billing', 'Forfait et facturation')}
             </Link>
           </div>
 
           <div className="pt-1 border-t border-current/10">
-            <div className={`px-3 py-1.5 flex items-center gap-2 text-[11px] ${secondary}`}>
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <div className={`px-2.5 py-1 flex items-center gap-2 text-[10px] ${secondary}`}>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
               <span>{tr('Signed in as this account', 'Connecté avec ce compte')}</span>
             </div>
             <button
@@ -281,7 +281,7 @@ export function AccountDropdown({ user, plan = "free", logout, isDark = false })
               onClick={() => logout()}
               className={`${item} text-rose-500 ${isDark ? "hover:bg-rose-500/10" : "hover:bg-rose-50"}`}
             >
-              <LogOut className="w-4 h-4" /> Log Out
+              <LogOut className="w-3.5 h-3.5" /> {tr('Log Out', 'Déconnexion')}
             </button>
           </div>
         </div>
