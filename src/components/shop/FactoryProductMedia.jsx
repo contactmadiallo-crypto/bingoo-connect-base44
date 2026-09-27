@@ -24,6 +24,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
     objectPosition: frame.objectPosition || 'center center',
     transform: `translate(${x}%, ${y}%) scale(${scale})`,
     transformOrigin: frame.origin || 'center center',
+    ...(frame.clipPath ? { clipPath: frame.clipPath } : {}),
   };
 
   if (active && hasProductImage) {
