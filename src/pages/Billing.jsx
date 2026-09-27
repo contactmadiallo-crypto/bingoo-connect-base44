@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useToast } from '@/components/ui/use-toast';
 import { usePlan } from '@/hooks/usePlan';
-import { PLAN_LABELS, PLAN_FEATURES, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS, PLAN_CONFIG, formatPlanPrice } from '@/lib/planPermissions';
+import { PLAN_LABELS, PLAN_HIERARCHY, normalizePlan, PURCHASABLE_PLANS, COMING_SOON_PLANS, PLAN_CONFIG, formatPlanPrice, getExpandedPlanFeatures } from '@/lib/planPermissions';
 import { isAdminSwitcher, isProtectedTestAccount } from '@/lib/testAccounts';
 import { format } from 'date-fns';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -152,7 +152,7 @@ export default function Billing() {
     }
   };
 
-  const planFeatures = PLAN_FEATURES[effectivePlan] || PLAN_FEATURES.free;
+  const planFeatures = getExpandedPlanFeatures(effectivePlan);
   const purchasableUpgrades = PURCHASABLE_PLANS
     .filter(id => (PLAN_HIERARCHY[id] ?? 0) > (PLAN_HIERARCHY[effectivePlan] ?? 0))
     .map(id => ({ id, name: PLAN_LABELS[id], ...PRICING[id] }));
