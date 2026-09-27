@@ -40,11 +40,12 @@ export default function ActivityHub({
   };
 
   const { data: connections = [] } = useQuery({
-    queryKey: ["activity-hub-connections", profileId],
-    queryFn: () => profileId
-      ? base44.entities.SavedConnection.filter({ profile_id: profileId }, "-created_date")
-      : [],
-    enabled: !!profileId,
+    queryKey: ["activity-hub-connections"],
+    // Saved connections belong to the signed-in user's address book across profiles.
+    // SavedConnection.profile_id identifies the contact that was saved, so filtering by
+    // the dashboard's active profile incorrectly hides existing saved contacts.
+    queryFn: () => base44.entities.SavedConnection.list("-created_date"),
+    enabled: !!user?.id,
   });
 
   const { data: analytics = [] } = useQuery({
@@ -142,7 +143,7 @@ export default function ActivityHub({
         </div>
       )}
 
-      {tab === "connections" && <ConnectionsPanel isDark={isDark} profileId={profileId} />}
+      {tab === "connections" && <ConnectionsPanel isDark={isDark} />}
       {tab === "analytics" && canAnalytics && <AnalyticsPanel profileId={profileId} />}
       {tab === "appointments" && canAppointments && (
         <button type="button" onClick={() => { window.location.href = `/bingoo?view=appointments${highlightAppointmentId ? `&appointmentId=${encodeURIComponent(highlightAppointmentId)}` : ""}`; }} className={`w-full rounded-2xl border p-4 text-left flex items-center justify-between ${card}`}>
