@@ -2,11 +2,18 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
+import { useSEO } from '@/hooks/useSEO';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function About() {
   const { language } = useI18n();
+  useSEO({
+    title: "About Bingoo Connect | Smart Identity & NFC Platform",
+    description: "Learn about Bingoo Connect and our mission to make professional identity, NFC sharing, and digital connections simpler worldwide.",
+    url: "https://bingooconnect.com/about",
+    type: "website",
+  });
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
