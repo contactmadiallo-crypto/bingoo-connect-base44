@@ -257,6 +257,23 @@ export const PLAN_FEATURES = {
   corporate:    ['Everything in Business', 'Custom Onboarding', 'Team Management', 'API Access', 'Bulk NFC Orders', 'Admin Support', 'Employee Profiles', 'Attendance Dashboard'],
 };
 
+const PLAN_PARENT = {
+  professional: 'free',
+  business: 'professional',
+  salon: 'business',
+  lawfirm: 'business',
+  corporate: 'business',
+};
+
+export function getExpandedPlanFeatures(planId) {
+  const normalized = normalizePlan(planId);
+  const own = PLAN_FEATURES[normalized] || PLAN_FEATURES.free;
+  const parent = PLAN_PARENT[normalized];
+  const ownWithoutInheritanceLabel = parent ? own.slice(1) : own;
+  if (!parent) return [...ownWithoutInheritanceLabel];
+  return [...getExpandedPlanFeatures(parent), ...ownWithoutInheritanceLabel];
+}
+
 // Plain-language taglines explaining what each plan is for
 export const PLAN_TAGLINES = {
   free:         'Basic personal profile and QR sharing',
