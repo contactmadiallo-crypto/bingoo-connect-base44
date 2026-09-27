@@ -146,11 +146,8 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
     if (!form.username.trim()) { setError("Username (profile URL) is required."); return; }
     setSaving(true);
     try {
-      // Read onboarding choices (set by OnboardingWizard steps 2 & 3).
-      // profile_type = category/vertical (drives sidebar nav). plan = "free" always —
-      // paid entitlement comes only from the Subscription entity after checkout.
-      const onboardingLayout = localStorage.getItem("bingoo_onboarding_layout") || "classic";
-      const onboardingProfileType = localStorage.getItem("bingoo_onboarding_profile_type") || "personal";
+      // New profiles start from the stable default editor state.
+      // Vertical/profile type and layout can be changed immediately in Profile Studio.
       const result = await base44.functions.invoke("createProfileGated", {
         idempotency_key: crypto.randomUUID(),
         data: {
@@ -159,17 +156,12 @@ function NewProfileForm({ user, isDark, prefillData, profileCount, maxProfiles, 
           job_title: form.job_title.trim(),
           bio: form.bio.trim(),
           cover_color: "#2563eb",
-          profile_type: onboardingProfileType,
-          layout: onboardingLayout,
+          profile_type: "personal",
+          layout: "classic",
         },
       });
       const created = result?.data?.profile || result?.profile;
       if (!created?.id) throw new Error("Profile creation did not return a profile.");
-      // Clean up onboarding localStorage
-      localStorage.removeItem("bingoo_onboarding_profile_type");
-      localStorage.removeItem("bingoo_onboarding_layout");
-      localStorage.removeItem("bingoo_onboarding_account_type");
-      localStorage.removeItem("bingoo_onboarding_selected_plan");
       onCreated(created);
     } catch (err) {
       const backendError = err?.response?.data?.error || err?.data?.error;
