@@ -51,7 +51,7 @@ export default function PlanGateScreen({ feature, isDark = false }) {
           This plan is coming soon — we'll notify you when it launches.
         </div>
       ) : (
-        <Link to={`/plans?highlight=${targetPlan}`}>
+        <Link to={`/pricing?highlight=${targetPlan}`}>
           <Button className="font-bold flex items-center gap-2 px-6 py-3 text-base rounded-xl"
             style={{ background: B.orange, color: '#fff', border: 'none' }}>
             Upgrade to {info.upgradeTarget}

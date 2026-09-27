@@ -294,7 +294,7 @@ export default function MyNFCDevices() {
               {t("nfc_professional_copy", language)}
             </p>
           </div>
-          <a href="/plans">
+          <a href="/pricing">
             <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#f97316", color: "#fff" }}>
               {t("nfc_view_plans", language)}
             </Button>

@@ -359,7 +359,7 @@ export default function DashboardOverview({
               <h3 className="text-lg font-black mb-0.5 text-white">{tr.unlockPower}</h3>
               <p className="text-sm text-white/60">{tr.unlockDesc}</p>
             </div>
-            <Link to="/plans" className="flex-shrink-0">
+            <Link to="/pricing" className="flex-shrink-0">
               <Button className="rounded-xl font-bold gap-2 text-white border-none" style={{ background: "#f97316" }}>
                 {tr.viewPlans} <ArrowRight className="w-4 h-4" />
               </Button>

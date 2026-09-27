@@ -27,7 +27,7 @@ const plans = CUSTOMER_PLAN_IDS.map(id => {
     colorBg: c.color.bg,
     features,
     cta: id === 'free' ? 'Get Started Free' : isContactSales ? 'Contact Sales' : `Start ${c.label}`,
-    href: id === 'free' ? '/bingoo' : isContactSales ? '/contact-support' : `/plans?highlight=${id}`,
+    href: id === 'free' ? '/bingoo' : isContactSales ? '/contact-support' : `/pricing?highlight=${id}`,
     highlight: id === 'professional',
     contactSales: isContactSales,
   };
@@ -99,7 +99,7 @@ export default function Pricing() {
 
         {/* View All Plans link */}
         <div className="text-center mt-8 md:mt-10">
-          <Link to="/plans">
+          <Link to="/pricing">
             <Button className="h-11 font-bold text-sm text-white border-none" style={{ background: NAVY }}>
               {t("pricing_view_all",language)} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>

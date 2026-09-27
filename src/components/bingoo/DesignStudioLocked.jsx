@@ -117,7 +117,7 @@ export default function DesignStudioLocked({ isDark }) {
           </div>
 
           {/* CTA */}
-          <Link to="/plans">
+          <Link to="/pricing">
             <button className="w-full py-3 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-2 transition-all hover:opacity-90"
               style={{ background: `linear-gradient(135deg, ${ORANGE}, #e06800)` }}>
               {t('ds_locked_upgrade', language)} <ArrowRight className="w-4 h-4" />

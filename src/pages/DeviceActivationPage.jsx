@@ -686,7 +686,7 @@ export default function DeviceActivationPage({ deviceCode, device }) {
                       <div className="flex-1">
                         <p className="text-red-400 text-sm font-semibold">{error}</p>
                         {error.toLowerCase().includes("upgrade") && (
-                          <a href="/plans" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
+                          <a href="/pricing" className="inline-block mt-2 text-orange-400 text-sm font-bold hover:underline">
                             {t("activate_view_plans",language)} →
                           </a>
                         )}

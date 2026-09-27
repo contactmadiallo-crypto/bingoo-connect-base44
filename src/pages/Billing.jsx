@@ -329,7 +329,7 @@ export default function Billing() {
 
           {/* View all plans link */}
           <div className="text-center">
-            <Link to="/plans" className="text-sm font-bold hover:underline" style={{ color: B.navy }}>
+            <Link to="/pricing" className="text-sm font-bold hover:underline" style={{ color: B.navy }}>
               {tr('View all plans', 'Voir tous les forfaits')}
             </Link>
           </div>

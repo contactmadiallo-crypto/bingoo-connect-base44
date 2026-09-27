@@ -14,7 +14,6 @@ const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const BingooDashboard = lazy(() => import('./pages/BingooDashboard'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const SubscriberMonitoring = lazy(() => import('./pages/SubscriberMonitoring'));
-const Pricing = lazy(() => import('./pages/Pricing'));
 const NFCRedirect = lazy(() => import('./pages/NFCRedirect'));
 const ActivateDevice = lazy(() => import('./pages/ActivateDevice'));
 const MyNFCDevices = lazy(() => import('./pages/MyNFCDevices'));
@@ -128,8 +127,8 @@ const AuthenticatedApp = () => {
       <Route path="/contact" element={<Contact />} />
       <Route path="/shop" element={<AdaptiveShopShell><Shop /></AdaptiveShopShell>} />
       <Route path="/product/:productId" element={<AdaptiveShopShell><ProductDetail /></AdaptiveShopShell>} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/plans" element={<SubscriptionPricing />} />
+      <Route path="/pricing" element={<SubscriptionPricing />} />
+      <Route path="/plans" element={<Navigate to={`/pricing${window.location.search}`} replace />} />
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/bingoo" element={<BingooDashboard />} />

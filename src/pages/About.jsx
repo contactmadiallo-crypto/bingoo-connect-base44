@@ -48,7 +48,7 @@ export default function About() {
           </p>
 
           <div className="flex gap-4 mt-10">
-            <Link to="/plans"
+            <Link to="/pricing"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-white"
               style={{ background: B.orange }}>
               {t("about_view_plans",language)}
@@ -68,7 +68,7 @@ export default function About() {
           <Link to="/" className="hover:text-slate-600 transition-colors">{t("about_home",language)}</Link>
           <Link to="/about" className="hover:text-slate-600 transition-colors">{t("about_about",language)}</Link>
           <Link to="/contact" className="hover:text-slate-600 transition-colors">{t("about_contact",language)}</Link>
-          <Link to="/plans" className="hover:text-slate-600 transition-colors">{t("landing_pricing",language)}</Link>
+          <Link to="/pricing" className="hover:text-slate-600 transition-colors">{t("landing_pricing",language)}</Link>
         </div>
         <p className="mt-4">© {new Date().getFullYear()} Bingoo Connect. {t("about_rights",language)}</p>
       </footer>

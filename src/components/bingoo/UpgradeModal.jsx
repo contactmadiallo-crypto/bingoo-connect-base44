@@ -54,7 +54,7 @@ export default function UpgradeModal({ featureKey, onClose }) {
               {tr("This plan is coming soon — we'll notify you when it launches.", "Ce forfait arrive bientôt — nous vous informerons dès son lancement.")}
             </div>
           ) : (
-            <Link to={`/plans?highlight=${targetPlan}`} onClick={onClose}>
+            <Link to={`/pricing?highlight=${targetPlan}`} onClick={onClose}>
               <Button className="w-full min-h-[44px] font-bold flex items-center justify-center gap-2"
                 style={{ background: B.orange, color: '#fff', border: 'none' }}>
                 {tr("Upgrade to","Passer à")} {localizePlanText(info.upgradeTarget, language)}

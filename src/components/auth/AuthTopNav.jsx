@@ -21,7 +21,7 @@ export default function AuthTopNav({ loginHref = "/login" }) {
           <Link to="/shop" className="hover:text-slate-900 transition-colors">{t("auth_products",language)}</Link>
           <Link to="/" className="hover:text-slate-900 transition-colors">{t("auth_templates",language)}</Link>
           <Link to="/pricing" className="hover:text-slate-900 transition-colors">{t("auth_pricing",language)}</Link>
-          <Link to="/plans" className="hover:text-slate-900 transition-colors">{t("auth_for_business",language)}</Link>
+          <Link to="/pricing" className="hover:text-slate-900 transition-colors">{t("auth_for_business",language)}</Link>
           <Link to="/about" className="hover:text-slate-900 transition-colors">{t("auth_about",language)}</Link>
         </div>
 
