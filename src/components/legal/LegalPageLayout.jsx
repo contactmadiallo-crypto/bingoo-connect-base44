@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 const LEGAL_LINKS = [
   ["legal_privacy", "/privacy"],
@@ -60,9 +61,8 @@ export default function LegalPageLayout({ title, subtitle, lastUpdated, children
         {children}
       </div>
 
-      {/* Footer nav */}
-      <div className="border-t border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="border-t border-slate-200 bg-white">
+        <div className="max-w-3xl mx-auto px-4 py-5">
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
             {LEGAL_LINKS.map(([label, to]) => (
               <Link key={to} to={to} className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors no-underline">
@@ -70,9 +70,9 @@ export default function LegalPageLayout({ title, subtitle, lastUpdated, children
               </Link>
             ))}
           </div>
-          <p className="text-center text-[11px] text-slate-400 mt-3">© 2026 Bingoo Connect. {t("about_rights",language)}</p>
         </div>
       </div>
+      <LandingFooter />
     </div>
   );
 }
