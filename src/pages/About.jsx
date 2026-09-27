@@ -10,8 +10,8 @@ const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 export default function About() {
   const { language } = useI18n();
   useSEO({
-    title: "About Bingoo Connect | Smart Identity & NFC Platform",
-    description: "Learn about Bingoo Connect and our mission to make professional identity, NFC sharing, and digital connections simpler worldwide.",
+    title: "About Bingoo Connect | Smart Identity, Digital Profiles & NFC Platform",
+    description: "Discover Bingoo Connect, the smart identity platform combining digital profiles, NFC devices, QR sharing, connections, business tools, and asset recovery in one ecosystem.",
     url: "https://bingooconnect.com/about",
     type: "website",
   });
@@ -35,25 +35,27 @@ export default function About() {
         </h1>
 
         <div className="prose prose-lg max-w-none text-slate-600 space-y-6">
-          <p>
+          <p className="text-xl leading-relaxed font-semibold text-slate-700">
             {t("about_p1",language)}
           </p>
 
-          <p>
-            {t("about_p2",language)}
-          </p>
+          <p>{t("about_p2",language)}</p>
+          <p>{t("about_p3",language)}</p>
 
           <p>
-            {t("about_p3",language)}
-          </p>
-
-          <p>
+            <strong className="text-slate-800">{t("about_more_title",language)}</strong>{" "}
             {t("about_p4",language)}
           </p>
 
-          <p>
-            {t("about_p5",language)}
+          <p>{t("about_p5",language)}</p>
+          <p>{t("about_p6",language)}</p>
+          <p>{t("about_p7",language)}</p>
+
+          <p className="text-lg font-bold leading-relaxed" style={{ color: B.navy }}>
+            {t("about_mission",language)}
           </p>
+
+          <p>{t("about_p8",language)}</p>
 
           <div className="flex gap-4 mt-10">
             <Link to="/pricing"
