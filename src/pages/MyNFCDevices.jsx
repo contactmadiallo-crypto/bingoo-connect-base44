@@ -294,16 +294,12 @@ export default function MyNFCDevices() {
               {t("nfc_professional_copy", language)}
             </p>
           </div>
-          <a href="/pricing">
-            <Button className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#f97316", color: "#fff" }}>
-              {t("nfc_view_plans", language)}
-            </Button>
-          </a>
-          <a href="/shop" className="block">
-            <Button variant="outline" className={`w-full font-bold gap-2 ${isDark ? "border-white/20 text-white/60 bg-transparent hover:bg-white/10" : ""}`}>
-              🛍️ {t("nfc_order_hardware", language)}
-            </Button>
-          </a>
+          <Button onClick={() => navigate("/pricing")} className="font-bold px-8 py-3 rounded-2xl" style={{ background: "#f97316", color: "#fff" }}>
+            {t("nfc_view_plans", language)}
+          </Button>
+          <Button onClick={() => navigate("/shop")} variant="outline" className={`w-full font-bold gap-2 ${isDark ? "border-white/20 text-white/60 bg-transparent hover:bg-white/10" : ""}`}>
+            🛍️ {t("nfc_order_hardware", language)}
+          </Button>
         </div>
       </BingooLayout>
     );
@@ -698,11 +694,9 @@ export default function MyNFCDevices() {
           style={{ background: "linear-gradient(135deg,#0b2149,#13284f)", border: "1px solid rgba(249,115,22,0.2)" }}>
           <p className="font-black text-white mb-1">{t("nfc_need_more", language)}</p>
           <p className="text-white/50 text-xs mb-4">{t("nfc_need_more_copy", language)}</p>
-          <a href="/shop">
-            <Button style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
-              🛍️ {t("nfc_shop_devices", language)}
-            </Button>
-          </a>
+          <Button onClick={() => navigate("/shop")} style={{ background: "#f97316", color: "#fff" }} className="font-bold gap-2">
+            🛍️ {t("nfc_shop_devices", language)}
+          </Button>
         </div>
       </div>
     </BingooLayout>
