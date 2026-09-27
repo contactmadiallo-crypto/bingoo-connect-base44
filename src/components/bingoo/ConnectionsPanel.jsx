@@ -14,15 +14,18 @@ export default function ConnectionsPanel({ isDark, profileId }) {
   const qc = useQueryClient();
 
   const { data: connections = [], isLoading } = useQuery({
-    queryKey: ["saved-connections", profileId],
-    queryFn: () => profileId
-      ? base44.entities.SavedConnection.filter({ profile_id: profileId }, "-created_date")
-      : base44.entities.SavedConnection.list("-created_date"),
+    queryKey: ["saved-connections"],
+    // SavedConnection.profile_id is the profile that was SAVED, not the owner's active profile.
+    // RLS already scopes this list to the authenticated owner, so show the user's full address book.
+    queryFn: () => base44.entities.SavedConnection.list("-created_date"),
   });
 
   const deleteMut = useMutation({
     mutationFn: (id) => base44.entities.SavedConnection.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["saved-connections", profileId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["saved-connections"] });
+      qc.invalidateQueries({ queryKey: ["activity-hub-connections"] });
+    },
   });
 
   const filtered = connections.filter(c => {
