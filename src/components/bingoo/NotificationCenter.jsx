@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle, CreditCard, ShieldAlert, RefreshCw } from "lucide-react";
+import { Bell, X, CalendarDays, Star, Smartphone, AlertTriangle, CheckCircle, CreditCard, ShieldAlert, RefreshCw, Trash2 } from "lucide-react";
 
 const EVENT_ICONS = {
   new_lead: Star,
@@ -80,6 +80,16 @@ export default function NotificationCenter({ userId, isDark }) {
   const markAllRead = async () => {
     const unread = notifications.filter(n => !n.is_read);
     await Promise.all(unread.map(n => base44.entities.BingooNotification.update(n.id, { is_read: true })));
+    qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+  };
+
+  const clearNotification = async (id) => {
+    await base44.entities.BingooNotification.delete(id);
+    qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+  };
+
+  const clearAll = async () => {
+    await Promise.all(notifications.map(n => base44.entities.BingooNotification.delete(n.id)));
     qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
   };
 
@@ -166,6 +176,11 @@ export default function NotificationCenter({ userId, isDark }) {
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {notifications.length > 0 && (
+                  <button onClick={clearAll} className={`text-xs font-semibold ${isDark ? "text-red-300 hover:text-red-200" : "text-red-600 hover:text-red-500"}`}>
+                    Clear all
+                  </button>
+                )}
                 {unreadCount > 0 && (
                   <button onClick={markAllRead} className={`text-xs font-semibold ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"}`}>
                     Mark all read
@@ -221,6 +236,7 @@ export default function NotificationCenter({ userId, isDark }) {
                           {n.created_date ? new Date(n.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
                         </p>
                       </div>
+                      <span role="button" tabIndex={0} aria-label="Clear notification" onClick={(e) => { e.stopPropagation(); clearNotification(n.id); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); clearNotification(n.id); } }} className={`p-1.5 rounded-lg flex-shrink-0 ${isDark ? "text-white/30 hover:text-red-300 hover:bg-white/10" : "text-slate-300 hover:text-red-500 hover:bg-red-50"}`}><Trash2 className="w-3.5 h-3.5" /></span>
                       {isUnread && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />}
                     </button>
                   );
