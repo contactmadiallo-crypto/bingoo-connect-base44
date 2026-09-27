@@ -15,6 +15,16 @@ export default function FactoryProductMedia({ product, className = '', compact =
   // Otherwise keep the original product photograph unchanged.
   const variantImage = selectedColor && product?.variantImages?.[selectedColor];
   const imageSrc = variantImage || product?.image;
+  const frame = product?.mediaFrame || {};
+  const scale = Number(frame.scale) || 1;
+  const x = Number(frame.x) || 0;
+  const y = Number(frame.y) || 0;
+  const imageStyle = {
+    ...(compact && fit !== 'cover' ? { padding: 6 } : {}),
+    objectPosition: frame.objectPosition || 'center center',
+    transform: `translate(${x}%, ${y}%) scale(${scale})`,
+    transformOrigin: frame.origin || 'center center',
+  };
 
   if (active && hasProductImage) {
     return (
@@ -28,7 +38,7 @@ export default function FactoryProductMedia({ product, className = '', compact =
           loading="lazy"
           decoding="async"
           className={`w-full h-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
-          style={compact && fit !== 'cover' ? { padding: 6 } : undefined}
+          style={imageStyle}
         />
       </div>
     );
