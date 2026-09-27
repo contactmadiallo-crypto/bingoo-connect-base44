@@ -23,6 +23,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import BackToTop from "@/components/landing/BackToTop";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { useSEO } from "@/hooks/useSEO";
 
 const B = { navy: "#0b2149", slate: "#64748b" };
 
@@ -39,6 +40,12 @@ function LandingAccountMenu({ user, logout }) {
 
 export default function LandingV2() {
   const { language } = useI18n();
+  useSEO({
+    title: "Bingoo Connect | Digital Business Cards & NFC Identity Platform",
+    description: "Create digital business cards, share with QR or NFC, manage profiles, protect assets, and grow customer connections with Bingoo Connect.",
+    url: "https://bingooconnect.com/",
+    type: "website",
+  });
   const { user, isAuthenticated: authed, logout } = useAuth();
   const navigate = useNavigate();
   const openShop = () => navigate("/shop");
