@@ -48,11 +48,9 @@ const PROFESSIONAL_FEATURES = new Set([
   'portfolio',
   'custom_branding',      // canonical key (replaces custom_colors / custom_design)
   'qr_download',
-  'instagram_integration',
   'calendar',
   // Wallet passes
   'google_wallet_pass',
-  'apple_wallet_pass',
 ]);
 
 const BUSINESS_FEATURES = new Set([
@@ -252,7 +250,7 @@ export const PLAN_STRIPE_PRODUCTS = {
 
 export const PLAN_FEATURES = {
   free:         ['1 profile', 'Public profile link', 'Basic contact links', 'Social links', 'QR code', 'Save contact', 'Limited analytics preview'],
-  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Instagram Integration', 'Calendar View', 'Google Wallet Pass', 'Apple Wallet Pass'],
+  professional: ['Everything in Free', 'Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Appointment Booking', 'Lost Mode for NFC', 'Calendar View', 'Google Wallet Pass'],
   business:     ['Everything in Professional', 'Business Public Profile', 'Design Studio', 'Team Management', 'Services & Product Showcase', 'WhatsApp Booking', 'NFC Counter Stand Compatibility', 'Business Hours', 'Team Member Profiles', 'Lead Capture & Customer Inquiries', 'Multi-Profile Management', 'Business QR/NFC Landing', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Business', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
   lawfirm:      ['Everything in Business', 'Law Firm Profile', 'Practice Areas', 'Attorney Profiles', 'Legal Services', 'Office Locations', 'Team Members', 'Lead Intake Forms', 'CRM Pipeline', 'Case Dashboard', 'Immigration, Criminal, Civil & Family Forms', 'Advanced Analytics', 'Lead Export'],
@@ -374,9 +372,7 @@ export const FEATURE_DESCRIPTIONS = {
   qr_download:          { title: 'QR Code Download',           upgradeTarget: 'Professional', message: 'Upgrade to Professional to download and print your profile QR code.' },
   portfolio:            { title: 'Portfolio / Gallery',        upgradeTarget: 'Professional', message: 'Upgrade to Professional to showcase your portfolio and projects.' },
   lost_mode:            { title: 'Lost Mode Recovery',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to enable Lost Mode for your NFC devices.' },
-  instagram_integration:{ title: 'Instagram Integration',      upgradeTarget: 'Professional', message: 'Upgrade to Professional to connect your Instagram to your profile.' },
   google_wallet_pass:   { title: 'Google Wallet Pass',         upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate a Google Wallet digital card.' },
-  apple_wallet_pass:    { title: 'Apple Wallet Pass',          upgradeTarget: 'Professional', message: 'Upgrade to Professional to generate an Apple Wallet digital card.' },
   business_hours:       { title: 'Business Hours',             upgradeTarget: 'Business',     message: 'Upgrade to the Business plan to display your business hours.' },
   calendar:             { title: 'Calendar View',              upgradeTarget: 'Professional', message: 'Upgrade to Professional to access the calendar view.' },
   // Aliases for backward compat — same gate as canonical
@@ -574,7 +570,7 @@ export const PLAN_CONFIG = {
     hierarchy: 1,
     status: 'purchasable',
     features: PLAN_FEATURES.professional,
-    dashboardPreview: ['Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Appointment Booking', 'Lost Mode', 'Google & Apple Wallet'],
+    dashboardPreview: ['Multiple NFC Devices', 'Lead Collection', 'Analytics Dashboard', 'Portfolio & Gallery', 'Appointment Booking', 'Lost Mode', 'Google Wallet'],
     includedTools: ['Profile Editor', 'QR Code & Wallet', 'NFC Devices', 'Leads', 'Analytics', 'Portfolio', 'Appointments', 'Lost Mode'],
   },
   business: {
