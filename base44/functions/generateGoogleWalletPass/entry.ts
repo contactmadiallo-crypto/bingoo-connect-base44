@@ -115,26 +115,21 @@ Deno.serve(async (req) => {
     }
 
     // ── Ownership check ──
-    // ProfileAccess is Bingoo's authoritative multi-profile ownership mapping
-    // (the same source used by getMyProfiles). Keep legacy creator/id mappings
-    // as compatibility fallbacks for older accounts.
-    const ownedProfileIds = Array.isArray(user.owned_profile_ids) ? user.owned_profile_ids : [];
+    // Use the exact same authoritative membership rule as getMyProfiles:
+    // an active ProfileAccess row for the authenticated account. Query by owner
+    // only, then match the profile locally; this avoids compound-filter behavior
+    // differences that previously caused false 403s in Wallet.
     const accessRows = await base44.asServiceRole.entities.ProfileAccess.filter({
       owner_user_id: user.id,
-      profile_id: profile.id,
     });
     const hasActiveOwnerAccess = (accessRows || []).some((row) =>
-      row.owner_user_id === user.id &&
-      row.profile_id === profile.id &&
+      String(row.owner_user_id) === String(user.id) &&
+      String(row.profile_id) === String(profile.id) &&
       row.access_status === 'active'
     );
-    const ownsProfile =
-      hasActiveOwnerAccess ||
-      profile.created_by_id === user.id ||
-      ownedProfileIds.includes(profile.id);
 
-    if (!ownsProfile && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden — this profile is not available in your Bingoo account' }, { status: 403 });
+    if (!hasActiveOwnerAccess && user.role !== 'admin') {
+      return Response.json({ error: 'Profile not found in your Bingoo account. Refresh My Profiles and try again.' }, { status: 404 });
     }
 
     const classId = `${issuerId}.bingoo_profile_class`;
