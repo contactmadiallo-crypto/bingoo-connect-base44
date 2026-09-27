@@ -26,6 +26,7 @@ import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
 import { localizeShopProduct, localizeCollection } from '@/lib/shopI18n';
 import { isInstalledAppShell } from '@/lib/nativePlatform';
+import { useSEO } from '@/hooks/useSEO';
 
 const NAVY = '#0b2149';
 const NAVY_DEEP = '#071A3D';
@@ -150,6 +151,12 @@ function ProductCard({ product: rawProduct, added, onAdd, list, language }) {
 }
 
 export default function Shop() {
+  useSEO({
+    title: "Bingoo Connect Shop | NFC Cards, Tags & Smart Devices",
+    description: "Shop Bingoo Connect NFC cards, key fobs, tags, stands, wearables, and smart identity devices for profiles and asset protection.",
+    url: "https://bingooconnect.com/shop",
+    type: "website",
+  });
   const { language } = useI18n();
   const nativeApp = isInstalledAppShell();
   const [cart, setCart] = useState(getCartCount());
