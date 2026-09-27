@@ -1,4 +1,5 @@
 import { useLayoutEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Plus, Equal } from "lucide-react";
@@ -22,7 +23,7 @@ const plans = CUSTOMER_PLAN_IDS.map((id) => {
   const c = PLAN_CONFIG[id];
   const price = PLAN_PRICES_USD[id];
   const allFeatures = PLAN_FEATURES[id] || [];
-  const features = allFeatures.slice(0, 8);
+  const features = allFeatures.slice(0, 7);
   const isContactSales = c.status === "contact_sales";
   return {
     name: c.label,
@@ -62,10 +63,10 @@ export default function LandingPricing() {
   }, []);
 
   return (
-    <section id="pricing" className="py-16 md:py-24 px-4 md:px-6 bg-white">
+    <section id="pricing" className="py-14 md:py-18 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         {/* ── Header ── */}
-        <ScrollReveal className="text-center mb-10">
+        <ScrollReveal className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-bold mb-4"
             style={{ background: B.gold + "20", color: "#b45309", border: `1px solid ${B.gold}40` }}>
             {t("landing_simple_pricing",language)}
@@ -82,7 +83,7 @@ export default function LandingPricing() {
         </ScrollReveal>
 
         {/* ── How it works: Plan + Device = Experience ── */}
-        <ScrollReveal delay={0.1} className="mb-12">
+        <ScrollReveal delay={0.1} className="mb-9">
           <div className="grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 md:gap-3 items-stretch max-w-4xl mx-auto">
             {/* Plan */}
             <div className="rounded-2xl p-6 text-center border-2 flex flex-col justify-center" style={{ borderColor: B.navy + "30", background: "#f8fafc" }}>
@@ -141,7 +142,7 @@ export default function LandingPricing() {
             return (
             <motion.div key={p.id} variants={fadeUp}
               whileHover={{ y: p.highlight ? -10 : -6 }}
-              className="rounded-2xl p-7 border-2 transition-all relative flex flex-col"
+              className="rounded-2xl p-5 border-2 transition-all relative flex flex-col"
               style={{
                 borderColor: p.highlight ? B.orange : "#e2e8f0",
                 background: p.highlight ? `linear-gradient(145deg, ${B.navy}, ${B.navyLight})` : "#fff",
@@ -153,16 +154,16 @@ export default function LandingPricing() {
                   {t("landing_most_popular",language)}
                 </div>
               )}
-              <div className="mb-4">
-                <p className="text-sm font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{planDesc}</p>
-                <h3 className="font-black text-xl mb-3" style={{ color: p.highlight ? "#fff" : B.navy }}>{planName}</h3>
+              <div className="mb-2">
+                <p className="text-xs leading-snug font-semibold mb-1" style={{ color: p.highlight ? "rgba(255,255,255,0.5)" : B.slate }}>{planDesc}</p>
+                <h3 className="font-black text-lg mb-2" style={{ color: p.highlight ? "#fff" : B.navy }}>{planName}</h3>
                 <div>
-                  <span className="text-4xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{planPrice}</span>
+                  <span className="text-3xl font-black" style={{ color: p.highlight ? B.gold : B.navy }}>{planPrice}</span>
                   <span className="text-sm ml-1" style={{ color: p.highlight ? "rgba(255,255,255,0.4)" : B.slate }}>{planPeriod}</span>
                 </div>
               </div>
-              <div className="h-px my-4" style={{ background: p.highlight ? "rgba(255,255,255,0.1)" : "#f1f5f9" }} />
-              <ul className="space-y-2.5 mb-6 flex-1">
+              <div className="h-px my-3" style={{ background: p.highlight ? "rgba(255,255,255,0.1)" : "#f1f5f9" }} />
+              <ul className="space-y-1.5 mb-4 flex-1">
                 {planFeatures.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm"
                     style={{ color: p.highlight ? "rgba(255,255,255,0.75)" : "#64748b" }}>
@@ -171,12 +172,13 @@ export default function LandingPricing() {
                   </li>
                 ))}
               </ul>
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button onClick={() => (window.location.href = p.id === "free" ? "/bingoo" : p.contactSales ? "/contact-support" : "/plans")}
-                  className="w-full font-bold"
-                  style={{ background: p.highlight ? B.orange : B.navy, color: "#fff", border: "none" }}>
-                  {planCta}
-                </Button>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link to={p.id === "free" ? "/bingoo" : p.contactSales ? "/contact-support" : `/plans?highlight=${p.id}`}>
+                  <Button className="w-full h-10 font-bold text-sm"
+                    style={{ background: p.highlight ? B.orange : B.navy, color: "#fff", border: "none" }}>
+                    {planCta}
+                  </Button>
+                </Link>
               </motion.div>
             </motion.div>
           );})}
@@ -184,12 +186,13 @@ export default function LandingPricing() {
 
         {/* ── Browse All Plans CTA ── */}
         <ScrollReveal delay={0.2} className="text-center mt-10">
-          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-block">
-            <Button size="lg" onClick={() => (window.location.href = "/plans")}
-              className="font-black text-base px-10 py-6 rounded-2xl"
-              style={{ background: B.navy, color: "#fff", border: "none" }}>
-              {t("landing_browse_plans",language)} <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} className="inline-block">
+            <Link to="/plans">
+              <Button size="lg" className="font-black text-sm px-8 h-11 rounded-xl"
+                style={{ background: B.navy, color: "#fff", border: "none" }}>
+                {t("landing_browse_plans",language)} <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+            </Link>
           </motion.div>
         </ScrollReveal>
       </div>
