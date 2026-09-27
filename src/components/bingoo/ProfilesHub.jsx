@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Eye, Settings, QrCode, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { useQueries } from "@tanstack/react-query";
+import { Eye, Settings, QrCode, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
 import { useI18n } from "@/lib/I18nContext";
 import { openExternalUrl } from "@/lib/nativePlatform";
+import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 
 export default function ProfilesHub({
   profiles = [],
@@ -22,6 +24,7 @@ export default function ProfilesHub({
   loading = false,
   // Persist a new ordered array of profile IDs for the user.
   onReorder,
+  onProfileDeleted,
 }) {
   const { t, language } = useI18n();
   const tr = (en, fr) => language === 'fr' ? fr : en;
@@ -33,6 +36,7 @@ export default function ProfilesHub({
   // Cleared on success (dashboard refetch provides authoritative order) or on failure (revert).
   const [pendingOrder, setPendingOrder] = useState(null);
   const [reorderError, setReorderError] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // "Default profile" only matters when the user owns more than one
   const showDefaultUI = profiles.length > 1;
@@ -112,6 +116,22 @@ export default function ProfilesHub({
   const anyPaidProfile = !isFree;
   const hasReachedFreeLimit = isFree && profiles.length >= 1 && !anyPaidProfile;
   const canReorder = items.length > 1 && !!onReorder;
+
+  // Live profile-card metrics. Analytics is the source of truth for both web and mobile.
+  const analyticsQueries = useQueries({
+    queries: profiles.map((profile) => ({
+      queryKey: ["profile-card-analytics", profile.id],
+      queryFn: () => base44.functions.invoke("getMyAnalytics", { profile_id: profile.id })
+        .then((res) => res?.data?.events || []),
+      enabled: !!profile.id,
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    })),
+  });
+  const analyticsByProfile = profiles.reduce((acc, profile, index) => {
+    acc[profile.id] = analyticsQueries[index]?.data || [];
+    return acc;
+  }, {});
 
   const copyLink = (profile) => {
     const url = publicProfileUrl(profile.username);
@@ -220,8 +240,9 @@ export default function ProfilesHub({
     const completion = profileCompletion(profile);
     const profileType = titleCase(profile.profile_type, t("profiles_personal"));
     const layoutLabel = `${titleCase(profile.layout, t("profiles_classic"))} ${t("profiles_layout")}`;
-    const viewCount = profile.view_count ?? profile.views ?? 0;
-    const tapCount = profile.tap_count ?? profile.nfc_taps ?? 0;
+    const profileAnalytics = analyticsByProfile[profile.id] || [];
+    const viewCount = profileAnalytics.filter((event) => event.event_type === "profile_view").length;
+    const tapCount = profileAnalytics.filter((event) => event.event_type === "nfc_tap").length;
 
     return (
       <div
@@ -231,7 +252,7 @@ export default function ProfilesHub({
         aria-pressed={selected}
         onClick={() => handleCardActivate(profile)}
         onKeyDown={(e) => handleCardKeyDown(e, profile)}
-        className={`relative ${cardBg} border rounded-[24px] transition-all duration-200 cursor-pointer outline-none
+        className={`relative ${cardBg} border rounded-[20px] transition-all duration-200 cursor-pointer outline-none
           focus:ring-2 focus:ring-orange-400/60
           hover:shadow-lg hover:-translate-y-0.5
           ${selected
@@ -249,8 +270,8 @@ export default function ProfilesHub({
         {renderReorderControls(profile, index, dragHandleProps)}
 
         {/* Cover */}
-        <div className="relative" style={{ borderRadius: "24px 24px 0 0", overflow: "hidden" }}>
-          <div className="h-[96px] sm:h-[145px]">
+        <div className="relative" style={{ borderRadius: "20px 20px 0 0", overflow: "hidden" }}>
+          <div className="h-[88px] sm:h-[118px]">
             {profile.cover_photo ? (
               <img src={profile.cover_photo} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
@@ -261,13 +282,13 @@ export default function ProfilesHub({
         </div>
 
         {/* Avatar row */}
-        <div className="flex items-start justify-between px-3 sm:px-5 -mt-7 sm:-mt-9">
+        <div className="flex items-start justify-between px-3 sm:px-4 -mt-7 sm:-mt-8">
           {(() => {
             const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "50%";
             return profile.profile_photo ? (
               <img src={profile.profile_photo} alt=""
                 style={{
-                  width: "clamp(56px, 15vw, 72px)", height: "clamp(56px, 15vw, 72px)", borderRadius: shapeR, flexShrink: 0,
+                  width: "clamp(52px, 14vw, 64px)", height: "clamp(52px, 14vw, 64px)", borderRadius: shapeR, flexShrink: 0,
                   objectFit: "cover", objectPosition: "center top",
                   border: isDark ? "3px solid #13162a" : "3px solid white",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
@@ -275,7 +296,7 @@ export default function ProfilesHub({
                 }} />
             ) : (
               <div style={{
-                width: 72, height: 72, borderRadius: shapeR, flexShrink: 0,
+                width: 64, height: 64, borderRadius: shapeR, flexShrink: 0,
                 background: profile.cover_color || "#2563eb",
                 border: isDark ? "3px solid #13162a" : "3px solid white",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -288,7 +309,7 @@ export default function ProfilesHub({
             );
           })()}
           {/* Bottom badges — Live + profile category */}
-          <div className="flex items-center gap-1.5 pt-8 sm:pt-10">
+          <div className="flex items-center gap-1.5 pt-7 sm:pt-8">
             {profile.is_active && (
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -303,7 +324,7 @@ export default function ProfilesHub({
         </div>
 
         {/* Name + username */}
-        <div className="px-3 pb-3 sm:px-5 sm:pb-5">
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4">
           <div className="mb-1">
             <p className={`font-black text-base truncate ${headText}`}>{profile.display_name}</p>
             <p className={`text-sm truncate ${mutedText}`}>/{profile.username}</p>
@@ -315,7 +336,7 @@ export default function ProfilesHub({
             </p>
           )}
 
-          <span className="hidden sm:inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full mb-4"
+          <span className="hidden sm:inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full mb-3"
             style={{ background: isDark ? "rgba(99,102,241,0.16)" : "#eef2ff", color: isDark ? "#a5b4fc" : "#4338ca" }}>
             {layoutLabel}
           </span>
@@ -330,20 +351,20 @@ export default function ProfilesHub({
             </div>
           </div>}
 
-          <div className="hidden sm:grid grid-cols-3 gap-2 mb-3">
-            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+          <div className="hidden sm:grid grid-cols-3 gap-2 mb-2.5">
+            <div className={`rounded-xl px-3 py-1.5 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
               <p className={`text-base font-black ${headText}`}>{viewCount}</p><p className={`text-[10px] ${mutedText}`}>{t("profiles_views")}</p>
             </div>
-            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+            <div className={`rounded-xl px-3 py-1.5 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
               <p className={`text-base font-black ${headText}`}>{tapCount}</p><p className={`text-[10px] ${mutedText}`}>{t("profiles_taps")}</p>
             </div>
-            <div className={`rounded-xl px-3 py-2 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
+            <div className={`rounded-xl px-3 py-1.5 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
               <p className={`text-sm font-black ${profile.is_active === false ? "text-slate-400" : "text-emerald-500"}`}>{profile.is_active === false ? t("profiles_hidden") : t("profiles_live")}</p>
               <p className={`text-[10px] ${mutedText}`}>{t("profiles_status")}</p>
             </div>
           </div>
 
-          <div className={`hidden sm:flex items-center gap-2 rounded-xl border px-3 py-2 mb-3 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
+          <div className={`hidden sm:flex items-center gap-2 rounded-xl border px-3 py-1.5 mb-2.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
             <span className={`text-xs truncate flex-1 ${subText}`}>/p/{profile.username}</span>
             <button onClick={(e) => { e.stopPropagation(); copyLink(profile); }} className={`text-xs font-bold flex items-center gap-1 ${headText}`}>
               {copiedId === profile.id ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />} Copy
@@ -351,10 +372,10 @@ export default function ProfilesHub({
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-2 mt-2 sm:mt-3 items-center">
+          <div className="flex gap-2 mt-2 items-center justify-end">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 min-w-0"
+              className="w-[84px] sm:w-[96px] h-9 flex items-center justify-center gap-1.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
               style={{ background: "#0b2149" }}>
               <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t("profiles_edit")}</span>
             </button>
@@ -401,6 +422,18 @@ export default function ProfilesHub({
                   : <Star className={`w-3.5 h-3.5 ${isDefault(profile) ? "fill-current" : ""}`} />}
               </button>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); setDeleteTarget(profile); }}
+              aria-label={tr('Delete profile', 'Supprimer le profil')}
+              title={tr('Delete profile', 'Supprimer le profil')}
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+              style={{
+                background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)",
+                borderColor: isDark ? "rgba(248,113,113,0.2)" : "rgba(239,68,68,0.2)",
+                color: isDark ? "#fca5a5" : "#dc2626",
+              }}>
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* QR Expanded */}
@@ -486,6 +519,19 @@ export default function ProfilesHub({
         <div className="text-xs font-semibold text-red-500">{t("profiles_order_error")}</div>
       )}
 
+      {deleteTarget && (
+        <DeleteProfileModal
+          profile={deleteTarget}
+          isDark={isDark}
+          onClose={() => setDeleteTarget(null)}
+          onDeleted={() => {
+            const deletedId = deleteTarget.id;
+            setDeleteTarget(null);
+            onProfileDeleted?.(deletedId);
+          }}
+        />
+      )}
+
       {/* Loading skeleton */}
       {loading && profiles.length === 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -514,7 +560,7 @@ export default function ProfilesHub({
           <Droppable droppableId="profiles-grid" isDropDisabled={!canReorder}>
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {items.map((profile, index) => (
                   <Draggable draggableId={profile.id} index={index} key={profile.id} isDragDisabled={!canReorder}>
                     {(dragProvided, snapshot) => (
