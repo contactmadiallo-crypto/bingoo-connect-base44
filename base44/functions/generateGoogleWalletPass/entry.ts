@@ -115,12 +115,26 @@ Deno.serve(async (req) => {
     }
 
     // ── Ownership check ──
-    // Bingoo supports both canonical creator ownership and the account-level
-    // owned_profile_ids mapping used by migrated/multi-profile accounts.
+    // ProfileAccess is Bingoo's authoritative multi-profile ownership mapping
+    // (the same source used by getMyProfiles). Keep legacy creator/id mappings
+    // as compatibility fallbacks for older accounts.
     const ownedProfileIds = Array.isArray(user.owned_profile_ids) ? user.owned_profile_ids : [];
-    const ownsProfile = profile.created_by_id === user.id || ownedProfileIds.includes(profile.id);
+    const accessRows = await base44.asServiceRole.entities.ProfileAccess.filter({
+      owner_user_id: user.id,
+      profile_id: profile.id,
+    });
+    const hasActiveOwnerAccess = (accessRows || []).some((row) =>
+      row.owner_user_id === user.id &&
+      row.profile_id === profile.id &&
+      row.access_status === 'active'
+    );
+    const ownsProfile =
+      hasActiveOwnerAccess ||
+      profile.created_by_id === user.id ||
+      ownedProfileIds.includes(profile.id);
+
     if (!ownsProfile && user.role !== 'admin') {
-      return Response.json({ error: 'Forbidden — you do not own this profile' }, { status: 403 });
+      return Response.json({ error: 'Forbidden — this profile is not available in your Bingoo account' }, { status: 403 });
     }
 
     const classId = `${issuerId}.bingoo_profile_class`;
