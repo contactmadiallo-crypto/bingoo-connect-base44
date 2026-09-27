@@ -5,11 +5,18 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { useI18n } from '@/lib/I18nContext';
 import { t } from '@/lib/i18n';
+import { useSEO } from '@/hooks/useSEO';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
 
 export default function Contact() {
   const { language } = useI18n();
+  useSEO({
+    title: "Contact Bingoo Connect | Sales, Support & Partnerships",
+    description: "Contact Bingoo Connect for product questions, sales, support, partnerships, and business inquiries.",
+    url: "https://bingooconnect.com/contact",
+    type: "website",
+  });
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
