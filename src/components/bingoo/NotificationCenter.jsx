@@ -41,6 +41,7 @@ const EVENT_COLORS = {
 
 export default function NotificationCenter({ userId, isDark }) {
   const [open, setOpen] = useState(false);
+  const [clearingAll, setClearingAll] = useState(false);
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -89,8 +90,18 @@ export default function NotificationCenter({ userId, isDark }) {
   };
 
   const clearAll = async () => {
-    await Promise.all(notifications.map(n => base44.entities.BingooNotification.delete(n.id)));
-    qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    if (clearingAll || notifications.length === 0) return;
+    const previous = notifications;
+    setClearingAll(true);
+    qc.setQueryData(["bingoo-notifications", userId], []);
+    try {
+      const results = await Promise.allSettled(previous.map(n => base44.entities.BingooNotification.delete(n.id)));
+      const failed = previous.filter((_, i) => results[i].status === "rejected");
+      if (failed.length) qc.setQueryData(["bingoo-notifications", userId], failed);
+    } finally {
+      setClearingAll(false);
+      qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -157,7 +168,7 @@ export default function NotificationCenter({ userId, isDark }) {
       {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-16 right-3 z-[60] w-[calc(100vw-24px)] max-w-sm rounded-2xl shadow-xl overflow-hidden"
+          <div className="fixed top-14 right-2 z-[60] w-[calc(100vw-16px)] max-w-[320px] rounded-xl shadow-xl overflow-hidden"
             style={{
               background: isDark ? "rgba(15,22,40,0.42)" : "rgba(255,255,255,0.45)",
               backdropFilter: "blur(24px) saturate(180%)",
@@ -166,7 +177,7 @@ export default function NotificationCenter({ userId, isDark }) {
               boxShadow: "0 12px 40px rgba(0,0,0,0.18)",
             }}>
             {/* Header */}
-            <div className={`px-4 py-3 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-white/40"}`}>
+            <div className={`px-3 py-2.5 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-white/40"}`}>
               <div className="flex items-center gap-2">
                 <h3 className={`font-black text-sm ${headText}`}>Notifications</h3>
                 {unreadCount > 0 && (
@@ -177,8 +188,8 @@ export default function NotificationCenter({ userId, isDark }) {
               </div>
               <div className="flex items-center gap-2">
                 {notifications.length > 0 && (
-                  <button onClick={clearAll} className={`text-xs font-semibold ${isDark ? "text-red-300 hover:text-red-200" : "text-red-600 hover:text-red-500"}`}>
-                    Clear all
+                  <button disabled={clearingAll} onClick={clearAll} className={`text-[11px] font-semibold disabled:opacity-50 ${isDark ? "text-red-300 hover:text-red-200" : "text-red-600 hover:text-red-500"}`}>
+                    {clearingAll ? "Clearing…" : "Clear all"}
                   </button>
                 )}
                 {unreadCount > 0 && (
@@ -193,7 +204,7 @@ export default function NotificationCenter({ userId, isDark }) {
             </div>
 
             {/* Notification list */}
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-72 overflow-y-auto">
               {isLoading && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin opacity-40" />
@@ -223,7 +234,7 @@ export default function NotificationCenter({ userId, isDark }) {
                     <button
                       key={n.id}
                       onClick={() => handleClick(n)}
-                      className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors border-b ${isDark ? "border-white/6 hover:bg-white/8" : "border-white/30 hover:bg-white/55"}`}
+                      className={`w-full text-left px-3 py-2.5 flex items-start gap-2.5 transition-colors border-b ${isDark ? "border-white/6 hover:bg-white/8" : "border-white/30 hover:bg-white/55"}`}
                       style={isUnread ? { background: isDark ? "rgba(59,130,246,0.10)" : "rgba(59,130,246,0.08)" } : {}}
                     >
                       <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${colorCls}`}>
