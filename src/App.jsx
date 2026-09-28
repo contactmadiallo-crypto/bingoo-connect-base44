@@ -26,6 +26,9 @@ const SubscriptionPricing = lazy(() => import('./pages/SubscriptionPricing'));
 const Billing = lazy(() => import('./pages/Billing'));
 const About = lazy(() => import('./pages/About'));
 const Contact = lazy(() => import('./pages/Contact'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogPost = lazy(() => import('./pages/BlogPost'));
+const FAQ = lazy(() => import('./pages/FAQ'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { isInstalledAppShell } from '@/lib/nativePlatform';
@@ -125,6 +128,9 @@ const AuthenticatedApp = () => {
       <Route path="/asset/:nfcDeviceCode" element={<AssetFinder />} />
       <Route path="/a/:assetId" element={<AssetFinder />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/faq" element={<FAQ />} />
       <Route path="/shop" element={<AdaptiveShopShell><Shop /></AdaptiveShopShell>} />
       <Route path="/product/:productId" element={<AdaptiveShopShell><ProductDetail /></AdaptiveShopShell>} />
       <Route path="/pricing" element={<SubscriptionPricing />} />
