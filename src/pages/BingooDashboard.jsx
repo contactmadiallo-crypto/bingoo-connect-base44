@@ -35,8 +35,7 @@ import { auditUserContext } from "@/lib/dbDebug";
 import { normalizeProfileType } from "@/lib/sidebarConfig";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 import { PLAN_LABELS, canAccess as canAccessForPlan, normalizePlan } from "@/lib/planPermissions";
-import { ChevronLeft
-} from "lucide-react";
+import { ArrowLeft, ChevronLeft } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import BingooLoadingDots from "@/components/bingoo/ui/BingooLoadingDots";
 const PremiumHomeDashboard = React.lazy(() => import("@/components/bingoo/PremiumHomeDashboard"));
@@ -565,7 +564,8 @@ export default function BingooDashboard() {
           {/* Hub uses the clean shared Figma-style header without a second toolbar. */}
           {view !== VIEW_HUB && (
           <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <button type="button" onClick={openHub} aria-label={lang === "fr" ? "Retour aux profils" : "Back to profiles"} className={`md:hidden w-10 h-10 flex-shrink-0 rounded-full border flex items-center justify-center ${isDark ? "border-white/10 bg-white/[0.06] text-white" : "border-slate-200 bg-white text-slate-700 shadow-sm"}`}><ArrowLeft className="w-4 h-4" /></button>
               <div className="min-w-0">
                 <h1 className={`text-base font-black leading-none truncate ${isDark ? "text-white" : "text-slate-900"}`}>
                   {user?.full_name?.split(" ")[0] || "Dashboard"}
