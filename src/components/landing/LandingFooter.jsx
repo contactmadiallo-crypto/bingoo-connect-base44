@@ -35,6 +35,7 @@ const columns = [
   ]},
   { titleKey: "footer_resources", links: [
     { key: "footer_pricing", href: "/pricing" }, { key: "footer_shop", href: "/shop" },
+    { key: "footer_blog", href: "/blog" }, { key: "footer_faq", href: "/faq" },
     { key: "footer_contact_support_link", href: "/contact-support" }, { key: "footer_privacy", href: "/privacy" },
     { key: "footer_terms", href: "/terms" }, { key: "footer_data_deletion", href: "/data-deletion" },
   ]},
