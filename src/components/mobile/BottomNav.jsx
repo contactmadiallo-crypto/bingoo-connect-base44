@@ -143,15 +143,6 @@ export default function BottomNav({ lang = 'en', onMore }) {
       >
         <span className="relative w-9 h-9 rounded-[14px] flex items-center justify-center">
           <LayoutGrid className="w-[21px] h-[21px]" style={{ color: 'rgba(255,255,255,0.52)' }} aria-hidden="true" />
-          {totalUnread > 0 && (
-            <span
-              className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white"
-              style={{ background: '#F97316', border: '2px solid #0a1d3f' }}
-              aria-label={`${totalUnread > 9 ? '9+' : totalUnread} unread`}
-            >
-              {totalUnread > 9 ? '9+' : totalUnread}
-            </span>
-          )}
         </span>
         <span className="text-[10px] font-bold tracking-tight" style={{ color: 'rgba(255,255,255,0.48)' }}>
           Menu
