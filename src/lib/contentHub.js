@@ -165,7 +165,7 @@ export const FAQ_ITEMS = [
   {
     category: "Refunds",
     question: { en: "What is Bingoo’s refund policy?", fr: "Quelle est la politique de remboursement de Bingoo ?" },
-    answer: { en: "The current commercial promise is a 30-day money-back guarantee for eligible subscription purchases, subject to the published Terms. Hardware returns and shipping-related cases may have separate conditions.", fr: "La promesse commerciale actuelle prévoit une garantie satisfait ou remboursé de 30 jours pour les abonnements éligibles, sous réserve des Conditions publiées. Les retours de matériel et les cas liés à la livraison peuvent avoir des conditions distinctes." }
+    answer: { en: "Please review the published Terms for the current refund rules. The Terms currently state that fees are generally non-refundable, and hardware or shipping-related cases may have separate conditions.", fr: "Consultez les Conditions publiées pour connaître les règles de remboursement en vigueur. Les Conditions indiquent actuellement que les frais sont généralement non remboursables, et que les cas liés au matériel ou à la livraison peuvent avoir des conditions distinctes." }
   },
   {
     category: "Account",
