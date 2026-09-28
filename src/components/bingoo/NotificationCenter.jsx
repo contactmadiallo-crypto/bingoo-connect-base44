@@ -155,29 +155,36 @@ export default function NotificationCenter({ userId, isDark, lang = "en" }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  const notificationTarget = (n) => {
+    const profile = n.profile_id ? `&profileId=${encodeURIComponent(n.profile_id)}` : "";
+    const related = n.related_id ? encodeURIComponent(n.related_id) : "";
+    const type = String(n.event_type || "");
+
+    // Account/subscription notifications always open Bingoo Billing so the user
+    // can immediately manage the plan and payment method after an upgrade/update.
+    if (["subscription_created","subscription_updated","subscription_canceled","payment_failed"].includes(type)) return "/billing";
+    if (type === "new_lead") return `/bingoo?view=leads${profile}${related ? `&leadId=${related}` : ""}`;
+    if (["new_appointment","appointment_confirmed","appointment_cancelled","appointment_rescheduled","appointment_reminder"].includes(type)) return `/bingoo?view=appointments${profile}${related ? `&appointmentId=${related}` : ""}`;
+    if (type === "new_contact") return `/bingoo?view=connections${profile}`;
+    if (type === "nfc_activated") return "/my-nfc-devices";
+    if (type === "lost_device_reported") return "/bingoo?view=lost-found";
+    if (type === "new_review") return `/bingoo?view=home${profile}`;
+    if (type === "security_alert") return "/account";
+
+    // Preserve explicit deep links for any service type not covered above.
+    return n.action_url || "/bingoo?view=home";
+  };
+
+  const openNotificationTarget = (n) => {
+    const target = notificationTarget(n);
+    if (/^https?:\/\//i.test(target)) window.location.assign(target);
+    else navigate(target);
+  };
+
   const handleClick = (n) => {
     if (!n.is_read) markReadMutation.mutate(n.id);
     setOpen(false);
-
-    // Prefer the backend-provided deep link. Fall back to a deterministic
-    // in-app destination so older notification records remain actionable.
-    let target = n.action_url;
-    if (!target) {
-      const profile = n.profile_id ? `&profileId=${encodeURIComponent(n.profile_id)}` : "";
-      const related = n.related_id ? encodeURIComponent(n.related_id) : "";
-      if (n.event_type === "new_lead") {
-        target = `/bingoo?view=leads${profile}${related ? `&leadId=${related}` : ""}`;
-      } else if (["new_appointment","appointment_confirmed","appointment_cancelled","appointment_rescheduled","appointment_reminder"].includes(n.event_type)) {
-        target = `/bingoo?view=appointments${profile}${related ? `&appointmentId=${related}` : ""}`;
-      } else if (n.event_type === "new_contact") {
-        target = `/bingoo?view=connections${profile}`;
-      } else {
-        target = "/bingoo?view=home";
-      }
-    }
-
-    if (/^https?:\/\//i.test(target)) window.location.assign(target);
-    else navigate(target);
+    openNotificationTarget(n);
   };
 
   const headText = isDark ? "text-white" : "text-slate-900";
