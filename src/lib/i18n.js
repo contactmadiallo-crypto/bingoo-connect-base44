@@ -1091,6 +1091,8 @@ export const TRANSLATIONS = {
   footer_creators: { en: "Creators", fr: "Créateurs" },
   footer_events: { en: "Events", fr: "Événements" },
   footer_resources: { en: "Resources", fr: "Ressources" },
+  footer_blog: { en: "Blog", fr: "Blog" },
+  footer_faq: { en: "FAQ", fr: "FAQ" },
   footer_company: { en: "Company", fr: "Entreprise" },
   footer_about_home: { en: "About / Home", fr: "À propos / Accueil" },
   footer_brand_copy: { en: "Smart identity, professional connections and NFC-powered sharing — all in one platform.", fr: "Identité intelligente, connexions professionnelles et partage NFC — le tout sur une seule plateforme." },
