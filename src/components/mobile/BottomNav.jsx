@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Gauge, UserRound, Radio, ShoppingBag, LayoutGrid } from 'lucide-react';
+import { House, UserRound, Radio, ShoppingBag, LayoutGrid } from 'lucide-react';
 import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
@@ -43,7 +43,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
   const { stacks, recordVisitForTab } = useNavigationStack();
 
   const tabs = [
-    { id: 'dashboard', label: lang === 'fr' ? 'Accueil' : 'Dash', icon: Gauge, path: '/bingoo?view=home', owns: ownsDashboard },
+    { id: 'dashboard', label: lang === 'fr' ? 'Accueil' : 'Dash', icon: House, path: '/bingoo?view=home', owns: ownsDashboard },
     { id: 'profiles', label: lang === 'fr' ? 'Profil' : 'Profile', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
     { id: 'shop', label: lang === 'fr' ? 'Boutique' : 'Shop', icon: ShoppingBag, path: '/shop', owns: ownsShop },
