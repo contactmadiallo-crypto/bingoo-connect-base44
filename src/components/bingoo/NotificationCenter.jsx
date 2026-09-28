@@ -251,7 +251,7 @@ export default function NotificationCenter({ userId, isDark, lang = "en" }) {
               ) : isError && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <AlertTriangle className="w-7 h-7 mx-auto mb-2 opacity-40" />
-                  <p className="text-sm font-medium">Couldn't load notifications</p>
+                  <p className="text-sm font-medium">{tr("Could not load notifications", "Impossible de charger les notifications")}</p>
                   <button onClick={() => qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] })}
                     className={`text-xs mt-1 font-semibold underline ${isDark ? "text-blue-400" : "text-blue-600"}`}>
                     {tr("Retry", "Réessayer")}
@@ -295,7 +295,7 @@ export default function NotificationCenter({ userId, isDark, lang = "en" }) {
 
             {notifications.length > 0 && (
               <div className={`px-4 py-2 text-center border-t ${isDark ? "border-white/8" : "border-slate-100"}`}>
-                <p className={`text-xs ${mutedText}`}>{notifications.length} total notification{notifications.length !== 1 ? "s" : ""}</p>
+                <p className={`text-xs ${mutedText}`}>{lang === "fr" ? `${notifications.length} notification${notifications.length !== 1 ? "s" : ""}` : `${notifications.length} total notification${notifications.length !== 1 ? "s" : ""}`}</p>
               </div>
             )}
           </div>
