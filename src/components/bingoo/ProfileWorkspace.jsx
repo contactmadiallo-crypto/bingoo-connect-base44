@@ -570,8 +570,16 @@ export default function ProfileWorkspace({
   const selectInnerTab = useCallback((tabId) => {
     if (!INNER_TABS.some((tab) => tab.id === tabId)) return;
     setInnerTab(tabId);
+    setMobileGroupOpen(true);
     onTabChange?.(tabId);
   }, [INNER_TABS, onTabChange]);
+  const selectMobileGroup = useCallback((group) => {
+    const target = group.tabs.includes(innerTab) ? innerTab : group.tabs.find((tabId) => INNER_TABS.some((tab) => tab.id === tabId));
+    if (!target) return;
+    setInnerTab(target);
+    setMobileGroupOpen(true);
+    onTabChange?.(target);
+  }, [INNER_TABS, innerTab, onTabChange]);
   useEffect(() => {
     const next = INNER_TABS.some((tab) => tab.id === initialTab) ? initialTab : "info";
     if (next !== innerTab) setInnerTab(next);
@@ -580,6 +588,14 @@ export default function ProfileWorkspace({
     if (!INNER_TABS.some((tab) => tab.id === innerTab)) selectInnerTab("info");
   }, [innerTab, userPlan]);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [mobileGroupOpen, setMobileGroupOpen] = useState(false);
+  const MOBILE_GROUPS = [
+    { id: "profile", label: lang === "fr" ? "Profil" : "Profile", subtitle: lang === "fr" ? "Identité et type de profil" : "Identity and profile type", tabs: ["info", "profiletype"] },
+    { id: "content", label: lang === "fr" ? "Contenu" : "Content", subtitle: lang === "fr" ? "Liens et médias" : "Links and media", tabs: ["links", "media"] },
+    { id: "appearance", label: lang === "fr" ? "Apparence" : "Appearance", subtitle: lang === "fr" ? "Design et mise en page" : "Design and layouts", tabs: ["design", "layouts"] },
+    { id: "more", label: lang === "fr" ? "Plus" : "More", subtitle: lang === "fr" ? "Outils et options avancées" : "Tools and advanced options", tabs: ["business", "lostmode"] },
+  ];
+  const activeMobileGroup = MOBILE_GROUPS.find((group) => group.tabs.includes(innerTab)) || MOBILE_GROUPS[0];
   // Track which tab triggered the current save (for post-save routing)
   const saveTabRef = useRef("info");
   const [liveForm, setLiveForm] = useState(null);
@@ -777,20 +793,34 @@ export default function ProfileWorkspace({
         </button>
       </div>
 
-      {/* Mobile premium segmented editor navigation */}
-      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-200/70 bg-white/95 dark:bg-[#0d111c]/95 backdrop-blur-xl" style={{ position: "relative", zIndex: 20, WebkitOverflowScrolling: "touch" }}>
-        <div className="flex w-max min-w-full gap-1 px-2.5 py-2 whitespace-nowrap">
-          {INNER_TABS.map(tab => (
-            <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
-              className={`flex items-center gap-1.5 min-h-[42px] px-3.5 py-1.5 rounded-xl text-[11px] font-extrabold transition-all flex-shrink-0 border ${
-                innerTab === tab.id ? "text-white shadow-sm border-transparent" : (isDark ? "bg-white/[0.04] border-white/5 text-white/55" : "bg-white border-slate-200 text-slate-500 shadow-sm")
-              }`}
-              style={innerTab === tab.id ? { background: "linear-gradient(135deg,#0b2149,#173b73)" } : {}}>
-              <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      {/* Native mobile editor navigation: four task groups, never a squeezed desktop rail. */}
+      <div className="md:hidden border-b border-slate-200/70 bg-white/95 dark:bg-[#0d111c]/95 backdrop-blur-xl" style={{ position: "relative", zIndex: 20 }}>
+        {!mobileGroupOpen ? (
+          <div className="px-3.5 py-4">
+            <div className="mb-3 px-0.5"><p className={`text-[10px] font-black uppercase tracking-[0.16em] ${mutedText}`}>{lang === "fr" ? "Modifier le profil" : "Edit profile"}</p><h2 className={`mt-1 text-xl font-black ${isDark ? "text-white" : "text-slate-900"}`}>{lang === "fr" ? "Que voulez-vous modifier ?" : "What do you want to edit?"}</h2></div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {MOBILE_GROUPS.map((group) => {
+                const firstTab = INNER_TABS.find((tab) => group.tabs.includes(tab.id));
+                const Icon = firstTab?.icon;
+                return <button type="button" key={group.id} onClick={() => selectMobileGroup(group)} className={`min-h-[112px] rounded-2xl border p-3.5 text-left active:scale-[0.98] transition-all ${isDark ? "bg-white/[0.04] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                  <span className={`w-9 h-9 rounded-xl inline-flex items-center justify-center ${isDark ? "bg-blue-500/15 text-blue-300" : "bg-[#0b2149] text-white"}`}>{Icon && <Icon className="w-[18px] h-[18px]" />}</span>
+                  <span className={`block mt-3 text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{group.label}</span>
+                  <span className={`block mt-0.5 text-[11px] leading-4 ${mutedText}`}>{group.subtitle}</span>
+                </button>;
+              })}
+            </div>
+          </div>
+        ) : (
+          <div className="px-3 py-2.5">
+            <div className="flex items-center gap-2 mb-2">
+              <button type="button" onClick={() => setMobileGroupOpen(false)} className={`w-10 h-10 rounded-xl border flex items-center justify-center ${isDark ? "border-white/10 text-white/70" : "border-slate-200 bg-white text-slate-700"}`} aria-label={lang === "fr" ? "Retour aux sections" : "Back to editor sections"}><ChevronLeft className="w-4 h-4" /></button>
+              <div className="min-w-0"><p className={`text-[10px] font-black uppercase tracking-[0.14em] ${mutedText}`}>{lang === "fr" ? "Modifier" : "Edit"}</p><p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{activeMobileGroup.label}</p></div>
+            </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+              {INNER_TABS.filter((tab) => activeMobileGroup.tabs.includes(tab.id)).map((tab) => <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} className={`min-h-[40px] px-3.5 rounded-xl border flex items-center gap-1.5 text-xs font-extrabold whitespace-nowrap ${innerTab === tab.id ? "text-white border-transparent" : (isDark ? "border-white/10 text-white/55" : "border-slate-200 bg-white text-slate-600")}`} style={innerTab === tab.id ? { background: "linear-gradient(135deg,#0b2149,#173b73)" } : {}}><tab.icon className="w-3.5 h-3.5" />{tab.label}</button>)}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Premium responsive SaaS editor architecture */}
@@ -812,7 +842,7 @@ export default function ProfileWorkspace({
 
         {/* Editing panel */}
         <div className="block md:flex md:flex-1 min-w-0 md:min-h-0 max-w-full bg-[#F5F7FB] dark:bg-[#080b12]">
-          <div className="min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
+          <div className={`min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 ${mobileGroupOpen ? "block" : "hidden md:block"}`} style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
             <div className="w-full max-w-[920px] mx-auto">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
