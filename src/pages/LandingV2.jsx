@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { lazy, Suspense } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, CheckCircle2, QrCode, ShieldCheck, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,19 +9,19 @@ import { useAuth } from "@/lib/AuthContext";
 import { usePlan } from "@/hooks/usePlan";
 import { base44 } from "@/api/base44Client";
 import HeroPhoneShowcase from "@/components/landing/HeroPhoneShowcase";
-import LandingCoreJourney from "@/components/landing/LandingCoreJourney";
-import EverythingInOnePlace from "@/components/landing/EverythingInOnePlace";
-import LandingVideoTour from "@/components/landing/LandingVideoTour";
-import ProfileForEveryProfession from "@/components/landing/ProfileForEveryProfession";
-import WhyBingoo from "@/components/landing/WhyBingoo";
-import HowSharingWorks from "@/components/landing/HowSharingWorks";
-import ProfessionalsLoveBingoo from "@/components/landing/ProfessionalsLoveBingoo";
-import AssetProtectionLostMode from "@/components/landing/AssetProtectionLostMode";
-import LandingPricing from "@/components/landing/LandingPricing";
-import LandingShop from "@/components/landing/LandingShop";
-import FeedbackSection from "@/components/bingoo/FeedbackSection";
-import LandingFooter from "@/components/landing/LandingFooter";
-import BackToTop from "@/components/landing/BackToTop";
+const LandingCoreJourney = lazy(() => import("@/components/landing/LandingCoreJourney"));
+const EverythingInOnePlace = lazy(() => import("@/components/landing/EverythingInOnePlace"));
+const LandingVideoTour = lazy(() => import("@/components/landing/LandingVideoTour"));
+const ProfileForEveryProfession = lazy(() => import("@/components/landing/ProfileForEveryProfession"));
+const WhyBingoo = lazy(() => import("@/components/landing/WhyBingoo"));
+const HowSharingWorks = lazy(() => import("@/components/landing/HowSharingWorks"));
+const ProfessionalsLoveBingoo = lazy(() => import("@/components/landing/ProfessionalsLoveBingoo"));
+const AssetProtectionLostMode = lazy(() => import("@/components/landing/AssetProtectionLostMode"));
+const LandingPricing = lazy(() => import("@/components/landing/LandingPricing"));
+const LandingShop = lazy(() => import("@/components/landing/LandingShop"));
+const FeedbackSection = lazy(() => import("@/components/bingoo/FeedbackSection"));
+const LandingFooter = lazy(() => import("@/components/landing/LandingFooter"));
+const BackToTop = lazy(() => import("@/components/landing/BackToTop"));
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { useSEO } from "@/hooks/useSEO";
@@ -40,6 +41,7 @@ function LandingAccountMenu({ user, logout }) {
 
 export default function LandingV2() {
   const { language } = useI18n();
+  const reduceMotion = useReducedMotion();
   useSEO({
     title: "Bingoo Connect | Digital Business Cards & NFC Identity Platform",
     description: "Create digital business cards, share with QR or NFC, manage profiles, protect assets, and grow customer connections with Bingoo Connect.",
@@ -82,7 +84,7 @@ export default function LandingV2() {
       <header className="relative overflow-hidden px-4 py-10 sm:py-16 md:px-6 md:py-20 lg:py-24" style={{ background: "radial-gradient(circle at 15% 20%,rgba(249,115,22,.18),transparent 30%),radial-gradient(circle at 85% 30%,rgba(59,130,246,.13),transparent 28%),linear-gradient(145deg,#050A14,#071A3D 48%,#0b2149)" }}>
         <div className="absolute inset-0 opacity-[.045]" style={{ backgroundImage: "radial-gradient(circle at 2px 2px,white 1px,transparent 0)", backgroundSize: "34px 34px" }} />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .65 }}>
+          <motion.div initial={reduceMotion ? false : { opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={reduceMotion ? { duration: 0 } : { duration: .65 }}>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-orange-400/10 px-4 py-2 text-xs font-black uppercase tracking-[.16em] text-orange-400"><Wifi className="h-4 w-4" /> {t("landing_smart_identity",language)}</div>
             <h1 className="max-w-3xl text-[clamp(2.65rem,12vw,4.5rem)] font-black leading-[1.01] tracking-tight text-white sm:text-6xl lg:text-7xl">{t("landing_hero_1",language)}<br /><span className="text-orange-400">{t("landing_hero_2",language)}</span><br />{t("landing_hero_3",language)}</h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/65 md:text-xl">{t("landing_hero_copy",language)}</p>
@@ -96,7 +98,7 @@ export default function LandingV2() {
               <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-orange-400" /> {t("landing_owner_controlled",language)}</span>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, x: 36 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .15 }} className="relative">
+          <motion.div initial={reduceMotion ? false : { opacity: 0, x: 36 }} animate={{ opacity: 1, x: 0 }} transition={reduceMotion ? { duration: 0 } : { duration: .8, delay: .15 }} className="relative">
             <HeroPhoneShowcase />
             <div className="mx-auto mt-5 max-w-md rounded-2xl border border-white/10 bg-white/[.06] px-5 py-4 text-center backdrop-blur"><p className="text-sm font-black text-white">{t("landing_flow",language)}</p><p className="mt-1 text-xs text-white/45">{t("landing_flow_copy",language)}</p></div>
           </motion.div>
@@ -104,6 +106,7 @@ export default function LandingV2() {
       </header>
 
       <main>
+        <Suspense fallback={<div className="min-h-[240px] bg-slate-50" aria-hidden="true" />}>
         <div id="platform" className="scroll-mt-20"><LandingCoreJourney /></div>
         <EverythingInOnePlace />
         <LandingVideoTour />
@@ -144,9 +147,10 @@ export default function LandingV2() {
             </div>
           </div>
         </section>
+        </Suspense>
       </main>
-      <LandingFooter />
-      <BackToTop />
+      <Suspense fallback={null}><LandingFooter /></Suspense>
+      <Suspense fallback={null}><BackToTop /></Suspense>
     </div>
   );
 }
