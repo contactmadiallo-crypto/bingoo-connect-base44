@@ -239,7 +239,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
             <Link to="/about" className="hover:text-slate-900 transition-colors">{t("core_about", lang)}</Link>
           </nav>
           <div className="flex items-center gap-2">
-            <NotificationCenter userId={effectiveUserId} isDark={false} />
+            <NotificationCenter userId={effectiveUserId} isDark={false} lang={lang} />
             <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark={false} />
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
         <div className="flex items-center gap-1.5">
           <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-2xl transition-all bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] text-white flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
-          <NotificationCenter userId={effectiveUserId} isDark />
+          <NotificationCenter userId={effectiveUserId} isDark lang={lang} />
           <AccountDropdown user={user} plan={accountPlan} logout={logout} isDark />
         </div>
       </header>
@@ -267,7 +267,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
         </div>
       )}
 
-      <BottomNav lang={lang} totalUnread={totalUnread} onMore={() => setMobileOpen(true)} />
+      <BottomNav lang={lang} onMore={() => setMobileOpen(true)} />
 
       <main className={`flex-1 md:pt-[72px] min-w-0 min-h-screen flex flex-col transition-[margin] duration-200 ${sidebarCollapsed ? "md:ml-[76px]" : "md:ml-64"}`} style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
         <div className="md:hidden flex-shrink-0" style={{ height: "calc(56px + env(safe-area-inset-top))" }} />
