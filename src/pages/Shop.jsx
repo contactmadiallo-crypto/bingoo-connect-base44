@@ -226,17 +226,17 @@ export default function Shop() {
         </div>
       </header>}
 
-      <main className="mx-auto max-w-[1500px] px-4 py-5 sm:py-8 md:px-6 md:py-10">
-        <section className="mb-8 overflow-hidden rounded-[30px] border border-slate-200 bg-white">
-          <div className="grid items-center gap-7 px-6 py-8 md:grid-cols-[1fr_auto] md:px-9 lg:px-10">
+      <main className="mx-auto max-w-[1500px] px-3 sm:px-4 py-3 sm:py-8 md:px-6 md:py-10">
+        <section className="mb-4 sm:mb-8 overflow-hidden rounded-2xl sm:rounded-[30px] border border-slate-200 bg-white">
+          <div className="grid items-center gap-4 sm:gap-7 px-4 py-4 sm:px-6 sm:py-8 md:grid-cols-[1fr_auto] md:px-9 lg:px-10">
             <div>
-              <p className="mb-3 text-xs font-black uppercase tracking-[.18em]" style={{ color: ORANGE }}>{t("shop_official_store", language)}</p>
-              <h1 className="text-4xl font-black tracking-tight md:text-5xl" style={{ color: NAVY }}>{t("shop_hero_title", language)}</h1>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-500 md:text-lg">
+              <p className="mb-2 sm:mb-3 text-[10px] sm:text-xs font-black uppercase tracking-[.18em]" style={{ color: ORANGE }}>{t("shop_official_store", language)}</p>
+              <h1 className="text-[28px] leading-[1.02] sm:text-4xl font-black tracking-tight md:text-5xl" style={{ color: NAVY }}>{t("shop_hero_title", language)}</h1>
+              <p className="mt-2 sm:mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-500 md:text-lg">
                 {t("shop_hero_copy", language)}
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="hidden sm:grid gap-3 sm:grid-cols-3">
               {TRUST.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -250,12 +250,12 @@ export default function Shop() {
           </div>
         </section>
 
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+        <div className="mb-3 sm:mb-5 flex gap-2 overflow-x-auto pb-1 lg:hidden">
           {CATEGORIES.map((c) => {
             const Icon = c.icon;
             const active = category === c.id;
             return (
-              <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs font-black" style={{ background: active ? '#fff0e6' : '#fff', borderColor: active ? `${ORANGE}55` : '#e2e8f0', color: active ? ORANGE : NAVY }}>
+              <button key={c.id} type="button" onClick={() => setCategory(c.id)} className="flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-black" style={{ background: active ? '#fff0e6' : '#fff', borderColor: active ? `${ORANGE}55` : '#e2e8f0', color: active ? ORANGE : NAVY }}>
                 <Icon className="h-3.5 w-3.5" /> {t(c.labelKey, language)} <span className="text-slate-400">{counts[c.id]}</span>
               </button>
             );
@@ -297,7 +297,7 @@ export default function Shop() {
           </aside>
 
           <div>
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <div className="mb-3 sm:mb-5 flex flex-wrap items-center justify-between gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-slate-200 bg-white p-2.5 sm:p-4">
               <div className="flex items-center gap-3">
                 <button type="button" onClick={() => setFiltersOpen(!filtersOpen)} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-xs font-black lg:hidden" style={{ color: NAVY }}><SlidersHorizontal className="h-4 w-4" /> {t("shop_filters", language)}</button>
                 <span className="text-sm text-slate-500"><b style={{ color: NAVY }}>{items.length}</b> {stock ? t("shop_in_stock_devices", language) : t("shop_devices_view", language)}</span>
