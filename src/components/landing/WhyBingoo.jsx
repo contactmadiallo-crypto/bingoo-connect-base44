@@ -196,15 +196,15 @@ export default function WhyBingoo() {
         {/* Headline */}
         <motion.div {...reveal} className="mb-12 text-center md:mb-16">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-sm font-black text-orange-500">
-            <Sparkles /> WHY BINGOO?
+            <Sparkles /> {t("landing_why_bingoo_badge",language)}
           </div>
           <h2 className="mx-auto max-w-3xl text-3xl font-black leading-tight tracking-tight md:text-5xl" style={{ color: B.navy }}>
-            One connection can become
+            {t("landing_why_headline_1",language)}
             <br />
-            your <span style={{ color: B.orange }}>{t("landing_next_customer",language)}</span>
+            <span style={{ color: B.orange }}>{t("landing_why_headline_2",language)}</span>
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed md:text-lg" style={{ color: B.slate }}>
-            Bingoo brings your professional profile, contact sharing, lead capture, appointments and engagement tools together — so every introduction has the potential to become a real business opportunity.
+            {t("landing_why_intro_full",language)}
           </p>
         </motion.div>
 
@@ -231,7 +231,7 @@ export default function WhyBingoo() {
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: `${s.color}14`, color: s.color }}>
                       <s.icon className="h-4 w-4" />
                     </div>
-                    <span className="text-[10px] font-black" style={{ color: B.slate }}>STEP {s.n}</span>
+                    <span className="text-[10px] font-black" style={{ color: B.slate }}>{t("landing_step_label",language)} {s.n}</span>
                   </div>
                   <h3 className="mb-1 text-sm font-black" style={{ color: B.navy }}>{s.title}</h3>
                   <p className="mb-3 text-[11px] leading-snug" style={{ color: B.slate }}>{s.text}</p>
@@ -251,7 +251,7 @@ export default function WhyBingoo() {
         {/* Second row — business value */}
         <motion.div {...reveal} className="mb-8 mt-16 text-center md:mt-20">
           <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: B.orange }}>
-            From a simple tap to a business relationship
+            {t("landing_relationship_bridge",language)}
           </p>
         </motion.div>
 
@@ -286,17 +286,17 @@ export default function WhyBingoo() {
           <div className="relative grid items-center gap-8 lg:grid-cols-2">
             <div>
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-black" style={{ borderColor: "rgba(255,255,255,0.2)", color: B.gold }}>
-                <Shield className="h-3.5 w-3.5" /> ASSET PROTECTION
+                <Shield className="h-3.5 w-3.5" /> {t("landing_asset_protection",language).toUpperCase()}
               </div>
               <h3 className="mb-4 text-2xl font-black leading-tight text-white md:text-3xl">
-                Your connections aren't the only things worth protecting.
+                {t("landing_asset_bridge_title",language)}
               </h3>
               <p className="mb-6 max-w-lg text-sm leading-relaxed text-white/70">
-                Attach a Bingoo NFC device to luggage, equipment, keys or other valuable assets. If something is lost, Lost Mode helps a finder safely reconnect the item with its owner.
+                {t("landing_asset_bridge_copy",language)}
               </p>
               <div className="flex flex-wrap gap-2">
-                {["Luggage", "Keys", "Laptop", "Camera", "Equipment"].map((t) => (
-                  <span key={t} className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}>{t}</span>
+                {[t("landing_asset_luggage",language), t("landing_asset_keys",language), t("landing_asset_laptop",language), t("landing_asset_camera",language), t("landing_asset_equipment",language)].map((label) => (
+                  <span key={label} className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}>{label}</span>
                 ))}
               </div>
               <motion.div
@@ -305,7 +305,7 @@ export default function WhyBingoo() {
                 className="mt-6 inline-flex"
               >
                 <Link to="/shop" className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-black text-white" style={{ background: B.orange, boxShadow: `0 8px 24px ${B.orange}40` }}>
-                  Explore Asset Protection <ArrowRight className="h-4 w-4" />
+                  {t("landing_explore_asset_protection",language)} <ArrowRight className="h-4 w-4" />
                 </Link>
               </motion.div>
             </div>
@@ -313,11 +313,11 @@ export default function WhyBingoo() {
             {/* Asset flow */}
             <div className="flex flex-col gap-3">
               {[
-                [Wifi, "Bingoo NFC Device", B.orange],
-                [Briefcase, "Protected Asset", "#ffffff"],
-                [Shield, "Lost Mode", B.gold],
-                [Users, "Finder", "#ffffff"],
-                [Check, "Owner Reconnected", B.green],
+                [Wifi, t("landing_asset_flow_device",language), B.orange],
+                [Briefcase, t("landing_asset_flow_asset",language), "#ffffff"],
+                [Shield, t("landing_asset_flow_lost",language), B.gold],
+                [Users, t("landing_asset_flow_finder",language), "#ffffff"],
+                [Check, t("landing_asset_flow_owner",language), B.green],
               ].map(([Icon, label, color], i, arr) => (
                 <div key={label} className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: `${color === "#ffffff" ? "rgba(255,255,255,0.1)" : color + "22"}`, color }}>
