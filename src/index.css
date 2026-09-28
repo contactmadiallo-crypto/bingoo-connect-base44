@@ -61,6 +61,23 @@ button, a, nav, [role="tab"], [role="button"], svg {
   user-select: none;
 }
 
+/* Keyboard accessibility: keep a visible focus indicator across the app. */
+:where(a, button, input, select, textarea, summary, [role="button"], [role="tab"]):focus-visible {
+  outline: 3px solid #f97316;
+  outline-offset: 3px;
+}
+
+/* Respect OS reduced-motion preferences without removing content. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Safe area inset utilities */
 .safe-top {
   padding-top: env(safe-area-inset-top);
