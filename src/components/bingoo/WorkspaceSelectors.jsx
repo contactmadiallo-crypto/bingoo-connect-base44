@@ -92,7 +92,11 @@ export function ProfileSelectorDropdown({
       if (!rect) return;
       const mobile = window.innerWidth < 640;
       setMenuStyle(mobile
-        ? { top: Math.min(rect.bottom + 8, window.innerHeight - 260), left: 12, right: 12 }
+        ? {
+            top: Math.min(rect.bottom + 6, window.innerHeight - 210),
+            left: Math.max(12, Math.min(rect.left, window.innerWidth - Math.min(300, window.innerWidth - 24) - 12)),
+            width: Math.min(300, window.innerWidth - 24),
+          }
         : { top: rect.bottom + 8, left: Math.max(12, rect.right - 340), width: 340 });
     };
     updatePosition();
@@ -176,10 +180,10 @@ export function ProfileSelectorDropdown({
           id={menuId}
           role="listbox"
           aria-label={tr('Select profile workspace', 'Sélectionner l’espace de profil')}
-          className={`fixed max-h-[52dvh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[250] ${panel}`}
+          className={`fixed max-h-[38dvh] sm:max-h-[420px] overflow-y-auto rounded-2xl border shadow-2xl p-1.5 sm:p-2 z-[250] ${panel}`}
           style={menuStyle}
         >
-          <div className="px-3 pt-2 pb-2">
+          <div className="hidden sm:block px-3 pt-2 pb-2">
             <p className="text-xs font-black">{tr('Profile workspace', 'Espace de profil')}</p>
             <p className={`text-[11px] mt-0.5 ${secondary}`}>{tr('Account identity stays signed in while you switch.', 'Votre compte reste connecté lorsque vous changez de profil.')}</p>
           </div>
@@ -194,9 +198,9 @@ export function ProfileSelectorDropdown({
                 key={profile.id}
                 onMouseEnter={() => setActiveIndex(index)}
                 onClick={() => choose(profile)}
-                className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors ${index === activeIndex ? (isDark ? "bg-white/10" : "bg-slate-50") : ""}`}
+                className={`w-full flex items-center gap-2 rounded-xl px-2.5 py-2 text-left transition-colors ${index === activeIndex ? (isDark ? "bg-white/10" : "bg-slate-50") : ""}`}
               >
-                <ProfileAvatar profile={profile} size={40} />
+                <ProfileAvatar profile={profile} size={34} />
                 <span className="flex-1 min-w-0">
                   <span className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-sm font-black truncate">{profile.display_name || "Untitled profile"}</span>
