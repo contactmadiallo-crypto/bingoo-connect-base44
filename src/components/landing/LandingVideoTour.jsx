@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 
@@ -9,6 +10,14 @@ const B = {
 
 export default function LandingVideoTour() {
   const { language } = useI18n();
+  const reduceMotion = useReducedMotion();
+  const videoRef = useRef(null);
+  const inView = useInView(videoRef, { margin: "160px 0px", once: true });
+
+  useEffect(() => {
+    if (!inView || reduceMotion || !videoRef.current) return;
+    videoRef.current.play().catch(() => {});
+  }, [inView, reduceMotion]);
   return (
     <section className="bg-slate-100 px-4 py-16 md:px-6 md:py-20">
       <div className="mx-auto max-w-5xl">
@@ -41,13 +50,13 @@ export default function LandingVideoTour() {
           style={{ borderColor: "rgba(11,33,73,0.1)" }}
         >
           <video
+            ref={videoRef}
             className="aspect-video w-full bg-black object-cover"
-            autoPlay
             muted
-            loop
+            loop={!reduceMotion}
             controls
             playsInline
-            preload="metadata"
+            preload="none"
             poster="https://media.base44.com/images/public/692bd9007b93ba81de543346/5bf500988_BingooconnectNFCBRAND.png"
           >
             <source
