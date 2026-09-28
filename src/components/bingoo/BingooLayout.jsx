@@ -59,7 +59,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
   const mobileMenuSections = navSections
     .map(section => ({ ...section, items: section.items.filter(item => !["profiles", "devices", "shop"].includes(item.id)) }))
     .filter(section => section.items.length > 0);
-  const { badgeMap, totalUnread } = useNavBadges(effectiveUserId, selectedProfile?.id);
+  const { badgeMap } = useNavBadges(effectiveUserId, selectedProfile?.id);
 
   // Keep the selected item visible inside the sidebar itself after every route change.
   // Using the sidebar scroll container directly is more reliable than scrollIntoView,
