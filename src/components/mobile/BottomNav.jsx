@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { UserRound, Radio, ShoppingBag, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, UserRound, Radio, ShoppingBag, LayoutGrid } from 'lucide-react';
 import { useNavigationStack } from '@/components/mobile/NavigationStack';
 
 const ORANGE = '#f97316';
@@ -8,6 +8,11 @@ const TAB_KEY = 'bingoo_bottom_tab_';
 
 // Per-tab ownership matchers — determine which bottom tab "owns" the current
 // location so we can store the last visited path and restore it on tab switch.
+function ownsDashboard(loc) {
+  if (loc.pathname !== '/bingoo') return false;
+  const v = new URLSearchParams(loc.search).get('view');
+  return !v || v === 'home';
+}
 function ownsProfiles(loc) {
   if (loc.pathname !== '/bingoo') return false;
   const v = new URLSearchParams(loc.search).get('view');
@@ -38,6 +43,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
   const { stacks, recordVisitForTab } = useNavigationStack();
 
   const tabs = [
+    { id: 'dashboard', label: lang === 'fr' ? 'Accueil' : 'Dash', icon: LayoutDashboard, path: '/bingoo?view=home', owns: ownsDashboard },
     { id: 'profiles', label: lang === 'fr' ? 'Profil' : 'Profile', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
     { id: 'shop', label: lang === 'fr' ? 'Boutique' : 'Shop', icon: ShoppingBag, path: '/shop', owns: ownsShop },
@@ -56,8 +62,14 @@ export default function BottomNav({ lang = 'en', onMore }) {
   }, [location]);
 
   const handlePress = (tab) => {
-    // Profiles is a root destination: tapping it must always show the profile-card hub,
-    // never restore the Edit Profile workspace from a previous visit.
+    // Dashboard and Profile are root destinations; one tap always opens their
+    // canonical root instead of restoring a nested editor screen.
+    if (tab.id === 'dashboard') {
+      const currentView = location.pathname === '/bingoo' ? new URLSearchParams(location.search).get('view') : null;
+      if (currentView === 'home' || !currentView) window.scrollTo({ top: 0, behavior: 'smooth' });
+      else navigate('/bingoo?view=home');
+      return;
+    }
     if (tab.id === 'profiles') {
       const currentView = location.pathname === '/bingoo' ? new URLSearchParams(location.search).get('view') : null;
       if (currentView === 'hub') {
@@ -97,7 +109,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
         onClick={() => handlePress(tab)}
         aria-label={tab.label}
         aria-current={active ? 'page' : undefined}
-        className="relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
+        className="relative flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
         style={{ touchAction: 'manipulation' }}
       >
         <span
@@ -122,7 +134,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
   return (
     <nav
       aria-label="Primary navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex overflow-hidden"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-[80] flex overflow-visible"
       style={{
         background: 'linear-gradient(180deg, rgba(10,29,63,.97) 0%, rgba(5,22,49,.99) 100%)',
         borderTop: '1px solid rgba(255,255,255,0.10)',
@@ -138,7 +150,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
         type="button"
         onClick={onMore}
         aria-label={lang === 'fr' ? 'Menu' : 'Menu'}
-        className="relative flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
+        className="relative flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 min-h-[68px] transition-all active:scale-95"
         style={{ touchAction: 'manipulation' }}
       >
         <span className="relative w-9 h-9 rounded-[14px] flex items-center justify-center">
