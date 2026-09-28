@@ -33,9 +33,14 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-20px)] max-w-md max-h-[calc(100dvh-104px)] sm:max-h-[85vh] p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="px-4 pt-4 pb-2 flex-shrink-0 border-b border-slate-100">
-          <DialogTitle>{initial ? tr('Edit Link', 'Modifier le lien') : tr('Add Link', 'Ajouter un lien')}</DialogTitle>
+      <DialogContent className="w-[calc(100vw-20px)] max-w-md max-h-[calc(100dvh-88px)] sm:max-h-[85vh] !p-0 !gap-0 overflow-hidden !flex !flex-col">
+        <DialogHeader className="px-4 py-3 flex-shrink-0 border-b border-slate-100 sticky top-0 z-20 bg-white">
+          <div className="flex items-center justify-between gap-3 pr-7">
+            <DialogTitle className="text-left">{initial ? tr('Edit Link', 'Modifier le lien') : tr('Add Link', 'Ajouter un lien')}</DialogTitle>
+            <Button onClick={handleSave} disabled={!form.title || !form.url} className="sm:hidden min-h-[40px] px-4 rounded-xl font-black text-white disabled:opacity-40 flex-shrink-0" style={{ background: "#f97316" }}>
+              {tr('Save', 'Enregistrer')}
+            </Button>
+          </div>
         </DialogHeader>
         <div className="space-y-4 px-4 py-4 overflow-y-auto flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
           <div>
@@ -61,9 +66,9 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
             <Input className="mt-1" placeholder="🔥" maxLength={2} value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} />
           </div>
         </div>
-        <DialogFooter className="flex-shrink-0 grid grid-cols-2 gap-2 px-3 py-3 border-t border-slate-200 bg-white/95 backdrop-blur-xl sm:flex sm:justify-end" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full min-h-[46px] rounded-xl font-bold">{tr('Cancel', 'Annuler')}</Button>
-          <Button onClick={handleSave} disabled={!form.title || !form.url} className="w-full min-h-[46px] rounded-xl font-black text-white disabled:opacity-40" style={{ background: "#f97316" }}>{tr('Save Link', 'Enregistrer le lien')}</Button>
+        <DialogFooter className="hidden sm:flex flex-shrink-0 px-3 py-3 border-t border-slate-200 bg-white/95 backdrop-blur-xl sm:justify-end">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="min-h-[42px] rounded-xl font-bold">{tr('Cancel', 'Annuler')}</Button>
+          <Button onClick={handleSave} disabled={!form.title || !form.url} className="min-h-[42px] rounded-xl font-black text-white disabled:opacity-40" style={{ background: "#f97316" }}>{tr('Save Link', 'Enregistrer le lien')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
