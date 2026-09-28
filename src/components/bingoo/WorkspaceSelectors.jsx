@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import {
   Check,
@@ -70,16 +71,37 @@ export function ProfileSelectorDropdown({
   const tr = (en, fr) => language === 'fr' ? fr : en;
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [menuStyle, setMenuStyle] = useState(null);
   const rootRef = useRef(null);
+  const menuRef = useRef(null);
   const menuId = useId();
 
   useEffect(() => {
     if (!open) return undefined;
     const close = (event) => {
-      if (!rootRef.current?.contains(event.target)) setOpen(false);
+      if (!rootRef.current?.contains(event.target) && !menuRef.current?.contains(event.target)) setOpen(false);
     };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const updatePosition = () => {
+      const rect = rootRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const mobile = window.innerWidth < 640;
+      setMenuStyle(mobile
+        ? { top: Math.min(rect.bottom + 8, window.innerHeight - 260), left: 12, right: 12 }
+        : { top: rect.bottom + 8, left: Math.max(12, rect.right - 340), width: 340 });
+    };
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -148,12 +170,14 @@ export function ProfileSelectorDropdown({
         <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform ${open ? "rotate-180" : ""} ${secondary}`} />
       </button>
 
-      {open && (
+      {open && menuStyle && typeof document !== "undefined" && createPortal(
         <div
+          ref={menuRef}
           id={menuId}
           role="listbox"
           aria-label={tr('Select profile workspace', 'Sélectionner l’espace de profil')}
-          className={`fixed sm:absolute top-[68px] sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-2 sm:w-[340px] max-h-[52dvh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[70] ${panel}`}
+          className={`fixed max-h-[52dvh] sm:max-h-[420px] overflow-y-auto rounded-[20px] border shadow-2xl p-2 z-[250] ${panel}`}
+          style={menuStyle}
         >
           <div className="px-3 pt-2 pb-2">
             <p className="text-xs font-black">{tr('Profile workspace', 'Espace de profil')}</p>
@@ -192,7 +216,8 @@ export function ProfileSelectorDropdown({
               </button>
             );
           })}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
