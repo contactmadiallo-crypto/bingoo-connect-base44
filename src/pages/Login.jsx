@@ -21,7 +21,7 @@ const ORANGE = "#f97316";
 const getNextUrl = () => {
   const params = new URLSearchParams(window.location.search);
   if (params.get("returnTo")) return safeReturnTo();
-  return params.get("next") || "/bingoo";
+  return params.get("next") || "/bingoo?view=hub";
 };
 
 export default function Login() {
