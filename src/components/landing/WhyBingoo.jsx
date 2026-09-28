@@ -93,9 +93,9 @@ const steps = [
     titleKey: "landing_why_stay",
     textKey: "landing_why_stay_copy",
     color: B.blue,
-    visual: (
+    visual: (language) => (
       <div className="flex flex-wrap justify-center gap-1">
-        {["New", "Contacted", "Qualified"].map((s, i) => (
+        {[t("landing_status_new",language), t("landing_status_contacted",language), t("landing_status_qualified",language)].map((s, i) => (
           <span key={s} className="rounded-full px-2 py-0.5 text-[8px] font-black text-white" style={{ background: [B.orange, B.blue, B.green][i] }}>{s}</span>
         ))}
       </div>
@@ -124,9 +124,9 @@ const steps = [
     titleKey: "landing_why_measure",
     textKey: "landing_why_measure_copy",
     color: B.green,
-    visual: (
+    visual: (language) => (
       <div className="grid grid-cols-2 gap-1">
-        {[["Views", "1,253", B.navy], ["Taps", "486", B.orange], ["Leads", "94", B.blue], ["Conv.", "24%", B.green]].map(([l, v, c]) => (
+        {[[t("landing_metric_views",language), "1,253", B.navy], [t("landing_metric_taps",language), "486", B.orange], [t("landing_metric_leads",language), "94", B.blue], [t("landing_metric_conversion",language), "24%", B.green]].map(([l, v, c]) => (
           <div key={l} className="rounded-md border px-1.5 py-1 text-center" style={{ borderColor: "#edf1f6" }}>
             <p className="text-[10px] font-black leading-none" style={{ color: c }}>{v}</p>
             <p className="text-[7px]" style={{ color: B.slate }}>{l}</p>
@@ -156,9 +156,9 @@ const benefits = [
     icon: TrendingUp,
     titleKey: "landing_why_never_lose",
     descKey: "landing_why_never_lose_copy",
-    visual: (
+    visual: (language) => (
       <div className="flex flex-wrap items-center justify-center gap-1.5">
-        {["New", "Contacted", "Qualified", "Customer"].map((s, i) => (
+        {[t("landing_status_new",language), t("landing_status_contacted",language), t("landing_status_qualified",language), t("landing_status_customer",language)].map((s, i) => (
           <div key={s} className="flex items-center gap-1.5">
             <span className="rounded-full px-2 py-1 text-[8px] font-black text-white" style={{ background: [B.orange, B.blue, B.green, B.navy][i] }}>{s}</span>
             {i < 3 && <ChevronRight className="h-2.5 w-2.5 text-slate-300" />}
@@ -270,7 +270,7 @@ export default function WhyBingoo() {
               <h3 className="mb-2 text-lg font-black" style={{ color: B.navy }}>{b.title}</h3>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: B.slate }}>{b.desc}</p>
               <div className="rounded-2xl border p-3" style={{ borderColor: "#edf1f6", background: "#fbfcfe" }}>
-                {b.visual}
+                {typeof b.visual === "function" ? b.visual(language) : b.visual}
               </div>
             </motion.div>
           ))}
