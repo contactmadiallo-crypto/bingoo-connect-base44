@@ -32,7 +32,7 @@ function ownsShop(loc) {
  * Tapping a tab restores its last path; tapping the already-active tab scrolls
  * to top without navigating, preserving the current subpage state.
  */
-export default function BottomNav({ lang = 'en', totalUnread = 0, onMore }) {
+export default function BottomNav({ lang = 'en', onMore }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { stacks, recordVisitForTab } = useNavigationStack();
