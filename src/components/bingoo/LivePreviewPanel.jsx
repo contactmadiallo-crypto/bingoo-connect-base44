@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import { TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "./ProfileLayoutRenderer";
-import { isLayoutDark } from "@/lib/profileLayouts";
+import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const PANEL_WIDTH = 272;
@@ -48,8 +48,8 @@ function PreviewContentStub({ color, isDark }) {
 // This is the ONLY way to guarantee preview === public profile.
 function FullLayoutPreview({ profile }) {
   const color      = profile?.cover_color || "#2563eb";
-  const isDark     = profile?.bg_style === "night" || isLayoutDark(profile?.layout);
-  const layoutType = profile?.layout || "classic";
+  const layoutType = resolveProfileLayout(profile);
+  const isDark     = profile?.bg_style === "night" || isLayoutDark(layoutType);
   const stub       = <PreviewContentStub color={color} isDark={isDark} />;
   const lp         = { profile, color, isDark, mobile: true, contentSections: stub };
 
@@ -158,7 +158,7 @@ export default function LivePreviewPanel({ profile, pendingProfile, hasChanges, 
   const screenRef = useRef(null);
   useEffect(() => {
     if (screenRef.current) screenRef.current.scrollTop = 0;
-  }, [previewProfile?.layout]);
+  }, [previewProfile?.layout, previewProfile?.profile_layout]);
 
   const panelBg = isDark ? "rgba(13,16,33,0.97)" : "rgba(255,255,255,0.97)";
   const panelBorder = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
