@@ -11,7 +11,7 @@ import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampi
 import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon } from "@/components/bingoo/SocialIcons";
-import { isLayoutDark } from "@/lib/profileLayouts";
+import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
@@ -300,19 +300,17 @@ export default function PublicProfile() {
   const track = (ev) => !isDemo && trackEvent(profile.id, ev, deviceCodeParam);
 
   // ── Render championship full-page layouts — pass all content as children
-  const effectiveLayout = ["ny_championship", "lions_teranga"].includes(profile.profile_layout)
-    ? profile.profile_layout
-    : (profile.layout || "classic");
+  const effectiveLayout = resolveProfileLayout(profile);
   const championContentSections = (
     <ProfileContentSections
       profile={profile} color={color} isDark={true}
       isDemo={isDemo} deviceCodeParam={deviceCodeParam} sourceParam={sourceParam} track={track}
     />
   );
-  if (effectiveLayout === "ny_championship" || profile.profile_layout === "ny_championship") {
+  if (effectiveLayout === "ny_championship") {
     return <NewYorkChampionshipLayout profile={profile}>{championContentSections}</NewYorkChampionshipLayout>;
   }
-  if (effectiveLayout === "lions_teranga" || profile.profile_layout === "lions_teranga") {
+  if (effectiveLayout === "lions_teranga") {
     return <LionsOfTerangaLayout profile={profile}>{championContentSections}</LionsOfTerangaLayout>;
   }
 
