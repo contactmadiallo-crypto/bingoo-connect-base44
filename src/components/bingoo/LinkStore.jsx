@@ -266,11 +266,22 @@ export default function LinkStore({ liveForm, setVal, onSave, isPending, isDark,
   return (
     <div className="flex flex-col h-full min-h-0 overflow-hidden safe-top">
       {/* Header — exact Figma hierarchy */}
-      <div className={`flex items-center justify-between px-[22px] py-[18px] border-b ${borderCls} flex-shrink-0`}>
+      <div className={`flex items-center justify-between gap-2 px-[16px] sm:px-[22px] py-[12px] sm:py-[18px] border-b ${borderCls} flex-shrink-0`}>
         <h2 className={`font-black text-[17px] ${headText}`}>{t("links_add_link", lang)}</h2>
-        <button onClick={onClose} className={`w-[30px] h-[30px] rounded-full border flex items-center justify-center transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/50" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"}`}>
-          <X className="w-[14px] h-[14px]" />
-        </button>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {editing && (
+            <button
+              onClick={() => editSaveRef.current?.()}
+              disabled={isPending}
+              className="sm:hidden min-h-[40px] px-4 rounded-xl text-xs font-black text-white disabled:opacity-50 active:scale-[0.98]"
+              style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.22)" }}>
+              {isPending ? t("links_saving", lang) : t("links_save", lang)}
+            </button>
+          )}
+          <button onClick={onClose} className={`w-[36px] h-[36px] sm:w-[30px] sm:h-[30px] rounded-full border flex items-center justify-center transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/50" : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"}`}>
+            <X className="w-[14px] h-[14px]" />
+          </button>
+        </div>
       </div>
 
       {/* Web Link quick-add */}
@@ -306,7 +317,7 @@ export default function LinkStore({ liveForm, setVal, onSave, isPending, isDark,
         <>
           {/* Scrollable form content with bottom padding to clear sticky button */}
           <div className="flex-1 overflow-y-auto px-4 py-4"
-            style={{ paddingBottom: "calc(120px + env(safe-area-inset-bottom))" }}>
+            style={{ paddingBottom: "calc(24px + env(safe-area-inset-bottom))" }}>
             <LinkEditForm
               item={editing}
               currentValue={getFieldValue(editing)}
@@ -318,9 +329,9 @@ export default function LinkStore({ liveForm, setVal, onSave, isPending, isDark,
               lang={lang}
             />
           </div>
-          {/* Save footer stays inside the modal so the edit form remains scrollable */}
-          <div className={`flex-shrink-0 px-4 pt-3 border-t ${borderCls}`}
-            style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))", background: isDark ? "#0e1223" : "#fff" }}>
+          {/* Desktop keeps footer actions; mobile Save is always visible in the header. */}
+          <div className={`hidden sm:block flex-shrink-0 px-4 pt-3 border-t ${borderCls}`}
+            style={{ paddingBottom: "1rem", background: isDark ? "#0e1223" : "#fff" }}>
             <button
               onClick={() => editSaveRef.current?.()}
               disabled={isPending}
