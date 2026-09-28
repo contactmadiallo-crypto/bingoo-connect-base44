@@ -742,21 +742,22 @@ export default function ProfileWorkspace({
   });
 
   return (
-    <div className="block md:flex md:flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#0a0c14" : "#F7F9FC", touchAction: "pan-y" }}>
-      {/* ── Figma Make top bar ── */}
-      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-[18px] py-2.5 sm:py-3 border-b flex-shrink-0 z-30 ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-[#E5EAF2]"}`}>
+    <div className="block md:flex md:flex-col min-h-0 relative overflow-x-hidden" style={{ background: isDark ? "#080b12" : "#F5F7FB", touchAction: "pan-y" }}>
+      {/* Premium SaaS editor command bar */}
+      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-2.5 sm:py-3 border-b flex-shrink-0 z-30 md:sticky md:top-0 ${isDark ? "bg-[#0d111c]/95 border-white/10" : "bg-white/95 border-slate-200/80"} backdrop-blur-xl`}>
         <button type="button" onClick={onBack} aria-label={t("workspace_back_profiles", lang)}
-          className={`w-[44px] h-[44px] sm:w-[34px] sm:h-[34px] rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-[#F7F9FC] border-[#E5EAF2] text-[#0F172A]"}`}>
+          className={`w-[44px] h-[44px] sm:w-[36px] sm:h-[36px] rounded-xl border flex items-center justify-center flex-shrink-0 transition-all ${isDark ? "bg-white/5 border-white/10 text-white/70 hover:bg-white/10" : "bg-white border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50"}`}>
           <ChevronLeft className="w-[15px] h-[15px]" />
         </button>
 
-        <div className="flex-1 min-w-0">
-          <ProfileSelectorDropdown
+        <div className="flex-1 min-w-0 flex items-center gap-3">
+          <div className="hidden lg:block min-w-0"><p className={`text-[10px] font-black uppercase tracking-[0.16em] ${isDark ? "text-white/35" : "text-slate-400"}`}>{lang === "fr" ? "Éditeur de profil" : "Profile editor"}</p><p className={`text-sm font-extrabold truncate ${isDark ? "text-white" : "text-slate-900"}`}>{liveForm?.display_name || profile?.display_name || (lang === "fr" ? "Profil" : "Profile")}</p></div>
+          <div className="min-w-0 flex-1 lg:max-w-[300px]"><ProfileSelectorDropdown
             profiles={profiles}
             selectedProfile={profiles.find((item) => item.id === profileId) || profile}
             onSelectProfile={onSelectProfile}
             isDark={isDark}
-          />
+          /></div>
         </div>
 
         {profileUrl && (
@@ -768,7 +769,7 @@ export default function ProfileWorkspace({
         )}
 
         <button type="button" onClick={() => handleSave(innerTab)} disabled={saveMutation.isPending || !hasUnsavedChanges}
-          className="flex items-center justify-center gap-1.5 w-[44px] min-h-[44px] sm:w-auto sm:min-h-0 px-0 sm:px-5 py-2 rounded-xl text-[13px] font-bold text-white flex-shrink-0 transition-opacity disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 w-[44px] min-h-[44px] sm:w-auto sm:min-h-[38px] px-0 sm:px-5 py-2 rounded-xl text-[13px] font-extrabold text-white flex-shrink-0 transition-all disabled:opacity-40 active:scale-[0.98]"
           style={{ background: "#f97316", boxShadow: "0 4px 14px rgba(249,115,22,0.30)" }}>
           {saveMutation.isPending && <Save className="w-[13px] h-[13px] animate-pulse" />}
           <span className="hidden sm:inline">{t("save", lang)}</span>
@@ -776,15 +777,15 @@ export default function ProfileWorkspace({
         </button>
       </div>
 
-      {/* ── Mobile: clean scrollable editor navigation ── */}
-      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-200/70 bg-white/95 dark:bg-[#13162a]/95" style={{ position: "relative", zIndex: 20, WebkitOverflowScrolling: "touch" }}>
+      {/* Mobile premium segmented editor navigation */}
+      <div className="md:hidden w-full min-w-0 overflow-x-auto scrollbar-hide border-b border-slate-200/70 bg-white/95 dark:bg-[#0d111c]/95 backdrop-blur-xl" style={{ position: "relative", zIndex: 20, WebkitOverflowScrolling: "touch" }}>
         <div className="flex w-max min-w-full gap-1 px-2.5 py-2 whitespace-nowrap">
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)} aria-label={tab.label}
-              className={`flex items-center gap-1.5 min-h-[44px] px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex-shrink-0 ${
-                innerTab === tab.id ? "text-white shadow-sm" : (isDark ? "bg-white/8 text-white/50" : "bg-slate-100 text-slate-500")
+              className={`flex items-center gap-1.5 min-h-[42px] px-3.5 py-1.5 rounded-xl text-[11px] font-extrabold transition-all flex-shrink-0 border ${
+                innerTab === tab.id ? "text-white shadow-sm border-transparent" : (isDark ? "bg-white/[0.04] border-white/5 text-white/55" : "bg-white border-slate-200 text-slate-500 shadow-sm")
               }`}
-              style={innerTab === tab.id ? { background: "#0b2149" } : {}}>
+              style={innerTab === tab.id ? { background: "linear-gradient(135deg,#0b2149,#173b73)" } : {}}>
               <tab.icon className="w-3.5 h-3.5 flex-shrink-0" />
               {tab.label}
             </button>
@@ -792,26 +793,27 @@ export default function ProfileWorkspace({
         </div>
       </div>
 
-      {/* ── Main layout: exact Figma 3-column architecture ── */}
+      {/* Premium responsive SaaS editor architecture */}
       <div className="block md:flex md:flex-1 md:min-h-0 max-w-full overflow-visible md:overflow-hidden">
-        {/* Desktop vertical nav — Figma Make reference: compact 82px icon rail */}
-        <div className={`hidden md:flex flex-col gap-0.5 w-[82px] flex-shrink-0 px-1.5 py-2.5 border-r ${isDark ? "bg-[#13162a] border-white/10" : "bg-white border-slate-200"}`}>
+        {/* Desktop workspace navigation */}
+        <div className={`hidden md:flex flex-col gap-1 w-[96px] flex-shrink-0 px-2 py-3 border-r ${isDark ? "bg-[#0d111c] border-white/10" : "bg-white border-slate-200/80"}`}> 
           {INNER_TABS.map(tab => (
             <button type="button" key={tab.id} onClick={() => selectInnerTab(tab.id)}
-              className={`flex flex-col items-center justify-center gap-1 px-1 py-2.5 rounded-[10px] text-[9px] font-semibold transition-all text-center w-full min-h-[58px] ${
+              className={`flex flex-col items-center justify-center gap-1.5 px-1.5 py-2.5 rounded-xl text-[10px] font-bold transition-all text-center w-full min-h-[62px] border ${
                 innerTab === tab.id
-                  ? (isDark ? "bg-blue-500/15 text-blue-300" : "bg-blue-50 text-blue-500")
-                  : (isDark ? "text-white/45 hover:bg-white/5 hover:text-white" : "text-slate-400 hover:bg-slate-50 hover:text-slate-600")
+                  ? (isDark ? "bg-blue-500/15 border-blue-400/20 text-blue-300" : "bg-[#0b2149] border-[#0b2149] text-white shadow-sm")
+                  : (isDark ? "border-transparent text-white/45 hover:bg-white/5 hover:text-white" : "border-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-700")
               }`}>
-              <tab.icon className="w-[18px] h-[18px] flex-shrink-0" />
+              <tab.icon className="w-[19px] h-[19px] flex-shrink-0" />
               <span className="leading-none">{tab.label}</span>
             </button>
           ))}
         </div>
 
         {/* Editing panel */}
-        <div className="block md:flex md:flex-1 min-w-0 md:min-h-0 max-w-full bg-[#F7F9FC] dark:bg-[#0a0c14]">
-          <div className="min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-4 sm:px-7 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
+        <div className="block md:flex md:flex-1 min-w-0 md:min-h-0 max-w-full bg-[#F5F7FB] dark:bg-[#080b12]">
+          <div className="min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
+            <div className="w-full max-w-[920px] mx-auto">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
             )}
@@ -867,6 +869,7 @@ export default function ProfileWorkspace({
             {innerTab === "lostmode" && (
               <LostModePanel profileId={profileId} user={user} isDark={isDark} effectivePlan={userPlan || "free"} lang={lang} />
             )}
+            </div>
           </div>
 
           {/* Mobile preview FAB + overlay — mobile only */}
@@ -875,8 +878,8 @@ export default function ProfileWorkspace({
             <button
               type="button"
               onClick={() => setMobilePreviewOpen(true)}
-              className="fixed z-30 flex items-center justify-center w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-full shadow-xl text-white text-sm font-bold"
-              style={{ background: "#0b2149", boxShadow: "0 8px 28px rgba(11,33,73,0.5)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
+              className="fixed z-30 flex items-center justify-center w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-2xl shadow-xl text-white text-sm font-bold border border-white/10"
+              style={{ background: "linear-gradient(135deg,#0b2149,#173b73)", boxShadow: "0 10px 30px rgba(11,33,73,0.35)", bottom: "calc(80px + env(safe-area-inset-bottom))", right: 16, pointerEvents: "auto" }}
             >
               <Eye className="w-4 h-4" /> <span className="hidden sm:inline">{t("preview", lang)}</span>
             </button>
@@ -970,7 +973,7 @@ export default function ProfileWorkspace({
           </div>
 
           {/* Live preview — desktop only, inline phone frame */}
-          <div className={`hidden xl:block flex-shrink-0 border-l overflow-y-auto ${isDark ? "bg-[#0f1220] border-white/10" : "bg-[#F7F9FC] border-[#E5EAF2]"}`} style={{ width: 250, padding: "18px 14px" }}>
+          <div className={`hidden xl:block flex-shrink-0 border-l overflow-y-auto ${isDark ? "bg-[#0f1220] border-white/10" : "bg-[#F7F9FC] border-[#E5EAF2]"}`} style={{ width: 276, padding: "20px 18px" }}>
             <div style={{ position: "sticky", top: 18 }}>
               <p className={`text-xs font-bold uppercase tracking-widest mb-2 ${mutedText}`}>{t("studio_live_preview", lang)}</p>
               {/* Phone shell */}
