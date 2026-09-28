@@ -33,11 +33,11 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="w-[calc(100vw-20px)] max-w-md max-h-[calc(100dvh-104px)] sm:max-h-[85vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="px-4 pt-4 pb-2 flex-shrink-0 border-b border-slate-100">
           <DialogTitle>{initial ? tr('Edit Link', 'Modifier le lien') : tr('Add Link', 'Ajouter un lien')}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 px-4 py-4 overflow-y-auto flex-1 min-h-0 overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
           <div>
             <Label>{tr('Type', 'Type')}</Label>
             <MobileSelect
@@ -61,9 +61,9 @@ export default function LinkForm({ open, onOpenChange, onSave, initial }) {
             <Input className="mt-1" placeholder="🔥" maxLength={2} value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })} />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>{tr('Cancel', 'Annuler')}</Button>
-          <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700">{tr('Save Link', 'Enregistrer le lien')}</Button>
+        <DialogFooter className="flex-shrink-0 grid grid-cols-2 gap-2 px-3 py-3 border-t border-slate-200 bg-white/95 backdrop-blur-xl sm:flex sm:justify-end" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full min-h-[46px] rounded-xl font-bold">{tr('Cancel', 'Annuler')}</Button>
+          <Button onClick={handleSave} disabled={!form.title || !form.url} className="w-full min-h-[46px] rounded-xl font-black text-white disabled:opacity-40" style={{ background: "#f97316" }}>{tr('Save Link', 'Enregistrer le lien')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
