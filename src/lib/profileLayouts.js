@@ -120,6 +120,16 @@ export const PROFILE_LAYOUTS = {
 
 export const DEFAULT_LAYOUT = "classic";
 
+// One authoritative layout resolver for editor, live preview and public profile.
+// `layout` is the current catalog field. `profile_layout` is retained for legacy
+// championship profiles; "default" must never override a real `layout` choice.
+export function resolveProfileLayout(profile) {
+  if (!profile) return DEFAULT_LAYOUT;
+  const legacy = profile.profile_layout;
+  if (legacy && legacy !== "default" && legacy !== "classic") return legacy;
+  return profile.layout || (legacy === "classic" ? "classic" : DEFAULT_LAYOUT);
+}
+
 // ── Layout Catalog — display metadata for the design picker ───────────────
 // Single source of truth for layout IDs, names, descriptions, and Pro gating.
 // Structural rendering config lives in PROFILE_LAYOUTS above; getLayoutConfig()
