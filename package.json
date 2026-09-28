@@ -19,8 +19,8 @@
     "ios:open": "cap open ios"
   },
   "dependencies": {
-    "@base44/sdk": "^0.8.51",
-    "@base44/vite-plugin": "^1.0.42",
+    "@base44/sdk": "^0.8.52",
+    "@base44/vite-plugin": "^1.0.44",
     "@capacitor/android": "^7.4.3",
     "@capacitor/app": "^7.1.0",
     "@capacitor/browser": "^7.0.2",
