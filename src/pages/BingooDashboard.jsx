@@ -517,8 +517,8 @@ export default function BingooDashboard() {
     if (!activeProfile) return null;
     return (
       <div className="flex items-center gap-2 mb-5 flex-wrap">
-        <button onClick={openHub}
-          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
+        <button type="button" onClick={openHub}
+          className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl border transition-all flex-shrink-0 active:scale-[0.98] ${isDark ? "border-white/10 text-white/50 hover:bg-white/8 hover:text-white" : "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"}`}>
           <ChevronLeft className="w-3.5 h-3.5" /> Profiles
         </button>
         {activeProfile.profile_photo
@@ -1045,8 +1045,6 @@ export default function BingooDashboard() {
           )}
           </React.Suspense>
 
-          {/* Bingoo loading indicator */}
-          <BingooLoadingDots />
         </div>
       </div>
 
