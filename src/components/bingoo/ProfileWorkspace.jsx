@@ -382,13 +382,13 @@ function LinksPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, save
   return (
     <div className="space-y-[18px] pb-4 max-w-[520px]">
       {/* Figma Make links toolbar */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="min-w-0">
           <h2 className={`text-[16px] font-extrabold ${headText}`}>{t("links", lang)}</h2>
           <p className={`text-[12px] mt-0.5 ${mutedText}`}>{t("studio_links_copy", lang)}</p>
         </div>
         <button type="button" onClick={() => setStoreOpen(true)}
-          className="flex items-center justify-center gap-1.5 w-full xs:w-auto px-[18px] py-[10px] rounded-xl text-[13px] font-bold text-white flex-shrink-0"
+          className="flex items-center justify-center gap-1.5 w-full sm:w-auto max-w-full px-[16px] py-[10px] rounded-xl text-[13px] font-bold text-white flex-shrink-0"
           style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.25)" }}>
           <Plus className="w-[14px] h-[14px]" /> {t("studio_add_link", lang)}
         </button>
