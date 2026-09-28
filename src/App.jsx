@@ -55,7 +55,7 @@ const AccountSettings = lazy(() => import('@/pages/AccountSettings'));
 const AssetFinder = lazy(() => import('@/pages/AssetFinder'));
 const PlaystoreCapture = lazy(() => import('@/pages/PlaystoreCapture'));
 
-import PWASplashScreen from '@/components/pwa/PWASplashScreen';
+
 import RouteTransition from '@/components/mobile/RouteTransition';
 import NativeAndroidBridge from '@/components/mobile/NativeAndroidBridge';
 import OfflineBanner from '@/components/mobile/OfflineBanner';
@@ -168,7 +168,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <ProfileWorkspaceProvider>
-        <PWASplashScreen />
+
         <Router>
           <NavigationStackProvider>
             <NativeAndroidBridge />
