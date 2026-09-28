@@ -230,7 +230,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
     <div className="min-h-screen flex" style={{ background: isDark ? "#0f1117" : "#f8fafc" }}>
       <header className="hidden md:block fixed top-0 inset-x-0 h-[72px] z-40 bg-white border-b border-slate-200">
         <div className="h-full px-8 flex items-center justify-between gap-8">
-          <Link to="/" className="flex items-center flex-shrink-0" aria-label="Bingoo Connect home"><BrandLockup badgeSize={34} /></Link>
+          <Link to="/bingoo?view=hub" className="flex items-center flex-shrink-0" aria-label={lang === "fr" ? "Tableau de bord Bingoo" : "Bingoo dashboard"}><BrandLockup badgeSize={34} /></Link>
           <nav className="hidden xl:flex items-center gap-9 text-sm font-semibold text-slate-500" aria-label="Main navigation">
             <Link to="/#platform" className="hover:text-slate-900 transition-colors">{t("core_platform", lang)}</Link>
             <Link to="/#solutions" className="hover:text-slate-900 transition-colors">{t("core_solutions", lang)}</Link>
@@ -250,7 +250,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
       </aside>
 
       <header className="md:hidden fixed top-0 inset-x-0 z-[90] flex items-center justify-between px-4" style={{ background: "linear-gradient(135deg, #061a38 0%, #03162f 100%)", borderBottom: "2px solid #f97316", paddingTop: "env(safe-area-inset-top)", height: "calc(56px + env(safe-area-inset-top))" }}>
-        <Link to="/" aria-label="Bingoo Connect home" className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
+        <Link to="/bingoo?view=hub" aria-label={lang === "fr" ? "Tableau de bord Bingoo" : "Bingoo dashboard"} className="flex items-center gap-2 transition-opacity hover:opacity-80"><BingooLogo className="h-7 w-7" animated={false} /><BingooWordmark size="text-base" light stacked={false} /></Link>
         <div className="flex items-center gap-1.5">
           <button onClick={toggle} aria-label="Toggle dark mode" className="min-h-[44px] min-w-[44px] p-2.5 rounded-2xl transition-all bg-white/[0.08] border border-white/10 hover:bg-white/[0.14] text-white flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,.08)]">{isDark ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-200" />}</button>
           <NotificationCenter userId={effectiveUserId} isDark lang={lang} />
