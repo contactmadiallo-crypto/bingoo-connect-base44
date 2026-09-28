@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
-import { isLayoutDark } from "@/lib/profileLayouts";
+import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
 import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
@@ -149,8 +149,8 @@ const Toggle = ({ value, onChange }) => (
 // ── Compact layout preview for the inline phone shells ───────────────────
 function WorkspaceLayoutPreview({ liveForm }) {
   const color = liveForm?.cover_color || "#2563eb";
-  const isDark = liveForm?.bg_style === "night" || isLayoutDark(liveForm?.layout);
-  const layoutType = liveForm?.layout || "classic";
+  const layoutType = resolveProfileLayout(liveForm);
+  const isDark = liveForm?.bg_style === "night" || isLayoutDark(layoutType);
 
   const content = (
     <ProfileContentSections
@@ -219,7 +219,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
-    <div className="space-y-[18px] pb-4 max-w-[560px]">
+    <div className="space-y-3 sm:space-y-[18px] pb-3 sm:pb-4 max-w-[560px]">
       {/* Figma Profile page toolbar */}
       <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
         <div className="min-w-0">
@@ -234,8 +234,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
       </div>
 
       {/* Profile identity / photo card */}
-      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-[18px]`}>
-        <div className="flex items-start justify-between gap-4 mb-4">
+      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-3.5 sm:p-[18px]`}>
+        <div className="flex items-start justify-between gap-3 mb-3 sm:mb-4">
           <div>
             <p className={`text-[13px] font-black ${headText}`}>{t("studio_profile_photo", lang)}</p>
           </div>
@@ -245,7 +245,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             return <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide" style={{ background: colors.bg, color: colors.text }}>{PLAN_LABELS[ep] || "Free"}</span>;
           })()}
         </div>
-          <div className="flex items-center gap-4 mb-5 relative z-10">
+          <div className="flex items-center gap-3 mb-3 sm:mb-5 relative z-10">
             <div className="relative flex-shrink-0">
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
@@ -262,22 +262,11 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
                 }} />
               </label>
             </div>
-            <div className="pb-1">
-              {(() => {
-                const ep = userPlan || "free";
-                const colors = PLAN_COLORS[ep] || PLAN_COLORS.free;
-                return (
-                  <span className="text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide"
-                    style={{ background: colors.bg, color: colors.text }}>
-                    {PLAN_LABELS[ep] || "Free"}
-                  </span>
-                );
-              })()}
-            </div>
+
           </div>
 
           {/* Business-only identity */}
-          {isBusinessIdentity && <div className="mb-5 rounded-xl border border-slate-200/80 p-4">
+          {isBusinessIdentity && <div className="mb-3 sm:mb-5 rounded-xl border border-slate-200/80 p-3 sm:p-4">
             <p className={`text-xs font-black mb-3 ${headText}`}>{t("studio_business_identity", lang)}</p>
             <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>{t("studio_brand_logo", lang)}</Label>
             <div className="flex items-center gap-3">
@@ -310,7 +299,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           <div className="mb-3">
             <p className={`text-xs font-black ${headText}`}>{t("studio_basic_info", lang)}</p>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("display_name", lang)} *</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.display_name || ""} onChange={set("display_name")} placeholder={t("studio_name_placeholder", lang)} />
@@ -842,7 +831,7 @@ export default function ProfileWorkspace({
 
         {/* Editing panel */}
         <div className="block md:flex md:flex-1 min-w-0 md:min-h-0 max-w-full bg-[#F5F7FB] dark:bg-[#080b12]">
-          <div className={`min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 ${mobileGroupOpen ? "block" : "hidden md:block"}`} style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
+          <div className={`min-w-0 pb-safe overflow-visible md:flex-1 md:min-h-0 md:overflow-y-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 ${mobileGroupOpen ? "block" : "hidden md:block"}`} style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y", overscrollBehaviorY: "auto" }}>
             <div className="w-full max-w-[920px] mx-auto">
             {innerTab === "info" && (
               <InfoPanel {...makeSaveProps("info")} liveForm={liveForm} setVal={setVal} set={set} profile={profile} userPlan={userPlan} />
