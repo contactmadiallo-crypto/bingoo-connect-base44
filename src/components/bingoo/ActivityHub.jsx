@@ -81,7 +81,7 @@ export default function ActivityHub({
         <p className={`text-sm mt-1 ${sub}`}>{t("activity_subtitle",language)}</p>
       </div>
 
-      <div className={`grid gap-1 p-1 rounded-2xl border ${card}`} style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}>
+      <div className={`hidden md:grid gap-1 p-1 rounded-2xl border ${card}`} style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}>
         {visibleTabs.map((item) => {
           const blocked = (item.id === "analytics" && !canAnalytics) || (item.id === "leads" && !canLeads);
           const Icon = item.icon;
@@ -101,6 +101,12 @@ export default function ActivityHub({
           );
         })}
       </div>
+
+      {tab !== "overview" && (
+        <button type="button" onClick={() => choose("overview")} className={`md:hidden inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-xl border text-xs font-black ${card} ${head}`}>
+          <ChevronRight className="w-4 h-4 rotate-180" /> {t("activity_overview",language)}
+        </button>
+      )}
 
       {tab === "overview" && (
         <div className="space-y-3">
