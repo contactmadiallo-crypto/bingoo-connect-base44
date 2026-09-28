@@ -40,7 +40,8 @@ const EVENT_COLORS = {
   security_alert: { dark: "bg-red-500/20 text-red-400", light: "bg-red-100 text-red-600" },
 };
 
-export default function NotificationCenter({ userId, isDark }) {
+export default function NotificationCenter({ userId, isDark, lang = "en" }) {
+  const tr = (en, fr) => lang === "fr" ? fr : en;
   const [open, setOpen] = useState(false);
   const [clearingAll, setClearingAll] = useState(false);
   const qc = useQueryClient();
@@ -64,7 +65,7 @@ export default function NotificationCenter({ userId, isDark }) {
           toast(event.data.title, {
             description: event.data.message || undefined,
             action: event.data.action_url ? {
-              label: "Open",
+              label: tr("Open", "Ouvrir"),
               onClick: () => {
                 const target = event.data.action_url;
                 if (/^https?:\/\//i.test(target)) window.location.assign(target);
@@ -98,10 +99,10 @@ export default function NotificationCenter({ userId, isDark }) {
       const response = await base44.functions.invoke("manageNotifications", { action: "mark_all_read" });
       if (response?.data?.ok === false) throw new Error("Mark all read failed");
       qc.setQueryData(["bingoo-notifications", userId], (old = []) => old.map(n => ({ ...n, is_read: true })));
-      toast.success("Notifications marked as read");
+      toast.success(tr("Notifications marked as read", "Notifications marquées comme lues"));
     } catch (error) {
       console.error("[notifications] mark all read failed", error);
-      toast.error("Could not mark notifications as read");
+      toast.error(tr("Could not mark notifications as read", "Impossible de marquer les notifications comme lues"));
     } finally {
       qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
     }
@@ -116,7 +117,7 @@ export default function NotificationCenter({ userId, isDark }) {
     } catch (error) {
       qc.setQueryData(["bingoo-notifications", userId], previous);
       console.error("[notifications] clear one failed", error);
-      toast.error("Could not clear notification");
+      toast.error(tr("Could not clear notification", "Impossible de supprimer la notification"));
     } finally {
       qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
     }
@@ -130,11 +131,11 @@ export default function NotificationCenter({ userId, isDark }) {
     try {
       const response = await base44.functions.invoke("manageNotifications", { action: "clear_all" });
       if (response?.data?.ok === false) throw new Error("Some notifications could not be cleared");
-      toast.success("Notifications cleared");
+      toast.success(tr("Notifications cleared", "Notifications supprimées"));
     } catch (error) {
       qc.setQueryData(["bingoo-notifications", userId], previous);
       console.error("[notifications] clear all failed", error);
-      toast.error("Could not clear notifications");
+      toast.error(tr("Could not clear notifications", "Impossible de supprimer les notifications"));
     } finally {
       setClearingAll(false);
       qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] });
@@ -189,7 +190,7 @@ export default function NotificationCenter({ userId, isDark }) {
       <button
         onClick={open ? handleClose : handleOpen}
         className={`relative h-10 w-10 md:h-9 md:w-9 flex items-center justify-center rounded-full transition-all ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:bg-white/15 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}
-        aria-label="Notifications"
+        aria-label={tr("Notifications", "Notifications")}
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
@@ -205,7 +206,7 @@ export default function NotificationCenter({ userId, isDark }) {
       {open && createPortal(
         <>
           <div className="fixed inset-0 z-[55]" onClick={handleClose} />
-          <div className="fixed top-[calc(58px+env(safe-area-inset-top))] md:top-16 right-2 md:right-5 z-[120] w-[calc(100vw-16px)] max-w-[292px] md:max-w-[310px] max-h-[min(68vh,480px)] rounded-xl shadow-xl overflow-hidden"
+          <div className="fixed top-[calc(58px+env(safe-area-inset-top))] md:top-16 right-2 md:right-5 z-[120] w-[calc(100vw-20px)] max-w-[270px] md:max-w-[286px] max-h-[min(62vh,430px)] rounded-xl shadow-xl overflow-hidden"
             style={{
               background: isDark ? "rgba(15,22,40,0.42)" : "rgba(255,255,255,0.45)",
               backdropFilter: "blur(24px) saturate(180%)",
@@ -216,7 +217,7 @@ export default function NotificationCenter({ userId, isDark }) {
             {/* Header */}
             <div className={`px-3 py-2.5 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-white/40"}`}>
               <div className="flex items-center gap-2">
-                <h3 className={`font-black text-sm ${headText}`}>Notifications</h3>
+                <h3 className={`font-black text-sm ${headText}`}>{tr("Notifications", "Notifications")}</h3>
                 {unreadCount > 0 && (
                   <span className="bg-red-500 text-white text-[11px] font-black px-1.5 py-0.5 rounded-full">
                     {unreadCount}
@@ -226,12 +227,12 @@ export default function NotificationCenter({ userId, isDark }) {
               <div className="flex items-center gap-2">
                 {notifications.length > 0 && (
                   <button disabled={clearingAll} onClick={clearAll} className={`text-[11px] font-semibold disabled:opacity-50 ${isDark ? "text-red-300 hover:text-red-200" : "text-red-600 hover:text-red-500"}`}>
-                    {clearingAll ? "Clearing…" : "Clear all"}
+                    {clearingAll ? tr("Clearing…", "Suppression…") : tr("Clear all", "Tout supprimer")}
                   </button>
                 )}
                 {unreadCount > 0 && (
                   <button onClick={markAllRead} className={`text-[11px] font-semibold ${isDark ? "text-blue-400 hover:text-blue-300" : "text-blue-600 hover:text-blue-500"}`}>
-                    Mark all read
+                    {tr("Mark all read", "Tout marquer comme lu")}
                   </button>
                 )}
                 <button onClick={handleClose} className={`p-1 rounded-lg ${isDark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
@@ -245,7 +246,7 @@ export default function NotificationCenter({ userId, isDark }) {
               {isLoading && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <RefreshCw className="w-6 h-6 mx-auto mb-2 animate-spin opacity-40" />
-                  <p className="text-sm font-medium">Loading…</p>
+                  <p className="text-sm font-medium">{tr("Loading…", "Chargement…")}</p>
                 </div>
               ) : isError && notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
@@ -253,14 +254,14 @@ export default function NotificationCenter({ userId, isDark }) {
                   <p className="text-sm font-medium">Couldn't load notifications</p>
                   <button onClick={() => qc.invalidateQueries({ queryKey: ["bingoo-notifications", userId] })}
                     className={`text-xs mt-1 font-semibold underline ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                    Retry
+                    {tr("Retry", "Réessayer")}
                   </button>
                 </div>
               ) : notifications.length === 0 ? (
                 <div className={`text-center py-10 ${mutedText}`}>
                   <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-medium">No notifications yet</p>
-                  <p className="text-xs mt-0.5">New leads and bookings will appear here</p>
+                  <p className="text-sm font-medium">{tr("No notifications yet", "Aucune notification")}</p>
+                  <p className="text-xs mt-0.5">{tr("New leads, bookings, device and account updates will appear here", "Les nouveaux prospects, rendez-vous, appareils et mises à jour du compte apparaîtront ici")}</p>
                 </div>
               ) : (
                 notifications.map(n => {
@@ -281,10 +282,10 @@ export default function NotificationCenter({ userId, isDark }) {
                         <p className={`text-xs font-bold leading-snug ${headText}`}>{n.title}</p>
                         {n.message && <p className={`text-xs mt-0.5 truncate ${mutedText}`}>{n.message}</p>}
                         <p className={`text-xs mt-1 ${mutedText}`}>
-                          {n.created_date ? new Date(n.created_date).toLocaleString("en", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
+                          {n.created_date ? new Date(n.created_date).toLocaleString(lang === "fr" ? "fr-FR" : "en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : ""}
                         </p>
                       </div>
-                      <span role="button" tabIndex={0} aria-label="Clear notification" onClick={(e) => { e.stopPropagation(); clearNotification(n.id); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); clearNotification(n.id); } }} className={`p-1.5 rounded-lg flex-shrink-0 ${isDark ? "text-white/30 hover:text-red-300 hover:bg-white/10" : "text-slate-300 hover:text-red-500 hover:bg-red-50"}`}><Trash2 className="w-3.5 h-3.5" /></span>
+                      <span role="button" tabIndex={0} aria-label={tr("Clear notification", "Supprimer la notification")} onClick={(e) => { e.stopPropagation(); clearNotification(n.id); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); clearNotification(n.id); } }} className={`p-1.5 rounded-lg flex-shrink-0 ${isDark ? "text-white/30 hover:text-red-300 hover:bg-white/10" : "text-slate-300 hover:text-red-500 hover:bg-red-50"}`}><Trash2 className="w-3.5 h-3.5" /></span>
                       {isUnread && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />}
                     </button>
                   );
