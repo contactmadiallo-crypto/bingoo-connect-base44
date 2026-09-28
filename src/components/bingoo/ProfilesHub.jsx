@@ -271,7 +271,7 @@ export default function ProfilesHub({
 
         {/* Cover */}
         <div className="relative" style={{ borderRadius: "18px 18px 0 0", overflow: "hidden" }}>
-          <div className="h-[72px] sm:h-[92px]">
+          <div className="h-[58px] sm:h-[92px]">
             {profile.cover_photo ? (
               <img src={profile.cover_photo} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
@@ -288,7 +288,7 @@ export default function ProfilesHub({
             return profile.profile_photo ? (
               <img src={profile.profile_photo} alt=""
                 style={{
-                  width: "clamp(48px, 13vw, 56px)", height: "clamp(48px, 13vw, 56px)", borderRadius: shapeR, flexShrink: 0,
+                  width: "clamp(44px, 12vw, 56px)", height: "clamp(44px, 12vw, 56px)", borderRadius: shapeR, flexShrink: 0,
                   objectFit: "cover", objectPosition: "center top",
                   border: isDark ? "3px solid #13162a" : "3px solid white",
                   boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
@@ -296,7 +296,7 @@ export default function ProfilesHub({
                 }} />
             ) : (
               <div style={{
-                width: 56, height: 56, borderRadius: shapeR, flexShrink: 0,
+                width: 48, height: 48, borderRadius: shapeR, flexShrink: 0,
                 background: profile.cover_color || "#2563eb",
                 border: isDark ? "3px solid #13162a" : "3px solid white",
                 display: "flex", alignItems: "center", justifyContent: "center",
@@ -324,7 +324,7 @@ export default function ProfilesHub({
         </div>
 
         {/* Name + username */}
-        <div className="px-3 pb-2.5 sm:px-3.5 sm:pb-3">
+        <div className="px-2.5 pb-2 sm:px-3.5 sm:pb-3">
           <div className="mb-1">
             <p className={`font-black text-[15px] truncate ${headText}`}>{profile.display_name}</p>
             <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
@@ -372,7 +372,7 @@ export default function ProfilesHub({
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-1.5 mt-1.5 items-center justify-end">
+          <div className="flex gap-1 mt-1 items-center justify-end">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
               className="w-[76px] sm:w-[84px] h-8 flex items-center justify-center gap-1.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
@@ -451,8 +451,8 @@ export default function ProfilesHub({
 
   // New profile / locked card (rendered after the draggable cards)
   const renderAddCard = () => hasReachedFreeLimit ? (
-    <div className={`border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center justify-center gap-4 text-center ${isDark ? "border-white/12 bg-white/[0.02]" : "border-slate-200 bg-white/20"}`}
-      style={{ minHeight: "470px" }}>
+    <div className={`border-2 border-dashed rounded-[18px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col items-center justify-center gap-2.5 sm:gap-4 text-center ${isDark ? "border-white/12 bg-white/[0.02]" : "border-slate-200 bg-white/20"}`}
+      style={{ minHeight: "clamp(190px, 48vw, 470px)" }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(251,191,36,0.15)" : "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.35)" }}>
         <Lock className="w-6 h-6 text-amber-500" />
@@ -472,10 +472,10 @@ export default function ProfilesHub({
     </div>
   ) : (
     <button onClick={onCreateNew}
-      className={`border-2 border-dashed rounded-[24px] p-8 flex flex-col items-center justify-center gap-4 text-center transition-all hover:scale-[1.01] ${
+      className={`border-2 border-dashed rounded-[18px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col items-center justify-center gap-2.5 sm:gap-4 text-center transition-all hover:scale-[1.01] ${
         isDark ? "border-white/12 hover:border-white/20 hover:bg-white/[0.03]" : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
       }`}
-      style={{ minHeight: "470px" }}>
+      style={{ minHeight: "clamp(190px, 48vw, 470px)" }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
         <Plus className="w-6 h-6" style={{ color: "#f97316" }} />
@@ -490,9 +490,9 @@ export default function ProfilesHub({
   return (
     <div className="space-y-4 sm:space-y-7 py-3 sm:py-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-2 sm:gap-4">
         <div className="min-w-0">
-          <h2 className={`text-2xl sm:text-3xl font-black tracking-tight ${headText}`}>{t("profiles_my_profiles")}</h2>
+          <h2 className={`text-xl sm:text-3xl font-black tracking-tight ${headText}`}> {t("profiles_my_profiles")}</h2>
           <p className={`text-sm mt-0.5 ${subText}`}>
             {loading ? t("profiles_loading") : (maxProfiles < 0
               ? `${profiles.length} profile${profiles.length !== 1 ? "s" : ""} · ${PLAN_LABELS[accountPlan || "free"] || "Free"} · Unlimited`
@@ -502,7 +502,7 @@ export default function ProfilesHub({
         <div className="flex items-center gap-2 flex-shrink-0">
           {hasReachedFreeLimit ? (
             <button onClick={startTrial} disabled={trialLoading}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl text-sm font-black border border-orange-300/60 text-orange-500 bg-orange-50/70 transition-all hover:bg-orange-50 disabled:opacity-60">
+              className="flex items-center gap-1.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black border border-orange-300/60 text-orange-500 bg-orange-50/70 transition-all hover:bg-orange-50 disabled:opacity-60">
               <Lock className="w-4 h-4" /> Upgrade to add more
             </button>
           ) : (
@@ -560,7 +560,7 @@ export default function ProfilesHub({
           <Droppable droppableId="profiles-grid" isDropDisabled={!canReorder}>
             {(provided) => (
               <div ref={provided.innerRef} {...provided.droppableProps}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 sm:gap-4">
                 {items.map((profile, index) => (
                   <Draggable draggableId={profile.id} index={index} key={profile.id} isDragDisabled={!canReorder}>
                     {(dragProvided, snapshot) => (
