@@ -134,7 +134,10 @@ const AuthenticatedApp = () => {
       <Route path="/shop" element={<AdaptiveShopShell><Shop /></AdaptiveShopShell>} />
       <Route path="/product/:productId" element={<AdaptiveShopShell><ProductDetail /></AdaptiveShopShell>} />
       <Route path="/pricing" element={<SubscriptionPricing />} />
-      <Route path="/plans" element={<Navigate to={`/pricing${window.location.search}`} replace />} />
+      <Route path="/plans" element={<SubscriptionPricing />} />
+      <Route path="/cart" element={<AdaptiveShopShell><Cart /></AdaptiveShopShell>} />
+      <Route path="/checkout" element={<AdaptiveShopShell><Checkout /></AdaptiveShopShell>} />
+      <Route path="/order-confirmation" element={<AdaptiveShopShell><OrderConfirmation /></AdaptiveShopShell>} />
 
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route path="/bingoo" element={<BingooDashboard />} />
@@ -142,9 +145,6 @@ const AuthenticatedApp = () => {
         <Route path="/monitor" element={<AdminAuthGuard><SubscriberMonitoring /></AdminAuthGuard>} />
         <Route path="/activate-device" element={<ActivateDevice />} />
         <Route path="/my-nfc-devices" element={<MyNFCDevices />} />
-        <Route path="/cart" element={<AdaptiveShopShell><Cart /></AdaptiveShopShell>} />
-        <Route path="/checkout" element={<AdaptiveShopShell><Checkout /></AdaptiveShopShell>} />
-        <Route path="/order-confirmation" element={<AdaptiveShopShell><OrderConfirmation /></AdaptiveShopShell>} />
         <Route element={<BingooLayoutWrapper />}>
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/account-settings" element={<AccountSettings />} />
