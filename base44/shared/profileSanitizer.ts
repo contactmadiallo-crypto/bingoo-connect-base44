@@ -46,7 +46,7 @@ export const NEVER_WRITABLE = new Set([
 export const FREE_FIELDS = new Set([
   'display_name','username','job_title','company_name','bio','phone','email',
   'website','location','show_location','language','privacy_settings','custom_links','hidden_links',
-  'cover_color','qr_color','qr_label','profile_type','profile_category','lead_capture_enabled',
+  'cover_color','qr_color','qr_label','profile_type','profile_category','custom_profile_category','lead_capture_enabled',
   'whatsapp_number','facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url',
 ]);
 
@@ -294,6 +294,7 @@ export function sanitizeProfileFields({ entitlement, input, currentProfile, mode
         continue;
       case 'profile_type': sanitized.profile_type = validateEnum(value, 'profile_type', VALID_PROFILE_TYPES, errors) ?? 'personal'; continue;
       case 'profile_category': sanitized.profile_category = validateEnum(value, 'profile_category', VALID_PROFILE_CATEGORIES, errors) ?? 'personal'; continue;
+      case 'custom_profile_category': sanitized.custom_profile_category = clampString(value, 'custom_profile_category', 48, errors); continue;
       case 'language': sanitized.language = validateEnum(value, 'language', VALID_LANGUAGES, errors) ?? 'en'; continue;
       case 'avatar_shape': sanitized.avatar_shape = validateEnum(value, 'avatar_shape', VALID_AVATAR_SHAPES, errors); continue;
       case 'avatar_placement': sanitized.avatar_placement = validateEnum(value, 'avatar_placement', VALID_AVATAR_PLACEMENTS, errors); continue;
