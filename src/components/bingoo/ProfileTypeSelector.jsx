@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2, BriefcaseBusiness,
   Rocket, House, Scale, HeartPulse, Dumbbell, MessageCircleMore, GraduationCap,
@@ -28,6 +28,8 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
   const { language } = useI18n();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const triggerRef = useRef(null);
+  const [desktopAnchor, setDesktopAnchor] = useState(null);
   const current = profile?.profile_category || (profile?.profile_type === "business" ? "business" : "personal");
   const rank = RANK[normalizedPlan(plan)] ?? 0;
   const selectedItem = PROFILE_PROFESSIONS.find((item) => item.id === current) || PROFILE_PROFESSIONS[0];
@@ -40,10 +42,25 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
   }, [query]);
 
   useEffect(() => {
-    if (!open || typeof window === "undefined" || window.innerWidth >= 640) return undefined;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
+    if (!open || typeof window === "undefined") return undefined;
+    if (window.innerWidth < 640) {
+      const previous = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = previous; };
+    }
+
+    const updateAnchor = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setDesktopAnchor({ left: rect.left, top: rect.bottom + 8, width: rect.width });
+    };
+    updateAnchor();
+    window.addEventListener("resize", updateAnchor);
+    window.addEventListener("scroll", updateAnchor, true);
+    return () => {
+      window.removeEventListener("resize", updateAnchor);
+      window.removeEventListener("scroll", updateAnchor, true);
+    };
   }, [open]);
 
   return (
@@ -58,6 +75,7 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
         </label>
         <div className="relative">
           <button
+            ref={triggerRef}
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-haspopup="listbox"
@@ -79,7 +97,10 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
           {open && (
             <>
             <button type="button" aria-label={language === "fr" ? "Fermer" : "Close profession picker"} onClick={() => { setOpen(false); setQuery(""); }} className="sm:hidden fixed inset-0 z-[109] bg-slate-950/45 backdrop-blur-[2px]" />
-            <div className={`fixed sm:absolute z-[110] sm:z-[80] left-3 right-3 bottom-[calc(76px+env(safe-area-inset-bottom))] sm:left-0 sm:right-0 sm:bottom-auto sm:mt-2 max-h-[min(70dvh,560px)] sm:max-h-none rounded-[24px] sm:rounded-2xl border shadow-2xl overflow-hidden flex flex-col ${isDark ? "bg-[#0f1425] border-white/10" : "bg-white border-slate-200"}`}>
+            <div
+              className={`fixed z-[110] left-3 right-3 bottom-[calc(76px+env(safe-area-inset-bottom))] sm:left-auto sm:right-auto sm:bottom-auto max-h-[min(70dvh,560px)] rounded-[24px] sm:rounded-2xl border shadow-2xl overflow-hidden flex flex-col ${isDark ? "bg-[#0f1425] border-white/10" : "bg-white border-slate-200"}`}
+              style={typeof window !== "undefined" && window.innerWidth >= 640 && desktopAnchor ? { left: desktopAnchor.left, top: desktopAnchor.top, width: desktopAnchor.width, right: "auto", bottom: "auto" } : undefined}
+            >
               <div className="sm:hidden flex items-center justify-between px-4 pt-3 pb-1">
                 <div>
                   <p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{language === "fr" ? "Choisir une profession" : "Choose profession"}</p>
