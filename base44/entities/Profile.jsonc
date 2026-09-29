@@ -492,6 +492,10 @@
       "default": "personal",
       "description": "User-selected profession/category shown as a public-profile badge and used for presentation."
     },
+    "custom_profile_category": {
+      "type": "string",
+      "description": "Optional custom public profession or business label. Used when the owner wants a more specific category label."
+    },
     "plan": {
       "type": "string",
       "enum": [
