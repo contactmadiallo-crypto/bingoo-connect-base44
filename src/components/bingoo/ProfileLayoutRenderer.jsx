@@ -1058,6 +1058,78 @@ export function LuxuryGoldLayout({ profile, mobile, contentSections }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 13. SALON / SERVICE — editorial beauty header, soft service identity
+// ═══════════════════════════════════════════════════════════════
+export function SalonLayout({ profile, color, mobile, contentSections }) {
+  const bg = "linear-gradient(160deg,#1a0a14,#38162d)";
+  const size = mobile ? 92 : 110;
+  return (
+    <div style={{ minHeight: "100vh", background: bg, color: "#fff" }}>
+      <div style={{ height: mobile ? 150 : 190, position: "relative", overflow: "hidden" }}>
+        {profile?.cover_photo
+          ? <img src={profile.cover_photo} alt="" style={{ width:"100%",height:"100%",objectFit:"cover",objectPosition:profile.cover_position||"center",opacity:.72 }} />
+          : <div style={{ position:"absolute",inset:0,background:`radial-gradient(circle at 20% 20%, ${hexRgb(color,.42)}, transparent 42%), linear-gradient(135deg,#2d1020,#12070f)` }} />}
+        <div style={{ position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 20%,#1a0a14 100%)" }} />
+      </div>
+      <div style={{ textAlign:"center", padding:"0 18px 14px", marginTop:-46, position:"relative" }}>
+        <AvatarRing profile={profile} size={size} ringColor="#1a0a14" ringWidth={4} shadow={`0 8px 32px ${hexRgb(color,.35)}`} />
+        <h1 style={{ margin:"10px 0 3px",fontFamily:"Georgia,serif",fontSize:mobile?22:27,fontWeight:800 }}>{profile?.display_name}</h1>
+        {profile?.job_title && <p style={{ margin:0,color:"#f9a8d4",fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase" }}>{profile.job_title}</p>}
+        {profile?.company_name && <p style={{ margin:"4px 0 0",color:"rgba(255,255,255,.48)",fontSize:11 }}>{profile.company_name}</p>}
+        <div style={{ width:44,height:1,background:`linear-gradient(90deg,transparent,${color},transparent)`,margin:"12px auto 0" }} />
+      </div>
+      <div style={{ padding:mobile?"4px 14px 120px":"8px 30px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 14. LAW FIRM — formal split masthead, serif identity, restrained gold rule
+// ═══════════════════════════════════════════════════════════════
+export function LawFirmLayout({ profile, color, mobile, contentSections }) {
+  const accent = color || "#b8872d";
+  const size = mobile ? 76 : 92;
+  return (
+    <div style={{ minHeight:"100vh",background:"#f8fafc" }}>
+      <div style={{ background:"#0b172a",borderTop:`4px solid ${accent}`,padding:mobile?"22px 18px":"30px 34px",display:"flex",alignItems:"center",gap:16 }}>
+        <div style={{ flex:1,minWidth:0 }}>
+          <p style={{ margin:"0 0 7px",fontSize:10,fontWeight:800,letterSpacing:".18em",textTransform:"uppercase",color:accent }}>{profile?.company_name || "Legal Profile"}</p>
+          <h1 style={{ margin:0,fontFamily:"Georgia,serif",fontSize:mobile?22:28,lineHeight:1.08,color:"#fff",fontWeight:700 }}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{ margin:"6px 0 0",fontSize:12,color:"rgba(255,255,255,.62)" }}>{profile.job_title}</p>}
+        </div>
+        <div style={{ padding:3,border:`1px solid ${accent}`,borderRadius:8 }}><AvatarRenderer profile={profile} size={size} extraStyle={{borderRadius:6}} /></div>
+      </div>
+      <div style={{ height:1,background:`linear-gradient(90deg,${accent},transparent 70%)` }} />
+      <div style={{ padding:mobile?"14px 14px 120px":"20px 30px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 15. BUSINESS TEAM — company-first horizontal identity system
+// ═══════════════════════════════════════════════════════════════
+export function CorporateLayout({ profile, color, mobile, contentSections }) {
+  const accent = color || "#2563eb";
+  const size = mobile ? 70 : 86;
+  return (
+    <div style={{ minHeight:"100vh",background:"#f1f5f9" }}>
+      <div style={{ height:6,background:`linear-gradient(90deg,${accent},#0b2149)` }} />
+      {profile?.cover_photo && <div style={{ height:mobile?82:110,overflow:"hidden" }}><img src={profile.cover_photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:profile.cover_position||"center"}} /></div>}
+      <div style={{ background:"#fff",padding:mobile?"16px":"22px 30px",display:"flex",alignItems:"center",gap:14,borderBottom:"1px solid #e2e8f0" }}>
+        <AvatarRenderer profile={profile} size={size} extraStyle={{borderRadius:14,boxShadow:"0 5px 18px rgba(15,23,42,.12)"}} />
+        <div style={{ flex:1,minWidth:0 }}>
+          <h1 style={{margin:0,fontSize:mobile?19:24,fontWeight:900,color:"#0f172a",fontFamily:FONT_DISPLAY}}>{profile?.display_name}</h1>
+          {profile?.job_title && <p style={{margin:"3px 0 0",fontSize:12,fontWeight:700,color:accent}}>{profile.job_title}</p>}
+          {profile?.company_name && <p style={{margin:"2px 0 0",fontSize:11,color:"#64748b"}}>{profile.company_name}</p>}
+        </div>
+        {profile?.company_logo && <img src={profile.company_logo} alt="" style={{width:38,height:38,objectFit:"contain"}} />}
+      </div>
+      <div style={{ padding:mobile?"12px 14px 120px":"18px 30px 80px" }}>{contentSections}</div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PASTEL (kept for backward compat with old profiles) — routes to ColorLayout
 // ═══════════════════════════════════════════════════════════════
 export function PastelLayout({ profile, color, mobile, contentSections }) {
