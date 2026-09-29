@@ -1,14 +1,19 @@
-import { Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2 } from "lucide-react";
+import {
+  Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2, BriefcaseBusiness,
+  Rocket, House, Scale, HeartPulse, Dumbbell, MessageCircleMore, GraduationCap,
+  Palette, Brush, Music2, Scissors, UtensilsCrossed, Code2, TrendingUp, UsersRound
+} from "lucide-react";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { PROFILE_PROFESSIONS } from "@/lib/profileProfessions";
 
-const TYPES = [
-  { id: "personal", profileType: "personal", labelKey: "profile_type_personal", icon: UserRound, minPlan: "free" },
-  { id: "content_creator", profileType: "professional", labelKey: "profile_type_creator", icon: Sparkles, minPlan: "professional" },
-  { id: "photographer", profileType: "professional", labelKey: "profile_type_photographer", icon: Camera, minPlan: "professional" },
-  { id: "model", profileType: "professional", labelKey: "profile_type_model", icon: Aperture, minPlan: "professional" },
-  { id: "business", profileType: "business", labelKey: "profile_type_business", icon: Building2, minPlan: "business" },
-];
+const ICONS = {
+  user: UserRound, sparkles: Sparkles, camera: Camera, aperture: Aperture, building: Building2,
+  briefcase: BriefcaseBusiness, rocket: Rocket, home: House, scale: Scale, heart: HeartPulse,
+  dumbbell: Dumbbell, message: MessageCircleMore, graduation: GraduationCap, palette: Palette,
+  brush: Brush, music: Music2, scissors: Scissors, utensils: UtensilsCrossed, code: Code2,
+  trending: TrendingUp, users: UsersRound,
+};
 
 const RANK = { free: 0, professional: 1, pro: 1, salon: 2, restaurant: 2, lawfirm: 2, business: 2, corporate: 2, enterprise: 3 };
 
@@ -24,33 +29,35 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
 
   return (
     <div>
-      <div className="mb-4">
-        <h2 className={`text-base font-black ${isDark ? "text-white" : "text-slate-900"}`}>{t("profile_type_title",language)}</h2>
+      <div className="mb-3">
+        <h2 className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{t("profile_type_title",language)}</h2>
+        <p className={`text-[11px] mt-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>{language === "fr" ? "Choisissez la profession mise en avant sur votre profil public." : "Choose the profession highlighted on your public profile."}</p>
       </div>
-      <div className="grid gap-2.5">
-        {TYPES.map((item) => {
-          const Icon = item.icon;
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {PROFILE_PROFESSIONS.map((item) => {
+          const Icon = ICONS[item.icon] || UserRound;
           const locked = rank < (RANK[item.minPlan] ?? 0);
           const selected = current === item.id;
+          const label = language === "fr" ? item.fr : item.en;
           return (
             <button
               key={item.id}
               type="button"
               disabled={locked}
               onClick={() => !locked && onChange?.(item)}
-              className={`w-full text-left rounded-2xl border p-4 transition-all ${selected ? "border-orange-400 ring-1 ring-orange-400/30" : isDark ? "border-white/10 hover:border-white/20" : "border-slate-200 hover:border-slate-300"} ${locked ? "opacity-55 cursor-not-allowed" : "cursor-pointer"}`}
+              className={`w-full text-left rounded-xl border px-3 py-2.5 transition-all ${selected ? "border-orange-400 ring-1 ring-orange-400/25" : isDark ? "border-white/10 hover:border-white/20" : "border-slate-200 hover:border-slate-300"} ${locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${selected ? "bg-orange-500 text-white" : isDark ? "bg-white/8 text-white/60" : "bg-slate-100 text-slate-600"}`}>
-                  <Icon className="w-5 h-5" />
+              <div className="flex items-center gap-2.5">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? "bg-orange-500 text-white" : isDark ? "bg-white/8 text-white/60" : "bg-slate-100 text-slate-600"}`}>
+                  <Icon className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{t(item.labelKey,language)}</p>
-                    {selected && <Check className="w-4 h-4 text-orange-500" />}
-                    {locked && <Lock className={`w-3.5 h-3.5 ml-auto ${isDark ? "text-white/35" : "text-slate-400"}`} />}
+                  <div className="flex items-center gap-1.5">
+                    <p className={`text-xs font-black truncate ${isDark ? "text-white" : "text-slate-900"}`}>{label}</p>
+                    {selected && <Check className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />}
+                    {locked && <Lock className={`w-3 h-3 ml-auto ${isDark ? "text-white/35" : "text-slate-400"}`} />}
                   </div>
-                  {locked && <p className="text-[11px] mt-1.5 font-bold text-orange-500">{t("profile_type_requires",language)} {t(item.minPlan === "business" ? "profile_type_business_plan" : "profile_type_professional_plan",language)}</p>}
+                  {locked && <p className="text-[9px] mt-1 font-bold text-orange-500">{t("profile_type_requires",language)} {t(item.minPlan === "business" ? "profile_type_business_plan" : "profile_type_professional_plan",language)}</p>}
                 </div>
               </div>
             </button>
