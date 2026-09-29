@@ -120,44 +120,194 @@ export const PROFILE_LAYOUTS = {
 
 export const DEFAULT_LAYOUT = "classic";
 
-// One authoritative layout resolver for editor, live preview and public profile.
-// `layout` is the current catalog field. `profile_layout` is retained for legacy
-// championship profiles; "default" must never override a real `layout` choice.
-export function resolveProfileLayout(profile) {
-  if (!profile) return DEFAULT_LAYOUT;
-  const legacy = profile.profile_layout;
-  if (legacy && legacy !== "default" && legacy !== "classic") return legacy;
-  return profile.layout || (legacy === "classic" ? "classic" : DEFAULT_LAYOUT);
+// ── Unified Profile Architecture ────────────────────────────────────────────
+// These 15 are the ONLY layouts shown to users. Hidden aliases below keep older
+// profiles working without exposing a second layout system in the editor.
+export const LAYOUT_RECIPES = {
+  classic: {
+    id: "classic", name: "Classic", desc: "Cover + centered overlap", pro: false,
+    dark: false, defaultAccent: "#2563eb", defaultBackground: "#ffffff",
+    surface: "clean", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: true,
+  },
+  minimal: {
+    id: "minimal", name: "Minimal", desc: "Compact business identity", pro: false,
+    dark: false, defaultAccent: "#0b2149", defaultBackground: "#f8fafc",
+    surface: "flat", avatar: "left_overlap", typography: "clean",
+    allowBackgroundOverride: true,
+  },
+  card: {
+    id: "card", name: "Card", desc: "Slim cover + compact floating card", pro: false,
+    dark: false, defaultAccent: "#0b2149", defaultBackground: "#f8fafc",
+    surface: "card", avatar: "left_overlap", typography: "modern",
+    allowBackgroundOverride: true,
+  },
+  image_hero: {
+    id: "image_hero", name: "Image Hero", desc: "Full-bleed visual hero", pro: true,
+    dark: false, defaultAccent: "#f97316", defaultBackground: "#ffffff",
+    surface: "hero", avatar: "right_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+  glassmorphic: {
+    id: "glassmorphic", name: "Glass", desc: "Frosted glass on atmospheric gradient", pro: true,
+    dark: false, defaultAccent: "#6366f1", defaultBackground: "linear-gradient(145deg,#e0e7ff,#f8fafc)",
+    surface: "glass", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: true,
+  },
+  dark: {
+    id: "dark", name: "Dark Premium", desc: "Cinematic dark identity", pro: true,
+    dark: true, defaultAccent: "#f97316", defaultBackground: "#080b12",
+    surface: "dark", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+  aurora: {
+    id: "aurora", name: "Aurora", desc: "Northern-lights gradient", pro: true,
+    dark: true, defaultAccent: "#22d3ee", defaultBackground: "linear-gradient(160deg,#07111f,#10244d,#0f766e)",
+    surface: "glow", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+  magazine: {
+    id: "magazine", name: "Magazine", desc: "Editorial photo-led profile", pro: true,
+    dark: false, defaultAccent: "#111827", defaultBackground: "#fffdf8",
+    surface: "editorial", avatar: "left_overlap", typography: "classic",
+    allowBackgroundOverride: false,
+  },
+  executive: {
+    id: "executive", name: "Executive", desc: "Premium corporate hero", pro: true,
+    dark: true, defaultAccent: "#d4a017", defaultBackground: "#0f172a",
+    surface: "executive", avatar: "right_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+  premium_salon: {
+    id: "premium_salon", name: "Salon / Service", desc: "Beauty and service-forward profile", pro: true,
+    dark: true, defaultAccent: "#ec4899", defaultBackground: "linear-gradient(160deg,#1a0a14,#38162d)",
+    surface: "salon", avatar: "center_overlap", typography: "elegant",
+    allowBackgroundOverride: false,
+  },
+  modern_law: {
+    id: "modern_law", name: "Law Firm", desc: "Formal legal identity and practice focus", pro: true,
+    dark: false, defaultAccent: "#b8872d", defaultBackground: "#f8fafc",
+    surface: "legal", avatar: "right_overlap", typography: "classic",
+    allowBackgroundOverride: false,
+  },
+  corporate: {
+    id: "corporate", name: "Business Team", desc: "Company-first team identity", pro: true,
+    dark: false, defaultAccent: "#2563eb", defaultBackground: "#f1f5f9",
+    surface: "corporate", avatar: "left_overlap", typography: "clean",
+    allowBackgroundOverride: true,
+  },
+  modern_saas: {
+    id: "modern_saas", name: "Split", desc: "SaaS-style horizontal identity row", pro: true,
+    dark: false, defaultAccent: "#0d9488", defaultBackground: "#ecfdf5",
+    surface: "split", avatar: "left_overlap", typography: "clean",
+    allowBackgroundOverride: true,
+  },
+  ny_championship: {
+    id: "ny_championship", name: "NY Championship", desc: "Bold championship edition", pro: true,
+    dark: true, defaultAccent: "#f97316", defaultBackground: "#070b16",
+    surface: "sports", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+  lions_teranga: {
+    id: "lions_teranga", name: "Lions de la Téranga", desc: "Senegal heritage edition", pro: true,
+    dark: true, defaultAccent: "#D4AF37", defaultBackground: "#063f2d",
+    surface: "heritage", avatar: "center_overlap", typography: "modern",
+    allowBackgroundOverride: false,
+  },
+};
+
+export const LAYOUT_CATALOG = Object.values(LAYOUT_RECIPES);
+
+// Old IDs remain readable, but are no longer shown in the user-facing picker.
+export const LEGACY_LAYOUT_ALIASES = {
+  portrait: "classic",
+  color: "aurora",
+  color_hero: "aurora",
+  bold: "aurora",
+  sunset: "aurora",
+  ocean: "aurora",
+  forest: "aurora",
+  wave: "aurora",
+  bubbly: "aurora",
+  pastel: "classic",
+  gradient: "glassmorphic",
+  image: "image_hero",
+  realtor_luxury: "image_hero",
+  video_bg: "image_hero",
+  parallax: "image_hero",
+  glass: "glassmorphic",
+  glass_card: "glassmorphic",
+  frosted: "glassmorphic",
+  glass_3d: "glassmorphic",
+  darkpremium: "dark",
+  dark_premium: "dark",
+  minimal_dark: "dark",
+  luxury: "dark",
+  cyberpunk: "dark",
+  monochrome: "dark",
+  animated_gradient: "aurora",
+  executive_corp: "executive",
+  split: "modern_saas",
+  neon: "dark",
+  neon_tech: "dark",
+  retro: "magazine",
+  paper: "magazine",
+  floating: "card",
+  luxury_gold: "executive",
+};
+
+export function canonicalLayoutId(layoutId) {
+  if (!layoutId) return DEFAULT_LAYOUT;
+  if (LAYOUT_RECIPES[layoutId]) return layoutId;
+  return LEGACY_LAYOUT_ALIASES[layoutId] || DEFAULT_LAYOUT;
 }
 
-// ── Layout Catalog — display metadata for the design picker ───────────────
-// Single source of truth for layout IDs, names, descriptions, and Pro gating.
-// Structural rendering config lives in PROFILE_LAYOUTS above; getLayoutConfig()
-// falls back to "classic" for any ID not explicitly listed there.
-export const LAYOUT_CATALOG = [
-  { id: "classic",         name: "Classic",             desc: "Cover + centered overlap",      pro: false },
-  { id: "minimal",         name: "Minimal",             desc: "Horizontal accent header",      pro: false },
-  { id: "card",            name: "Card",                desc: "Slim strip + floating card",    pro: false },
-  { id: "image_hero",      name: "Image Hero",          desc: "Full-bleed photo, avatar BR",   pro: true  },
-  { id: "glassmorphic",    name: "Glass",               desc: "Frosted glass on gradient",     pro: true  },
-  { id: "dark",            name: "Dark Premium",        desc: "Cinematic dark + glow ring",    pro: true  },
-  { id: "aurora",          name: "Aurora",              desc: "Northern-lights gradient",      pro: true  },
-  { id: "magazine",        name: "Magazine",            desc: "Editorial photo header",        pro: true  },
-  { id: "executive",       name: "Executive",           desc: "Right-aligned avatar",          pro: true  },
-  { id: "premium_salon",   name: "Salon / Service",     desc: "Service menu, stylist showcase", pro: true  },
-  { id: "modern_law",      name: "Law Firm",            desc: "Practice areas, attorney profiles", pro: true },
-  { id: "corporate",       name: "Business Team",       desc: "Team directory, company branding", pro: true },
-  { id: "modern_saas",     name: "Split",               desc: "Accent bar + horizontal row",   pro: true  },
-  { id: "bold",            name: "Bold Gradient",       desc: "Color hero + wave divider",     pro: true  },
-  { id: "neon",            name: "Neon",                desc: "Glow ring on near-black",       pro: true  },
-  { id: "retro",           name: "Retro",               desc: "80s editorial serif header",    pro: true  },
-  { id: "floating",        name: "Floating",            desc: "Detached radial bg card",       pro: true  },
-  { id: "luxury_gold",     name: "Luxury Gold",         desc: "Gold ring, dark prestige",      pro: true  },
-  { id: "ny_championship", name: "NY Championship",     desc: "Bold sports-style header",      pro: true  },
-  { id: "lions_teranga",   name: "Lions de la Téranga", desc: "Heritage pride edition",        pro: true  },
-];
+// Layout is authoritative. Legacy profile_layout is consulted only when the
+// canonical layout field is absent/default from an older profile.
+export function resolveProfileLayout(profile) {
+  if (!profile) return DEFAULT_LAYOUT;
+  const current = profile.layout;
+  const legacy = profile.profile_layout;
+  if (current && current !== "default" && !(current === "classic" && ["ny_championship","lions_teranga"].includes(legacy))) {
+    return current;
+  }
+  if (legacy && legacy !== "default") return legacy;
+  return current || DEFAULT_LAYOUT;
+}
 
-// Real layout type mapping — determines structural rendering
+export function getLayoutRecipe(profileOrLayout) {
+  const raw = typeof profileOrLayout === "string" ? profileOrLayout : resolveProfileLayout(profileOrLayout);
+  return LAYOUT_RECIPES[canonicalLayoutId(raw)] || LAYOUT_RECIPES[DEFAULT_LAYOUT];
+}
+
+export function resolveProfileAppearance(profile) {
+  const layout = resolveProfileLayout(profile);
+  const recipe = getLayoutRecipe(layout);
+  const accent = profile?.cover_color || recipe.defaultAccent;
+  const overrideAllowed = recipe.allowBackgroundOverride;
+  const style = profile?.bg_style || "clean";
+  const customBackground = overrideAllowed ? profile?.theme_background_color : null;
+
+  let background = customBackground || recipe.defaultBackground;
+  let dark = recipe.dark;
+
+  if (overrideAllowed && !customBackground) {
+    if (style === "night") {
+      background = "#071A3D";
+      dark = true;
+    } else if (style === "gradient") {
+      background = `linear-gradient(160deg, ${accent}24 0%, #F7F9FC 58%, #ffffff 100%)`;
+    } else if (style === "mesh") {
+      background = `radial-gradient(circle at 15% 15%, ${accent}30, transparent 38%), radial-gradient(circle at 85% 10%, rgba(249,115,22,0.13), transparent 34%), #F7F9FC`;
+    } else if (style === "blur") {
+      background = `linear-gradient(145deg, ${accent}20, rgba(255,255,255,0.94))`;
+    }
+  }
+
+  return { layout, canonicalLayout: recipe.id, recipe, accent, background, dark };
+}
+
+// Older structural helper API is preserved for compatibility.
 export const LAYOUT_TYPES = {
   classic: "default",
   portrait: "portrait",
@@ -169,30 +319,14 @@ export const LAYOUT_TYPES = {
   minimal: "minimal_business",
 };
 
-/**
- * Get layout config by ID, with fallback to default
- */
 export function getLayoutConfig(layoutId) {
-  return PROFILE_LAYOUTS[layoutId] || PROFILE_LAYOUTS[DEFAULT_LAYOUT];
+  return PROFILE_LAYOUTS[layoutId] || PROFILE_LAYOUTS[canonicalLayoutId(layoutId)] || PROFILE_LAYOUTS[DEFAULT_LAYOUT];
 }
 
-/**
- * Get the structural layout type
- */
 export function getLayoutType(layoutId) {
-  return LAYOUT_TYPES[layoutId] || LAYOUT_TYPES[DEFAULT_LAYOUT];
+  return LAYOUT_TYPES[layoutId] || LAYOUT_TYPES[canonicalLayoutId(layoutId)] || LAYOUT_TYPES[DEFAULT_LAYOUT];
 }
 
-/**
- * Determine if a layout is dark-styled (dark backgrounds)
- */
 export function isLayoutDark(layoutId) {
-  const darkLayouts = [
-    "dark", "dark_premium", "darkpremium", "minimal_dark", "luxury",
-    "cyberpunk", "premium_salon", "neon", "neon_tech",
-    "aurora", "luxury_gold", "executive_corp", "ny_championship",
-    "lions_teranga", "animated_gradient", "video_bg", "parallax",
-    "monochrome",
-  ];
-  return darkLayouts.includes(layoutId);
+  return getLayoutRecipe(layoutId).dark;
 }
