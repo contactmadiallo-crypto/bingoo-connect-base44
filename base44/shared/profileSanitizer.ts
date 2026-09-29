@@ -389,7 +389,7 @@ const OWNER_PROFILE_FIELDS = [
   'button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','phone','whatsapp_number','email','website','location','show_location',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','payment_link',
   'custom_payments','custom_links','hidden_links','privacy_settings','language','google_review_url',
-  'whatsapp_booking_message','profile_type','profile_category','lead_capture_enabled','booking_enabled','booking_slot_duration',
+  'whatsapp_booking_message','profile_type','profile_category','custom_profile_category','lead_capture_enabled','booking_enabled','booking_slot_duration',
   'booking_restricted_emails','business_hours','is_verified','verification_type',
   'verification_status',
 ];
@@ -410,7 +410,7 @@ const PUBLIC_PROFILE_FIELDS = [
   'id','username','display_name','job_title','company_name','company_logo','bio',
   'profile_photo','cover_photo','cover_color','theme_background_color','bg_watermark_image',
   'bg_watermark_opacity','avatar_shape','avatar_placement','avatar_position','cover_position','avatar_crop_x','avatar_crop_y','avatar_zoom','cover_crop_x','cover_crop_y','cover_zoom',
-  'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','profile_type','profile_category',
+  'layout','profile_layout','profile_theme','bg_style','button_style','button_color','font_style','link_display_style','link_row_style','link_icon_shape','profile_type','profile_category','custom_profile_category',
   'phone','whatsapp_number','email','website','location','show_location','hidden_links',
   'facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url','google_review_url',
   'payment_link','zelle_link','zelle_qr','cashapp_link','cashapp_qr','orangemoney_link','orangemoney_qr','wave_link','wave_qr',
