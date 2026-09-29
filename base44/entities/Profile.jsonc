@@ -481,6 +481,8 @@
         "artist",
         "musician",
         "beauty",
+        "event_planner",
+        "chef",
         "restaurant",
         "technology",
         "sales",
@@ -489,6 +491,10 @@
       ],
       "default": "personal",
       "description": "User-selected profession/category shown as a public-profile badge and used for presentation."
+    },
+    "custom_profile_category": {
+      "type": "string",
+      "description": "Optional owner-defined public label used when profile_category is business."
     },
     "plan": {
       "type": "string",
