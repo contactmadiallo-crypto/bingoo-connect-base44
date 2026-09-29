@@ -112,7 +112,7 @@ const EDITABLE_FIELDS = [
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "button_color", "font_style", "link_display_style", "link_row_style", "link_icon_shape", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
-  "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
+  "bg_watermark_image", "bg_watermark_opacity", "profile_category", "custom_profile_category", "profile_type",
 ];
 
 function buildPayload(liveForm) {
@@ -593,7 +593,7 @@ export default function ProfileWorkspace({
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
         "cover_color","layout","bg_style","button_style","avatar_shape",
-        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
+        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","custom_profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
         return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
@@ -781,6 +781,7 @@ export default function ProfileWorkspace({
                       setVal("profile_category", category.id);
                       setVal("profile_type", category.profileType);
                     }}
+                    onCustomLabelChange={(value) => setVal("custom_profile_category", value)}
                   />
                 </div>
                 <div className="flex items-center gap-4">
