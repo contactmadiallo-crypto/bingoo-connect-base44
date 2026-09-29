@@ -6,8 +6,8 @@
 import {
   ClassicLayout, ImageHeroLayout,
   DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout,
-  ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout,
-  AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout,
+  ModernSaasLayout, ExecutiveLayout,
+  AuroraLayout, MagazineLayout, SalonLayout, LawFirmLayout, CorporateLayout,
 } from "./ProfileLayoutRenderer";
 import NewYorkChampionshipLayout from "./layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "./layouts/LionsOfTerangaLayout";
@@ -294,17 +294,12 @@ function LayoutRenderer({ layoutId }) {
     case "magazine":     return <MagazineLayout {...lp} />;
     case "aurora":       return <AuroraLayout {...lp} color={color} />;
     case "glassmorphic": return <GlassThumbnail profile={profile} />;
-    case "modern_saas":
-    case "corporate":
-    case "modern_law":    return <ModernSaasLayout {...lp} />;
+    case "modern_saas":  return <ModernSaasLayout {...lp} />;
+    case "corporate":    return <CorporateLayout {...lp} />;
+    case "modern_law":   return <LawFirmLayout {...lp} />;
+    case "premium_salon":return <SalonLayout {...lp} />;
     case "executive":    return <ExecutiveLayout {...lp} />;
-    case "luxury_gold":  return <LuxuryGoldLayout profile={profile} mobile={true} contentSections={stub} />;
-    case "dark":
-    case "premium_salon": return <DarkPremiumLayout {...lp} />;
-    case "neon":         return <NeonLayout {...lp} />;
-    case "retro":        return <RetroLayout {...lp} />;
-    case "bold":         return <ColorLayout {...lp} />;
-    case "floating":     return <FloatingLayout {...lp} />;
+    case "dark":         return <DarkPremiumLayout {...lp} />;
     case "minimal":      return <MinimalLayout {...lp} />;
     case "card":            return <CardLayout {...lp} />;
     case "ny_championship": return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#f97316" isDark={true} /></NewYorkChampionshipLayout>;
