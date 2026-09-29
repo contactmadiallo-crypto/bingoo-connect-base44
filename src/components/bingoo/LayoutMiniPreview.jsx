@@ -301,8 +301,11 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
     observer.observe(hostRef.current);
     return () => observer.disconnect();
   }, []);
-  // Contain the complete layout in the thumbnail instead of cropping its sides.
+  // Fit the complete phone composition inside the card, then center it vertically.
+  // This keeps the real layout readable without cropping or leaving it stuck at the top.
   const scale = Math.min(previewHeight / RENDER_HEIGHT, (hostWidth || RENDER_WIDTH) / RENDER_WIDTH);
+  const scaledHeight = RENDER_HEIGHT * scale;
+  const topOffset = Math.max(0, (previewHeight - scaledHeight) / 2);
 
   // GlassThumbnail fills 100% of container directly — no scaling wrapper needed
   if (layoutId === "glassmorphic") {
@@ -330,7 +333,7 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
     }}>
       <div style={{
         position: "absolute",
-        top: 0,
+        top: topOffset,
         left: "50%",
         transform: `translateX(-50%) scale(${scale})`,
         transformOrigin: "top center",
