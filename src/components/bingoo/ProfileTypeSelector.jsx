@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2, BriefcaseBusiness,
   Rocket, House, Scale, HeartPulse, Dumbbell, MessageCircleMore, GraduationCap,
@@ -39,6 +39,13 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
     return PROFILE_PROFESSIONS.filter((item) => [item.en, item.fr, item.id].some((value) => String(value).toLowerCase().includes(q)));
   }, [query]);
 
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || window.innerWidth >= 640) return undefined;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [open]);
+
   return (
     <div>
       <div className="mb-3">
@@ -70,7 +77,16 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
           </button>
 
           {open && (
-            <div className={`absolute z-[80] left-0 right-0 mt-2 rounded-2xl border shadow-2xl overflow-hidden ${isDark ? "bg-[#0f1425] border-white/10" : "bg-white border-slate-200"}`}>
+            <>
+            <button type="button" aria-label={language === "fr" ? "Fermer" : "Close profession picker"} onClick={() => { setOpen(false); setQuery(""); }} className="sm:hidden fixed inset-0 z-[109] bg-slate-950/45 backdrop-blur-[2px]" />
+            <div className={`fixed sm:absolute z-[110] sm:z-[80] left-3 right-3 bottom-[calc(76px+env(safe-area-inset-bottom))] sm:left-0 sm:right-0 sm:bottom-auto sm:mt-2 max-h-[min(70dvh,560px)] sm:max-h-none rounded-[24px] sm:rounded-2xl border shadow-2xl overflow-hidden flex flex-col ${isDark ? "bg-[#0f1425] border-white/10" : "bg-white border-slate-200"}`}>
+              <div className="sm:hidden flex items-center justify-between px-4 pt-3 pb-1">
+                <div>
+                  <p className={`text-sm font-black ${isDark ? "text-white" : "text-slate-900"}`}>{language === "fr" ? "Choisir une profession" : "Choose profession"}</p>
+                  <p className={`text-[10px] mt-0.5 ${isDark ? "text-white/40" : "text-slate-400"}`}>{language === "fr" ? "Recherchez ou faites défiler la liste" : "Search or scroll the list"}</p>
+                </div>
+                <button type="button" onClick={() => { setOpen(false); setQuery(""); }} className={`w-9 h-9 rounded-full flex items-center justify-center ${isDark ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600"}`}><X className="w-4 h-4" /></button>
+              </div>
               <div className={`p-2.5 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
                 <div className={`h-10 rounded-xl border flex items-center gap-2 px-3 ${isDark ? "bg-white/[0.04] border-white/10" : "bg-slate-50 border-slate-200"}`}>
                   <Search className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-white/35" : "text-slate-400"}`} />
@@ -84,7 +100,7 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
                 </div>
               </div>
 
-              <div role="listbox" className="max-h-[300px] overflow-y-auto overscroll-contain p-2" style={{ WebkitOverflowScrolling: "touch" }}>
+              <div role="listbox" className="flex-1 min-h-0 max-h-[300px] sm:max-h-[300px] overflow-y-auto overscroll-contain p-2 pb-3" style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}>
                 {visibleProfessions.length ? visibleProfessions.map((item) => {
                   const Icon = ICONS[item.icon] || UserRound;
                   const locked = rank < (RANK[item.minPlan] ?? 0);
@@ -122,6 +138,7 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
                 )}
               </div>
             </div>
+            </>
           )}
         </div>
         <p className={`text-[10px] mt-2 ${isDark ? "text-white/35" : "text-slate-400"}`}>
