@@ -1,7 +1,8 @@
 import {
   Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2, BriefcaseBusiness,
   Rocket, House, Scale, HeartPulse, Dumbbell, MessageCircleMore, GraduationCap,
-  Palette, Brush, Music2, Scissors, UtensilsCrossed, Code2, TrendingUp, UsersRound
+  Palette, Brush, Music2, Scissors, UtensilsCrossed, Code2, TrendingUp, UsersRound,
+  CalendarDays, ChefHat
 } from "lucide-react";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
@@ -12,7 +13,7 @@ const ICONS = {
   briefcase: BriefcaseBusiness, rocket: Rocket, home: House, scale: Scale, heart: HeartPulse,
   dumbbell: Dumbbell, message: MessageCircleMore, graduation: GraduationCap, palette: Palette,
   brush: Brush, music: Music2, scissors: Scissors, utensils: UtensilsCrossed, code: Code2,
-  trending: TrendingUp, users: UsersRound,
+  trending: TrendingUp, users: UsersRound, calendar: CalendarDays, chef: ChefHat,
 };
 
 const RANK = { free: 0, professional: 1, pro: 1, salon: 2, restaurant: 2, lawfirm: 2, business: 2, corporate: 2, enterprise: 3 };
@@ -22,7 +23,7 @@ function normalizedPlan(plan) {
   return value === "pro" ? "professional" : value;
 }
 
-export default function ProfileTypeSelector({ profile, plan = "free", isDark = false, onChange }) {
+export default function ProfileTypeSelector({ profile, plan = "free", isDark = false, onChange, onCustomLabelChange }) {
   const { language } = useI18n();
   const current = profile?.profile_category || (profile?.profile_type === "business" ? "business" : "personal");
   const rank = RANK[normalizedPlan(plan)] ?? 0;
