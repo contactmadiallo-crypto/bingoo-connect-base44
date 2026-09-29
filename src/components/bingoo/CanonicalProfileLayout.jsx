@@ -15,7 +15,7 @@ function Avatar({ profile, size=88, radius, border="none", shadow="none" }) {
 function Identity({ profile, accent, align="left", dark=false, serif=false, compact=false }) {
   const text = dark ? "#fff" : "#0f172a";
   const sub = dark ? "rgba(255,255,255,.58)" : "#64748b";
-  const profession = (profile?.profile_category === "business" && profile?.custom_profile_category) ? profile.custom_profile_category : profileProfessionLabel(profile?.profile_category, profile?.language || "en");
+  const profession = profileProfessionLabel(profile?.profile_category, profile?.language || "en");
   return <div style={{textAlign:align,minWidth:0}}>
     <div style={{display:"flex",justifyContent:align==="center"?"center":"flex-start",marginBottom:6}}><span style={{display:"inline-flex",alignItems:"center",maxWidth:"100%",padding:"4px 8px",borderRadius:999,background:dark?"rgba(255,255,255,.10)":hexRgb(accent,.10),color:dark?"rgba(255,255,255,.82)":accent,fontFamily:BODY,fontSize:8.5,fontWeight:900,letterSpacing:".055em",textTransform:"uppercase",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{profession}</span></div>
     <h1 style={{margin:0,color:text,fontFamily:serif?"Georgia,'Times New Roman',serif":DISPLAY,fontSize:compact?18:22,lineHeight:1.08,fontWeight:900,letterSpacing:"-.025em"}}>{profile?.display_name}</h1>
