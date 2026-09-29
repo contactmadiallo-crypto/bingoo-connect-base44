@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/I18nContext";
 import { openExternalUrl } from "@/lib/nativePlatform";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import { resolveProfileAppearance } from "@/lib/profileLayouts";
+import ProfileLayoutCardPreview from "@/components/bingoo/ProfileLayoutCardPreview";
 
 export default function ProfilesHub({
   profiles = [],
@@ -271,59 +272,21 @@ export default function ProfilesHub({
         {/* Reorder controls (top-left) */}
         {renderReorderControls(profile, index, dragHandleProps)}
 
-        {/* Compact layout DNA: accent + cover/background from the same recipe used publicly. */}
-        <div aria-hidden="true" className="absolute left-0 right-0 top-0 h-1 z-20" style={{ background: appearance.accent, borderRadius: "18px 18px 0 0" }} />
-        <div className="relative" style={{ borderRadius: "18px 18px 0 0", overflow: "hidden" }}>
-          <div className="h-[58px] sm:h-[92px]">
-            {profile.cover_photo ? (
-              <img src={profile.cover_photo} alt=""
-                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
-            ) : (
-              <div style={{ width: "100%", height: "100%", background: appearance.background }} />
-            )}
-          </div>
+        {/* Real selected-layout preview: same saved layout identity as Live/Public Profile. */}
+        <div className="p-2.5 pb-1.5">
+          <ProfileLayoutCardPreview profile={profile} height={176} compact />
         </div>
-
-        {/* Avatar row */}
-        <div className="flex items-start justify-between px-3 sm:px-3.5 -mt-6 sm:-mt-7">
-          {(() => {
-            const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[profile.avatar_shape] || "50%";
-            return profile.profile_photo ? (
-              <img src={profile.profile_photo} alt=""
-                style={{
-                  width: "clamp(44px, 12vw, 56px)", height: "clamp(44px, 12vw, 56px)", borderRadius: shapeR, flexShrink: 0,
-                  objectFit: "cover", objectPosition: "center top",
-                  border: isDark ? "3px solid #13162a" : "3px solid white",
-                  boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "block",
-                  position: "relative", zIndex: 10,
-                }} />
-            ) : (
-              <div style={{
-                width: 48, height: 48, borderRadius: shapeR, flexShrink: 0,
-                background: appearance.accent,
-                border: isDark ? "3px solid #13162a" : "3px solid white",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                color: "#fff", fontWeight: 900, fontSize: 18,
-                boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
-                position: "relative", zIndex: 10,
-              }}>
-                {profile.display_name?.charAt(0) || "?"}
-              </div>
-            );
-          })()}
-          {/* Bottom badges — Live + profile category */}
-          <div className="flex items-center gap-1.5 pt-6 sm:pt-6.5">
-            {profile.is_active && (
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-semibold text-emerald-500">{t("profiles_live")}</span>
-              </span>
-            )}
-            <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide"
-              style={{ background: "#ecfdf5", color: "#059669" }}>
-              {profileType}
+        <div className="flex items-center justify-end gap-1.5 px-3 pb-1.5">
+          {profile.is_active && (
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-semibold text-emerald-500">{t("profiles_live")}</span>
             </span>
-          </div>
+          )}
+          <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide"
+            style={{ background: "#ecfdf5", color: "#059669" }}>
+            {profileType}
+          </span>
         </div>
 
         {/* Name + username */}
