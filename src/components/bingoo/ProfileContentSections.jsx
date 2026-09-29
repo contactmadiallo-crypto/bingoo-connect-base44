@@ -458,19 +458,6 @@ export default function ProfileContentSections({ profile, color, isDark, isDemo,
         </motion.button>
       </motion.div>
 
-      {/* ── Profile Type — saved editor selection mirrored publicly ── */}
-      {profileCategory !== "personal" && (
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.23 }}
-          style={{ display: "flex", justifyContent: "center", margin: "-8px 0 16px" }}>
-          <span style={{
-            display: "inline-flex", alignItems: "center", minHeight: 28, padding: "5px 11px", borderRadius: 999,
-            background: isDark ? "rgba(255,255,255,0.08)" : "#f8fafc",
-            border: isDark ? "1px solid rgba(255,255,255,0.10)" : "1px solid #e5e7eb",
-            color: isDark ? "rgba(255,255,255,0.76)" : "#475569", fontSize: 11, fontWeight: 800, fontFamily: FONT_BODY
-          }}>{profileCategoryMeta.label}</span>
-        </motion.div>
-      )}
-
       {/* ── Bio ── */}
       {profile.bio && (
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}
