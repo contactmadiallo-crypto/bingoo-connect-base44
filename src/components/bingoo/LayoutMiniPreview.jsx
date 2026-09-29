@@ -5,7 +5,7 @@
  */
 import {
   ClassicLayout, ImageHeroLayout,
-  DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout,
+  DarkPremiumLayout, MinimalLayout, CardLayout,
   ModernSaasLayout, ExecutiveLayout,
   AuroraLayout, MagazineLayout, SalonLayout, LawFirmLayout, CorporateLayout,
 } from "./ProfileLayoutRenderer";
