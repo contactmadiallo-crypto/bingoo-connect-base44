@@ -59,22 +59,6 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
         </p>
       </div>
 
-      {current === "business" && (
-        <div className={`mt-3 rounded-2xl border p-3 ${isDark ? "bg-white/[0.03] border-white/10" : "bg-white border-slate-200"}`}>
-          <label className={`block text-[11px] font-black mb-1.5 ${isDark ? "text-white/60" : "text-slate-600"}`}>
-            {language === "fr" ? "Libellé personnalisé Entreprise / Marque" : "Custom Business / Brand label"}
-          </label>
-          <input
-            value={profile?.custom_profile_category || ""}
-            onChange={(event) => onCustomLabelChange?.(event.target.value.slice(0, 48))}
-            placeholder={language === "fr" ? "Ex. Agence événementielle, Studio, Cabinet…" : "e.g. Event Agency, Studio, Firm…"}
-            className={`w-full h-10 rounded-xl border px-3 text-sm outline-none focus:ring-2 focus:ring-orange-400/30 ${isDark ? "bg-[#111629] border-white/10 text-white placeholder:text-white/30" : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"}`}
-          />
-          <p className={`text-[10px] mt-1.5 ${isDark ? "text-white/35" : "text-slate-400"}`}>
-            {language === "fr" ? "Ce texte remplacera « Entreprise / Marque » sur le profil public." : "This replaces “Business / Brand” on the public profile."}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
