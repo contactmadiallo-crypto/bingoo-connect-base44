@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Upload, Palette, Image as ImageIcon, MousePointer2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { t } from "@/lib/i18n";
+import { getLayoutRecipe } from "@/lib/profileLayouts";
 
 
 const COVER_COLORS = [
@@ -60,6 +61,7 @@ const FONT_STYLES = [
 
 export default function DesignPanel({ liveForm, setVal, isDark, profile, lang }) {
   const [section, setSection] = useState("theme");
+  const layoutRecipe = getLayoutRecipe(liveForm || profile);
   const [uploading, setUploading] = useState(false);
 
   const headText  = isDark ? "text-white"    : "text-slate-900";
@@ -136,46 +138,12 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
 
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>{t("design_typography", lang)}</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_typography_copy", lang)}</p>
+              <p className={`text-xs font-black ${headText}`}>{lang === "fr" ? "Style du layout" : "Layout style"}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{lang === "fr" ? "La typographie, le fond et le placement de la photo sont définis par la mise en page sélectionnée." : "Typography, background and photo placement are controlled by the selected layout."}</p>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {FONT_STYLES.map(o => {
-                const active = sel(o.v, liveForm.font_style || "modern");
-                return (
-                  <button type="button" key={o.v} onClick={() => setVal("font_style", o.v)}
-                    className={`p-3 rounded-xl border-2 text-left transition-all ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
-                    style={{ fontFamily: o.family, ...(active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.08)" } : {}) }}>
-                    <span className={`block text-lg font-bold ${active ? "text-orange-600" : headText}`}>Aa</span>
-                    <span className={`block text-[11px] mt-1 ${mutedText}`}>{o.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className={rowCls}>
-            <div>
-              <p className={`text-xs font-black ${headText}`}>{t("design_background", lang)}</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_background_copy", lang)}</p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {BG_STYLES.map(o => {
-                const active = sel(o.v, liveForm.bg_style || "clean");
-                return (
-                  <button type="button" key={o.v} onClick={() => setVal("bg_style", o.v)}
-                    className={`flex items-start gap-2 p-3 rounded-xl border-2 text-left transition-all ${
-                      active ? "border-orange-400 bg-orange-50" : `border-slate-100 ${isDark ? "hover:border-white/20" : "hover:border-slate-300"}`
-                    }`}
-                    style={active && isDark ? { borderColor: "#f97316", background: "rgba(249,115,22,0.08)" } : {}}>
-                    <div className="flex-1">
-                      <p className={`text-xs font-bold ${active ? "text-orange-600" : headText}`}>{o.label}</p>
-                      <p className={`text-xs ${mutedText}`}>{o.desc}</p>
-                    </div>
-                    {active && <Check className="w-3.5 h-3.5 text-orange-500 flex-shrink-0 mt-0.5" />}
-                  </button>
-                );
-              })}
+            <div className={`rounded-xl border px-3 py-2.5 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
+              <p className={`text-xs font-black ${headText}`}>{layoutRecipe.name}</p>
+              <p className={`text-[10px] mt-0.5 ${mutedText}`}>{layoutRecipe.desc}</p>
             </div>
           </div>
         </div>
