@@ -22,13 +22,12 @@ export default function ResolvedProfileLayout({
     ...profile,
     layout,
     cover_color: profile?.cover_color || appearance.recipe.defaultAccent,
-    // Locked recipe backgrounds are not replaced by the generic Theme engine.
-    theme_background_color: appearance.recipe.allowBackgroundOverride
-      ? profile?.theme_background_color
-      : null,
-    bg_style: appearance.recipe.allowBackgroundOverride
-      ? profile?.bg_style
-      : "clean",
+    // Layout owns structural appearance. Legacy Appearance fields may remain in
+    // stored records but never reshape a selected layout.
+    theme_background_color: null,
+    bg_style: "clean",
+    avatar_placement: appearance.recipe.avatar,
+    font_style: appearance.recipe.typography,
   };
   const props = {
     profile: normalizedProfile,
