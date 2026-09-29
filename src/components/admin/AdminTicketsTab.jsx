@@ -46,7 +46,7 @@ export default function AdminTicketsTab({ activeTab }) {
   const handleTicketResponse = async (ticketId) => {
     if (!responseText[ticketId]) return;
     try {
-      const ticket = (tickets || []).find(t => t.id === ticketId);
+      const ticket = (tickets || []).find(tk => tk.id === ticketId);
       await base44.entities.SupportTicket.update(ticketId, {
         response: responseText[ticketId],
         status: 'resolved',
@@ -92,38 +92,38 @@ export default function AdminTicketsTab({ activeTab }) {
             {t("admin_no_support_tickets",language)}
           </div>
         )}
-        {(tickets || []).map(t => (
-          <div key={t.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        {(tickets || []).map(tk => (
+          <div key={tk.id} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-bold text-slate-800 text-sm">{t.subject}</p>
-                  <PriorityBadge priority={t.priority} />
-                  <StatusBadge status={t.status} />
+                  <p className="font-bold text-slate-800 text-sm">{tk.subject}</p>
+                  <PriorityBadge priority={tk.priority} />
+                  <StatusBadge status={tk.status} />
                 </div>
-                <p className="text-xs text-slate-500">{t.user_name} • {t.user_email}</p>
+                <p className="text-xs text-slate-500">{tk.user_name} • {tk.user_email}</p>
               </div>
-              <span className="text-xs text-slate-400">{new Date(t.created_date).toLocaleDateString()}</span>
+              <span className="text-xs text-slate-400">{new Date(tk.created_date).toLocaleDateString()}</span>
             </div>
-            <p className="text-sm text-slate-600 mb-3">{t.message}</p>
-            {t.response && (
+            <p className="text-sm text-slate-600 mb-3">{tk.message}</p>
+            {tk.response && (
               <div className="bg-emerald-50 rounded-lg p-3 mb-3">
                 <p className="text-xs font-bold text-emerald-700 mb-1">{t("admin_response_label",language)}</p>
-                <p className="text-sm text-slate-700">{t.response}</p>
+                <p className="text-sm text-slate-700">{tk.response}</p>
               </div>
             )}
-            {t.status !== 'resolved' && t.status !== 'closed' && (
+            {tk.status !== 'resolved' && tk.status !== 'closed' && (
               <div className="flex gap-2">
                 <input
                   type="text"
                   placeholder={t("admin_response_ph",language)}
-                  value={responseText[t.id] || ''}
-                  onChange={e => setResponseText({ ...responseText, [t.id]: e.target.value })}
+                  value={responseText[tk.id] || ''}
+                  onChange={e => setResponseText({ ...responseText, [tk.id]: e.target.value })}
                   className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm"
                 />
                 <button
-                  onClick={() => handleTicketResponse(t.id)}
-                  disabled={!responseText[t.id]}
+                  onClick={() => handleTicketResponse(tk.id)}
+                  disabled={!responseText[tk.id]}
                   className="flex items-center gap-1 px-3 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" /> {t("admin_send",language)}
