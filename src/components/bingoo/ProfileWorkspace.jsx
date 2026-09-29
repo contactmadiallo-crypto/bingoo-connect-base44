@@ -780,7 +780,6 @@ export default function ProfileWorkspace({
                     onChange={(category) => {
                       setVal("profile_category", category.id);
                       setVal("profile_type", category.profileType);
-                      if (category.id !== "business") setVal("custom_profile_category", "");
                     }}
                     onCustomLabelChange={(value) => setVal("custom_profile_category", value)}
                   />
