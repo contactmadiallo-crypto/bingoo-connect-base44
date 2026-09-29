@@ -255,7 +255,7 @@ export default function ProfilesHub({
         aria-pressed={selected}
         onClick={() => handleCardActivate(profile)}
         onKeyDown={(e) => handleCardKeyDown(e, profile)}
-        className={`relative h-full ${cardBg} border rounded-[18px] transition-all duration-200 cursor-pointer outline-none
+        className={`relative h-full flex flex-col ${cardBg} border rounded-[18px] transition-all duration-200 cursor-pointer outline-none
           focus:ring-2 focus:ring-orange-400/60
           hover:shadow-lg hover:-translate-y-0.5
           ${selected
@@ -290,7 +290,7 @@ export default function ProfilesHub({
         </div>
 
         {/* Name + username */}
-        <div className="px-2.5 pb-2 sm:px-3 sm:pb-2.5">
+        <div className="px-2.5 pb-2 sm:px-3 sm:pb-2.5 flex flex-col flex-1">
           <div className="mb-1">
             <p className={`font-black text-sm truncate ${headText}`}> {profile.display_name}</p>
             <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
@@ -338,7 +338,7 @@ export default function ProfilesHub({
           </div>
 
           {/* Quick Actions */}
-          <div className="flex gap-1 mt-1 items-center justify-end">
+          <div className="flex gap-1 mt-auto pt-1 items-center justify-end">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
               className="w-[76px] sm:w-[84px] h-8 flex items-center justify-center gap-1.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
