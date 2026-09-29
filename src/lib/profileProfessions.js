@@ -15,6 +15,8 @@ export const PROFILE_PROFESSIONS = [
   { id: "artist", profileType: "creative", minPlan: "professional", en: "Artist", fr: "Artiste", icon: "brush" },
   { id: "musician", profileType: "creative", minPlan: "professional", en: "Musician / DJ", fr: "Musicien / DJ", icon: "music" },
   { id: "beauty", profileType: "salon", minPlan: "professional", en: "Beauty / Salon Professional", fr: "Beauté / Salon", icon: "scissors" },
+  { id: "event_planner", profileType: "professional", minPlan: "professional", en: "Event Planner / Promoter", fr: "Organisateur / Promoteur d’événements", icon: "calendar" },
+  { id: "chef", profileType: "professional", minPlan: "professional", en: "Chef / Cook / Caterer", fr: "Chef / Cuisinier / Traiteur", icon: "chef" },
   { id: "restaurant", profileType: "business", minPlan: "professional", en: "Restaurant / Hospitality", fr: "Restaurant / Hôtellerie", icon: "utensils" },
   { id: "technology", profileType: "professional", minPlan: "professional", en: "Technology / Developer", fr: "Technologie / Développeur", icon: "code" },
   { id: "sales", profileType: "professional", minPlan: "professional", en: "Sales / Business Development", fr: "Vente / Développement commercial", icon: "trending" },
