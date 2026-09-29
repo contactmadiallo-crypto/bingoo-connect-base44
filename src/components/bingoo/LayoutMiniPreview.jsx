@@ -303,11 +303,11 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
     observer.observe(hostRef.current);
     return () => observer.disconnect();
   }, []);
-  // Fit the complete phone composition inside the card, then center it vertically.
-  // This keeps the real layout readable without cropping or leaving it stuck at the top.
-  const scale = Math.min(previewHeight / RENDER_HEIGHT, (hostWidth || RENDER_WIDTH) / RENDER_WIDTH);
-  const scaledHeight = RENDER_HEIGHT * scale;
-  const topOffset = Math.max(0, (previewHeight - scaledHeight) / 2);
+  // Gallery thumbnails should read like a real profile, not a tiny full-page screenshot.
+  // Fill the card width and crop the lower page content. This keeps the identity/header
+  // large enough to judge while preserving the exact real layout renderer.
+  const scale = Math.max((hostWidth || RENDER_WIDTH) / RENDER_WIDTH, previewHeight / 430);
+  const topOffset = 0;
 
   // GlassThumbnail fills 100% of container directly — no scaling wrapper needed
   if (layoutId === "glassmorphic") {
