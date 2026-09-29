@@ -66,8 +66,8 @@ export default function LayoutPicker({ value, onChange, color = "#2563eb", plan 
 function LayoutCard({ layout, color, isSelected, locked, onSelect }) {
   // Mobile: calc(85vw - 24px) ≈ 1 card + peek of next
   // Tablet/desktop: 180px ≈ 2 per page in a ~400px container
-  const CARD_W = "min(190px, calc(82vw - 20px))";
-  const PREVIEW_H = 260; // px — tall enough to appreciate layout structure
+  const CARD_W = "min(164px, calc(70vw - 18px))";
+  const PREVIEW_H = 210; // compact mobile preview: enough structure without oversized cards
 
   const inner = (
     <>
