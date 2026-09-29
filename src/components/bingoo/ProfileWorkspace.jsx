@@ -593,7 +593,7 @@ export default function ProfileWorkspace({
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
         "cover_color","layout","bg_style","button_style","avatar_shape",
-        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","custom_profile_category","profile_type"]; 
+        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
         return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
