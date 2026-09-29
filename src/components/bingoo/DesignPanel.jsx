@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Check, Upload, Palette, Image as ImageIcon, MousePointer2 } from "lucide-react";
-import { base44 } from "@/api/base44Client";
+import { Check, Palette, MousePointer2 } from "lucide-react";
 import { t } from "@/lib/i18n";
 import { getLayoutRecipe } from "@/lib/profileLayouts";
 
@@ -49,7 +48,6 @@ const AVATAR_SHAPES = [
 
 const SECTIONS = [
   { id: "theme", labelKey: "design_theme", icon: Palette },
-  { id: "media", labelKey: "design_profile", icon: ImageIcon },
   { id: "buttons", labelKey: "design_buttons", icon: MousePointer2 },
 ];
 
@@ -62,24 +60,12 @@ const _FONT_STYLES = [
 export default function DesignPanel({ liveForm, setVal, isDark, profile, lang }) {
   const [section, setSection] = useState("theme");
   const layoutRecipe = getLayoutRecipe(liveForm || profile);
-  const [uploading, setUploading] = useState(false);
 
   const headText  = isDark ? "text-white"    : "text-slate-900";
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const bg        = isDark ? "bg-[#13162a]"  : "bg-white";
   const border    = isDark ? "border-white/8" : "border-slate-200";
   const rowCls    = `rounded-[14px] border ${border} ${bg} p-[18px] space-y-3`;
-
-  const handleCoverUpload = async (e) => {
-    const file = e.target.files?.[0]; if (!file) return;
-    setUploading(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setVal("cover_photo", file_url);
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const sel = (v, current) => v === current;
 
@@ -93,7 +79,7 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
       </div>
 
       {/* ── Horizontal section tabs (mobile + desktop) ── */}
-      <div className={`grid grid-cols-3 gap-1 p-1 rounded-[14px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
+      <div className={`grid grid-cols-2 gap-1 p-1 rounded-[14px] ${isDark ? "bg-white/5" : "bg-[#F7F9FC] border border-[#E5EAF2]"}`}>
         {SECTIONS.map(s => (
           <button key={s.id} type="button" onClick={() => setSection(s.id)} aria-label={`${t(s.labelKey, lang)} ${t("design_section", lang)}`}
             className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:outline-none ${
