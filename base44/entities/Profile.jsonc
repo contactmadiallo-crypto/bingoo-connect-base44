@@ -469,10 +469,26 @@
         "content_creator",
         "photographer",
         "model",
+        "consultant",
+        "entrepreneur",
+        "real_estate",
+        "lawyer",
+        "healthcare",
+        "fitness",
+        "coach",
+        "educator",
+        "designer",
+        "artist",
+        "musician",
+        "beauty",
+        "restaurant",
+        "technology",
+        "sales",
+        "nonprofit",
         "business"
       ],
       "default": "personal",
-      "description": "User-selected public profile category/subtype used to drive the matching public-profile presentation and actions."
+      "description": "User-selected profession/category shown as a public-profile badge and used for presentation."
     },
     "plan": {
       "type": "string",
