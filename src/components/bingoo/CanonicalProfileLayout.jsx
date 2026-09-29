@@ -6,9 +6,9 @@ const BODY = "'Inter',system-ui,sans-serif";
 function Avatar({ profile, size=88, radius, border="none", shadow="none" }) {
   const r = radius || getAvatarRadius(profile?.avatar_shape);
   if (profile?.profile_photo) {
-    return <img src={profile.profile_photo} alt="" style={{width:size,height:size,borderRadius:r,objectFit:"cover",objectPosition:profile.avatar_position||"center top",border,boxShadow,display:"block",flexShrink:0}} />;
+    return <img src={profile.profile_photo} alt="" style={{width:size,height:size,borderRadius:r,objectFit:"cover",objectPosition:profile.avatar_position||"center top",border,boxShadow:shadow,display:"block",flexShrink:0}} />;
   }
-  return <div style={{width:size,height:size,borderRadius:r,background:`linear-gradient(135deg,${profile?.cover_color||"#f97316"},${hexRgb(profile?.cover_color||"#f97316",.62)})`,border,boxShadow,display:"grid",placeItems:"center",color:"#fff",fontWeight:900,fontSize:Math.round(size*.36),flexShrink:0}}>{(profile?.display_name||"?").charAt(0).toUpperCase()}</div>;
+  return <div style={{width:size,height:size,borderRadius:r,background:`linear-gradient(135deg,${profile?.cover_color||"#f97316"},${hexRgb(profile?.cover_color||"#f97316",.62)})`,border,boxShadow:shadow,display:"grid",placeItems:"center",color:"#fff",fontWeight:900,fontSize:Math.round(size*.36),flexShrink:0}}>{(profile?.display_name||"?").charAt(0).toUpperCase()}</div>;
 }
 
 function Identity({ profile, accent, align="left", dark=false, serif=false, compact=false }) {
