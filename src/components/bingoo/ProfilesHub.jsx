@@ -8,6 +8,7 @@ import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from "@/lib/p
 import { useI18n } from "@/lib/I18nContext";
 import { openExternalUrl } from "@/lib/nativePlatform";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
+import { resolveProfileAppearance } from "@/lib/profileLayouts";
 
 export default function ProfilesHub({
   profiles = [],
@@ -239,7 +240,8 @@ export default function ProfilesHub({
     const selected = isSelected(profile);
     const completion = profileCompletion(profile);
     const profileType = titleCase(profile.profile_type, t("profiles_personal"));
-    const layoutLabel = `${titleCase(profile.layout, t("profiles_classic"))} ${t("profiles_layout")}`;
+    const appearance = resolveProfileAppearance(profile);
+    const layoutLabel = `${appearance.recipe.name} ${t("profiles_layout")}`;
     const profileAnalytics = analyticsByProfile[profile.id] || [];
     const viewCount = profileAnalytics.filter((event) => event.event_type === "profile_view").length;
     const tapCount = profileAnalytics.filter((event) => event.event_type === "nfc_tap").length;
@@ -259,7 +261,7 @@ export default function ProfilesHub({
             ? (isDark ? "border-blue-400/70 ring-1 ring-blue-400/40" : "border-blue-500/70 ring-1 ring-blue-400/30")
             : cardBorder
           }`}
-        style={{ boxShadow: selected ? "0 8px 28px rgba(37,99,235,0.18)" : cardShadow, overflow: "visible" }}>
+        style={{ boxShadow: selected ? `0 8px 28px ${appearance.accent}24` : cardShadow, overflow: "visible", borderColor: selected ? appearance.accent : undefined }}>
 
         {/* Top-of-card status chip (Selected / Default) */}
         <div className="absolute top-2.5 right-2.5 z-30 pointer-events-none">
@@ -276,7 +278,7 @@ export default function ProfilesHub({
               <img src={profile.cover_photo} alt=""
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", display: "block" }} />
             ) : (
-              <div style={{ width: "100%", height: "100%", background: `linear-gradient(135deg, ${profile.cover_color || "#2563eb"} 0%, ${(profile.cover_color || "#2563eb")}cc 100%)` }} />
+              <div style={{ width: "100%", height: "100%", background: appearance.background }} />
             )}
           </div>
         </div>
@@ -297,7 +299,7 @@ export default function ProfilesHub({
             ) : (
               <div style={{
                 width: 48, height: 48, borderRadius: shapeR, flexShrink: 0,
-                background: profile.cover_color || "#2563eb",
+                background: appearance.accent,
                 border: isDark ? "3px solid #13162a" : "3px solid white",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: "#fff", fontWeight: 900, fontSize: 18,
