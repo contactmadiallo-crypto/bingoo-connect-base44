@@ -11,6 +11,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
+import { resolveProfileLayout } from "@/lib/profileLayouts";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -32,9 +33,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   // with legacy profile.plan values from unlocking premium layouts.
   const { plan: subPlan } = usePlan();
   const isPro = isAdmin || (subPlan && subPlan !== 'free');
-  const currentLayout = ["ny_championship", "lions_teranga"].includes(profile?.profile_layout)
-    ? profile.profile_layout
-    : (profile?.layout || "classic");
+  const currentLayout = resolveProfileLayout(profile);
   const profileUrl = publicProfileUrl(profile?.username);
 
   const headText = isDark ? "text-white" : "text-slate-900";
