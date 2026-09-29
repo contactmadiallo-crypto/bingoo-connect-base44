@@ -274,9 +274,9 @@ export default function ProfilesHub({
 
         {/* Real selected-layout preview: same saved layout identity as Live/Public Profile. */}
         <div className="p-2 pb-1">
-          <ProfileLayoutCardPreview profile={profile} height={160} compact />
+          <ProfileLayoutCardPreview profile={profile} height={118} compact />
         </div>
-        <div className="flex items-center justify-end gap-1.5 px-2.5 pb-1">
+        <div className="flex items-center justify-end gap-1.5 px-2.5 pb-0.5">
           {profile.is_active && (
             <span className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -290,9 +290,9 @@ export default function ProfilesHub({
         </div>
 
         {/* Name + username */}
-        <div className="px-2.5 pb-2 sm:px-3.5 sm:pb-3">
+        <div className="px-2.5 pb-2 sm:px-3 sm:pb-2.5">
           <div className="mb-1">
-            <p className={`font-black text-[15px] truncate ${headText}`}>{profile.display_name}</p>
+            <p className={`font-black text-sm truncate ${headText}`}> {profile.display_name}</p>
             <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
           </div>
 
@@ -317,7 +317,7 @@ export default function ProfilesHub({
             </div>
           </div>}
 
-          <div className="hidden sm:grid grid-cols-3 gap-1.5 mb-2">
+          <div className="hidden sm:grid grid-cols-3 gap-1 mb-1.5">
             <div className={`rounded-lg px-2.5 py-1 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
               <p className={`text-sm font-black ${headText}`}>{viewCount}</p><p className={`text-[9px] ${mutedText}`}>{t("profiles_views")}</p>
             </div>
@@ -330,7 +330,7 @@ export default function ProfilesHub({
             </div>
           </div>
 
-          <div className={`hidden sm:flex items-center gap-2 rounded-lg border px-2.5 py-1 mb-2 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
+          <div className={`hidden sm:flex items-center gap-2 rounded-lg border px-2 py-1 mb-1.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
             <span className={`text-[11px] truncate flex-1 ${subText}`}>/p/{profile.username}</span>
             <button onClick={(e) => { e.stopPropagation(); copyLink(profile); }} className={`text-[11px] font-bold flex items-center gap-1 ${headText}`}>
               {copiedId === profile.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} Copy
