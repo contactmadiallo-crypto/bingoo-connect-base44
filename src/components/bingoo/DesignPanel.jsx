@@ -12,7 +12,7 @@ const COVER_COLORS = [
 ];
 
 
-const BG_STYLES = [
+const _BG_STYLES = [
   { v: "clean",    label: "Clean",    desc: "Simple & neutral" },
   { v: "gradient", label: "Gradient", desc: "Color wash" },
   { v: "mesh",     label: "Mesh",     desc: "Dual-tone blend" },
@@ -53,7 +53,7 @@ const SECTIONS = [
   { id: "buttons", labelKey: "design_buttons", icon: MousePointer2 },
 ];
 
-const FONT_STYLES = [
+const _FONT_STYLES = [
   { v: "modern", label: "Modern", family: "'Plus Jakarta Sans', 'Inter', sans-serif" },
   { v: "clean", label: "Clean", family: "'Inter', sans-serif" },
   { v: "classic", label: "Classic", family: "Georgia, serif" },
