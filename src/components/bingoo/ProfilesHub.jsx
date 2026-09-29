@@ -273,10 +273,10 @@ export default function ProfilesHub({
         {renderReorderControls(profile, index, dragHandleProps)}
 
         {/* Real selected-layout preview: same saved layout identity as Live/Public Profile. */}
-        <div className="p-2.5 pb-1.5">
-          <ProfileLayoutCardPreview profile={profile} height={176} compact />
+        <div className="p-2 pb-1">
+          <ProfileLayoutCardPreview profile={profile} height={160} compact />
         </div>
-        <div className="flex items-center justify-end gap-1.5 px-3 pb-1.5">
+        <div className="flex items-center justify-end gap-1.5 px-2.5 pb-1">
           {profile.is_active && (
             <span className="flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
