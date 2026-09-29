@@ -3,6 +3,7 @@
  * Uses ONLY generic sample data. No personal user data ever.
  * Switch statement mirrors PublicProfile.jsx renderActiveLayout() exactly.
  */
+import React from "react";
 import CanonicalProfileLayout from "./CanonicalProfileLayout";
 import NewYorkChampionshipLayout from "./layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "./layouts/LionsOfTerangaLayout";
@@ -297,6 +298,7 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
     if (!hostRef.current) return undefined;
     const update = () => setHostWidth(hostRef.current?.clientWidth || 0);
     update();
+    if (typeof ResizeObserver === "undefined") return undefined;
     const observer = new ResizeObserver(update);
     observer.observe(hostRef.current);
     return () => observer.disconnect();
