@@ -255,7 +255,7 @@ export default function ProfilesHub({
         aria-pressed={selected}
         onClick={() => handleCardActivate(profile)}
         onKeyDown={(e) => handleCardKeyDown(e, profile)}
-        className={`relative ${cardBg} border rounded-[18px] transition-all duration-200 cursor-pointer outline-none
+        className={`relative h-full ${cardBg} border rounded-[18px] transition-all duration-200 cursor-pointer outline-none
           focus:ring-2 focus:ring-orange-400/60
           hover:shadow-lg hover:-translate-y-0.5
           ${selected
@@ -533,6 +533,7 @@ export default function ProfilesHub({
                       <div
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
+                        className="h-full"
                         style={{
                           ...dragProvided.draggableProps.style,
                           // Keep a stable height while dragging so the grid doesn't collapse
