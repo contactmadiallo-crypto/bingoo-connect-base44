@@ -291,7 +291,18 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
   const cfg = LAYOUT_CONFIG[layoutId] || LAYOUT_CONFIG.classic;
   const RENDER_WIDTH  = 375;
   const RENDER_HEIGHT = 680;
-  const scale = previewHeight / RENDER_HEIGHT;
+  const [hostWidth, setHostWidth] = React.useState(0);
+  const hostRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!hostRef.current) return undefined;
+    const update = () => setHostWidth(hostRef.current?.clientWidth || 0);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(hostRef.current);
+    return () => observer.disconnect();
+  }, []);
+  // Contain the complete layout in the thumbnail instead of cropping its sides.
+  const scale = Math.min(previewHeight / RENDER_HEIGHT, (hostWidth || RENDER_WIDTH) / RENDER_WIDTH);
 
   // GlassThumbnail fills 100% of container directly — no scaling wrapper needed
   if (layoutId === "glassmorphic") {
@@ -309,7 +320,7 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
   }
 
   return (
-    <div style={{
+    <div ref={hostRef} style={{
       width: "100%",
       height: previewHeight,
       borderRadius: 10,
