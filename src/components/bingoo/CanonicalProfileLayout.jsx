@@ -1,4 +1,5 @@
 import { getAvatarRadius, hexRgb } from "./ProfileLayoutRenderer";
+import { profileProfessionLabel } from "@/lib/profileProfessions";
 
 const DISPLAY = "'Plus Jakarta Sans','Inter',system-ui,sans-serif";
 const BODY = "'Inter',system-ui,sans-serif";
@@ -14,7 +15,9 @@ function Avatar({ profile, size=88, radius, border="none", shadow="none" }) {
 function Identity({ profile, accent, align="left", dark=false, serif=false, compact=false }) {
   const text = dark ? "#fff" : "#0f172a";
   const sub = dark ? "rgba(255,255,255,.58)" : "#64748b";
+  const profession = profileProfessionLabel(profile?.profile_category, profile?.language || "en");
   return <div style={{textAlign:align,minWidth:0}}>
+    <div style={{display:"flex",justifyContent:align==="center"?"center":"flex-start",marginBottom:6}}><span style={{display:"inline-flex",alignItems:"center",maxWidth:"100%",padding:"4px 8px",borderRadius:999,background:dark?"rgba(255,255,255,.10)":hexRgb(accent,.10),color:dark?"rgba(255,255,255,.82)":accent,fontFamily:BODY,fontSize:8.5,fontWeight:900,letterSpacing:".055em",textTransform:"uppercase",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{profession}</span></div>
     <h1 style={{margin:0,color:text,fontFamily:serif?"Georgia,'Times New Roman',serif":DISPLAY,fontSize:compact?18:22,lineHeight:1.08,fontWeight:900,letterSpacing:"-.025em"}}>{profile?.display_name}</h1>
     {profile?.job_title && <p style={{margin:"5px 0 0",fontFamily:BODY,color:accent,fontSize:11.5,fontWeight:800,textTransform:serif?"none":"uppercase",letterSpacing:serif?"0":".035em"}}>{profile.job_title}</p>}
     {profile?.company_name && <p style={{margin:"3px 0 0",fontFamily:BODY,color:sub,fontSize:11.5,fontWeight:600}}>{profile.company_name}</p>}
