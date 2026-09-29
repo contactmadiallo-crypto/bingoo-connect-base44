@@ -7,12 +7,10 @@ import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
 import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
-import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
-import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
+import ResolvedProfileLayout from "@/components/bingoo/ResolvedProfileLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon } from "@/components/bingoo/SocialIcons";
-import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
-import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
+import { resolveProfileAppearance } from "@/lib/profileLayouts";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { PUBLIC_APP_ORIGIN, publicProfileUrl } from "@/lib/publicProfileUrl";
@@ -299,21 +297,6 @@ export default function PublicProfile() {
   const color = profile.cover_color || B.navy;
   const track = (ev) => !isDemo && trackEvent(profile.id, ev, deviceCodeParam);
 
-  // ── Render championship full-page layouts — pass all content as children
-  const effectiveLayout = resolveProfileLayout(profile);
-  const championContentSections = (
-    <ProfileContentSections
-      profile={profile} color={color} isDark={true}
-      isDemo={isDemo} deviceCodeParam={deviceCodeParam} sourceParam={sourceParam} track={track}
-    />
-  );
-  if (effectiveLayout === "ny_championship") {
-    return <NewYorkChampionshipLayout profile={profile}>{championContentSections}</NewYorkChampionshipLayout>;
-  }
-  if (effectiveLayout === "lions_teranga") {
-    return <LionsOfTerangaLayout profile={profile}>{championContentSections}</LionsOfTerangaLayout>;
-  }
-
   const isSalonOrRestaurant = ["salon", "restaurant"].includes(profile.plan);
   const waBookingHref = profile.whatsapp_number
     ? `https://wa.me/${(profile.whatsapp_number || "").replace(/\D/g, "")}${profile.whatsapp_booking_message ? `?text=${encodeURIComponent(profile.whatsapp_booking_message)}` : ""}`
@@ -334,56 +317,22 @@ export default function PublicProfile() {
           : null)
     : null;
 
-  const isDark = profile.bg_style === "night" || isLayoutDark(effectiveLayout);
-  const layoutType = effectiveLayout;
-
+  const appearance = resolveProfileAppearance(profile);
   const layoutContentSections = (
     <ProfileContentSections
-      profile={profile} color={color} isDark={isDark}
+      profile={profile} color={appearance.accent} isDark={appearance.dark}
       isDemo={isDemo} deviceCodeParam={deviceCodeParam} sourceParam={sourceParam} track={track}
       primaryContactDocked={Boolean(profile.phone || profile.whatsapp_number)}
     />
   );
 
-  const renderActiveLayout = () => {
-    const lp = { profile, color, isDark, mobile, contentSections: layoutContentSections };
-
-    switch (layoutType) {
-      // ── 15 premium curated layouts ──
-      case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury":
-        return <ImageHeroLayout {...lp} />;
-      case "magazine":
-        return <MagazineLayout {...lp} />;
-      case "aurora": case "animated_gradient":
-        return <AuroraLayout {...lp} color={color} />;
-      case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d":
-        return <GlassLayout {...lp} />;
-      case "modern_saas": case "split": case "corporate": case "modern_law":
-        return <ModernSaasLayout {...lp} />;
-      case "executive": case "executive_corp":
-        return <ExecutiveLayout {...lp} />;
-      case "luxury_gold":
-        return <LuxuryGoldLayout profile={profile} mobile={mobile} contentSections={layoutContentSections} />;
-      case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome":
-        return <DarkPremiumLayout {...lp} />;
-      case "neon": case "neon_tech":
-        return <NeonLayout {...lp} />;
-      case "retro": case "paper":
-        return <RetroLayout {...lp} />;
-      case "floating":
-        return <FloatingLayout {...lp} />;
-      case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly":
-        return <ColorLayout {...lp} />;
-      case "pastel": case "gradient": case "portrait":
-        return <PortraitLayout {...lp} />;
-      case "minimal": case "minimal_business":
-        return <MinimalLayout {...lp} />;
-      case "card": case "card_compact":
-        return <CardLayout {...lp} />;
-      default:
-        return <ClassicLayout {...lp} />;
-    }
-  };
+  const renderActiveLayout = () => (
+    <ResolvedProfileLayout
+      profile={profile}
+      mobile={mobile}
+      contentSections={layoutContentSections}
+    />
+  );
 
   return (
     <div ref={topRef} style={{ position: "relative", minHeight: "100vh", background: "#fff" }}>
