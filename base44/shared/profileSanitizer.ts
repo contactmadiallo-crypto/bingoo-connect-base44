@@ -18,7 +18,7 @@ export const RESERVED_USERNAMES = new Set([
 
 // ── Enum vocabularies (mirror Profile schema) ─────────────────────────────────
 const VALID_PROFILE_TYPES = new Set(['personal','professional','business','salon','lawfirm','corporate','creative']);
-const VALID_PROFILE_CATEGORIES = new Set(['personal','content_creator','photographer','model','business']);
+const VALID_PROFILE_CATEGORIES = new Set(['personal','content_creator','photographer','model','consultant','entrepreneur','real_estate','lawyer','healthcare','fitness','coach','educator','designer','artist','musician','beauty','event_planner','chef','restaurant','technology','sales','nonprofit','business']);
 const VALID_AVATAR_SHAPES = new Set(['circle','rounded','squircle','card']);
 const VALID_AVATAR_PLACEMENTS = new Set(['center_overlap','lower_center','right_overlap','left_overlap','floating_card','inside_card']);
 const VALID_AVATAR_POSITIONS = new Set(['center top','center','center bottom','left center','right center']);
