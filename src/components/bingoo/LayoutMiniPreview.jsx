@@ -307,7 +307,7 @@ export default function LayoutMiniPreview({ layoutId, _isSelected = false, previ
   // GlassThumbnail fills 100% of container directly — no scaling wrapper needed
   if (layoutId === "glassmorphic") {
     return (
-      <div style={{
+      <div ref={hostRef} style={{
         width: "100%", height: previewHeight, borderRadius: 10,
         overflow: "hidden", position: "relative",
         background: "#1c1c1e",
