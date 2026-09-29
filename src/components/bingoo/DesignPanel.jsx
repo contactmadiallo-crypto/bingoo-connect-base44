@@ -123,56 +123,6 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
           </div>
 
           <div className={rowCls}>
-            <div>
-              <p className={`text-xs font-black ${headText}`}>{lang === "fr" ? "Style du layout" : "Layout style"}</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{lang === "fr" ? "La typographie, le fond et le placement de la photo sont définis par la mise en page sélectionnée." : "Typography, background and photo placement are controlled by the selected layout."}</p>
-            </div>
-            <div className={`rounded-xl border px-3 py-2.5 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
-              <p className={`text-xs font-black ${headText}`}>{layoutRecipe.name}</p>
-              <p className={`text-[10px] mt-0.5 ${mutedText}`}>{layoutRecipe.desc}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── PHOTOS section: cover + avatar presentation ── */}
-      {section === "media" && (
-        <div className="space-y-4">
-          {/* Cover Photo */}
-          <div className={rowCls}>
-            <div>
-              <p className={`text-xs font-black ${headText}`}>{t("design_cover_photo", lang)}</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_cover_copy", lang)}</p>
-            </div>
-            {/* Large cover preview */}
-            <div className={`w-full rounded-2xl overflow-hidden relative ${liveForm.cover_photo ? "" : (isDark ? "bg-white/5 border border-white/10" : "bg-slate-100 border border-slate-200")}`}
-              style={{ height: 160 }}>
-              {liveForm.cover_photo
-                ? <img src={liveForm.cover_photo} alt="Cover" className="w-full h-full" style={{ objectFit: "cover", objectPosition: "center" }} />
-                : <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: `linear-gradient(135deg, ${liveForm.cover_color || "#2563eb"} 0%, ${liveForm.cover_color || "#2563eb"}99 100%)` }}>
-                    <p className="text-xs font-bold text-white/60">{t("design_no_cover", lang)}</p>
-                    <p className="text-xs text-white/40">{t("design_using_accent", lang)}</p>
-                  </div>
-              }
-            </div>
-            <div className="flex items-center gap-2 mt-2">
-              <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border cursor-pointer transition-all text-sm font-semibold ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-                <Upload className="w-4 h-4 flex-shrink-0" />
-                {uploading ? t("design_uploading", lang) : liveForm.cover_photo ? t("design_change_cover", lang) : t("design_upload_cover", lang)}
-                <input type="file" accept="image/*" className="hidden" onChange={handleCoverUpload} disabled={uploading} />
-              </label>
-              {liveForm.cover_photo && (
-                <button type="button" onClick={() => setVal("cover_photo", "")}
-                  className="px-3 py-2.5 rounded-xl border text-xs font-bold text-red-400 border-red-200 hover:bg-red-50 transition-all">
-                  {t("design_remove", lang)}
-                </button>
-              )}
-            </div>
-
-          </div>
-
-          {/* Avatar Shape */}
-          <div className={rowCls}>
             <p className={`text-xs font-black uppercase tracking-widest ${mutedText}`}>{t("design_avatar_shape", lang)}</p>
             <div className="flex gap-2 flex-wrap">
               {AVATAR_SHAPES.map(o => {
@@ -190,6 +140,16 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
             </div>
           </div>
 
+          <div className={rowCls}>
+            <div>
+              <p className={`text-xs font-black ${headText}`}>{lang === "fr" ? "Style du layout" : "Layout style"}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{lang === "fr" ? "La typographie, le fond et le placement de la photo sont définis par la mise en page sélectionnée." : "Typography, background and photo placement are controlled by the selected layout."}</p>
+            </div>
+            <div className={`rounded-xl border px-3 py-2.5 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
+              <p className={`text-xs font-black ${headText}`}>{layoutRecipe.name}</p>
+              <p className={`text-[10px] mt-0.5 ${mutedText}`}>{layoutRecipe.desc}</p>
+            </div>
+          </div>
         </div>
       )}
 
