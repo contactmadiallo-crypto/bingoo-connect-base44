@@ -10,10 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "@/components/bingoo/ProfileLayoutRenderer";
-import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
-import NewYorkChampionshipLayout from "@/components/bingoo/layouts/NewYorkChampionshipLayout";
-import LionsOfTerangaLayout from "@/components/bingoo/layouts/LionsOfTerangaLayout";
+import { resolveProfileAppearance } from "@/lib/profileLayouts";
+import ResolvedProfileLayout from "@/components/bingoo/ResolvedProfileLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import LostDeviceManager from "@/components/bingoo/LostDeviceManager";
 import LinkStore from "@/components/bingoo/LinkStore";
@@ -148,46 +146,18 @@ const Toggle = ({ value, onChange }) => (
 
 // ── Compact layout preview for the inline phone shells ───────────────────
 function WorkspaceLayoutPreview({ liveForm }) {
-  const color = liveForm?.cover_color || "#2563eb";
-  const layoutType = resolveProfileLayout(liveForm);
-  const isDark = liveForm?.bg_style === "night" || isLayoutDark(layoutType);
-
+  const appearance = resolveProfileAppearance(liveForm);
   const content = (
     <ProfileContentSections
       profile={liveForm}
-      color={color}
-      isDark={isDark}
+      color={appearance.accent}
+      isDark={appearance.dark}
       isDemo={false}
       deviceCodeParam={null}
       track={() => {}}
     />
   );
-
-  const lp = { profile: liveForm, color, isDark, mobile: true, contentSections: content };
-
-  let layoutEl;
-  if (layoutType === "ny_championship") layoutEl = <NewYorkChampionshipLayout profile={liveForm}>{content}</NewYorkChampionshipLayout>;
-  else if (layoutType === "lions_teranga") layoutEl = <LionsOfTerangaLayout profile={liveForm}>{content}</LionsOfTerangaLayout>;
-  else switch (layoutType) {
-    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury": layoutEl = <ImageHeroLayout {...lp} />; break;
-    case "magazine": layoutEl = <MagazineLayout {...lp} />; break;
-    case "aurora": case "animated_gradient": layoutEl = <AuroraLayout {...lp} color={color} />; break;
-    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d": layoutEl = <GlassLayout {...lp} />; break;
-    case "modern_saas": case "split": case "corporate": case "modern_law": layoutEl = <ModernSaasLayout {...lp} />; break;
-    case "executive": case "executive_corp": layoutEl = <ExecutiveLayout {...lp} />; break;
-    case "luxury_gold": layoutEl = <LuxuryGoldLayout profile={liveForm} mobile={true} contentSections={content} />; break;
-    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome": layoutEl = <DarkPremiumLayout {...lp} />; break;
-    case "neon": case "neon_tech": layoutEl = <NeonLayout {...lp} />; break;
-    case "retro": case "paper": layoutEl = <RetroLayout {...lp} />; break;
-    case "floating": layoutEl = <FloatingLayout {...lp} />; break;
-    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly": layoutEl = <ColorLayout {...lp} />; break;
-    case "pastel": case "gradient": case "portrait": layoutEl = <PortraitLayout {...lp} />; break;
-    case "minimal": case "minimal_business": layoutEl = <MinimalLayout {...lp} />; break;
-    case "card": case "card_compact": layoutEl = <CardLayout {...lp} />; break;
-    default: layoutEl = <ClassicLayout {...lp} />;
-  }
-
-  return layoutEl;
+  return <ResolvedProfileLayout profile={liveForm} mobile={true} contentSections={content} />;
 }
 
 // ── Save status line ──────────────────────────────────────────────────────
