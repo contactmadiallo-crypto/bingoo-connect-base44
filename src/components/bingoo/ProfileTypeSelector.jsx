@@ -23,7 +23,7 @@ function normalizedPlan(plan) {
   return value === "pro" ? "professional" : value;
 }
 
-export default function ProfileTypeSelector({ profile, plan = "free", isDark = false, onChange, onCustomLabelChange }) {
+export default function ProfileTypeSelector({ profile, plan = "free", isDark = false, onChange }) {
   const { language } = useI18n();
   const current = profile?.profile_category || (profile?.profile_type === "business" ? "business" : "personal");
   const rank = RANK[normalizedPlan(plan)] ?? 0;
