@@ -112,7 +112,7 @@ const EDITABLE_FIELDS = [
   "orangemoney_link", "booking_enabled", "lead_capture_enabled", "whatsapp_booking_message", "custom_links", "hidden_links",
   "layout", "bg_style", "button_style", "button_color", "font_style", "link_display_style", "link_row_style", "link_icon_shape", "username", "is_active", "show_location", "language",
   "qr_color", "qr_label", "qr_watermark", "theme_background_color",
-  "bg_watermark_image", "bg_watermark_opacity", "profile_category", "profile_type",
+  "bg_watermark_image", "bg_watermark_opacity", "profile_category", "custom_profile_category", "profile_type",
 ];
 
 function buildPayload(liveForm) {
@@ -182,7 +182,6 @@ function SaveBtn({ onSave, isPending, label }) {
 // ── INFO PANEL ────────────────────────────────────────────────────────────
 function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveTime, saveError, isDark, userPlan, lang }) {
   const headText    = isDark ? "text-white" : "text-slate-900";
-  const isBusinessIdentity = ["business", "lawfirm", "salon", "corporate"].includes(liveForm.profile_type) || liveForm.profile_category === "business";
   const mutedText   = isDark ? "text-white/40" : "text-slate-400";
   const panelBg     = isDark ? "bg-[#13162a]" : "bg-white";
   const panelBorder = isDark ? "border-white/8" : "border-slate-200";
@@ -235,37 +234,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
 
           </div>
 
-          {/* Business-only identity */}
-          {isBusinessIdentity && <div className="mb-3 rounded-xl border border-slate-200/80 p-3">
-            <p className={`text-[11px] font-black mb-2 ${headText}`}>{t("studio_business_identity", lang)}</p>
-            <Label className={`text-[11px] font-semibold ${mutedText} block mb-1.5`}>{t("studio_brand_logo", lang)}</Label>
-            <div className="flex items-center gap-3">
-              {liveForm.company_logo ? (
-                <div className="relative flex-shrink-0">
-                  <img src={liveForm.company_logo} alt="Logo" style={{ width: 44, height: 44, borderRadius: 10, objectFit: "contain", border: isDark ? "2px solid rgba(255,255,255,0.12)" : "2px solid #e2e8f0", background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc" }} />
-                  <button type="button" onClick={() => setVal("company_logo", "")}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow">×</button>
-                </div>
-              ) : (
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.05)" : "#f1f5f9", border: isDark ? "2px dashed rgba(255,255,255,0.15)" : "2px dashed #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
-                  🏢
-                </div>
-              )}
-              <div>
-                <label className={`cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${isDark ? "border-white/15 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-                  <Plus className="w-3.5 h-3.5" />
-                  {liveForm.company_logo ? t("studio_change_logo", lang) : t("studio_upload_logo", lang)}
-                  <input type="file" accept="image/*" className="hidden" onChange={async e => {
-                    const file = e.target.files[0]; if (!file) return;
-                    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                    setVal("company_logo", file_url);
-                  }} />
-                </label>
-
-              </div>
-            </div>
-          </div>}
-
           <div className="mb-3">
             <p className={`text-xs font-black ${headText}`}>{t("studio_basic_info", lang)}</p>
           </div>
@@ -278,10 +246,6 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("job_title", lang)}</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.job_title || ""} onChange={set("job_title")} placeholder={t("studio_job_placeholder", lang)} />
             </div>
-            {isBusinessIdentity && <div className="sm:col-span-2">
-              <Label className={`text-xs font-semibold ${mutedText}`}>{t("company", lang)}</Label>
-              <Input className={`mt-1 ${inputCls}`} value={liveForm.company_name || ""} onChange={set("company_name")} placeholder={t("studio_company_placeholder", lang)} />
-            </div>}
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
               <Textarea className={`mt-1 ${inputCls}`} rows={3} value={liveForm.bio || ""} onChange={set("bio")} placeholder={t("studio_bio_placeholder", lang)} />
@@ -629,7 +593,7 @@ export default function ProfileWorkspace({
       //    which Base44 may reorder or normalize.
       const SCALAR_KEYS = ["display_name","username","job_title","bio","email","phone",
         "cover_color","layout","bg_style","button_style","avatar_shape",
-        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","profile_type"]; 
+        "language","is_active","show_location","lead_capture_enabled","booking_enabled","profile_category","custom_profile_category","profile_type"]; 
       const mismatch = SCALAR_KEYS.find(k => {
         if (payload[k] === undefined) return false;
         return JSON.stringify(payload[k]) !== JSON.stringify(fresh[k]);
@@ -816,7 +780,9 @@ export default function ProfileWorkspace({
                     onChange={(category) => {
                       setVal("profile_category", category.id);
                       setVal("profile_type", category.profileType);
+                      if (category.id !== "business") setVal("custom_profile_category", "");
                     }}
+                    onCustomLabelChange={(value) => setVal("custom_profile_category", value)}
                   />
                 </div>
                 <div className="flex items-center gap-4">
