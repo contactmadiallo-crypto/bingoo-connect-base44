@@ -3,12 +3,7 @@
  * Uses ONLY generic sample data. No personal user data ever.
  * Switch statement mirrors PublicProfile.jsx renderActiveLayout() exactly.
  */
-import {
-  ClassicLayout, ImageHeroLayout,
-  DarkPremiumLayout, MinimalLayout, CardLayout,
-  ModernSaasLayout, ExecutiveLayout,
-  AuroraLayout, MagazineLayout, SalonLayout, LawFirmLayout, CorporateLayout,
-} from "./ProfileLayoutRenderer";
+import CanonicalProfileLayout from "./CanonicalProfileLayout";
 import NewYorkChampionshipLayout from "./layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "./layouts/LionsOfTerangaLayout";
 
@@ -287,25 +282,9 @@ function LayoutRenderer({ layoutId }) {
   const color   = cfg.color;
   const isDark  = cfg.isDark;
   const stub    = <MiniContentStub color={color} isDark={isDark} />;
-  const lp      = { profile, color, isDark, mobile: true, contentSections: stub };
-
-  switch (layoutId) {
-    case "image_hero":   return <ImageHeroLayout {...lp} />;
-    case "magazine":     return <MagazineLayout {...lp} />;
-    case "aurora":       return <AuroraLayout {...lp} color={color} />;
-    case "glassmorphic": return <GlassThumbnail profile={profile} />;
-    case "modern_saas":  return <ModernSaasLayout {...lp} />;
-    case "corporate":    return <CorporateLayout {...lp} />;
-    case "modern_law":   return <LawFirmLayout {...lp} />;
-    case "premium_salon":return <SalonLayout {...lp} />;
-    case "executive":    return <ExecutiveLayout {...lp} />;
-    case "dark":         return <DarkPremiumLayout {...lp} />;
-    case "minimal":      return <MinimalLayout {...lp} />;
-    case "card":            return <CardLayout {...lp} />;
-    case "ny_championship": return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#f97316" isDark={true} /></NewYorkChampionshipLayout>;
-    case "lions_teranga": return <LionsOfTerangaLayout profile={profile}><MiniContentStub color="#D4AF37" isDark={true} /></LionsOfTerangaLayout>;
-    default:             return <ClassicLayout {...lp} />;
-  }
+  if (layoutId === "ny_championship") return <NewYorkChampionshipLayout profile={profile}><MiniContentStub color="#f97316" isDark={true} /></NewYorkChampionshipLayout>;
+  if (layoutId === "lions_teranga") return <LionsOfTerangaLayout profile={profile}><MiniContentStub color="#D4AF37" isDark={true} /></LionsOfTerangaLayout>;
+  return <CanonicalProfileLayout profile={profile} layout={layoutId} accent={color} mobile={true} contentSections={stub} />;
 }
 
 export default function LayoutMiniPreview({ layoutId, _isSelected = false, previewHeight = 260 }) {
