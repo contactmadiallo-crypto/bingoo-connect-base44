@@ -11,7 +11,7 @@ import { useBingooTheme } from "@/hooks/useBingooTheme";
 import { usePlan } from "@/hooks/usePlan";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
-import { resolveProfileLayout } from "@/lib/profileLayouts";
+import { canonicalLayoutId, resolveProfileLayout } from "@/lib/profileLayouts";
 
 const PREMIUM_THEME_IDS = new Set([
   "glass_3d", "luxury_gold", "executive_corp", "neon_tech",
@@ -33,7 +33,7 @@ export default function DesignTab({ profile, user, onSaved }) {
   // with legacy profile.plan values from unlocking premium layouts.
   const { plan: subPlan } = usePlan();
   const isPro = isAdmin || (subPlan && subPlan !== 'free');
-  const currentLayout = resolveProfileLayout(profile);
+  const currentLayout = canonicalLayoutId(resolveProfileLayout(profile));
   const profileUrl = publicProfileUrl(profile?.username);
 
   const headText = isDark ? "text-white" : "text-slate-900";
@@ -49,18 +49,13 @@ export default function DesignTab({ profile, user, onSaved }) {
     setSaving("saving");
 
     try {
-      // Keep both layout fields synchronized. The public renderer supports the normal
-      // layout catalog from `layout`, while championship editions also use
-      // `profile_layout`. Persist through the gated backend so the same validated
-      // entitlement path used by the rest of Profile Studio is authoritative.
-      const PROFILE_LAYOUT_IDS = new Set(["ny_championship", "lions_teranga"]);
+      // One write authority: new changes persist only the canonical `layout` field.
+      // Legacy `profile_layout` remains read-compatible for older saved profiles,
+      // but the editor no longer creates or synchronizes a second layout source.
       const chosenLayout = pendingChanges.layout;
       const update = {
         ...pendingChanges,
-        ...(chosenLayout ? {
-          layout: chosenLayout,
-          profile_layout: PROFILE_LAYOUT_IDS.has(chosenLayout) ? chosenLayout : "default",
-        } : {}),
+        ...(chosenLayout ? { layout: canonicalLayoutId(chosenLayout) } : {}),
       };
 
       const response = await base44.functions.invoke("updateProfileGated", {
