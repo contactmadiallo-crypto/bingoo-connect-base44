@@ -1,8 +1,9 @@
+import { useMemo, useState } from "react";
 import {
   Check, Lock, UserRound, Sparkles, Camera, Aperture, Building2, BriefcaseBusiness,
   Rocket, House, Scale, HeartPulse, Dumbbell, MessageCircleMore, GraduationCap,
   Palette, Brush, Music2, Scissors, UtensilsCrossed, Code2, TrendingUp, UsersRound,
-  CalendarDays, ChefHat
+  CalendarDays, ChefHat, ChevronsUpDown, Search, X
 } from "lucide-react";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
@@ -25,8 +26,18 @@ function normalizedPlan(plan) {
 
 export default function ProfileTypeSelector({ profile, plan = "free", isDark = false, onChange, onCustomLabelChange }) {
   const { language } = useI18n();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const current = profile?.profile_category || (profile?.profile_type === "business" ? "business" : "personal");
   const rank = RANK[normalizedPlan(plan)] ?? 0;
+  const selectedItem = PROFILE_PROFESSIONS.find((item) => item.id === current) || PROFILE_PROFESSIONS[0];
+  const SelectedIcon = ICONS[selectedItem.icon] || UserRound;
+  const selectedLabel = language === "fr" ? selectedItem.fr : selectedItem.en;
+  const visibleProfessions = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return PROFILE_PROFESSIONS;
+    return PROFILE_PROFESSIONS.filter((item) => [item.en, item.fr, item.id].some((value) => String(value).toLowerCase().includes(q)));
+  }, [query]);
 
   return (
     <div>
@@ -38,22 +49,81 @@ export default function ProfileTypeSelector({ profile, plan = "free", isDark = f
         <label className={`block text-[10px] font-black uppercase tracking-[0.12em] mb-1.5 ${isDark ? "text-white/35" : "text-slate-400"}`}>
           {language === "fr" ? "Profession / activité" : "Profession / activity"}
         </label>
-        <select
-          value={current}
-          onChange={(event) => {
-            const item = PROFILE_PROFESSIONS.find((entry) => entry.id === event.target.value);
-            if (!item) return;
-            const locked = rank < (RANK[item.minPlan] ?? 0);
-            if (!locked) onChange?.(item);
-          }}
-          className={`w-full min-h-[48px] rounded-xl border px-3 text-sm font-extrabold outline-none ${isDark ? "bg-[#111629] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"}`}
-        >
-          {PROFILE_PROFESSIONS.map((item) => {
-            const locked = rank < (RANK[item.minPlan] ?? 0);
-            const label = language === "fr" ? item.fr : item.en;
-            return <option key={item.id} value={item.id} disabled={locked}>{label}{locked ? " · 🔒" : ""}</option>;
-          })}
-        </select>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            className={`w-full min-h-[52px] rounded-xl border px-3 flex items-center gap-3 text-left transition-all ${isDark ? "bg-[#111629] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900 shadow-sm"} ${open ? "ring-2 ring-orange-400/30 border-orange-400" : ""}`}
+          >
+            <span className="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0">
+              <SelectedIcon className="w-[17px] h-[17px]" />
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className={`block text-[10px] uppercase tracking-[0.11em] font-black ${isDark ? "text-white/35" : "text-slate-400"}`}>
+                {language === "fr" ? "Sélection actuelle" : "Current selection"}
+              </span>
+              <span className="block text-sm font-extrabold truncate">{selectedLabel}</span>
+            </span>
+            <ChevronsUpDown className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-white/40" : "text-slate-400"}`} />
+          </button>
+
+          {open && (
+            <div className={`absolute z-[80] left-0 right-0 mt-2 rounded-2xl border shadow-2xl overflow-hidden ${isDark ? "bg-[#0f1425] border-white/10" : "bg-white border-slate-200"}`}>
+              <div className={`p-2.5 border-b ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                <div className={`h-10 rounded-xl border flex items-center gap-2 px-3 ${isDark ? "bg-white/[0.04] border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <Search className={`w-4 h-4 flex-shrink-0 ${isDark ? "text-white/35" : "text-slate-400"}`} />
+                  <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={language === "fr" ? "Rechercher une profession…" : "Search professions…"}
+                    className={`w-full bg-transparent outline-none text-sm ${isDark ? "text-white placeholder:text-white/30" : "text-slate-900 placeholder:text-slate-400"}`}
+                  />
+                  {query && <button type="button" onClick={() => setQuery("")} aria-label={language === "fr" ? "Effacer" : "Clear search"} className={`w-7 h-7 rounded-lg flex items-center justify-center ${isDark ? "hover:bg-white/10 text-white/45" : "hover:bg-slate-200 text-slate-400"}`}><X className="w-3.5 h-3.5" /></button>}
+                </div>
+              </div>
+
+              <div role="listbox" className="max-h-[300px] overflow-y-auto overscroll-contain p-2" style={{ WebkitOverflowScrolling: "touch" }}>
+                {visibleProfessions.length ? visibleProfessions.map((item) => {
+                  const Icon = ICONS[item.icon] || UserRound;
+                  const locked = rank < (RANK[item.minPlan] ?? 0);
+                  const selected = current === item.id;
+                  const label = language === "fr" ? item.fr : item.en;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      disabled={locked}
+                      onClick={() => {
+                        if (locked) return;
+                        onChange?.(item);
+                        setOpen(false);
+                        setQuery("");
+                      }}
+                      className={`w-full min-h-[48px] rounded-xl px-2.5 flex items-center gap-2.5 text-left transition-all ${selected ? (isDark ? "bg-orange-500/15" : "bg-orange-50") : (isDark ? "hover:bg-white/[0.05]" : "hover:bg-slate-50")} ${locked ? "opacity-45 cursor-not-allowed" : ""}`}
+                    >
+                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${selected ? "bg-orange-500 text-white" : isDark ? "bg-white/[0.06] text-white/60" : "bg-slate-100 text-slate-600"}`}>
+                        <Icon className="w-4 h-4" />
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className={`block text-xs font-extrabold truncate ${isDark ? "text-white" : "text-slate-900"}`}>{label}</span>
+                        {locked && <span className="block text-[9px] mt-0.5 font-bold text-orange-500">{t("profile_type_requires",language)} {t(item.minPlan === "business" ? "profile_type_business_plan" : "profile_type_professional_plan",language)}</span>}
+                      </span>
+                      {selected ? <Check className="w-4 h-4 text-orange-500 flex-shrink-0" /> : locked ? <Lock className={`w-3.5 h-3.5 flex-shrink-0 ${isDark ? "text-white/30" : "text-slate-400"}`} /> : null}
+                    </button>
+                  );
+                }) : (
+                  <div className={`px-3 py-8 text-center text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                    {language === "fr" ? "Aucune profession trouvée." : "No profession found."}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
         <p className={`text-[10px] mt-2 ${isDark ? "text-white/35" : "text-slate-400"}`}>
           {language === "fr" ? "Sélection compacte : le choix est appliqué au profil public après enregistrement." : "Compact selector: your choice is applied to the public profile after saving."}
         </p>
