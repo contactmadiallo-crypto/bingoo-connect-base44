@@ -6,7 +6,6 @@ import { base44 } from "@/api/base44Client";
 import { useSEO } from "@/hooks/useSEO";
 import { motion, AnimatePresence } from "framer-motion";
 import ProspectPopup from "@/components/bingoo/ProspectPopup";
-import ProfileLayoutShell from "@/components/bingoo/ProfileLayoutShell";
 import ResolvedProfileLayout from "@/components/bingoo/ResolvedProfileLayout";
 import ProfileContentSections from "@/components/bingoo/ProfileContentSections";
 import { PhoneIcon, WhatsAppIcon } from "@/components/bingoo/SocialIcons";
@@ -350,11 +349,9 @@ export default function PublicProfile() {
         ‹
       </motion.button>
 
-      {/* Main card — real layout renderer */}
+      {/* One authoritative renderer — no legacy outer layout shell. */}
       <div style={{ position: "relative", zIndex: 1 }}>
-        <ProfileLayoutShell profile={profile} color={color} isDark={isDark}>
-          {renderActiveLayout()}
-        </ProfileLayoutShell>
+        {renderActiveLayout()}
       </div>
 
       {/* ── STICKY BOTTOM BAR ── */}
