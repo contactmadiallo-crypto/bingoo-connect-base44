@@ -189,14 +189,14 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
   const inputCls    = `border-slate-200 ${isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/30" : ""}`;
 
   return (
-    <div className="space-y-3 sm:space-y-[18px] pb-3 sm:pb-4 max-w-[560px]">
+    <div className="space-y-3 pb-3 sm:pb-4 max-w-[760px]">
       {/* Figma Profile page toolbar */}
-      <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className={`text-[16px] font-extrabold ${headText}`}>{t("studio_profile", lang)}</h2>
         </div>
         <button type="button" onClick={onSave} disabled={isPending}
-          className="inline-flex items-center gap-1.5 px-[18px] py-[9px] rounded-[10px] text-[13px] font-bold text-white disabled:opacity-50 flex-shrink-0"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[10px] text-xs font-bold text-white disabled:opacity-50 flex-shrink-0"
           style={{ background: "#f97316", boxShadow: "0 4px 12px rgba(249,115,22,0.24)" }}>
           <Save className={`w-[14px] h-[14px] ${isPending ? "animate-pulse" : ""}`} />
           {isPending ? t("saving", lang) : t("studio_save_profile", lang)}
@@ -204,8 +204,8 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
       </div>
 
       {/* Profile identity / photo card */}
-      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-3.5 sm:p-[18px]`}>
-        <div className="flex items-start justify-between gap-3 mb-3 sm:mb-4">
+      <div className={`rounded-[14px] border ${panelBorder} ${panelBg} p-3 sm:p-4`}>
+        <div className="flex items-start justify-between gap-3 mb-2.5">
           <div>
             <p className={`text-[13px] font-black ${headText}`}>{t("studio_profile_photo", lang)}</p>
           </div>
@@ -215,15 +215,15 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             return <span className="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wide" style={{ background: colors.bg, color: colors.text }}>{PLAN_LABELS[ep] || "Free"}</span>;
           })()}
         </div>
-          <div className="flex items-center gap-3 mb-3 sm:mb-5 relative z-10">
+          <div className="flex items-center gap-3 mb-3 relative z-10">
             <div className="relative flex-shrink-0">
               {(() => {
                 const shapeR = { circle: "50%", rounded: "20%", squircle: "28%", card: "12px" }[liveForm.avatar_shape] || "50%";
                 return liveForm.profile_photo
-                  ? <img src={liveForm.profile_photo} style={{ width: 64, height: 64, borderRadius: shapeR, objectFit: "cover", objectPosition: liveForm.avatar_position || "center top", border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} alt="" />
-                  : <div style={{ width: 64, height: 64, borderRadius: shapeR, border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", background: liveForm.cover_color || "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 22 }}>{liveForm.display_name?.charAt(0) || "?"}</div>;
+                  ? <img src={liveForm.profile_photo} style={{ width: 52, height: 52, borderRadius: shapeR, objectFit: "cover", objectPosition: liveForm.avatar_position || "center top", border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} alt="" />
+                  : <div style={{ width: 52, height: 52, borderRadius: shapeR, border: "4px solid white", boxShadow: "0 4px 16px rgba(0,0,0,0.15)", background: liveForm.cover_color || "#2563eb", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 18 }}>{liveForm.display_name?.charAt(0) || "?"}</div>;
               })()}
-              <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer shadow-md">
+              <label className="absolute -bottom-1 -right-1 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center cursor-pointer shadow-md">
                 <Plus className="w-3.5 h-3.5 text-white" />
                 <input type="file" accept="image/*" className="hidden" onChange={async e => {
                   const file = e.target.files[0]; if (!file) return;
@@ -236,23 +236,23 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           </div>
 
           {/* Business-only identity */}
-          {isBusinessIdentity && <div className="mb-3 sm:mb-5 rounded-xl border border-slate-200/80 p-3 sm:p-4">
-            <p className={`text-xs font-black mb-3 ${headText}`}>{t("studio_business_identity", lang)}</p>
-            <Label className={`text-xs font-semibold ${mutedText} block mb-2`}>{t("studio_brand_logo", lang)}</Label>
+          {isBusinessIdentity && <div className="mb-3 rounded-xl border border-slate-200/80 p-3">
+            <p className={`text-[11px] font-black mb-2 ${headText}`}>{t("studio_business_identity", lang)}</p>
+            <Label className={`text-[11px] font-semibold ${mutedText} block mb-1.5`}>{t("studio_brand_logo", lang)}</Label>
             <div className="flex items-center gap-3">
               {liveForm.company_logo ? (
                 <div className="relative flex-shrink-0">
-                  <img src={liveForm.company_logo} alt="Logo" style={{ width: 56, height: 56, borderRadius: 10, objectFit: "contain", border: isDark ? "2px solid rgba(255,255,255,0.12)" : "2px solid #e2e8f0", background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc" }} />
+                  <img src={liveForm.company_logo} alt="Logo" style={{ width: 44, height: 44, borderRadius: 10, objectFit: "contain", border: isDark ? "2px solid rgba(255,255,255,0.12)" : "2px solid #e2e8f0", background: isDark ? "rgba(255,255,255,0.05)" : "#f8fafc" }} />
                   <button type="button" onClick={() => setVal("company_logo", "")}
                     className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow">×</button>
                 </div>
               ) : (
-                <div style={{ width: 56, height: 56, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.05)" : "#f1f5f9", border: isDark ? "2px dashed rgba(255,255,255,0.15)" : "2px dashed #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: isDark ? "rgba(255,255,255,0.05)" : "#f1f5f9", border: isDark ? "2px dashed rgba(255,255,255,0.15)" : "2px dashed #cbd5e1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
                   🏢
                 </div>
               )}
               <div>
-                <label className={`cursor-pointer flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${isDark ? "border-white/15 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                <label className={`cursor-pointer flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${isDark ? "border-white/15 text-white/60 hover:bg-white/8" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
                   <Plus className="w-3.5 h-3.5" />
                   {liveForm.company_logo ? t("studio_change_logo", lang) : t("studio_upload_logo", lang)}
                   <input type="file" accept="image/*" className="hidden" onChange={async e => {
@@ -269,7 +269,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
           <div className="mb-3">
             <p className={`text-xs font-black ${headText}`}>{t("studio_basic_info", lang)}</p>
           </div>
-          <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid sm:grid-cols-2 gap-2.5 sm:gap-3">
             <div>
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("display_name", lang)} *</Label>
               <Input className={`mt-1 ${inputCls}`} value={liveForm.display_name || ""} onChange={set("display_name")} placeholder={t("studio_name_placeholder", lang)} />
@@ -284,7 +284,7 @@ function InfoPanel({ liveForm, setVal, set, onSave, isPending, saveStatus, saveT
             </div>}
             <div className="sm:col-span-2">
               <Label className={`text-xs font-semibold ${mutedText}`}>{t("bio", lang)}</Label>
-              <Textarea className={`mt-1 ${inputCls}`} rows={4} value={liveForm.bio || ""} onChange={set("bio")} placeholder={t("studio_bio_placeholder", lang)} />
+              <Textarea className={`mt-1 ${inputCls}`} rows={3} value={liveForm.bio || ""} onChange={set("bio")} placeholder={t("studio_bio_placeholder", lang)} />
             </div>
           </div>
 
