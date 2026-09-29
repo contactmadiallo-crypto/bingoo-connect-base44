@@ -160,8 +160,14 @@ const Div = ({ isDark }) => (
 function resolveButtonDesign(profile, fallbackColor) {
   const style = profile?.button_style || "pill";
   const color = profile?.button_color || fallbackColor || "#0b2149";
-  const radius = style === "pill" ? 999 : style === "rounded" ? 14 : style === "sharp" ? 6 : style === "flat" ? 8 : 14;
-  return { style, color, radius, outlined: style === "outlined", flat: style === "flat" };
+  const radius = style === "pill" ? 999 : style === "sharp" ? 8 : ["glass","premium"].includes(style) ? 16 : 14;
+  return {
+    style, color, radius,
+    outlined: style === "outlined",
+    flat: style === "flat",
+    glass: style === "glass",
+    premium: style === "premium",
+  };
 }
 
 function IconGridItem({ href, onClick, icon, label, ev, track, isDark, tileSize = 58 }) {
@@ -219,14 +225,17 @@ function PaymentBtn({ p, _color, isDark, buttonDesign }) {
 }
 
 function RowLink({ href, onClick, iconEl, title, subtitle, chevron = true, isDark, ev, track, buttonDesign, rowStyle = "ios", iconShape = "rounded", grouped = false }) {
-  const radius = grouped ? 0 : (rowStyle === "pill" ? 999 : 14);
+  const compact = rowStyle === "compact";
+  const glass = rowStyle === "glass";
+  const radius = grouped ? 0 : (rowStyle === "pill" ? 999 : compact ? 11 : 14);
   const iconRadius = iconShape === "circle" ? "50%" : iconShape === "square" ? 7 : 10;
   const style = {
-    display: "flex", alignItems: "center", gap: 12,
-    minHeight: 58, padding: grouped ? "10px 14px" : "10px 12px", borderRadius: radius,
-    background: grouped ? "transparent" : (rowStyle === "outline" ? "transparent" : (isDark ? "rgba(255,255,255,0.07)" : "rgba(248,250,252,0.96)")),
-    border: grouped ? "none" : (rowStyle === "outline" ? `1px solid ${buttonDesign.color}` : (isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)")),
-    boxShadow: grouped ? "none" : (rowStyle === "ios" ? (isDark ? "0 1px 0 rgba(255,255,255,0.03) inset" : "0 1px 2px rgba(15,23,42,0.035)") : "none"),
+    display: "flex", alignItems: "center", gap: compact ? 9 : 12,
+    minHeight: compact ? 46 : 58, padding: grouped ? "10px 14px" : compact ? "6px 10px" : "10px 12px", borderRadius: radius,
+    background: grouped ? "transparent" : rowStyle === "outline" ? "transparent" : glass ? (isDark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.58)") : (isDark ? "rgba(255,255,255,0.07)" : "rgba(248,250,252,0.96)"),
+    border: grouped ? "none" : rowStyle === "outline" ? `1px solid ${buttonDesign.color}` : glass ? (isDark ? "1px solid rgba(255,255,255,.16)" : "1px solid rgba(255,255,255,.88)") : (isDark ? "1px solid rgba(255,255,255,0.09)" : "1px solid rgba(15,23,42,0.07)"),
+    boxShadow: grouped ? "none" : glass ? "0 8px 24px rgba(15,23,42,.10)" : rowStyle === "ios" ? (isDark ? "0 1px 0 rgba(255,255,255,0.03) inset" : "0 1px 2px rgba(15,23,42,0.035)") : "none",
+    backdropFilter: glass ? "blur(16px)" : undefined, WebkitBackdropFilter: glass ? "blur(16px)" : undefined,
     textDecoration: "none", color: "inherit", transition: "background .16s ease",
   };
   const content = (
