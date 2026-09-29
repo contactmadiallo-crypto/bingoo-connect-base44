@@ -199,7 +199,7 @@ function MiniContentStub({ color, isDark }) {
 }
 
 // iOS Control Center glass thumbnail — dark phone UI style
-function GlassThumbnail({ profile }) {
+function _GlassThumbnail({ profile }) {
   const avatar = profile?.profile_photo;
 
   return (
