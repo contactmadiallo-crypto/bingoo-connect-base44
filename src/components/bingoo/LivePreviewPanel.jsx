@@ -7,8 +7,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X, Smartphone, GripVertical, ExternalLink } from "lucide-react";
 import { TeamPreview, ServicesPreview, PracticeAreasPreview, OfficeLocationsPreview } from "./SectionPreview";
-import { ClassicLayout, ImageHeroLayout, GlassLayout, DarkPremiumLayout, ColorLayout, MinimalLayout, CardLayout, ModernSaasLayout, ExecutiveLayout, NeonLayout, RetroLayout, AuroraLayout, FloatingLayout, MagazineLayout, LuxuryGoldLayout, PortraitLayout } from "./ProfileLayoutRenderer";
-import { isLayoutDark, resolveProfileLayout } from "@/lib/profileLayouts";
+import ResolvedProfileLayout from "./ResolvedProfileLayout";
+import { resolveProfileAppearance } from "@/lib/profileLayouts";
 import { publicProfileUrl } from "@/lib/publicProfileUrl";
 
 const PANEL_WIDTH = 272;
@@ -47,46 +47,9 @@ function PreviewContentStub({ color, isDark }) {
 // Renders the actual layout renderers — same as PublicProfile.
 // This is the ONLY way to guarantee preview === public profile.
 function FullLayoutPreview({ profile }) {
-  const color      = profile?.cover_color || "#2563eb";
-  const layoutType = resolveProfileLayout(profile);
-  const isDark     = profile?.bg_style === "night" || isLayoutDark(layoutType);
-  const stub       = <PreviewContentStub color={color} isDark={isDark} />;
-  const lp         = { profile, color, isDark, mobile: true, contentSections: stub };
-
-  switch (layoutType) {
-    case "image_hero": case "image": case "video_bg": case "parallax": case "realtor_luxury":
-      return <ImageHeroLayout {...lp} />;
-    case "magazine":
-      return <MagazineLayout {...lp} />;
-    case "aurora": case "animated_gradient":
-      return <AuroraLayout {...lp} color={color} />;
-    case "glassmorphic": case "glass_card": case "glass": case "frosted": case "glass_3d":
-      return <GlassLayout {...lp} />;
-    case "modern_saas": case "split": case "corporate": case "modern_law":
-      return <ModernSaasLayout {...lp} />;
-    case "executive": case "executive_corp":
-      return <ExecutiveLayout {...lp} />;
-    case "luxury_gold":
-      return <LuxuryGoldLayout profile={profile} mobile={true} contentSections={stub} />;
-    case "dark": case "dark_premium": case "darkpremium": case "luxury": case "minimal_dark": case "cyberpunk": case "premium_salon": case "monochrome":
-      return <DarkPremiumLayout {...lp} />;
-    case "neon": case "neon_tech":
-      return <NeonLayout {...lp} />;
-    case "retro": case "paper":
-      return <RetroLayout {...lp} />;
-    case "floating":
-      return <FloatingLayout {...lp} />;
-    case "bold": case "color_gradient": case "color": case "color_hero": case "sunset": case "ocean": case "forest": case "wave": case "bubbly":
-      return <ColorLayout {...lp} />;
-    case "pastel": case "gradient": case "portrait":
-      return <PortraitLayout {...lp} />;
-    case "minimal": case "minimal_business":
-      return <MinimalLayout {...lp} />;
-    case "card": case "card_compact":
-      return <CardLayout {...lp} />;
-    default:
-      return <ClassicLayout {...lp} />;
-  }
+  const appearance = resolveProfileAppearance(profile);
+  const stub = <PreviewContentStub color={appearance.accent} isDark={appearance.dark} />;
+  return <ResolvedProfileLayout profile={profile} mobile={true} contentSections={stub} />;
 }
 
 function SectionContent({ previewMode, previewProfile, isDark, isLawFirm }) {
