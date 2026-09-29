@@ -250,7 +250,7 @@ export default function ActivateDevice() {
 
   return (
     <BingooLayout>
-      <div className="px-4 pb-10 pt-2 sm:px-6 max-w-4xl mx-auto space-y-6">
+      <div className="px-3 pb-8 pt-2 sm:px-5 max-w-4xl mx-auto space-y-4">
 
         <button type="button" onClick={() => navigate("/my-nfc-devices")}
           className={`inline-flex items-center gap-2 min-h-[44px] px-3 rounded-xl text-sm font-bold transition-colors ${isDark ? "text-white/60 hover:text-white hover:bg-white/5" : "text-slate-500 hover:text-slate-900 hover:bg-white"}`}>
@@ -258,15 +258,15 @@ export default function ActivateDevice() {
         </button>
 
         {/* Header */}
-        <div className="relative rounded-3xl overflow-hidden p-6 md:p-8"
+        <div className="relative rounded-2xl overflow-hidden p-4 md:p-5"
           style={{ background: isDark ? "linear-gradient(135deg,#1a1f35,#0f1628)" : "linear-gradient(135deg,#eff6ff,#f8fafc)", border: `1px solid ${isDark ? "rgba(99,102,241,0.2)" : "rgba(99,102,241,0.15)"}` }}>
           <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg flex-shrink-0">
-              <Smartphone className="w-7 h-7 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-lg flex-shrink-0">
+              <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className={`text-2xl font-black ${headText}`}>{t("nfc_activate_device", language)}</h1>
+              <h1 className={`text-xl font-black ${headText}`}> {t("nfc_activate_device", language)}</h1>
               <p className={`text-sm mt-0.5 ${subText}`}>{t("nfc_activate_copy", language)}</p>
             </div>
           </div>
@@ -293,14 +293,14 @@ export default function ActivateDevice() {
             })}
           </div>
 
-          <div className="rounded-3xl p-6 sm:p-8" style={cardStyle}>
+          <div className="rounded-2xl p-4 sm:p-5" style={cardStyle}>
             {activationStep === 1 && (
               <div className="space-y-5">
                 <div className="w-14 h-14 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center">
                   <Radio className="w-7 h-7" />
                 </div>
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_activate_heading", language)}</h2>
+                  <h2 className={`font-black text-xl ${headText}`}> {t("nfc_activate_heading", language)}</h2>
                   <p className={`text-sm mt-1 ${subText}`}>{t("nfc_code_help", language)}</p>
                 </div>
                 <div>
@@ -321,7 +321,7 @@ export default function ActivateDevice() {
             {activationStep === 2 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_choose_target", language)}</h2>
+                  <h2 className={`font-black text-xl ${headText}`}> {t("nfc_choose_target", language)}</h2>
                   <p className={`text-sm mt-1 ${subText}`}>Device {code.trim().toUpperCase()} — {t("nfc_choose_target_copy", language)}</p>
                 </div>
 
@@ -341,9 +341,9 @@ export default function ActivateDevice() {
                     const selected = assignTarget === "profile" && activationProfileId === profile.id;
                     return (
                       <button type="button" key={profile.id} onClick={() => setActivationProfileId(profile.id)}
-                        className={`w-full rounded-2xl border-2 p-4 flex items-center gap-4 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
-                        {profile.profile_photo ? <img src={profile.profile_photo} alt="" className="w-14 h-14 rounded-2xl object-cover" /> : (
-                          <span className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black" style={{ background: profile.cover_color || "#0b2149" }}>{profile.display_name?.charAt(0) || "P"}</span>
+                        className={`w-full rounded-xl border-2 p-3 flex items-center gap-3 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
+                        {profile.profile_photo ? <img src={profile.profile_photo} alt="" className="w-10 h-10 rounded-xl object-cover" /> : (
+                          <span className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-black" style={{ background: profile.cover_color || "#0b2149" }}>{profile.display_name?.charAt(0) || "P"}</span>
                         )}
                         <span className="flex-1 min-w-0">
                           <span className={`block font-black truncate ${selected && !isDark ? "text-slate-900" : headText}`}>{profile.display_name || "Untitled profile"}</span>
@@ -364,11 +364,11 @@ export default function ActivateDevice() {
                       const selected = selectedAsset === asset.id;
                       return (
                         <button type="button" key={asset.id} onClick={() => setSelectedAsset(asset.id)}
-                          className={`rounded-2xl border-2 p-4 flex items-center gap-3 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
+                          className={`rounded-xl border-2 p-3 flex items-center gap-3 text-left transition-all ${selected ? "border-orange-500 bg-orange-50/70" : isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white hover:border-slate-300"}`}>
                           {asset.photo_url ? (
-                            <img src={asset.photo_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
+                            <img src={asset.photo_url} alt="" className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
                           ) : (
-                            <span className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>
+                            <span className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>
                               <Package className={`w-7 h-7 ${selected ? "text-orange-500" : mutedText}`} />
                             </span>
                           )}
@@ -402,7 +402,7 @@ export default function ActivateDevice() {
             {activationStep === 3 && (
               <div className="space-y-5">
                 <div>
-                  <h2 className={`font-black text-2xl ${headText}`}>{t("nfc_confirm_activation", language)}</h2>
+                  <h2 className={`font-black text-xl ${headText}`}> {t("nfc_confirm_activation", language)}</h2>
                   <p className={`text-sm mt-1 ${subText}`}>{t("nfc_confirm_copy", language)}</p>
                 </div>
                 <div className={`rounded-2xl border p-5 space-y-3 ${isDark ? "border-white/10 bg-white/5" : "border-slate-200 bg-slate-50"}`}>
@@ -440,7 +440,7 @@ export default function ActivateDevice() {
         </div>
 
         {/* My Devices */}
-        <div className="rounded-2xl p-6" style={cardStyle}>
+        <div className="rounded-2xl p-4" style={cardStyle}>
           <h2 className={`font-black text-lg mb-1 ${headText}`}>{t("nfc_activate_my_devices",language)}</h2>
           <p className={`text-sm mb-5 ${mutedText}`}>{t("nfc_activate_manage",language)}</p>
 
@@ -456,7 +456,7 @@ export default function ActivateDevice() {
                 <motion.div
                   key={device.id}
                   layout
-                  className="rounded-xl p-4 border"
+                  className="rounded-xl p-3 border"
                   style={{ background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
                 >
                   <div className="flex items-center gap-3">
