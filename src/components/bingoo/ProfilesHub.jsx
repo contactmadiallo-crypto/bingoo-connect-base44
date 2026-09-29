@@ -271,7 +271,8 @@ export default function ProfilesHub({
         {/* Reorder controls (top-left) */}
         {renderReorderControls(profile, index, dragHandleProps)}
 
-        {/* Cover */}
+        {/* Compact layout DNA: accent + cover/background from the same recipe used publicly. */}
+        <div aria-hidden="true" className="absolute left-0 right-0 top-0 h-1 z-20" style={{ background: appearance.accent, borderRadius: "18px 18px 0 0" }} />
         <div className="relative" style={{ borderRadius: "18px 18px 0 0", overflow: "hidden" }}>
           <div className="h-[58px] sm:h-[92px]">
             {profile.cover_photo ? (
@@ -338,7 +339,7 @@ export default function ProfilesHub({
             </p>
           )}
 
-          <span className="hidden sm:inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full mb-2"
+          <span className="inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full mb-2"
             style={{ background: isDark ? "rgba(99,102,241,0.16)" : "#eef2ff", color: isDark ? "#a5b4fc" : "#4338ca" }}>
             {layoutLabel}
           </span>
