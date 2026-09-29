@@ -23,9 +23,11 @@ const _BG_STYLES = [
 const BTN_STYLES = [
   { v: "pill",     label: "iOS Filled",  radius: 14 },
   { v: "rounded",  label: "iOS Light",   radius: 14 },
-  { v: "outlined", label: "iOS Outline", radius: 14 },
-  { v: "flat",     label: "iOS Ghost",   radius: 14 },
-  { v: "sharp",    label: "Text",        radius: 10 },
+  { v: "outlined", label: "Outline",     radius: 14 },
+  { v: "flat",     label: "Ghost",       radius: 14 },
+  { v: "sharp",    label: "Minimal",     radius: 8 },
+  { v: "glass",    label: "Glass",       radius: 16 },
+  { v: "premium",  label: "Premium",     radius: 16 },
 ];
 
 const LINK_DISPLAY_STYLES = [
@@ -34,6 +36,7 @@ const LINK_DISPLAY_STYLES = [
 ];
 const LINK_ROW_STYLES = [
   { v: "ios", label: "iOS" }, { v: "pill", label: "Pill" }, { v: "outline", label: "Outline" },
+  { v: "glass", label: "Glass" }, { v: "compact", label: "Compact" },
 ];
 const LINK_ICON_SHAPES = [
   { v: "rounded", label: "Rounded" }, { v: "square", label: "Square" }, { v: "circle", label: "Circle" },
@@ -65,7 +68,7 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
   const mutedText = isDark ? "text-white/40" : "text-slate-400";
   const bg        = isDark ? "bg-[#13162a]"  : "bg-white";
   const border    = isDark ? "border-white/8" : "border-slate-200";
-  const rowCls    = `rounded-[14px] border ${border} ${bg} p-[18px] space-y-3`;
+  const rowCls    = `rounded-[14px] border ${border} ${bg} p-3 sm:p-4 space-y-3`;
 
   const sel = (v, current) => v === current;
 
@@ -99,8 +102,8 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
         <div className="space-y-4">
           <div className={rowCls}>
             <div>
-              <p className={`text-xs font-black ${headText}`}>{t("design_profile_color", lang)}</p>
-              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{t("design_profile_color_copy", lang)}</p>
+              <p className={`text-xs font-black ${headText}`}>{lang === "fr" ? "Couleur d’accent" : "Accent color"}</p>
+              <p className={`text-[11px] mt-0.5 ${mutedText}`}>{lang === "fr" ? "Appliquée aux actions, liens et détails du layout. Le layout conserve son propre fond." : "Used for actions, links and layout details. Your selected layout keeps control of its own background."}</p>
             </div>
             <div className="flex gap-2 flex-wrap">
               {COVER_COLORS.map(c => (
@@ -181,7 +184,7 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
               </div>
               <div>
                 <p className={`text-[10px] font-black uppercase tracking-wider mb-2 ${mutedText}`}>{t("design_row_style", lang)}</p>
-                <div className="grid grid-cols-3 rounded-xl overflow-hidden border border-slate-200">
+                <div className="grid grid-cols-3 sm:grid-cols-5 rounded-xl overflow-hidden border border-slate-200">
                   {LINK_ROW_STYLES.map(o => <button type="button" key={o.v} onClick={() => setVal("link_row_style", o.v)} className={`min-w-0 px-1.5 py-2 text-[10px] font-bold truncate ${sel(o.v, liveForm.link_row_style || "ios") ? "bg-blue-50 text-blue-600" : headText}`}>{o.label}</button>)}
                 </div>
               </div>
@@ -202,15 +205,22 @@ export default function DesignPanel({ liveForm, setVal, isDark, profile, lang })
                   className={`px-3 py-2 rounded-lg border text-xs font-bold ${isDark ? "border-white/10 text-white/60" : "border-slate-200 text-slate-600"}`}>{t("design_use_profile_color", lang)}</button>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {BTN_STYLES.map(o => {
                 const active = sel(o.v, liveForm.button_style || "pill");
                 return (
                   <button type="button" key={o.v} onClick={() => setVal("button_style", o.v)}
-                    className={`flex items-center gap-3 p-3 border-2 transition-all text-left ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
+                    className={`flex items-center gap-2 p-2 border-2 transition-all text-left ${active ? "border-orange-400 bg-orange-50" : `border-slate-200 ${isDark ? "border-white/10" : ""}`}`}
                     style={{ borderRadius: 12, ...(active && isDark ? { background: "rgba(249,115,22,0.08)", borderColor: "#f97316" } : {}) }}>
                     <span className="flex-1 px-4 py-2 text-center text-xs font-bold"
-                      style={{ borderRadius: o.radius, background: o.v === "outlined" ? "transparent" : (liveForm.button_color || liveForm.cover_color || "#0b2149"), color: o.v === "outlined" ? (liveForm.button_color || liveForm.cover_color || "#0b2149") : "#fff", border: o.v === "outlined" ? `2px solid ${liveForm.button_color || liveForm.cover_color || "#0b2149"}` : "2px solid transparent" }}>
+                      style={{
+                        borderRadius: o.radius,
+                        background: o.v === "outlined" ? "transparent" : o.v === "glass" ? "rgba(255,255,255,0.18)" : o.v === "premium" ? `linear-gradient(135deg, ${liveForm.button_color || liveForm.cover_color || "#0b2149"}, #111827)` : (liveForm.button_color || liveForm.cover_color || "#0b2149"),
+                        color: o.v === "outlined" ? (liveForm.button_color || liveForm.cover_color || "#0b2149") : "#fff",
+                        border: o.v === "outlined" ? `2px solid ${liveForm.button_color || liveForm.cover_color || "#0b2149"}` : o.v === "glass" ? "1px solid rgba(255,255,255,0.55)" : "2px solid transparent",
+                        boxShadow: o.v === "premium" ? "0 8px 18px rgba(15,23,42,.22)" : o.v === "glass" ? "0 6px 18px rgba(15,23,42,.10)" : "none",
+                        backdropFilter: o.v === "glass" ? "blur(12px)" : undefined,
+                      }}>
                       {o.label}
                     </span>
                     {active && <Check className="w-4 h-4 text-orange-500 flex-shrink-0" />}
