@@ -781,7 +781,6 @@ export default function ProfileWorkspace({
                       setVal("profile_category", category.id);
                       setVal("profile_type", category.profileType);
                     }}
-                    onCustomLabelChange={(value) => setVal("custom_profile_category", value)}
                   />
                 </div>
                 <div className="flex items-center gap-4">
