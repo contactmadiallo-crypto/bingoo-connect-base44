@@ -219,7 +219,9 @@
         "rounded",
         "sharp",
         "outlined",
-        "flat"
+        "flat",
+        "glass",
+        "premium"
       ],
       "default": "pill",
       "description": "Save/contact action style. Legacy values map to Figma iOS Filled, Light, Text, Outline and Ghost styles."
@@ -238,7 +240,9 @@
       "enum": [
         "ios",
         "pill",
-        "outline"
+        "outline",
+        "glass",
+        "compact"
       ],
       "default": "ios",
       "description": "Visual treatment for public profile link rows"
