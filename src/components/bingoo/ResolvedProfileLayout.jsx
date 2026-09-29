@@ -1,8 +1,4 @@
-import {
-  ClassicLayout, MinimalLayout, CardLayout, ImageHeroLayout, GlassLayout,
-  DarkPremiumLayout, AuroraLayout, MagazineLayout, ExecutiveLayout,
-  ModernSaasLayout, SalonLayout, LawFirmLayout, CorporateLayout,
-} from "./ProfileLayoutRenderer";
+import CanonicalProfileLayout from "./CanonicalProfileLayout";
 import NewYorkChampionshipLayout from "./layouts/NewYorkChampionshipLayout";
 import LionsOfTerangaLayout from "./layouts/LionsOfTerangaLayout";
 import { canonicalLayoutId, resolveProfileAppearance } from "@/lib/profileLayouts";
@@ -37,23 +33,19 @@ export default function ResolvedProfileLayout({
     contentSections,
   };
 
-  switch (layout) {
-    case "minimal": return <MinimalLayout {...props} />;
-    case "card": return <CardLayout {...props} />;
-    case "image_hero": return <ImageHeroLayout {...props} />;
-    case "glassmorphic": return <GlassLayout {...props} />;
-    case "dark": return <DarkPremiumLayout {...props} />;
-    case "aurora": return <AuroraLayout {...props} />;
-    case "magazine": return <MagazineLayout {...props} />;
-    case "executive": return <ExecutiveLayout {...props} />;
-    case "premium_salon": return <SalonLayout {...props} />;
-    case "modern_law": return <LawFirmLayout {...props} />;
-    case "corporate": return <CorporateLayout {...props} />;
-    case "modern_saas": return <ModernSaasLayout {...props} />;
-    case "ny_championship":
-      return <NewYorkChampionshipLayout profile={normalizedProfile}>{contentSections}</NewYorkChampionshipLayout>;
-    case "lions_teranga":
-      return <LionsOfTerangaLayout profile={normalizedProfile}>{contentSections}</LionsOfTerangaLayout>;
-    default: return <ClassicLayout {...props} />;
+  if (layout === "ny_championship") {
+    return <NewYorkChampionshipLayout profile={normalizedProfile}>{contentSections}</NewYorkChampionshipLayout>;
   }
+  if (layout === "lions_teranga") {
+    return <LionsOfTerangaLayout profile={normalizedProfile}>{contentSections}</LionsOfTerangaLayout>;
+  }
+  return (
+    <CanonicalProfileLayout
+      profile={normalizedProfile}
+      layout={layout}
+      accent={props.color}
+      mobile={mobile}
+      contentSections={contentSections}
+    />
+  );
 }
