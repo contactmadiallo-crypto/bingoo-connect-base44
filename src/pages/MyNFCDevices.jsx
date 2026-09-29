@@ -313,12 +313,12 @@ export default function MyNFCDevices() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className={`text-3xl sm:text-4xl font-black ${headText}`}>{t("nfc_devices_title", language)}</h1>
+            <h1 className={`text-2xl sm:text-3xl font-black ${headText}`}>{t("nfc_devices_title", language)}</h1>
             <p className={`text-sm mt-1 ${mutedText}`}>{t("nfc_devices_subtitle", language)}</p>
           </div>
             <Button
               onClick={() => navigate("/activate-device")}
-              className="h-12 px-5 sm:px-6 rounded-xl font-black gap-2 flex-shrink-0 w-full sm:w-auto"
+              className="h-10 px-4 sm:px-5 rounded-xl text-sm font-black gap-2 flex-shrink-0 w-full sm:w-auto"
               style={{ background: "#f97316", color: "#fff" }}
             >
               <Plus className="w-5 h-5" /> {t("nfc_activate_device", language)}
@@ -332,13 +332,13 @@ export default function MyNFCDevices() {
             { label: t("nfc_unassigned", language), value: unassignedCount, icon: X, color: "#64748b", iconBg: isDark ? "rgba(255,255,255,.08)" : "#f8fafc" },
             { label: t("nfc_total_taps", language), value: totalScans, icon: Zap, color: "#f97316", iconBg: isDark ? "rgba(249,115,22,.12)" : "#fff7ed" },
           ].map(stat => (
-            <div key={stat.label} className="rounded-2xl border p-3.5 sm:p-5 min-h-[132px] sm:min-h-[150px] flex flex-col justify-between min-w-0" style={{ background: bg, borderColor: border }}>
-              <span className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: stat.iconBg }}>
-                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+            <div key={stat.label} className="rounded-xl border p-3 min-h-[96px] sm:min-h-[104px] flex flex-col justify-between min-w-0" style={{ background: bg, borderColor: border }}>
+              <span className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: stat.iconBg }}>
+                <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
               </span>
               <div>
-                <p className={`text-3xl font-black ${headText}`}>{stat.value}</p>
-                <p className={`text-sm font-medium ${mutedText}`}>{stat.label}</p>
+                <p className={`text-2xl font-black leading-none ${headText}`}>{stat.value}</p>
+                <p className={`text-xs font-medium mt-1 ${mutedText}`}>{stat.label}</p>
               </div>
             </div>
           ))}
@@ -460,7 +460,7 @@ export default function MyNFCDevices() {
                     </div>
 
                     {/* Devices in this group */}
-                    <div className={`space-y-4 ${isMulti ? "sm:pl-2" : ""}`}>
+                    <div className={`space-y-2.5 ${isMulti ? "sm:pl-2" : ""}`}> 
             {devices.map(device => {
               const deviceUrl = buildDeviceUrl(device.device_code);
               const typeInfo = DEVICE_TYPES.find(t => t.value === device.device_type) || DEVICE_TYPES[0];
@@ -474,8 +474,8 @@ export default function MyNFCDevices() {
                   style={{ background: bg, border: `1px solid ${isLost ? "rgba(239,68,68,0.3)" : border}` }}>
 
                   {/* Card Header */}
-                  <div className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden ${isLost ? "bg-red-500/15" : isDisabled ? "bg-slate-500/15" : "bg-gradient-to-br from-orange-500/20 to-amber-500/20"}`}>
+                  <div className="p-2.5 sm:p-3 flex items-center gap-2.5 min-w-0">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden ${isLost ? "bg-red-500/15" : isDisabled ? "bg-slate-500/15" : "bg-gradient-to-br from-orange-500/20 to-amber-500/20"}`}>
                       {device.product_image ? (
                         <img src={device.product_image} alt={device.product_name || typeInfo.label} className="w-full h-full object-cover" />
                       ) : (
