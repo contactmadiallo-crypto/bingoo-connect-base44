@@ -128,19 +128,19 @@ export const LAYOUT_RECIPES = {
     id: "classic", name: "Classic", desc: "Cover + centered overlap", pro: false,
     dark: false, defaultAccent: "#2563eb", defaultBackground: "#ffffff",
     surface: "clean", avatar: "center_overlap", typography: "modern",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   minimal: {
     id: "minimal", name: "Minimal", desc: "Compact business identity", pro: false,
     dark: false, defaultAccent: "#0b2149", defaultBackground: "#f8fafc",
     surface: "flat", avatar: "left_overlap", typography: "clean",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   card: {
     id: "card", name: "Card", desc: "Slim cover + compact floating card", pro: false,
     dark: false, defaultAccent: "#0b2149", defaultBackground: "#f8fafc",
     surface: "card", avatar: "left_overlap", typography: "modern",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   image_hero: {
     id: "image_hero", name: "Image Hero", desc: "Full-bleed visual hero", pro: true,
@@ -152,7 +152,7 @@ export const LAYOUT_RECIPES = {
     id: "glassmorphic", name: "Glass", desc: "Frosted glass on atmospheric gradient", pro: true,
     dark: false, defaultAccent: "#6366f1", defaultBackground: "linear-gradient(145deg,#e0e7ff,#f8fafc)",
     surface: "glass", avatar: "center_overlap", typography: "modern",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   dark: {
     id: "dark", name: "Dark Premium", desc: "Cinematic dark identity", pro: true,
@@ -181,7 +181,7 @@ export const LAYOUT_RECIPES = {
   premium_salon: {
     id: "premium_salon", name: "Salon / Service", desc: "Beauty and service-forward profile", pro: true,
     dark: true, defaultAccent: "#ec4899", defaultBackground: "linear-gradient(160deg,#1a0a14,#38162d)",
-    surface: "salon", avatar: "center_overlap", typography: "elegant",
+    surface: "salon", avatar: "center_overlap", typography: "classic",
     allowBackgroundOverride: false,
   },
   modern_law: {
@@ -194,13 +194,13 @@ export const LAYOUT_RECIPES = {
     id: "corporate", name: "Business Team", desc: "Company-first team identity", pro: true,
     dark: false, defaultAccent: "#2563eb", defaultBackground: "#f1f5f9",
     surface: "corporate", avatar: "left_overlap", typography: "clean",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   modern_saas: {
     id: "modern_saas", name: "Split", desc: "SaaS-style horizontal identity row", pro: true,
     dark: false, defaultAccent: "#0d9488", defaultBackground: "#ecfdf5",
     surface: "split", avatar: "left_overlap", typography: "clean",
-    allowBackgroundOverride: true,
+    allowBackgroundOverride: false,
   },
   ny_championship: {
     id: "ny_championship", name: "NY Championship", desc: "Bold championship edition", pro: true,
