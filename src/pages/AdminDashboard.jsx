@@ -183,14 +183,14 @@ export default function AdminDashboard() {
           <div className="relative rounded-2xl p-1.5 mb-6" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="w-full min-w-0 overflow-x-auto scrollbar-hide" style={{ WebkitOverflowScrolling: "touch" }}>
               <div className="flex w-max min-w-full gap-1 px-1 whitespace-nowrap">
-                {TABS.map(t => (
-                  <button key={t.id} onClick={() => setTab(t.id)}
+                {TABS.map(tabItem => (
+                  <button key={tabItem.id} onClick={() => setTab(tabItem.id)}
                     className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-bold flex-shrink-0 transition-all"
-                    style={{ background: tab === t.id ? orange : "transparent", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
-                    <t.icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="md:hidden">{t.short}</span>
-                    <span className="hidden md:inline">{t.label}</span>
-                    {t.count !== undefined && <span className="rounded-full px-1.5 py-0.5 text-xs flex-shrink-0" style={{ background: tab === t.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === t.id ? "#fff" : "rgba(255,255,255,0.4)" }}>{t.count}</span>}
+                    style={{ background: tab === tabItem.id ? orange : "transparent", color: tab === tabItem.id ? "#fff" : "rgba(255,255,255,0.4)" }}>
+                    <tabItem.icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="md:hidden">{tabItem.short}</span>
+                    <span className="hidden md:inline">{tabItem.label}</span>
+                    {tabItem.count !== undefined && <span className="rounded-full px-1.5 py-0.5 text-xs flex-shrink-0" style={{ background: tab === tabItem.id ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: tab === tabItem.id ? "#fff" : "rgba(255,255,255,0.4)" }}>{tabItem.count}</span>}
                   </button>
                 ))}
               </div>
@@ -260,17 +260,17 @@ export default function AdminDashboard() {
                   <div>
                     {topProfiles.length === 0 ? (
                       <div className="text-center py-10" style={{ color: "rgba(255,255,255,0.2)" }}><Star className="w-8 h-8 mx-auto mb-2 opacity-20" /><p className="text-sm">{t("admin_no_activity",language)}</p></div>
-                    ) : topProfiles.map((t, i) => (
-                      <div key={t.profile.id} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                    ) : topProfiles.map((tp, i) => (
+                      <div key={tp.profile.id} className="flex items-center gap-3 px-5 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                         <span className="text-lg font-black flex-shrink-0" style={{ color: i === 0 ? gold : "rgba(255,255,255,0.3)" }}>#{i + 1}</span>
-                        {t.profile.profile_photo
-                          ? <img src={t.profile.profile_photo} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
-                          : <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: t.profile.cover_color || "#334155" }}>{t.profile.display_name?.charAt(0) || "?"}</div>}
+                        {tp.profile.profile_photo
+                          ? <img src={tp.profile.profile_photo} className="w-8 h-8 rounded-full object-cover flex-shrink-0" alt="" />
+                          : <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-white text-xs flex-shrink-0" style={{ background: tp.profile.cover_color || "#334155" }}>{tp.profile.display_name?.charAt(0) || "?"}</div>}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-white truncate">{t.profile.display_name}</p>
-                          <a href={publicProfileUrl(t.profile.username)} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{t.profile.username}</a>
+                          <p className="text-sm font-bold text-white truncate">{tp.profile.display_name}</p>
+                          <a href={publicProfileUrl(tp.profile.username)} target="_blank" rel="noopener" className="text-xs font-mono hover:underline" style={{ color: "#f97316" }}>/{tp.profile.username}</a>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>{t.count} {t("admin_events",language)}</span>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0" style={{ background: "rgba(6,182,212,0.15)", color: "#06b6d4", border: "1px solid rgba(6,182,212,0.3)" }}>{tp.count} {t("admin_events",language)}</span>
                       </div>
                     ))}
                   </div>
