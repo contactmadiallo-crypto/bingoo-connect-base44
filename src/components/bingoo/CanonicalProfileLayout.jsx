@@ -87,7 +87,7 @@ function Glass({profile,accent,mobile,contentSections}) {
   const bg=`radial-gradient(circle at 20% 10%,${hexRgb(accent,.34)},transparent 34%),radial-gradient(circle at 90% 30%,rgba(249,115,22,.18),transparent 30%),linear-gradient(145deg,#e7ecff,#f8fafc)`;
   return <Shell mobile={mobile} pageBg={bg} innerBg="transparent" contentSections={contentSections} contentPad="10px 14px 120px" shadow={false}>
     <div style={{margin:mobile?"18px 14px 10px":"22px 18px 12px",padding:"18px",borderRadius:26,background:"rgba(255,255,255,.62)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,.78)",boxShadow:"0 16px 38px rgba(69,78,130,.18)",textAlign:"center"}}>
-      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={82} border="3px solid rgba(255,255,255,.85)" shadow=`0 10px 30px ${hexRgb(accent,.24)}`/></div>
+      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={82} border="3px solid rgba(255,255,255,.85)" shadow={`0 10px 30px ${hexRgb(accent,.24)}`}/></div>
       <div style={{marginTop:10}}><Identity profile={profile} accent={accent} align="center"/></div>
     </div>
   </Shell>;
@@ -96,7 +96,7 @@ function Glass({profile,accent,mobile,contentSections}) {
 function Dark({profile,accent,mobile,contentSections}) {
   return <Shell mobile={mobile} pageBg="#050810" innerBg="#080c16" contentSections={contentSections}>
     <div style={{padding:"28px 18px 18px",textAlign:"center",background:"radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 46%)"}}>
-      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={88} border:`2px solid ${accent}` shadow:`0 0 0 6px ${hexRgb(accent,.10)},0 0 32px ${hexRgb(accent,.28)}`/></div>
+      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={88} border={`2px solid ${accent}`} shadow={`0 0 0 6px ${hexRgb(accent,.10)},0 0 32px ${hexRgb(accent,.28)}`}/></div>
       <div style={{marginTop:12}}><Identity profile={profile} accent={accent} align="center" dark/></div>
     </div>
   </Shell>;
@@ -145,7 +145,7 @@ function Salon({profile,accent,mobile,contentSections}) {
   return <Shell mobile={mobile} pageBg="#160912" innerBg={bg} contentSections={contentSections}>
     <Cover profile={profile} accent={accent} height={mobile?145:175} overlay="linear-gradient(to bottom,rgba(26,10,20,.18),#1b0b16 100%)"/>
     <div style={{textAlign:"center",padding:"0 18px 18px",marginTop:-44,position:"relative"}}>
-      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={88} border="4px solid #1b0b16" shadow:`0 10px 34px ${hexRgb(accent,.30)}`/></div>
+      <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={88} border="4px solid #1b0b16" shadow={`0 10px 34px ${hexRgb(accent,.30)}`}/></div>
       <div style={{marginTop:10}}><Identity profile={profile} accent="#f9a8d4" align="center" dark serif/></div>
       <div style={{width:48,height:1,background:`linear-gradient(90deg,transparent,${accent},transparent)`,margin:"13px auto 0"}}/>
     </div>
@@ -159,7 +159,7 @@ function Law({profile,accent,mobile,contentSections}) {
         <p style={{margin:"0 0 7px",fontSize:9,fontWeight:900,letterSpacing:".18em",textTransform:"uppercase",color:accent}}>{profile?.company_name||"Legal Profile"}</p>
         <Identity profile={{...profile,company_name:null}} accent={accent} dark serif/>
       </div>
-      <Avatar profile={profile} size={76} radius={7} border:`1px solid ${accent}`/>
+      <Avatar profile={profile} size={76} radius={7} border={`1px solid ${accent}`}/>
     </div>
   </Shell>;
 }
