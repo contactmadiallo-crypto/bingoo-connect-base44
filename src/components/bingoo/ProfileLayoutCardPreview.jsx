@@ -1,5 +1,4 @@
 import ResolvedProfileLayout from "@/components/bingoo/ResolvedProfileLayout";
-import { resolveProfileAppearance } from "@/lib/profileLayouts";
 
 /**
  * ProfileLayoutCardPreview
@@ -9,7 +8,6 @@ import { resolveProfileAppearance } from "@/lib/profileLayouts";
  */
 export default function ProfileLayoutCardPreview({ profile, height = 190, compact = false }) {
   const h = height;
-  resolveProfileAppearance(profile);
   // My Profiles must show the entire identity/header composition, not a cropped cover.
   // Scale the real public renderer down from its natural top edge so avatar, profession,
   // display name, job title and company/brand line remain visible together.
