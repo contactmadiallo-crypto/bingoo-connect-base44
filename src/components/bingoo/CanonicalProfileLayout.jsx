@@ -43,7 +43,7 @@ function Shell({ mobile, pageBg, innerBg, children, contentSections, contentPad=
 }
 
 function Classic({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#eef2f7" innerBg="#fff" contentSections={contentSections}>
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,${hexRgb(accent,.10)},#eef4ff 46%,#f8fbff)`} innerBg="#f8fbff" contentSections={contentSections}>
     <Cover profile={profile} accent={accent} height={mobile?150:180}/>
     <div style={{padding:"0 18px 14px",textAlign:"center",marginTop:-48,position:"relative"}}>
       <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={92} border="4px solid #fff" shadow="0 10px 30px rgba(15,23,42,.22)"/></div>
@@ -53,7 +53,7 @@ function Classic({profile,accent,mobile,contentSections}) {
 }
 
 function Minimal({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#f5f7fa" innerBg="#fff" contentSections={contentSections} contentPad="10px 14px 120px">
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,${hexRgb(accent,.12)},#eef3f8 55%,#f8fafc)`} innerBg="#f4f7fb" contentSections={contentSections} contentPad="10px 14px 120px">
     <div style={{height:5,background:accent}}/>
     <div style={{display:"flex",alignItems:"center",gap:13,padding:"18px 16px 14px",borderBottom:"1px solid #e8edf3"}}>
       <Avatar profile={profile} size={66} radius={14}/>
@@ -64,7 +64,7 @@ function Minimal({profile,accent,mobile,contentSections}) {
 }
 
 function Card({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#f1f5f9" innerBg="#f1f5f9" contentSections={contentSections} contentPad="8px 14px 120px">
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,${hexRgb(accent,.14)},#eaf0f8 52%,#f8fafc)`} innerBg={`linear-gradient(180deg,#eef3f9,${hexRgb(accent,.06)})`} contentSections={contentSections} contentPad="8px 14px 120px">
     <Cover profile={profile} accent={accent} height={mobile?92:110} overlay="linear-gradient(to bottom,transparent,rgba(15,23,42,.15))"/>
     <div style={{margin:"-28px 14px 10px",background:"#fff",borderRadius:20,padding:"14px",display:"flex",alignItems:"center",gap:12,boxShadow:"0 12px 34px rgba(15,23,42,.12)",position:"relative"}}>
       <Avatar profile={profile} size={64} radius={16}/>
@@ -74,7 +74,7 @@ function Card({profile,accent,mobile,contentSections}) {
 }
 
 function ImageHero({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#0f172a" innerBg="#fff" contentSections={contentSections} contentPad="12px 14px 120px">
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,#081120,${accent})`} innerBg={`linear-gradient(180deg,#f8fbff,${hexRgb(accent,.07)})`} contentSections={contentSections} contentPad="12px 14px 120px">
     <div style={{height:mobile?250:290,position:"relative",overflow:"hidden",background:`linear-gradient(135deg,${accent},#0f172a)`}}>
       {profile?.cover_photo && <img src={profile.cover_photo} alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:profile.cover_position||"center"}}/>}
       <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(5,11,24,.90),rgba(5,11,24,.08) 62%)"}}/>
@@ -97,7 +97,7 @@ function Glass({profile,accent,mobile,contentSections}) {
 }
 
 function Dark({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#050810" innerBg="#080c16" contentSections={contentSections}>
+  return <Shell mobile={mobile} pageBg="linear-gradient(160deg,#040713,#0b1730 58%,#111827)" innerBg="linear-gradient(180deg,#08111f,#10182b)" contentSections={contentSections}>
     <div style={{padding:"28px 18px 18px",textAlign:"center",background:"radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 46%)"}}>
       <div style={{display:"flex",justifyContent:"center"}}><Avatar profile={profile} size={88} border={`2px solid ${accent}`} shadow={`0 0 0 6px ${hexRgb(accent,.10)},0 0 32px ${hexRgb(accent,.28)}`}/></div>
       <div style={{marginTop:12}}><Identity profile={profile} accent={accent} align="center" dark/></div>
@@ -120,7 +120,7 @@ function Aurora({profile,accent,mobile,contentSections}) {
 }
 
 function Magazine({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#ece8df" innerBg="#fffdf7" contentSections={contentSections}>
+  return <Shell mobile={mobile} pageBg="linear-gradient(160deg,#eadfce,#f5e9da 55%,#efe7dc)" innerBg="linear-gradient(180deg,#fff8ee,#fffdf7)" contentSections={contentSections}>
     <Cover profile={profile} accent={accent} height={mobile?180:215} overlay="linear-gradient(to top,rgba(0,0,0,.35),transparent 65%)"/>
     <div style={{display:"grid",gridTemplateColumns:"78px 1fr",gap:14,padding:"14px 18px 16px",alignItems:"start",borderBottom:"1px solid #ded7c8"}}>
       <Avatar profile={profile} size={78} radius={6}/>
@@ -156,7 +156,7 @@ function Salon({profile,accent,mobile,contentSections}) {
 }
 
 function Law({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#e8edf3" innerBg="#f9fafb" contentSections={contentSections}>
+  return <Shell mobile={mobile} pageBg="linear-gradient(160deg,#dfe7ef,#edf2f7 55%,#f4efe5)" innerBg="linear-gradient(180deg,#f8f4ea,#f9fafb)" contentSections={contentSections}>
     <div style={{background:"#0b172a",padding:"24px 18px",borderTop:`5px solid ${accent}`,display:"flex",gap:16,alignItems:"center"}}>
       <div style={{flex:1}}>
         <p style={{margin:"0 0 7px",fontSize:9,fontWeight:900,letterSpacing:".18em",textTransform:"uppercase",color:accent}}>{profile?.company_name||"Legal Profile"}</p>
@@ -168,7 +168,7 @@ function Law({profile,accent,mobile,contentSections}) {
 }
 
 function Corporate({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#e9eef5" innerBg="#fff" contentSections={contentSections}>
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,${hexRgb(accent,.14)},#e8f0fb 58%,#f5f9ff)`} innerBg="linear-gradient(180deg,#f7fbff,#eef4fb)" contentSections={contentSections}>
     <div style={{height:6,background:`linear-gradient(90deg,${accent},#0b2149)`}}/>
     {profile?.cover_photo && <Cover profile={profile} accent={accent} height={mobile?86:110} overlay="linear-gradient(to right,rgba(11,33,73,.22),transparent)"/>}
     <div style={{padding:"16px",display:"flex",alignItems:"center",gap:13,borderBottom:"1px solid #e2e8f0"}}>
@@ -180,7 +180,7 @@ function Corporate({profile,accent,mobile,contentSections}) {
 }
 
 function Split({profile,accent,mobile,contentSections}) {
-  return <Shell mobile={mobile} pageBg="#eaf4f1" innerBg="#fff" contentSections={contentSections} contentPad="10px 14px 120px">
+  return <Shell mobile={mobile} pageBg={`linear-gradient(160deg,${hexRgb(accent,.16)},#e5f3ef 50%,#f4fbf8)`} innerBg="linear-gradient(180deg,#f4fbf8,#e9f6f2)" contentSections={contentSections} contentPad="10px 14px 120px">
     <div style={{height:5,background:`linear-gradient(90deg,${accent},#0b2149)`}}/>
     {profile?.cover_photo && <Cover profile={profile} accent={accent} height={mobile?92:116} overlay={`linear-gradient(to right,${hexRgb(accent,.32)},transparent)`}/>}
     <div style={{display:"grid",gridTemplateColumns:"72px 1fr auto",gap:13,alignItems:"center",padding:"16px",borderBottom:"1px solid #e2e8f0",background:"#fff"}}>
