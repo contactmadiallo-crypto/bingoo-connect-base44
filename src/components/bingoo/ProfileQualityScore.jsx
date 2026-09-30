@@ -8,7 +8,7 @@ const CHECKLIST_ITEMS = [
   { key: 'profile_photo', labelKey: 'quality_profile_photo', weight: 15 },
   { key: 'display_name', labelKey: 'quality_display_name', weight: 10 },
   { key: 'job_title', labelKey: 'quality_job_title', weight: 10 },
-  { key: 'company_name', labelKey: 'quality_company_name', weight: 10 },
+  { key: 'profile_category', labelKey: 'quality_profile_type', weight: 10, check: (p) => !!(p.profile_category || p.profile_type) },
   { key: 'bio', labelKey: 'quality_bio', weight: 15 },
   { key: 'phone', labelKey: 'quality_phone', weight: 5 },
   { key: 'email', labelKey: 'quality_email', weight: 5 },
@@ -26,6 +26,7 @@ function getSmartRecommendations(profile, completedItems, language) {
   if (!profile.profile_photo) recs.push({ icon: '📷', text: t('quality_rec_photo', language) });
   if (!profile.bio) recs.push({ icon: '✍️', text: t('quality_rec_bio', language) });
   if (!profile.job_title) recs.push({ icon: '💼', text: t('quality_rec_job', language) });
+  if (!profile.profile_category && !profile.profile_type) recs.push({ icon: '🧭', text: language === 'fr' ? 'Choisissez votre profession ou activité pour mieux présenter votre profil.' : 'Choose your profession or activity so visitors immediately understand your profile.' });
   if (!profile.website) recs.push({ icon: '🔗', text: t('quality_rec_website', language) });
   if (profile.layout === 'classic') recs.push({ icon: '🎨', text: t('quality_rec_layout', language) });
   const socialCount = ['facebook_url','instagram_url','tiktok_url','linkedin_url','youtube_url'].filter(k => profile[k]).length;
@@ -69,14 +70,14 @@ export default function ProfileQualityScore({ profile, isDark }) {
   return (
     <div className="space-y-4">
       {/* Quality Score */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
-        <div className="flex items-center justify-between mb-4">
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 shadow-sm`}>
+        <div className="flex items-start justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-orange-500" />
-            <h3 className={`text-sm font-black ${headText}`}>{t('quality_title', language)}</h3>
+            <div><h3 className={`text-sm font-black ${headText}`}>{t('quality_title', language)}</h3><p className={`text-[11px] mt-1 ${mutedText}`}>{language === 'fr' ? 'Basé sur la nouvelle architecture du profil, les liens et le layout public.' : 'Based on your profile identity, links and selected public layout.'}</p></div>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-black" style={{ color: scoreColor }}>{score}<span className="text-lg">/100</span></p>
+            <p className="text-2xl sm:text-3xl font-black leading-none" style={{ color: scoreColor }}>{score}<span className="text-sm sm:text-lg">/100</span></p>
             <p className="text-xs font-bold" style={{ color: scoreColor }}>{scoreLabel}</p>
           </div>
         </div>
@@ -87,13 +88,13 @@ export default function ProfileQualityScore({ profile, isDark }) {
         </div>
 
         {/* Checklist */}
-        <div className="space-y-1.5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-1.5">
           {CHECKLIST_ITEMS.map(item => {
             const isDone = item.check ? item.check(profile) : profile[item.key];
             return (
-              <div key={item.key} className="flex items-center gap-2">
+              <div key={item.key} className={`flex items-center gap-2 rounded-lg px-1.5 py-1 ${isDone ? "" : (isDark ? "bg-white/[0.025]" : "bg-slate-50")}`}> 
                 {isDone ? <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <Circle className={`w-4 h-4 ${mutedText} flex-shrink-0`} />}
-                <span className={`text-xs flex-1 ${isDone ? `font-semibold ${headText}` : mutedText}`}>{t(item.labelKey, language)}</span>
+                <span className={`text-xs flex-1 ${isDone ? `font-semibold ${headText}` : mutedText}`}>{item.key === "profile_category" ? (language === "fr" ? "Profession / activité" : "Profession / activity") : t(item.labelKey, language)}</span>
                 <span className={`text-[10px] font-bold ${isDone ? 'text-emerald-500' : mutedText}`}>+{item.weight}</span>
               </div>
             );
@@ -103,7 +104,7 @@ export default function ProfileQualityScore({ profile, isDark }) {
 
       {/* Smart Recommendations */}
       {recs.length > 0 && (
-        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
+        <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 shadow-sm`}>
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb className="w-5 h-5 text-orange-500" />
             <h3 className={`text-sm font-black ${headText}`}>{t('quality_smart_recs', language)}</h3>
@@ -120,7 +121,7 @@ export default function ProfileQualityScore({ profile, isDark }) {
       )}
 
       {/* ROI Analytics Cards */}
-      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-5`}>
+      <div className={`rounded-2xl border ${panelBorder} ${panelBg} p-4 sm:p-5 shadow-sm`}>
         <div className="flex items-center gap-2 mb-3">
           <BarChart3 className="w-5 h-5 text-orange-500" />
           <h3 className={`text-sm font-black ${headText}`}>{t('quality_roi', language)}</h3>
