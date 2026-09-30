@@ -274,7 +274,7 @@ export default function ProfilesHub({
 
         {/* Real selected-layout preview: same saved layout identity as Live/Public Profile. */}
         <div className="p-2 pb-1">
-          <ProfileLayoutCardPreview profile={profile} height={118} compact />
+          <ProfileLayoutCardPreview profile={profile} height={154} compact />
         </div>
         <div className="flex items-center justify-end gap-1.5 px-2.5 pb-0.5">
           {profile.is_active && (
