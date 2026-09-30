@@ -8,28 +8,13 @@ import { resolveProfileAppearance } from "@/lib/profileLayouts";
  * a second miniature layout implementation that can drift out of sync.
  */
 export default function ProfileLayoutCardPreview({ profile, height = 190, compact = false }) {
-  const h = compact ? Math.min(height, 160) : height;
-  const appearance = resolveProfileAppearance(profile);
-  const layout = appearance.canonicalLayout;
-  const scale = compact ? 0.66 : 0.78;
-  const topOffsets = {
-    classic: -8,
-    minimal: 0,
-    card: 0,
-    image_hero: -72,
-    glassmorphic: 0,
-    dark: 0,
-    aurora: -16,
-    magazine: -48,
-    executive: -14,
-    premium_salon: -22,
-    modern_law: -8,
-    corporate: 0,
-    modern_saas: 0,
-    ny_championship: 0,
-    lions_teranga: 0,
-  };
-  const top = compact ? (topOffsets[layout] ?? 0) : 0;
+  const h = height;
+  resolveProfileAppearance(profile);
+  // My Profiles must show the entire identity/header composition, not a cropped cover.
+  // Scale the real public renderer down from its natural top edge so avatar, profession,
+  // display name, job title and company/brand line remain visible together.
+  const scale = compact ? 0.62 : 0.78;
+  const top = 0;
   return (
     <div
       style={{
