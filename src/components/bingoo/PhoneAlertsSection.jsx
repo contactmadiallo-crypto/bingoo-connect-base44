@@ -154,9 +154,9 @@ export default function PhoneAlertsSection({ user }) {
     try {
       await base44.entities.PushSubscription.update(sub.id, { enabled: !sub.enabled });
       setSubs((prev) => prev.map((s) => (s.id === sub.id ? { ...s, enabled: !s.enabled } : s)));
-      toast.success(sub.enabled ? "Alerts paused for this device" : "Alerts resumed for this device");
+      toast.success(sub.enabled ? tr("Alerts paused for this device", "Alertes en pause sur cet appareil") : tr("Alerts resumed for this device", "Alertes réactivées sur cet appareil"));
     } catch {
-      toast.error("Could not update device");
+      toast.error(tr("Could not update device", "Impossible de mettre à jour l’appareil"));
     }
   };
 
@@ -174,25 +174,20 @@ export default function PhoneAlertsSection({ user }) {
     try {
       await base44.entities.PushSubscription.delete(sub.id);
       setSubs((prev) => prev.filter((s) => s.id !== sub.id));
-      toast.success("Device removed");
+      toast.success(tr("Device removed", "Appareil supprimé"));
     } catch {
-      toast.error("Could not remove device");
+      toast.error(tr("Could not remove device", "Impossible de supprimer l’appareil"));
     }
   };
 
   const handleTest = async () => {
     setTesting(true);
     try {
-      const res = await base44.functions.invoke("sendPushNotification", {
-        user_id: user.id,
-        title: "🔔 Test alert from Bingoo",
-        body: "Phone alerts are working! You'll get new lead and appointment reminders here.",
-        url: "/bingoo",
-      });
-      if (res.data?.sent > 0) toast.success("Test push sent — check your device!");
-      else toast.info("No enabled devices found. Enable alerts first.");
+      const res = await base44.functions.invoke("sendTestPush", {});
+      if (res.data?.sent > 0) toast.success(tr("Test alert sent — check your device!", "Alerte de test envoyée — vérifiez votre appareil !"));
+      else toast.info(tr("No enabled devices found. Enable alerts first.", "Aucun appareil actif. Activez d’abord les alertes."));
     } catch (e) {
-      toast.error("Test failed: " + (e.message || "Unknown error"));
+      toast.error(tr("Test failed: ", "Échec du test : ") + (e.message || tr("Unknown error", "Erreur inconnue")));
     } finally {
       setTesting(false);
     }
