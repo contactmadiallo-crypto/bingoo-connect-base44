@@ -25,7 +25,6 @@ const PracticeAreasPanel = React.lazy(() => import("@/components/bingoo/Practice
 const LegalServicesPanel = React.lazy(() => import("@/components/bingoo/LegalServicesPanel"));
 const OfficeLocationsPanel = React.lazy(() => import("@/components/bingoo/OfficeLocationsPanel"));
 import { useBingooTheme } from "@/hooks/useBingooTheme";
-import { getLang, setLang as persistLang } from "@/lib/i18n";
 import { useI18n } from '@/lib/I18nContext';
 import { isAdminUser } from '@/lib/auth';
 const ProfilesHub = React.lazy(() => import("@/components/bingoo/ProfilesHub"));
@@ -493,13 +492,9 @@ export default function BingooDashboard() {
     navigate(`/bingoo?view=${v}`, { replace: false });
   };
 
-  // Language
-  const [lang, setLangState] = useState(() => getLang());
-  const toggleLang = () => {
-    const next = lang === "en" ? "fr" : "en";
-    persistLang(next);
-    setLangState(next);
-  };
+  // Language — single source of truth is the global I18n provider (also synced to User.preferred_language).
+  // A separate local state here used to desynchronise the dashboard from components that read useI18n().
+  const { language: lang } = useI18n();
   const TR = {
     en: { lostMode: "Lost Mode" },
     fr: { lostMode: "Mode Perdu" }
@@ -585,10 +580,6 @@ export default function BingooDashboard() {
                   compact
                 />
               )}
-              <button onClick={toggleLang} aria-label="Toggle language"
-                className={`min-h-[44px] px-3 rounded-full text-xs font-bold transition-all flex items-center ${isDark ? "bg-white/8 border border-white/12 text-white/50 hover:text-white" : "bg-white border border-slate-200 text-slate-400 hover:text-slate-700"}`}>
-                {lang === "en" ? "🇫🇷 FR" : "🇺🇸 EN"}
-              </button>
             </div>
           </div>
           )}
