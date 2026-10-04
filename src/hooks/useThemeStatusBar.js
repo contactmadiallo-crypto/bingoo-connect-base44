@@ -23,6 +23,9 @@ export function useThemeStatusBar() {
     if (!Capacitor.isNativePlatform()) return;
     const apply = async () => {
       try {
+        // Keep the WebView below the native status bar on Android/iOS. This prevents
+        // Bingoo's mobile header from being hidden behind the phone notification bar.
+        await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
         await StatusBar.setBackgroundColor({ color: isDark ? DARK_BACKGROUND : LIGHT_BACKGROUND });
       } catch (e) {
