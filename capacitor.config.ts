@@ -7,6 +7,13 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
   },
+  android: {
+    // targetSdk 36 forces edge-to-edge on Android 15+, so the WebView is drawn UNDER the
+    // status bar and StatusBar.setOverlaysWebView({ overlay: false }) is ignored.
+    // 'auto' makes Capacitor inset the WebView by the system bars (status/nav bar, cutout)
+    // so the mobile header is never hidden behind the notification bar.
+    adjustMarginsForEdgeToEdge: 'auto',
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1500,
