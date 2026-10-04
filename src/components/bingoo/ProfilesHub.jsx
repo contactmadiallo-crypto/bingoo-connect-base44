@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useQueries } from "@tanstack/react-query";
-import { Settings, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown, Trash2, Mail, Phone } from "lucide-react";
+import { Settings, Plus, Lock, Users, GripVertical, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { PUBLIC_APP_ORIGIN, publicProfileQrUrl, publicProfileUrl } from "@/lib/publicProfileUrl";
+import { PUBLIC_APP_ORIGIN, publicProfileQrUrl } from "@/lib/publicProfileUrl";
 import { useI18n } from "@/lib/I18nContext";
 import { openExternalUrl } from "@/lib/nativePlatform";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import { resolveProfileAppearance } from "@/lib/profileLayouts";
+import ProfileLayoutCardPreview from "@/components/bingoo/ProfileLayoutCardPreview";
 
 export default function ProfilesHub({
   profiles = [],
@@ -29,17 +29,13 @@ export default function ProfilesHub({
 }) {
   const { t, language } = useI18n();
   const tr = (en, fr) => language === 'fr' ? fr : en;
-  const [copiedId, setCopiedId] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
-  const [settingDefault, setSettingDefault] = useState(null);
   // Optimistic override of the display order (array of profile IDs) while saving.
   // Cleared on success (dashboard refetch provides authoritative order) or on failure (revert).
   const [pendingOrder, setPendingOrder] = useState(null);
   const [reorderError, setReorderError] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  // "Default profile" only matters when the user owns more than one
-  const showDefaultUI = profiles.length > 1;
   const isDefault = (profile) => profile.id === defaultProfileId || profiles.length === 1;
   const isSelected = (profile) => profile.id === activeProfileId;
 
@@ -47,12 +43,6 @@ export default function ProfilesHub({
   const items = pendingOrder
     ? pendingOrder.map(id => profiles.find(p => p.id === id)).filter(Boolean)
     : profiles;
-
-  const handleSetDefault = (profile) => {
-    if (settingDefault || isDefault(profile)) return;
-    setSettingDefault(profile.id);
-    onSetDefault?.(profile.id).finally(() => setSettingDefault(null));
-  };
 
   // Card-level activation — sets the dashboard's selected profile and opens the workspace.
   const handleCardActivate = (profile) => {
@@ -117,44 +107,12 @@ export default function ProfilesHub({
   const hasReachedFreeLimit = isFree && profiles.length >= 1 && !anyPaidProfile;
   const canReorder = items.length > 1 && !!onReorder;
 
-  // Live profile-card metrics. Analytics is the source of truth for both web and mobile.
-  const analyticsQueries = useQueries({
-    queries: profiles.map((profile) => ({
-      queryKey: ["profile-card-analytics", profile.id],
-      queryFn: () => base44.functions.invoke("getMyAnalytics", { profile_id: profile.id })
-        .then((res) => res?.data?.events || []),
-      enabled: !!profile.id,
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    })),
-  });
-  const analyticsByProfile = profiles.reduce((acc, profile, index) => {
-    acc[profile.id] = analyticsQueries[index]?.data || [];
-    return acc;
-  }, {});
-
-  const copyLink = (profile) => {
-    const url = publicProfileUrl(profile.username);
-    navigator.clipboard.writeText(url);
-    setCopiedId(profile.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   const getQrUrl = (profile) =>
     `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicProfileQrUrl(profile.username))}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
 
   const titleCase = (value, fallback) => String(value || fallback)
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
-
-  const profileCompletion = (profile) => {
-    const fields = [
-      profile.display_name, profile.username, profile.job_title, profile.company_name,
-      profile.bio, profile.profile_photo, profile.cover_photo || profile.cover_color,
-      profile.phone, profile.email, profile.website,
-    ];
-    return Math.round((fields.filter(Boolean).length / fields.length) * 100);
-  };
 
   // Start 14-day Professional trial
   const startTrial = async () => {
