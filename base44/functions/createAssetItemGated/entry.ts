@@ -2,7 +2,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { resolveEffectivePlan } from '../../shared/entitlementResolver.ts';
 
 const ALLOWED_TYPES = new Set(['pet','luggage','bag','keys','equipment','vehicle','other']);
-const FREE_ASSET_LIMIT = 1;
+// Free accounts do not include protected assets (Professional feature, available during the 14-day trial).
+const FREE_ASSET_LIMIT = 0;
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
@@ -23,7 +24,7 @@ Deno.serve(async (req) => {
 
     if (plan === 'free' && existing.length >= FREE_ASSET_LIMIT) {
       return Response.json({
-        error: 'Free includes 1 protected asset. Start or restore Professional to add more assets.',
+        error: 'Protecting assets is a Professional feature. Start your 14-day Professional trial to add assets.',
         code: 'ASSET_LIMIT_REACHED',
         plan,
         limit: FREE_ASSET_LIMIT,
