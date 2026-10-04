@@ -194,7 +194,6 @@ export default function ProfilesHub({
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
     const selected = isSelected(profile);
-    const profileType = titleCase(profile.profile_type, t("profiles_personal"));
     const appearance = resolveProfileAppearance(profile);
     const layoutLabel = `${appearance.recipe.name} ${t("profiles_layout")}`;
 
@@ -275,7 +274,7 @@ export default function ProfilesHub({
   // New profile / locked card (rendered after the draggable cards)
   const renderAddCard = () => hasReachedFreeLimit ? (
     <div className={`border-2 border-dashed rounded-[18px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col items-center justify-center gap-2.5 sm:gap-4 text-center ${isDark ? "border-white/12 bg-white/[0.02]" : "border-slate-200 bg-white/20"}`}
-      style={{ minHeight: "clamp(190px, 48vw, 470px)" }}>
+      style={{ minHeight: 250 }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(251,191,36,0.15)" : "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.35)" }}>
         <Lock className="w-6 h-6 text-amber-500" />
@@ -298,7 +297,7 @@ export default function ProfilesHub({
       className={`border-2 border-dashed rounded-[18px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col items-center justify-center gap-2.5 sm:gap-4 text-center transition-all hover:scale-[1.01] ${
         isDark ? "border-white/12 hover:border-white/20 hover:bg-white/[0.03]" : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/40"
       }`}
-      style={{ minHeight: "clamp(190px, 48vw, 470px)" }}>
+      style={{ minHeight: 250 }}>
       <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
         style={{ background: isDark ? "rgba(249,115,22,0.12)" : "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)" }}>
         <Plus className="w-6 h-6" style={{ color: "#f97316" }} />
