@@ -6,6 +6,17 @@ export const isNativeAndroid = () =>
 
 export const isNativeApp = () => Capacitor.isNativePlatform();
 
+// Product-surface helpers. Keep device width separate from runtime identity:
+// a narrow browser is still the Bingoo web product, while Capacitor is the native app.
+export const getBingooSurface = () => {
+  if (Capacitor.isNativePlatform()) return "native";
+  if (typeof window !== "undefined" && window.matchMedia?.("(display-mode: standalone)")?.matches) return "pwa";
+  return "web";
+};
+
+export const isBingooWeb = () => getBingooSurface() === "web";
+export const isBingooNative = () => getBingooSurface() === "native";
+
 export const isInstalledAppShell = () => {
   if (Capacitor.isNativePlatform()) return true;
   if (typeof window === "undefined") return false;
