@@ -64,7 +64,16 @@ export default function DesignTab({ profile, user, onSaved }) {
         data: update,
       });
       if (response?.data?.error) throw new Error(response.data.error);
-      // Invalidate all possible query key forms used across the app
+      // The server drops fields the plan does not include and reports them in `rejected`.
+      // Without this check a Free user saw "Saved" while nothing was persisted.
+      const rejected = response?.data?.rejected || [];
+      if (rejected.includes("layout")) {
+        setSaving(null);
+        toast.error(language === "fr"
+          ? "Les mises en page personnalisées n’étaient pas incluses dans votre forfait. Passez à Professional pour les débloquer."
+          : "Custom layouts aren’t included in your current plan. Upgrade to Professional to unlock them.");
+        return;
+      }
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["my-profile"] }),
         queryClient.invalidateQueries({ queryKey: ["public-profile", profile.username] }),
