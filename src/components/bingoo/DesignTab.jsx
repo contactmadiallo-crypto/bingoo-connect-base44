@@ -49,13 +49,14 @@ export default function DesignTab({ profile, user, onSaved }) {
     setSaving("saving");
 
     try {
-      // One write authority: new changes persist only the canonical `layout` field.
-      // Legacy `profile_layout` remains read-compatible for older saved profiles,
-      // but the editor no longer creates or synchronizes a second layout source.
+      // `layout` is the canonical field. We ALSO reset the legacy `profile_layout` to "default":
+      // resolveProfileLayout() lets a legacy ny_championship / lions_teranga value override a
+      // `classic` layout, so a profile that once had a legacy value could never be switched back to
+      // Classic — the editor showed the new selection but the public page kept the old layout.
       const chosenLayout = pendingChanges.layout;
       const update = {
         ...pendingChanges,
-        ...(chosenLayout ? { layout: canonicalLayoutId(chosenLayout) } : {}),
+        ...(chosenLayout ? { layout: canonicalLayoutId(chosenLayout), profile_layout: "default" } : {}),
       };
 
       const response = await base44.functions.invoke("updateProfileGated", {
