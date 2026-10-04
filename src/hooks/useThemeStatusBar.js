@@ -23,8 +23,17 @@ export function useThemeStatusBar() {
     if (!Capacitor.isNativePlatform()) return;
     const apply = async () => {
       try {
-        // Keep the WebView below the native status bar on Android/iOS. This prevents
-        // Bingoo's mobile header from being hidden behind the phone notification bar.
+        const isAndroid = Capacitor.getPlatform() === "android";
+        // Android 15+ (targetSdk 36) is edge-to-edge: overlay/background calls are ignored and the
+        // strip behind the status bar is the navy window background (see styles.xml +
+        // android.adjustMarginsForEdgeToEdge in capacitor.config.ts). Icons must therefore always be
+        // light on Android, whatever the in-app theme is.
+        if (isAndroid) {
+          await StatusBar.setStyle({ style: Style.Dark });
+          await StatusBar.setBackgroundColor({ color: DARK_BACKGROUND }).catch(() => {});
+          return;
+        }
+        // iOS: keep the WebView below the status bar and match it to the active theme.
         await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
         await StatusBar.setBackgroundColor({ color: isDark ? DARK_BACKGROUND : LIGHT_BACKGROUND });
