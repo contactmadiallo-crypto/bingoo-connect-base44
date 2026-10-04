@@ -53,20 +53,6 @@ function normalizeSidebarPlan(plan) {
   return PLAN_ITEM_IDS[value] ? value : "free";
 }
 
-function planBadge(plan) {
-  const normalized = normalizeSidebarPlan(plan);
-  const labels = {
-    free: "FREE",
-    professional: "PRO",
-    business: "BUSINESS",
-    salon: "SALON",
-    restaurant: "RESTAURANT",
-    lawfirm: "LAW FIRM",
-    corporate: "CORPORATE",
-  };
-  return labels[normalized] || "FREE";
-}
-
 /**
  * Sidebar visibility is subscription-first and intentionally closed by default.
  * Admin status controls access to the separate Admin Panel link only; it does not
@@ -101,7 +87,6 @@ export function getVisibleNavSections(profile, isAdmin = false, lang = "en", eff
         return {
           ...item,
           label,
-          ...(id === "billing" ? { planBadge: planBadge(normalizedPlan) } : {}),
         };
       })
       .filter(Boolean);

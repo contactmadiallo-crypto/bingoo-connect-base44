@@ -17,14 +17,15 @@ import { useProfileWorkspace } from "@/lib/ProfileWorkspaceContext";
 import { usePlan } from "@/hooks/usePlan";
 import { useI18n } from "@/lib/I18nContext";
 
+// Display names only (never used for entitlement). "Professional" is its own plan and must not be shown as "PRO".
 const PLAN_LABELS = {
-  free: "FREE",
-  professional: "PRO",
-  business: "BUSINESS",
-  salon: "SALON",
-  restaurant: "RESTAURANT",
-  lawfirm: "LAW FIRM",
-  corporate: "CORPORATE",
+  free:         { en: "FREE",         fr: "GRATUIT" },
+  professional: { en: "PROFESSIONAL", fr: "PROFESSIONNEL" },
+  business:     { en: "BUSINESS",     fr: "ENTREPRISE" },
+  salon:        { en: "SALON",        fr: "SALON" },
+  restaurant:   { en: "RESTAURANT",   fr: "RESTAURANT" },
+  lawfirm:      { en: "LAW FIRM",     fr: "CABINET" },
+  corporate:    { en: "CORPORATE",    fr: "CORPORATE" },
 };
 
 export default function BingooLayout({ children, selectedProfile: selectedProfileProp, accountPlan: accountPlanProp, userId }) {
@@ -90,7 +91,7 @@ export default function BingooLayout({ children, selectedProfile: selectedProfil
 
   const sidebarBg = "linear-gradient(180deg, rgba(6,26,56,0.96) 0%, rgba(4,26,54,0.96) 52%, rgba(3,22,47,0.98) 100%)";
   const sidebarBorder = "rgba(255,255,255,0.06)";
-  const planLabel = PLAN_LABELS[accountPlan] || "FREE";
+  const planLabel = (PLAN_LABELS[accountPlan] || PLAN_LABELS.free)[lang === "fr" ? "fr" : "en"];
   const upgrade = accountPlan === "free"
     ? { title: t("core_upgrade_pro", lang), copy: t("core_upgrade_pro_copy", lang) }
     : accountPlan === "professional"
