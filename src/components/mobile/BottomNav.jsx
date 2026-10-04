@@ -66,8 +66,12 @@ export default function BottomNav({ lang = 'en', onMore }) {
     // canonical root instead of restoring a nested editor screen.
     if (tab.id === 'dashboard') {
       const currentView = location.pathname === '/bingoo' ? new URLSearchParams(location.search).get('view') : null;
-      if (currentView === 'home' || !currentView) window.scrollTo({ top: 0, behavior: 'smooth' });
-      else navigate('/bingoo?view=home');
+      if (location.pathname === '/bingoo' && (currentView === 'home' || !currentView)) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // Always escape billing/shop/subpages in one tap.
+        navigate('/bingoo?view=home');
+      }
       return;
     }
     if (tab.id === 'profiles') {
@@ -134,7 +138,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
   return (
     <nav
       aria-label="Primary navigation"
-      className="md:hidden fixed bottom-0 left-0 right-0 z-[80] flex overflow-visible"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-[160] flex overflow-visible"
       style={{
         background: 'linear-gradient(180deg, rgba(10,29,63,.97) 0%, rgba(5,22,49,.99) 100%)',
         borderTop: '1px solid rgba(255,255,255,0.10)',
@@ -143,6 +147,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
         WebkitBackdropFilter: 'blur(20px)',
         paddingBottom: 'env(safe-area-inset-bottom)',
         height: 'calc(68px + env(safe-area-inset-bottom))',
+        pointerEvents: 'auto',
       }}
     >
       {tabs.map(renderTab)}
