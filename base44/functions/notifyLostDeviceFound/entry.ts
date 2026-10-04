@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { resolveLostDeviceContext, resolveLostAssetContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
 
 /**
@@ -114,22 +115,24 @@ Deno.serve(async (req) => {
 
     // ── Owner notification: in-app + email ──
     const notifProfileId = ctx.device?.profile_id || ctx.asset?.profile_id || null;
-    if (ctx.ownerUserId || notifProfileId) {
-      try {
-        const target = ctx.assignedTargetName || 'their item';
-        await base44.asServiceRole.entities.BingooNotification.create({
-          user_id: ctx.ownerUserId || null,
-          profile_id: notifProfileId,
-          event_type: 'lost_device_reported',
-          title: `🙏 Finder report for ${identifier}`,
-          message: `${f_name || 'A finder'} submitted a report for your ${label}${ctx.asset ? ` (${ctx.asset.name})` : ''} assigned to ${target}.${typeof latitude === 'number' ? ' Location shared.' : ''}`,
-          action_url: '/bingoo?view=lost-found',
-          related_id: report?.id || null,
-          actor_name: f_name || 'Finder',
-        });
-      } catch (e) {
-        console.error('[notifyLostDeviceFound] notification error:', e.message);
-      }
+    if (ctx.ownerUserId) {
+      await notifyOwner(base44, {
+        userId: ctx.ownerUserId,
+        profileId: notifProfileId,
+        eventType: 'lost_device_reported',
+        template: 'finder_report',
+        vars: {
+          identifier,
+          label,
+          finder: f_name,
+          assetName: ctx.asset?.name,
+          target: ctx.assignedTargetName,
+          hasLocation: typeof latitude === 'number' ? '1' : '',
+        },
+        actionUrl: '/bingoo?view=lost-found',
+        relatedId: report?.id || null,
+        actorName: f_name || 'Finder',
+      });
     }
 
     if (ctx.ownerEmail) {

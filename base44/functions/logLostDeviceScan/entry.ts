@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { resolveLostDeviceContext, resolveLostAssetContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
 
 /**
@@ -65,22 +66,25 @@ Deno.serve(async (req) => {
     // Notify the owner (in-app notification + email).
     let ownerNotified = false;
     const notifProfileId = ctx.device?.profile_id || ctx.asset?.profile_id || null;
-    if (ctx.ownerUserId || notifProfileId) {
-      try {
-        await base44.asServiceRole.entities.BingooNotification.create({
-          user_id: ctx.ownerUserId || null,
-          profile_id: notifProfileId,
-          event_type: 'lost_device_reported',
-          title: `📍 Lost item scanned: ${identifier}`,
-          message: `Someone just scanned your lost ${label}${ctx.asset ? ` (${ctx.asset.name})` : ''} assigned to ${ctx.assignedTargetName || 'you'}.${typeof latitude === 'number' ? ' Location shared.' : ''}`,
-          action_url: '/bingoo?view=lost-found',
-          related_id: report.id,
-          actor_name: 'Finder',
-        });
-        ownerNotified = true;
-      } catch (e) {
-        console.error('[logLostDeviceScan] notification create error:', e.message);
-      }
+    if (ctx.ownerUserId) {
+      // In-app + PUSH (a scanned lost item is the most time-critical alert in the product), localized to the owner.
+      const sent = await notifyOwner(base44, {
+        userId: ctx.ownerUserId,
+        profileId: notifProfileId,
+        eventType: 'lost_device_reported',
+        template: 'lost_scan',
+        vars: {
+          identifier,
+          label,
+          assetName: ctx.asset?.name,
+          target: ctx.assignedTargetName,
+          hasLocation: typeof latitude === 'number' ? '1' : '',
+        },
+        actionUrl: '/bingoo?view=lost-found',
+        relatedId: report.id,
+        actorName: 'Finder',
+      });
+      ownerNotified = sent.inApp;
     }
 
     if (ctx.ownerEmail) {

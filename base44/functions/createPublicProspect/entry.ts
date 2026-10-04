@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 
 // Public endpoint: a visitor (often anonymous) saw someone's Bingoo profile and wants
 // their own. Creates a ProspectLead plus an in-app notification for the profile owner and
@@ -60,24 +61,17 @@ Deno.serve(async (req) => {
 
     const actionUrl = `/bingoo?view=leads&profileId=${source_profile_id}&leadId=${prospect.id}`;
 
-    // Owner in-app notification
-    if (ownerUserId) {
-      try {
-        await base44.asServiceRole.entities.BingooNotification.create({
-          user_id: ownerUserId,
-          profile_id: source_profile_id,
-          event_type: 'new_lead',
-          title: `New prospect from ${visitor_name || 'Someone'}`,
-          message: `Interested in: ${interested_in}${visitor_email ? ` · ${visitor_email}` : ''}`,
-          is_read: false,
-          action_url: actionUrl,
-          related_id: prospect.id,
-          actor_name: visitor_name || 'Anonymous',
-        });
-      } catch (notifErr) {
-        console.error('Prospect notification creation failed (non-blocking):', notifErr.message);
-      }
-    }
+    // Owner in-app + push notification (previously in-app only), localized to the owner
+    await notifyOwner(base44, {
+      userId: ownerUserId,
+      profileId: source_profile_id,
+      eventType: 'new_lead',
+      template: 'new_prospect',
+      vars: { name: visitor_name, interest: interested_in, email: visitor_email },
+      actionUrl,
+      relatedId: prospect.id,
+      actorName: visitor_name || 'Anonymous',
+    });
 
     // Owner email (concise — no sensitive visitor details beyond name + interest)
     try {

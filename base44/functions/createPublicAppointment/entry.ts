@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 
 // ── Server-side plan entitlement (mirrors getUserFeatures) ──────────────────
 // Professional-tier plans include lead_collection + appointment_booking.
@@ -172,40 +173,17 @@ Deno.serve(async (req) => {
       console.error('Google Calendar integration failed (non-blocking):', calErr.message);
     }
 
-    // Create in-app notification for profile owner
-    if (ownerUserId) {
-      try {
-        await base44.asServiceRole.entities.BingooNotification.create({
-          user_id: ownerUserId,
-          profile_id,
-          event_type: 'new_appointment',
-          title: `New booking from ${visitor_name}`,
-          message: `${date || ''} ${time_slot || ''}${service_name ? ` · ${service_name}` : ''}`.trim(),
-          is_read: false,
-          action_url: actionUrl,
-          related_id: appointment.id,
-          actor_name: visitor_name,
-        });
-      } catch (notifErr) {
-        console.error('Notification creation failed (non-blocking):', notifErr.message);
-      }
-    }
-
-    // Send immediate push notification to the profile owner (if opted in).
-    // The in-app record above remains the durable source of truth; push is best-effort.
-    if (ownerUserId) {
-      try {
-        await base44.asServiceRole.functions.invoke('sendPushNotification', {
-          user_id: ownerUserId,
-          title: `📅 New booking from ${visitor_name}`,
-          body: `${date || ''} ${time_slot || ''}${service_name ? ` · ${service_name}` : ''}`.trim() || 'Tap to review the booking',
-          url: actionUrl,
-          _internalToken: Deno.env.get('VAPID_PRIVATE_KEY'),
-        });
-      } catch (pushErr) {
-        console.error('Appointment push notification failed (non-blocking):', pushErr.message);
-      }
-    }
+    // In-app + push notification, written in the owner's language (see shared/notifyOwner.ts).
+    // The in-app record stays the durable source of truth; push is best-effort.
+    await notifyOwner(base44, {
+      userId: ownerUserId,
+      profileId: profile_id,
+      eventType: 'new_appointment',
+      vars: { name: visitor_name, when: `${date || ''} ${time_slot || ''}`.trim(), service: service_name },
+      actionUrl,
+      relatedId: appointment.id,
+      actorName: visitor_name,
+    });
 
     // Use ownerPlan (Subscription-derived) — not profile.plan — for consistent email formatting
     const isRestaurant = ownerPlan === "restaurant";

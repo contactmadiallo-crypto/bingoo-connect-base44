@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 
 // ── Server-side plan entitlement (mirrors getUserFeatures) ──────────────────
 // Professional-tier plans include lead_collection + appointment_booking.
@@ -108,40 +109,21 @@ Deno.serve(async (req) => {
     // Deep link to the Leads page with the profile selected and the lead highlighted
     const actionUrl = `/bingoo?view=leads&profileId=${profile_id}&leadId=${lead.id}`;
 
-    // Create in-app notification for the profile owner
-    if (ownerUserId) {
-      try {
-        await base44.asServiceRole.entities.BingooNotification.create({
-          user_id: ownerUserId,
-          profile_id,
-          event_type: 'new_lead',
-          title: `New lead from ${formData.name || 'Someone'}`,
-          message: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || ''),
-          is_read: false,
-          action_url: actionUrl,
-          related_id: lead.id,
-          actor_name: formData.name || 'Anonymous',
-        });
-        console.log(`Notification created for user ${ownerUserId}`);
-      } catch (notifErr) {
-        console.error('Notification creation failed (non-blocking):', notifErr.message);
-      }
-    }
-
-    // Send web push notification to the profile owner (if opted in)
-    if (ownerUserId) {
-      try {
-        await base44.asServiceRole.functions.invoke('sendPushNotification', {
-          user_id: ownerUserId,
-          title: `⭐ New lead from ${formData.name || 'Someone'}`,
-          body: formData.message || (formData.phone ? `📞 ${formData.phone}` : formData.email || 'Tap to view details'),
-          url: actionUrl,
-          _internalToken: Deno.env.get('VAPID_PRIVATE_KEY'),
-        });
-      } catch (pushErr) {
-        console.error('Push notification failed (non-blocking):', pushErr.message);
-      }
-    }
+    // In-app + push notification, written in the owner's language (see shared/notifyOwner.ts)
+    await notifyOwner(base44, {
+      userId: ownerUserId,
+      profileId: profile_id,
+      eventType: 'new_lead',
+      vars: {
+        name: formData.name,
+        message: String(formData.message || '').slice(0, 140),
+        phone: formData.phone,
+        email: formData.email,
+      },
+      actionUrl,
+      relatedId: lead.id,
+      actorName: formData.name || 'Anonymous',
+    });
 
     // Send email notification to the profile owner
     try {
