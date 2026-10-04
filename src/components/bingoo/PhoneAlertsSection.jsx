@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, BellRing, Trash2, Loader2, Smartphone, Send, Info } from "lucide-react";
 import { toast } from "sonner";
 import { isNativeAndroid, ensureLocalNotificationPermission, scheduleAppointmentReminders } from "@/lib/nativeLocalNotifications";
+import { useI18n } from "@/lib/I18nContext";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -30,6 +31,8 @@ function detectDevice() {
 }
 
 export default function PhoneAlertsSection({ user }) {
+  const { language } = useI18n();
+  const tr = (en, fr) => language === "fr" ? fr : en;
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subscribing, setSubscribing] = useState(false);
@@ -76,14 +79,14 @@ export default function PhoneAlertsSection({ user }) {
           setPermission("granted");
           const appointments = await base44.entities.Appointment.filter({ owner_user_id: user?.id }, "-date", 200);
           const scheduled = await scheduleAppointmentReminders(appointments);
-          toast.success(`Android appointment reminders enabled · ${scheduled.scheduled || 0} reminder(s) scheduled.`);
+          toast.success(tr(`Android alerts enabled · ${scheduled.scheduled || 0} appointment reminder(s) scheduled.`, `Alertes Android activées · ${scheduled.scheduled || 0} rappel(s) de rendez-vous programmé(s).`));
         } else {
           setPermission("denied");
-          toast.error("Android notification permission is off. Enable notifications for Bingoo Connect in Android Settings.");
+          toast.error(tr("Android notification permission is off. Enable Bingoo Connect notifications in Android Settings.", "Les notifications Android sont désactivées. Activez les notifications Bingoo Connect dans les paramètres Android."));
         }
       } catch (e) {
         console.error("Local notification setup error:", e);
-        toast.error("Could not enable Android reminders: " + (e.message || "Unknown error"));
+        toast.error(tr("Could not enable Android alerts: ", "Impossible d’activer les alertes Android : ") + (e.message || tr("Unknown error", "Erreur inconnue")));
       } finally {
         setSubscribing(false);
       }
@@ -91,7 +94,7 @@ export default function PhoneAlertsSection({ user }) {
     }
 
     if (!supported) {
-      toast.error("Push notifications are not supported in this browser.");
+      toast.error(tr("Push notifications are not supported in this browser.", "Les notifications push ne sont pas prises en charge par ce navigateur."));
       return;
     }
     setSubscribing(true);
@@ -102,7 +105,7 @@ export default function PhoneAlertsSection({ user }) {
         const perm = await Notification.requestPermission();
         setPermission(perm);
         if (perm !== "granted") {
-          toast.error("Notification permission was denied. Enable it in your browser settings to get alerts.");
+          toast.error(tr("Notification permission was denied. Enable it in your browser settings to get alerts.", "L’autorisation de notification a été refusée. Activez-la dans les paramètres du navigateur."));
           setSubscribing(false);
           return;
         }
@@ -137,11 +140,11 @@ export default function PhoneAlertsSection({ user }) {
         created_at: new Date().toISOString(),
       });
 
-      toast.success("Phone alerts enabled! You'll be notified of new leads and appointment reminders.");
+      toast.success(tr("Bingoo alerts enabled for this device.", "Alertes Bingoo activées sur cet appareil."));
       fetchSubs();
     } catch (e) {
       console.error("Push subscribe error:", e);
-      toast.error("Could not enable push notifications: " + (e.message || "Unknown error"));
+      toast.error(tr("Could not enable push notifications: ", "Impossible d’activer les notifications push : ") + (e.message || tr("Unknown error", "Erreur inconnue")));
     } finally {
       setSubscribing(false);
     }
@@ -208,11 +211,11 @@ export default function PhoneAlertsSection({ user }) {
           )}
         </div>
         <div className="flex-1">
-          <h2 className="text-base font-semibold text-slate-900">Phone Alerts</h2>
+          <h2 className="text-base font-semibold text-slate-900">{tr("Bingoo Notifications", "Notifications Bingoo")}</h2>
           <p className="mt-0.5 text-sm text-slate-500">
             {nativeAndroid
-              ? "Native Android appointment reminders are scheduled on this device. New leads and appointment changes remain live inside Bingoo and by email."
-              : "Get instant browser notifications for new leads and upcoming appointment reminders."}
+              ? tr("Appointment reminders run natively on this phone. New leads and appointment activity stay live inside Bingoo and by email.", "Les rappels de rendez-vous fonctionnent nativement sur ce téléphone. Les nouveaux prospects et l’activité des rendez-vous restent disponibles en direct dans Bingoo et par e-mail.")
+              : tr("Get browser push alerts for new leads and upcoming appointment reminders.", "Recevez des notifications push du navigateur pour les nouveaux prospects et les rappels de rendez-vous.")}
           </p>
         </div>
       </div>
@@ -246,7 +249,7 @@ export default function PhoneAlertsSection({ user }) {
             </>
           ) : (
             <>
-              <Bell className="h-4 w-4" /> Enable on this device
+              <Bell className="h-4 w-4" /> {tr("Enable notifications", "Activer les notifications")}
             </>
           )}
         </Button>
@@ -257,7 +260,7 @@ export default function PhoneAlertsSection({ user }) {
             </>
           ) : (
             <>
-              <Send className="h-4 w-4" /> Send test
+              <Send className="h-4 w-4" /> {tr("Send test", "Envoyer un test")}
             </>
           )}
         </Button>}
@@ -270,7 +273,7 @@ export default function PhoneAlertsSection({ user }) {
             <Loader2 className="h-4 w-4 animate-spin" /> Loading devices…
           </div>
         ) : subs.length === 0 ? (
-          <p className="text-sm text-slate-400">No devices connected yet. Enable alerts above to add this device.</p>
+          <p className="text-sm text-slate-400">{tr("No devices connected yet. Enable notifications above to add this device.", "Aucun appareil connecté. Activez les notifications ci-dessus pour ajouter cet appareil.")}</p>
         ) : (
           <ul className="divide-y divide-slate-100 rounded-lg border border-slate-100">
             {subs.map((sub) => (
