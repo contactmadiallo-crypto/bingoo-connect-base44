@@ -2,6 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { resolveLostDeviceContext, resolveLostAssetContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
 
+// Finder-supplied text is untrusted: escape before interpolating into the owner's email HTML.
+const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 /**
  * notifyLostDeviceFound
  * Called when a finder submits the recovery form on a lost-device/asset page.
@@ -145,15 +148,15 @@ Deno.serve(async (req) => {
             <p style="color:rgba(255,255,255,0.8);margin:8px 0 0">Someone left details for your lost item</p>
           </div>
           <div style="padding:26px">
-            <p style="color:#334155;font-size:15px">Hi ${ctx.ownerName || 'there'},</p>
-            <p style="color:#64748b">Someone submitted a report for your lost <strong>${label}</strong>${codePart}${ctx.asset ? ` linked to <strong>${ctx.asset.name}</strong>` : ''}.</p>
+            <p style="color:#334155;font-size:15px">Hi ${esc(ctx.ownerName || 'there')},</p>
+            <p style="color:#64748b">Someone submitted a report for your lost <strong>${esc(label)}</strong>${codePart}${ctx.asset ? ` linked to <strong>${esc(ctx.asset.name)}</strong>` : ''}.</p>
             <div style="background:#f8fafc;border-radius:8px;padding:16px;margin:16px 0;border-left:4px solid #f97316">
-              <p style="margin:4px 0;color:#334155"><strong>Finder:</strong> ${f_name || 'Anonymous'}</p>
-              ${f_phone ? `<p style="margin:4px 0;color:#334155"><strong>Phone:</strong> ${f_phone}</p>` : ''}
-              ${f_email ? `<p style="margin:4px 0;color:#334155"><strong>Email:</strong> ${f_email}</p>` : ''}
-              ${f_location ? `<p style="margin:4px 0;color:#334155"><strong>Location:</strong> ${f_location}</p>` : ''}
+              <p style="margin:4px 0;color:#334155"><strong>Finder:</strong> ${esc(f_name || 'Anonymous')}</p>
+              ${f_phone ? `<p style="margin:4px 0;color:#334155"><strong>Phone:</strong> ${esc(f_phone)}</p>` : ''}
+              ${f_email ? `<p style="margin:4px 0;color:#334155"><strong>Email:</strong> ${esc(f_email)}</p>` : ''}
+              ${f_location ? `<p style="margin:4px 0;color:#334155"><strong>Location:</strong> ${esc(f_location)}</p>` : ''}
               ${typeof latitude === 'number' ? `<p style="margin:4px 0;color:#334155"><strong>GPS:</strong> <a href="https://maps.google.com/?q=${latitude},${longitude}">View on map</a></p>` : ''}
-              ${f_message ? `<p style="margin:4px 0;color:#334155"><strong>Message:</strong> ${f_message}</p>` : ''}
+              ${f_message ? `<p style="margin:4px 0;color:#334155"><strong>Message:</strong> ${esc(f_message)}</p>` : ''}
             </div>
             <div style="text-align:center;margin-top:22px">
               <a href="https://bingooconnect.com/bingoo?view=lost-found" style="background:#f97316;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">View Report</a>

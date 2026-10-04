@@ -2,6 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { resolveLostDeviceContext, resolveLostAssetContext, deviceDisplayLabel } from '../../shared/lostDeviceResolver.ts';
 
+// Finder-supplied text is untrusted: escape before interpolating into the owner's email HTML.
+const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 /**
  * logLostDeviceScan
  * Called automatically when a lost device/asset public page is opened by a
@@ -99,8 +102,8 @@ Deno.serve(async (req) => {
               <p style="color:rgba(255,255,255,0.8);margin:8px 0 0">Someone just found your item</p>
             </div>
             <div style="padding:24px">
-              <p style="color:#334155;font-size:15px">Hi ${ctx.ownerName || 'there'},</p>
-              <p style="color:#64748b">Someone scanned your lost <strong>${label}</strong>${codePart}${ctx.asset ? ` linked to <strong>${ctx.asset.name}</strong>` : ''} assigned to <strong>${target}</strong>.</p>
+              <p style="color:#334155;font-size:15px">Hi ${esc(ctx.ownerName || 'there')},</p>
+              <p style="color:#64748b">Someone scanned your lost <strong>${esc(label)}</strong>${codePart}${ctx.asset ? ` linked to <strong>${esc(ctx.asset.name)}</strong>` : ''} assigned to <strong>${esc(target)}</strong>.</p>
               <p style="color:#64748b;font-size:14px">If they share their contact details, you'll receive another notification with their information.</p>
               <div style="text-align:center;margin-top:20px">
                 <a href="https://bingooconnect.com/bingoo?view=lost-found" style="background:#f97316;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block">View Lost &amp; Found</a>
