@@ -70,10 +70,11 @@ export default function DesignTab({ profile, user, onSaved }) {
       if (rejected.includes("layout")) {
         setSaving(null);
         toast.error(language === "fr"
-          ? "Les mises en page personnalisées n’étaient pas incluses dans votre forfait. Passez à Professional pour les débloquer."
+          ? "Les mises en page personnalisées ne sont pas incluses dans votre forfait actuel. Passez à Professional pour les débloquer."
           : "Custom layouts aren’t included in your current plan. Upgrade to Professional to unlock them.");
         return;
       }
+      // Invalidate all possible query key forms used across the app
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["my-profile"] }),
         queryClient.invalidateQueries({ queryKey: ["public-profile", profile.username] }),
