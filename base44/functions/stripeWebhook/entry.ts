@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import Stripe from 'npm:stripe@14.21.0';
+import { notifyOwner } from '../../shared/notifyOwner.ts';
 
 // Fallback mapping when a subscription item's price has no plan metadata
 // (e.g. prices created before plan metadata was added).
@@ -136,6 +137,80 @@ async function notifyUser(base44, { userId, eventType, title, message, actionUrl
     console.error('notifyUser failed (non-blocking):', e.message);
   }
 }
+
+// ── Downgrade follow-up ─────────────────────────────────────────────────────
+// A terminal subscription (canceled / unpaid / expired) resolves to FREE everywhere entitlements are
+// checked (see shared/entitlementResolver.downgradedPlan), and Free includes ONE active profile.
+// Until now nothing reconciled the ProfileAccess rows, so a downgraded Professional user kept every
+// profile editable and public. We keep the default/primary profile active and PAUSE the rest
+// (access_status='trial_locked', lock_reason='plan_downgrade'). Nothing is deleted; re-subscribing
+// restores exactly these rows. getPublicProfile / updateProfileGated / getMyProfiles already honor it.
+const DOWNGRADE_LOCK_REASON = 'plan_downgrade';
+const FREE_ACTIVE_PROFILE_LIMIT = 1;
+
+async function lockExtraProfilesOnDowngrade(base44, ownerUserId) {
+  if (!ownerUserId) return { locked: 0 };
+  try {
+    const rows = await base44.asServiceRole.entities.ProfileAccess.filter(
+      { owner_user_id: ownerUserId, access_status: 'active' }, 'created_date', 200
+    );
+    if (rows.length <= FREE_ACTIVE_PROFILE_LIMIT) return { locked: 0 };
+
+    let defaultId = null;
+    try {
+      const owner = await base44.asServiceRole.entities.User.get(ownerUserId);
+      defaultId = owner?.default_profile_id || null;
+    } catch (_) {}
+
+    // Keep: the user's default profile, else the primary one, else the oldest.
+    const ranked = [...rows].sort((a, b) =>
+      (b.profile_id === defaultId ? 1 : 0) - (a.profile_id === defaultId ? 1 : 0) ||
+      (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0) ||
+      new Date(a.created_date).getTime() - new Date(b.created_date).getTime()
+    );
+    const toLock = ranked.slice(FREE_ACTIVE_PROFILE_LIMIT);
+    const now = new Date().toISOString();
+    for (const row of toLock) {
+      await base44.asServiceRole.entities.ProfileAccess.update(row.id, {
+        access_status: 'trial_locked', locked_at: now, lock_reason: DOWNGRADE_LOCK_REASON,
+      });
+    }
+    await base44.asServiceRole.entities.AdminAuditLog.create({
+      action: 'plan_downgrade_profiles_locked', performed_by: 'system', target_type: 'ProfileAccess',
+      target_id: ownerUserId, notes: `Paused ${toLock.length} profile(s) after subscription ended; kept profile ${ranked[0]?.profile_id}`,
+    }).catch(() => {});
+    return { locked: toLock.length };
+  } catch (e) {
+    console.error('lockExtraProfilesOnDowngrade failed (non-blocking):', e.message);
+    return { locked: 0 };
+  }
+}
+
+async function restoreProfilesAfterUpgrade(base44, ownerUserId) {
+  if (!ownerUserId) return { restored: 0 };
+  try {
+    const rows = await base44.asServiceRole.entities.ProfileAccess.filter(
+      { owner_user_id: ownerUserId, access_status: 'trial_locked', lock_reason: DOWNGRADE_LOCK_REASON }, 'created_date', 200
+    );
+    for (const row of rows) {
+      await base44.asServiceRole.entities.ProfileAccess.update(row.id, {
+        access_status: 'active', locked_at: null, lock_reason: '',
+      });
+    }
+    if (rows.length) {
+      await base44.asServiceRole.entities.AdminAuditLog.create({
+        action: 'plan_upgrade_profiles_restored', performed_by: 'system', target_type: 'ProfileAccess',
+        target_id: ownerUserId, notes: `Restored ${rows.length} paused profile(s) after (re)subscription`,
+      }).catch(() => {});
+    }
+    return { restored: rows.length };
+  } catch (e) {
+    console.error('restoreProfilesAfterUpgrade failed (non-blocking):', e.message);
+    return { restored: 0 };
+  }
+}
+
+const ENDED_STATUSES = ['canceled', 'unpaid', 'incomplete_expired'];
 
 async function upsertSubscription(base44, { customer_email, customer_name, plan, status, stripe_subscription_id, stripe_customer_id, stripe_session_id, current_period_end, cancel_at_period_end }) {
   const existing = await base44.asServiceRole.entities.Subscription.filter({ customer_email });
@@ -518,11 +593,13 @@ Deno.serve(async (req) => {
           details: `Subscribed to ${planLabel} via checkout`,
         });
 
-        await notifyUser(base44, {
+        // Bring back any profiles paused by an earlier downgrade (nothing was deleted).
+        await restoreProfilesAfterUpgrade(base44, subscriberUserId);
+
+        await notifyOwner(base44, {
           userId: subscriberUserId,
           eventType: 'subscription_created',
-          title: `You're on the ${planLabel} plan 🎉`,
-          message: 'Your premium features are unlocked.',
+          vars: { plan: planLabel },
           actionUrl: billingPath,
           relatedId: stripeSubId,
         });
@@ -575,12 +652,17 @@ Deno.serve(async (req) => {
             details: `${resolvedPlan !== prev.plan ? `${prev.plan} → ${resolvedPlan}` : `Renewed (${newStatus})`}`,
           });
 
+          const ownerId = await findUserIdByEmail(base44, prev.customer_email);
+          // Re-subscribed after an ended subscription (or moved up a plan): restore paused profiles.
+          if (ENDED_STATUSES.includes(prev.status) || resolvedPlan !== prev.plan) {
+            await restoreProfilesAfterUpgrade(base44, ownerId);
+          }
+
           if (resolvedPlan !== prev.plan) {
-            await notifyUser(base44, {
-              userId: await findUserIdByEmail(base44, prev.customer_email),
+            await notifyOwner(base44, {
+              userId: ownerId,
               eventType: 'subscription_updated',
-              title: `Plan ${action} to ${resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1)}`,
-              message: 'Your subscription was updated.',
+              vars: { action, plan: resolvedPlan.charAt(0).toUpperCase() + resolvedPlan.slice(1) },
               actionUrl: billingUrl, relatedId: sub.id,
             });
           }
@@ -597,13 +679,17 @@ Deno.serve(async (req) => {
               details: `Subscription ended (${newStatus})`,
             });
 
-            await notifyUser(base44, {
-              userId: await findUserIdByEmail(base44, prev.customer_email),
-              eventType: 'subscription_canceled',
-              title: 'Subscription ended',
-              message: 'Your premium features have been adjusted.',
-              actionUrl: billingUrl, relatedId: sub.id,
-            });
+            const ownerId = await findUserIdByEmail(base44, prev.customer_email);
+            const { locked } = await lockExtraProfilesOnDowngrade(base44, ownerId);
+            // Stripe can emit both updated(canceled) and deleted for one ending: notify only the first.
+            if (!ENDED_STATUSES.includes(prev.status)) {
+              await notifyOwner(base44, {
+                userId: ownerId,
+                eventType: 'subscription_canceled',
+                vars: { locked },
+                actionUrl: billingUrl, relatedId: sub.id,
+              });
+            }
           }
         }
         // past_due / incomplete: keep current plan (grace period) — no profile change
@@ -637,13 +723,17 @@ Deno.serve(async (req) => {
             details: 'Subscription deleted',
           });
 
-          await notifyUser(base44, {
-            userId: await findUserIdByEmail(base44, prev.customer_email),
-            eventType: 'subscription_canceled',
-            title: 'Subscription canceled',
-            message: 'Your plan has been canceled.',
-            actionUrl: billingUrl, relatedId: sub.id,
-          });
+          const ownerId = await findUserIdByEmail(base44, prev.customer_email);
+          const { locked } = await lockExtraProfilesOnDowngrade(base44, ownerId);
+          // `prev` was read before the status update above: skip if the ending was already processed.
+          if (!ENDED_STATUSES.includes(prev.status)) {
+            await notifyOwner(base44, {
+              userId: ownerId,
+              eventType: 'subscription_canceled',
+              vars: { locked },
+              actionUrl: billingUrl, relatedId: sub.id,
+            });
+          }
         }
       }
     }
@@ -672,11 +762,9 @@ Deno.serve(async (req) => {
           details: 'Invoice payment failed — grace period active',
         });
 
-        await notifyUser(base44, {
+        await notifyOwner(base44, {
           userId: await findUserIdByEmail(base44, prev.customer_email),
           eventType: 'payment_failed',
-          title: 'Payment failed ⚠️',
-          message: 'Update your payment method to keep your plan.',
           actionUrl: billingUrl, relatedId: invoice.subscription,
         });
       }
