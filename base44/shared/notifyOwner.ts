@@ -79,8 +79,24 @@ const TEMPLATES: Record<string, { emoji: string; en: (v: Vars) => Rendered; fr: 
   },
   subscription_canceled: {
     emoji: 'ℹ️',
-    en: () => ({ title: 'Subscription ended', body: 'Your paid plan has ended. Your account is back on Free; paid tools are locked until you resubscribe.' }),
-    fr: () => ({ title: 'Abonnement terminé', body: 'Votre forfait payant est terminé. Votre compte repasse en Gratuit ; les outils payants sont verrouillés jusqu’à un nouvel abonnement.' }),
+    en: (v) => ({
+      title: 'Subscription ended',
+      body: `Your paid plan has ended. Your account is back on Free; paid tools are locked until you resubscribe.${Number(v.locked) > 0 ? ` ${v.locked} extra profile(s) were paused (nothing was deleted) and return when you resubscribe.` : ''}`,
+    }),
+    fr: (v) => ({
+      title: 'Abonnement terminé',
+      body: `Votre forfait payant est terminé. Votre compte repasse en Gratuit ; les outils payants sont verrouillés jusqu’à un nouvel abonnement.${Number(v.locked) > 0 ? ` ${v.locked} profil(s) supplémentaire(s) ont été mis en pause (rien n’a été supprimé) et reviennent à votre réabonnement.` : ''}`,
+    }),
+  },
+  subscription_created: {
+    emoji: '🎉',
+    en: (v) => ({ title: `You're on the ${s(v.plan)} plan`, body: 'Your premium features are unlocked.' }),
+    fr: (v) => ({ title: `Vous êtes sur le forfait ${s(v.plan)}`, body: 'Vos fonctionnalités premium sont débloquées.' }),
+  },
+  subscription_updated: {
+    emoji: '🔄',
+    en: (v) => ({ title: `Plan ${s(v.action, 'updated')} to ${s(v.plan)}`, body: 'Your subscription was updated.' }),
+    fr: (v) => ({ title: `Forfait ${v.action === 'downgraded' ? 'rétrogradé' : 'mis à niveau'} : ${s(v.plan)}`, body: 'Votre abonnement a été mis à jour.' }),
   },
 };
 
