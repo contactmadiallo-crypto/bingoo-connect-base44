@@ -249,7 +249,7 @@ export const PLAN_STRIPE_PRODUCTS = {
 };
 
 export const PLAN_FEATURES = {
-  free:         ['1 profile', '1 protected asset (QR only)', 'Public profile link', 'Basic contact links', 'Social links', 'QR code sharing', 'Save contact', 'Limited analytics preview', '14-day Professional trial to add profiles, assets, or activate NFC', 'After trial/payment ends, paid tools lock and the account returns to Free'],
+  free:         ['1 profile', 'Public profile link', 'Basic contact links', 'Social links', 'QR code sharing', 'Save contact', 'Limited analytics preview', '14-day Professional trial to add profiles, protected assets, or activate NFC', 'After trial/payment ends, paid tools lock and the account returns to Free'],
   professional: ['Everything in Free', 'Up to 5 profiles', 'NFC device activation', 'Unlimited protected assets', 'Analytics Dashboard', 'Portfolio & Gallery', 'Custom Branding', 'QR Code Download', 'Save Contact Button', 'Lost Mode for NFC', 'Calendar View', 'Google Wallet Pass'],
   business:     ['Everything in Professional', 'Appointments & booking', 'Lead capture & management', 'Business Public Profile', 'Design Studio', 'Team Management', 'Services & Product Showcase', 'WhatsApp Booking', 'NFC Counter Stand Compatibility', 'Business Hours', 'Team Member Profiles', 'Customer Inquiries', 'Multi-Profile Management', 'Business QR/NFC Landing', 'Advanced Analytics', 'Lead Export'],
   salon:        ['Everything in Business', 'Salon Business Profile', 'Staff Profiles', 'Services Menu', 'Instagram Gallery', 'Google Reviews', 'WhatsApp Booking', 'NFC Counter Stand', 'Advanced Analytics', 'Lead Export'],
