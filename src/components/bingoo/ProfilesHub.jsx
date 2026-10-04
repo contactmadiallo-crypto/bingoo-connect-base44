@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueries } from "@tanstack/react-query";
-import { Eye, Settings, QrCode, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { Settings, Plus, Copy, Check, Lock, Star, Users, GripVertical, ChevronUp, ChevronDown, Trash2, Mail, Phone } from "lucide-react";
 import { PLAN_LABELS } from "@/lib/planPermissions";
 import { base44 } from "@/api/base44Client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -9,7 +9,6 @@ import { useI18n } from "@/lib/I18nContext";
 import { openExternalUrl } from "@/lib/nativePlatform";
 import DeleteProfileModal from "@/components/bingoo/DeleteProfileModal";
 import { resolveProfileAppearance } from "@/lib/profileLayouts";
-import ProfileLayoutCardPreview from "@/components/bingoo/ProfileLayoutCardPreview";
 
 export default function ProfilesHub({
   profiles = [],
@@ -31,7 +30,6 @@ export default function ProfilesHub({
   const { t, language } = useI18n();
   const tr = (en, fr) => language === 'fr' ? fr : en;
   const [copiedId, setCopiedId] = useState(null);
-  const [expandedQR, setExpandedQR] = useState(null);
   const [trialLoading, setTrialLoading] = useState(false);
   const [settingDefault, setSettingDefault] = useState(null);
   // Optimistic override of the display order (array of profile IDs) while saving.
@@ -272,9 +270,32 @@ export default function ProfilesHub({
         {/* Reorder controls (top-left) */}
         {renderReorderControls(profile, index, dragHandleProps)}
 
-        {/* Real selected-layout preview: same saved layout identity as Live/Public Profile. */}
+        {/* Compact mobile identity header: accent-first, no cover photo. */}
         <div className="p-2 pb-1">
-          <ProfileLayoutCardPreview profile={profile} height={190} compact />
+          <div className="relative overflow-hidden rounded-[15px] border" style={{ minHeight: 146, borderColor: `${appearance.accent}33`, background: `linear-gradient(145deg, ${appearance.accent}18 0%, ${appearance.accent}08 42%, ${isDark ? "#111827" : "#ffffff"} 100%)` }}>
+            <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: appearance.accent }} />
+            <div className="flex items-start gap-3 p-4 pt-5">
+              {profile.profile_photo ? (
+                <img src={profile.profile_photo} alt="" className="w-16 h-16 rounded-2xl object-cover border-2 shadow-sm flex-shrink-0" style={{ borderColor: `${appearance.accent}55` }} />
+              ) : (
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0" style={{ background: `${appearance.accent}18`, color: appearance.accent }}>
+                  {(profile.display_name || profile.username || "B").charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1 pt-0.5">
+                <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide mb-1.5" style={{ background: `${appearance.accent}15`, color: appearance.accent }}>
+                  {profileType}
+                </span>
+                <p className={`font-black text-[17px] leading-tight truncate ${headText}`}>{profile.display_name}</p>
+                {profile.job_title && <p className={`text-[11px] font-bold mt-1 truncate ${subText}`}>{profile.job_title}</p>}
+                <p className={`text-[10px] mt-1 truncate ${mutedText}`}>/{profile.username}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 px-4 pb-4">
+              {profile.phone && <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[9px] font-bold ${isDark ? "bg-white/8 text-white/70" : "bg-white/80 text-slate-600"}`}><Phone className="w-3 h-3" /> {profile.phone}</span>}
+              {profile.email && <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[9px] font-bold max-w-full ${isDark ? "bg-white/8 text-white/70" : "bg-white/80 text-slate-600"}`}><Mail className="w-3 h-3 flex-shrink-0" /><span className="truncate">{profile.email}</span></span>}
+            </div>
+          </div>
         </div>
         <div className="flex items-center justify-end gap-1.5 px-2.5 pb-0.5">
           {profile.is_active && (
@@ -337,35 +358,14 @@ export default function ProfilesHub({
             </button>
           </div>
 
-          {/* Quick Actions */}
-          <div className="flex gap-1 mt-auto pt-1 items-center justify-end">
+          {/* Premium compact actions + always-visible profile QR. */}
+          <div className="mt-auto pt-2 flex items-end gap-2">
+            <div className="flex gap-1 flex-1 items-center">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
-              className="w-[76px] sm:w-[84px] h-8 flex items-center justify-center gap-1.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
+              className="min-w-[84px] h-9 px-3 flex items-center justify-center gap-1.5 rounded-xl text-xs sm:text-sm font-bold text-white transition-all hover:opacity-90 flex-shrink-0"
               style={{ background: "#0b2149" }}>
-              <Settings className="w-3 h-3 flex-shrink-0" /> <span className="truncate">{t("profiles_edit")}</span>
-            </button>
-            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              aria-label={tr('View public profile', 'Voir le profil public')}
-              className="flex items-center justify-center w-8 h-8 sm:w-8 sm:h-8 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
-              style={{
-                background: isDark ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.07)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(59,130,246,0.2)",
-                color: isDark ? "#93c5fd" : "#2563eb",
-              }}>
-              <Eye className="w-3 h-3" />
-            </a>
-            <button
-              onClick={(e) => { e.stopPropagation(); setExpandedQR(expandedQR === profile.id ? null : profile.id); }}
-              aria-label={tr('Show QR code', 'Afficher le code QR')}
-              className="flex items-center justify-center w-8 h-8 sm:w-8 sm:h-8 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
-              style={{
-                background: isDark ? "rgba(255,255,255,0.06)" : "rgba(99,102,241,0.07)",
-                borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(99,102,241,0.2)",
-                color: isDark ? "#a78bfa" : "#6366f1",
-              }}>
-              <QrCode className="w-3 h-3" />
+              <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t("profiles_edit")}</span>
             </button>
             {showDefaultUI && (
               <button
@@ -392,24 +392,19 @@ export default function ProfilesHub({
               onClick={(e) => { e.stopPropagation(); setDeleteTarget(profile); }}
               aria-label={tr('Delete profile', 'Supprimer le profil')}
               title={tr('Delete profile', 'Supprimer le profil')}
-              className="flex items-center justify-center w-8 h-8 sm:w-8 sm:h-8 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
+              className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all hover:opacity-80 flex-shrink-0"
               style={{
                 background: isDark ? "rgba(239,68,68,0.08)" : "rgba(239,68,68,0.05)",
                 borderColor: isDark ? "rgba(248,113,113,0.2)" : "rgba(239,68,68,0.2)",
                 color: isDark ? "#fca5a5" : "#dc2626",
               }}>
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
-          </div>
-
-          {/* QR Expanded */}
-          {expandedQR === profile.id && (
-            <div className={`mt-2 pt-2 border-t text-center ${isDark ? "border-white/8" : "border-slate-100"}`}
-              onClick={(e) => e.stopPropagation()}>
-              <img src={getQrUrl(profile)} alt="QR" className="w-24 h-24 mx-auto rounded-lg" />
-              <p className={`text-xs mt-1.5 ${mutedText}`}>{t("profiles_scan_open")}</p>
             </div>
-          )}
+            <div className={`rounded-xl border p-1.5 flex-shrink-0 ${isDark ? "border-white/10 bg-white" : "border-slate-200 bg-white"}`} onClick={(e) => e.stopPropagation()} title={t("profiles_scan_open")}>
+              <img src={getQrUrl(profile)} alt={tr("Profile QR code", "Code QR du profil")} className="w-14 h-14 rounded-md" />
+            </div>
+          </div>
         </div>
       </div>
     );
