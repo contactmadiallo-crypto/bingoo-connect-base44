@@ -2,8 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { resolveEffectivePlan } from '../../shared/entitlementResolver.ts';
 
 const ALLOWED_TYPES = new Set(['pet','luggage','bag','keys','equipment','vehicle','other']);
-// Free accounts do not include protected assets (Professional feature, available during the 14-day trial).
-const FREE_ASSET_LIMIT = 0;
+// Approved entitlement matrix (owner spec): Free includes exactly 1 protected asset. Professional+ is unlimited.
+// Asset limits are independent of NFC-device activation (Free cannot normally activate NFC).
+const FREE_ASSET_LIMIT = 1;
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return Response.json({ error: 'Method not allowed' }, { status: 405 });
@@ -24,7 +25,7 @@ Deno.serve(async (req) => {
 
     if (plan === 'free' && existing.length >= FREE_ASSET_LIMIT) {
       return Response.json({
-        error: 'Protecting assets is a Professional feature. Start your 14-day Professional trial to add assets.',
+        error: 'Free includes 1 protected asset. Start your 14-day Professional trial to protect unlimited assets.',
         code: 'ASSET_LIMIT_REACHED',
         plan,
         limit: FREE_ASSET_LIMIT,
