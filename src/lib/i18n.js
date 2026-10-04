@@ -141,7 +141,7 @@ export const TRANSLATIONS = {
   core_pricing: { en: "Pricing", fr: "Tarifs" },
   core_shop: { en: "Shop", fr: "Boutique" },
   core_about: { en: "About", fr: "À propos" },
-  core_upgrade_pro: { en: "Upgrade to Pro", fr: "Passer à Pro" },
+  core_upgrade_pro: { en: "Upgrade to Professional", fr: "Passer à Professional" },
   core_upgrade_pro_copy: { en: "Unlock My Assets, NFC Devices, Lost & Found, analytics and more.", fr: "Débloquez Mes actifs, les appareils NFC, Objets perdus, l'analytique et plus encore." },
   core_upgrade_business: { en: "Upgrade to Business", fr: "Passer à Business" },
   core_upgrade_business_copy: { en: "Unlock Engage, Design Studio, services, team tools and more.", fr: "Débloquez Engage, le Studio de design, les services, les outils d'équipe et plus encore." },
