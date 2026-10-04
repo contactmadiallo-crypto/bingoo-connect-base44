@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import PhoneAlertsSection from "@/components/bingoo/PhoneAlertsSection";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { Capacitor } from "@capacitor/core";
 import { useI18n } from "@/lib/I18nContext";
 import { t } from "@/lib/i18n";
 import { Globe2 } from "lucide-react";
@@ -62,44 +63,60 @@ export default function AccountSettings() {
     enabled: !!user?.id,
   });
 
-  const handleExport = async () => {
-    setExporting(true);
-    // Log the export action
-    await base44.entities.ActivityLog.create({
-      user_id: user.id,
-      user_email: user.email,
-      action: "data_exported",
-      description: "User exported their personal data",
-      timestamp: new Date().toISOString(),
-    });
-
-    // Collect all user data
-    const [profiles, devices, leads, appointments] = await Promise.all([
-      base44.entities.Profile.filter({ created_by_id: user.id }),
-      base44.entities.NFCDevice.list(),
-      base44.entities.Lead.list("-created_date", 500),
-      base44.entities.Appointment.list("-created_date", 500),
-    ]);
-
-    const exportData = {
-      exported_at: new Date().toISOString(),
-      account: { id: user.id, email: user.email, full_name: user.full_name, role: user.role },
-      profiles,
-      devices,
-      leads: leads.filter(l => profiles.some(p => p.id === l.profile_id)),
-      appointments: appointments.filter(a => profiles.some(p => p.id === a.profile_id)),
-      activity_logs: activityLogs,
+  // Account archive: built from a server-scoped function (complete, owner-only, no secrets), then packaged
+  // as a ZIP with readable CSVs (leads, appointments, connections) + the full JSON for portability.
+  const toCsv = (rows) => {
+    if (!rows?.length) return "";
+    const cols = Array.from(rows.reduce((set, r) => { Object.keys(r || {}).forEach((k) => set.add(k)); return set; }, new Set()));
+    const esc = (v) => {
+      const raw = v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
+      // Neutralise spreadsheet formula injection from visitor-submitted text
+      const safe = /^[=+\-@\t\r]/.test(raw) ? "'" + raw : raw;
+      return '"' + safe.replace(/"/g, '""') + '"';
     };
+    return [cols.join(","), ...rows.map((r) => cols.map((c) => esc(r[c])).join(","))].join("\n");
+  };
 
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bingoo-data-${user.email}-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success(t("account_export_success",language));
-    setExporting(false);
+  const handleExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const res = await base44.functions.invoke("exportMyData", {});
+      const archive = res?.data?.data;
+      if (!archive) throw new Error(res?.data?.error || "Export failed");
+
+      const { default: JSZip } = await import("jszip");
+      const zip = new JSZip();
+      zip.file("bingoo-account-data.json", JSON.stringify(archive, null, 2));
+      if (archive.leads?.length) zip.file("leads.csv", toCsv(archive.leads));
+      if (archive.appointments?.length) zip.file("appointments.csv", toCsv(archive.appointments));
+      if (archive.saved_connections?.length) zip.file("connections.csv", toCsv(archive.saved_connections));
+      const blob = await zip.generateAsync({ type: "blob" });
+      const fileName = `bingoo-data-${new Date().toISOString().slice(0, 10)}.zip`;
+
+      // Installed Android/iOS app: WebView ignores <a download>, so hand the file to the system share sheet.
+      const file = new File([blob], fileName, { type: "application/zip" });
+      if (Capacitor.isNativePlatform() && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: fileName });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      }
+      toast.success(t("account_export_success", language));
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.error("Data export failed:", error);
+        toast.error(error?.message || t("account_delete_failed", language));
+      }
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
