@@ -10,7 +10,7 @@ import { PLAN_HIERARCHY, PLAN_FEATURES, PLAN_CONFIG, CUSTOMER_PLAN_IDS } from '@
 import { useQuery } from '@tanstack/react-query';
 import { useI18n } from '@/lib/I18nContext';
 import { localizePlanText } from '@/lib/planI18n';
-import { openExternalUrl } from '@/lib/nativePlatform';
+import { openExternalUrl, isInstalledAppShell } from '@/lib/nativePlatform';
 import { useSEO } from '@/hooks/useSEO';
 
 const B = { navy: "#0b2149", orange: "#f97316", gold: "#FDBA21" };
@@ -155,7 +155,8 @@ export default function SubscriptionPricing() {
   return (
     <div className="min-h-screen" style={{ background: '#f8fafc' }}>
       {/* Header */}
-      <div className="sticky top-0 z-20 backdrop-blur-xl border-b"
+      {/* Inside the installed-app shell the fixed app header owns the top edge, so this sticky bar sits below it. */}
+      <div className={`sticky z-20 backdrop-blur-xl border-b ${isInstalledAppShell() ? 'top-[calc(56px+env(safe-area-inset-top))] md:top-[72px]' : 'top-0'}`}
         style={{ background: 'rgba(11,33,73,0.97)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => window.history.back()} className="flex items-center gap-1 text-white/60 hover:text-white transition-colors font-semibold text-sm">

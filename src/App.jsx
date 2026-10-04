@@ -133,8 +133,9 @@ const AuthenticatedApp = () => {
       <Route path="/faq" element={<FAQ />} />
       <Route path="/shop" element={<AdaptiveShopShell><Shop /></AdaptiveShopShell>} />
       <Route path="/product/:productId" element={<AdaptiveShopShell><ProductDetail /></AdaptiveShopShell>} />
-      <Route path="/pricing" element={<SubscriptionPricing />} />
-      <Route path="/plans" element={<SubscriptionPricing />} />
+      {/* Installed app (Android/iOS/PWA): keep the shell (bottom nav + Home/Menu) on the plans page too. Plain web is unchanged. */}
+      <Route path="/pricing" element={<AdaptiveShopShell><SubscriptionPricing /></AdaptiveShopShell>} />
+      <Route path="/plans" element={<AdaptiveShopShell><SubscriptionPricing /></AdaptiveShopShell>} />
       <Route path="/cart" element={<AdaptiveShopShell><Cart /></AdaptiveShopShell>} />
       <Route path="/checkout" element={<AdaptiveShopShell><Checkout /></AdaptiveShopShell>} />
       <Route path="/order-confirmation" element={<AdaptiveShopShell><OrderConfirmation /></AdaptiveShopShell>} />
