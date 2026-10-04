@@ -18,7 +18,6 @@ export default function ProfilesHub({
   onSelectProfile,
   onCreateNew,
   defaultProfileId,
-  onSetDefault,
   // The profile currently active in the dashboard (selectedProfileId ?? default ?? first).
   // Its card shows a "Selected" check at the top.
   activeProfileId,
@@ -109,10 +108,6 @@ export default function ProfilesHub({
 
   const getQrUrl = (profile) =>
     `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicProfileQrUrl(profile.username))}&color=${isDark ? "ffffff" : "1e293b"}&bgcolor=${isDark ? "1e293b" : "f8fafc"}`;
-
-  const titleCase = (value, fallback) => String(value || fallback)
-    .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
   // Start 14-day Professional trial
   const startTrial = async () => {
