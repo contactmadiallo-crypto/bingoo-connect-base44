@@ -194,13 +194,9 @@ export default function ProfilesHub({
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
     const selected = isSelected(profile);
-    const completion = profileCompletion(profile);
     const profileType = titleCase(profile.profile_type, t("profiles_personal"));
     const appearance = resolveProfileAppearance(profile);
     const layoutLabel = `${appearance.recipe.name} ${t("profiles_layout")}`;
-    const profileAnalytics = analyticsByProfile[profile.id] || [];
-    const viewCount = profileAnalytics.filter((event) => event.event_type === "profile_view").length;
-    const tapCount = profileAnalytics.filter((event) => event.event_type === "nfc_tap").length;
 
     return (
       <div
@@ -227,32 +223,9 @@ export default function ProfilesHub({
         {/* Reorder controls (top-left) */}
         {renderReorderControls(profile, index, dragHandleProps)}
 
-        {/* Compact mobile identity header: accent-first, no cover photo. */}
+        {/* The card header uses the exact same layout resolver as Live/Public Profile. */}
         <div className="p-2 pb-1">
-          <div className="relative overflow-hidden rounded-[15px] border" style={{ minHeight: 146, borderColor: `${appearance.accent}33`, background: `linear-gradient(145deg, ${appearance.accent}18 0%, ${appearance.accent}08 42%, ${isDark ? "#111827" : "#ffffff"} 100%)` }}>
-            <div className="absolute inset-x-0 top-0 h-1.5" style={{ background: appearance.accent }} />
-            <div className="flex items-start gap-3 p-4 pt-5">
-              {profile.profile_photo ? (
-                <img src={profile.profile_photo} alt="" className="w-16 h-16 rounded-2xl object-cover border-2 shadow-sm flex-shrink-0" style={{ borderColor: `${appearance.accent}55` }} />
-              ) : (
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-black flex-shrink-0" style={{ background: `${appearance.accent}18`, color: appearance.accent }}>
-                  {(profile.display_name || profile.username || "B").charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0 flex-1 pt-0.5">
-                <span className="inline-flex px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide mb-1.5" style={{ background: `${appearance.accent}15`, color: appearance.accent }}>
-                  {profileType}
-                </span>
-                <p className={`font-black text-[17px] leading-tight truncate ${headText}`}>{profile.display_name}</p>
-                {profile.job_title && <p className={`text-[11px] font-bold mt-1 truncate ${subText}`}>{profile.job_title}</p>}
-                <p className={`text-[10px] mt-1 truncate ${mutedText}`}>/{profile.username}</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5 px-4 pb-4">
-              {profile.phone && <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[9px] font-bold ${isDark ? "bg-white/8 text-white/70" : "bg-white/80 text-slate-600"}`}><Phone className="w-3 h-3" /> {profile.phone}</span>}
-              {profile.email && <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[9px] font-bold max-w-full ${isDark ? "bg-white/8 text-white/70" : "bg-white/80 text-slate-600"}`}><Mail className="w-3 h-3 flex-shrink-0" /><span className="truncate">{profile.email}</span></span>}
-            </div>
-          </div>
+          <ProfileLayoutCardPreview profile={profile} height={168} compact />
         </div>
         <div className="flex items-center justify-end gap-1.5 px-2.5 pb-0.5">
           {profile.is_active && (
@@ -261,62 +234,15 @@ export default function ProfilesHub({
               <span className="text-xs font-semibold text-emerald-500">{t("profiles_live")}</span>
             </span>
           )}
-          <span className="text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-wide"
-            style={{ background: "#ecfdf5", color: "#059669" }}>
-            {profileType}
-          </span>
-        </div>
-
-        {/* Name + username */}
-        <div className="px-2.5 pb-2 sm:px-3 sm:pb-2.5 flex flex-col flex-1">
-          <div className="mb-1">
-            <p className={`font-black text-sm truncate ${headText}`}> {profile.display_name}</p>
-            <p className={`text-xs truncate ${mutedText}`}>/{profile.username}</p>
-          </div>
-
-          {profile.job_title && (
-            <p className={`text-xs font-semibold truncate mb-1.5 ${subText}`}>
-              {profile.job_title}{profile.company_name ? ` · ${profile.company_name}` : ""}
-            </p>
-          )}
-
-          <span className="inline-flex text-[9px] font-bold px-2 py-0.5 rounded-full mb-2"
+          <span className="text-[9px] font-bold px-2 py-0.5 rounded-full truncate"
             style={{ background: isDark ? "rgba(99,102,241,0.16)" : "#eef2ff", color: isDark ? "#a5b4fc" : "#4338ca" }}>
             {layoutLabel}
           </span>
+        </div>
 
-          {completion < 100 && <div className="hidden sm:block mb-2.5">
-            <div className="flex items-center justify-between text-[10px] mb-1">
-              <span className={subText}>{t("profiles_completion")}</span>
-              <span className="font-black text-orange-500">{completion}%</span>
-            </div>
-            <div className={`h-1 rounded-full overflow-hidden ${isDark ? "bg-white/10" : "bg-slate-100"}`}>
-              <div className="h-full rounded-full bg-orange-500" style={{ width: `${completion}%` }} />
-            </div>
-          </div>}
-
-          <div className="hidden sm:grid grid-cols-3 gap-1 mb-1.5">
-            <div className={`rounded-lg px-2.5 py-1 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-sm font-black ${headText}`}>{viewCount}</p><p className={`text-[9px] ${mutedText}`}>{t("profiles_views")}</p>
-            </div>
-            <div className={`rounded-lg px-2.5 py-1 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-sm font-black ${headText}`}>{tapCount}</p><p className={`text-[9px] ${mutedText}`}>{t("profiles_taps")}</p>
-            </div>
-            <div className={`rounded-lg px-2.5 py-1 ${isDark ? "bg-white/[0.05]" : "bg-slate-50"}`}>
-              <p className={`text-xs font-black ${profile.is_active === false ? "text-slate-400" : "text-emerald-500"}`}>{profile.is_active === false ? t("profiles_hidden") : t("profiles_live")}</p>
-              <p className={`text-[9px] ${mutedText}`}>{t("profiles_status")}</p>
-            </div>
-          </div>
-
-          <div className={`hidden sm:flex items-center gap-2 rounded-lg border px-2 py-1 mb-1.5 ${isDark ? "border-white/10 bg-white/[0.03]" : "border-slate-200 bg-slate-50"}`}>
-            <span className={`text-[11px] truncate flex-1 ${subText}`}>/p/{profile.username}</span>
-            <button onClick={(e) => { e.stopPropagation(); copyLink(profile); }} className={`text-[11px] font-bold flex items-center gap-1 ${headText}`}>
-              {copiedId === profile.id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />} Copy
-            </button>
-          </div>
-
-          {/* Premium compact actions + always-visible profile QR. */}
-          <div className="mt-auto pt-2 flex items-end gap-2">
+        {/* Bottom space is reserved for actions + QR; identity/contact details stay in the selected-layout preview above. */}
+        <div className="px-2.5 pb-2 sm:px-3 sm:pb-2.5 flex flex-col flex-1">
+          <div className="mt-auto pt-1.5 flex items-center gap-2">
             <div className="flex gap-1 flex-1 items-center">
             <button
               onClick={(e) => { e.stopPropagation(); handleCardActivate(profile); }}
@@ -324,27 +250,6 @@ export default function ProfilesHub({
               style={{ background: "#0b2149" }}>
               <Settings className="w-3.5 h-3.5 flex-shrink-0" /> <span className="truncate">{t("profiles_edit")}</span>
             </button>
-            {showDefaultUI && (
-              <button
-                onClick={(e) => { e.stopPropagation(); handleSetDefault(profile); }}
-                disabled={settingDefault === profile.id}
-                title={isDefault(profile) ? "Default profile" : "Set as default profile"}
-                aria-label={isDefault(profile) ? "Default profile" : "Set as default profile"}
-                className="flex items-center justify-center w-8 h-8 sm:w-8 sm:h-8 rounded-xl border transition-all hover:opacity-80 flex-shrink-0 disabled:opacity-50"
-                style={{
-                  background: isDefault(profile)
-                    ? (isDark ? "rgba(251,191,36,0.18)" : "rgba(251,191,36,0.12)")
-                    : (isDark ? "rgba(255,255,255,0.06)" : "rgba(251,191,36,0.06)"),
-                  borderColor: isDefault(profile)
-                    ? "rgba(251,191,36,0.4)"
-                    : (isDark ? "rgba(255,255,255,0.1)" : "rgba(251,191,36,0.25)"),
-                  color: isDefault(profile) ? (isDark ? "#fbbf24" : "#b45309") : (isDark ? "#fbbf24" : "#d97706"),
-                }}>
-                {settingDefault === profile.id
-                  ? <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  : <Star className={`w-3 h-3 ${isDefault(profile) ? "fill-current" : ""}`} />}
-              </button>
-            )}
             <button
               onClick={(e) => { e.stopPropagation(); setDeleteTarget(profile); }}
               aria-label={tr('Delete profile', 'Supprimer le profil')}
@@ -359,7 +264,7 @@ export default function ProfilesHub({
             </button>
             </div>
             <div className={`rounded-xl border p-1.5 flex-shrink-0 ${isDark ? "border-white/10 bg-white" : "border-slate-200 bg-white"}`} onClick={(e) => e.stopPropagation()} title={t("profiles_scan_open")}>
-              <img src={getQrUrl(profile)} alt={tr("Profile QR code", "Code QR du profil")} className="w-14 h-14 rounded-md" />
+              <img src={getQrUrl(profile)} alt={tr("Profile QR code", "Code QR du profil")} className="w-12 h-12 rounded-md" />
             </div>
           </div>
         </div>
