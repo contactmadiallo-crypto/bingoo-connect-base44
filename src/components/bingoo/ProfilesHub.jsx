@@ -235,7 +235,6 @@ export default function ProfilesHub({
 
   // ── Render a single profile card (shared between DnD wrapper and non-DnD fallback) ──
   const renderCard = (profile, index, dragHandleProps) => {
-    const profileUrl = publicProfileUrl(profile.username);
     const selected = isSelected(profile);
     const completion = profileCompletion(profile);
     const profileType = titleCase(profile.profile_type, t("profiles_personal"));
