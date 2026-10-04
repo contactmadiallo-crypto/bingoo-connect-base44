@@ -43,7 +43,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
   const { stacks, recordVisitForTab } = useNavigationStack();
 
   const tabs = [
-    { id: 'dashboard', label: lang === 'fr' ? 'Accueil' : 'Dash', icon: House, path: '/bingoo?view=home', owns: ownsDashboard },
+    { id: 'dashboard', label: lang === 'fr' ? 'Accueil' : 'Dash', icon: LayoutGrid, path: '/bingoo?view=home', owns: ownsDashboard },
     { id: 'profiles', label: lang === 'fr' ? 'Profil' : 'Profile', icon: UserRound, path: '/bingoo?view=hub', owns: ownsProfiles },
     { id: 'nfc', label: 'NFC', icon: Radio, path: '/my-nfc-devices', owns: ownsNfc, primary: true },
     { id: 'shop', label: lang === 'fr' ? 'Boutique' : 'Shop', icon: ShoppingBag, path: '/shop', owns: ownsShop },
@@ -154,7 +154,7 @@ export default function BottomNav({ lang = 'en', onMore }) {
         style={{ touchAction: 'manipulation' }}
       >
         <span className="relative w-9 h-9 rounded-[14px] flex items-center justify-center">
-          <LayoutGrid className="w-[21px] h-[21px]" style={{ color: 'rgba(255,255,255,0.52)' }} aria-hidden="true" />
+          <House className="w-[21px] h-[21px]" style={{ color: 'rgba(255,255,255,0.52)' }} aria-hidden="true" />
         </span>
         <span className="text-[10px] font-bold tracking-tight" style={{ color: 'rgba(255,255,255,0.48)' }}>
           Menu
