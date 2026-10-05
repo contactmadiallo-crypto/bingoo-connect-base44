@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { clip, escapeHtml, exceedsRate, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
+import { resolveProfileOwnerId } from '../../shared/profileOwner.ts';
 
 // Public endpoint: a visitor (often anonymous) saw someone's Bingoo profile and wants
 // their own. Creates a ProspectLead plus an in-app notification for the profile owner and
@@ -37,7 +38,7 @@ Deno.serve(async (req) => {
       return Response.json(TOO_MANY_REQUESTS, { status: 429 });
     }
 
-    const ownerUserId = profile?.created_by_id || null;
+    const ownerUserId = await resolveProfileOwnerId(base44, profile);
     const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
 
     // Idempotency: skip if an identical prospect was created in the last 60 seconds
