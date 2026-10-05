@@ -7,13 +7,13 @@ const NAVY = "#0b2149", ORANGE = "#f97316";
 export default function ROIAnalyticsDashboard({ profile, isDark }) {
   const { data: analytics = [] } = useQuery({
     queryKey: ["roi-analytics", profile?.id],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }, "-created_date", 500),
+    queryFn: () => base44.functions.invoke('getMyAnalytics', { profile_id: profile.id }).then(r => r.data?.events || []).catch(() => []),
     enabled: !!profile?.id,
   });
 
   const { data: leads = [] } = useQuery({
     queryKey: ["roi-leads", profile?.id],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id }, "-created_date", 200),
+    queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: profile.id }).then(r => (r.data?.leads || []).slice(0, 200)).catch(() => []),
     enabled: !!profile?.id,
   });
 
