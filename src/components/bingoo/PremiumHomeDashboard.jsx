@@ -119,7 +119,7 @@ export default function PremiumHomeDashboard({
     enabled: ownedProfileIds.length > 0,
     queryFn: async () => {
       const groups = await Promise.all(ownedProfileIds.map((profileId) =>
-        base44.entities.Analytics.filter({ profile_id: profileId }).catch(() => [])
+        base44.functions.invoke("getMyAnalytics", { profile_id: profileId }).then(r => r?.data?.events || []).catch(() => [])
       ));
       return groups.flat();
     },
