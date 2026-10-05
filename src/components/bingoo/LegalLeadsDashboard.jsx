@@ -242,7 +242,7 @@ export default function LegalLeadsDashboard({ profileId, isDark: propDark, onSav
 
   const { data: leads = [], isLoading } = useQuery({
     queryKey: ["legal-leads", profileId],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profileId }, "-created_date"),
+    queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: profileId }).then(r => r.data?.leads || []).catch(() => []),
     enabled: !!profileId,
   });
 
