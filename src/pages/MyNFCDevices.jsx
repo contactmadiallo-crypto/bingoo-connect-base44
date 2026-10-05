@@ -95,7 +95,7 @@ export default function MyNFCDevices() {
     queryKey: ["nfc-analytics-page", user?.id],
     queryFn: async () => {
       const all = await Promise.all(
-        profileIds.map(pid => base44.entities.Analytics.filter({ profile_id: pid, event_type: "nfc_tap" }))
+        profileIds.map(pid => base44.functions.invoke('getMyAnalytics', { profile_id: pid }).then(r => (r.data?.events || []).filter(e => e.event_type === "nfc_tap")).catch(() => []))
       );
       return all.flat();
     },
