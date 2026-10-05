@@ -1,5 +1,44 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
+import { clip, exceedsRate, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
+
+// ── Public input allowlist ──────────────────────────────────────────────────
+// Only fields the public forms actually send. CRM-only fields (description, assigned_attorney_*,
+// timeline_entries, status, owner_user_id, ...) can never be set by a visitor.
+const PUBLIC_SOURCES = new Set(['profile', 'nfc', 'qr', 'referral', 'direct']);
+const CONTACT_METHODS = new Set(['WhatsApp', 'Phone', 'Email']);
+const LEGAL_CATEGORIES = new Set(['Immigration', 'Civil', 'Criminal']);
+const URGENCIES = new Set(['low', 'medium', 'high', 'emergency']);
+const SHORT_TEXT_FIELDS = ['name', 'phone', 'email', 'preferred_language', 'preferred_consult_date', 'legal_service'];
+const INTAKE_FIELDS = [
+  'immigration_a_number', 'immigration_uscis_account', 'immigration_receipt_number', 'immigration_case_number',
+  'immigration_court_date', 'immigration_court_location', 'immigration_current_status', 'immigration_process_type',
+  'immigration_country_of_origin', 'immigration_date_of_entry', 'immigration_manner_of_entry',
+  'immigration_prior_asylum', 'immigration_work_permit_status', 'immigration_detained', 'immigration_prior_removal',
+  'immigration_family_petition', 'immigration_deadlines', 'immigration_notes',
+  'civil_matter_type', 'civil_incident_date', 'civil_incident_location', 'civil_opposing_party', 'civil_case_number',
+  'civil_insurance_claim', 'civil_damages_description', 'civil_court_date',
+  'criminal_charge', 'criminal_arrest_date', 'criminal_court_date', 'criminal_court_location',
+  'criminal_docket_number', 'criminal_precinct', 'criminal_bail_status', 'criminal_prior_history', 'criminal_detained',
+];
+
+function sanitizeLeadInput(body) {
+  const out = {};
+  for (const k of SHORT_TEXT_FIELDS) if (body[k] != null) out[k] = clip(body[k], 200);
+  if (body.message != null) out.message = clip(body.message, 2000);
+  for (const k of INTAKE_FIELDS) if (body[k] != null) out[k] = clip(body[k], 1000);
+  if (PUBLIC_SOURCES.has(body.source)) out.source = body.source;
+  if (CONTACT_METHODS.has(body.preferred_contact_method)) out.preferred_contact_method = body.preferred_contact_method;
+  if (LEGAL_CATEGORIES.has(body.legal_category)) out.legal_category = body.legal_category;
+  if (URGENCIES.has(body.urgency)) out.urgency = body.urgency;
+  if (Array.isArray(body.document_urls)) {
+    out.document_urls = body.document_urls
+      .filter((u) => typeof u === 'string' && /^https:\/\//.test(u))
+      .slice(0, 10)
+      .map((u) => clip(u, 1000));
+  }
+  return out;
+}
 
 // ── Server-side plan entitlement (mirrors getUserFeatures) ──────────────────
 // Professional-tier plans include lead_collection + appointment_booking.
@@ -50,7 +89,8 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const { profile_id, ...formData } = body;
+    const profile_id = clip(body.profile_id, 64);
+    const formData = sanitizeLeadInput(body);
 
     if (!profile_id) {
       return Response.json({ error: 'profile_id is required' }, { status: 400 });
@@ -62,6 +102,20 @@ Deno.serve(async (req) => {
       profile = await base44.asServiceRole.entities.Profile.get(profile_id);
     } catch (e) {
       console.error('Profile lookup failed:', e.message);
+    }
+
+    if (!profile || profile.is_active !== true) {
+      return Response.json({ error: 'Profile not found.' }, { status: 404 });
+    }
+
+    // ── Throttle (DB-backed): per profile, and per identical contact ──
+    const LeadEntity = base44.asServiceRole.entities.Lead;
+    if (await exceedsRate(LeadEntity, { profile_id }, 20, 10 * 60 * 1000)) {
+      return Response.json(TOO_MANY_REQUESTS, { status: 429 });
+    }
+    const contactKey = formData.email ? { email: formData.email } : formData.phone ? { phone: formData.phone } : null;
+    if (contactKey && await exceedsRate(LeadEntity, { profile_id, ...contactKey }, 3, 10 * 60 * 1000)) {
+      return Response.json(TOO_MANY_REQUESTS, { status: 429 });
     }
 
     const ownerUserId = profile?.created_by_id || null;
