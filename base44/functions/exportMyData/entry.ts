@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { listOwnedProfiles } from '../../shared/profileOwner.ts';
 
 /**
  * exportMyData — returns ONLY the authenticated user's own data.
@@ -41,7 +42,8 @@ Deno.serve(async (req) => {
     const sr = base44.asServiceRole.entities;
     const email = String(user.email).toLowerCase();
 
-    const profiles = await fetchAll(sr.Profile, { created_by_id: user.id });
+    // Own profiles = created by the user (older) + active ProfileAccess (server-created).
+    const profiles = await listOwnedProfiles(base44, user.id);
     const profileIds = new Set(profiles.map((p: any) => p.id));
 
     const [devicesByAccount, assets, savedConnections, subscriptions, orders, walletItems, activity] = await Promise.all([
