@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { isProfileOwner } from '../../shared/profileOwner.ts';
 
 const VALID_VERIFICATION_TYPES = new Set(['identity', 'business', 'both']);
 const WEB_PROTOCOLS = ['http:', 'https:'];
@@ -65,7 +66,7 @@ Deno.serve(async (req) => {
     // Ownership (owner-only; admin may act on any profile via explicit path).
     const profile = await base44.asServiceRole.entities.Profile.get(profile_id);
     if (!profile) return Response.json({ error: 'Profile not found' }, { status: 404 });
-    const isOwner = profile.created_by_id === user.id;
+    const isOwner = await isProfileOwner(base44, profile, user);
     if (!isOwner && user.role !== 'admin') {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
