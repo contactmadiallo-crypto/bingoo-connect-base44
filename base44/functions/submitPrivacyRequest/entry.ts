@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { exceedsRate, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
 
 const ALLOWED = new Set(['account_deletion','data_export','data_correction','document_deletion']);
 
@@ -14,6 +15,11 @@ Deno.serve(async (req) => {
     const fullName = String(user?.full_name || body.full_name || '').trim();
     const details = String(body.details || '').trim().slice(0, 5000);
     if (!email || !/\S+@\S+\.\S+/.test(email)) return Response.json({ error: 'Valid email is required' }, { status: 400 });
+
+    // Throttle (DB-backed): max 3 requests per email per hour
+    if (await exceedsRate(base44.asServiceRole.entities.PrivacyRequest, { email }, 3, 60 * 60 * 1000)) {
+      return Response.json(TOO_MANY_REQUESTS, { status: 429 });
+    }
 
     const identityVerified = !!user;
     const record = await base44.asServiceRole.entities.PrivacyRequest.create({
