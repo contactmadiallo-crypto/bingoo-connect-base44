@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { listOwnedProfiles } from '../../shared/profileOwner.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -15,8 +16,9 @@ Deno.serve(async (req) => {
     const freshUser = await base44.asServiceRole.entities.User.get(user.id);
     const ownedProfileIds = freshUser?.owned_profile_ids || [];
 
-    // Also fetch profiles the user created (in case owned_profile_ids is stale)
-    const ownedProfiles = await base44.asServiceRole.entities.Profile.filter({ created_by_id: user.id });
+    // Also fetch profiles the user owns via created_by_id (older profiles) AND via active
+    // ProfileAccess (profiles created by the server function). owned_profile_ids can be stale/missing.
+    const ownedProfiles = await listOwnedProfiles(base44, user.id);
     const ownedProfileIdsFromQuery = ownedProfiles.map(p => p.id);
 
     // Union both sources
