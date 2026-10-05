@@ -409,7 +409,7 @@ export default function BingooDashboard() {
   });
   const { data: analytics = [], isLoading: analyticsLoading } = useQuery({
     queryKey: ["analytics-all", activeProfile?.id],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: activeProfile.id }),
+    queryFn: () => base44.functions.invoke('getMyAnalytics', { profile_id: activeProfile.id }).then(r => r.data?.events || []).catch(() => []),
     enabled: !!activeProfile?.id && ownershipReady,
     staleTime: 30_000,
     refetchOnMount: false,
