@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
+import { clip, escapeHtml, exceedsRate, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
 
 // Public endpoint: a visitor (often anonymous) saw someone's Bingoo profile and wants
 // their own. Creates a ProspectLead plus an in-app notification for the profile owner and
@@ -9,11 +10,12 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const {
-      source_profile_id, source_device_code,
-      visitor_name, visitor_email, visitor_phone,
-      interested_in = 'NFC Card',
-    } = body;
+    const source_profile_id = clip(body.source_profile_id, 64);
+    const source_device_code = clip(body.source_device_code, 64);
+    const visitor_name = clip(body.visitor_name, 200);
+    const visitor_email = clip(body.visitor_email, 200);
+    const visitor_phone = clip(body.visitor_phone, 50);
+    const interested_in = clip(body.interested_in, 100) || 'NFC Card';
 
     if (!source_profile_id) {
       return Response.json({ error: 'source_profile_id is required' }, { status: 400 });
@@ -26,6 +28,15 @@ Deno.serve(async (req) => {
     } catch (e) {
       console.error('Prospect profile lookup failed:', e.message);
     }
+    if (!profile || profile.is_active !== true) {
+      return Response.json({ error: 'Profile not found.' }, { status: 404 });
+    }
+
+    // Throttle (DB-backed): per source profile
+    if (await exceedsRate(base44.asServiceRole.entities.ProspectLead, { source_profile_id }, 20, 10 * 60 * 1000)) {
+      return Response.json(TOO_MANY_REQUESTS, { status: 429 });
+    }
+
     const ownerUserId = profile?.created_by_id || null;
     const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
 
@@ -87,7 +98,7 @@ Deno.serve(async (req) => {
     <p style="color:rgba(255,255,255,0.8);margin:8px 0 0;">Someone liked your profile and wants their own</p>
   </div>
   <div style="background:white;border-radius:12px;padding:20px;border:1px solid #e2e8f0;">
-    <p style="margin:0 0 8px;color:#1e293b;font-size:14px;"><strong>${visitor_name || 'A visitor'}</strong> is interested in: <strong>${interested_in}</strong>.</p>
+    <p style="margin:0 0 8px;color:#1e293b;font-size:14px;"><strong>${escapeHtml(visitor_name) || 'A visitor'}</strong> is interested in: <strong>${escapeHtml(interested_in)}</strong>.</p>
     <p style="margin:0;color:#64748b;font-size:14px;">They've been directed to create their own free profile. This is a great sign your profile is getting noticed!</p>
   </div>
   <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:20px;">Bingoo Connect</p>
