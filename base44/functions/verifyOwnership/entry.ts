@@ -114,7 +114,8 @@ Deno.serve(async (req) => {
       owned,
     });
 
-    return Response.json({ owned, record });
+    // Never hand a record back to someone who does not own it (the caller only needs the verdict).
+    return Response.json(owned ? { owned: true, record } : { owned: false, record: null });
   } catch (error) {
     console.error('verifyOwnership error:', error);
     return Response.json({ owned: false, record: null, error: error.message }, { status: 500 });
