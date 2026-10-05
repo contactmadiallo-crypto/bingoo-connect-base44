@@ -40,13 +40,13 @@ export default function EventModePanel({ profile, isDark }) {
   // Fetch analytics since event started
   const { data: analytics = [] } = useQuery({
     queryKey: ["event-analytics", profile?.id, eventStarted?.getTime()],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }, "-created_date", 500),
+    queryFn: () => base44.functions.invoke('getMyAnalytics', { profile_id: profile.id }).then(r => r.data?.events || []).catch(() => []),
     enabled: !!profile?.id,
   });
 
   const { data: leads = [] } = useQuery({
     queryKey: ["event-leads", profile?.id],
-    queryFn: () => base44.entities.Lead.filter({ profile_id: profile.id, source: "nfc" }, "-created_date", 50),
+    queryFn: () => base44.functions.invoke('getMyLeads', { profile_id: profile.id }).then(r => (r.data?.leads || []).filter(l => l.source === "nfc").slice(0, 50)).catch(() => []),
     enabled: !!profile?.id,
   });
 
