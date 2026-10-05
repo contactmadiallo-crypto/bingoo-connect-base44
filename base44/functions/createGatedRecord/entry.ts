@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { GATED_ENTITIES, validateEntityRecord } from '../../shared/gatedEntityRegistry.ts';
 import { resolveResourceEntitlement } from '../../shared/entitlementResolver.ts';
+import { resolveProfileOwnerId } from '../../shared/profileOwner.ts';
 
 // Max team members per plan — mirrors src/lib/planPermissions.js maxTeamMembers().
 const TEAM_MEMBER_LIMITS = {
@@ -63,10 +64,12 @@ Deno.serve(async (req) => {
     } else {
       const profile = await base44.asServiceRole.entities.Profile.get(scopeId);
       if (!profile) return Response.json({ error: 'Profile not found' }, { status: 404 });
-      if (profile.created_by_id !== user.id && user.role !== 'admin') {
+      // Owner comes from ProfileAccess (created_by_id is the service identity for server-created profiles).
+      const profileOwnerId = await resolveProfileOwnerId(base44, profile);
+      if (profileOwnerId !== user.id && user.role !== 'admin') {
         return Response.json({ error: 'You do not own this profile' }, { status: 403 });
       }
-      const ownerUser = await base44.asServiceRole.entities.User.get(profile.created_by_id).catch(() => null);
+      const ownerUser = profileOwnerId ? await base44.asServiceRole.entities.User.get(profileOwnerId).catch(() => null) : null;
       ownerEmail = ownerUser?.email || null;
     }
 
