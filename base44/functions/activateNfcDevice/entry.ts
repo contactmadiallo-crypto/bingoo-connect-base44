@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.38';
 import { resolveEffectivePlan } from '../../shared/entitlementResolver.ts';
+import { isProfileOwner } from '../../shared/profileOwner.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
     if (!profile) {
       return Response.json({ error: 'Profile not found' }, { status: 404 });
     }
-    if (profile.created_by_id !== user.id && user.role !== 'admin') {
+    if (!(await isProfileOwner(base44, profile, user)) && user.role !== 'admin') {
       return Response.json({ error: 'You do not own this profile' }, { status: 403 });
     }
 
