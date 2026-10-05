@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
+import { isProfileOwner } from '../../shared/profileOwner.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -10,12 +11,12 @@ Deno.serve(async (req) => {
     const profileId = body.profile_id;
     if (!profileId) return Response.json({ error: 'profile_id required' }, { status: 400 });
 
-    // Verify ownership: the profile's created_by_id must match the user (admin bypasses)
+    // Verify ownership via ProfileAccess (created_by_id is the service identity for server-created profiles); admin bypasses
     const profile = await base44.asServiceRole.entities.Profile.get(profileId);
     if (!profile) return Response.json({ error: 'Profile not found' }, { status: 404 });
 
     const isAdmin = user.role === 'admin';
-    const isOwner = profile.created_by_id === user.id;
+    const isOwner = await isProfileOwner(base44, profile, user);
     if (!isOwner && !isAdmin) {
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
