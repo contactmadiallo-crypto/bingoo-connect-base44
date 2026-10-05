@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { pickPublicProfileFields } from '../../shared/profileSanitizer.ts';
+import { resolveEffectivePlan } from '../../shared/entitlementResolver.ts';
+import { resolveProfileOwnerId } from '../../shared/profileOwner.ts';
 
 // Redeploy marker: public profile design/link fields synchronized with shared sanitizer.
 
@@ -86,6 +88,25 @@ Deno.serve(async (req) => {
     publicProfile.button_style = profile.button_style || 'pill';
     publicProfile.button_color = profile.button_color || profile.cover_color || '#0b2149';
     publicProfile.font_style = profile.font_style || 'modern';
+
+    // Plan is needed by the public page to decide WHICH sections/buttons to show (booking button,
+    // law-firm intake, salon services...). The page reads profile.plan, but the public allowlist
+    // does not expose Profile.plan: that value is only set at creation and goes stale after an
+    // upgrade. So resolve the owner's CURRENT plan server-side from their Subscription (the single
+    // source of truth). Display only: booking/lead entitlement is still enforced server-side.
+    try {
+      const ownerId = await resolveProfileOwnerId(base44, profile);
+      const owner = ownerId ? await base44.asServiceRole.entities.User.get(ownerId).catch(() => null) : null;
+      if (owner?.email) {
+        const subs = await base44.asServiceRole.entities.Subscription.filter({ customer_email: owner.email }, '-updated_date', 10);
+        publicProfile.plan = resolveEffectivePlan(subs, owner.email).plan;
+      } else {
+        publicProfile.plan = profile.plan || 'free'; // owner not resolvable (e.g. QA/seed profile)
+      }
+    } catch (planErr) {
+      console.warn(`[getPublicProfile] [${correlationId}] plan resolution failed:`, planErr?.message);
+      publicProfile.plan = 'free';
+    }
 
     return Response.json({ profile: publicProfile });
   } catch (error) {
