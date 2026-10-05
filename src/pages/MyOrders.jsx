@@ -28,7 +28,7 @@ export default function MyOrders() {
   const { language } = useI18n();
   const params = new URLSearchParams(window.location.search);
   const [email, setEmail] = useState(params.get('email') || '');
-  const [orderNumber] = useState(params.get('order') || '');
+  const [orderNumber, setOrderNumber] = useState(params.get('order') || '');
   const [submitted, setSubmitted] = useState('');
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,13 +46,13 @@ export default function MyOrders() {
     if (!lookupEmail.trim()) return;
     setLoading(true); setError('');
     try {
-      const res = await base44.functions.invoke('getMyOrders', { email: lookupEmail.trim(), order_number: orderNumber || undefined });
+      const res = await base44.functions.invoke('getMyOrders', { email: lookupEmail.trim(), order_number: orderNumber.trim() || undefined });
       if (res.data?.error) throw new Error(res.data.error);
       setOrders(res.data?.orders || []);
       setSubmitted(lookupEmail.trim());
       setSearched(true);
     } catch (e) {
-      setError(e.message || t('tracking_load_failed', language)); setOrders([]); setSearched(true);
+      setError(e?.response?.data?.error || e.message || t('tracking_load_failed', language)); setOrders([]); setSearched(true);
     } finally { setLoading(false); }
   };
 
@@ -71,8 +71,10 @@ export default function MyOrders() {
       </div>
       <form onSubmit={e => { e.preventDefault(); findOrders(); }} className="flex flex-col sm:flex-row gap-3 mb-7">
         <Input type="email" placeholder={t("tracking_email_placeholder",language)} value={email} onChange={e=>setEmail(e.target.value)} required className="bg-white"/>
+        <Input type="text" placeholder={language === 'fr' ? 'Numéro de commande (ex. BC-20261005-A1B2C3)' : 'Order number (e.g. BC-20261005-A1B2C3)'} value={orderNumber} onChange={e=>setOrderNumber(e.target.value)} className="bg-white"/>
         <Button disabled={loading} className="bg-orange-500 hover:bg-orange-600 gap-2 min-h-[44px] sm:w-auto w-full"><Search className="w-4 h-4"/>{loading?t('tracking_checking',language):t('tracking_find_order',language)}</Button>
       </form>
+      <p className="-mt-4 mb-6 text-xs text-slate-500">{language === 'fr' ? 'Pas connecté ? Le numéro de commande de votre e-mail de confirmation est obligatoire.' : 'Not signed in? The order number from your confirmation email is required.'}</p>
       {error && <div className="bg-red-50 text-red-700 border border-red-200 rounded-xl p-4 mb-5">{error}</div>}
       {searched && orders.length===0 && <div className="bg-white rounded-2xl border p-10 text-center text-slate-500"><Package className="w-10 h-10 mx-auto mb-3 text-slate-300"/>{t("tracking_none_for",language)} <strong>{submitted}</strong>.</div>}
       <div className="space-y-6">{orders.map(order => {
