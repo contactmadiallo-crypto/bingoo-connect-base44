@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
+import { clip, exceedsRate, EMAIL_RE, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
 
 // ── Server-side plan entitlement (mirrors getUserFeatures) ──────────────────
 // Professional-tier plans include lead_collection + appointment_booking.
@@ -50,20 +51,35 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const body = await req.json();
-    const {
+    let {
       profile_id, visitor_name, visitor_email, visitor_phone,
-      date, time_slot, notes, restricted_emails, duration,
+      date, time_slot, notes, duration,
       service_name, stylist_name, guest_count, case_type, a_number, case_number,
       source = "profile"
     } = body;
 
+    // Bound every free-text value that reaches the DB, the owner's email and Google Calendar.
+    profile_id = clip(profile_id, 64);
+    visitor_name = clip(visitor_name, 200);
+    visitor_email = clip(visitor_email, 200);
+    visitor_phone = clip(visitor_phone, 50);
+    date = date ? clip(date, 10) : date;
+    time_slot = time_slot ? clip(time_slot, 5) : time_slot;
+    notes = clip(notes, 2000);
+    service_name = service_name ? clip(service_name, 200) : service_name;
+    stylist_name = stylist_name ? clip(stylist_name, 200) : stylist_name;
+    case_type = case_type ? clip(case_type, 200) : case_type;
+    a_number = a_number ? clip(a_number, 100) : a_number;
+    case_number = case_number ? clip(case_number, 100) : case_number;
+
     if (!profile_id || !visitor_name || !visitor_email) {
       return Response.json({ error: 'profile_id, visitor_name, and visitor_email are required' }, { status: 400 });
     }
-
-    // Email restriction check
-    if (restricted_emails?.length && !restricted_emails.includes(visitor_email)) {
-      return Response.json({ error: 'Booking is restricted to approved emails only.' }, { status: 403 });
+    if (!EMAIL_RE.test(visitor_email)) {
+      return Response.json({ error: 'A valid visitor_email is required' }, { status: 400 });
+    }
+    if ((date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) || (time_slot && !/^\d{2}:\d{2}$/.test(time_slot))) {
+      return Response.json({ error: 'Invalid date or time slot' }, { status: 400 });
     }
 
     // Fetch profile
@@ -74,6 +90,25 @@ Deno.serve(async (req) => {
       ownerUserId = profile?.created_by_id || null;
     } catch (e) {
       console.error('Profile lookup failed:', e.message);
+    }
+
+    if (!profile || profile.is_active !== true) {
+      return Response.json({ error: 'Profile not found.' }, { status: 404 });
+    }
+
+    // Email restriction: enforced from the stored profile, never from the request body.
+    const restricted = (Array.isArray(profile.booking_restricted_emails) ? profile.booking_restricted_emails : [])
+      .map((e) => String(e).trim().toLowerCase())
+      .filter(Boolean);
+    if (restricted.length && !restricted.includes(visitor_email.toLowerCase())) {
+      return Response.json({ error: 'Booking is restricted to approved emails only.' }, { status: 403 });
+    }
+
+    // ── Throttle (DB-backed): per profile, and per visitor email ──
+    const AppointmentEntity = base44.asServiceRole.entities.Appointment;
+    if (await exceedsRate(AppointmentEntity, { profile_id }, 20, 10 * 60 * 1000)
+      || await exceedsRate(AppointmentEntity, { profile_id, visitor_email }, 3, 10 * 60 * 1000)) {
+      return Response.json(TOO_MANY_REQUESTS, { status: 429 });
     }
 
     // ── Entitlement: owner must have appointment_booking feature + booking_enabled ──
