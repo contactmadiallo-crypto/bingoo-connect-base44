@@ -39,7 +39,7 @@ export default function ProfileQualityScore({ profile, isDark }) {
   const { language } = useI18n();
   const { data: analytics } = useQuery({
     queryKey: ['profile-analytics-quality', profile?.id],
-    queryFn: () => base44.entities.Analytics.filter({ profile_id: profile.id }, '-created_date', 500),
+    queryFn: () => base44.functions.invoke('getMyAnalytics', { profile_id: profile.id }).then(r => r.data?.events || []).catch(() => []),
     enabled: !!profile?.id,
   });
 
