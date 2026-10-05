@@ -63,17 +63,9 @@ export default function AdminDashboard() {
       const owner = allUsers.find(u => u.id === profile.created_by_id || (Array.isArray(u.owned_profile_ids) && u.owned_profile_ids.includes(profile.id)));
       const email = profile.email || owner?.email;
       if (!email) throw new Error(t("admin_no_email", language));
-      const existingSubs = await base44.entities.Subscription.filter({ customer_email: email });
-      const existing = existingSubs?.[0];
-      if (existing?.stripe_subscription_id) {
-        await base44.entities.Subscription.update(existing.id, { plan, plan_source: "admin_override" });
-      } else if (existing) {
-        const status = plan === "free" ? "free" : "active";
-        await base44.entities.Subscription.update(existing.id, { plan, status, plan_source: "admin_override" });
-      } else {
-        const status = plan === "free" ? "free" : "active";
-        await base44.entities.Subscription.create({ customer_email: email, customer_name: profile.display_name || owner?.full_name || "", plan, status, plan_source: "admin_override" });
-      }
+      // Role check + Subscription write happen on the server (adminSetPlan).
+      const res = await base44.functions.invoke("adminSetPlan", { email, plan, customer_name: profile.display_name || owner?.full_name || "" });
+      if (res.data?.error) throw new Error(res.data.error);
       // Subscription is the single source of truth — do NOT write to Profile.plan.
       // Profile.plan is owner-writable and must never be used for entitlement.
     },
