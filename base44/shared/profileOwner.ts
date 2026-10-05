@@ -29,3 +29,30 @@ export async function isProfileOwner(base44: any, profile: any, user: any): Prom
   if (!user?.id) return false;
   return (await resolveProfileOwnerId(base44, profile)) === user.id;
 }
+
+/**
+ * Every profile a user owns: profiles they created themselves (older profiles) plus profiles
+ * where they hold an active ProfileAccess (all profiles created by the server function).
+ * De-duplicated, full Profile records.
+ */
+export async function listOwnedProfiles(base44: any, userId: string): Promise<any[]> {
+  if (!userId) return [];
+  const sr = base44.asServiceRole.entities;
+  const byId = new Map<string, any>();
+  try {
+    for (const p of await sr.Profile.filter({ created_by_id: userId })) byId.set(p.id, p);
+  } catch (e) {
+    console.warn('listOwnedProfiles: created_by_id lookup failed:', (e as Error)?.message);
+  }
+  try {
+    const access = await sr.ProfileAccess.filter({ owner_user_id: userId, access_status: 'active' });
+    for (const a of access || []) {
+      if (!a?.profile_id || byId.has(a.profile_id)) continue;
+      const p = await sr.Profile.get(a.profile_id).catch(() => null);
+      if (p) byId.set(p.id, p);
+    }
+  } catch (e) {
+    console.warn('listOwnedProfiles: ProfileAccess lookup failed:', (e as Error)?.message);
+  }
+  return [...byId.values()];
+}
