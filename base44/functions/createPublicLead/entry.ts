@@ -22,8 +22,8 @@ const INTAKE_FIELDS = [
   'criminal_docket_number', 'criminal_precinct', 'criminal_bail_status', 'criminal_prior_history', 'criminal_detained',
 ];
 
-function sanitizeLeadInput(body) {
-  const out = {};
+function sanitizeLeadInput(body: Record<string, any>): Record<string, any> {
+  const out: Record<string, any> = {};
   for (const k of SHORT_TEXT_FIELDS) if (body[k] != null) out[k] = clip(body[k], 200);
   if (body.message != null) out.message = clip(body.message, 2000);
   for (const k of INTAKE_FIELDS) if (body[k] != null) out[k] = clip(body[k], 1000);
@@ -33,9 +33,9 @@ function sanitizeLeadInput(body) {
   if (URGENCIES.has(body.urgency)) out.urgency = body.urgency;
   if (Array.isArray(body.document_urls)) {
     out.document_urls = body.document_urls
-      .filter((u) => typeof u === 'string' && /^https:\/\//.test(u))
+      .filter((u: unknown) => typeof u === 'string' && /^https:\/\//.test(u))
       .slice(0, 10)
-      .map((u) => clip(u, 1000));
+      .map((u: string) => clip(u, 1000));
   }
   return out;
 }
