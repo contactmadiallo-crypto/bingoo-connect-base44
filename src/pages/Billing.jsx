@@ -123,26 +123,17 @@ export default function Billing() {
     }
   };
 
-  // Admin test switcher — update Subscription entity directly (no Stripe needed)
+  // Admin test switcher — no Stripe needed. The role check and the Subscription write happen
+  // on the server (adminSetPlan); the browser never writes Subscription directly.
   const handleAdminSwitch = async (planId) => {
     setAdminSwitching(planId);
     try {
-      const subs = await base44.entities.Subscription.filter({ customer_email: user.email });
-      if (subs[0]) {
-        await base44.entities.Subscription.update(subs[0].id, {
-          plan: planId,
-          status: 'active',
-          plan_source: 'admin_override',
-        });
-      } else {
-        await base44.entities.Subscription.create({
-          customer_email: user.email,
-          customer_name: user.full_name || '',
-          plan: planId,
-          status: 'active',
-          plan_source: 'admin_override',
-        });
-      }
+      const res = await base44.functions.invoke('adminSetPlan', {
+        email: user.email,
+        plan: planId,
+        customer_name: user.full_name || '',
+      });
+      if (res.data?.error) throw new Error(res.data.error);
       toast({ title: tr('Plan Switched', 'Forfait changé'), description: `${tr('Now testing:', 'Test en cours :')} ${localizePlanText(PLAN_LABELS[planId], language)}` });
       setTimeout(() => window.location.reload(), 800);
     } catch (err) {
