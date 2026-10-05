@@ -45,6 +45,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'A valid order email is required.' }, { status: 400 });
     }
 
+    // Guests (not signed in as this email, not admin) must prove they hold the confirmation:
+    // email AND order number. An email alone must never list someone's orders.
+    const isAdmin = user?.role === 'admin';
+    const isOwnLookup = !!user?.email && email === String(user.email).toLowerCase();
+    if (!isOwnLookup && !isAdmin && !requestedOrder) {
+      return Response.json({ error: 'Enter your email and the order number from your confirmation email.' }, { status: 400 });
+    }
+
     const orders = await base44.asServiceRole.entities.ShopOrder.filter({ customer_email: email }, '-created_date', 100);
     const filtered = requestedOrder
       ? orders.filter(o => String(o.order_number || '').toLowerCase() === requestedOrder.toLowerCase())
