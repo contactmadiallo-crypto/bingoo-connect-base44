@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 import { notifyOwner } from '../../shared/notifyOwner.ts';
 import { clip, exceedsRate, TOO_MANY_REQUESTS } from '../../shared/publicGuards.ts';
+import { resolveProfileOwnerId } from '../../shared/profileOwner.ts';
 
 // ── Public input allowlist ──────────────────────────────────────────────────
 // Only fields the public forms actually send. CRM-only fields (description, assigned_attorney_*,
@@ -118,7 +119,7 @@ Deno.serve(async (req) => {
       return Response.json(TOO_MANY_REQUESTS, { status: 429 });
     }
 
-    const ownerUserId = profile?.created_by_id || null;
+    const ownerUserId = await resolveProfileOwnerId(base44, profile);
     const appOrigin = Deno.env.get('APP_ORIGIN') || 'https://bingooconnect.com';
 
     // ── Entitlement: owner must have lead_collection feature ──
