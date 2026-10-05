@@ -45,36 +45,13 @@ export default function AdminUsersEntitlementsTab({ activeTab }) {
     if (currentPlan === newPlan) return;
     setOverrideLoading(userEmail);
     try {
-      const existing = getSubscription(userEmail);
-      if (existing) {
-        await base44.entities.Subscription.update(existing.id, {
-          plan: newPlan,
-          status: newPlan === 'free' ? 'free' : 'active',
-          plan_source: 'admin_override',
-        });
-      } else {
-        await base44.entities.Subscription.create({
-          customer_email: userEmail,
-          customer_name: (users || []).find(u => u.email === userEmail)?.full_name || userEmail,
-          plan: newPlan,
-          status: newPlan === 'free' ? 'free' : 'active',
-          plan_source: 'admin_override',
-        });
-      }
-
-      // Log to audit
-      await base44.entities.AdminAuditLog.create({
-        action: 'plan_override',
-        performed_by: (await base44.auth.me()).id,
-        performed_by_name: (await base44.auth.me()).full_name,
-        performed_by_email: (await base44.auth.me()).email,
-        target_type: 'Subscription',
-        target_id: existing?.id || userEmail,
-        target_name: userEmail,
-        old_value: currentPlan,
-        new_value: newPlan,
-        notes: `Admin manually set plan to ${newPlan}`,
+      // Role check, Subscription write and the audit-log entry all happen on the server (adminSetPlan).
+      const res = await base44.functions.invoke('adminSetPlan', {
+        email: userEmail,
+        plan: newPlan,
+        customer_name: (users || []).find(u => u.email === userEmail)?.full_name || userEmail,
       });
+      if (res.data?.error) throw new Error(res.data.error);
 
       toast({ title: t("admin_plan_updated_plain",language), description: `${userEmail} → ${newPlan}` });
       queryClient.invalidateQueries({ queryKey: ['admin-subs-all'] });
