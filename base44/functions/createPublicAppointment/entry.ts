@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
 
     // Email restriction: enforced from the stored profile, never from the request body.
     const restricted = (Array.isArray(profile.booking_restricted_emails) ? profile.booking_restricted_emails : [])
-      .map((e) => String(e).trim().toLowerCase())
+      .map((e: unknown) => String(e).trim().toLowerCase())
       .filter(Boolean);
     if (restricted.length && !restricted.includes(visitor_email.toLowerCase())) {
       return Response.json({ error: 'Booking is restricted to approved emails only.' }, { status: 403 });
