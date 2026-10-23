@@ -73,8 +73,7 @@ const FR = {
   sections: [
     ["intro","Introduction",[
       "Bingoo Connect (« nous », « notre » ou « nos ») exploite la plateforme Bingoo Connect sur bingooconnect.com, y compris notre site web, nos applications mobiles, les services de cartes de visite numériques compatibles NFC, la prise de rendez-vous, la gestion des prospects, le portefeuille de documents et la boutique.",
-      "La présente Politique de confidentialité explique comment nous collectons, utilisons, partageons et protégeons vos informations personnelles. En utilisant Bingoo Connect, vous acceptez les pratiques décrites ici.",
-      "Il s’agit d’un projet produit/conformité et non d’un avis juridique. Un avocat devrait l’examiner avant son adoption définitive."
+      "La présente Politique de confidentialité explique comment nous collectons, utilisons, partageons et protégeons vos informations personnelles. En utilisant Bingoo Connect, vous acceptez les pratiques décrites ici."
     ]],
     ["collect","Informations que nous collectons",[
       "2.1 Données de compte et de profil|Nom complet, adresse e-mail et mot de passe (haché — jamais stocké en clair)|Numéro de téléphone et numéro WhatsApp|Photo de profil et photo de couverture|Poste, nom de l’entreprise et bio|URL du site web et liens vers les réseaux sociaux|Adresse physique ou professionnelle si vous choisissez de l’afficher|Liens de paiement|Préférences de langue et de thème",
